@@ -1,0 +1,183 @@
+/*===- JsonParser.ypp -----------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===*/
+%{
+#include <cstring>
+#include <onnc/ADT/StringRef.h>
+#include <onnc/JSON/Array.h>
+#include <onnc/JSON/Reader.h>
+#include <onnc/JSON/Object.h>
+#include <onnc/JSON/Value.h>
+#include <onnc/Diagnostic/MsgHandling.h>
+#include <onnc/Support/Path.h>
+#include <onnc/Support/IOStream.h>
+
+using namespace onnc;
+
+%}
+
+%code requires {
+#include <onnc/JSON/Value.h>
+#include <onnc/JSON/Object.h>
+#include <onnc/JSON/Array.h>
+}
+
+%defines "JsonParser.h"
+%lex-param {void * pScanner}
+%parse-param {const onnc::Path& pFile}
+%parse-param {onnc::json::Value& pRoot}
+%parse-param {void * pScanner}
+%define api.pure
+%name-prefix "json"
+%locations
+
+%start json
+
+%union {
+  // "Pure" types
+  long long int int_v;
+  long double float_v;
+  bool bool_v;
+  bool null_p;
+  char* string_v;
+
+  // Pointers to more complex classes
+  onnc::json::Object* object_p;
+  onnc::json::Array* array_p;
+  onnc::json::Value* value_p;
+}
+
+%code {
+
+int jsonlex(YYSTYPE* , YYLTYPE*, void*);
+
+void setFilePath(const onnc::Path& pPath);
+
+void jsonerror(YYLTYPE*, const onnc::Path&, onnc::json::Value&, void* pScanner, const char* pMsg);
+
+}
+
+/** Declare tokens */
+%token COMMA COLON
+%token SQUARE_BRACKET_L SQUARE_BRACKET_R
+%token CURLY_BRACKET_L CURLY_BRACKET_R
+%token STRING
+%token NUMBER_I NUMBER_F
+%token BOOLEAN
+%token NULL_T
+
+/** Define types for union values */
+%type <string_v> STRING string
+%type <int_v>    NUMBER_I
+%type <float_v>  NUMBER_F
+%type <bool_v>   BOOLEAN
+%type <object_p> object pair
+%type <array_p>  array element
+%type <value_p>  value
+
+%%
+
+// Every json file represents a value.
+json : /** empty file **/
+  | value { pRoot = *$1; delete $1; }
+  ;
+
+// Values rule
+value : NUMBER_I { $$ = new json::Value($1); }
+  | NUMBER_F     { $$ = new json::Value($1); }
+  | BOOLEAN      { $$ = new json::Value($1); }
+  | NULL_T       { $$ = new json::Value(json::NIL); }
+  | string       { $$ = new json::Value($1); }
+  | object       { $$ = new json::Value(*$1); delete $1; }
+  | array        { $$ = new json::Value(*$1); delete $1; }
+  ;
+
+// String rule
+string : STRING {
+    StringRef s($1);
+    s = s.substr(1, s.length()-2);
+    $$ = ::strndup(s.data(), s.length());
+  }
+  ;
+
+// Object rule
+object : CURLY_BRACKET_L pair CURLY_BRACKET_R { $$ = $2; }
+  ;
+
+// Pair rule
+pair: /* empty */ { $$ = new json::Object(); }
+  | string COLON value {
+    $$ = new json::Object();
+    $$->insert($1, *$3);
+  }
+  | pair COMMA string COLON value {
+    $$->insert($3, *$5);
+  }
+  ;
+
+// Array rule
+array : SQUARE_BRACKET_L element SQUARE_BRACKET_R { $$ = $2; }
+  ;
+
+// Element rule
+element : /* empty */ { $$ = new json::Array(); }
+  | value  {
+    $$ = new json::Array();
+    $$->push_back(*$1);
+    delete $1;
+  }
+  | element COMMA value {
+    $$->push_back(*$3);
+    delete $3;
+  }
+  ;
+%%
+
+json::Reader::Result json::Reader::parse(const Path& pPath, Value& pRoot)
+{
+  FILE* file = ::fopen(pPath.c_str(), "r");
+  if (NULL == file)
+    return kCantOpen;
+
+  setFilePath(pPath);
+  this->open(file);
+  int status = jsonparse(pPath, pRoot, m_Scanner);
+  if (0 != status) {
+    error(error_json_incorrect_grammar) << pPath.native();
+    return kIllegal;
+  }
+  ::fclose(file);
+  return kSuccess;
+}
+
+bool json::Reader::read(StringRef pContent, Value& pRoot)
+{
+  load(pContent);
+  Path path("FROM STRING");
+  setFilePath(path);
+
+  int status = jsonparse(path, pRoot, m_Scanner);
+  if (0 != status) {
+    error(error_json_incorrect_grammar) << "given string";
+    return false;
+  }
+  return true;
+}
+
+void jsonerror(YYLTYPE* pLocation,
+               const onnc::Path& pPath,
+               onnc::json::Value& pValue,
+               void* pScanner,
+               const char* pMsg)
+{
+  onnc::error(onnc::error_json_parsing) << pPath.c_str()
+                                                << pLocation->first_line
+                                                << pLocation->first_column
+                                                << pLocation->last_line
+                                                << pLocation->last_column
+                                                << pMsg;
+}

@@ -1,0 +1,112 @@
+/*===- JsonScanner.lpp ----------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===*/
+%option noyywrap
+%option nodefault
+%option debug
+%option yylineno
+%option reentrant
+%option bison-bridge
+%option bison-locations
+%option prefix="json"
+
+%{
+
+#include <onnc/ADT/StringRef.h>
+#include <onnc/JSON/Reader.h>
+#include <onnc/Support/Path.h>
+#include <onnc/Diagnostic/MsgHandling.h>
+#include <cstdio>
+#include "JsonParser.h"
+
+// C++11 deprecates register keyword
+#define register 
+
+// Override error behavior of lex
+#define YY_FATAL_ERROR(msg) fatal_error(msg)
+
+using namespace onnc;
+
+//===----------------------------------------------------------------------===*/
+// Static Variables
+//===----------------------------------------------------------------------===*/
+static onnc::Path g_FilePath;
+
+//===----------------------------------------------------------------------===*/
+// Ordinary Functions
+//===----------------------------------------------------------------------===*/
+/// @param pLocation YYLTYPE has location information.
+/// @param pValue    Current result
+/// @param pMsg      Error message
+void jsonerror(YYLTYPE* pLocation, const onnc::Path&,
+               onnc::json::Value&, const onnc::Path& pPath,
+               void*, const char* pMsg);
+
+static void fatal_error(const char* pMesg);
+
+%}
+
+UNICODE \\u[A-Fa-f0-9]{4}
+ESCAPECHAR \\["\\/bfnrt]
+CHAR [^"\\]|{ESCAPECHAR}|{UNICODE}
+REG_STRING \"{CHAR}*\"
+WHITESPACE [ \t\n]
+
+%%
+
+{REG_STRING}                            { yylval->string_v = yytext; return STRING; }
+"["                                     { return SQUARE_BRACKET_L; }
+"]"                                     { return SQUARE_BRACKET_R; }
+"{"                                     { return CURLY_BRACKET_L; }
+"}"                                     { return CURLY_BRACKET_R; }
+","                                     { return COMMA; }
+":"                                     { return COLON; }
+{WHITESPACE}                            { }
+[-+]?[0-9]+                             { yylval->int_v = atoi(yytext); return NUMBER_I; }
+[-+]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?  { yylval->float_v = atof(yytext); return NUMBER_F; }
+[Tt]rue                                 { yylval->bool_v = true; return BOOLEAN; }
+[Ff]alse                                { yylval->bool_v = false; return BOOLEAN; }
+null                                    { return NULL_T; }
+.                                       {  }
+
+%%
+
+/// The constructor is here because we need to initialize scanner.
+onnc::json::Reader::Reader()
+  : m_Scanner(NULL) {
+  jsonlex_init(&m_Scanner);
+}
+
+/// The destructor is here because we need to destroy scanner.
+onnc::json::Reader::~Reader()
+{
+  jsonlex_destroy(m_Scanner);
+}
+
+void onnc::json::Reader::open(FILE* pFile)
+{
+  jsonrestart(pFile, m_Scanner);
+}
+
+void onnc::json::Reader::load(StringRef pContent)
+{
+  json_switch_to_buffer(yy_scan_string(pContent.data(), m_Scanner), m_Scanner);
+}
+
+//===----------------------------------------------------------------------===*/
+// Non-member function
+//===----------------------------------------------------------------------===*/
+void setFilePath(const onnc::Path& pPath)
+{
+  g_FilePath = pPath;
+}
+
+static void fatal_error(const char* pMesg)
+{
+  onnc::fatal(onnc::fatal_json_scaning) << g_FilePath.c_str()
+                                                << pMesg;
+}
