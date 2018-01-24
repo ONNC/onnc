@@ -5,13 +5,13 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <pat/pat.h>
+#include <skypat/skypat.h>
 #include <cstdlib>
 
 int main(int argc, char* argv[])
 {
-  pat::Test::Initialize(argc, argv);
-  pat::Test::RunAll();
+  skypat::Test::Initialize(&argc, argv);
+  skypat::Test::RunAll();
 
-  return (pat::testing::UnitTest::self()->getNumOfFails() == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
+  return (skypat::testing::UnitTest::self()->getNumOfFails() == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }

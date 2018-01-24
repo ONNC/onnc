@@ -7,7 +7,7 @@ MORE_TEST_SOURCES =
 endif
 
 ONNC_INCLUDES = -I${abs_top_srcdir}/tools/unittests \
-	@LIBONNC_INCLUDES@ @PAT_INCLUDES@
+	@LIBONNC_INCLUDES@ @SKYPAT_INCLUDES@
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
@@ -26,7 +26,7 @@ bin_PROGRAMS = unittests
 
 unittests_LDFLAGS = @LIBONNC_LDFLAGS@
 
-unittests_LDADD = -lonnc @PAT_LIBS@
+unittests_LDADD = -lonnc @SKYPAT_LIBS@
 
 nodist_unittests_SOURCES = main.cpp ${TEST_SOURCES} ${MORE_TEST_SOURCES}
 
