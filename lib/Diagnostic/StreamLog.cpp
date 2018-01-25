@@ -28,7 +28,7 @@ void StreamLog::unreachable(const std::string& pMessage)
   m_OStream.resetColor();
   m_OStream << pMessage << "\n\n";
   m_OStream.changeColor(OStream::YELLOW);
-  m_OStream << "You meet a bug of Skymizer. Please report to:\n"
+  m_OStream << "You meet a bug of ONNC. Please report to:\n"
             << "  bugs@onnc.com\n";
   m_OStream.resetColor();
 }
