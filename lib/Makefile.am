@@ -51,7 +51,17 @@ ONNC_SOURCES = \
   Support/Windows/Path.inc \
   Support/Windows/FileSystem.inc \
   Support/Dragon/Path.inc \
-  Support/Dragon/FileSystem.inc
+  Support/Dragon/FileSystem.inc \
+  Diagnostic/Diagnostic.cpp \
+  Diagnostic/DiagnosticInfoMap.cpp \
+  Diagnostic/Engine.cpp \
+  Diagnostic/GeneralOptions.cpp \
+  Diagnostic/MsgHandler.cpp \
+  Diagnostic/MsgHandling.cpp \
+  Diagnostic/Policy.cpp \
+  Diagnostic/Logger.cpp \
+  Diagnostic/SysLog.cpp \
+  Diagnostic/StreamLog.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 

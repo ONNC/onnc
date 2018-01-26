@@ -31,11 +31,6 @@ static bool operator<(const DiagStaticInfo& pLHS, const DiagStaticInfo& pRHS)
 static const DiagStaticInfo DiagInfo[] = {
 #define DIAG(ENUM, CLASS, MSG) { ::ENUM, CLASS, sizeof(MSG)-1, MSG },
 #include "onnc/Diagnostic/DiagCommonKinds.inc"
-#include "onnc/Diagnostic/DiagMutationKinds.inc"
-#include "onnc/Diagnostic/DiagAinurKinds.inc"
-#include "onnc/Diagnostic/DiagKnightKinds.inc"
-#include "onnc/Diagnostic/DiagGoldKinds.inc"
-#include "onnc/Diagnostic/DiagKingdomKinds.inc"
 #undef DIAG
   { 0, None, 0, 0 }
 };
