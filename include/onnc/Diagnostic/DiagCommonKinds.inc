@@ -1,8 +1,4 @@
 DIAG(generic_note, Note, "%0")
-//
-//                             The ONNC Project
-//
-// See LICENSE.TXT for details.
 DIAG(warning_pthread_create,      Warning, "Thread::start: The pthread_create error: %0")
 DIAG(warning_pthread_join,        Warning, "Unable to join the thread. Code: %0")
 DIAG(warning_cond_wait_error,     Warning, "WaitCondition::wait: unable to wait the mutex. Code: %0")
