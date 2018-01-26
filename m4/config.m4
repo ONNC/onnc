@@ -11,13 +11,13 @@ AC_DEFUN([SETUP_CONFIG_HEADER],
 AH_TOP([
 //===- Config.h.in --------------------------------------------------------===//
 //
-//                               Skymizer
-// Copyright (C) 2012-
-// All rights reserved.
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SKYMIZER_CONFIG_CONFIG_H
-#define SKYMIZER_CONFIG_CONFIG_H
+#ifndef ONNC_CONFIG_CONFIG_H
+#define ONNC_CONFIG_CONFIG_H
 ])
 
 AH_BOTTOM([
