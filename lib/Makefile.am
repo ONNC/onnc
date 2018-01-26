@@ -11,7 +11,47 @@ ONNC_SOURCES = \
 	ADT/IListIterator.cpp \
 	ADT/Rope.cpp \
 	ADT/StringList.cpp \
-	ADT/StringRef.cpp
+	ADT/StringRef.cpp \
+  Support/AsyncPipe.cpp \
+  Support/CArgu.cpp \
+  Support/CArguRef.cpp \
+  Support/CEnv.cpp \
+  Support/Directory.cpp \
+  Support/DirIterator.cpp \
+  Support/ErrorCode.cpp \
+  Support/Environ.cpp \
+  Support/Expansion.cpp \
+  Support/Glob.cpp \
+  Support/IOStream.cpp \
+  Support/IndentOStreamBuf.cpp \
+  Support/ManagedStatic.cpp \
+  Support/MappedFileRegion.cpp \
+  Support/MemoryMap.cpp \
+  Support/Path.cpp \
+  Support/Pipe.cpp \
+  Support/FileHandle.cpp \
+  Support/FileLock.cpp \
+  Support/FileInfo.cpp \
+  Support/FileStatus.cpp \
+  Support/FileSystem.cpp \
+  Support/Timer.cpp \
+  Support/Random.cpp \
+  Support/Readline.cpp \
+  Support/linenoise.cpp \
+  Support/SelfPipe.cpp \
+  Support/Signal.cpp \
+  Support/Unix/AsyncPipe.inc \
+  Support/Unix/Expansion.inc \
+  Support/Unix/Glob.inc \
+  Support/Unix/Path.inc \
+  Support/Unix/Pipe.inc \
+  Support/Unix/FileSystem.inc \
+  Support/Unix/Random.inc \
+  Support/Unix/SelfPipe.inc \
+  Support/Windows/Path.inc \
+  Support/Windows/FileSystem.inc \
+  Support/Dragon/Path.inc \
+  Support/Dragon/FileSystem.inc
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 

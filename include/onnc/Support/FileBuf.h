@@ -8,7 +8,7 @@
 #ifndef ONNC_SUPPORT_FILEBUF_H
 #define ONNC_SUPPORT_FILEBUF_H
 #include <onnc/Support/IOSFwd.h>
-#include <onnc/SkyNamespace.h>
+#include <onnc/Support/FileDescriptor.h>
 #include <streambuf>
 
 namespace onnc {

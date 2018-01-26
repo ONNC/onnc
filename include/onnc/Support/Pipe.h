@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_SUPPORT_PIPE_H
 #define ONNC_SUPPORT_PIPE_H
-#include <onnc/SkyNamespace.h>
+#include <onnc/Support/FileDescriptor.h>
 #include <onnc/Support/ErrorCode.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <unistd.h>

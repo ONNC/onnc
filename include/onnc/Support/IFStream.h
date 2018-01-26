@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_SUPPORT_IFSTREAM_H
 #define ONNC_SUPPORT_IFSTREAM_H
-#include <onnc/SkyNamespace.h>
+#include <onnc/Support/FileDescriptor.h>
 #include <onnc/Support/IOSFwd.h>
 #include <onnc/Support/FileBuf.h>
 #include <onnc/Support/IStream.h>
