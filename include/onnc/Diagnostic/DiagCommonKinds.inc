@@ -1,3 +1,25 @@
+//===- DiagCommon.inc -----------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+// Format:
+//   DIAG(Identity, Severity, Message)
+//
+// Identity:
+//   a. The validate characters are all in lower case: a-z
+//   b. The prefix must be the name of libraries or tools
+//   c. The separator is `_`
+//
+// Severity:
+//   a. Fatal
+//   b. Error
+//   c. Warning
+//   d. Note
+//   e. Unreachable
+//===----------------------------------------------------------------------===//
 DIAG(generic_note, Note, "%0")
 DIAG(warning_pthread_create,      Warning, "Thread::start: The pthread_create error: %0")
 DIAG(warning_pthread_join,        Warning, "Unable to join the thread. Code: %0")
