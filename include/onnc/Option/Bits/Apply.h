@@ -1,17 +1,17 @@
 //===- Apply.h -------------------------------------------------------------===//
 //
-//                               Skymizer
+//                             The ONNC Project
 //
-// Copyright (C) 2013, 2014, Skymizer Inc.. All rights reserved.
+// See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
 // Apply methods transfer the operation to the correct methods.
 //===----------------------------------------------------------------------===//
-#ifndef SKYMIZER_OPTION_BITS_APPLY_H
-#define SKYMIZER_OPTION_BITS_APPLY_H
-#include <skymizer/Option/OptDefs.h>
+#ifndef ONNC_OPTION_BITS_APPLY_H
+#define ONNC_OPTION_BITS_APPLY_H
+#include <onnc/Option/OptDefs.h>
 
-namespace skymizer {
+namespace onnc {
 namespace cl {
 
 //===----------------------------------------------------------------------===//
@@ -90,6 +90,6 @@ void apply(const M& pMethod, O* pOption)
 }
 
 } // namespace of cl
-} // namespace of skymizer
+} // namespace of onnc
 
 #endif
