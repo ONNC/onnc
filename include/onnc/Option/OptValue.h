@@ -9,8 +9,8 @@
 #define ONNC_OPTION_OPTION_VALUE_H
 #include <onnc/ADT/StringRef.h>
 #include <onnc/ADT/StringMap.h>
+#include <onnc/Config/AboutData.h>
 #include <onnc/Option/OptDefs.h>
-#include <onnc/Config/SkyAboutData.h>
 
 namespace onnc {
 namespace cl {
@@ -82,20 +82,20 @@ struct help
 
 struct about
 {
-  about(SkyAboutData& pAbout) : data(&pAbout) { }
+  about(AboutData& pAbout) : data(&pAbout) { }
 
   void apply(OptDefs& pOption) const { data->addBasicOption(pOption); }
 
-  mutable SkyAboutData* data;
+  mutable AboutData* data;
 };
 
 struct advanced
 {
-  advanced(SkyAboutData& pAbout) : data(&pAbout) { }
+  advanced(AboutData& pAbout) : data(&pAbout) { }
 
   void apply(OptDefs& pOption) const { data->addAdvOption(pOption); }
 
-  mutable SkyAboutData* data;
+  mutable AboutData* data;
 };
 
 /// Enum valued command line option

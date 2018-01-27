@@ -8,7 +8,7 @@
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Option/OptionPool.h>
 #include <onnc/ADT/IList.h>
-#include <onnc/Config/SkyGlobal.h>
+#include <onnc/Diagnostic/MsgHandling.h>
 
 using namespace onnc;
 using namespace onnc::cl;
@@ -221,12 +221,11 @@ void onnc::cl::ParseCommandLine(int pArgc, const char* const *pArgv)
       // the option cannot be found in bare_options, it's a positional option
       else {
         if (pos_options.empty()) {
-          global::fatal(Rope("Illegal argument ") + arg +
-                        Rope(".\nNo kPositional options are defined."));
+          fatal(opt_no_pos_def) << arg;
           return;
         }
         if (cur_pos == pos_options.end()) {
-          global::fatal(Rope("Invalid kBare option ") + arg);
+          fatal(opt_illegal_bare) << arg;
           return;
         }
 
@@ -239,7 +238,7 @@ void onnc::cl::ParseCommandLine(int pArgc, const char* const *pArgv)
     else if (arg.equals("-")) {
       // we get a single '-'
       if (NULL == naked_dash) {
-        global::fatal(Rope("Illegal argument '-'"));
+        fatal(opt_undefined_naked_dash);
         return;
       }
       ParseForValues(*naked_dash, name, value, pArgc, pArgv, pos);
@@ -261,13 +260,11 @@ void onnc::cl::ParseCommandLine(int pArgc, const char* const *pArgv)
         OptDefs* guess = pool.guess(name, value);
         Rope message;
         if (NULL == guess) {
-          global::fatal(Rope("Illegal command line argument: \'") +
-                        raw_arg +
-                        Rope("'.\nDid you mean '--'?"));
+          fatal(opt_unknown_not_guess) << raw_arg;
           return;
         }
-        else {
-          Rope prefix;
+        else { // successfully guess
+          std::string prefix;
           switch (guess->getPrefix()) {
             case cl::kParam:
               prefix = "--param ";
@@ -285,9 +282,7 @@ void onnc::cl::ParseCommandLine(int pArgc, const char* const *pArgv)
             case cl::kPositional:
               break;
           } // end of switch
-          global::fatal(Rope("Unknown command line argument: \'") + raw_arg +
-                        Rope("'.\nDid you mean \'") + prefix +
-                        Rope(guess->getArgStr()) + Rope("'?"));
+          fatal(opt_unknown) << raw_arg << prefix << guess->getArgStr();
           return;
         }
         return;

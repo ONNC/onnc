@@ -63,7 +63,13 @@ ONNC_SOURCES = \
   Diagnostic/SysLog.cpp \
   Diagnostic/StreamLog.cpp \
 	Config/AboutLicense.cpp \
-	Config/AboutData.cpp
+	Config/AboutData.cpp \
+  Option/Alias.cpp \
+  Option/CommandLine.cpp \
+  Option/OptDefs.cpp \
+  Option/Option.cpp \
+  Option/OptionPool.cpp \
+  Option/OptParser.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 

@@ -7,12 +7,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_OPTION_OPTION_PARSER_H
 #define ONNC_OPTION_OPTION_PARSER_H
-#include <onnc/Config/SkyGlobal.h>
 #include <onnc/ADT/TriState.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Option/OptValue.h>
 #include <onnc/Support/DataTypes.h>
-#include <onnc/Language/Quadruple.h>
+#include <onnc/Diagnostic/MsgHandling.h>
 #include <string>
 
 namespace onnc {
@@ -52,9 +51,7 @@ public:
     typename ValueMap::entry_type* entry =
                                     m_ValueMap.insert(pValue.getName(), exist);
     if (exist) {
-      global::fatal(Rope("Multiple definitions of cl::Enum(\"") +
-                    pValue.getName() +
-                    Rope("...)!"));
+      fatal(opt_multi_enum) << pValue.getName();
       return;
     }
 
@@ -217,19 +214,6 @@ public:
 public:
   bool parse(const OptDefs& pOption, StringRef pArg, StringRef pValue,
              Path& pResult);
-};
-
-//===----------------------------------------------------------------------===//
-// OptParser<cdl::Quadruple>
-//===----------------------------------------------------------------------===//
-template<>
-class OptParser<cdl::Quadruple>
-{
-public:
-  typedef cdl::Quadruple value_type;
-public:
-  bool parse(const OptDefs& pOption, StringRef pArg, StringRef pValue,
-             cdl::Quadruple& pResult);
 };
 
 } // namespace of cl

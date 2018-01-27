@@ -194,14 +194,3 @@ bool OptParser<Path>::parse(const OptDefs& pOption,
   pResult = pValue.str();
   return true;
 }
-
-//===----------------------------------------------------------------------===//
-// OptParser<Quadruple>
-//===----------------------------------------------------------------------===//
-bool OptParser<cdl::Quadruple>::parse(const OptDefs& pOption,
-                               StringRef pArg, StringRef pValue,
-                               cdl::Quadruple& pResult)
-{
-  pResult = cdl::Quadruple(pValue.str());
-  return true;
-}
