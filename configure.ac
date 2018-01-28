@@ -76,8 +76,9 @@ CHECK_ENABLE_OPTION([clock_gettime], [no], [ENABLE_CLOCK_GETTIME])
 CHECK_ENABLE_OPTION([gettimeofday], [yes], [ENABLE_GETTIMEOFDAY])
 
 ####################
-# Check for variables
+# Check for variables and targets
 CHECK_ONNC
+ENUM_ONNC_TARGETS
 
 ####################
 # OUTPUT
