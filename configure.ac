@@ -85,6 +85,8 @@ ENUM_ONNC_TARGETS
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([include/onnc/Makefile])
+AC_CONFIG_FILES([include/onnc/Config/Platforms.def])
+AC_CONFIG_FILES([include/onnc/Config/Backends.def])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([tools/Makefile])
 AC_CONFIG_FILES([tools/unittests/Makefile])
