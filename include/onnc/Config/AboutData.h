@@ -39,12 +39,6 @@ public:
 
   const std::string& version() const { return m_Version; }
 
-  /// Set up license type and read the license text.
-  /// license text should be put in ${SKYDIR}/${App}/LICENSE.TXT
-  ///
-  /// @param[in] pKey The key of the license.
-  AboutData& setLicense(AboutLicense::Key pType);
-
   AboutData& setLicenseType(AboutLicense::Key pType);
 
   AboutData& setLicenseText(const std::string& pText);

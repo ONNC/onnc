@@ -66,18 +66,6 @@ void AboutData::print(std::ostream& pOS, bool pAdvanced) const
   }
 }
 
-AboutData& AboutData::setLicense(AboutLicense::Key pType)
-{
-  m_License.setLicense(pType);
-
-  Path license_path;
-  // TODO: set system's installation path: license_path(GetONNCDir());
-  license_path.append(this->appName()); 
-  license_path.append("LICENSE.TXT"); 
-  m_License.read(license_path);
-  return *this;
-}
-
 AboutData& AboutData::setLicenseType(AboutLicense::Key pType)
 {
   m_License.setLicense(pType);
