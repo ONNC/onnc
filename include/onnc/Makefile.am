@@ -1,4 +1,6 @@
 nobase_nodist_include_HEADERS = \
+	Core/ObjectWriter.h \
+	Core/Application.h \
 	ADT/Bits/HashBase.tcc \
 	ADT/Bits/HashIterator.tcc \
 	ADT/Bits/HashTable.tcc \

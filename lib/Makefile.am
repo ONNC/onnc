@@ -1,6 +1,7 @@
 INCDIR=../include/onnc
 
 ONNC_SOURCES = \
+	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
 	ADT/Buffer.cpp \
 	ADT/ConstBuffer.cpp \
