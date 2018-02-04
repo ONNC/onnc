@@ -60,10 +60,10 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   ONNC_TARGET_BACKENDS=""
   for target_to_build in $TARGETS_TO_BUILD; do
     if test -d ${srcdir}/lib/Target/${target_to_build} ; then
-      ONNC_TARGET_PLATFORMS="ONNC_TARGET($target_to_build) $ONNC_TARGET_PLATFORMS"
+      ONNC_TARGET_PLATFORMS="ONNC_PLATFORM($target_to_build) $ONNC_TARGET_PLATFORMS"
     fi
     if test -f ${srcdir}/lib/Target/${target_to_build}/*Backend.cpp ; then
-      ONNC_TARGET_BACKENDS="ONNC_LINKER($target_to_build) $ONNC_TARGET_BACKENDS";
+      ONNC_TARGET_BACKENDS="ONNC_BACKEND($target_to_build) $ONNC_TARGET_BACKENDS";
     fi
   done
   AC_SUBST(ONNC_TARGET_PLATFORMS)
