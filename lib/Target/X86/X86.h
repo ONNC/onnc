@@ -14,9 +14,6 @@ namespace onnc {
 class Target;
 class TargetLDBackend;
 
-extern onnc::Target TheX86_32Target;
-extern onnc::Target TheX86_64Target;
-
 TargetBackend* CreateX86Backend(const CompilerConfig& pConfig);
 
 }  // namespace onnc

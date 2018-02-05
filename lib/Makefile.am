@@ -3,6 +3,10 @@ INCDIR=../include/onnc
 ONNC_SOURCES = \
 	Target/Target.cpp \
 	Target/TargetRegistry.cpp \
+	Target/Sophon/SophonBackend.cpp \
+	Target/Sophon/TargetInfo/SophonTargetInfo.cpp \
+	Target/X86/X86Backend.cpp \
+	Target/X86/TargetInfo/X86TargetInfo.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
 	ADT/Buffer.cpp \
