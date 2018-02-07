@@ -7,6 +7,7 @@ ONNC_SOURCES = \
 	Target/Sophon/TargetInfo/SophonTargetInfo.cpp \
 	Target/X86/X86Backend.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp \
+	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
 	ADT/Buffer.cpp \

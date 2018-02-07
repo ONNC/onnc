@@ -76,3 +76,5 @@ DIAG(cannot_drop_group_previliges, Fatal,  "unable to drop group privileges: %0"
 DIAG(cannot_drop_user_previliges, Fatal,   "unable to drop user privileges: %0")
 DIAG(cannot_add_event,            Unreachable, "cannot add event %0 in the event loop: %1")
 DIAG(cassette_object_dup_key,     Warning, "key `%0` has been inserted in cassette Object")
+DIAG(core_pass_no_print,          Error,   "Pass::print not implemented for pass: '%0'!")
+DIAG(core_pass_no_name,           Error,   "Pass::getPassName not implemented for pass!")
