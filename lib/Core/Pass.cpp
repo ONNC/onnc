@@ -33,3 +33,8 @@ void Pass::dump()
 {
   print(errs(), nullptr);
 }
+
+void Pass::getAnalysisUsage(AnalysisUsage& pUsage) const
+{
+  // By default, no analysis results are used, all are invalidated.
+}

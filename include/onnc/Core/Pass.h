@@ -13,6 +13,8 @@
 
 namespace onnc {
 
+class AnalysisUsage;
+
 /** \class onnc::Pass
  *  \brief encapsulate transformation algorithms.
  */
@@ -64,6 +66,9 @@ public:
 
   /// A convenient function to print to stderr.
   void dump();
+
+  /// This function should be overriden by passes that need analysis information.
+  virtual void getAnalysisUsage(AnalysisUsage& pUsage) const;
 
 private:
   Kind m_Kind;
