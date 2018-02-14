@@ -5,8 +5,10 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_ADT_LIST_DIGRAPH_H
-#define ONNC_ADT_LIST_DIGRAPH_H
+#ifndef ONNC_ADT_DIGRAPH_H
+#define ONNC_ADT_DIGRAPH_H
+#include <onnc/ADT/DigraphNode.h>
+#include <onnc/ADT/DigraphArc.h>
 #include <vector>
 
 namespace onnc {
@@ -27,30 +29,12 @@ namespace onnc {
  *  Query adjacency | O(E)       | O(#(fan-in) + #(fan-out))
  *
  */
+template<typename NodeType, typename ArcType>
 class Digraph
 {
 public:
-  struct Node;
-  struct Arc;
-
-  struct Node {
-  public:
-    Node();
-
-  public:
-    Node *prev, *next;
-    Arc *first_in, *first_out;
-  };
-
-  struct Arc {
-  public:
-    Arc();
-
-  public:
-    Node *target, *source;
-    Arc *prev_in, *next_in;
-    Arc *prev_out, *next_out;
-  };
+  typedef NodeType Node;
+  typedef ArcType  Arc;
 
 public:
   Digraph();
@@ -69,6 +53,10 @@ public:
 
   void getHead(Node*& pNode) const { pNode = m_pNodeHead; }
 
+  unsigned int getNodeSize() const { return m_NodeList.size(); }
+
+  unsigned int getArcSize() const { return m_ArcList.size(); }
+
 private:
   typedef std::vector<Node> NodeList;
   typedef std::vector<Arc> ArcList;
@@ -81,6 +69,8 @@ private:
   NodeList m_NodeList;
   ArcList m_ArcList;
 };
+
+#include "Bits/Digraph.tcc"
 
 } // namespace onnc
 

@@ -11,11 +11,11 @@ ONNC_SOURCES = \
 	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
+	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \
 	ADT/ConstBuffer.cpp \
 	ADT/Any.cpp \
 	ADT/Color.cpp \
-	ADT/Digraph.cpp \
 	ADT/TypeTag.cpp \
 	ADT/IList.cpp \
 	ADT/IListIterator.cpp \
