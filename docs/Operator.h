@@ -1,5 +1,6 @@
-
-
+#include <list>
+#include <vector>
+#include <string>
 
 namespace onnc {
 namespace onnx {
@@ -22,7 +23,12 @@ namespace onnx {
 
 // XXX: Resource owner!?
 
-class StringRef;
+// XXX: StringRef
+// class StringRef;
+typedef ::std::string StringRef;
+class Operator;
+class Use;
+
 class Value {
  public:
   StringRef getName();
@@ -47,7 +53,7 @@ class Use {
 };
 class Operator {
  public:
-  Operator(StringRef p_names): names(p_names);
+  Operator(StringRef p_name): name(p_name) {}
   // TODO: Operator Type
   StringRef getName();
   Value *getInput(unsigned index);
@@ -58,8 +64,21 @@ class Operator {
   std::vector<Value> *outputs;
 };
 
+template<typename T>
 class Tensor: public Value {
 };
 
+// XXX: AttrType
+namespace AttrType {
+class INT {};
+class FLOAT {};
+class STRING {};
+class TENSOR {};
+class GRAPH {};
+class INTS {};
+class FLOATS {};
+class STRINGS {};
 }
-}
+
+} // namespace onnx
+} // namespace onnc
