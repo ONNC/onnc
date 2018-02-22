@@ -38,6 +38,8 @@ class Add: public Operator {
   AttrType::INT attr_axis();
   AttrType::INT attr_broadcast();
 
+  AttrType::INT getAttrAxis() const;
+
   // TODO: setter
   T input_A();
   T input_B();

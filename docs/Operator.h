@@ -3,7 +3,7 @@
 #include <string>
 
 namespace onnc {
-namespace onnx {
+namespace tensor {
 
 
 // Outputs(OValue1, OValue2, ...) Operator1 (Inputs(IValue1, IValue2, ...))
@@ -28,40 +28,62 @@ namespace onnx {
 typedef ::std::string StringRef;
 class Operator;
 class Use;
+class Define;
 
 class Value {
  public:
   StringRef getName();
+
   // TODO: Program input?
-  Operator* getDefine();
+  Define* getDefine();
+
   unsigned getDefineNo();
+
   // TODO: Iterator
   std::list<Use> *getUses();
+
   void replaceAllUsesWith(Value *v);
+
  private:
-  Operator* define;
+  Define* define;
   std::list<Use> *uses;
 };
+
+class Define
+{
+public:
+  // TODO: Operator Type
+  StringRef getName();
+
+private:
+  StringRef name;
+};
+
 class Use {
  public:
   Value *get();
-  Operator *getUser();
+  Define* getUser();
+
   unsigned getOperandNo() const;
+
  private:
-  Operator *user;
+  Define *user;
+  unsigned int operand_num;
   Value *value;
 };
-class Operator {
- public:
+
+class Operator : public Define
+{
+public:
   Operator(StringRef p_name): name(p_name) {}
-  // TODO: Operator Type
-  StringRef getName();
+
   Value *getInput(unsigned index);
+
   Value *getOutput(unsigned index);
+
  private:
-  StringRef name;
-  std::vector<Value> *inputs;
-  std::vector<Value> *outputs;
+  std::vector<Value*> inputs;
+  std::vector<Value*> outputs;
 };
 
 template<typename T>
