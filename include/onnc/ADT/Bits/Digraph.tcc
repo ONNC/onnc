@@ -14,14 +14,21 @@ Digraph<NodeType, ArcType>::Digraph()
 }
 
 template<typename NodeType, typename ArcType>
+Digraph<NodeType, ArcType>::~Digraph()
+{
+  clear();
+}
+
+template<typename NodeType, typename ArcType>
+template<class ... NodeCtorParams>
 typename Digraph<NodeType, ArcType>::Node*
-Digraph<NodeType, ArcType>::addNode()
+Digraph<NodeType, ArcType>::addNode(NodeCtorParams&& ... pParams)
 {
   // 1. find an available free node
   Node* result = nullptr;
   if (nullptr == m_pFreeNodeHead) {
-    m_NodeList.emplace_back();
-    result = &m_NodeList.back();
+    result = new NodeType(pParams...);
+    m_NodeList.push_back(result);
   }
   else {
     result = m_pFreeNodeHead;
@@ -42,14 +49,15 @@ Digraph<NodeType, ArcType>::addNode()
 }
 
 template<typename NodeType, typename ArcType>
+template<typename ... ArcCtorParams>
 typename Digraph<NodeType, ArcType>::Arc*
-Digraph<NodeType, ArcType>::addArc(Node& pU, Node& pV)
+Digraph<NodeType, ArcType>::addArc(Node& pU, Node& pV, ArcCtorParams&& ... pParams)
 {
   // 1. find an available free arc
   Arc* result = nullptr;
   if (nullptr == m_pFreeArcHead) {
-    m_ArcList.emplace_back();
-    result = &m_ArcList.back();
+    result = new ArcType(pParams...);
+    m_ArcList.push_back(result);
   }
   else {
     result = m_pFreeArcHead;
@@ -155,6 +163,17 @@ void Digraph<NodeType, ArcType>::clear()
   m_pNodeHead = nullptr;
   m_pFreeNodeHead = nullptr;
   m_pFreeArcHead = nullptr;
+
+  // delete all nodes
+  typename NodeList::iterator node, nEnd = m_NodeList.end();
+  for (node = m_NodeList.begin(); node != nEnd; ++node)
+    delete *node;
+
+  // delete all arcs
+  typename ArcList::iterator arc, aEnd = m_ArcList.end();
+  for (arc = m_ArcList.begin(); arc != aEnd; ++arc)
+    delete *arc;
+
   m_NodeList.clear();
   m_ArcList.clear();
 }

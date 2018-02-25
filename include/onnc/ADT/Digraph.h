@@ -39,11 +39,18 @@ public:
 public:
   Digraph();
 
-  Node* addNode();
+  virtual ~Digraph();
 
-  Arc* addArc(Node& pU, Node& pV);
+  template<typename ... NodeCtorParams>
+  Node* addNode(NodeCtorParams&& ... pParams);
 
-  Arc* connect(Node& pU, Node& pV) { return addArc(pU, pV); }
+  template<typename ... ArcCtorParams>
+  Arc* addArc(Node& pU, Node& pV, ArcCtorParams&& ... pParams);
+
+  template<typename ... ArcCtorParams>
+  Arc* connect(Node& pU, Node& pV, ArcCtorParams&& ... pParams) {
+    return addArc(pU, pV, pParams...);
+  }
 
   void erase(Node& pNode);
 
@@ -58,8 +65,8 @@ public:
   unsigned int getArcSize() const { return m_ArcList.size(); }
 
 private:
-  typedef std::vector<Node> NodeList;
-  typedef std::vector<Arc> ArcList;
+  typedef std::vector<Node*> NodeList;
+  typedef std::vector<Arc*> ArcList;
 
 private:
   Node* m_pNodeHead;
