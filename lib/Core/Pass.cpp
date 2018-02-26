@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Core/Pass.h>
+#include <onnc/Core/ModulePass.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 
@@ -37,4 +38,12 @@ void Pass::dump()
 void Pass::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
   // By default, no analysis results are used, all are invalidated.
+}
+
+//===----------------------------------------------------------------------===//
+// ModulePass
+//===----------------------------------------------------------------------===//
+ModulePass::~ModulePass()
+{
+  // Force out-of-line virtual method.
 }
