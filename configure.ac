@@ -90,6 +90,8 @@ AC_CONFIG_FILES([include/onnc/Config/Backends.def])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([tools/Makefile])
 AC_CONFIG_FILES([tools/unittests/Makefile])
+AC_CONFIG_FILES([tools/unittests/bitmain/Makefile])
+AC_CONFIG_FILES([tools/unittests/bitmain/bmkernel_test/Makefile])
 AC_CONFIG_FILES([tools/onnc/Makefile])
 
 AC_OUTPUT

@@ -1,4 +1,5 @@
 if ENABLE_UNITTEST
+SUBDIRS = bitmain
 TEST_SOURCES = DigraphTest.cpp
 endif
 

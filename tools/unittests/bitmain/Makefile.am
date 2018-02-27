@@ -1,0 +1,2 @@
+
+SUBDIRS = bmkernel_test
