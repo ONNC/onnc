@@ -6,7 +6,7 @@
 #include "Operator.h"
 
 namespace onnc {
-namespace onnx {
+namespace tensor {
 
 // TODO: Type Constraints
 // T: tensor(float16), tensor(float), tensor(double)
@@ -19,9 +19,9 @@ class Abs: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -31,24 +31,22 @@ class Abs: public Operator {
 template<typename T>
 class Add: public Operator {
  public:
-  Add(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Add"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Add(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Add"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Add() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
-
-  AttrType::INT getAttrAxis() const;
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T output_C();
+  T OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -57,22 +55,22 @@ class Add: public Operator {
 template<typename T, typename T1>
 class And: public Operator {
  public:
-  And(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("And"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  And(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("And"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~And() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T1 output_C();
+  T1 OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -80,21 +78,21 @@ class And: public Operator {
 template<typename T>
 class ArgMax: public Operator {
  public:
-  ArgMax(AttrType::INT attr_axis, AttrType::INT attr_keepdims):
-    Operator("ArgMax"), attr_axis_(attr_axis), attr_keepdims_(attr_keepdims) {};
+  ArgMax(AttrType::INT AttrAxis_, AttrType::INT AttrKeepdims_):
+    Operator("ArgMax"), AttrAxis(AttrAxis_), AttrKeepdims(AttrKeepdims_) {};
   ~ArgMax() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_keepdims();
+  AttrType::INT getAxis();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  Tensor<int32_t> output_reduced();
+  Tensor<int32_t> OutputReduced();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -102,21 +100,21 @@ class ArgMax: public Operator {
 template<typename T>
 class ArgMin: public Operator {
  public:
-  ArgMin(AttrType::INT attr_axis, AttrType::INT attr_keepdims):
-    Operator("ArgMin"), attr_axis_(attr_axis), attr_keepdims_(attr_keepdims) {};
+  ArgMin(AttrType::INT AttrAxis_, AttrType::INT AttrKeepdims_):
+    Operator("ArgMin"), AttrAxis(AttrAxis_), AttrKeepdims(AttrKeepdims_) {};
   ~ArgMin() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_keepdims();
+  AttrType::INT getAxis();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  Tensor<int32_t> output_reduced();
+  Tensor<int32_t> OutputReduced();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -124,25 +122,25 @@ class ArgMin: public Operator {
 template<typename T>
 class AveragePool: public Operator {
  public:
-  AveragePool(AttrType::STRING attr_auto_pad, AttrType::INTS attr_kernel_shape, AttrType::INTS attr_pads, AttrType::INTS attr_strides):
-    Operator("AveragePool"), attr_auto_pad_(attr_auto_pad), attr_kernel_shape_(attr_kernel_shape), attr_pads_(attr_pads), attr_strides_(attr_strides) {};
+  AveragePool(AttrType::STRING AttrAutoPad_, AttrType::INTS AttrKernelShape_, AttrType::INTS AttrPads_, AttrType::INTS AttrStrides_):
+    Operator("AveragePool"), AttrAutoPad(AttrAutoPad_), AttrKernelShape(AttrKernelShape_), AttrPads(AttrPads_), AttrStrides(AttrStrides_) {};
   ~AveragePool() {};
 
-  AttrType::STRING attr_auto_pad();
-  AttrType::INTS attr_kernel_shape();
-  AttrType::INTS attr_pads();
-  AttrType::INTS attr_strides();
+  AttrType::STRING getAutoPad();
+  AttrType::INTS getKernelShape();
+  AttrType::INTS getPads();
+  AttrType::INTS getStrides();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::STRING attr_auto_pad_;
-  AttrType::INTS attr_kernel_shape_;
-  AttrType::INTS attr_pads_;
-  AttrType::INTS attr_strides_;
+  AttrType::STRING AttrAutoPad;
+  AttrType::INTS AttrKernelShape;
+  AttrType::INTS AttrPads;
+  AttrType::INTS AttrStrides;
 };
 
 // TODO: Type Constraints
@@ -150,33 +148,33 @@ class AveragePool: public Operator {
 template<typename T>
 class BatchNormalization: public Operator {
  public:
-  BatchNormalization(AttrType::FLOAT attr_epsilon, AttrType::INT attr_is_test, AttrType::FLOAT attr_momentum, AttrType::INT attr_spatial):
-    Operator("BatchNormalization"), attr_epsilon_(attr_epsilon), attr_is_test_(attr_is_test), attr_momentum_(attr_momentum), attr_spatial_(attr_spatial) {};
+  BatchNormalization(AttrType::FLOAT AttrEpsilon_, AttrType::INT AttrIsTest_, AttrType::FLOAT AttrMomentum_, AttrType::INT AttrSpatial_):
+    Operator("BatchNormalization"), AttrEpsilon(AttrEpsilon_), AttrIsTest(AttrIsTest_), AttrMomentum(AttrMomentum_), AttrSpatial(AttrSpatial_) {};
   ~BatchNormalization() {};
 
-  AttrType::FLOAT attr_epsilon();
-  AttrType::INT attr_is_test();
-  AttrType::FLOAT attr_momentum();
-  AttrType::INT attr_spatial();
+  AttrType::FLOAT getEpsilon();
+  AttrType::INT getIsTest();
+  AttrType::FLOAT getMomentum();
+  AttrType::INT getSpatial();
 
   // TODO: setter
-  T input_X();
-  T input_scale();
-  T input_B();
-  T input_mean();
-  T input_var();
+  T InputX();
+  T InputScale();
+  T InputB();
+  T InputMean();
+  T InputVar();
 
-  T output_Y();
-  std::experimental::optional<T> output_mean();
-  std::experimental::optional<T> output_var();
-  std::experimental::optional<T> output_saved_mean();
-  std::experimental::optional<T> output_saved_var();
+  T OutputY();
+  std::experimental::optional<T> OutputMean();
+  std::experimental::optional<T> OutputVar();
+  std::experimental::optional<T> OutputSavedMean();
+  std::experimental::optional<T> OutputSavedVar();
 
  private:
-  AttrType::FLOAT attr_epsilon_;
-  AttrType::INT attr_is_test_;
-  AttrType::FLOAT attr_momentum_;
-  AttrType::INT attr_spatial_;
+  AttrType::FLOAT AttrEpsilon;
+  AttrType::INT AttrIsTest;
+  AttrType::FLOAT AttrMomentum;
+  AttrType::INT AttrSpatial;
 };
 
 // TODO: Type Constraints
@@ -185,19 +183,19 @@ class BatchNormalization: public Operator {
 template<typename T1, typename T2>
 class Cast: public Operator {
  public:
-  Cast(AttrType::STRING attr_to):
-    Operator("Cast"), attr_to_(attr_to) {};
+  Cast(AttrType::STRING AttrTo_):
+    Operator("Cast"), AttrTo(AttrTo_) {};
   ~Cast() {};
 
-  AttrType::STRING attr_to();
+  AttrType::STRING getTo();
 
   // TODO: setter
-  T1 input_input();
+  T1 InputInput();
 
-  T2 output_output();
+  T2 OutputOutput();
 
  private:
-  AttrType::STRING attr_to_;
+  AttrType::STRING AttrTo;
 };
 
 // TODO: Type Constraints
@@ -211,9 +209,9 @@ class Ceil: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -223,21 +221,21 @@ class Ceil: public Operator {
 template<typename T>
 class Clip: public Operator {
  public:
-  Clip(AttrType::FLOAT attr_max, AttrType::FLOAT attr_min):
-    Operator("Clip"), attr_max_(attr_max), attr_min_(attr_min) {};
+  Clip(AttrType::FLOAT AttrMax_, AttrType::FLOAT AttrMin_):
+    Operator("Clip"), AttrMax(AttrMax_), AttrMin(AttrMin_) {};
   ~Clip() {};
 
-  AttrType::FLOAT attr_max();
-  AttrType::FLOAT attr_min();
+  AttrType::FLOAT getMax();
+  AttrType::FLOAT getMin();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::FLOAT attr_max_;
-  AttrType::FLOAT attr_min_;
+  AttrType::FLOAT AttrMax;
+  AttrType::FLOAT AttrMin;
 };
 
 // TODO: Type Constraints
@@ -245,19 +243,19 @@ class Clip: public Operator {
 template<typename T>
 class Concat: public Operator {
  public:
-  Concat(AttrType::INT attr_axis):
-    Operator("Concat"), attr_axis_(attr_axis) {};
+  Concat(AttrType::INT AttrAxis_):
+    Operator("Concat"), AttrAxis(AttrAxis_) {};
   ~Concat() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  std::list<T> input_inputs();
+  std::list<T> InputInputs();
 
-  T output_concat_result();
+  T OutputConcatResult();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -265,18 +263,18 @@ class Concat: public Operator {
 template<typename T>
 class Constant: public Operator {
  public:
-  Constant(AttrType::TENSOR attr_value):
-    Operator("Constant"), attr_value_(attr_value) {};
+  Constant(AttrType::TENSOR AttrValue_):
+    Operator("Constant"), AttrValue(AttrValue_) {};
   ~Constant() {};
 
-  AttrType::TENSOR attr_value();
+  AttrType::TENSOR getValue();
 
   // TODO: setter
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::TENSOR attr_value_;
+  AttrType::TENSOR AttrValue;
 };
 
 // TODO: Type Constraints
@@ -284,31 +282,31 @@ class Constant: public Operator {
 template<typename T>
 class Conv: public Operator {
  public:
-  Conv(AttrType::STRING attr_auto_pad, AttrType::INTS attr_dilations, AttrType::INT attr_group, AttrType::INTS attr_kernel_shape, AttrType::INTS attr_pads, AttrType::INTS attr_strides):
-    Operator("Conv"), attr_auto_pad_(attr_auto_pad), attr_dilations_(attr_dilations), attr_group_(attr_group), attr_kernel_shape_(attr_kernel_shape), attr_pads_(attr_pads), attr_strides_(attr_strides) {};
+  Conv(AttrType::STRING AttrAutoPad_, AttrType::INTS AttrDilations_, AttrType::INT AttrGroup_, AttrType::INTS AttrKernelShape_, AttrType::INTS AttrPads_, AttrType::INTS AttrStrides_):
+    Operator("Conv"), AttrAutoPad(AttrAutoPad_), AttrDilations(AttrDilations_), AttrGroup(AttrGroup_), AttrKernelShape(AttrKernelShape_), AttrPads(AttrPads_), AttrStrides(AttrStrides_) {};
   ~Conv() {};
 
-  AttrType::STRING attr_auto_pad();
-  AttrType::INTS attr_dilations();
-  AttrType::INT attr_group();
-  AttrType::INTS attr_kernel_shape();
-  AttrType::INTS attr_pads();
-  AttrType::INTS attr_strides();
+  AttrType::STRING getAutoPad();
+  AttrType::INTS getDilations();
+  AttrType::INT getGroup();
+  AttrType::INTS getKernelShape();
+  AttrType::INTS getPads();
+  AttrType::INTS getStrides();
 
   // TODO: setter
-  T input_X();
-  T input_W();
-  std::experimental::optional<T> input_B();
+  T InputX();
+  T InputW();
+  std::experimental::optional<T> InputB();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::STRING attr_auto_pad_;
-  AttrType::INTS attr_dilations_;
-  AttrType::INT attr_group_;
-  AttrType::INTS attr_kernel_shape_;
-  AttrType::INTS attr_pads_;
-  AttrType::INTS attr_strides_;
+  AttrType::STRING AttrAutoPad;
+  AttrType::INTS AttrDilations;
+  AttrType::INT AttrGroup;
+  AttrType::INTS AttrKernelShape;
+  AttrType::INTS AttrPads;
+  AttrType::INTS AttrStrides;
 };
 
 // TODO: Type Constraints
@@ -316,35 +314,35 @@ class Conv: public Operator {
 template<typename T>
 class ConvTranspose: public Operator {
  public:
-  ConvTranspose(AttrType::STRING attr_auto_pad, AttrType::INTS attr_dilations, AttrType::INT attr_group, AttrType::INTS attr_kernel_shape, AttrType::INTS attr_output_padding, AttrType::INTS attr_output_shape, AttrType::INTS attr_pads, AttrType::INTS attr_strides):
-    Operator("ConvTranspose"), attr_auto_pad_(attr_auto_pad), attr_dilations_(attr_dilations), attr_group_(attr_group), attr_kernel_shape_(attr_kernel_shape), attr_output_padding_(attr_output_padding), attr_output_shape_(attr_output_shape), attr_pads_(attr_pads), attr_strides_(attr_strides) {};
+  ConvTranspose(AttrType::STRING AttrAutoPad_, AttrType::INTS AttrDilations_, AttrType::INT AttrGroup_, AttrType::INTS AttrKernelShape_, AttrType::INTS AttrOutputPadding_, AttrType::INTS AttrOutputShape_, AttrType::INTS AttrPads_, AttrType::INTS AttrStrides_):
+    Operator("ConvTranspose"), AttrAutoPad(AttrAutoPad_), AttrDilations(AttrDilations_), AttrGroup(AttrGroup_), AttrKernelShape(AttrKernelShape_), AttrOutputPadding(AttrOutputPadding_), AttrOutputShape(AttrOutputShape_), AttrPads(AttrPads_), AttrStrides(AttrStrides_) {};
   ~ConvTranspose() {};
 
-  AttrType::STRING attr_auto_pad();
-  AttrType::INTS attr_dilations();
-  AttrType::INT attr_group();
-  AttrType::INTS attr_kernel_shape();
-  AttrType::INTS attr_output_padding();
-  AttrType::INTS attr_output_shape();
-  AttrType::INTS attr_pads();
-  AttrType::INTS attr_strides();
+  AttrType::STRING getAutoPad();
+  AttrType::INTS getDilations();
+  AttrType::INT getGroup();
+  AttrType::INTS getKernelShape();
+  AttrType::INTS getOutputPadding();
+  AttrType::INTS getOutputShape();
+  AttrType::INTS getPads();
+  AttrType::INTS getStrides();
 
   // TODO: setter
-  T input_X();
-  T input_W();
-  std::experimental::optional<T> input_B();
+  T InputX();
+  T InputW();
+  std::experimental::optional<T> InputB();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::STRING attr_auto_pad_;
-  AttrType::INTS attr_dilations_;
-  AttrType::INT attr_group_;
-  AttrType::INTS attr_kernel_shape_;
-  AttrType::INTS attr_output_padding_;
-  AttrType::INTS attr_output_shape_;
-  AttrType::INTS attr_pads_;
-  AttrType::INTS attr_strides_;
+  AttrType::STRING AttrAutoPad;
+  AttrType::INTS AttrDilations;
+  AttrType::INT AttrGroup;
+  AttrType::INTS AttrKernelShape;
+  AttrType::INTS AttrOutputPadding;
+  AttrType::INTS AttrOutputShape;
+  AttrType::INTS AttrPads;
+  AttrType::INTS AttrStrides;
 };
 
 // TODO: Type Constraints
@@ -352,19 +350,19 @@ class ConvTranspose: public Operator {
 template<typename T>
 class DepthToSpace: public Operator {
  public:
-  DepthToSpace(AttrType::INT attr_blocksize):
-    Operator("DepthToSpace"), attr_blocksize_(attr_blocksize) {};
+  DepthToSpace(AttrType::INT AttrBlocksize_):
+    Operator("DepthToSpace"), AttrBlocksize(AttrBlocksize_) {};
   ~DepthToSpace() {};
 
-  AttrType::INT attr_blocksize();
+  AttrType::INT getBlocksize();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_blocksize_;
+  AttrType::INT AttrBlocksize;
 };
 
 // TODO: Type Constraints
@@ -372,22 +370,22 @@ class DepthToSpace: public Operator {
 template<typename T>
 class Div: public Operator {
  public:
-  Div(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Div"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Div(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Div"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Div() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T output_C();
+  T OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -395,22 +393,22 @@ class Div: public Operator {
 template<typename T>
 class Dropout: public Operator {
  public:
-  Dropout(AttrType::INT attr_is_test, AttrType::FLOAT attr_ratio):
-    Operator("Dropout"), attr_is_test_(attr_is_test), attr_ratio_(attr_ratio) {};
+  Dropout(AttrType::INT AttrIsTest_, AttrType::FLOAT AttrRatio_):
+    Operator("Dropout"), AttrIsTest(AttrIsTest_), AttrRatio(AttrRatio_) {};
   ~Dropout() {};
 
-  AttrType::INT attr_is_test();
-  AttrType::FLOAT attr_ratio();
+  AttrType::INT getIsTest();
+  AttrType::FLOAT getRatio();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_output();
-  std::experimental::optional<T> output_mask();
+  T OutputOutput();
+  std::experimental::optional<T> OutputMask();
 
  private:
-  AttrType::INT attr_is_test_;
-  AttrType::FLOAT attr_ratio_;
+  AttrType::INT AttrIsTest;
+  AttrType::FLOAT AttrRatio;
 };
 
 // TODO: Type Constraints
@@ -418,19 +416,19 @@ class Dropout: public Operator {
 template<typename T>
 class Elu: public Operator {
  public:
-  Elu(AttrType::FLOAT attr_alpha):
-    Operator("Elu"), attr_alpha_(attr_alpha) {};
+  Elu(AttrType::FLOAT AttrAlpha_):
+    Operator("Elu"), AttrAlpha(AttrAlpha_) {};
   ~Elu() {};
 
-  AttrType::FLOAT attr_alpha();
+  AttrType::FLOAT getAlpha();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
+  AttrType::FLOAT AttrAlpha;
 };
 
 // TODO: Type Constraints
@@ -439,22 +437,22 @@ class Elu: public Operator {
 template<typename T, typename T1>
 class Equal: public Operator {
  public:
-  Equal(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Equal"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Equal(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Equal"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Equal() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T1 output_C();
+  T1 OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -468,9 +466,9 @@ class Exp: public Operator {
 
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
 };
@@ -480,19 +478,19 @@ class Exp: public Operator {
 template<typename T>
 class Flatten: public Operator {
  public:
-  Flatten(AttrType::INT attr_axis):
-    Operator("Flatten"), attr_axis_(attr_axis) {};
+  Flatten(AttrType::INT AttrAxis_):
+    Operator("Flatten"), AttrAxis(AttrAxis_) {};
   ~Flatten() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -506,9 +504,9 @@ class Floor: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -519,39 +517,39 @@ class Floor: public Operator {
 template<typename T, typename T1>
 class GRU: public Operator {
  public:
-  GRU(AttrType::FLOATS attr_activation_alpha, AttrType::FLOATS attr_activation_beta, AttrType::STRINGS attr_activations, AttrType::FLOAT attr_clip, AttrType::STRING attr_direction, AttrType::INT attr_hidden_size, AttrType::INT attr_linear_before_reset, AttrType::INT attr_output_sequence):
-    Operator("GRU"), attr_activation_alpha_(attr_activation_alpha), attr_activation_beta_(attr_activation_beta), attr_activations_(attr_activations), attr_clip_(attr_clip), attr_direction_(attr_direction), attr_hidden_size_(attr_hidden_size), attr_linear_before_reset_(attr_linear_before_reset), attr_output_sequence_(attr_output_sequence) {};
+  GRU(AttrType::FLOATS AttrActivationAlpha_, AttrType::FLOATS AttrActivationBeta_, AttrType::STRINGS AttrActivations_, AttrType::FLOAT AttrClip_, AttrType::STRING AttrDirection_, AttrType::INT AttrHiddenSize_, AttrType::INT AttrLinearBeforeReset_, AttrType::INT AttrOutputSequence_):
+    Operator("GRU"), AttrActivationAlpha(AttrActivationAlpha_), AttrActivationBeta(AttrActivationBeta_), AttrActivations(AttrActivations_), AttrClip(AttrClip_), AttrDirection(AttrDirection_), AttrHiddenSize(AttrHiddenSize_), AttrLinearBeforeReset(AttrLinearBeforeReset_), AttrOutputSequence(AttrOutputSequence_) {};
   ~GRU() {};
 
-  AttrType::FLOATS attr_activation_alpha();
-  AttrType::FLOATS attr_activation_beta();
-  AttrType::STRINGS attr_activations();
-  AttrType::FLOAT attr_clip();
-  AttrType::STRING attr_direction();
-  AttrType::INT attr_hidden_size();
-  AttrType::INT attr_linear_before_reset();
-  AttrType::INT attr_output_sequence();
+  AttrType::FLOATS getActivationAlpha();
+  AttrType::FLOATS getActivationBeta();
+  AttrType::STRINGS getActivations();
+  AttrType::FLOAT getClip();
+  AttrType::STRING getDirection();
+  AttrType::INT getHiddenSize();
+  AttrType::INT getLinearBeforeReset();
+  AttrType::INT getOutputSequence();
 
   // TODO: setter
-  T input_X();
-  T input_W();
-  T input_R();
-  std::experimental::optional<T> input_B();
-  std::experimental::optional<T1> input_sequence_lens();
-  std::experimental::optional<T> input_initial_h();
+  T InputX();
+  T InputW();
+  T InputR();
+  std::experimental::optional<T> InputB();
+  std::experimental::optional<T1> InputSequenceLens();
+  std::experimental::optional<T> InputInitialH();
 
-  std::experimental::optional<T> output_Y();
-  std::experimental::optional<T> output_Y_h();
+  std::experimental::optional<T> OutputY();
+  std::experimental::optional<T> OutputYH();
 
  private:
-  AttrType::FLOATS attr_activation_alpha_;
-  AttrType::FLOATS attr_activation_beta_;
-  AttrType::STRINGS attr_activations_;
-  AttrType::FLOAT attr_clip_;
-  AttrType::STRING attr_direction_;
-  AttrType::INT attr_hidden_size_;
-  AttrType::INT attr_linear_before_reset_;
-  AttrType::INT attr_output_sequence_;
+  AttrType::FLOATS AttrActivationAlpha;
+  AttrType::FLOATS AttrActivationBeta;
+  AttrType::STRINGS AttrActivations;
+  AttrType::FLOAT AttrClip;
+  AttrType::STRING AttrDirection;
+  AttrType::INT AttrHiddenSize;
+  AttrType::INT AttrLinearBeforeReset;
+  AttrType::INT AttrOutputSequence;
 };
 
 // TODO: Type Constraints
@@ -560,20 +558,20 @@ class GRU: public Operator {
 template<typename T, typename Tind>
 class Gather: public Operator {
  public:
-  Gather(AttrType::INT attr_axis):
-    Operator("Gather"), attr_axis_(attr_axis) {};
+  Gather(AttrType::INT AttrAxis_):
+    Operator("Gather"), AttrAxis(AttrAxis_) {};
   ~Gather() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  T input_data();
-  Tind input_indices();
+  T InputData();
+  Tind InputIndices();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -581,29 +579,29 @@ class Gather: public Operator {
 template<typename T>
 class Gemm: public Operator {
  public:
-  Gemm(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_beta, AttrType::INT attr_broadcast, AttrType::INT attr_transA, AttrType::INT attr_transB):
-    Operator("Gemm"), attr_alpha_(attr_alpha), attr_beta_(attr_beta), attr_broadcast_(attr_broadcast), attr_transA_(attr_transA), attr_transB_(attr_transB) {};
+  Gemm(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrBeta_, AttrType::INT AttrBroadcast_, AttrType::INT AttrTransa_, AttrType::INT AttrTransb_):
+    Operator("Gemm"), AttrAlpha(AttrAlpha_), AttrBeta(AttrBeta_), AttrBroadcast(AttrBroadcast_), AttrTransa(AttrTransa_), AttrTransb(AttrTransb_) {};
   ~Gemm() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_beta();
-  AttrType::INT attr_broadcast();
-  AttrType::INT attr_transA();
-  AttrType::INT attr_transB();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getBeta();
+  AttrType::INT getBroadcast();
+  AttrType::INT getTransa();
+  AttrType::INT getTransb();
 
   // TODO: setter
-  T input_A();
-  T input_B();
-  T input_C();
+  T InputA();
+  T InputB();
+  T InputC();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_beta_;
-  AttrType::INT attr_broadcast_;
-  AttrType::INT attr_transA_;
-  AttrType::INT attr_transB_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrBeta;
+  AttrType::INT AttrBroadcast;
+  AttrType::INT AttrTransa;
+  AttrType::INT AttrTransb;
 };
 
 // TODO: Type Constraints
@@ -617,9 +615,9 @@ class GlobalAveragePool: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -629,19 +627,19 @@ class GlobalAveragePool: public Operator {
 template<typename T>
 class GlobalLpPool: public Operator {
  public:
-  GlobalLpPool(AttrType::INT attr_p):
-    Operator("GlobalLpPool"), attr_p_(attr_p) {};
+  GlobalLpPool(AttrType::INT AttrP_):
+    Operator("GlobalLpPool"), AttrP(AttrP_) {};
   ~GlobalLpPool() {};
 
-  AttrType::INT attr_p();
+  AttrType::INT getP();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::INT attr_p_;
+  AttrType::INT AttrP;
 };
 
 // TODO: Type Constraints
@@ -655,9 +653,9 @@ class GlobalMaxPool: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -668,22 +666,22 @@ class GlobalMaxPool: public Operator {
 template<typename T, typename T1>
 class Greater: public Operator {
  public:
-  Greater(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Greater"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Greater(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Greater"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Greater() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T1 output_C();
+  T1 OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -691,21 +689,21 @@ class Greater: public Operator {
 template<typename T>
 class HardSigmoid: public Operator {
  public:
-  HardSigmoid(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_beta):
-    Operator("HardSigmoid"), attr_alpha_(attr_alpha), attr_beta_(attr_beta) {};
+  HardSigmoid(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrBeta_):
+    Operator("HardSigmoid"), AttrAlpha(AttrAlpha_), AttrBeta(AttrBeta_) {};
   ~HardSigmoid() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_beta();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getBeta();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_beta_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrBeta;
 };
 
 // TODO: Type Constraints
@@ -713,19 +711,19 @@ class HardSigmoid: public Operator {
 template<typename T>
 class Hardmax: public Operator {
  public:
-  Hardmax(AttrType::INT attr_axis):
-    Operator("Hardmax"), attr_axis_(attr_axis) {};
+  Hardmax(AttrType::INT AttrAxis_):
+    Operator("Hardmax"), AttrAxis(AttrAxis_) {};
   ~Hardmax() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -733,21 +731,21 @@ class Hardmax: public Operator {
 template<typename T>
 class InstanceNormalization: public Operator {
  public:
-  InstanceNormalization(AttrType::FLOAT attr_epsilon):
-    Operator("InstanceNormalization"), attr_epsilon_(attr_epsilon) {};
+  InstanceNormalization(AttrType::FLOAT AttrEpsilon_):
+    Operator("InstanceNormalization"), AttrEpsilon(AttrEpsilon_) {};
   ~InstanceNormalization() {};
 
-  AttrType::FLOAT attr_epsilon();
+  AttrType::FLOAT getEpsilon();
 
   // TODO: setter
-  T input_input();
-  T input_scale();
-  T input_B();
+  T InputInput();
+  T InputScale();
+  T InputB();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::FLOAT attr_epsilon_;
+  AttrType::FLOAT AttrEpsilon;
 };
 
 // TODO: Type Constraints
@@ -755,25 +753,25 @@ class InstanceNormalization: public Operator {
 template<typename T>
 class LRN: public Operator {
  public:
-  LRN(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_beta, AttrType::FLOAT attr_bias, AttrType::INT attr_size):
-    Operator("LRN"), attr_alpha_(attr_alpha), attr_beta_(attr_beta), attr_bias_(attr_bias), attr_size_(attr_size) {};
+  LRN(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrBeta_, AttrType::FLOAT AttrBias_, AttrType::INT AttrSize_):
+    Operator("LRN"), AttrAlpha(AttrAlpha_), AttrBeta(AttrBeta_), AttrBias(AttrBias_), AttrSize(AttrSize_) {};
   ~LRN() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_beta();
-  AttrType::FLOAT attr_bias();
-  AttrType::INT attr_size();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getBeta();
+  AttrType::FLOAT getBias();
+  AttrType::INT getSize();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_beta_;
-  AttrType::FLOAT attr_bias_;
-  AttrType::INT attr_size_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrBeta;
+  AttrType::FLOAT AttrBias;
+  AttrType::INT AttrSize;
 };
 
 // TODO: Type Constraints
@@ -782,42 +780,42 @@ class LRN: public Operator {
 template<typename T, typename T1>
 class LSTM: public Operator {
  public:
-  LSTM(AttrType::FLOATS attr_activation_alpha, AttrType::FLOATS attr_activation_beta, AttrType::STRINGS attr_activations, AttrType::FLOAT attr_clip, AttrType::STRING attr_direction, AttrType::INT attr_hidden_size, AttrType::INT attr_input_forget, AttrType::INT attr_output_sequence):
-    Operator("LSTM"), attr_activation_alpha_(attr_activation_alpha), attr_activation_beta_(attr_activation_beta), attr_activations_(attr_activations), attr_clip_(attr_clip), attr_direction_(attr_direction), attr_hidden_size_(attr_hidden_size), attr_input_forget_(attr_input_forget), attr_output_sequence_(attr_output_sequence) {};
+  LSTM(AttrType::FLOATS AttrActivationAlpha_, AttrType::FLOATS AttrActivationBeta_, AttrType::STRINGS AttrActivations_, AttrType::FLOAT AttrClip_, AttrType::STRING AttrDirection_, AttrType::INT AttrHiddenSize_, AttrType::INT AttrInputForget_, AttrType::INT AttrOutputSequence_):
+    Operator("LSTM"), AttrActivationAlpha(AttrActivationAlpha_), AttrActivationBeta(AttrActivationBeta_), AttrActivations(AttrActivations_), AttrClip(AttrClip_), AttrDirection(AttrDirection_), AttrHiddenSize(AttrHiddenSize_), AttrInputForget(AttrInputForget_), AttrOutputSequence(AttrOutputSequence_) {};
   ~LSTM() {};
 
-  AttrType::FLOATS attr_activation_alpha();
-  AttrType::FLOATS attr_activation_beta();
-  AttrType::STRINGS attr_activations();
-  AttrType::FLOAT attr_clip();
-  AttrType::STRING attr_direction();
-  AttrType::INT attr_hidden_size();
-  AttrType::INT attr_input_forget();
-  AttrType::INT attr_output_sequence();
+  AttrType::FLOATS getActivationAlpha();
+  AttrType::FLOATS getActivationBeta();
+  AttrType::STRINGS getActivations();
+  AttrType::FLOAT getClip();
+  AttrType::STRING getDirection();
+  AttrType::INT getHiddenSize();
+  AttrType::INT getInputForget();
+  AttrType::INT getOutputSequence();
 
   // TODO: setter
-  T input_X();
-  T input_W();
-  T input_R();
-  std::experimental::optional<T> input_B();
-  std::experimental::optional<T1> input_sequence_lens();
-  std::experimental::optional<T> input_initial_h();
-  std::experimental::optional<T> input_initial_c();
-  std::experimental::optional<T> input_P();
+  T InputX();
+  T InputW();
+  T InputR();
+  std::experimental::optional<T> InputB();
+  std::experimental::optional<T1> InputSequenceLens();
+  std::experimental::optional<T> InputInitialH();
+  std::experimental::optional<T> InputInitialC();
+  std::experimental::optional<T> InputP();
 
-  std::experimental::optional<T> output_Y();
-  std::experimental::optional<T> output_Y_h();
-  std::experimental::optional<T> output_Y_c();
+  std::experimental::optional<T> OutputY();
+  std::experimental::optional<T> OutputYH();
+  std::experimental::optional<T> OutputYC();
 
  private:
-  AttrType::FLOATS attr_activation_alpha_;
-  AttrType::FLOATS attr_activation_beta_;
-  AttrType::STRINGS attr_activations_;
-  AttrType::FLOAT attr_clip_;
-  AttrType::STRING attr_direction_;
-  AttrType::INT attr_hidden_size_;
-  AttrType::INT attr_input_forget_;
-  AttrType::INT attr_output_sequence_;
+  AttrType::FLOATS AttrActivationAlpha;
+  AttrType::FLOATS AttrActivationBeta;
+  AttrType::STRINGS AttrActivations;
+  AttrType::FLOAT AttrClip;
+  AttrType::STRING AttrDirection;
+  AttrType::INT AttrHiddenSize;
+  AttrType::INT AttrInputForget;
+  AttrType::INT AttrOutputSequence;
 };
 
 // TODO: Type Constraints
@@ -825,19 +823,19 @@ class LSTM: public Operator {
 template<typename T>
 class LeakyRelu: public Operator {
  public:
-  LeakyRelu(AttrType::FLOAT attr_alpha):
-    Operator("LeakyRelu"), attr_alpha_(attr_alpha) {};
+  LeakyRelu(AttrType::FLOAT AttrAlpha_):
+    Operator("LeakyRelu"), AttrAlpha(AttrAlpha_) {};
   ~LeakyRelu() {};
 
-  AttrType::FLOAT attr_alpha();
+  AttrType::FLOAT getAlpha();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
+  AttrType::FLOAT AttrAlpha;
 };
 
 // TODO: Type Constraints
@@ -846,22 +844,22 @@ class LeakyRelu: public Operator {
 template<typename T, typename T1>
 class Less: public Operator {
  public:
-  Less(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Less"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Less(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Less"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Less() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T1 output_C();
+  T1 OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -875,9 +873,9 @@ class Log: public Operator {
 
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
 };
@@ -887,19 +885,19 @@ class Log: public Operator {
 template<typename T>
 class LogSoftmax: public Operator {
  public:
-  LogSoftmax(AttrType::INT attr_axis):
-    Operator("LogSoftmax"), attr_axis_(attr_axis) {};
+  LogSoftmax(AttrType::INT AttrAxis_):
+    Operator("LogSoftmax"), AttrAxis(AttrAxis_) {};
   ~LogSoftmax() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -907,21 +905,21 @@ class LogSoftmax: public Operator {
 template<typename T>
 class LpNormalization: public Operator {
  public:
-  LpNormalization(AttrType::INT attr_axis, AttrType::INT attr_p):
-    Operator("LpNormalization"), attr_axis_(attr_axis), attr_p_(attr_p) {};
+  LpNormalization(AttrType::INT AttrAxis_, AttrType::INT AttrP_):
+    Operator("LpNormalization"), AttrAxis(AttrAxis_), AttrP(AttrP_) {};
   ~LpNormalization() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_p();
+  AttrType::INT getAxis();
+  AttrType::INT getP();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_p_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrP;
 };
 
 // TODO: Type Constraints
@@ -929,27 +927,27 @@ class LpNormalization: public Operator {
 template<typename T>
 class LpPool: public Operator {
  public:
-  LpPool(AttrType::STRING attr_auto_pad, AttrType::INTS attr_kernel_shape, AttrType::INT attr_p, AttrType::INTS attr_pads, AttrType::INTS attr_strides):
-    Operator("LpPool"), attr_auto_pad_(attr_auto_pad), attr_kernel_shape_(attr_kernel_shape), attr_p_(attr_p), attr_pads_(attr_pads), attr_strides_(attr_strides) {};
+  LpPool(AttrType::STRING AttrAutoPad_, AttrType::INTS AttrKernelShape_, AttrType::INT AttrP_, AttrType::INTS AttrPads_, AttrType::INTS AttrStrides_):
+    Operator("LpPool"), AttrAutoPad(AttrAutoPad_), AttrKernelShape(AttrKernelShape_), AttrP(AttrP_), AttrPads(AttrPads_), AttrStrides(AttrStrides_) {};
   ~LpPool() {};
 
-  AttrType::STRING attr_auto_pad();
-  AttrType::INTS attr_kernel_shape();
-  AttrType::INT attr_p();
-  AttrType::INTS attr_pads();
-  AttrType::INTS attr_strides();
+  AttrType::STRING getAutoPad();
+  AttrType::INTS getKernelShape();
+  AttrType::INT getP();
+  AttrType::INTS getPads();
+  AttrType::INTS getStrides();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::STRING attr_auto_pad_;
-  AttrType::INTS attr_kernel_shape_;
-  AttrType::INT attr_p_;
-  AttrType::INTS attr_pads_;
-  AttrType::INTS attr_strides_;
+  AttrType::STRING AttrAutoPad;
+  AttrType::INTS AttrKernelShape;
+  AttrType::INT AttrP;
+  AttrType::INTS AttrPads;
+  AttrType::INTS AttrStrides;
 };
 
 // TODO: Type Constraints
@@ -963,10 +961,10 @@ class MatMul: public Operator {
 
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -982,9 +980,9 @@ class Max: public Operator {
 
 
   // TODO: setter
-  std::list<T> input_data_0();
+  std::list<T> InputData0();
 
-  T output_max();
+  T OutputMax();
 
  private:
 };
@@ -994,25 +992,25 @@ class Max: public Operator {
 template<typename T>
 class MaxPool: public Operator {
  public:
-  MaxPool(AttrType::STRING attr_auto_pad, AttrType::INTS attr_kernel_shape, AttrType::INTS attr_pads, AttrType::INTS attr_strides):
-    Operator("MaxPool"), attr_auto_pad_(attr_auto_pad), attr_kernel_shape_(attr_kernel_shape), attr_pads_(attr_pads), attr_strides_(attr_strides) {};
+  MaxPool(AttrType::STRING AttrAutoPad_, AttrType::INTS AttrKernelShape_, AttrType::INTS AttrPads_, AttrType::INTS AttrStrides_):
+    Operator("MaxPool"), AttrAutoPad(AttrAutoPad_), AttrKernelShape(AttrKernelShape_), AttrPads(AttrPads_), AttrStrides(AttrStrides_) {};
   ~MaxPool() {};
 
-  AttrType::STRING attr_auto_pad();
-  AttrType::INTS attr_kernel_shape();
-  AttrType::INTS attr_pads();
-  AttrType::INTS attr_strides();
+  AttrType::STRING getAutoPad();
+  AttrType::INTS getKernelShape();
+  AttrType::INTS getPads();
+  AttrType::INTS getStrides();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::STRING attr_auto_pad_;
-  AttrType::INTS attr_kernel_shape_;
-  AttrType::INTS attr_pads_;
-  AttrType::INTS attr_strides_;
+  AttrType::STRING AttrAutoPad;
+  AttrType::INTS AttrKernelShape;
+  AttrType::INTS AttrPads;
+  AttrType::INTS AttrStrides;
 };
 
 // TODO: Type Constraints
@@ -1020,22 +1018,22 @@ class MaxPool: public Operator {
 template<typename T>
 class MaxRoiPool: public Operator {
  public:
-  MaxRoiPool(AttrType::INTS attr_pooled_shape, AttrType::FLOAT attr_spatial_scale):
-    Operator("MaxRoiPool"), attr_pooled_shape_(attr_pooled_shape), attr_spatial_scale_(attr_spatial_scale) {};
+  MaxRoiPool(AttrType::INTS AttrPooledShape_, AttrType::FLOAT AttrSpatialScale_):
+    Operator("MaxRoiPool"), AttrPooledShape(AttrPooledShape_), AttrSpatialScale(AttrSpatialScale_) {};
   ~MaxRoiPool() {};
 
-  AttrType::INTS attr_pooled_shape();
-  AttrType::FLOAT attr_spatial_scale();
+  AttrType::INTS getPooledShape();
+  AttrType::FLOAT getSpatialScale();
 
   // TODO: setter
-  T input_X();
-  T input_rois();
+  T InputX();
+  T InputRois();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::INTS attr_pooled_shape_;
-  AttrType::FLOAT attr_spatial_scale_;
+  AttrType::INTS AttrPooledShape;
+  AttrType::FLOAT AttrSpatialScale;
 };
 
 // TODO: Type Constraints
@@ -1049,9 +1047,9 @@ class Mean: public Operator {
 
 
   // TODO: setter
-  std::list<T> input_data_0();
+  std::list<T> InputData0();
 
-  T output_mean();
+  T OutputMean();
 
  private:
 };
@@ -1067,9 +1065,9 @@ class Min: public Operator {
 
 
   // TODO: setter
-  std::list<T> input_data_0();
+  std::list<T> InputData0();
 
-  T output_min();
+  T OutputMin();
 
  private:
 };
@@ -1079,22 +1077,22 @@ class Min: public Operator {
 template<typename T>
 class Mul: public Operator {
  public:
-  Mul(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Mul"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Mul(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Mul"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Mul() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T output_C();
+  T OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -1108,9 +1106,9 @@ class Neg: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1126,9 +1124,9 @@ class Not: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1139,22 +1137,22 @@ class Not: public Operator {
 template<typename T, typename T1>
 class Or: public Operator {
  public:
-  Or(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Or"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Or(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Or"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Or() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T1 output_C();
+  T1 OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -1168,10 +1166,10 @@ class PRelu: public Operator {
 
 
   // TODO: setter
-  T input_X();
-  T input_slope();
+  T InputX();
+  T InputSlope();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1181,23 +1179,23 @@ class PRelu: public Operator {
 template<typename T>
 class Pad: public Operator {
  public:
-  Pad(AttrType::STRING attr_mode, AttrType::INTS attr_pads, AttrType::FLOAT attr_value):
-    Operator("Pad"), attr_mode_(attr_mode), attr_pads_(attr_pads), attr_value_(attr_value) {};
+  Pad(AttrType::STRING AttrMode_, AttrType::INTS AttrPads_, AttrType::FLOAT AttrValue_):
+    Operator("Pad"), AttrMode(AttrMode_), AttrPads(AttrPads_), AttrValue(AttrValue_) {};
   ~Pad() {};
 
-  AttrType::STRING attr_mode();
-  AttrType::INTS attr_pads();
-  AttrType::FLOAT attr_value();
+  AttrType::STRING getMode();
+  AttrType::INTS getPads();
+  AttrType::FLOAT getValue();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::STRING attr_mode_;
-  AttrType::INTS attr_pads_;
-  AttrType::FLOAT attr_value_;
+  AttrType::STRING AttrMode;
+  AttrType::INTS AttrPads;
+  AttrType::FLOAT AttrValue;
 };
 
 // TODO: Type Constraints
@@ -1211,10 +1209,10 @@ class Pow: public Operator {
 
 
   // TODO: setter
-  T input_X();
-  T input_Y();
+  T InputX();
+  T InputY();
 
-  T output_Z();
+  T OutputZ();
 
  private:
 };
@@ -1225,37 +1223,37 @@ class Pow: public Operator {
 template<typename T, typename T1>
 class RNN: public Operator {
  public:
-  RNN(AttrType::FLOATS attr_activation_alpha, AttrType::FLOATS attr_activation_beta, AttrType::STRINGS attr_activations, AttrType::FLOAT attr_clip, AttrType::STRING attr_direction, AttrType::INT attr_hidden_size, AttrType::INT attr_output_sequence):
-    Operator("RNN"), attr_activation_alpha_(attr_activation_alpha), attr_activation_beta_(attr_activation_beta), attr_activations_(attr_activations), attr_clip_(attr_clip), attr_direction_(attr_direction), attr_hidden_size_(attr_hidden_size), attr_output_sequence_(attr_output_sequence) {};
+  RNN(AttrType::FLOATS AttrActivationAlpha_, AttrType::FLOATS AttrActivationBeta_, AttrType::STRINGS AttrActivations_, AttrType::FLOAT AttrClip_, AttrType::STRING AttrDirection_, AttrType::INT AttrHiddenSize_, AttrType::INT AttrOutputSequence_):
+    Operator("RNN"), AttrActivationAlpha(AttrActivationAlpha_), AttrActivationBeta(AttrActivationBeta_), AttrActivations(AttrActivations_), AttrClip(AttrClip_), AttrDirection(AttrDirection_), AttrHiddenSize(AttrHiddenSize_), AttrOutputSequence(AttrOutputSequence_) {};
   ~RNN() {};
 
-  AttrType::FLOATS attr_activation_alpha();
-  AttrType::FLOATS attr_activation_beta();
-  AttrType::STRINGS attr_activations();
-  AttrType::FLOAT attr_clip();
-  AttrType::STRING attr_direction();
-  AttrType::INT attr_hidden_size();
-  AttrType::INT attr_output_sequence();
+  AttrType::FLOATS getActivationAlpha();
+  AttrType::FLOATS getActivationBeta();
+  AttrType::STRINGS getActivations();
+  AttrType::FLOAT getClip();
+  AttrType::STRING getDirection();
+  AttrType::INT getHiddenSize();
+  AttrType::INT getOutputSequence();
 
   // TODO: setter
-  T input_X();
-  T input_W();
-  T input_R();
-  std::experimental::optional<T> input_B();
-  std::experimental::optional<T1> input_sequence_lens();
-  std::experimental::optional<T> input_initial_h();
+  T InputX();
+  T InputW();
+  T InputR();
+  std::experimental::optional<T> InputB();
+  std::experimental::optional<T1> InputSequenceLens();
+  std::experimental::optional<T> InputInitialH();
 
-  std::experimental::optional<T> output_Y();
-  std::experimental::optional<T> output_Y_h();
+  std::experimental::optional<T> OutputY();
+  std::experimental::optional<T> OutputYH();
 
  private:
-  AttrType::FLOATS attr_activation_alpha_;
-  AttrType::FLOATS attr_activation_beta_;
-  AttrType::STRINGS attr_activations_;
-  AttrType::FLOAT attr_clip_;
-  AttrType::STRING attr_direction_;
-  AttrType::INT attr_hidden_size_;
-  AttrType::INT attr_output_sequence_;
+  AttrType::FLOATS AttrActivationAlpha;
+  AttrType::FLOATS AttrActivationBeta;
+  AttrType::STRINGS AttrActivations;
+  AttrType::FLOAT AttrClip;
+  AttrType::STRING AttrDirection;
+  AttrType::INT AttrHiddenSize;
+  AttrType::INT AttrOutputSequence;
 };
 
 // TODO: Type Constraints
@@ -1263,26 +1261,26 @@ class RNN: public Operator {
 template<typename T>
 class RandomNormal: public Operator {
  public:
-  RandomNormal(AttrType::INT attr_dtype, AttrType::FLOAT attr_mean, AttrType::FLOAT attr_scale, AttrType::FLOAT attr_seed, AttrType::INTS attr_shape):
-    Operator("RandomNormal"), attr_dtype_(attr_dtype), attr_mean_(attr_mean), attr_scale_(attr_scale), attr_seed_(attr_seed), attr_shape_(attr_shape) {};
+  RandomNormal(AttrType::INT AttrDtype_, AttrType::FLOAT AttrMean_, AttrType::FLOAT AttrScale_, AttrType::FLOAT AttrSeed_, AttrType::INTS AttrShape_):
+    Operator("RandomNormal"), AttrDtype(AttrDtype_), AttrMean(AttrMean_), AttrScale(AttrScale_), AttrSeed(AttrSeed_), AttrShape(AttrShape_) {};
   ~RandomNormal() {};
 
-  AttrType::INT attr_dtype();
-  AttrType::FLOAT attr_mean();
-  AttrType::FLOAT attr_scale();
-  AttrType::FLOAT attr_seed();
-  AttrType::INTS attr_shape();
+  AttrType::INT getDtype();
+  AttrType::FLOAT getMean();
+  AttrType::FLOAT getScale();
+  AttrType::FLOAT getSeed();
+  AttrType::INTS getShape();
 
   // TODO: setter
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_dtype_;
-  AttrType::FLOAT attr_mean_;
-  AttrType::FLOAT attr_scale_;
-  AttrType::FLOAT attr_seed_;
-  AttrType::INTS attr_shape_;
+  AttrType::INT AttrDtype;
+  AttrType::FLOAT AttrMean;
+  AttrType::FLOAT AttrScale;
+  AttrType::FLOAT AttrSeed;
+  AttrType::INTS AttrShape;
 };
 
 // TODO: Type Constraints
@@ -1290,25 +1288,25 @@ class RandomNormal: public Operator {
 template<typename T>
 class RandomNormalLike: public Operator {
  public:
-  RandomNormalLike(AttrType::INT attr_dtype, AttrType::FLOAT attr_mean, AttrType::FLOAT attr_scale, AttrType::FLOAT attr_seed):
-    Operator("RandomNormalLike"), attr_dtype_(attr_dtype), attr_mean_(attr_mean), attr_scale_(attr_scale), attr_seed_(attr_seed) {};
+  RandomNormalLike(AttrType::INT AttrDtype_, AttrType::FLOAT AttrMean_, AttrType::FLOAT AttrScale_, AttrType::FLOAT AttrSeed_):
+    Operator("RandomNormalLike"), AttrDtype(AttrDtype_), AttrMean(AttrMean_), AttrScale(AttrScale_), AttrSeed(AttrSeed_) {};
   ~RandomNormalLike() {};
 
-  AttrType::INT attr_dtype();
-  AttrType::FLOAT attr_mean();
-  AttrType::FLOAT attr_scale();
-  AttrType::FLOAT attr_seed();
+  AttrType::INT getDtype();
+  AttrType::FLOAT getMean();
+  AttrType::FLOAT getScale();
+  AttrType::FLOAT getSeed();
 
   // TODO: setter
-  Tensor<int32_t> input_input();
+  Tensor<int32_t> InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_dtype_;
-  AttrType::FLOAT attr_mean_;
-  AttrType::FLOAT attr_scale_;
-  AttrType::FLOAT attr_seed_;
+  AttrType::INT AttrDtype;
+  AttrType::FLOAT AttrMean;
+  AttrType::FLOAT AttrScale;
+  AttrType::FLOAT AttrSeed;
 };
 
 // TODO: Type Constraints
@@ -1316,26 +1314,26 @@ class RandomNormalLike: public Operator {
 template<typename T>
 class RandomUniform: public Operator {
  public:
-  RandomUniform(AttrType::INT attr_dtype, AttrType::FLOAT attr_high, AttrType::FLOAT attr_low, AttrType::FLOAT attr_seed, AttrType::INTS attr_shape):
-    Operator("RandomUniform"), attr_dtype_(attr_dtype), attr_high_(attr_high), attr_low_(attr_low), attr_seed_(attr_seed), attr_shape_(attr_shape) {};
+  RandomUniform(AttrType::INT AttrDtype_, AttrType::FLOAT AttrHigh_, AttrType::FLOAT AttrLow_, AttrType::FLOAT AttrSeed_, AttrType::INTS AttrShape_):
+    Operator("RandomUniform"), AttrDtype(AttrDtype_), AttrHigh(AttrHigh_), AttrLow(AttrLow_), AttrSeed(AttrSeed_), AttrShape(AttrShape_) {};
   ~RandomUniform() {};
 
-  AttrType::INT attr_dtype();
-  AttrType::FLOAT attr_high();
-  AttrType::FLOAT attr_low();
-  AttrType::FLOAT attr_seed();
-  AttrType::INTS attr_shape();
+  AttrType::INT getDtype();
+  AttrType::FLOAT getHigh();
+  AttrType::FLOAT getLow();
+  AttrType::FLOAT getSeed();
+  AttrType::INTS getShape();
 
   // TODO: setter
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_dtype_;
-  AttrType::FLOAT attr_high_;
-  AttrType::FLOAT attr_low_;
-  AttrType::FLOAT attr_seed_;
-  AttrType::INTS attr_shape_;
+  AttrType::INT AttrDtype;
+  AttrType::FLOAT AttrHigh;
+  AttrType::FLOAT AttrLow;
+  AttrType::FLOAT AttrSeed;
+  AttrType::INTS AttrShape;
 };
 
 // TODO: Type Constraints
@@ -1343,25 +1341,25 @@ class RandomUniform: public Operator {
 template<typename T>
 class RandomUniformLike: public Operator {
  public:
-  RandomUniformLike(AttrType::INT attr_dtype, AttrType::FLOAT attr_high, AttrType::FLOAT attr_low, AttrType::FLOAT attr_seed):
-    Operator("RandomUniformLike"), attr_dtype_(attr_dtype), attr_high_(attr_high), attr_low_(attr_low), attr_seed_(attr_seed) {};
+  RandomUniformLike(AttrType::INT AttrDtype_, AttrType::FLOAT AttrHigh_, AttrType::FLOAT AttrLow_, AttrType::FLOAT AttrSeed_):
+    Operator("RandomUniformLike"), AttrDtype(AttrDtype_), AttrHigh(AttrHigh_), AttrLow(AttrLow_), AttrSeed(AttrSeed_) {};
   ~RandomUniformLike() {};
 
-  AttrType::INT attr_dtype();
-  AttrType::FLOAT attr_high();
-  AttrType::FLOAT attr_low();
-  AttrType::FLOAT attr_seed();
+  AttrType::INT getDtype();
+  AttrType::FLOAT getHigh();
+  AttrType::FLOAT getLow();
+  AttrType::FLOAT getSeed();
 
   // TODO: setter
-  Tensor<int32_t> input_input();
+  Tensor<int32_t> InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_dtype_;
-  AttrType::FLOAT attr_high_;
-  AttrType::FLOAT attr_low_;
-  AttrType::FLOAT attr_seed_;
+  AttrType::INT AttrDtype;
+  AttrType::FLOAT AttrHigh;
+  AttrType::FLOAT AttrLow;
+  AttrType::FLOAT AttrSeed;
 };
 
 // TODO: Type Constraints
@@ -1375,9 +1373,9 @@ class Reciprocal: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1387,21 +1385,21 @@ class Reciprocal: public Operator {
 template<typename T>
 class ReduceL1: public Operator {
  public:
-  ReduceL1(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceL1"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceL1(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceL1"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceL1() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1409,21 +1407,21 @@ class ReduceL1: public Operator {
 template<typename T>
 class ReduceL2: public Operator {
  public:
-  ReduceL2(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceL2"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceL2(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceL2"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceL2() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1431,21 +1429,21 @@ class ReduceL2: public Operator {
 template<typename T>
 class ReduceLogSum: public Operator {
  public:
-  ReduceLogSum(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceLogSum"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceLogSum(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceLogSum"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceLogSum() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1453,21 +1451,21 @@ class ReduceLogSum: public Operator {
 template<typename T>
 class ReduceLogSumExp: public Operator {
  public:
-  ReduceLogSumExp(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceLogSumExp"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceLogSumExp(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceLogSumExp"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceLogSumExp() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1475,21 +1473,21 @@ class ReduceLogSumExp: public Operator {
 template<typename T>
 class ReduceMax: public Operator {
  public:
-  ReduceMax(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceMax"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceMax(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceMax"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceMax() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1497,21 +1495,21 @@ class ReduceMax: public Operator {
 template<typename T>
 class ReduceMean: public Operator {
  public:
-  ReduceMean(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceMean"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceMean(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceMean"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceMean() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1519,21 +1517,21 @@ class ReduceMean: public Operator {
 template<typename T>
 class ReduceMin: public Operator {
  public:
-  ReduceMin(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceMin"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceMin(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceMin"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceMin() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1541,21 +1539,21 @@ class ReduceMin: public Operator {
 template<typename T>
 class ReduceProd: public Operator {
  public:
-  ReduceProd(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceProd"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceProd(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceProd"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceProd() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1563,21 +1561,21 @@ class ReduceProd: public Operator {
 template<typename T>
 class ReduceSum: public Operator {
  public:
-  ReduceSum(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceSum"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceSum(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceSum"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceSum() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1585,21 +1583,21 @@ class ReduceSum: public Operator {
 template<typename T>
 class ReduceSumSquare: public Operator {
  public:
-  ReduceSumSquare(AttrType::INTS attr_axes, AttrType::INT attr_keepdims):
-    Operator("ReduceSumSquare"), attr_axes_(attr_axes), attr_keepdims_(attr_keepdims) {};
+  ReduceSumSquare(AttrType::INTS AttrAxes_, AttrType::INT AttrKeepdims_):
+    Operator("ReduceSumSquare"), AttrAxes(AttrAxes_), AttrKeepdims(AttrKeepdims_) {};
   ~ReduceSumSquare() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INT attr_keepdims();
+  AttrType::INTS getAxes();
+  AttrType::INT getKeepdims();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reduced();
+  T OutputReduced();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INT attr_keepdims_;
+  AttrType::INTS AttrAxes;
+  AttrType::INT AttrKeepdims;
 };
 
 // TODO: Type Constraints
@@ -1613,9 +1611,9 @@ class Relu: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1625,19 +1623,19 @@ class Relu: public Operator {
 template<typename T>
 class Reshape: public Operator {
  public:
-  Reshape(AttrType::INTS attr_shape):
-    Operator("Reshape"), attr_shape_(attr_shape) {};
+  Reshape(AttrType::INTS AttrShape_):
+    Operator("Reshape"), AttrShape(AttrShape_) {};
   ~Reshape() {};
 
-  AttrType::INTS attr_shape();
+  AttrType::INTS getShape();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_reshaped();
+  T OutputReshaped();
 
  private:
-  AttrType::INTS attr_shape_;
+  AttrType::INTS AttrShape;
 };
 
 // TODO: Type Constraints
@@ -1645,21 +1643,21 @@ class Reshape: public Operator {
 template<typename T>
 class Selu: public Operator {
  public:
-  Selu(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_gamma):
-    Operator("Selu"), attr_alpha_(attr_alpha), attr_gamma_(attr_gamma) {};
+  Selu(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrGamma_):
+    Operator("Selu"), AttrAlpha(AttrAlpha_), AttrGamma(AttrGamma_) {};
   ~Selu() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_gamma();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getGamma();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_gamma_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrGamma;
 };
 
 // TODO: Type Constraints
@@ -1673,9 +1671,9 @@ class Sigmoid: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1685,23 +1683,23 @@ class Sigmoid: public Operator {
 template<typename T>
 class Slice: public Operator {
  public:
-  Slice(AttrType::INTS attr_axes, AttrType::INTS attr_ends, AttrType::INTS attr_starts):
-    Operator("Slice"), attr_axes_(attr_axes), attr_ends_(attr_ends), attr_starts_(attr_starts) {};
+  Slice(AttrType::INTS AttrAxes_, AttrType::INTS AttrEnds_, AttrType::INTS AttrStarts_):
+    Operator("Slice"), AttrAxes(AttrAxes_), AttrEnds(AttrEnds_), AttrStarts(AttrStarts_) {};
   ~Slice() {};
 
-  AttrType::INTS attr_axes();
-  AttrType::INTS attr_ends();
-  AttrType::INTS attr_starts();
+  AttrType::INTS getAxes();
+  AttrType::INTS getEnds();
+  AttrType::INTS getStarts();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INTS attr_axes_;
-  AttrType::INTS attr_ends_;
-  AttrType::INTS attr_starts_;
+  AttrType::INTS AttrAxes;
+  AttrType::INTS AttrEnds;
+  AttrType::INTS AttrStarts;
 };
 
 // TODO: Type Constraints
@@ -1709,19 +1707,19 @@ class Slice: public Operator {
 template<typename T>
 class Softmax: public Operator {
  public:
-  Softmax(AttrType::INT attr_axis):
-    Operator("Softmax"), attr_axis_(attr_axis) {};
+  Softmax(AttrType::INT AttrAxis_):
+    Operator("Softmax"), AttrAxis(AttrAxis_) {};
   ~Softmax() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -1735,9 +1733,9 @@ class Softplus: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1753,9 +1751,9 @@ class Softsign: public Operator {
 
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
 };
@@ -1765,19 +1763,19 @@ class Softsign: public Operator {
 template<typename T>
 class SpaceToDepth: public Operator {
  public:
-  SpaceToDepth(AttrType::INT attr_blocksize):
-    Operator("SpaceToDepth"), attr_blocksize_(attr_blocksize) {};
+  SpaceToDepth(AttrType::INT AttrBlocksize_):
+    Operator("SpaceToDepth"), AttrBlocksize(AttrBlocksize_) {};
   ~SpaceToDepth() {};
 
-  AttrType::INT attr_blocksize();
+  AttrType::INT getBlocksize();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_blocksize_;
+  AttrType::INT AttrBlocksize;
 };
 
 // TODO: Type Constraints
@@ -1785,21 +1783,21 @@ class SpaceToDepth: public Operator {
 template<typename T>
 class Split: public Operator {
  public:
-  Split(AttrType::INT attr_axis, AttrType::INTS attr_split):
-    Operator("Split"), attr_axis_(attr_axis), attr_split_(attr_split) {};
+  Split(AttrType::INT AttrAxis_, AttrType::INTS AttrSplit_):
+    Operator("Split"), AttrAxis(AttrAxis_), AttrSplit(AttrSplit_) {};
   ~Split() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INTS attr_split();
+  AttrType::INT getAxis();
+  AttrType::INTS getSplit();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  std::list<T> output_outputs();
+  std::list<T> OutputOutputs();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INTS attr_split_;
+  AttrType::INT AttrAxis;
+  AttrType::INTS AttrSplit;
 };
 
 // TODO: Type Constraints
@@ -1813,9 +1811,9 @@ class Sqrt: public Operator {
 
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
 };
@@ -1825,19 +1823,19 @@ class Sqrt: public Operator {
 template<typename T>
 class Squeeze: public Operator {
  public:
-  Squeeze(AttrType::INTS attr_axes):
-    Operator("Squeeze"), attr_axes_(attr_axes) {};
+  Squeeze(AttrType::INTS AttrAxes_):
+    Operator("Squeeze"), AttrAxes(AttrAxes_) {};
   ~Squeeze() {};
 
-  AttrType::INTS attr_axes();
+  AttrType::INTS getAxes();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_squeezed();
+  T OutputSqueezed();
 
  private:
-  AttrType::INTS attr_axes_;
+  AttrType::INTS AttrAxes;
 };
 
 // TODO: Type Constraints
@@ -1845,22 +1843,22 @@ class Squeeze: public Operator {
 template<typename T>
 class Sub: public Operator {
  public:
-  Sub(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Sub"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Sub(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Sub"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Sub() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T output_C();
+  T OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -1874,9 +1872,9 @@ class Sum: public Operator {
 
 
   // TODO: setter
-  std::list<T> input_data_0();
+  std::list<T> InputData0();
 
-  T output_sum();
+  T OutputSum();
 
  private:
 };
@@ -1892,9 +1890,9 @@ class Tanh: public Operator {
 
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
 };
@@ -1910,11 +1908,11 @@ class Tile: public Operator {
 
 
   // TODO: setter
-  T input_input();
-  T input_tiles();
-  T input_axis();
+  T InputInput();
+  T InputTiles();
+  T InputAxis();
 
-  T output_output();
+  T OutputOutput();
 
  private:
 };
@@ -1924,19 +1922,19 @@ class Tile: public Operator {
 template<typename T>
 class Transpose: public Operator {
  public:
-  Transpose(AttrType::INTS attr_perm):
-    Operator("Transpose"), attr_perm_(attr_perm) {};
+  Transpose(AttrType::INTS AttrPerm_):
+    Operator("Transpose"), AttrPerm(AttrPerm_) {};
   ~Transpose() {};
 
-  AttrType::INTS attr_perm();
+  AttrType::INTS getPerm();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_transposed();
+  T OutputTransposed();
 
  private:
-  AttrType::INTS attr_perm_;
+  AttrType::INTS AttrPerm;
 };
 
 // TODO: Type Constraints
@@ -1944,19 +1942,19 @@ class Transpose: public Operator {
 template<typename T>
 class Unsqueeze: public Operator {
  public:
-  Unsqueeze(AttrType::INTS attr_axes):
-    Operator("Unsqueeze"), attr_axes_(attr_axes) {};
+  Unsqueeze(AttrType::INTS AttrAxes_):
+    Operator("Unsqueeze"), AttrAxes(AttrAxes_) {};
   ~Unsqueeze() {};
 
-  AttrType::INTS attr_axes();
+  AttrType::INTS getAxes();
 
   // TODO: setter
-  T input_data();
+  T InputData();
 
-  T output_expanded();
+  T OutputExpanded();
 
  private:
-  AttrType::INTS attr_axes_;
+  AttrType::INTS AttrAxes;
 };
 
 // TODO: Type Constraints
@@ -1965,22 +1963,22 @@ class Unsqueeze: public Operator {
 template<typename T, typename T1>
 class Xor: public Operator {
  public:
-  Xor(AttrType::INT attr_axis, AttrType::INT attr_broadcast):
-    Operator("Xor"), attr_axis_(attr_axis), attr_broadcast_(attr_broadcast) {};
+  Xor(AttrType::INT AttrAxis_, AttrType::INT AttrBroadcast_):
+    Operator("Xor"), AttrAxis(AttrAxis_), AttrBroadcast(AttrBroadcast_) {};
   ~Xor() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_broadcast();
+  AttrType::INT getAxis();
+  AttrType::INT getBroadcast();
 
   // TODO: setter
-  T input_A();
-  T input_B();
+  T InputA();
+  T InputB();
 
-  T1 output_C();
+  T1 OutputC();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_broadcast_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrBroadcast;
 };
 
 // TODO: Type Constraints
@@ -1994,9 +1992,9 @@ class ATen: public Operator {
 
 
   // TODO: setter
-  std::list<T> input_input();
+  std::list<T> InputInput();
 
-  std::list<T> output_output();
+  std::list<T> OutputOutput();
 
  private:
 };
@@ -2006,21 +2004,21 @@ class ATen: public Operator {
 template<typename T>
 class Affine: public Operator {
  public:
-  Affine(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_beta):
-    Operator("Affine"), attr_alpha_(attr_alpha), attr_beta_(attr_beta) {};
+  Affine(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrBeta_):
+    Operator("Affine"), AttrAlpha(AttrAlpha_), AttrBeta(AttrBeta_) {};
   ~Affine() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_beta();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getBeta();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_beta_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrBeta;
 };
 
 // TODO: Type Constraints
@@ -2029,27 +2027,27 @@ class Affine: public Operator {
 template<typename T1, typename T2>
 class ConstantFill: public Operator {
  public:
-  ConstantFill(AttrType::INT attr_dtype, AttrType::INTS attr_extra_shape, AttrType::INT attr_input_as_shape, AttrType::INTS attr_shape, AttrType::FLOAT attr_value):
-    Operator("ConstantFill"), attr_dtype_(attr_dtype), attr_extra_shape_(attr_extra_shape), attr_input_as_shape_(attr_input_as_shape), attr_shape_(attr_shape), attr_value_(attr_value) {};
+  ConstantFill(AttrType::INT AttrDtype_, AttrType::INTS AttrExtraShape_, AttrType::INT AttrInputAsShape_, AttrType::INTS AttrShape_, AttrType::FLOAT AttrValue_):
+    Operator("ConstantFill"), AttrDtype(AttrDtype_), AttrExtraShape(AttrExtraShape_), AttrInputAsShape(AttrInputAsShape_), AttrShape(AttrShape_), AttrValue(AttrValue_) {};
   ~ConstantFill() {};
 
-  AttrType::INT attr_dtype();
-  AttrType::INTS attr_extra_shape();
-  AttrType::INT attr_input_as_shape();
-  AttrType::INTS attr_shape();
-  AttrType::FLOAT attr_value();
+  AttrType::INT getDtype();
+  AttrType::INTS getExtraShape();
+  AttrType::INT getInputAsShape();
+  AttrType::INTS getShape();
+  AttrType::FLOAT getValue();
 
   // TODO: setter
-  std::experimental::optional<T1> input_input();
+  std::experimental::optional<T1> InputInput();
 
-  T2 output_output();
+  T2 OutputOutput();
 
  private:
-  AttrType::INT attr_dtype_;
-  AttrType::INTS attr_extra_shape_;
-  AttrType::INT attr_input_as_shape_;
-  AttrType::INTS attr_shape_;
-  AttrType::FLOAT attr_value_;
+  AttrType::INT AttrDtype;
+  AttrType::INTS AttrExtraShape;
+  AttrType::INT AttrInputAsShape;
+  AttrType::INTS AttrShape;
+  AttrType::FLOAT AttrValue;
 };
 
 // TODO: Type Constraints
@@ -2057,21 +2055,21 @@ class ConstantFill: public Operator {
 template<typename T>
 class Crop: public Operator {
  public:
-  Crop(AttrType::INTS attr_border, AttrType::INTS attr_scale):
-    Operator("Crop"), attr_border_(attr_border), attr_scale_(attr_scale) {};
+  Crop(AttrType::INTS AttrBorder_, AttrType::INTS AttrScale_):
+    Operator("Crop"), AttrBorder(AttrBorder_), AttrScale(AttrScale_) {};
   ~Crop() {};
 
-  AttrType::INTS attr_border();
-  AttrType::INTS attr_scale();
+  AttrType::INTS getBorder();
+  AttrType::INTS getScale();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INTS attr_border_;
-  AttrType::INTS attr_scale_;
+  AttrType::INTS AttrBorder;
+  AttrType::INTS AttrScale;
 };
 
 // TODO: Type Constraints
@@ -2079,23 +2077,23 @@ class Crop: public Operator {
 template<typename T>
 class FC: public Operator {
  public:
-  FC(AttrType::INT attr_axis, AttrType::INT attr_axis_w):
-    Operator("FC"), attr_axis_(attr_axis), attr_axis_w_(attr_axis_w) {};
+  FC(AttrType::INT AttrAxis_, AttrType::INT AttrAxisW_):
+    Operator("FC"), AttrAxis(AttrAxis_), AttrAxisW(AttrAxisW_) {};
   ~FC() {};
 
-  AttrType::INT attr_axis();
-  AttrType::INT attr_axis_w();
+  AttrType::INT getAxis();
+  AttrType::INT getAxisW();
 
   // TODO: setter
-  T input_X();
-  T input_W();
-  T input_B();
+  T InputX();
+  T InputW();
+  T InputB();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::INT attr_axis_;
-  AttrType::INT attr_axis_w_;
+  AttrType::INT AttrAxis;
+  AttrType::INT AttrAxisW;
 };
 
 // TODO: Type Constraints
@@ -2103,22 +2101,22 @@ class FC: public Operator {
 template<typename T>
 class GRUUnit: public Operator {
  public:
-  GRUUnit(AttrType::INT attr_drop_states):
-    Operator("GRUUnit"), attr_drop_states_(attr_drop_states) {};
+  GRUUnit(AttrType::INT AttrDropStates_):
+    Operator("GRUUnit"), AttrDropStates(AttrDropStates_) {};
   ~GRUUnit() {};
 
-  AttrType::INT attr_drop_states();
+  AttrType::INT getDropStates();
 
   // TODO: setter
-  T input_hidden_prev();
-  T input_gates();
-  T input_seq_lengths();
-  T input_t();
+  T InputHiddenPrev();
+  T InputGates();
+  T InputSeqLengths();
+  T InputT();
 
-  T output_hidden();
+  T OutputHidden();
 
  private:
-  AttrType::INT attr_drop_states_;
+  AttrType::INT AttrDropStates;
 };
 
 // TODO: Type Constraints
@@ -2126,25 +2124,25 @@ class GRUUnit: public Operator {
 template<typename T>
 class GivenTensorFill: public Operator {
  public:
-  GivenTensorFill(AttrType::INTS attr_extra_shape, AttrType::INT attr_input_as_shape, AttrType::INTS attr_shape, AttrType::FLOATS attr_values):
-    Operator("GivenTensorFill"), attr_extra_shape_(attr_extra_shape), attr_input_as_shape_(attr_input_as_shape), attr_shape_(attr_shape), attr_values_(attr_values) {};
+  GivenTensorFill(AttrType::INTS AttrExtraShape_, AttrType::INT AttrInputAsShape_, AttrType::INTS AttrShape_, AttrType::FLOATS AttrValues_):
+    Operator("GivenTensorFill"), AttrExtraShape(AttrExtraShape_), AttrInputAsShape(AttrInputAsShape_), AttrShape(AttrShape_), AttrValues(AttrValues_) {};
   ~GivenTensorFill() {};
 
-  AttrType::INTS attr_extra_shape();
-  AttrType::INT attr_input_as_shape();
-  AttrType::INTS attr_shape();
-  AttrType::FLOATS attr_values();
+  AttrType::INTS getExtraShape();
+  AttrType::INT getInputAsShape();
+  AttrType::INTS getShape();
+  AttrType::FLOATS getValues();
 
   // TODO: setter
-  std::experimental::optional<T> input_shape();
+  std::experimental::optional<T> InputShape();
 
-  T output_X();
+  T OutputX();
 
  private:
-  AttrType::INTS attr_extra_shape_;
-  AttrType::INT attr_input_as_shape_;
-  AttrType::INTS attr_shape_;
-  AttrType::FLOATS attr_values_;
+  AttrType::INTS AttrExtraShape;
+  AttrType::INT AttrInputAsShape;
+  AttrType::INTS AttrShape;
+  AttrType::FLOATS AttrValues;
 };
 
 // TODO: Type Constraints
@@ -2158,9 +2156,9 @@ class Identity: public Operator {
 
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
 };
@@ -2171,21 +2169,21 @@ class Identity: public Operator {
 template<typename V, typename B>
 class If: public Operator {
  public:
-  If(AttrType::GRAPH attr_else_branch, AttrType::GRAPH attr_then_branch):
-    Operator("If"), attr_else_branch_(attr_else_branch), attr_then_branch_(attr_then_branch) {};
+  If(AttrType::GRAPH AttrElseBranch_, AttrType::GRAPH AttrThenBranch_):
+    Operator("If"), AttrElseBranch(AttrElseBranch_), AttrThenBranch(AttrThenBranch_) {};
   ~If() {};
 
-  AttrType::GRAPH attr_else_branch();
-  AttrType::GRAPH attr_then_branch();
+  AttrType::GRAPH getElseBranch();
+  AttrType::GRAPH getThenBranch();
 
   // TODO: setter
-  B input_cond();
+  B InputCond();
 
-  std::list<V> output_outputs();
+  std::list<V> OutputOutputs();
 
  private:
-  AttrType::GRAPH attr_else_branch_;
-  AttrType::GRAPH attr_then_branch_;
+  AttrType::GRAPH AttrElseBranch;
+  AttrType::GRAPH AttrThenBranch;
 };
 
 // TODO: Type Constraints
@@ -2193,21 +2191,21 @@ class If: public Operator {
 template<typename T>
 class ImageScaler: public Operator {
  public:
-  ImageScaler(AttrType::FLOATS attr_bias, AttrType::FLOAT attr_scale):
-    Operator("ImageScaler"), attr_bias_(attr_bias), attr_scale_(attr_scale) {};
+  ImageScaler(AttrType::FLOATS AttrBias_, AttrType::FLOAT AttrScale_):
+    Operator("ImageScaler"), AttrBias(AttrBias_), AttrScale(AttrScale_) {};
   ~ImageScaler() {};
 
-  AttrType::FLOATS attr_bias();
-  AttrType::FLOAT attr_scale();
+  AttrType::FLOATS getBias();
+  AttrType::FLOAT getScale();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::FLOATS attr_bias_;
-  AttrType::FLOAT attr_scale_;
+  AttrType::FLOATS AttrBias;
+  AttrType::FLOAT AttrScale;
 };
 
 // TODO: Type Constraints
@@ -2217,21 +2215,21 @@ class ImageScaler: public Operator {
 template<typename V, typename I, typename B>
 class Loop: public Operator {
  public:
-  Loop(AttrType::GRAPH attr_body):
-    Operator("Loop"), attr_body_(attr_body) {};
+  Loop(AttrType::GRAPH AttrBody_):
+    Operator("Loop"), AttrBody(AttrBody_) {};
   ~Loop() {};
 
-  AttrType::GRAPH attr_body();
+  AttrType::GRAPH getBody();
 
   // TODO: setter
-  I input_M();
-  B input_cond();
-  std::list<V> input_v_initial();
+  I InputM();
+  B InputCond();
+  std::list<V> InputVInitial();
 
-  std::list<V> output_v_final_and_scan_outputs();
+  std::list<V> OutputVFinalAndScanOutputs();
 
  private:
-  AttrType::GRAPH attr_body_;
+  AttrType::GRAPH AttrBody;
 };
 
 // TODO: Type Constraints
@@ -2240,20 +2238,20 @@ class Loop: public Operator {
 template<typename T, typename I>
 class LoopIndexTensor: public Operator {
  public:
-  LoopIndexTensor(AttrType::INT attr_axis):
-    Operator("LoopIndexTensor"), attr_axis_(attr_axis) {};
+  LoopIndexTensor(AttrType::INT AttrAxis_):
+    Operator("LoopIndexTensor"), AttrAxis(AttrAxis_) {};
   ~LoopIndexTensor() {};
 
-  AttrType::INT attr_axis();
+  AttrType::INT getAxis();
 
   // TODO: setter
-  T input_T();
-  I input_loop_idx();
+  T InputT();
+  I InputLoopIdx();
 
-  T output_O();
+  T OutputO();
 
  private:
-  AttrType::INT attr_axis_;
+  AttrType::INT AttrAxis;
 };
 
 // TODO: Type Constraints
@@ -2261,21 +2259,21 @@ class LoopIndexTensor: public Operator {
 template<typename T>
 class MeanVarianceNormalization: public Operator {
  public:
-  MeanVarianceNormalization(AttrType::INT attr_across_channels, AttrType::INT attr_normalize_variance):
-    Operator("MeanVarianceNormalization"), attr_across_channels_(attr_across_channels), attr_normalize_variance_(attr_normalize_variance) {};
+  MeanVarianceNormalization(AttrType::INT AttrAcrossChannels_, AttrType::INT AttrNormalizeVariance_):
+    Operator("MeanVarianceNormalization"), AttrAcrossChannels(AttrAcrossChannels_), AttrNormalizeVariance(AttrNormalizeVariance_) {};
   ~MeanVarianceNormalization() {};
 
-  AttrType::INT attr_across_channels();
-  AttrType::INT attr_normalize_variance();
+  AttrType::INT getAcrossChannels();
+  AttrType::INT getNormalizeVariance();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::INT attr_across_channels_;
-  AttrType::INT attr_normalize_variance_;
+  AttrType::INT AttrAcrossChannels;
+  AttrType::INT AttrNormalizeVariance;
 };
 
 // TODO: Type Constraints
@@ -2283,21 +2281,21 @@ class MeanVarianceNormalization: public Operator {
 template<typename T>
 class ParametricSoftplus: public Operator {
  public:
-  ParametricSoftplus(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_beta):
-    Operator("ParametricSoftplus"), attr_alpha_(attr_alpha), attr_beta_(attr_beta) {};
+  ParametricSoftplus(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrBeta_):
+    Operator("ParametricSoftplus"), AttrAlpha(AttrAlpha_), AttrBeta(AttrBeta_) {};
   ~ParametricSoftplus() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_beta();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getBeta();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_beta_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrBeta;
 };
 
 // TODO: Type Constraints
@@ -2305,19 +2303,19 @@ class ParametricSoftplus: public Operator {
 template<typename T>
 class Scale: public Operator {
  public:
-  Scale(AttrType::FLOAT attr_scale):
-    Operator("Scale"), attr_scale_(attr_scale) {};
+  Scale(AttrType::FLOAT AttrScale_):
+    Operator("Scale"), AttrScale(AttrScale_) {};
   ~Scale() {};
 
-  AttrType::FLOAT attr_scale();
+  AttrType::FLOAT getScale();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::FLOAT attr_scale_;
+  AttrType::FLOAT AttrScale;
 };
 
 // TODO: Type Constraints
@@ -2325,21 +2323,21 @@ class Scale: public Operator {
 template<typename T>
 class ScaledTanh: public Operator {
  public:
-  ScaledTanh(AttrType::FLOAT attr_alpha, AttrType::FLOAT attr_beta):
-    Operator("ScaledTanh"), attr_alpha_(attr_alpha), attr_beta_(attr_beta) {};
+  ScaledTanh(AttrType::FLOAT AttrAlpha_, AttrType::FLOAT AttrBeta_):
+    Operator("ScaledTanh"), AttrAlpha(AttrAlpha_), AttrBeta(AttrBeta_) {};
   ~ScaledTanh() {};
 
-  AttrType::FLOAT attr_alpha();
-  AttrType::FLOAT attr_beta();
+  AttrType::FLOAT getAlpha();
+  AttrType::FLOAT getBeta();
 
   // TODO: setter
-  T input_input();
+  T InputInput();
 
-  T output_output();
+  T OutputOutput();
 
  private:
-  AttrType::FLOAT attr_alpha_;
-  AttrType::FLOAT attr_beta_;
+  AttrType::FLOAT AttrAlpha;
+  AttrType::FLOAT AttrBeta;
 };
 
 // TODO: Type Constraints
@@ -2347,19 +2345,19 @@ class ScaledTanh: public Operator {
 template<typename T>
 class ThresholdedRelu: public Operator {
  public:
-  ThresholdedRelu(AttrType::FLOAT attr_alpha):
-    Operator("ThresholdedRelu"), attr_alpha_(attr_alpha) {};
+  ThresholdedRelu(AttrType::FLOAT AttrAlpha_):
+    Operator("ThresholdedRelu"), AttrAlpha(AttrAlpha_) {};
   ~ThresholdedRelu() {};
 
-  AttrType::FLOAT attr_alpha();
+  AttrType::FLOAT getAlpha();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_alpha_;
+  AttrType::FLOAT AttrAlpha;
 };
 
 // TODO: Type Constraints
@@ -2367,26 +2365,26 @@ class ThresholdedRelu: public Operator {
 template<typename T>
 class Upsample: public Operator {
  public:
-  Upsample(AttrType::FLOAT attr_height_scale, AttrType::STRING attr_mode, AttrType::FLOAT attr_width_scale):
-    Operator("Upsample"), attr_height_scale_(attr_height_scale), attr_mode_(attr_mode), attr_width_scale_(attr_width_scale) {};
+  Upsample(AttrType::FLOAT AttrHeightScale_, AttrType::STRING AttrMode_, AttrType::FLOAT AttrWidthScale_):
+    Operator("Upsample"), AttrHeightScale(AttrHeightScale_), AttrMode(AttrMode_), AttrWidthScale(AttrWidthScale_) {};
   ~Upsample() {};
 
-  AttrType::FLOAT attr_height_scale();
-  AttrType::STRING attr_mode();
-  AttrType::FLOAT attr_width_scale();
+  AttrType::FLOAT getHeightScale();
+  AttrType::STRING getMode();
+  AttrType::FLOAT getWidthScale();
 
   // TODO: setter
-  T input_X();
+  T InputX();
 
-  T output_Y();
+  T OutputY();
 
  private:
-  AttrType::FLOAT attr_height_scale_;
-  AttrType::STRING attr_mode_;
-  AttrType::FLOAT attr_width_scale_;
+  AttrType::FLOAT AttrHeightScale;
+  AttrType::STRING AttrMode;
+  AttrType::FLOAT AttrWidthScale;
 };
 
 
-} // namespace onnx
+} // namespace tensor
 } // namespace onnc
 

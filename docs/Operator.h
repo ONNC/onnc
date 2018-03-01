@@ -1,4 +1,3 @@
-#include <list>
 #include <vector>
 #include <string>
 
@@ -31,7 +30,7 @@ class Use;
 class Define;
 
 class Value {
- public:
+public:
   StringRef getName();
 
   // TODO: Program input?
@@ -40,18 +39,21 @@ class Value {
   unsigned getDefineNo();
 
   // TODO: Iterator
-  std::list<Use> *getUses();
+  std::vector<Use> *getUses();
 
   void replaceAllUsesWith(Value *v);
 
- private:
+private:
   Define* define;
-  std::list<Use> *uses;
+  unsigned int defineNo;
+  std::vector<Use> *uses;
 };
 
 class Define
 {
 public:
+  Define(StringRef p_name): name(p_name) {}
+
   // TODO: Operator Type
   StringRef getName();
 
@@ -60,14 +62,13 @@ private:
 };
 
 class Use {
- public:
+public:
   Value *get();
-  Define* getUser();
-
+  Operator *getUser();
   unsigned getOperandNo() const;
 
- private:
-  Define *user;
+private:
+  Operator *user;
   unsigned int operand_num;
   Value *value;
 };
@@ -75,15 +76,15 @@ class Use {
 class Operator : public Define
 {
 public:
-  Operator(StringRef p_name): name(p_name) {}
+  Operator(StringRef p_name): Define(p_name) {}
 
   Value *getInput(unsigned index);
 
   Value *getOutput(unsigned index);
 
- private:
-  std::vector<Value*> inputs;
-  std::vector<Value*> outputs;
+private:
+  ::std::vector<Value*> inputs;
+  ::std::vector<Value*> outputs;
 };
 
 template<typename T>
@@ -92,15 +93,15 @@ class Tensor: public Value {
 
 // XXX: AttrType
 namespace AttrType {
-class INT {};
-class FLOAT {};
-class STRING {};
+typedef int64_t INT;
+typedef float FLOAT;
+typedef ::std::string STRING;
 class TENSOR {};
 class GRAPH {};
-class INTS {};
-class FLOATS {};
-class STRINGS {};
+typedef ::std::vector<INT> INTS;
+typedef ::std::vector<FLOAT> FLOATS;
+typedef ::std::vector<STRING> STRINGS;
 }
 
-} // namespace onnx
+} // namespace tensor
 } // namespace onnc
