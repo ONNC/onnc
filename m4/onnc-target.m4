@@ -16,14 +16,14 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_ARG_ENABLE([targets],
     [AS_HELP_STRING([--enable-targets],
               [Build specific host targets: all or target1,target2,... Valid targets are:
-       host, sophon, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, arm64, mips, spu, hexagon,
+       host, sophon, tg, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, arm64, mips, spu, hexagon,
        xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
     [],
     [enableval=all])
 
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
-    all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon" ;;
+    all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG" ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
     x86)      TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;
@@ -46,6 +46,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
     mblaze)   TARGETS_TO_BUILD="MBlaze $TARGETS_TO_BUILD" ;;
     ptx)      TARGETS_TO_BUILD="PTX $TARGETS_TO_BUILD" ;;
     sophon)   TARGETS_TO_BUILD="Sophon $TARGETS_TO_BUILD" ;;
+    tg)   TARGETS_TO_BUILD="TG $TARGETS_TO_BUILD" ;;
     *) AC_MSG_ERROR([Unrecognized target $a_target]) ;;
         esac
     done

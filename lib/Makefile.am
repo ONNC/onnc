@@ -5,6 +5,8 @@ ONNC_SOURCES = \
 	Target/TargetRegistry.cpp \
 	Target/Sophon/SophonBackend.cpp \
 	Target/Sophon/TargetInfo/SophonTargetInfo.cpp \
+	Target/TG/TGBackend.cpp \
+	Target/TG/TargetInfo/TGTargetInfo.cpp \
 	Target/X86/X86Backend.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp \
 	Core/AnalysisUsage.cpp \
