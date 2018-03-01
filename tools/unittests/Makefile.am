@@ -12,7 +12,7 @@ ONNC_INCLUDES = -I${abs_top_srcdir}/tools/unittests \
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
-ONNC_CPPFLAGS = -O0 -g3 -std=c++11 \
+ONNC_CPPFLAGS = -O0 -g3 \
 	-DUNITTEST=1 \
 	-DTOPDIR=\"${abs_top_srcdir}\" \
 	-DBUILDDIR=\"${abs_top_builddir}\"

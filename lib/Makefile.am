@@ -85,7 +85,7 @@ ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment
 
 ONNC_INCLUDES = @LIBONNC_INCLUDES@
 
-ONNC_CPPFLAGS = -std=c++11
+ONNC_CPPFLAGS =
 
 if ENABLE_DEBUG
 ONNC_CPPFLAGS += -O0 -g3

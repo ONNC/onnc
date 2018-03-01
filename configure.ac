@@ -25,7 +25,7 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign nostdinc subdir-objects])
 AC_PROG_CC
 AC_PROG_CXX
 AC_LANG([C++])
-AX_CXX_COMPILE_STDCXX_11([noext])
+AX_CXX_COMPILE_STDCXX_14([noext])
 AC_CXX_STL_HASH
 AC_PROG_RANLIB
 AC_PROG_LEX
