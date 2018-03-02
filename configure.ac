@@ -67,7 +67,6 @@ AC_CHECK_FUNCS([gettimeofday])
 # Check for options
 CHECK_PTHREAD
 CHECK_SKYPAT
-CHECK_BMKERNEL
 CHECK_ZLIB
 CHECK_ENABLE_OPTION([debug], [no], [ENABLE_DEBUG])
 CHECK_ENABLE_OPTION([unittest], [no], [ENABLE_UNITTEST])
@@ -91,9 +90,6 @@ AC_CONFIG_FILES([include/onnc/Config/Backends.def])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([tools/Makefile])
 AC_CONFIG_FILES([tools/unittests/Makefile])
-AC_CONFIG_FILES([tools/unittests/bitmain/Makefile])
-AC_CONFIG_FILES([tools/unittests/bitmain/bmkernel_test/Makefile])
-AC_CONFIG_FILES([tools/unittests/bitmain/lenetCodeEmit/Makefile])
 AC_CONFIG_FILES([tools/onnc/Makefile])
 
 AC_OUTPUT

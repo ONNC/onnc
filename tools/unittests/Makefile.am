@@ -1,5 +1,7 @@
 if ENABLE_UNITTEST
+if HAVE_BMKERNEL
 SUBDIRS = bitmain
+endif
 TEST_SOURCES = DigraphTest.cpp
 endif
 

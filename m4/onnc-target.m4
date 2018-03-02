@@ -23,7 +23,9 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
 
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
-    all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG" ;;
+    all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG"
+        check_bmkernel=yes
+        ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
     x86)      TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;
@@ -45,13 +47,23 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
     cpp)      TARGETS_TO_BUILD="CppBackend $TARGETS_TO_BUILD" ;;
     mblaze)   TARGETS_TO_BUILD="MBlaze $TARGETS_TO_BUILD" ;;
     ptx)      TARGETS_TO_BUILD="PTX $TARGETS_TO_BUILD" ;;
-    sophon)   TARGETS_TO_BUILD="Sophon $TARGETS_TO_BUILD" ;;
-    tg)   TARGETS_TO_BUILD="TG $TARGETS_TO_BUILD" ;;
+    sophon)
+        TARGETS_TO_BUILD="Sophon $TARGETS_TO_BUILD"
+        check_bmkernel=yes
+        ;;
+    tg)
+        TARGETS_TO_BUILD="TG $TARGETS_TO_BUILD"
+        check_bmkernel=yes
+        ;;
     *) AC_MSG_ERROR([Unrecognized target $a_target]) ;;
         esac
     done
     ;;
   esac
+
+  dnl Library check for target: Sophon, TG
+  CHECK_BMKERNEL
+
   AC_SUBST(TARGETS_TO_BUILD,$TARGETS_TO_BUILD)
   AC_MSG_RESULT([$TARGETS_TO_BUILD])
 

@@ -10,46 +10,50 @@ dnl
 AC_DEFUN([CHECK_BMKERNEL],
 [dnl
 
-AC_ARG_WITH([bmkernel],
-  [AS_HELP_STRING([--with-bmkernel@<:@=DIR@:>@],
-    [use bmkernel from DIR, or PREFIX if not given])],
-  [bmkernel_dir="${withval}"],
-  [bmkernel_dir="${prefix}"])
+if test "$check_bmkernel" = "yes"; then
+    AC_ARG_WITH([bmkernel],
+      [AS_HELP_STRING([--with-bmkernel@<:@=DIR@:>@],
+        [use bmkernel from DIR, or PREFIX if not given])],
+      [bmkernel_dir="${withval}"],
+      [bmkernel_dir="${prefix}"])
+    AC_MSG_CHECKING(bmkernel)
+    HAVE_BMKERNEL=0
 
-AC_MSG_CHECKING(bmkernel)
+    AC_LANG_PUSH([C++])
+    orig_CXXFLAGS="${CXXFLAGS}"
+    CXXFLAGS="-I${bmkernel_dir}/include"
+    AC_COMPILE_IFELSE(
+      [AC_LANG_PROGRAM([[
+        #include <bm_kernel.h>
+      ]], [])],
+      [dnl action if true
+        HAVE_BMKERNEL=1
+        AC_MSG_RESULT([ok])
+      ],
+      [dnl action if else
+        AC_MSG_FAILURE([failed to find bmkernel headers])
+      ]
+    )
 
-HAVE_BMKERNEL=0
+    CXXFLAGS="${orig_CXXFLAGS}"
+    AC_LANG_POP([C++])
 
-AC_LANG_PUSH([C++])
-orig_CXXFLAGS="${CXXFLAGS}"
-CXXFLAGS="-I${bmkernel_dir}/include"
-AC_COMPILE_IFELSE(
-  [AC_LANG_PROGRAM([[
-    #include <bm_kernel.h>
-  ]], [])],
-  [dnl action if true
-    HAVE_BMKERNEL=1
-    AC_MSG_RESULT([ok])
-  ],
-  [dnl action if else
-    AC_MSG_FAILURE([failed to find bmkernel headers])
-  ]
-)
+    BMKERNEL_INCLUDES="-I${bmkernel_dir}/include"
+    BMKERNEL_LIBS="-L${bmkernel_dir}/lib -lbmtap -lpthread"
 
-CXXFLAGS="${orig_CXXFLAGS}"
-AC_LANG_POP([C++])
+    dnl TODO: workaround for include & lib path, should export bmapi in install folder
+    BMAPI_INCLUDES="-I${bmkernel_dir}/../bmnet/src/targets/plat-bm168x/bmkernel_api_origin"
+    BMAPI_LIBS="-L${bmkernel_dir}/../out_bmnet/src/targets/.libs -ltargets"
 
-BMKERNEL_INCLUDES="-I${bmkernel_dir}/include"
-BMKERNEL_LIBS="-L${bmkernel_dir}/lib -lbmtap -lpthread"
-
-dnl TODO: workaround for include & lib path, should export bmapi in install folder
-BMAPI_INCLUDES="-I${bmkernel_dir}/../bmnet/src/targets/plat-bm168x/bmkernel_api_origin"
-BMAPI_LIBS="-L${bmkernel_dir}/../out_bmnet/src/targets/.libs -ltargets"
-
-AC_SUBST(BMKERNEL_INCLUDES)
-AC_SUBST(BMKERNEL_LIBS)
-AC_SUBST(BMAPI_INCLUDES)
-AC_SUBST(BMAPI_LIBS)
-
+    AC_SUBST(BMKERNEL_INCLUDES)
+    AC_SUBST(BMKERNEL_LIBS)
+    AC_SUBST(BMAPI_INCLUDES)
+    AC_SUBST(BMAPI_LIBS)
+    AC_CONFIG_FILES([tools/unittests/bitmain/Makefile])
+    AC_CONFIG_FILES([tools/unittests/bitmain/bmkernel_test/Makefile])
+    AC_CONFIG_FILES([tools/unittests/bitmain/lenetCodeEmit/Makefile])
+fi
 AM_CONDITIONAL([HAVE_BMKERNEL], [test ${HAVE_BMKERNEL} = 1])
+
+
 ])
