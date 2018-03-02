@@ -5,33 +5,48 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TENSOR_VALUE_H
-#define ONNC_TENSOR_VALUE_H
-#include <vector>
+#ifndef ONNC_IR_TENSOR_VALUE_H
+#define ONNC_IR_TENSOR_VALUE_H
 #include <onnc/Tensor/Use.h>
+#include <vector>
+#include <string>
 
 namespace onnc {
 namespace tensor {
 
-class Value {
+/** \class Value
+ *  \brief Value represents all values computed by a program. Use-define chain
+ *  is a very important concept in compiler theory. A value may be used as an
+ *  operand in operators.
+ */
+class Value
+{
 public:
-  Value(StringRef p_name): m_Name(p_name) {}
+  typedef std::vector<Use> UseList;
 
-  StringRef getName();
+public:
+  Value(const std::string& pName)
+    : m_Name(pName) {
+  }
 
-  Define* getDefine();
+  const std::string& getName() const { return m_Name; }
 
-  unsigned getDefineNo();
+  Define* getDefine() { return m_pDefine; }
+
+  unsigned int getDefineNo() { return m_DefineNo; }
 
   // TODO: Iterator
-  std::vector<Use> *getUses();
+  const UseList& getUses() const return m_UseList; }
+
+  // TODO: Iterator
+  UseList& getUses() return m_UseList; }
 
   void replaceAllUsesWith(Value *v);
 
 private:
-  Define* m_Define;
+  Define* m_pDefine;
   unsigned int m_DefineNo;
-  std::vector<Use> *m_Uses;
+  UseList m_Uses;
   std::string m_Name;
 };
 
