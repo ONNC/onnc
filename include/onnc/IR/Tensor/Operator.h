@@ -5,28 +5,40 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TENSOR_OPERATOR_H
-#define ONNC_TENSOR_OPERATOR_H
+#ifndef ONNC_IR_TENSOR_OPERATOR_H
+#define ONNC_IR_TENSOR_OPERATOR_H
+#include <string>
 #include <vector>
-#include <onnc/ADT/StringRef.h>
 
 namespace onnc {
 namespace tensor {
 
 class Value;
 
+/** \class Operator
+ *  \brief Operator represents an operator for tensor flows.
+ */
 class Operator : public Define
 {
 public:
-  Operator(StringRef p_name): Define(p_name) {}
+  Operator(const std::string& pName)
+    : Define(pName) {
+  }
 
-  Value *getInput(unsigned index);
+  Value *getInput(unsigned pIdx);
 
-  Value *getOutput(unsigned index);
+  const Value *getInput(unsigned pIdx) const;
+
+  Value *getOutput(unsigned pIdx);
+
+  const Value *getOutput(unsigned pIdx) const;
 
 private:
-  std::vector<Value*> m_Inputs;
-  std::vector<Value*> m_Outputs;
+  typedef std::vector<Value*> ValueRefList;
+
+private:
+  ValueRefList m_Inputs;  //< all values used as inputs in this operator
+  ValueRefList m_Outputs; //< all values used as outputs in this operator
 };
 
 } // namespace of tensor
