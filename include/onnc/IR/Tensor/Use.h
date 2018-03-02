@@ -5,8 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TENSOR_USE_H
-#define ONNC_TENSOR_USE_H
+#ifndef ONNC_IR_TENSOR_USE_H
+#define ONNC_IR_TENSOR_USE_H
 #include <string>
 
 namespace onnc {
@@ -15,10 +15,20 @@ namespace tensor {
 class Operator;
 class Value;
 
-class Use {
+/** \class Use
+ *  \brief Use represents an edge between its users and definition.
+ *
+ *  Unlike conventional compiler, inneural network, an operator may have
+ *  multiple operands, thus, we need two fields - getUser() and getOperandNo()
+ *  to locate one operand.
+ */
+class Use
+{
 public:
   Value *get();
+
   Operator *getUser();
+
   unsigned getOperandNo() const;
 
 private:
