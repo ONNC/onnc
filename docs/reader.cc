@@ -20,18 +20,28 @@ onnc::tensor::Operator *ConvertGraph(const onnx::GraphProto& graph) {
 
   for (int i = 0; i < graph.input_size(); i++) {
     if (i != 0) { cout << ", "; }
-    cout << '%' << graph.input(i).name();
+    const onnx::TypeProto &type = graph.input(i).type();
+    if (type.has_tensor_type()) {
+      const onnx::TypeProto::Tensor &tensor_type = type.tensor_type();
+      cout << TensorProto_DataType_Name(tensor_type.elem_type()) << " tensor <";
+      const onnx::TensorShapeProto &shape = tensor_type.shape();
+      for (int j = 0; j < shape.dim_size(); j++) {
+        if (j != 0) { cout << ", "; }
+        if (shape.dim(j).has_dim_value()) {
+          cout << shape.dim(j).dim_value();
+        } else {
+          cout << shape.dim(j).dim_param();
+        }
+      }
+      cout << "> ";
+    }
+    cout << '%' << graph.input(i).name() << endl;
   }
   cout << ") {" << endl;
 
   for (int i = 0; i < graph.initializer_size(); i++) {
     const onnx::TensorProto &initializer = graph.initializer(i);
-    cout << "  initialize input %" << initializer.name() << " = data tensor<";
-    for (int j = 0; j < initializer.dims_size(); j++) {
-      if (j != 0) { cout << ", "; }
-      cout << initializer.dims(j);
-    }
-    cout << '>' << endl;
+    cout << "  initialize input %" << initializer.name() << endl;
   }
 
   for (int i = 0; i < graph.node_size(); i++) {
@@ -49,6 +59,7 @@ onnc::tensor::Operator *ConvertGraph(const onnx::GraphProto& graph) {
     for (int j = 0; j < node.attribute_size(); j++) {
       const onnx::AttributeProto &attribute = node.attribute(j);
       if (j != 0) { cout << ", "; }
+      cout << attribute.name() << ":";
       switch (attribute.type()) {
         case onnx::AttributeProto::FLOAT:
           cout << attribute.f();
