@@ -1,6 +1,7 @@
 INCDIR=../include/onnc
 
 ONNC_SOURCES = \
+	IRReader/ONNXReader.cpp \
 	Target/Target.cpp \
 	Target/TargetRegistry.cpp \
 	Target/Sophon/SophonBackend.cpp \
