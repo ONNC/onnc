@@ -5,21 +5,16 @@
 #include <iostream>
 #include <onnx/onnx_pb.h>
 
-int main(int argc, char* argv[]) {
+int main() {
 
   // Verify that the version of the library that we linked against is
   // compatible with the version of the headers we compiled against.
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  if (argc != 2) {
-    std::cerr << "usage:  " << argv[0] << " onnx_file" << std::endl;
-    return -1;
-  }
-
   onnx::ModelProto model;
   {
     // TOOD, find the lenet onnx file
-    int fd = open(argv[1], O_RDONLY);
+    int fd = open("bvlc_alexnet/model.onnx", O_RDONLY);
     ::google::protobuf::io::CodedInputStream coded_stream(
         new ::google::protobuf::io::FileInputStream(fd));
     coded_stream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
@@ -29,8 +24,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  TGBackend tgBackend(model);
-  tgBackend.lowering().codeEmit();
+  TGBackend tgBackend;
+  tgBackend.lowering(model).codeEmit();
 
   // Optional:  Delete all global objects allocated by libprotobuf.
   google::protobuf::ShutdownProtobufLibrary();
