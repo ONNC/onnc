@@ -11,7 +11,6 @@
 #include <onnc/Support/Path.h>
 #include <onnc/Support/ErrorCode.h>
 #include <sys/file.h>
-#include <errno.h>
 
 namespace onnc {
 
@@ -25,15 +24,6 @@ namespace onnc {
 class FileHandle
 {
 public:
-  enum IOState {
-    kGoodBit = 0,           // no error
-    kBadBit = 1L << 0,      // error due to the inappropriate operation
-    kEOFBit = 1L << 1,      // reached End-Of-File
-    kFailBit = 1L << 2,     // internal logic fail
-    kDeputedBit = 1L << 3,  // the file descriptor is delegated
-    kIOStateEnd = 1L << 16
-  };
-
   enum OpenModeEnum {
     kNotOpen = 0x00,
     kReadOnly = 0x01,
@@ -77,28 +67,22 @@ public:
   ~FileHandle();
 
   /// open the file.
-  /// @retval false We meet any trouble during opening the file.
-  ///         use rdstate() to see what happens.
-  bool open(const Path& pPath, OpenMode pMode, Permission pPerm);
+  SystemError open(const Path& pPath, OpenMode pMode, Permission pPerm = kSystem);
 
-  bool delegate(int pFD, OpenModeEnum pMode = kUnknown);
+  SystemError delegate(int pFD, OpenModeEnum pMode = kUnknown);
 
-  bool close();
-
-  void setState(IOState pState);
-
-  void cleanState(IOState pState = kGoodBit);
+  SystemError close();
 
   // truncate the file up to the size @ref pSize.
-  bool truncate(size_t pSize);
+  SystemError truncate(size_t pSize);
 
   /// read the file content from @ref pStartOffset with lenght @ref pLength
   /// into the memory buffer @ref pMemBuffer
-  bool read(void* pMemBuffer, size_t pStartOffset, size_t pLength);
+  SystemError read(void* pMemBuffer, size_t pStartOffset, size_t pLength);
 
   /// write the memory buffer @ref pMemBuffer into the file starting from
   /// @ref pStartOffset with length @ref pLength.
-  bool write(const void* pMemBuffer, size_t pStartOffset, size_t pLength);
+  SystemError write(const void* pMemBuffer, size_t pStartOffset, size_t pLength);
 
   /// map the file into memory @ref pMemBuffer
   /// @param[in] pStartOffset mapping the file starting at byte offset
@@ -114,17 +98,7 @@ public:
   /// explore underlying file handler
   int handler() const { return m_Handler; }
 
-  uint16_t rdstate() const { return m_State; }
-
   bool isOpen() const;
-
-  bool isGood() const;
-
-  bool isBad() const;
-
-  bool isFailed() const;
-
-  bool isOwned() const;
 
   bool isReadable() const;
 
@@ -142,7 +116,6 @@ private:
   Path m_Path;
   int m_Handler;
   unsigned int m_Size;
-  uint16_t m_State;
   OpenMode m_OpenMode;
 };
 

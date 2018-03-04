@@ -15,10 +15,8 @@ namespace onnc {
 //===----------------------------------------------------------------------===//
 SystemError FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
 {
-  if (!isOpen()) {
-    setState(kBadBit);
+  if (!isOpen())
     return SystemError::kBadFileDescriptor;
-  }
 
   if (0 == pLength)
     return SystemError::kSuccess;
@@ -41,31 +39,24 @@ SystemError FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLen
   }
   else {
     // can not read/write
-    setState(kBadBit);
     return SystemError::kBadFileDescriptor;
   }
 
   pMemBuffer = ::mmap(NULL, pLength, prot, flag, m_Handler, pStartOffset);
 
-  if (MAP_FAILED == pMemBuffer) {
-    setState(kFailBit);
+  if (MAP_FAILED == pMemBuffer)
     return SystemError(errno);
-  }
 
   return SystemError::kSuccess;
 }
 
 SystemError FileHandle::munmap(void* pMemBuffer, size_t pLength)
 {
-  if (!isOpen()) {
-    setState(kBadBit);
+  if (!isOpen())
     return SystemError::kBadFileDescriptor;
-  }
 
-  if (-1 == ::munmap(pMemBuffer, pLength)) {
-    setState(kFailBit);
+  if (-1 == ::munmap(pMemBuffer, pLength))
     return SystemError(errno);
-  }
 
   return SystemError::kSuccess;
 }

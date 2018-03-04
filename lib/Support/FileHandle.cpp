@@ -73,7 +73,7 @@ inline static bool get_size(int pHandler, unsigned int& pSize)
 // FileHandle
 //===----------------------------------------------------------------------===//
 FileHandle::FileHandle()
-  : m_Path(), m_Handler(-1), m_Size(0), m_State(kGoodBit), m_OpenMode(kNotOpen) {
+  : m_Path(), m_Handler(-1), m_Size(0), m_OpenMode(kNotOpen) {
 }
 
 FileHandle::~FileHandle()
@@ -82,14 +82,19 @@ FileHandle::~FileHandle()
     close();
 }
 
-bool FileHandle::open(const Path& pPath,
-                      FileHandle::OpenMode pMode,
-                      FileHandle::Permission pPerm)
+bool FileHandle::isOpen() const
 {
-  if (isOpen() || kUnknown == pMode) {
-    setState(kBadBit);
-    return false;
-  }
+  if (-1 != m_Handler && kNotOpen != m_OpenMode && kUnknown != m_OpenMode)
+    return true;
+  return false;
+}
+
+SystemError FileHandle::open(const Path& pPath,
+                             FileHandle::OpenMode pMode,
+                             FileHandle::Permission pPerm)
+{
+  if (isOpen())
+    return SystemError::kPermissionDenied;
 
   m_OpenMode = pMode;
   if (kSystem == pPerm)
@@ -100,131 +105,87 @@ bool FileHandle::open(const Path& pPath,
   m_Path = pPath;
   if (m_Handler == -1) {
     m_OpenMode = OpenMode(kNotOpen);
-    setState(kFailBit);
-    return false;
+    return SystemError(errno);
   }
 
-  if (!get_size(m_Handler, m_Size)) {
-    setState(kFailBit);
-    return false;
-  }
+  if (!get_size(m_Handler, m_Size))
+    return SystemError(errno);
 
-  return true;
+  return SystemError::kSuccess;
 }
 
-bool FileHandle::delegate(int pFD, FileHandle::OpenModeEnum pMode)
+SystemError FileHandle::delegate(int pFD, FileHandle::OpenModeEnum pMode)
 {
-  if (isOpen()) {
-    setState(kBadBit);
-    return false;
-  }
+  if (isOpen())
+    return SystemError::kPermissionDenied;
 
   m_Handler = pFD;
   m_OpenMode = OpenMode(pMode);
-  m_State = (kGoodBit | kDeputedBit);
 
-  if (!get_size(m_Handler, m_Size)) {
-    setState(kFailBit);
-    return false;
-  }
+  if (!get_size(m_Handler, m_Size))
+    return SystemError(errno);
 
-  return true;
+  return SystemError::kSuccess;
 }
 
-bool FileHandle::close()
+SystemError FileHandle::close()
 {
-  if (!isOpen()) {
-    setState(kBadBit);
-    return false;
-  }
+  if (!isOpen())
+    return SystemError::kPermissionDenied;
 
-  if (isOwned()) {
-    if (::close(m_Handler) == -1) {
-      setState(kFailBit);
-      return false;
-    }
-  }
+  if (-1 == ::close(m_Handler))
+    return SystemError(errno);
 
   m_Path.native().clear();
   m_Size = 0;
   m_OpenMode = OpenMode(kNotOpen);
-  cleanState();
-  return true;
+  return SystemError::kSuccess;
 }
 
-bool FileHandle::truncate(size_t pSize)
+SystemError FileHandle::truncate(size_t pSize)
 {
-  if (!isOpen() || !isWritable()) {
-    setState(kBadBit);
-    return false;
-  }
+  if (!isOpen() || !isWritable())
+    return SystemError::kPermissionDenied;
 
-  if (::ftruncate(m_Handler, pSize) == -1) {
-    setState(kFailBit);
-    return false;
-  }
+  if (-1 == ::ftruncate(m_Handler, pSize))
+    return SystemError(errno);
 
   m_Size = pSize;
-  return true;
+  return SystemError::kSuccess;
 }
 
-bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
+SystemError FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
 {
-  if (!isOpen() || !isReadable()) {
-    setState(kBadBit);
-    return false;
-  }
+  if (!isOpen() || !isReadable())
+    return SystemError::kPermissionDenied;
 
   if (pLength == 0)
-    return true;
+    return SystemError::kSuccess;
 
   ssize_t read_bytes = ::pread(m_Handler, pMemBuffer, pLength, pStartOffset);
 
-  if (read_bytes == -1) {
-    setState(kFailBit);
-    return false;
-  }
+  if (-1 == read_bytes)
+    return SystemError(errno);
 
-  return true;
+  return SystemError::kSuccess;
 }
 
-bool FileHandle::write(const void* pMemBuffer,
-                       size_t pStartOffset,
-                       size_t pLength)
+SystemError FileHandle::write(const void* pMemBuffer,
+                              size_t pStartOffset,
+                              size_t pLength)
 {
-  if (!isOpen() || !isWritable()) {
-    setState(kBadBit);
-    return false;
-  }
+  if (!isOpen() || !isWritable())
+    return SystemError::kPermissionDenied;
 
   if (pLength == 0)
-    return true;
+    return SystemError::kSuccess;
 
   ssize_t write_bytes = pwrite(m_Handler, pMemBuffer, pLength, pStartOffset);
 
-  if (write_bytes == -1) {
-    setState(kFailBit);
-    return false;
-  }
+  if (-1 == write_bytes)
+    return SystemError(errno);
 
-  return true;
-}
-
-void FileHandle::setState(FileHandle::IOState pState)
-{
-  m_State |= pState;
-}
-
-void FileHandle::cleanState(FileHandle::IOState pState)
-{
-  m_State = pState;
-}
-
-bool FileHandle::isOpen() const
-{
-  if (m_Handler != -1 && m_OpenMode != kNotOpen && isGood())
-    return true;
-  return false;
+  return SystemError::kSuccess;
 }
 
 // Assume Unknown OpenMode is readable
@@ -243,26 +204,6 @@ bool FileHandle::isWritable() const
 bool FileHandle::isReadWrite() const
 {
   return (FileHandle::kReadWrite == (m_OpenMode & FileHandle::kReadWrite));
-}
-
-bool FileHandle::isGood() const
-{
-  return !(m_State & (kBadBit | kFailBit));
-}
-
-bool FileHandle::isBad() const
-{
-  return (m_State & kBadBit);
-}
-
-bool FileHandle::isFailed() const
-{
-  return (m_State & (kBadBit | kFailBit));
-}
-
-bool FileHandle::isOwned() const
-{
-  return !(m_State & kDeputedBit);
 }
 
 SystemError FileHandle::lock(LockMode pMode)
