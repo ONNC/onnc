@@ -1,6 +1,8 @@
 #pragma one
 
 #include <cstdint>
+#include <memory>
+#include <onnx/common/ir.h>
 #include <onnx/onnx_pb.h>
 #include <vector>
 #include "TGOperator.h"
@@ -9,9 +11,9 @@
 
 class TGBackend {
 public:
-  TGBackend();
+  TGBackend(const onnx::ModelProto &model);
   ~TGBackend();
-  TGBackend &lowering(const onnx::ModelProto &model);
+  TGBackend &lowering(void);
   void codeEmit(void);
 
 private:
@@ -25,6 +27,7 @@ private:
   void bmkernelContextPrepare(void);
 
   void *_bmkernelHandle;
+  std::unique_ptr<onnx::Graph> onnxGraph;
   // std::map<std::string , op_type_func_handler> handler;
   std::vector<TGOperator*> instructions;
 };
