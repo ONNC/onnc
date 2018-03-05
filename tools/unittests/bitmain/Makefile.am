@@ -1,2 +1,2 @@
 
-SUBDIRS = bmkernel_test lenetCodeEmit
+SUBDIRS = bmkernel_test llc
