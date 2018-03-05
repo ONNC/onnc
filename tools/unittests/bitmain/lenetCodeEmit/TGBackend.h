@@ -1,4 +1,4 @@
-#pragma one
+#pragma once
 
 #include <cstdint>
 #include <memory>
@@ -26,8 +26,8 @@ private:
                             long long unsigned int fwAddr, bool isFloat);
   void bmkernelContextPrepare(void);
 
-  void *_bmkernelHandle;
-  std::unique_ptr<onnx::Graph> onnxGraph;
+  void *m_bmkernelHandle;
+  std::unique_ptr<onnx::Graph> m_onnxGraph;
   // std::map<std::string , op_type_func_handler> handler;
-  std::vector<TGOperator*> instructions;
+  std::vector<std::unique_ptr<TGOperator>> m_instructions;
 };

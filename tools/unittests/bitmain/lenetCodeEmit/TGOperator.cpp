@@ -2,11 +2,35 @@
 #include <bmkernel_api.h>
 #include <iostream>
 
-TGOperator::TGOperator(const onnx::Node & node) : m_totalSize(0) {
+TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
+                                       uint64_t offset) {
+  uint32_t symbol = node.kind();
+  if (symbol == onnx::Symbol("Conv"))
+    return new TGConv(node, offset);
+  else if (symbol == onnx::Symbol("Relu"))
+    return new TGRelu(node, offset);
+  else if (symbol == onnx::Symbol("LRN"))
+    return new TGLRN(node, offset);
+  else if (symbol == onnx::Symbol("MaxPool"))
+    return new TGMaxPool(node, offset);
+  else if (symbol == onnx::Symbol("Gemm"))
+    return new TGGemm(node, offset);
+  else if (symbol == onnx::Symbol("Softmax"))
+    return new TGSoftmax(node, offset);
+  std::cerr << "unsupported node type: " << node.kind().toString() << std::endl;
+  return nullptr;
+}
+
+TGOperator::TGOperator(const onnx::Node &node) : m_totalSize(0) {
   // TODO cal total size
   //  for (val = inputs and outputs) {
   //    m_totalSize += val.sizes() * sizeof(val.elemType);
   //  }
+}
+
+// TGConv
+TGConv::TGConv(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
+  m_name = std::string("Conv");
 }
 
 void TGConv::emit(void) const {
@@ -47,3 +71,40 @@ void TGConv::emit(void) const {
                               0      //  bool activation_channel_shared
                               );
 }
+
+// TGRelu
+TGRelu::TGRelu(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
+  m_name = std::string("Relu");
+}
+
+void TGRelu::TGRelu::emit(void) const {}
+
+// TGLRN
+TGLRN::TGLRN(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
+  m_name = std::string("LRN");
+}
+
+void TGLRN::TGLRN::emit(void) const {}
+
+// TGMaxPool
+TGMaxPool::TGMaxPool(const onnx::Node &node, uint64_t offset)
+    : TGOperator(node) {
+  m_name = std::string("MaxPool");
+}
+
+void TGMaxPool::TGMaxPool::emit(void) const {}
+
+// TGGemm
+TGGemm::TGGemm(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
+  m_name = std::string("Gemm");
+}
+
+void TGGemm::TGGemm::emit(void) const {}
+
+// TGSoftmax
+TGSoftmax::TGSoftmax(const onnx::Node &node, uint64_t offset)
+    : TGOperator(node) {
+  m_name = std::string("Softmax");
+}
+
+void TGSoftmax::TGSoftmax::emit(void) const {}

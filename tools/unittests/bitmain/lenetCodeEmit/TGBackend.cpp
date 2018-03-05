@@ -1,6 +1,7 @@
 #include <bm_kernel.h>
 #include <bmkernel_api.h>
 #include <cstring>
+#include <cassert>
 #include <fstream>
 #include <host_util.h>
 #include <ios>
@@ -223,14 +224,14 @@ void TGBackend::bmkernelContextPrepare(void) {
   bmkernelInfo.debug = TGBackend::emitDebugInfo;
 
   bmkernel_register(&bmkernelInfo, BMKERNEL_NODE_ID_HOST, (void *)0,
-                    &_bmkernelHandle);
+                    &m_bmkernelHandle);
   std::cout << "bmkernel_register done" << std::endl;
 }
 
-TGBackend::TGBackend(const onnx::ModelProto &model) : _bmkernelHandle(nullptr) {
+TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) {
   // transfer pb to onnx ir
   dumpONNXIR(model);
-  onnxGraph = std::move(onnx::ImportModelProto(model));
+  m_onnxGraph = std::move(onnx::ImportModelProto(model));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
@@ -238,31 +239,27 @@ TGBackend::~TGBackend() { kernel_exit(); }
 void TGBackend::codeEmit(void) {
   // init bm1680 context
   bmkernelContextPrepare();
-  kernel_enter(_bmkernelHandle);
-  for (auto i : instructions) {
+  kernel_enter(m_bmkernelHandle);
+  for (auto const &i : m_instructions) {
     i->emit();
-    delete (i);
   }
+  m_instructions.clear();
   kernel_submit();
 }
 
 TGBackend &TGBackend::lowering(void) {
-
-  // TODO Lowering
-  uint64_t offset =0;
-  for (auto it = onnxGraph->begin(), ie = onnxGraph->end(); it != ie; ++it) {
-    const onnx::Node* const node = *it;
-    switch (node->kind()) {
-    case onnx::kConv: {
-      TGConv *tgconv = new TGConv(*node, offset);
-      offset += tgconv->getTotalSize();
-      instructions.push_back(tgconv);
-      std::cout << "lowering: " << node->kind().toString() << std::endl;
-      break;
-    }
-    default:
-      std::cout << "TOOD lowering: " << node->kind().toString() << std::endl;
-    }
+  uint64_t offset = 0;
+  for (auto it = m_onnxGraph->begin(), ie = m_onnxGraph->end(); it != ie;
+       ++it) {
+    const onnx::Node *const node = *it;
+    std::unique_ptr<TGOperator> tgOp(TGOperator::makeTGOperator(*node, offset));
+    // FIXME walkaound for Dropout node
+    if (nullptr == tgOp)
+      continue;
+    assert(nullptr != tgOp);
+    std::cout << "lowering: " << tgOp->getName() << std::endl;
+    offset += tgOp->getTotalSize();
+    m_instructions.push_back(std::move(tgOp));
   }
   return *this;
 }
