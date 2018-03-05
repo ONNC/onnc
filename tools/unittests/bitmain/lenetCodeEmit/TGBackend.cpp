@@ -231,14 +231,14 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : _bmkernelHandle(nullptr) {
   // transfer pb to onnx ir
   dumpONNXIR(model);
   onnxGraph = std::move(onnx::ImportModelProto(model));
-  // init bm1680 context
-  bmkernelContextPrepare();
-  kernel_enter(_bmkernelHandle);
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
 
 void TGBackend::codeEmit(void) {
+  // init bm1680 context
+  bmkernelContextPrepare();
+  kernel_enter(_bmkernelHandle);
   for (auto i : instructions) {
     i->emit();
     delete (i);
@@ -249,14 +249,19 @@ void TGBackend::codeEmit(void) {
 TGBackend &TGBackend::lowering(void) {
 
   // TODO Lowering
+  uint64_t offset =0;
   for (auto it = onnxGraph->begin(), ie = onnxGraph->end(); it != ie; ++it) {
-    switch (it->kind()) {
-    case onnx::kConv:
-      instructions.push_back(new TGConv());
-      std::cout << "lowering: " << it->kind().toString() << std::endl;
+    const onnx::Node* const node = *it;
+    switch (node->kind()) {
+    case onnx::kConv: {
+      TGConv *tgconv = new TGConv(*node, offset);
+      offset += tgconv->getTotalSize();
+      instructions.push_back(tgconv);
+      std::cout << "lowering: " << node->kind().toString() << std::endl;
       break;
+    }
     default:
-      std::cout << "TOOD lowering: " << it->kind().toString() << std::endl;
+      std::cout << "TOOD lowering: " << node->kind().toString() << std::endl;
     }
   }
   return *this;

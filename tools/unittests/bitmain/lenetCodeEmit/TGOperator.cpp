@@ -2,6 +2,13 @@
 #include <bmkernel_api.h>
 #include <iostream>
 
+TGOperator::TGOperator(const onnx::Node & node) : m_totalSize(0) {
+  // TODO cal total size
+  //  for (val = inputs and outputs) {
+  //    m_totalSize += val.sizes() * sizeof(val.elemType);
+  //  }
+}
+
 void TGConv::emit(void) const {
   std::cout << "TGConv::emit" << std::endl;
   bmnet_conv_forward_bmkernel(0,     // gaddr_t             ga_ifmap,
