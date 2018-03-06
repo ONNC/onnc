@@ -11,6 +11,7 @@
 #include "TGBackend.h"
 #include "reader_helper.h"
 #include "onnx/common/ir_pb_converter.h"
+#include "onnx/optimizer/optimize.h"
 
 static void dumpONNXIR(const onnx::ModelProto &model) {
 
@@ -229,9 +230,19 @@ void TGBackend::bmkernelContextPrepare(void) {
 }
 
 TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) {
+
+ // test onnx opt passes
+ std::cout << "before onnx IR optimization" << std::endl;
+ onnx::optimization::Optimizer onnxOptimizer;
+ auto mirrorModel = std::make_unique<onnx::ModelProto>(model);
+ dumpONNXIR(*mirrorModel);
+ std::vector<std::string> passNames{"eliminate_nop_transpose", "fuse_consecutive_transposes", "fuse_transpose_into_gemm"};
+ auto optModel = onnxOptimizer.optimize(std::move(mirrorModel), passNames);
+ std::cout << "after onnx IR optimization" << std::endl;
+ dumpONNXIR(*optModel);
+
   // transfer pb to onnx ir
-  dumpONNXIR(model);
-  m_onnxGraph = std::move(onnx::ImportModelProto(model));
+  m_onnxGraph = std::move(onnx::ImportModelProto(*optModel));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
