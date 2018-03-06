@@ -1,6 +1,8 @@
 #include "TGOperator.h"
+#include "onnx/common/ir.h"
 #include <bmkernel_api.h>
 #include <iostream>
+#include <unordered_set>
 
 TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
                                        uint64_t offset) {
@@ -23,19 +25,36 @@ TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
 
 TGOperator::TGOperator(const onnx::Node &node, const std::string &name)
     : m_totalWeightSize(0), m_name(name) {
-  updateWeightSize();
 }
 
-void TGOperator::updateWeightSize(void) {
+uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
+                                      std::vector<uint64_t> &weightOffset) {
 
-  // TODO cal total size
-  //  for (val = inputs and outputs) {
-  //    m_totalSize += val.sizes() * sizeof(val.elemType);
-  //  }
+  int64_t totalWeightSize = 0;
+  int64_t sizeofType = 4;
+  // walk around the lack of const member function in onnx::Graph
+  auto *graph = const_cast<onnx::Graph *>(node.owningGraph());
+  std::unordered_set<std::string> initNames(graph->initializer_names().begin(),
+                                            graph->initializer_names().end());
+  for (auto it = node.inputs().begin(), ie = node.inputs().end(); it != ie;
+       ++it) {
+    weightOffset.push_back(offset);
+    const onnx::Value *val = *it;
+    if (0 == val->sizes().size() || 0 == initNames.count(val->uniqueName()))
+      continue;
+    int64_t totalDim = 1;
+    for (auto &dimension : val->sizes()) {
+      totalDim *= dimension.dim;
+    }
+    offset += totalDim * sizeofType;
+    totalWeightSize += totalDim * sizeofType;
+  }
+  return totalWeightSize;
 }
 
 // TGConv
 TGConv::TGConv(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Conv") {
+  m_totalWeightSize = updateWeightSize(node, offset, m_weightOffset);
 }
 
 void TGConv::emit(void) const {
@@ -98,6 +117,7 @@ void TGMaxPool::TGMaxPool::emit(void) const {}
 
 // TGGemm
 TGGemm::TGGemm(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Gemm") {
+  m_totalWeightSize = updateWeightSize(node, offset, m_weightOffset);
 }
 
 void TGGemm::TGGemm::emit(void) const {}

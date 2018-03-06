@@ -11,17 +11,20 @@ public:
   const std::string &getName(void) { return m_name; }
   virtual void emit(void) const = 0;
 
-private:
-  void updateWeightSize(void);
+protected:
+  uint64_t updateWeightSize(const onnx::Node &node, uint64_t offset, std::vector<uint64_t> &weightOffset);
   uint64_t m_totalWeightSize;
+
+private:
   std::string m_name;
-  bool m_inplace;
 };
 
 class TGConv : public TGOperator {
 public:
   TGConv(const onnx::Node &node, uint64_t offset);
   virtual void emit(void) const;
+private:
+  std::vector<uint64_t> m_weightOffset;
 };
 
 class TGRelu : public TGOperator {
@@ -46,6 +49,8 @@ class TGGemm : public TGOperator {
 public:
   TGGemm(const onnx::Node &node, uint64_t offset);
   virtual void emit(void) const;
+private:
+  std::vector<uint64_t> m_weightOffset;
 };
 
 class TGSoftmax : public TGOperator {
