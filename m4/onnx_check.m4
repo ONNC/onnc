@@ -2,7 +2,7 @@ dnl
 dnl @synopsis CHECK_ONNX
 dnl
 dnl @summary check --with-onnx=<installdir>, and setup variables:
-dnl   ONNX_INCLUDES="-I${PYTHON_PATH}"
+dnl   ONNX_INCLUDES="-I${python_onnx_path}"
 dnl   ONNX_LIBS="${onnx_dir}/lib/"
 dnl
 dnl
@@ -22,10 +22,8 @@ HAVE_ONNX=0
 AC_LANG_PUSH([C++])
 orig_CXXFLAGS="${CXXFLAGS}"
 
-PYTHON_PATH="/usr/local/lib/python2.7/dist-packages"
-dnl TODO
-dnl pyhton_path = esyscmd(`python -c \"import onnx, os; print(os.path.dirname(onnx.__path__[0]))\"')
-CXXFLAGS="-I${PYTHON_PATH} -DONNX_NAMESPACE=onnx"
+python_onnx_path=$([python -c "import onnx, os; print(os.path.dirname(onnx.__path__[0]))"])
+CXXFLAGS="-I${python_onnx_path} -DONNX_NAMESPACE=onnx"
 
 AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM([[
@@ -43,7 +41,7 @@ AC_COMPILE_IFELSE(
 CXXFLAGS="${orig_CXXFLAGS}"
 AC_LANG_POP([C++])
 
-ONNX_INCLUDES="-I${PYTHON_PATH} -DONNX_NAMESPACE=onnx"
+ONNX_INCLUDES="-I${python_onnx_path} -DONNX_NAMESPACE=onnx"
 ONNX_LIBS="-L${onnx_dir}/lib -lonnx -lprotobuf -lpython2.7"
 
 AC_SUBST(ONNX_INCLUDES)
