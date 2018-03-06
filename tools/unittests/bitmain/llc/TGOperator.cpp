@@ -1,8 +1,27 @@
 #include "TGOperator.h"
 #include "onnx/common/ir.h"
 #include <bmkernel_api.h>
+#include <cassert>
 #include <iostream>
 #include <unordered_set>
+
+namespace {
+int getSize(onnx::TensorProto_DataType type) {
+  switch (type) {
+  case onnx::TensorProto_DataType_FLOAT:
+    return sizeof(float);
+  case onnx::TensorProto_DataType_INT8:
+    return sizeof(int8_t);
+  case onnx::TensorProto_DataType_INT16:
+    return sizeof(int16_t);
+  case onnx::TensorProto_DataType_INT32:
+    return sizeof(int32_t);
+  default:
+    assert(0 && "unimplemented type");
+    return 0;
+  }
+}
+}
 
 TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
                                        uint64_t offset) {
@@ -31,7 +50,6 @@ uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
                                       std::vector<uint64_t> &weightOffset) {
 
   int64_t totalWeightSize = 0;
-  int64_t sizeofType = 4;
   // walk around the lack of const member function in onnx::Graph
   auto *graph = const_cast<onnx::Graph *>(node.owningGraph());
   std::unordered_set<std::string> initNames(graph->initializer_names().begin(),
@@ -46,6 +64,7 @@ uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
     for (auto &dimension : val->sizes()) {
       totalDim *= dimension.dim;
     }
+    int64_t sizeofType = getSize(val->elemType());
     offset += totalDim * sizeofType;
     totalWeightSize += totalDim * sizeofType;
   }
