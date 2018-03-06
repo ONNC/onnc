@@ -5,17 +5,17 @@
 class TGOperator {
 public:
   static TGOperator *makeTGOperator(const onnx::Node &node, uint64_t offset);
-  TGOperator(const onnx::Node &node);
+  TGOperator(const onnx::Node &node, const std::string &name);
   virtual ~TGOperator() {};
-  uint64_t getTotalSize(void) { return m_totalSize; }
+  uint64_t getTotalWeightSize(void) { return m_totalWeightSize; }
   const std::string &getName(void) { return m_name; }
   virtual void emit(void) const = 0;
 
-protected:
-  std::string m_name;
-
 private:
-  uint64_t m_totalSize;
+  void updateWeightSize(void);
+  uint64_t m_totalWeightSize;
+  std::string m_name;
+  bool m_inplace;
 };
 
 class TGConv : public TGOperator {

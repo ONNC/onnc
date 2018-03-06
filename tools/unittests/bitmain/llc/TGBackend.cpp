@@ -269,7 +269,7 @@ TGBackend &TGBackend::lowering(void) {
       continue;
     assert(nullptr != tgOp);
     std::cout << "lowering: " << tgOp->getName() << std::endl;
-    offset += tgOp->getTotalSize();
+    offset += tgOp->getTotalWeightSize();
     m_instructions.push_back(std::move(tgOp));
   }
   return *this;

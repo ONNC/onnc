@@ -21,7 +21,13 @@ TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
   return nullptr;
 }
 
-TGOperator::TGOperator(const onnx::Node &node) : m_totalSize(0) {
+TGOperator::TGOperator(const onnx::Node &node, const std::string &name)
+    : m_totalWeightSize(0), m_name(name) {
+  updateWeightSize();
+}
+
+void TGOperator::updateWeightSize(void) {
+
   // TODO cal total size
   //  for (val = inputs and outputs) {
   //    m_totalSize += val.sizes() * sizeof(val.elemType);
@@ -29,8 +35,7 @@ TGOperator::TGOperator(const onnx::Node &node) : m_totalSize(0) {
 }
 
 // TGConv
-TGConv::TGConv(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
-  m_name = std::string("Conv");
+TGConv::TGConv(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Conv") {
 }
 
 void TGConv::emit(void) const {
@@ -73,38 +78,33 @@ void TGConv::emit(void) const {
 }
 
 // TGRelu
-TGRelu::TGRelu(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
-  m_name = std::string("Relu");
+TGRelu::TGRelu(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Relu") {
 }
 
 void TGRelu::TGRelu::emit(void) const {}
 
 // TGLRN
-TGLRN::TGLRN(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
-  m_name = std::string("LRN");
+TGLRN::TGLRN(const onnx::Node &node, uint64_t offset) : TGOperator(node, "LRN") {
 }
 
 void TGLRN::TGLRN::emit(void) const {}
 
 // TGMaxPool
 TGMaxPool::TGMaxPool(const onnx::Node &node, uint64_t offset)
-    : TGOperator(node) {
-  m_name = std::string("MaxPool");
+    : TGOperator(node, "MaxPool") {
 }
 
 void TGMaxPool::TGMaxPool::emit(void) const {}
 
 // TGGemm
-TGGemm::TGGemm(const onnx::Node &node, uint64_t offset) : TGOperator(node) {
-  m_name = std::string("Gemm");
+TGGemm::TGGemm(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Gemm") {
 }
 
 void TGGemm::TGGemm::emit(void) const {}
 
 // TGSoftmax
 TGSoftmax::TGSoftmax(const onnx::Node &node, uint64_t offset)
-    : TGOperator(node) {
-  m_name = std::string("Softmax");
+    : TGOperator(node, "Softmax") {
 }
 
 void TGSoftmax::TGSoftmax::emit(void) const {}
