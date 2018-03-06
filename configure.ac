@@ -44,6 +44,11 @@ SETUP_CONFIG_HEADER
 AC_CONFIG_HEADER(include/onnc/Config/Config.h)
 AC_CONFIG_HEADER(include/onnc/Support/DataTypes.h)
 
+PKG_CHECK_MODULES([PROTOBUF], [protobuf])
+AC_SUBST(PROTOBUF_LIBS)
+AC_SUBST(PROTOBUF_CFLAGS)
+AC_SUBST(PROTOBUF_VERSION)
+
 ####################
 # Check for types
 AC_CHECK_TYPES([int8_t, int16_t, int32_t, int64_t, intptr_t])
