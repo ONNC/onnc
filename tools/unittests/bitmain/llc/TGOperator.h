@@ -19,13 +19,7 @@ private:
   std::string m_name;
 };
 
-class TGConv : public TGOperator {
-public:
-  TGConv(const onnx::Node &node, uint64_t offset);
-  virtual void emit(void) const;
-private:
-  std::vector<uint64_t> m_weightOffset;
-};
+#include "TGConv.hpp"
 
 class TGRelu : public TGOperator {
 public:

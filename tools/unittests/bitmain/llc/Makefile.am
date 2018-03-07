@@ -8,5 +8,5 @@ llc_CPPFLAGS = @BMKERNEL_INCLUDES@ @BMAPI_INCLUDES@ @ONNX_INCLUDES@
 llc_LDFLAGS = @ONNX_LIBS@ @BMKERNEL_LIBS@ @BMAPI_LIBS@
 
 
-nodist_llcTest_SOURCES = llcTest.cpp TGBackend.cpp TGOperator.cpp Operator.cc oper.cc
-nodist_llc_SOURCES = llc.cpp TGBackend.cpp TGOperator.cpp Operator.cc oper.cc
+nodist_llcTest_SOURCES = llcTest.cpp TGBackend.cpp TGOperator.cpp Operator.cc oper.cc TGConv.cc
+nodist_llc_SOURCES = llc.cpp TGBackend.cpp TGOperator.cpp Operator.cc oper.cc TGConv.cc
