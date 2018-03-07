@@ -19,7 +19,7 @@ private:
   std::string m_name;
 };
 
-#include "TGConv.hpp"
+#include "TGConv.h"
 
 class TGRelu : public TGOperator {
 public:
