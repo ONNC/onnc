@@ -87,7 +87,7 @@ NodeIterator<NodeType>::NodeIterator(NodeType* pNode)
 template<typename NodeType>
 bool NodeIterator<NodeType>::isEnd() const
 {
-  return (nullptr != m_pNodePtr);
+  return (nullptr == m_pNodePtr);
 }
 
 template<typename NodeType>
