@@ -90,11 +90,6 @@ TGMaxPool::TGMaxPool(const onnx::Node &node, uint64_t offset)
 
 void TGMaxPool::TGMaxPool::emit(void) const {}
 
-// TGGemm
-TGGemm::TGGemm(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Gemm") {
-  m_totalWeightSize = updateWeightSize(node, offset, m_weightOffset);
-}
-
 void TGGemm::TGGemm::emit(void) const {}
 
 // TGSoftmax
