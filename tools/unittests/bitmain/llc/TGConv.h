@@ -1,5 +1,5 @@
-#ifndef ONNX_BM_TGConv_H
-#define ONNX_BM_TGConv_H
+#ifndef ONNX_BM_TGCONV_H
+#define ONNX_BM_TGCONV_H
 
 #include <stdint.h>
 class TGConv : public TGOperator {
