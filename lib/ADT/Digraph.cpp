@@ -21,5 +21,6 @@ NodeBase::NodeBase()
 //===----------------------------------------------------------------------===//
 ArcBase::ArcBase()
   : target(nullptr), source(nullptr),
-    prev_in(nullptr), next_in(nullptr), prev_out(nullptr), next_out(nullptr) {
+    prev_in(nullptr), next_in(nullptr),
+    prev_out(nullptr), next_out(nullptr) {
 }
