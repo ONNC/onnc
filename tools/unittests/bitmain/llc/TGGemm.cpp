@@ -8,6 +8,7 @@ TGGemm::TGGemm(const onnx::Node &node, uint64_t offset)
       m_haveBias(0), m_usingRelu(0), m_weightTp(false) {
   m_totalWeightSize = updateWeightSize(node, offset, m_weightOffset);
 
+  std::cout << "dump TGGemm:" << std::endl;
   if (node.hasAttribute(onnx::Symbol("transA"))) {
     auto transA = node.i(onnx::Symbol("transA"));
     std::cout << "transA:" << transA << std::endl;
@@ -40,7 +41,17 @@ TGGemm::TGGemm(const onnx::Node &node, uint64_t offset)
   for (auto it = node.inputs().begin(), ie = node.inputs().end(); it != ie;
        ++it) {
     const onnx::Value *val = *it;
-    std::cout << val->uniqueName() << ":<";
+    std::cout << "input:" << val->uniqueName() << ":<";
+    for (auto &dimension : val->sizes()) {
+      std::cout << dimension.dim << ",";
+    }
+    std::cout << ">" << std::endl;
+  }
+
+  for (auto it = node.outputs().begin(), ie = node.outputs().end(); it != ie;
+       ++it) {
+    const onnx::Value *val = *it;
+    std::cout << "output:" << val->uniqueName() << ":<";
     for (auto &dimension : val->sizes()) {
       std::cout << dimension.dim << ",";
     }
