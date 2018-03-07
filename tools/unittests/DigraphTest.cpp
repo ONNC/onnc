@@ -8,6 +8,7 @@
 #include <skypat/skypat.h>
 #include <onnc/ADT/Digraph.h>
 #include <onnc/ADT/NodeIterator.h>
+#include <onnc/ADT/ArcIterator.h>
 #include <onnc/Support/IOStream.h>
 
 using namespace skypat;
@@ -76,9 +77,9 @@ SKYPAT_F(DigraphTest, node_iterator)
   MyGraph g;
   MyNode* n1 = g.addNode(5);
   MyNode* n2 = g.addNode(4);
-  MyNode* n3 = g.addNode(3);
-  MyNode* n4 = g.addNode(2);
-  MyArc* a = g.connect(*n1, *n2, 3);
+  g.addNode(3);
+  g.addNode(2);
+  g.connect(*n1, *n2, 3);
 
   MyGraph::node_iterator iter = g.nodeBegin();
   ASSERT_EQ(iter->data, 5);
@@ -101,10 +102,9 @@ SKYPAT_F(DigraphTest, node_erase_head)
   MyGraph g;
   MyNode* n1 = g.addNode(5);
   MyNode* n2 = g.addNode(4);
-  MyNode* n3 = g.addNode(3);
-  MyNode* n4 = g.addNode(2);
-  MyArc* a = g.connect(*n1, *n2, 3);
-
+  g.addNode(3);
+  g.addNode(2);
+  g.connect(*n1, *n2, 3);
   g.erase(*n1);
 
   NodeIterator<MyNode> iter(n1);
@@ -118,9 +118,9 @@ SKYPAT_F(DigraphTest, node_erase_middle)
   MyGraph g;
   MyNode* n1 = g.addNode(1);
   MyNode* n2 = g.addNode(2);
-  MyNode* n3 = g.addNode(3);
-  MyNode* n4 = g.addNode(4);
-  MyArc* a = g.connect(*n1, *n2, 3);
+  g.addNode(3);
+  g.addNode(4);
+  g.connect(*n1, *n2, 3);
 
   g.erase(*n2);
 
@@ -140,9 +140,9 @@ SKYPAT_F(DigraphTest, node_erase_rear)
   MyGraph g;
   MyNode* n1 = g.addNode(1);
   MyNode* n2 = g.addNode(2);
-  MyNode* n3 = g.addNode(3);
+  g.addNode(3);
   MyNode* n4 = g.addNode(4);
-  MyArc* a = g.connect(*n1, *n2, 3);
+  g.connect(*n1, *n2, 3);
 
   g.erase(*n4);
 
@@ -155,4 +155,37 @@ SKYPAT_F(DigraphTest, node_erase_rear)
   ++iter;
   ASSERT_EQ(iter->data, 3);
   ASSERT_FALSE(iter.hasNext());
+}
+
+SKYPAT_F(DigraphTest, edge_iterator)
+{
+  MyGraph g;
+  MyNode* n1 = g.addNode(1);
+  MyNode* n2 = g.addNode(2);
+  MyNode* n3 = g.addNode(3);
+  MyNode* n4 = g.addNode(4);
+  MyNode* n5 = g.addNode(5);
+  g.connect(*n1, *n2, 1);
+  g.connect(*n1, *n3, 2);
+  g.connect(*n3, *n2, 3);
+  g.connect(*n2, *n4, 4);
+  g.connect(*n3, *n5, 5);
+
+  InArcIterator<MyNode, MyArc> iter(*n2);
+  ASSERT_EQ(iter->value, 3);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->value, 1);
+  ASSERT_FALSE(iter.hasNext());
+  ++iter;
+  ASSERT_TRUE(iter.isEnd());
+
+  OutArcIterator<MyNode, MyArc> out(*n1);
+  ASSERT_EQ(out->value, 2);
+  ASSERT_TRUE(out.hasNext());
+  ++out;
+  ASSERT_EQ(out->value, 1);
+  ASSERT_FALSE(out.hasNext());
+  ++out;
+  ASSERT_TRUE(out.isEnd());
 }
