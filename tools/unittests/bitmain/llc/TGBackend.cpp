@@ -13,7 +13,8 @@
 #include "onnx/common/ir_pb_converter.h"
 #include "onnx/optimizer/optimize.h"
 
-static void dumpONNXIR(const onnx::ModelProto &model) {
+namespace {
+void dumpONNXIR(const onnx::ModelProto &model) {
 
   // dump model info
   if (model.has_ir_version()) {
@@ -46,24 +47,29 @@ static void dumpONNXIR(const onnx::ModelProto &model) {
   std::cout << "graph " << graph.name() << " (";
 
   for (int i = 0; i < graph.input_size(); i++) {
-    if (i != 0) {
-      std::cout << ", ";
+    if (i != 0) { std::cout << ", "; }
+    const onnx::TypeProto &type = graph.input(i).type();
+    if (type.has_tensor_type()) {
+      const onnx::TypeProto::Tensor &tensor_type = type.tensor_type();
+      std::cout << TensorProto_DataType_Name(tensor_type.elem_type()) << " tensor <";
+      const onnx::TensorShapeProto &shape = tensor_type.shape();
+      for (int j = 0; j < shape.dim_size(); j++) {
+        if (j != 0) { std::cout << ", "; }
+        if (shape.dim(j).has_dim_value()) {
+          std::cout << shape.dim(j).dim_value();
+        } else {
+          std::cout << shape.dim(j).dim_param();
+        }
+      }
+      std::cout << "> ";
     }
-    std::cout << '%' << graph.input(i).name();
+    std::cout << '%' << graph.input(i).name() << std::endl;
   }
   std::cout << ") {" << std::endl;
 
   for (int i = 0; i < graph.initializer_size(); i++) {
     const onnx::TensorProto &initializer = graph.initializer(i);
-    std::cout << "  initialize input %" << initializer.name()
-              << " = data tensor<";
-    for (int j = 0; j < initializer.dims_size(); j++) {
-      if (j != 0) {
-        std::cout << ", ";
-      }
-      std::cout << initializer.dims(j);
-    }
-    std::cout << '>' << std::endl;
+    std::cout << "  initialize input %" << initializer.name() << std::endl;
   }
 
   for (int i = 0; i < graph.node_size(); i++) {
@@ -85,6 +91,7 @@ static void dumpONNXIR(const onnx::ModelProto &model) {
       if (j != 0) {
         std::cout << ", ";
       }
+      std::cout << attribute.name() << ":";
       switch (attribute.type()) {
       case onnx::AttributeProto::FLOAT:
         std::cout << attribute.f();
@@ -162,7 +169,7 @@ static void dumpONNXIR(const onnx::ModelProto &model) {
   std::cout << std::endl;
   std::cout << '}' << std::endl;
 }
-
+} // end anonymous namespace
 void TGBackend::sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len) {
   std::cout << __func__ << std::endl;
   std::cout << "save to " << CMD_BUF_NAME << std::endl;
