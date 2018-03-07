@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
 #include <onnc/ADT/Digraph.h>
+#include <onnc/ADT/NodeIterator.h>
+#include <onnc/Support/IOStream.h>
 
 using namespace skypat;
 using namespace onnc;
@@ -67,4 +69,88 @@ SKYPAT_F(DigraphTest, clear)
   g.clear();
   ASSERT_EQ(g.getNodeSize(), 0);
   ASSERT_EQ(g.getArcSize(), 0);
+}
+
+SKYPAT_F(DigraphTest, node_iterator)
+{
+  MyGraph g;
+  MyNode* n1 = g.addNode(5);
+  MyNode* n2 = g.addNode(4);
+  MyNode* n3 = g.addNode(3);
+  MyNode* n4 = g.addNode(2);
+  MyArc* a = g.connect(*n1, *n2, 3);
+
+  NodeIterator<MyNode> iter(*n1);
+  ASSERT_EQ(iter->data, 5);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 4);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 3);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 2);
+  ASSERT_FALSE(iter.hasNext());
+}
+
+SKYPAT_F(DigraphTest, node_erase_head)
+{
+  MyGraph g;
+  MyNode* n1 = g.addNode(5);
+  MyNode* n2 = g.addNode(4);
+  MyNode* n3 = g.addNode(3);
+  MyNode* n4 = g.addNode(2);
+  MyArc* a = g.connect(*n1, *n2, 3);
+
+  g.erase(*n1);
+
+  NodeIterator<MyNode> iter(*n1);
+  // n1 became a free node. g shall not delete n1 until its destrunction.
+  ASSERT_EQ(n1->data, 5);
+  ASSERT_FALSE(iter.hasNext());
+}
+
+SKYPAT_F(DigraphTest, node_erase_middle)
+{
+  MyGraph g;
+  MyNode* n1 = g.addNode(1);
+  MyNode* n2 = g.addNode(2);
+  MyNode* n3 = g.addNode(3);
+  MyNode* n4 = g.addNode(4);
+  MyArc* a = g.connect(*n1, *n2, 3);
+
+  g.erase(*n2);
+
+  NodeIterator<MyNode> iter(*n1);
+  ASSERT_EQ(iter->data, 1);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 3);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 4);
+  ASSERT_FALSE(iter.hasNext());
+}
+
+SKYPAT_F(DigraphTest, node_erase_rear)
+{
+  MyGraph g;
+  MyNode* n1 = g.addNode(1);
+  MyNode* n2 = g.addNode(2);
+  MyNode* n3 = g.addNode(3);
+  MyNode* n4 = g.addNode(4);
+  MyArc* a = g.connect(*n1, *n2, 3);
+
+  g.erase(*n4);
+
+  NodeIterator<MyNode> iter(*n1);
+  ASSERT_EQ(iter->data, 1);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 2);
+  ASSERT_TRUE(iter.hasNext());
+  ++iter;
+  ASSERT_EQ(iter->data, 3);
+  ASSERT_FALSE(iter.hasNext());
 }

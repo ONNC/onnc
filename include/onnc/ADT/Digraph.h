@@ -58,7 +58,7 @@ public:
 
   void clear();
 
-  void getHead(Node*& pNode) const { pNode = m_pNodeHead; }
+  void getRear(Node*& pNode) const { pNode = m_pNodeRear; }
 
   unsigned int getNodeSize() const { return m_NodeList.size(); }
 
@@ -69,7 +69,7 @@ private:
   typedef std::vector<Arc*> ArcList;
 
 private:
-  Node* m_pNodeHead;
+  Node* m_pNodeRear;
   Node* m_pFreeNodeHead; //< list of free nodes
   Arc*  m_pFreeArcHead;  //< list of free arcs
 

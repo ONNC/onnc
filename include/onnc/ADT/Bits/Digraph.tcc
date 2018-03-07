@@ -9,7 +9,7 @@
 //===----------------------------------------------------------------------===//
 template<typename NodeType, typename ArcType>
 Digraph<NodeType, ArcType>::Digraph()
-  : m_pNodeHead(nullptr), m_pFreeNodeHead(nullptr), m_pFreeArcHead(nullptr),
+  : m_pNodeRear(nullptr), m_pFreeNodeHead(nullptr), m_pFreeArcHead(nullptr),
     m_NodeList(), m_ArcList() {
 }
 
@@ -36,14 +36,14 @@ Digraph<NodeType, ArcType>::addNode(NodeCtorParams&& ... pParams)
   }
 
   // 2. set up linkages
-  result->prev = nullptr;
-  result->next = m_pNodeHead;
+  result->prev = m_pNodeRear;
+  result->next = nullptr;
 
-  // 3. reset head node
-  if (nullptr != m_pNodeHead) {
-    m_pNodeHead->prev = result;
+  // 3. reset rear node
+  if (nullptr != m_pNodeRear) {
+    m_pNodeRear->next = result;
   }
-  m_pNodeHead = result;
+  m_pNodeRear = result;
 
   return result;
 }
@@ -92,26 +92,26 @@ void Digraph<NodeType, ArcType>::erase(Node& pNode)
   if (nullptr != pNode.next) {
     pNode.next->prev = pNode.prev;
   }
+  else { // pNode.next is NULL => pNode is the rear
+    m_pNodeRear = pNode.getPrevNode();
+  }
 
   if (nullptr != pNode.prev) {
     pNode.prev->next = pNode.next;
   }
-  else { // pNode.prev is NULL => pNode is the head
-    m_pNodeHead = pNode.next;
-  }
 
   // 2. remove all fan-in arcs
-  Arc* fan_in = pNode.first_in;
+  Arc* fan_in = pNode.getFirstInArc();
   while(nullptr != fan_in) {
-    Arc* next_in = fan_in->next_in;
+    Arc* next_in = fan_in->getNextIn();
     erase(*fan_in);
     fan_in = next_in;
   }
 
   // 3. remove all fan-out arcs
-  Arc* fan_out = pNode.first_out;
+  Arc* fan_out = pNode.getFirstOutArc();
   while(nullptr != fan_out) {
-    Arc* next_out = fan_out->next_out;
+    Arc* next_out = fan_out->getNextOut();
     erase(*fan_out);
     fan_out = next_out;
   }
@@ -160,7 +160,7 @@ void Digraph<NodeType, ArcType>::erase(Arc& pArc)
 template<typename NodeType, typename ArcType>
 void Digraph<NodeType, ArcType>::clear()
 {
-  m_pNodeHead = nullptr;
+  m_pNodeRear = nullptr;
   m_pFreeNodeHead = nullptr;
   m_pFreeArcHead = nullptr;
 
