@@ -234,15 +234,13 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
  // test onnx opt passes
  std::cout << "before onnx IR optimization" << std::endl;
  onnx::optimization::Optimizer onnxOptimizer;
- auto mirrorModel = std::make_unique<onnx::ModelProto>(model);
- dumpONNXIR(*mirrorModel);
  std::vector<std::string> passNames{"eliminate_nop_transpose", "fuse_consecutive_transposes", "fuse_transpose_into_gemm"};
- auto optModel = onnxOptimizer.optimize(std::move(mirrorModel), passNames);
+ auto optModel = onnxOptimizer.optimize(model, passNames);
  std::cout << "after onnx IR optimization" << std::endl;
- dumpONNXIR(*optModel);
+ dumpONNXIR(optModel);
 
   // transfer pb to onnx ir
-  m_onnxGraph = std::move(onnx::ImportModelProto(*optModel));
+  m_onnxGraph = std::move(onnx::ImportModelProto(optModel));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
