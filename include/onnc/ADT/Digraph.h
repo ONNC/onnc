@@ -9,6 +9,7 @@
 #define ONNC_ADT_DIGRAPH_H
 #include <onnc/ADT/DigraphNode.h>
 #include <onnc/ADT/DigraphArc.h>
+#include <onnc/ADT/NodeIterator.h>
 #include <vector>
 
 namespace onnc {
@@ -35,6 +36,8 @@ class Digraph
 public:
   typedef NodeType Node;
   typedef ArcType  Arc;
+  typedef NodeIterator<NodeType> node_iterator;
+  typedef NodeIterator<const NodeType> const_node_iterator;
 
 public:
   Digraph();
@@ -64,11 +67,20 @@ public:
 
   unsigned int getArcSize() const { return m_ArcList.size(); }
 
+  node_iterator nodeBegin();
+
+  node_iterator nodeEnd();
+
+  const_node_iterator nodeBegin() const;
+
+  const_node_iterator nodeEnd() const;
+
 private:
   typedef std::vector<Node*> NodeList;
   typedef std::vector<Arc*> ArcList;
 
 private:
+  Node* m_pNodeHead;
   Node* m_pNodeRear;
   Node* m_pFreeNodeHead; //< list of free nodes
   Arc*  m_pFreeArcHead;  //< list of free arcs

@@ -9,7 +9,8 @@
 //===----------------------------------------------------------------------===//
 template<typename NodeType, typename ArcType>
 Digraph<NodeType, ArcType>::Digraph()
-  : m_pNodeRear(nullptr), m_pFreeNodeHead(nullptr), m_pFreeArcHead(nullptr),
+  : m_pNodeHead(nullptr), m_pNodeRear(nullptr),
+    m_pFreeNodeHead(nullptr), m_pFreeArcHead(nullptr),
     m_NodeList(), m_ArcList() {
 }
 
@@ -44,6 +45,9 @@ Digraph<NodeType, ArcType>::addNode(NodeCtorParams&& ... pParams)
     m_pNodeRear->next = result;
   }
   m_pNodeRear = result;
+
+  if (nullptr == m_pNodeHead)
+    m_pNodeHead = result;
 
   return result;
 }
@@ -98,6 +102,9 @@ void Digraph<NodeType, ArcType>::erase(Node& pNode)
 
   if (nullptr != pNode.prev) {
     pNode.prev->next = pNode.next;
+  }
+  else { // pNode.prev is NULL => pNode is the head
+    m_pNodeHead = pNode.getNextNode();
   }
 
   // 2. remove all fan-in arcs
@@ -160,6 +167,7 @@ void Digraph<NodeType, ArcType>::erase(Arc& pArc)
 template<typename NodeType, typename ArcType>
 void Digraph<NodeType, ArcType>::clear()
 {
+  m_pNodeHead = nullptr;
   m_pNodeRear = nullptr;
   m_pFreeNodeHead = nullptr;
   m_pFreeArcHead = nullptr;
@@ -176,4 +184,32 @@ void Digraph<NodeType, ArcType>::clear()
 
   m_NodeList.clear();
   m_ArcList.clear();
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::node_iterator
+Digraph<NodeType, ArcType>::nodeBegin()
+{
+  return node_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::node_iterator
+Digraph<NodeType, ArcType>::nodeEnd()
+{
+  return node_iterator(nullptr);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_node_iterator
+Digraph<NodeType, ArcType>::nodeBegin() const
+{
+  return const_node_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_node_iterator
+Digraph<NodeType, ArcType>::nodeEnd() const
+{
+  return const_node_iterator(nullptr);
 }

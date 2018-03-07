@@ -43,7 +43,7 @@ public:
 public:
   NodeIterator();
 
-  NodeIterator(NodeType& pNode);
+  NodeIterator(NodeType* pNode);
 
   ~NodeIterator() { }
 
@@ -80,8 +80,8 @@ NodeIterator<NodeType>::NodeIterator()
 }
 
 template<typename NodeType>
-NodeIterator<NodeType>::NodeIterator(NodeType& pNode)
-  : NodeIteratorBase(&pNode) {
+NodeIterator<NodeType>::NodeIterator(NodeType* pNode)
+  : NodeIteratorBase(pNode) {
 }
 
 template<typename NodeType>
