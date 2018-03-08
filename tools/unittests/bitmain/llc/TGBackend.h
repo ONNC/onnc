@@ -28,6 +28,5 @@ private:
 
   void *m_bmkernelHandle;
   std::unique_ptr<onnx::Graph> m_onnxGraph;
-  // std::map<std::string , op_type_func_handler> handler;
   std::vector<std::unique_ptr<TGOperator>> m_instructions;
 };
