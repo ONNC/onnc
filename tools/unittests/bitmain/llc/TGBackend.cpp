@@ -13,6 +13,80 @@
 #include "onnx/common/ir_pb_converter.h"
 #include "onnx/optimizer/optimize.h"
 
+
+namespace {
+
+void calOutputDim(onnx::Graph &graph) {
+  for (onnx::graph_node_list_iterator it =graph.begin(), ie = graph.end(); it != ie;
+       ++it) {
+    onnx::Node* node = *it;
+    auto symbol = node->kind();
+
+    if (symbol == onnx::Symbol("Conv")) {
+      const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
+      // FIXME workaorund unimplemented type
+      if (0 == inputDim.size())
+        continue;
+      const auto iN = inputDim[0].dim;
+      const auto iC = inputDim[1].dim;
+      const auto iH = inputDim[2].dim;
+      const auto iW = inputDim[3].dim;
+
+      const auto weightDim = node->inputs()[1]->sizes();
+      const auto wN = weightDim[0].dim;
+      const auto wC = weightDim[1].dim;
+      auto kH = weightDim[2].dim;
+      auto kW = weightDim[3].dim;
+
+      int64_t sH(1) ,sW(1);
+      int64_t xb(0), yb(0), xe(0), ye(0);
+
+      if (node->hasAttribute(onnx::Symbol("kernel_shape"))) {
+        auto &i = node->is(onnx::Symbol("kernel_shape"));
+        kH = i[0];
+        kW = i[1];
+      }
+
+      if (node->hasAttribute(onnx::Symbol("strides"))) {
+        auto &i = node->is(onnx::Symbol("strides"));
+        sH = i[0];
+        sW = i[1];
+      }
+
+      if (node->hasAttribute(onnx::Symbol("pads"))) {
+        auto &i = node->is(onnx::Symbol("pads"));
+        xb = i[0];
+        yb = i[1];
+        xe = i[2];
+        ye = i[3];
+      }
+
+      int64_t oN = iN;
+      int64_t oC = wC;
+      int64_t oH = (iH - kH + xb + xe) / sH + 1;
+      int64_t oW = (iW - kW + yb + ye) / sW + 1;
+
+      std::vector<onnx::Dimension> outDims;
+      outDims.push_back(oN);
+      outDims.push_back(oC);
+      outDims.push_back(oH);
+      outDims.push_back(oW);
+
+      auto outputs = node->outputs();
+      for (auto outVal : outputs) {
+        outVal->setSizes(outDims);
+      }
+    } else if (symbol == onnx::Symbol("Relu")) {
+    } else if (symbol == onnx::Symbol("LRN")) {
+    } else if (symbol == onnx::Symbol("MaxPool")) {
+    } else if (symbol == onnx::Symbol("Gemm")) {
+    } else if (symbol == onnx::Symbol("Softmax")) {
+    }
+  }
+}
+
+}
+
 void TGBackend::sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len) {
   std::cout << __func__ << std::endl;
   std::cout << "save to " << CMD_BUF_NAME << std::endl;
@@ -91,6 +165,8 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
 
   // transfer pb to onnx ir
   m_onnxGraph = std::move(onnx::ImportModelProto(optModel));
+
+  calOutputDim(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
@@ -123,3 +199,4 @@ TGBackend &TGBackend::lowering(void) {
   }
   return *this;
 }
+
