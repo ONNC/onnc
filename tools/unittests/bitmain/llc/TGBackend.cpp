@@ -16,7 +16,96 @@
 
 namespace {
 
-void calOutputDim(onnx::Graph &graph) {
+void updateOutputDimByInputDim(onnx::Node *const node) {
+  const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
+  // FIXME workaorund unimplemented type
+  if (0 == inputDim.size())
+    return;
+  auto outputs = node->outputs();
+  for (auto outVal : outputs) {
+    if (0 == outVal->sizes().size())
+      outVal->setSizes(inputDim);
+  }
+}
+
+void updatePoolOutputDim(onnx::Node *const node) {
+  const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
+  // FIXME workaorund unimplemented type
+  if (0 == inputDim.size())
+    return;
+  const auto iN = inputDim[0].dim;
+  const auto iC = inputDim[1].dim;
+  const auto iH = inputDim[2].dim;
+  const auto iW = inputDim[3].dim;
+  const auto kH = node->is(onnx::Symbol("kernel_shape"))[0];
+  const auto kW = node->is(onnx::Symbol("kernel_shape"))[1];
+
+  int64_t sH(1), sW(1);
+  // pads for x_begin, y_begin, x_end, y_end
+  int64_t xb(0), yb(0), xe(0), ye(0);
+
+  if (node->hasAttribute(onnx::Symbol("strides"))) {
+    auto &i = node->is(onnx::Symbol("strides"));
+    sH = i[0];
+    sW = i[1];
+  }
+
+  if (node->hasAttribute(onnx::Symbol("pads"))) {
+    auto &i = node->is(onnx::Symbol("pads"));
+    xb = i[0];
+    yb = i[1];
+    xe = i[2];
+    ye = i[3];
+  }
+
+  int64_t oN = iN;
+  int64_t oC = iC;
+  int64_t oH = (iH - kH + xb + xe) / sH + 1;
+  int64_t oW = (iW - kW + yb + ye) / sW + 1;
+
+  std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
+                                        onnx::Dimension(oC),
+                                        onnx::Dimension(oH),
+                                        onnx::Dimension(oW) };
+
+  auto outputs = node->outputs();
+  for (auto outVal : outputs) {
+    if (0 == outVal->sizes().size())
+      outVal->setSizes(outDims);
+  }
+}
+
+void updateGemmOutputDim(onnx::Node *const node) {
+
+  const std::vector<onnx::Dimension> aDim = node->inputs()[0]->sizes();
+  const std::vector<onnx::Dimension> bDim = node->inputs()[1]->sizes();
+  // FIXME workaorund unimplemented type
+  if (0 == aDim.size() || 0 == bDim.size())
+    return;
+  // A: M x K
+  int64_t oM = aDim[0].dim;
+  if (node->hasAttribute(onnx::Symbol("transA"))) {
+    auto transA = node->i(onnx::Symbol("transA"));
+    oM = transA ? aDim[1].dim : aDim[0].dim;
+  }
+  // B: K x N
+  int64_t oN = bDim[1].dim;
+  if (node->hasAttribute(onnx::Symbol("transB"))) {
+    auto transB = node->i(onnx::Symbol("transB"));
+    oN = transB ? bDim[0].dim : bDim[1].dim;
+  }
+
+  std::vector<onnx::Dimension> outDims{ onnx::Dimension(oM),
+                                        onnx::Dimension(oN) };
+
+  auto outputs = node->outputs();
+  for (auto outVal : outputs) {
+    if (0 == outVal->sizes().size())
+      outVal->setSizes(outDims);
+  }
+}
+
+void updateOutputDim(onnx::Graph &graph) {
   for (onnx::graph_node_list_iterator it =graph.begin(), ie = graph.end(); it != ie;
        ++it) {
     onnx::Node* node = *it;
@@ -39,6 +128,7 @@ void calOutputDim(onnx::Graph &graph) {
       auto kW = weightDim[3].dim;
 
       int64_t sH(1) ,sW(1);
+      // pads for x_begin, y_begin, x_end, y_end
       int64_t xb(0), yb(0), xe(0), ye(0);
 
       if (node->hasAttribute(onnx::Symbol("kernel_shape"))) {
@@ -66,26 +156,31 @@ void calOutputDim(onnx::Graph &graph) {
       int64_t oH = (iH - kH + xb + xe) / sH + 1;
       int64_t oW = (iW - kW + yb + ye) / sW + 1;
 
-      std::vector<onnx::Dimension> outDims;
-      outDims.push_back(oN);
-      outDims.push_back(oC);
-      outDims.push_back(oH);
-      outDims.push_back(oW);
+      std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
+                                            onnx::Dimension(oC),
+                                            onnx::Dimension(oH),
+                                            onnx::Dimension(oW) };
 
       auto outputs = node->outputs();
       for (auto outVal : outputs) {
-        outVal->setSizes(outDims);
+        if (0 == outVal->sizes().size())
+          outVal->setSizes(outDims);
       }
     } else if (symbol == onnx::Symbol("Relu")) {
+      updateOutputDimByInputDim(node);
     } else if (symbol == onnx::Symbol("LRN")) {
+      updateOutputDimByInputDim(node);
     } else if (symbol == onnx::Symbol("MaxPool")) {
+      updatePoolOutputDim(node);
     } else if (symbol == onnx::Symbol("Gemm")) {
+      updateGemmOutputDim(node);
     } else if (symbol == onnx::Symbol("Softmax")) {
+      updateOutputDimByInputDim(node);
     }
   }
 }
 
-}
+} // end anonymous namespace
 
 void TGBackend::sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len) {
   std::cout << __func__ << std::endl;
@@ -166,7 +261,7 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
   // transfer pb to onnx ir
   m_onnxGraph = std::move(onnx::ImportModelProto(optModel));
 
-  calOutputDim(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
+  updateOutputDim(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
