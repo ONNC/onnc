@@ -20,28 +20,18 @@ onnc::tensor::Operator *ConvertGraph(const onnx::GraphProto& graph) {
 
   for (int i = 0; i < graph.input_size(); i++) {
     if (i != 0) { cout << ", "; }
-    const onnx::TypeProto &type = graph.input(i).type();
-    if (type.has_tensor_type()) {
-      const onnx::TypeProto::Tensor &tensor_type = type.tensor_type();
-      cout << TensorProto_DataType_Name(tensor_type.elem_type()) << " tensor <";
-      const onnx::TensorShapeProto &shape = tensor_type.shape();
-      for (int j = 0; j < shape.dim_size(); j++) {
-        if (j != 0) { cout << ", "; }
-        if (shape.dim(j).has_dim_value()) {
-          cout << shape.dim(j).dim_value();
-        } else {
-          cout << shape.dim(j).dim_param();
-        }
-      }
-      cout << "> ";
-    }
-    cout << '%' << graph.input(i).name() << endl;
+    cout << ConvertTypeToString(graph.input(i).type()) << " %" << graph.input(i).name();
   }
   cout << ") {" << endl;
 
   for (int i = 0; i < graph.initializer_size(); i++) {
     const onnx::TensorProto &initializer = graph.initializer(i);
-    cout << "  initialize input %" << initializer.name() << endl;
+    cout << "  initialize input %" << initializer.name() << " = data tensor<";
+    for (int j = 0; j < initializer.dims_size(); j++) {
+      if (j != 0) { cout << ", "; }
+      cout << initializer.dims(j);
+    }
+    cout << '>' << endl;
   }
 
   for (int i = 0; i < graph.node_size(); i++) {
@@ -59,7 +49,6 @@ onnc::tensor::Operator *ConvertGraph(const onnx::GraphProto& graph) {
     for (int j = 0; j < node.attribute_size(); j++) {
       const onnx::AttributeProto &attribute = node.attribute(j);
       if (j != 0) { cout << ", "; }
-      cout << attribute.name() << ":";
       switch (attribute.type()) {
         case onnx::AttributeProto::FLOAT:
           cout << attribute.f();
@@ -124,17 +113,27 @@ onnc::tensor::Operator *ConvertGraph(const onnx::GraphProto& graph) {
    cout << ConvertTypeToString(graph.output(i).type()) << " %" << graph.output(i).name();
   }
   cout << endl;
+
+  cout << "  value_info ";
+  // unordered_map<std::string, std::string> value_info_type;
+  for (int i = 0; i < graph.value_info_size(); i++) {
+   if (i != 0) { cout << ", "; }
+   cout << ConvertTypeToString(graph.value_info(i).type()) << " %" << graph.value_info(i).name();
+  }
+  cout << endl;
+  // TODO: name
+  // TODO: doc_string
   cout << '}' << endl;
 }
 onnc::tensor::Operator *ConvertModel(const onnx::ModelProto &model) {
   if (model.has_ir_version()) { cout << "model.ir_version: " << model.ir_version() << endl; }
-  // opset_import
+  // TODO: opset_import
   if (model.has_producer_name()) { cout << "model.producer_name: " << model.producer_name() << endl; }
   if (model.has_producer_version()) { cout << "model.producer_version: " << model.producer_version() << endl; }
   if (model.has_domain()) { cout << "model.domain: " << model.domain() << endl; }
   if (model.has_model_version()) { cout << "model.model_version: " << model.model_version() << endl; }
   if (model.has_doc_string()) { cout << "model.doc_string: " << model.doc_string() << endl; }
-  // metadata_props
+  // TODO: metadata_props
   if (model.has_graph()) {
     return ConvertGraph(model.graph());
   } else {
