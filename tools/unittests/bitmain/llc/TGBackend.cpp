@@ -13,7 +13,6 @@
 #include "onnx/common/ir_pb_converter.h"
 #include "onnx/optimizer/optimize.h"
 
-
 namespace {
 
 void calOutputDim(onnx::Graph &graph) {
@@ -85,6 +84,61 @@ void calOutputDim(onnx::Graph &graph) {
   }
 }
 
+void ddrScanAndAlloc(std::map<std::string, unsigned int> &memLayout, onnx::Graph &graph) {
+  // allocate spaces for weight
+  unsigned int weight_offset = 0;
+  // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
+  int F32_SIZE = 4;
+
+  for (auto i:graph.initializers()) {
+
+      memLayout[i.name()] = weight_offset;
+
+      assert(i.elem_type() == onnx::TensorProto_DataType_FLOAT);
+      int tensor_size = F32_SIZE;
+      for(auto dim:i.sizes()) {
+        tensor_size *= dim;
+      }
+      weight_offset += tensor_size;
+  }
+
+  unsigned int neuron_offset = 0;
+  std::unordered_set<std::string> initNames(graph.initializer_names().begin(),
+                                            graph.initializer_names().end());
+  // allocate space for inputs
+  for (auto i:graph.inputs()) {
+    if(0 == initNames.count(i->uniqueName())) {
+
+      memLayout[i->uniqueName()] = neuron_offset;
+
+      assert(i->elemType() == onnx::TensorProto_DataType_FLOAT);
+      int tensor_size = F32_SIZE;
+      for (auto &dim : i->sizes()) {
+        tensor_size *= dim.dim;
+      }
+      neuron_offset += tensor_size;
+    }
+  }
+  // allocate space for outputs
+  for (auto i:graph.nodes()) {
+    if (i->kind() == onnx::Symbol("Undefined"))
+      continue;
+    for (auto o:i->outputs()) {
+
+      memLayout[o->uniqueName()] = neuron_offset;
+
+      // FIXME: remove this after output dimension is fixed
+      if (o->elemType() == onnx::TensorProto_DataType_UNDEFINED)
+        continue;
+      assert(o->elemType() == onnx::TensorProto_DataType_FLOAT);
+      int tensor_size = F32_SIZE;
+      for(auto dim:o->sizes()) {
+        tensor_size *= dim.dim;
+      }
+      neuron_offset += tensor_size;
+    }
+  }
+}
 }
 
 void TGBackend::sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len) {
@@ -167,6 +221,9 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
   m_onnxGraph = std::move(onnx::ImportModelProto(optModel));
 
   calOutputDim(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
+
+  // plan global memory layout
+  ddrScanAndAlloc(m_globalMemLayout, *const_cast<onnx::Graph *>(m_onnxGraph.get()));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
