@@ -90,8 +90,6 @@ TGMaxPool::TGMaxPool(const onnx::Node &node, uint64_t offset)
 
 void TGMaxPool::TGMaxPool::emit(void) const {}
 
-void TGGemm::TGGemm::emit(void) const {}
-
 // TGSoftmax
 TGSoftmax::TGSoftmax(const onnx::Node &node, uint64_t offset)
     : TGOperator(node, "Softmax") {
