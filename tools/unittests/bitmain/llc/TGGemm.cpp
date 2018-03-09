@@ -83,16 +83,12 @@ TGGemm::TGGemm(const onnx::Node &node, uint64_t offset)
 
 void TGGemm::emit(void) const {
 
-  // bottom_data_gaddr,
-  // weight_data_gaddr,
-  // bias_data_gaddr,
-  // top_data_gaddr,
-  // in_row,
-  // in_col,
-  // out_col,
-  // have_bias,
-  // using_relu,
-  // weight_t
+  std::cout << "TGGemm::emit\tm_inputAddr:" << m_inputAddr
+            << " m_weightAddr:" << m_weightAddr << " m_biasAddr:" << m_biasAddr
+            << " m_outputAddr:" << m_outputAddr << " m_inRowNum:" << m_inRowNum
+            << " m_inColNum:" << m_inColNum << " m_outColNum:" << m_outColNum
+            << " m_haveBias:" << m_haveBias << " m_usingRelu:" << m_usingRelu
+            << " m_weightTp:" << m_weightTp << std::endl;
   bmnet_fc_forward_bmkernel(m_inputAddr, m_weightAddr, m_biasAddr, m_outputAddr,
                             m_inRowNum, m_inColNum, m_outColNum, m_haveBias,
                             m_usingRelu, m_weightTp);

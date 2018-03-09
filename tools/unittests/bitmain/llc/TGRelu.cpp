@@ -14,7 +14,10 @@ TGRelu::TGRelu(const onnx::Node &node, uint64_t offset)
 }
 
 void TGRelu::emit(void) const {
-  std::cout << "TGRelu::emit" << std::endl;
+  std::cout << "TGRelu::emit\tm_inputAddr:" << m_inputAddr
+            << " m_outputAddr:" << m_outputAddr
+            << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
+            << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
   bmnet_relu_forward_bmkernel(m_inputAddr, m_outputAddr, m_negativeSlope, m_N,
                               m_C, m_H, m_W);
 }

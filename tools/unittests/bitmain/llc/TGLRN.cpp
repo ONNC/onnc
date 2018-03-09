@@ -25,9 +25,9 @@ TGLRN::TGLRN(const onnx::Node &node, uint64_t offset)
 void TGLRN::TGLRN::emit(void) const {
   std::cout << "TGLRUN::emit\tm_inputAddr:" << m_inputAddr
             << " m_outputAddr:" << m_outputAddr << " m_N:" << m_N
-            << " m_C:" << m_C << " m_H: " << m_H << " m_W:" << m_W
+            << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
             << " m_alpha:" << m_alpha << "m_localSize:" << m_localSize
-            << " m_beta:" << m_beta <<  "m_k:" << m_k << std::endl;
+            << " m_beta:" << m_beta << "m_k:" << m_k << std::endl;
   bmnet_lrn_forward_bmkernel(m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W,
                              m_alpha, m_localSize, m_beta, m_k);
 }
