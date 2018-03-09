@@ -20,12 +20,7 @@ private:
 };
 
 #include "TGConv.h"
-
-class TGRelu : public TGOperator {
-public:
-  TGRelu(const onnx::Node &node, uint64_t offset);
-  virtual void emit(void) const;
-};
+#include "TGRelu.h"
 
 class TGLRN : public TGOperator {
 public:

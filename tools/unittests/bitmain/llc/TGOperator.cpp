@@ -71,12 +71,6 @@ uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
   return totalWeightSize;
 }
 
-// TGRelu
-TGRelu::TGRelu(const onnx::Node &node, uint64_t offset) : TGOperator(node, "Relu") {
-}
-
-void TGRelu::TGRelu::emit(void) const {}
-
 // TGLRN
 TGLRN::TGLRN(const onnx::Node &node, uint64_t offset) : TGOperator(node, "LRN") {
 }
