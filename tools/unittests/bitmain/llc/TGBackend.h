@@ -12,22 +12,27 @@
 namespace {
 
 // TODO make as onnx optimization pass
-namespace updateOutputDimPass {
+namespace updateOutputInfoPass {
 
-void updateOutputsDim(onnx::ArrayRef<onnx::Value *> &&outputs,
-                      const std::vector<onnx::Dimension> &dims) {
+void updateOutputsInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
+                      const std::vector<onnx::Dimension> &dims,
+                      onnx::TensorProto_DataType type) {
   for (auto outVal : outputs) {
+    outVal->setElemType(type);
     if (0 == outVal->sizes().size())
       outVal->setSizes(dims);
   }
 }
 
-void updateOutputDimByInputDim(onnx::Node *const node) {
-  const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
+void updateOutputInfoByInput(onnx::Node *const node) {
+  auto input = node->inputs()[0];
+  const std::vector<onnx::Dimension> inputDim = input->sizes();
+  const onnx::TensorProto_DataType inputType = input->elemType();
+  assert(inputType != onnx::TensorProto_DataType_UNDEFINED);
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
     return;
-  updateOutputsDim(node->outputs(), inputDim);
+  updateOutputsInfo(node->outputs(), inputDim, inputType);
 }
 
 void updateConvOutputDim(onnx::Node *const node) {
@@ -80,7 +85,8 @@ void updateConvOutputDim(onnx::Node *const node) {
                                         onnx::Dimension(oH),
                                         onnx::Dimension(oW) };
 
-  updateOutputsDim(node->outputs(), outDims);
+  const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
+  updateOutputsInfo(node->outputs(), outDims, inputType);
 }
 
 void updatePoolOutputDim(onnx::Node *const node) {
@@ -125,7 +131,8 @@ void updatePoolOutputDim(onnx::Node *const node) {
                                         onnx::Dimension(oH),
                                         onnx::Dimension(oW) };
 
-  updateOutputsDim(node->outputs(), outDims);
+  const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
+  updateOutputsInfo(node->outputs(), outDims, inputType);
 }
 
 void updateGemmOutputDim(onnx::Node *const node) {
@@ -150,10 +157,11 @@ void updateGemmOutputDim(onnx::Node *const node) {
 
   std::vector<onnx::Dimension> outDims{ onnx::Dimension(oM),
                                         onnx::Dimension(oN) };
-  updateOutputsDim(node->outputs(), outDims);
+  const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
+  updateOutputsInfo(node->outputs(), outDims, inputType);
 }
 
-void updateOutputDim(onnx::Graph &graph) {
+void updateOutputInfo(onnx::Graph &graph) {
   for (onnx::graph_node_list_iterator it = graph.begin(), ie = graph.end();
        it != ie; ++it) {
     onnx::Node *node = *it;
@@ -162,23 +170,23 @@ void updateOutputDim(onnx::Graph &graph) {
     if (symbol == onnx::Symbol("Conv")) {
       updateConvOutputDim(node);
     } else if (symbol == onnx::Symbol("Relu")) {
-      updateOutputDimByInputDim(node);
+      updateOutputInfoByInput(node);
     } else if (symbol == onnx::Symbol("LRN")) {
-      updateOutputDimByInputDim(node);
+      updateOutputInfoByInput(node);
     } else if (symbol == onnx::Symbol("MaxPool")) {
       updatePoolOutputDim(node);
     } else if (symbol == onnx::Symbol("Dropout")) {
-      updateOutputDimByInputDim(node);
+      updateOutputInfoByInput(node);
     } else if (symbol == onnx::Symbol("Gemm")) {
       updateGemmOutputDim(node);
     } else if (symbol == onnx::Symbol("Softmax")) {
-      updateOutputDimByInputDim(node);
+      updateOutputInfoByInput(node);
     } else {
       std::cerr << "unimplemented type: " << symbol.toString() << std::endl;
     }
   }
 }
-} // end updateOutputDimPass namespace
+} // end updateOutputInfoPass namespace
 
 
 // remove unsed node in reference
@@ -196,7 +204,7 @@ void removeUnusedNode(onnx::Graph &graph) {
   }
 }
 
-} // end updateOutputDimPass
+} // end removeUnusedNodePass namespace
 
 
 } // end anonymous namespace

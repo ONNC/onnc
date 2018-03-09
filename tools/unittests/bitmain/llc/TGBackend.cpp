@@ -152,7 +152,7 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
   m_onnxGraph = std::move(onnx::ImportModelProto(optModel));
 
   ::removeUnusedNodePass::removeUnusedNode(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
-  ::updateOutputDimPass::updateOutputDim(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
+  ::updateOutputInfoPass::updateOutputInfo(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
 
   std::cout << "after ours IR passes" << std::endl;
   // TODO, add IR dumpper

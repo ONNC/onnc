@@ -187,7 +187,7 @@ SKYPAT_F(llcTest, testOutDims) {
   ASSERT_EQ(outConvValue->sizes().size(), 0);
   ASSERT_EQ(outPoolValue->sizes().size(), 0);
 
-  ::updateOutputDimPass::updateOutputDim(graph);
+  ::updateOutputInfoPass::updateOutputInfo(graph);
   // after update
   std::vector<int64_t> outConvAns{ 1, 96, 55, 55 };
   std::vector<int64_t> outPoolAns{ 1, 96, 27, 27 };
