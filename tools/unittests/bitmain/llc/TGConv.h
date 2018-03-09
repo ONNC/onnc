@@ -8,13 +8,15 @@ public:
   virtual void emit(void) const;
 private:
   std::vector<uint64_t> m_weightOffset;
-  uint32_t m_input_n, m_input_c, m_input_h, m_input_w;
-  uint32_t m_output_c;
-  uint32_t m_groups;
-  uint16_t m_kh, m_kw;
-  uint16_t m_dilation_h, m_dilation_w;
-  uint8_t m_pad_h, m_pad_w;
-  uint8_t m_stride_h, m_stride_w;
+  uint64_t m_ifmapAddr, m_ofmapAddr, m_weightAddr, m_biasAddr;
+  int m_inN, m_inC, m_inH, m_inW;
+  int m_groups;
+  int m_outC;
+  uint16_t m_kH, m_kW;
+  uint16_t m_dilationH, m_dilationW;
+  uint8_t m_padH, m_padW;
+  uint8_t m_strideH, m_strideW;
+  int m_doBias;
 };
 
 #endif
