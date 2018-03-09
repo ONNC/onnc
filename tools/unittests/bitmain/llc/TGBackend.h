@@ -115,8 +115,10 @@ void updatePoolOutputDim(onnx::Node *const node) {
 
   int64_t oN = iN;
   int64_t oC = iC;
-  int64_t oH = (iH - kH + xb + xe) / sH + 1;
-  int64_t oW = (iW - kW + yb + ye) / sW + 1;
+  int64_t oH = static_cast<int64_t>(ceil(static_cast<float>(
+      iH - kH + xb + xe) / sH)) + 1;
+  int64_t oW = static_cast<int64_t>(ceil(static_cast<float>(
+      iW - kW + yb + ye) / sW)) + 1;
 
   std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
                                         onnx::Dimension(oC),
