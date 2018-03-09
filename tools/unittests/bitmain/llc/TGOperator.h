@@ -22,13 +22,7 @@ private:
 #include "TGConv.h"
 #include "TGRelu.h"
 #include "TGLRN.h"
-
-class TGMaxPool : public TGOperator {
-public:
-  TGMaxPool(const onnx::Node &node, uint64_t offset);
-  virtual void emit(void) const;
-};
-
+#include "TGMaxPool.h"
 #include "TGGemm.h"
 
 class TGSoftmax : public TGOperator {
