@@ -180,6 +180,25 @@ void updateOutputDim(onnx::Graph &graph) {
 }
 } // end updateOutputDimPass namespace
 
+
+// remove unsed node in reference
+namespace removeUnusedNodePass {
+
+void removeUnusedNode(onnx::Graph &graph) {
+  for (auto it = graph.begin(), ie = graph.end(); it != ie; ++it) {
+    auto *node = *it;
+    auto symbol = node->kind();
+    if (symbol == onnx::Symbol("Dropout")) {
+      // Dropout has multiple outputs
+      node->outputs()[0]->replaceAllUsesWith(node->input());
+      it.destroyCurrent();
+    }
+  }
+}
+
+} // end updateOutputDimPass
+
+
 } // end anonymous namespace
 
 class TGBackend {
@@ -200,7 +219,7 @@ private:
   void bmkernelContextPrepare(void);
 
   void *m_bmkernelHandle;
-  std::unique_ptr<onnx::Graph> m_onnxGraph;
+  std::shared_ptr<onnx::Graph> m_onnxGraph;
   std::map<std::string, unsigned int> m_globalMemLayout;
   std::vector<std::unique_ptr<TGOperator>> m_instructions;
 };
