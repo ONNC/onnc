@@ -21,12 +21,7 @@ private:
 
 #include "TGConv.h"
 #include "TGRelu.h"
-
-class TGLRN : public TGOperator {
-public:
-  TGLRN(const onnx::Node &node, uint64_t offset);
-  virtual void emit(void) const;
-};
+#include "TGLRN.h"
 
 class TGMaxPool : public TGOperator {
 public:

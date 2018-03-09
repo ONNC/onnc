@@ -71,12 +71,6 @@ uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
   return totalWeightSize;
 }
 
-// TGLRN
-TGLRN::TGLRN(const onnx::Node &node, uint64_t offset) : TGOperator(node, "LRN") {
-}
-
-void TGLRN::TGLRN::emit(void) const {}
-
 // TGMaxPool
 TGMaxPool::TGMaxPool(const onnx::Node &node, uint64_t offset)
     : TGOperator(node, "MaxPool") {
