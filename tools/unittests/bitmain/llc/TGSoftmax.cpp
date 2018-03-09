@@ -9,10 +9,19 @@ TGSoftmax::TGSoftmax(const onnx::Node &node, uint64_t offset)
   m_outputAddr = 0;
 
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
-  m_N = inDim[0].dim;
-  m_C = inDim[1].dim;
-  m_H = inDim[2].dim;
-  m_W = inDim[3].dim;
+  if (inDim.size() == 4) {
+    m_N = inDim[0].dim;
+    m_C = inDim[1].dim;
+    m_H = inDim[2].dim;
+    m_W = inDim[3].dim;
+  } else if (inDim.size() == 2) {
+    m_N = 1;
+    m_C = 1;
+    m_H = inDim[0].dim;
+    m_W = inDim[1].dim;
+  } else {
+    assert(0 && "inDim.size() != 4 & !=2");
+  }
 }
 
 void TGSoftmax::emit(void) const {
