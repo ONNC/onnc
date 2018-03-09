@@ -24,9 +24,4 @@ private:
 #include "TGLRN.h"
 #include "TGMaxPool.h"
 #include "TGGemm.h"
-
-class TGSoftmax : public TGOperator {
-public:
-  TGSoftmax(const onnx::Node &node, uint64_t offset);
-  virtual void emit(void) const;
-};
+#include "TGSoftmax.h"

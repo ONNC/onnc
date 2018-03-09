@@ -70,10 +70,3 @@ uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
   }
   return totalWeightSize;
 }
-
-// TGSoftmax
-TGSoftmax::TGSoftmax(const onnx::Node &node, uint64_t offset)
-    : TGOperator(node, "Softmax") {
-}
-
-void TGSoftmax::TGSoftmax::emit(void) const {}
