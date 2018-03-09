@@ -165,6 +165,8 @@ void updateOutputDim(onnx::Graph &graph) {
       updateOutputDimByInputDim(node);
     } else if (symbol == onnx::Symbol("MaxPool")) {
       updatePoolOutputDim(node);
+    } else if (symbol == onnx::Symbol("Dropout")) {
+      updateOutputDimByInputDim(node);
     } else if (symbol == onnx::Symbol("Gemm")) {
       updateGemmOutputDim(node);
     } else if (symbol == onnx::Symbol("Softmax")) {
