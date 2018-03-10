@@ -72,9 +72,12 @@ TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
   m_outputAddr = memTable[outputs[0]->uniqueName()];
 
   const std::vector<onnx::Dimension> aDim = node.inputs()[0]->sizes();
-  const std::vector<onnx::Dimension> bDim = node.inputs()[1]->sizes();
+  const std::vector<onnx::Dimension> bDim = node.outputs()[0]->sizes();
   m_inRowNum = aDim[0].dim;
   m_inColNum = aDim[1].dim;
+  if (aDim.size() == 4) {
+    m_inColNum *= aDim[2].dim * aDim[3].dim;
+  }
   m_outColNum = bDim[1].dim;
   m_haveBias = true;
   m_usingRelu = false;
