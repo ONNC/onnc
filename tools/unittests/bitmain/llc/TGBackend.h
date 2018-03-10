@@ -169,8 +169,14 @@ void updateConvOutputDim(onnx::Node *const node) {
 
   int64_t oN = iN;
   int64_t oC = wN;
+#if 1
+  // NOTE: It is for bmkernel only padding on both ends
+  int64_t oH = (iH - kH + 2 * xb) / sH + 1;
+  int64_t oW = (iW - kW + 2 * yb) / sW + 1;
+#else
   int64_t oH = (iH - kH + xb + xe) / sH + 1;
   int64_t oW = (iW - kW + yb + ye) / sW + 1;
+#endif
 
   std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
                                         onnx::Dimension(oC),
@@ -213,10 +219,18 @@ void updatePoolOutputDim(onnx::Node *const node) {
 
   int64_t oN = iN;
   int64_t oC = iC;
+#if 1
+  // NOTE: It is for bmkernel only padding on both ends
+  int64_t oH = static_cast<int64_t>(ceil(static_cast<float>(
+      iH - kH + 2 * xb) / sH)) + 1;
+  int64_t oW = static_cast<int64_t>(ceil(static_cast<float>(
+      iW - kW + 2 * yb) / sW)) + 1;
+#else
   int64_t oH = static_cast<int64_t>(ceil(static_cast<float>(
       iH - kH + xb + xe) / sH)) + 1;
   int64_t oW = static_cast<int64_t>(ceil(static_cast<float>(
       iW - kW + yb + ye) / sW)) + 1;
+#endif
 
   std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
                                         onnx::Dimension(oC),

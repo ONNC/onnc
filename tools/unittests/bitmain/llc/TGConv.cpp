@@ -102,8 +102,9 @@ TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
   // [leftPad, downPad, rightPad, upPad]
   if (node.hasAttribute(onnx::Symbol("pads"))) {
     auto &i = node.is(onnx::Symbol("pads"));
-    m_padH = i[0] + i[2];
-    m_padW = i[1] + i[3];
+    // NOTE: It is for bmkernel only padding on both ends
+    m_padH = i[0];
+    m_padW = i[1];
   }
   if (node.hasAttribute(onnx::Symbol("strides"))) {
     auto &i = node.is(onnx::Symbol("strides"));
