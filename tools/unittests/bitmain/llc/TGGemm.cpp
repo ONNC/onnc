@@ -64,6 +64,13 @@ TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
 
   dumpOnnxConv(node);
 
+  auto inputs = node.inputs();
+  auto outputs = node.outputs();
+  m_inputAddr = memTable[inputs[0]->uniqueName()];
+  m_weightAddr = memTable[inputs[1]->uniqueName()];
+  m_biasAddr = memTable[inputs[2]->uniqueName()];
+  m_outputAddr = memTable[outputs[0]->uniqueName()];
+
   const std::vector<onnx::Dimension> aDim = node.inputs()[0]->sizes();
   const std::vector<onnx::Dimension> bDim = node.inputs()[1]->sizes();
   m_inRowNum = aDim[0].dim;

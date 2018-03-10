@@ -4,9 +4,12 @@
 TGRelu::TGRelu(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "Relu"), m_negativeSlope(0) {
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
-  // TODO
-  m_inputAddr = 0;
-  m_outputAddr = 0;
+
+  auto inputs = node.inputs();
+  auto outputs = node.outputs();
+  m_inputAddr = memTable[inputs[0]->uniqueName()];
+  m_outputAddr = memTable[outputs[0]->uniqueName()];
+
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;

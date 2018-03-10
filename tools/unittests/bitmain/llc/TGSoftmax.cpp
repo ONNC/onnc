@@ -4,9 +4,11 @@
 
 TGSoftmax::TGSoftmax(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "Softmax") {
-  // TODO
-  m_inputAddr = 0;
-  m_outputAddr = 0;
+
+  auto inputs = node.inputs();
+  auto outputs = node.outputs();
+  m_inputAddr = memTable[inputs[0]->uniqueName()];
+  m_outputAddr = memTable[outputs[0]->uniqueName()];
 
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
   if (inDim.size() == 4) {
