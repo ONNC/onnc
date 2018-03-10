@@ -13,9 +13,14 @@ namespace {
 
 namespace targetInfo {
 
+// Definition fom BM168xBackendContext.hpp
+const int GLOBAL_NEURON_BASE = 0x1;
+const int GLOBAL_WEIGHT_BASE = 0x2;
+const int GLOBAL_ARM_BASE = 0x3;
+
 void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
   // allocate spaces for weight
-  unsigned int weight_offset = 0;
+  unsigned int weight_offset = GLOBAL_WEIGHT_BASE;
   // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
   int F32_SIZE = 4;
   std::string tab = "\t";
@@ -42,7 +47,7 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
       }
   }
 
-  unsigned int neuron_offset = 0;
+  unsigned int neuron_offset = GLOBAL_NEURON_BASE;
   std::unordered_set<std::string> initNames(graph.initializer_names().begin(),
                                             graph.initializer_names().end());
   // allocate space for inputs
