@@ -13,81 +13,6 @@
 #include "onnx/common/ir_pb_converter.h"
 #include "onnx/optimizer/optimize.h"
 
-namespace {
-
-void ddrScanAndAlloc(std::map<std::string, unsigned int> &memLayout, onnx::Graph &graph) {
-  // allocate spaces for weight
-  unsigned int weight_offset = 0;
-  // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
-  int F32_SIZE = 4;
-  std::string tab = "\t";
-
-  std::cout << __func__ << " dump global memory layout:" << std::endl;
-
-  for (auto i:graph.initializers()) {
-
-      memLayout[i.name()] = weight_offset;
-      std::cout << tab << i.name() << " = " << weight_offset;
-
-      assert(i.elem_type() == onnx::TensorProto_DataType_FLOAT);
-      int tensor_size = F32_SIZE;
-      std::cout << " <";
-      for(auto dim:i.sizes()) {
-        std::cout << dim << ",";
-        tensor_size *= dim;
-      }
-      std::cout << ">" << std::endl;
-      weight_offset += tensor_size;
-  }
-
-  unsigned int neuron_offset = 0;
-  std::unordered_set<std::string> initNames(graph.initializer_names().begin(),
-                                            graph.initializer_names().end());
-  // allocate space for inputs
-  for (auto i:graph.inputs()) {
-    if(0 == initNames.count(i->uniqueName())) {
-
-      memLayout[i->uniqueName()] = neuron_offset;
-      std::cout << tab << i->uniqueName() << " = " << neuron_offset;
-
-      assert(i->elemType() == onnx::TensorProto_DataType_FLOAT);
-      int tensor_size = F32_SIZE;
-      std::cout << " <";
-      for (auto &dim : i->sizes()) {
-        std::cout << dim.dim << ",";
-        tensor_size *= dim.dim;
-      }
-      std::cout << ">" << std::endl;
-      neuron_offset += tensor_size;
-    }
-  }
-  // allocate space for outputs
-  for (auto i:graph.nodes()) {
-    if (i->kind() == onnx::Symbol("Undefined"))
-      continue;
-
-    for (auto o:i->outputs()) {
-
-      memLayout[o->uniqueName()] = neuron_offset;
-      std::cout << tab << o->uniqueName() << " = " << neuron_offset;
-
-      // FIXME: remove this after output dimension is fixed
-      assert(o->elemType() == onnx::TensorProto_DataType_FLOAT);
-      int tensor_size = F32_SIZE;
-      std::cout << " <";
-      for(auto dim:o->sizes()) {
-        std::cout << dim.dim << ",";
-        tensor_size *= dim.dim;
-      }
-      std::cout << ">" << std::endl;
-      neuron_offset += tensor_size;
-    }
-  }
-  std::cout << tab << "weight size: " << weight_offset << std::endl;
-  std::cout << tab << "neuron size: " << neuron_offset << std::endl;
-}
-}
-
 void TGBackend::sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len) {
   std::cout << __func__ << std::endl;
   std::cout << "save to " << CMD_BUF_NAME << std::endl;
@@ -177,7 +102,7 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
   dumpONNXProto(lastModel);
 
   // plan global memory layout
-  ddrScanAndAlloc(m_globalMemLayout, *const_cast<onnx::Graph *>(m_onnxGraph.get()));
+  targetInfo::ddrScanAndAlloc(m_globalMemLayout, *const_cast<onnx::Graph *>(m_onnxGraph.get()));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
