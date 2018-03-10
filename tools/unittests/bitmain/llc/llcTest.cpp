@@ -5,7 +5,7 @@
 #include <memory>
 #include <iostream>
 #include "TGBackend.h"
-
+#include "reader_helper.h"
 
 namespace {
   void initDim(std::vector<onnx::Dimension> *dims, int n, int c, int h, int w){
@@ -45,9 +45,13 @@ SKYPAT_F(llcTest, testTotalWeightSize){
 
   // add addInitializer
   onnx::Tensor tWeight1;
-  graph.addInitializer(tWeight1, "weight1");
+  tWeight1.elem_type() = onnx::TensorProto_DataType_FLOAT;
+  tWeight1.setName("tweight1");
+  graph.addInitializer(tWeight1, "tweight1");
   onnx::Tensor tBias1;
-  graph.addInitializer(tBias1, "bias1");
+  tBias1.elem_type() = onnx::TensorProto_DataType_FLOAT;
+  tBias1.setName("tbias1");
+  graph.addInitializer(tBias1, "tbias1");
 
   // create Conv node
   onnx::Node* convNode1 = graph.create(onnx::Symbol("Conv"));
@@ -69,9 +73,14 @@ SKYPAT_F(llcTest, testTotalWeightSize){
 
   // add addInitializer
   onnx::Tensor tWeight2;
-  graph.addInitializer(tWeight2, "weight2");
+  tWeight2.elem_type() = onnx::TensorProto_DataType_FLOAT;
+  tWeight2.setName("tweight2");
+  graph.addInitializer(tWeight2, "tweight2");
+
   onnx::Tensor tBias2;
-  graph.addInitializer(tBias2, "bias2");
+  tBias2.elem_type() = onnx::TensorProto_DataType_FLOAT;
+  tBias2.setName("tbias2");
+  graph.addInitializer(tBias2, "tbias2");
 
   ////////////////////////////////////////////////////////////////////////
   // create Conv node
@@ -85,17 +94,24 @@ SKYPAT_F(llcTest, testTotalWeightSize){
   initValue(convOutVal2, "convOut2", 1, 96, 55, 55, onnx::TensorProto_DataType_FLOAT);
   graph.appendNode(convNode2);
 
+  ::updateOutputInfoPass::updateOutputInfo(graph);
+
+  MemTable memTable;
+  // plan global memory layout
+  targetInfo::ddrScanAndAlloc(memTable, graph);
+
   // register graph output
   graph.registerOutput(convOutVal2);
 
-  std::unique_ptr<TGOperator> tgOp(TGOperator::makeTGOperator(*convNode1, 0));
+  std::unique_ptr<TGOperator> tgOp(
+      TGOperator::makeTGOperator(*convNode1, memTable));
   std::cout << "lowering: " << tgOp->getName()
             << ", offset: " << tgOp->getTotalWeightSize() << std::endl;
 
-  ASSERT_EQ(139776, tgOp->getTotalWeightSize());
+  ASSERT_EQ(618348, memTable[weight1->uniqueName()]);
   std::unique_ptr<TGOperator> tgOp2(
-      TGOperator::makeTGOperator(*convNode2, tgOp->getTotalWeightSize()));
-  ASSERT_EQ(139776, tgOp2->getTotalWeightSize());
+      TGOperator::makeTGOperator(*convNode2, memTable));
+  ASSERT_EQ(2059500, memTable[convOutVal2->uniqueName()]);
 }
 
 SKYPAT_F(llcTest, testOutDims) {
