@@ -14,13 +14,14 @@ namespace {
 namespace targetInfo {
 
 // Definition fom BM168xBackendContext.hpp
-const int GLOBAL_NEURON_BASE = 0x1;
-const int GLOBAL_WEIGHT_BASE = 0x2;
-const int GLOBAL_ARM_BASE = 0x3;
+// TAG will be masked by runtime while processing cmdbuf.
+const int GLOBAL_NEURON_TAG = 0x1;
+const int GLOBAL_WEIGHT_TAG = 0x2;
+const int GLOBAL_ARM_TAG = 0x3;
 
 void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
   // allocate spaces for weight
-  unsigned int weight_offset = GLOBAL_WEIGHT_BASE;
+  unsigned int weight_offset = 0;
   // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
   int F32_SIZE = 4;
   std::string tab = "\t";
@@ -29,7 +30,7 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
 
   for (auto i:graph.initializers()) {
 
-      memTable[i.name()] = weight_offset;
+      memTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
       std::cout << tab << i.name() << " = " << weight_offset;
 
       assert(i.elem_type() == onnx::TensorProto_DataType_FLOAT);
@@ -47,14 +48,14 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
       }
   }
 
-  unsigned int neuron_offset = GLOBAL_NEURON_BASE;
+  unsigned int neuron_offset = 0;
   std::unordered_set<std::string> initNames(graph.initializer_names().begin(),
                                             graph.initializer_names().end());
   // allocate space for inputs
   for (auto i:graph.inputs()) {
     if(0 == initNames.count(i->uniqueName())) {
 
-      memTable[i->uniqueName()] = neuron_offset;
+      memTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       std::cout << tab << i->uniqueName() << " = " << neuron_offset;
 
       assert(i->elemType() == onnx::TensorProto_DataType_FLOAT);
@@ -79,7 +80,7 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
 
     for (auto o:i->outputs()) {
 
-      memTable[o->uniqueName()] = neuron_offset;
+      memTable[o->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       std::cout << tab << o->uniqueName() << " = " << neuron_offset;
 
       // FIXME: remove this after output dimension is fixed
