@@ -73,8 +73,12 @@ TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "Conv"), m_dilationH(1), m_dilationW(1), m_groups(1),
       m_padH(0), m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0) {
   dump_onnx_Conv(node);
-  // TODO
-  m_ifmapAddr = m_ofmapAddr = m_weightAddr = m_biasAddr = 0;
+  auto inputs = node.inputs();
+  auto outputs = node.outputs();
+  m_ifmapAddr = memTable[inputs[0]->uniqueName()];
+  m_weightAddr = memTable[inputs[1]->uniqueName()];
+  m_ofmapAddr = memTable[outputs[0]->uniqueName()];
+
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
   m_inN = inDim[0].dim;
   m_inC = inDim[1].dim;
@@ -106,8 +110,12 @@ TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
     m_strideH = i[0];
     m_strideW = i[1];
   }
-  if(3 == node.inputs().size())
+  if(3 == node.inputs().size()) {
     m_doBias = 1;
+    m_biasAddr = memTable[inputs[2]->uniqueName()];
+  } else {
+    m_biasAddr = 0;
+  }
 }
 
 void TGConv::emit(void) const {
