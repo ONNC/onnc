@@ -11,55 +11,62 @@ static void dump_onnx_Conv(const onnx::Node &node)
 {
   auto vec = node.attributeNames();
   string tab = "\t";
-  cout << "Conv Support attributes:" << endl;
+  cout << "dump TGConv:" << endl;
 
+  cout << tab << "Attr: ";
   for(auto i : vec) {
-    cout << tab << "Attr " << i.toString() << endl;
+    cout << i.toString() << ",";
   }
+  cout << endl;
 
   if (node.hasAttribute(KERNEL_SHAPE)) {
     cout << tab << "kernel_shape: ";
+    cout << "<";
     for (auto &i : node.is(KERNEL_SHAPE)) {
-      cout << i << " ";
+      cout << i << ",";
     }
-    cout << endl;
+    cout << ">" << endl;
   } else {
   }
 
   if (node.hasAttribute(STRIDES)) {
     cout << tab << "strides: ";
+    cout << "<";
     for (auto &i : node.is(STRIDES)) {
-      cout << i << " ";
+      cout << i << ",";
     }
-    cout << endl;
+    cout << ">" << endl;
   }
 
   if (node.hasAttribute(PADS)) {
     cout << tab << "pads: ";
+    cout << "<";
     for (auto &i : node.is(PADS)) {
-      cout << i << " ";
+      cout << i << ",";
     }
-    cout << endl;
+    cout << ">" << endl;
   }
 
   auto inputs = node.inputs();
+  cout << tab << "inputs: ";
   for(auto i : inputs) {
-    cout << tab << "inputs: ";
-    cout << i->uniqueName() << " ";
+    cout << i->uniqueName() << "<";
     for (auto &dim : i->sizes()) {
-      cout << dim.dim << " ";
+      cout << dim.dim << ",";
     }
-    cout << endl;
+    cout << ">,";
   }
+  cout << endl;
   auto outputs = node.outputs();
+  cout << tab << "outputs: ";
   for(auto i : outputs) {
-    cout << tab << "outputs: ";
-    cout << i->uniqueName() << " ";
+    cout << i->uniqueName() << "<";
     for (auto &dim : i->sizes()) {
-      cout << dim.dim << " ";
+      cout << dim.dim << ",";
     }
-    cout << endl;
+    cout << ">,";
   }
+  cout << endl;
 }
 // TGConv
 TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
