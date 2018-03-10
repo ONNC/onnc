@@ -2,9 +2,11 @@
 
 #include "onnx/common/ir.h"
 
+using MemTable = std::map<std::string, uint64_t>;
+
 class TGOperator {
 public:
-  static TGOperator *makeTGOperator(const onnx::Node &node, uint64_t offset);
+  static TGOperator *makeTGOperator(const onnx::Node &node, MemTable &memTable);
   TGOperator(const onnx::Node &node, const std::string &name);
   virtual ~TGOperator() {};
   uint64_t getTotalWeightSize(void) { return m_totalWeightSize; }

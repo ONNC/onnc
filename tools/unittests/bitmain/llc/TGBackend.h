@@ -303,6 +303,6 @@ private:
 
   void *m_bmkernelHandle;
   std::shared_ptr<onnx::Graph> m_onnxGraph;
-  std::map<std::string, unsigned int> m_globalMemLayout;
+  MemTable m_globalMemLayout;
   std::vector<std::unique_ptr<TGOperator>> m_instructions;
 };

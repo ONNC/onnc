@@ -6,7 +6,7 @@
 
 class TGLRN : public TGOperator {
 public:
-  TGLRN(const onnx::Node &node, uint64_t offset);
+  TGLRN(const onnx::Node &node, MemTable &memTable);
   virtual void emit(void) const;
 private:
   uint64_t m_inputAddr;

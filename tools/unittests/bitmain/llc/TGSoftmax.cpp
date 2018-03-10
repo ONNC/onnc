@@ -2,7 +2,7 @@
 
 #include <bmkernel_api.h>
 
-TGSoftmax::TGSoftmax(const onnx::Node &node, uint64_t offset)
+TGSoftmax::TGSoftmax(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "Softmax") {
   // TODO
   m_inputAddr = 0;

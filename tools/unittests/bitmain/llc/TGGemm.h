@@ -6,7 +6,7 @@
 
 class TGGemm : public TGOperator {
 public:
-  TGGemm(const onnx::Node &node, uint64_t offset);
+  TGGemm(const onnx::Node &node, MemTable &memTable);
   void dumpOnnxConv(const onnx::Node &node);
   virtual void emit(void) const;
 

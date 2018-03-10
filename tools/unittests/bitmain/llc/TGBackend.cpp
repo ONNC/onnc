@@ -119,18 +119,15 @@ void TGBackend::codeEmit(void) {
 }
 
 TGBackend &TGBackend::lowering(void) {
-  uint64_t offset = 0;
   for (auto it = m_onnxGraph->begin(), ie = m_onnxGraph->end(); it != ie;
        ++it) {
     const onnx::Node *const node = *it;
-    std::unique_ptr<TGOperator> tgOp(TGOperator::makeTGOperator(*node, offset));
+    std::unique_ptr<TGOperator> tgOp(TGOperator::makeTGOperator(*node, m_globalMemLayout));
     // FIXME walkaound for Dropout node
     if (nullptr == tgOp)
       continue;
     assert(nullptr != tgOp);
-    offset += tgOp->getTotalWeightSize();
-    std::cout << "lowering: " << tgOp->getName() << ", offset: " << offset
-              << std::endl;
+    std::cout << "lowering: " << tgOp->getName() << std::endl;
     m_instructions.push_back(std::move(tgOp));
   }
   return *this;

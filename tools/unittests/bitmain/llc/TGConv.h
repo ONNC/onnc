@@ -4,7 +4,7 @@
 #include <stdint.h>
 class TGConv : public TGOperator {
 public:
-  TGConv(const onnx::Node &node, uint64_t offset);
+  TGConv(const onnx::Node &node, MemTable &memTable);
   virtual void emit(void) const;
 private:
   std::vector<uint64_t> m_weightOffset;

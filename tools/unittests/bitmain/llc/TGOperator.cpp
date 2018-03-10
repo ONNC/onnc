@@ -24,20 +24,20 @@ int getSize(onnx::TensorProto_DataType type) {
 }
 
 TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
-                                       uint64_t offset) {
+                                       MemTable &memTable) {
   uint32_t symbol = node.kind();
   if (symbol == onnx::Symbol("Conv"))
-    return new TGConv(node, offset);
+    return new TGConv(node, memTable);
   else if (symbol == onnx::Symbol("Relu"))
-    return new TGRelu(node, offset);
+    return new TGRelu(node, memTable);
   else if (symbol == onnx::Symbol("LRN"))
-    return new TGLRN(node, offset);
+    return new TGLRN(node, memTable);
   else if (symbol == onnx::Symbol("MaxPool"))
-    return new TGMaxPool(node, offset);
+    return new TGMaxPool(node, memTable);
   else if (symbol == onnx::Symbol("Gemm"))
-    return new TGGemm(node, offset);
+    return new TGGemm(node, memTable);
   else if (symbol == onnx::Symbol("Softmax"))
-    return new TGSoftmax(node, offset);
+    return new TGSoftmax(node, memTable);
   std::cerr << "unsupported node type: " << node.kind().toString() << std::endl;
   return nullptr;
 }

@@ -62,11 +62,10 @@ static void dump_onnx_Conv(const onnx::Node &node)
   }
 }
 // TGConv
-TGConv::TGConv(const onnx::Node &node, uint64_t offset)
+TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "Conv"), m_dilationH(1), m_dilationW(1), m_groups(1),
       m_padH(0), m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0) {
   dump_onnx_Conv(node);
-  m_totalWeightSize = updateWeightSize(node, offset, m_weightOffset);
   // TODO
   m_ifmapAddr = m_ofmapAddr = m_weightAddr = m_biasAddr = 0;
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();

@@ -1,7 +1,7 @@
 #include "TGMaxPool.h"
 #include <bmkernel_api.h>
 
-TGMaxPool::TGMaxPool(const onnx::Node &node, uint64_t offset)
+TGMaxPool::TGMaxPool(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
       m_strideW(1) {
   // TODO

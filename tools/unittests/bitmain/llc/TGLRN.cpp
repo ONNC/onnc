@@ -1,7 +1,7 @@
 #include "TGLRN.h"
 #include <bmkernel_api.h>
 
-TGLRN::TGLRN(const onnx::Node &node, uint64_t offset)
+TGLRN::TGLRN(const onnx::Node &node, MemTable &memTable)
     : TGOperator(node, "LRN"), m_k(1) {
 
   // TODO
