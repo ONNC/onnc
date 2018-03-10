@@ -28,14 +28,18 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
       std::cout << tab << i.name() << " = " << weight_offset;
 
       assert(i.elem_type() == onnx::TensorProto_DataType_FLOAT);
-      int tensor_size = F32_SIZE;
-      std::cout << " <";
-      for(auto dim:i.sizes()) {
-        std::cout << dim << ",";
-        tensor_size *= dim;
+      if (i.sizes().size() > 0) {
+        int tensor_size = F32_SIZE;
+        std::cout << " <";
+        for(auto dim:i.sizes()) {
+          std::cout << dim << ",";
+          tensor_size *= dim;
+        }
+        std::cout << ">" << std::endl;
+        weight_offset += tensor_size;
+      } else {
+        std::cout << std::endl;
       }
-      std::cout << ">" << std::endl;
-      weight_offset += tensor_size;
   }
 
   unsigned int neuron_offset = 0;
@@ -49,14 +53,18 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
       std::cout << tab << i->uniqueName() << " = " << neuron_offset;
 
       assert(i->elemType() == onnx::TensorProto_DataType_FLOAT);
-      int tensor_size = F32_SIZE;
-      std::cout << " <";
-      for (auto &dim : i->sizes()) {
-        std::cout << dim.dim << ",";
-        tensor_size *= dim.dim;
+      if (i->sizes().size() > 0) {
+        int tensor_size = F32_SIZE;
+        std::cout << " <";
+        for (auto &dim : i->sizes()) {
+          std::cout << dim.dim << ",";
+          tensor_size *= dim.dim;
+        }
+        std::cout << ">" << std::endl;
+        neuron_offset += tensor_size;
+      } else {
+        std::cout << std::endl;
       }
-      std::cout << ">" << std::endl;
-      neuron_offset += tensor_size;
     }
   }
   // allocate space for outputs
@@ -71,14 +79,18 @@ void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph) {
 
       // FIXME: remove this after output dimension is fixed
       assert(o->elemType() == onnx::TensorProto_DataType_FLOAT);
-      int tensor_size = F32_SIZE;
-      std::cout << " <";
-      for(auto dim:o->sizes()) {
-        std::cout << dim.dim << ",";
-        tensor_size *= dim.dim;
+      if (o->sizes().size() > 0) {
+        int tensor_size = F32_SIZE;
+        std::cout << " <";
+        for(auto dim:o->sizes()) {
+          std::cout << dim.dim << ",";
+          tensor_size *= dim.dim;
+        }
+        std::cout << ">" << std::endl;
+        neuron_offset += tensor_size;
+      } else {
+        std::cout << std::endl;
       }
-      std::cout << ">" << std::endl;
-      neuron_offset += tensor_size;
     }
   }
   std::cout << tab << "weight size: " << weight_offset << std::endl;
