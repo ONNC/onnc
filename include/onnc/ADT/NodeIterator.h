@@ -8,6 +8,7 @@
 #ifndef ONNC_ADT_DIGRAPH_NODE_ITERATOR_H
 #define ONNC_ADT_DIGRAPH_NODE_ITERATOR_H
 #include <onnc/ADT/DigraphNode.h>
+#include <onnc/Support/DataTypes.h>
 
 namespace onnc {
 
