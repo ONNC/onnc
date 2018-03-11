@@ -14,6 +14,7 @@ ONNC_SOURCES = \
 	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
+	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \
 	ADT/ConstBuffer.cpp \

@@ -30,6 +30,9 @@ public:
   }
 
   virtual ~NodeIteratorBase() { m_pNodePtr = nullptr; }
+
+protected:
+  void setNode(NodeBase* pPtr) { m_pNodePtr = pPtr; }
 };
 
 template<typename NodeType>
