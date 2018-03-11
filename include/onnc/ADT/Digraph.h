@@ -10,6 +10,8 @@
 #include <onnc/ADT/DigraphNode.h>
 #include <onnc/ADT/DigraphArc.h>
 #include <onnc/ADT/NodeIterator.h>
+#include <onnc/ADT/PolicyNodeIterator.h>
+#include <onnc/ADT/TypeTraits.h>
 #include <vector>
 
 namespace onnc {
@@ -36,8 +38,12 @@ class Digraph
 public:
   typedef NodeType Node;
   typedef ArcType  Arc;
-  typedef NodeIterator<NodeType> node_iterator;
-  typedef NodeIterator<const NodeType> const_node_iterator;
+  typedef NodeIterator<NodeType> iterator;
+  typedef NodeIterator<const NodeType> const_iterator;
+  typedef PolicyNodeIterator<DSFIterator, NonConstTraits<NodeType> > dsf_iterator;
+  typedef PolicyNodeIterator<DSFIterator, ConstTraits<NodeType> > const_dsf_iterator;
+  typedef PolicyNodeIterator<BSFIterator, NonConstTraits<NodeType> > bsf_iterator;
+  typedef PolicyNodeIterator<BSFIterator, ConstTraits<NodeType> > const_bsf_iterator;
 
 public:
   Digraph();
@@ -67,13 +73,29 @@ public:
 
   unsigned int getArcSize() const { return m_ArcList.size(); }
 
-  node_iterator nodeBegin();
+  iterator begin();
 
-  node_iterator nodeEnd();
+  iterator end();
 
-  const_node_iterator nodeBegin() const;
+  const_iterator begin() const;
 
-  const_node_iterator nodeEnd() const;
+  const_iterator end() const;
+
+  dsf_iterator dsf_begin();
+
+  dsf_iterator dsf_end();
+
+  const_dsf_iterator dsf_begin() const;
+
+  const_dsf_iterator dsf_end() const;
+
+  bsf_iterator bsf_begin();
+
+  bsf_iterator bsf_end();
+
+  const_bsf_iterator bsf_begin() const;
+
+  const_bsf_iterator bsf_end() const;
 
 private:
   typedef std::vector<Node*> NodeList;

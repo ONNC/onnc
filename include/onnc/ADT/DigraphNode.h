@@ -24,7 +24,8 @@ public:
 
 public:
   NodeBase *prev, *next;
-  ArcBase *first_in, *first_out;
+  ArcBase *first_in, *last_in;
+  ArcBase *first_out, *last_out;
 };
 
 template<typename NodeType, typename ArcType>
@@ -48,6 +49,14 @@ public:
   const ArcType* getFirstOutArc() const;
 
   ArcType* getFirstOutArc();
+
+  const ArcType* getLastInArc() const;
+
+  ArcType* getLastInArc();
+
+  const ArcType* getLastOutArc() const;
+
+  ArcType* getLastOutArc();
 };
 
 //===----------------------------------------------------------------------===//
@@ -99,6 +108,30 @@ template<typename NodeType, typename ArcType>
 ArcType* DigraphNode<NodeType, ArcType>::getFirstOutArc()
 {
   return static_cast<ArcType*>(first_out);
+}
+
+template<typename NodeType, typename ArcType>
+const ArcType* DigraphNode<NodeType, ArcType>::getLastInArc() const
+{
+  return static_cast<const ArcType*>(last_in);
+}
+
+template<typename NodeType, typename ArcType>
+ArcType* DigraphNode<NodeType, ArcType>::getLastInArc()
+{
+  return static_cast<ArcType*>(last_in);
+}
+
+template<typename NodeType, typename ArcType>
+const ArcType* DigraphNode<NodeType, ArcType>::getLastOutArc() const
+{
+  return static_cast<const ArcType*>(last_out);
+}
+
+template<typename NodeType, typename ArcType>
+ArcType* DigraphNode<NodeType, ArcType>::getLastOutArc()
+{
+  return static_cast<ArcType*>(last_out);
 }
 
 } // namespace of onnc

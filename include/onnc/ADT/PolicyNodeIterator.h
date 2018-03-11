@@ -9,7 +9,6 @@
 #define ONNC_ADT_DIGRAPH_POLICY_NODE_ITERATOR_H
 #include <onnc/ADT/NodeIterator.h>
 #include <set>
-#include <list>
 #include <queue>
 #include <stack>
 
@@ -86,7 +85,6 @@ public:
     return *this;
   }
 
-private:
   pointer node() const { return static_cast<pointer>(IteratorType::m_pNodePtr); }
 };
 

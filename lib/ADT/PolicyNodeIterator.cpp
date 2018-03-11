@@ -46,8 +46,10 @@ void BSFIterator::advance()
     }
     arc = arc->next_out;
   }
-  if (m_Queue.empty())
+  if (m_Queue.empty()) { // reach the end
     setNode(nullptr);
+    m_Visited.clear();
+  }
   else
     setNode(m_Queue.front());
 }
@@ -79,17 +81,19 @@ void DSFIterator::advance()
   // Get all adjacent nodes of the destacked node.
   // If a adjancent node has not been visited, then mark it visited and
   // push it into stack.
-  ArcBase* arc = node->first_out;
+  ArcBase* arc = node->last_out;
   while (nullptr != arc) {
     if (m_Visited.end() == m_Visited.find(arc->target)) { // not been visited
       m_Visited.insert(arc->target);
       m_Stack.push(arc->target);
     }
-    arc = arc->next_out;
+    arc = arc->prev_out;
   }
 
-  if (m_Stack.empty())
+  if (m_Stack.empty()) { // reach the end of iterator
     setNode(nullptr);
+    m_Visited.clear();
+  }
   else
     setNode(m_Stack.top());
 }
