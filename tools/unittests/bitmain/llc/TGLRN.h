@@ -2,9 +2,10 @@
 #define ONNX_BM_TGLRN_H
 
 #include "onnx/common/ir.h"
-#include "TGOperator.h"
+#include "Operator.h"
+#include "TGISelLowering.h"
 
-class TGLRN : public TGOperator {
+class TGLRN : public Operator {
 public:
   TGLRN(const onnx::Node &node, MemTable &memTable);
   void emit(void) const override;

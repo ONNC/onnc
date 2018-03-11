@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "TGBackend.h"
+#include "TGISelLowering.h"
 #include "reader_helper.h"
 #include "onnx/common/ir_pb_converter.h"
 #include "onnx/optimizer/optimize.h"
@@ -101,8 +102,6 @@ TGBackend::TGBackend(const onnx::ModelProto &model) : m_bmkernelHandle(nullptr) 
   onnx::ExportModelProto(&lastModel, m_onnxGraph);
   dumpONNXProto(lastModel);
 
-  // plan global memory layout
-  targetInfo::ddrScanAndAlloc(m_globalMemLayout, *const_cast<onnx::Graph *>(m_onnxGraph.get()));
 }
 
 TGBackend::~TGBackend() { kernel_exit(); }
@@ -119,17 +118,8 @@ void TGBackend::codeEmit(void) {
 }
 
 TGBackend &TGBackend::lowering(void) {
-  for (auto it = m_onnxGraph->begin(), ie = m_onnxGraph->end(); it != ie;
-       ++it) {
-    const onnx::Node *const node = *it;
-    std::unique_ptr<TGOperator> tgOp(TGOperator::makeTGOperator(*node, m_globalMemLayout));
-    // FIXME walkaound for Dropout node
-    if (nullptr == tgOp)
-      continue;
-    assert(nullptr != tgOp);
-    std::cout << "lowering: " << tgOp->getName() << std::endl;
-    m_instructions.push_back(std::move(tgOp));
-  }
+  TGTargetLowering tg(m_onnxGraph.get());
+  tg.CodeGenAndEmitInst(m_onnxGraph.get(), m_instructions);
   return *this;
 }
 

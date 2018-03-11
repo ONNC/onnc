@@ -1,8 +1,11 @@
 #ifndef ONNX_BM_TGCONV_H
 #define ONNX_BM_TGCONV_H
 
-#include <stdint.h>
-class TGConv : public TGOperator {
+#include "onnx/common/ir.h"
+#include "Operator.h"
+#include "TGISelLowering.h"
+
+class TGConv : public Operator {
 public:
   TGConv(const onnx::Node &node, MemTable &memTable);
   void emit(void) const override;

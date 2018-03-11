@@ -2,9 +2,10 @@
 #define ONNX_BM_TGMAXPOOL_H
 
 #include "onnx/common/ir.h"
-#include "TGOperator.h"
+#include "Operator.h"
+#include "TGISelLowering.h"
 
-class TGMaxPool : public TGOperator {
+class TGMaxPool : public Operator {
 public:
   TGMaxPool(const onnx::Node &node, MemTable &memTable);
   void emit(void) const override;

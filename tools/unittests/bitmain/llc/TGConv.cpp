@@ -1,4 +1,4 @@
-#include "TGOperator.h"
+#include "TGConv.h"
 #include <bmkernel_api.h>
 
 using namespace std;
@@ -70,7 +70,7 @@ static void dump_onnx_Conv(const onnx::Node &node)
 }
 // TGConv
 TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
-    : TGOperator(node, "Conv"), m_dilationH(1), m_dilationW(1), m_groups(1),
+    : Operator(node, "Conv"), m_dilationH(1), m_dilationW(1), m_groups(1),
       m_padH(0), m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0) {
   dump_onnx_Conv(node);
   auto inputs = node.inputs();
