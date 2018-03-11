@@ -8,7 +8,7 @@ class TGGemm : public TGOperator {
 public:
   TGGemm(const onnx::Node &node, MemTable &memTable);
   void dumpOnnxConv(const onnx::Node &node);
-  virtual void emit(void) const;
+  void emit(void) const override;
 
 private:
   std::vector<uint64_t> m_weightOffset;

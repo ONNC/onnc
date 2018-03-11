@@ -5,7 +5,7 @@
 class TGConv : public TGOperator {
 public:
   TGConv(const onnx::Node &node, MemTable &memTable);
-  virtual void emit(void) const;
+  void emit(void) const override;
 private:
   std::vector<uint64_t> m_weightOffset;
   uint64_t m_ifmapAddr, m_ofmapAddr, m_weightAddr, m_biasAddr;

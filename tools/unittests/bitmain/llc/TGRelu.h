@@ -7,7 +7,7 @@
 class TGRelu : public TGOperator {
 public:
   TGRelu(const onnx::Node &node, MemTable &memTable);
-  virtual void emit(void) const;
+  void emit(void) const override;
 private:
   uint64_t m_inputAddr;
   uint64_t m_outputAddr;
