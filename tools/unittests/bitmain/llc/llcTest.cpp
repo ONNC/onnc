@@ -105,8 +105,6 @@ SKYPAT_F(llcTest, testTotalWeightSize){
 
   std::unique_ptr<TGOperator> tgOp(
       TGOperator::makeTGOperator(*convNode1, memTable));
-  std::cout << "lowering: " << tgOp->getName()
-            << ", offset: " << tgOp->getTotalWeightSize() << std::endl;
 
   ASSERT_EQ(618348, (memTable[weight1->uniqueName()] & (uint64_t)~(0x3)));
   std::unique_ptr<TGOperator> tgOp2(

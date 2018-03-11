@@ -43,30 +43,5 @@ TGOperator *TGOperator::makeTGOperator(const onnx::Node &node,
 }
 
 TGOperator::TGOperator(const onnx::Node &node, const std::string &name)
-    : m_totalWeightSize(0), m_name(name) {
-}
+    : m_name(name) {}
 
-uint64_t TGOperator::updateWeightSize(const onnx::Node &node, uint64_t offset,
-                                      std::vector<uint64_t> &weightOffset) {
-
-  int64_t totalWeightSize = 0;
-  // walk around the lack of const member function in onnx::Graph
-  auto *graph = const_cast<onnx::Graph *>(node.owningGraph());
-  std::unordered_set<std::string> initNames(graph->initializer_names().begin(),
-                                            graph->initializer_names().end());
-  for (auto it = node.inputs().begin(), ie = node.inputs().end(); it != ie;
-       ++it) {
-    weightOffset.push_back(offset);
-    const onnx::Value *val = *it;
-    if (0 == val->sizes().size() || 0 == initNames.count(val->uniqueName()))
-      continue;
-    int64_t totalDim = 1;
-    for (auto &dimension : val->sizes()) {
-      totalDim *= dimension.dim;
-    }
-    int64_t sizeofType = getSize(val->elemType());
-    offset += totalDim * sizeofType;
-    totalWeightSize += totalDim * sizeofType;
-  }
-  return totalWeightSize;
-}
