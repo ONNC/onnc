@@ -1,6 +1,7 @@
 if ENABLE_UNITTEST
 TEST_SOURCES = DigraphTest.cpp \
-	FileHandleTest.cpp
+	FileHandleTest.cpp \
+	PassManagerTest.cpp
 endif
 
 if ENABLE_REGRESSION
