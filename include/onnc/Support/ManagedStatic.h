@@ -7,7 +7,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_SUPPORT_MANAGED_STATIC_H
 #define ONNC_SUPPORT_MANAGED_STATIC_H
-
 #include <onnc/ADT/Uncopyable.h>
 #include <onnc/Support/DataTypes.h>
 
