@@ -13,11 +13,11 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // PassInfo
 //===----------------------------------------------------------------------===//
-PassInfo::PassInfo(StringRef pName, const void* pID)
+PassInfo::PassInfo(StringRef pName, Pass::AnalysisID pID)
   : m_Name(pName), m_PassID(pID), m_PassCtor(nullptr) {
 }
 
-PassInfo::PassInfo(StringRef pName, const void* pID, PassCtorFn pFn)
+PassInfo::PassInfo(StringRef pName, Pass::AnalysisID pID, PassCtorFn pFn)
   : m_Name(pName), m_PassID(pID), m_PassCtor(pFn) {
 }
 

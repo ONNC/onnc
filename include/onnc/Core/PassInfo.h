@@ -21,13 +21,13 @@ public:
   typedef Pass *(*PassCtorFn)(void);
 
 public:
-  PassInfo(StringRef pName, const void* pID);
+  PassInfo(StringRef pName, Pass::AnalysisID pID);
 
-  PassInfo(StringRef pName, const void* pID, PassCtorFn pFn);
+  PassInfo(StringRef pName, Pass::AnalysisID pID, PassCtorFn pFn);
 
   StringRef getPassName() const { return m_Name; }
 
-  const void *getPassID() const { return m_PassID; }
+  Pass::AnalysisID getPassID() const { return m_PassID; }
 
   PassCtorFn getPassCtor() const { return m_PassCtor; }
 
@@ -37,7 +37,7 @@ public:
 
 private:
   StringRef m_Name;
-  const void* m_PassID;
+  Pass::AnalysisID m_PassID;
   PassCtorFn m_PassCtor;
 };
 
