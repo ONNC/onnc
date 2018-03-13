@@ -6,8 +6,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/IRReader/ONNXReader.h>
+#include <onnc/Support/FileHandle.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
+//#include <onnx/onnx_pb.h>
 
 using namespace onnc;
 
@@ -27,10 +29,46 @@ onnx::Reader::~Reader()
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-SystemError onnx::Reader::parse(const Path& pFileName, Module& pModule)
+bool onnx::Reader::parse(const Path& pFileName, Module& pModule)
 {
+  FileHandle file;
+  SystemError err = file.open(pFileName, FileHandle::kReadOnly);
+  if (!err.isGood()) {
+    // TODO: show the error message
+    return false;
+  }
+
+
+  { // protobuf should be destroyed before the file being closed.
+    ::google::protobuf::io::FileInputStream raw_input(file.handler());
+    ::google::protobuf::io::CodedInputStream coded_input(&raw_input);
+
+    /**
+    onnx::ModelProto model;
+    if (!model.ParseFromCodedStream(&coded_input)) {
+      // TODO: show the error message
+      return false;
+    }
+    **/
+  }
+
+  err = file.close();
+  return err.isGood();
 }
 
-SystemError onnx::Reader::parse(StringRef pContent, Module& pModule)
+bool onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
 {
+  {
+    ::google::protobuf::io::CodedInputStream
+        coded_input((const uint8_t *)pContent.raw(), pContent.size());
+
+    /**
+    onnx::ModelProto model;
+    if (!model.ParseFromCodedStream(&coded_input)) {
+      // TODO: show the error message
+      return false;
+    }
+    **/
+  }
+  return true;
 }

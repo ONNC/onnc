@@ -1,9 +1,12 @@
 if ENABLE_UNITTEST
+TEST_SOURCES = DigraphTest.cpp \
+	FileHandleTest.cpp \
+	PassManagerTest.cpp
+endif
+
+
 if HAVE_BMKERNEL
 SUBDIRS = bitmain
-endif
-TEST_SOURCES = DigraphTest.cpp \
-	FileHandleTest.cpp
 endif
 
 if ENABLE_REGRESSION
@@ -30,7 +33,7 @@ bin_PROGRAMS = unittests
 
 unittests_LDFLAGS = @LIBONNC_LDFLAGS@
 
-unittests_LDADD = -lonnc @SKYPAT_LIBS@
+unittests_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@
 
 nodist_unittests_SOURCES = main.cpp ${TEST_SOURCES} ${MORE_TEST_SOURCES}
 

@@ -1,2 +1,2 @@
 
-SUBDIRS = bmkernel_test llc
+SUBDIRS = llc

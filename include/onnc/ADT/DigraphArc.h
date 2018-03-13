@@ -77,20 +77,24 @@ NodeType* DigraphArc<NodeType, ArcType>::getTarget() {
 }
 
 template<typename NodeType, typename ArcType>
-  const NodeType* DigraphArc<NodeType, ArcType>::getSource() const {
-    return static_cast<const NodeType*>(source);
-  }
+const NodeType* DigraphArc<NodeType, ArcType>::getSource() const {
+  return static_cast<const NodeType*>(source);
+}
 
 template<typename NodeType, typename ArcType>
-  NodeType* DigraphArc<NodeType, ArcType>::getSource() { return static_cast<NodeType*>(source); }
+NodeType* DigraphArc<NodeType, ArcType>::getSource() {
+  return static_cast<NodeType*>(source);
+}
 
 template<typename NodeType, typename ArcType>
-  const ArcType* DigraphArc<NodeType, ArcType>::getPrevIn() const {
-    return static_cast<const ArcType*>(prev_in);
-  }
+const ArcType* DigraphArc<NodeType, ArcType>::getPrevIn() const {
+  return static_cast<const ArcType*>(prev_in);
+}
 
 template<typename NodeType, typename ArcType>
-  ArcType* DigraphArc<NodeType, ArcType>::getPrevIn() { return static_cast<ArcType*>(prev_in); }
+ArcType* DigraphArc<NodeType, ArcType>::getPrevIn() {
+  return static_cast<ArcType*>(prev_in);
+}
 
 template<typename NodeType, typename ArcType>
   const ArcType* DigraphArc<NodeType, ArcType>::getNextIn() const {

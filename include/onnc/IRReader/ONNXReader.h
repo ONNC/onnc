@@ -9,7 +9,7 @@
 #define ONNC_IR_READER_ONNX_READER_H
 #include <onnc/Support/ErrorCode.h>
 #include <onnc/Support/Path.h>
-#include <onnc/ADT/StringRef.h>
+#include <onnc/ADT/ConstBuffer.h>
 #include <onnc/IR/Module.h>
 
 namespace onnc {
@@ -27,10 +27,15 @@ public:
 
   virtual ~Reader();
 
-  /// @return The parsing result.
-  SystemError parse(const Path& pFileName, Module& pModule);
+  /// parse ONNX file
+  /// @param[out] pModule The parsing result.
+  /// @retval false Error occurs
+  bool parse(const Path& pFileName, Module& pModule);
 
-  SystemError parse(StringRef pContent, Module& pModule);
+  /// parse a buffer as ONNX file format
+  /// @param[out] pModule The parsing result.
+  /// @retval false Error occurs
+  bool parse(ConstBuffer pContent, Module& pModule);
 };
 
 } // namespace of onnx

@@ -9,7 +9,8 @@
 //===----------------------------------------------------------------------===//
 template<typename NodeType, typename ArcType>
 Digraph<NodeType, ArcType>::Digraph()
-  : m_pNodeHead(nullptr), m_pFreeNodeHead(nullptr), m_pFreeArcHead(nullptr),
+  : m_pNodeHead(nullptr), m_pNodeRear(nullptr),
+    m_pFreeNodeHead(nullptr), m_pFreeArcHead(nullptr),
     m_NodeList(), m_ArcList() {
 }
 
@@ -36,14 +37,17 @@ Digraph<NodeType, ArcType>::addNode(NodeCtorParams&& ... pParams)
   }
 
   // 2. set up linkages
-  result->prev = nullptr;
-  result->next = m_pNodeHead;
+  result->prev = m_pNodeRear;
+  result->next = nullptr;
 
-  // 3. reset head node
-  if (nullptr != m_pNodeHead) {
-    m_pNodeHead->prev = result;
+  // 3. reset rear node
+  if (nullptr != m_pNodeRear) {
+    m_pNodeRear->next = result;
   }
-  m_pNodeHead = result;
+  m_pNodeRear = result;
+
+  if (nullptr == m_pNodeHead)
+    m_pNodeHead = result;
 
   return result;
 }
@@ -69,18 +73,24 @@ Digraph<NodeType, ArcType>::addArc(Node& pU, Node& pV, ArcCtorParams&& ... pPara
   result->target = &pV;
 
   // 3. set up fan-out linked list
-  result->next_out = pU.first_out;
-  if (nullptr != pU.first_out) {
-    pU.first_out->prev_out = result;
+  result->prev_out = pU.last_out;
+  if (nullptr != pU.last_out) {
+    pU.last_out->next_out = result;
   }
-  pU.first_out = result;
+  else { // last_out is nullptr => a node without fan-out arcs.
+    pU.first_out = result;
+  }
+  pU.last_out = result;
 
   // 4. set up fan-in linked list
-  result->next_in = pV.first_in;
-  if (nullptr != pV.first_in) {
-    pV.first_in->prev_in = result;
+  result->prev_in = pV.last_in;
+  if (nullptr != pV.last_in) {
+    pV.last_in->next_in = result;
   }
-  pV.first_in = result;
+  else { // last_in is nullptr => a node without fan-in arcs
+    pV.first_in = result;
+  }
+  pV.last_in = result;
 
   return result;
 }
@@ -92,26 +102,29 @@ void Digraph<NodeType, ArcType>::erase(Node& pNode)
   if (nullptr != pNode.next) {
     pNode.next->prev = pNode.prev;
   }
+  else { // pNode.next is NULL => pNode is the rear
+    m_pNodeRear = pNode.getPrevNode();
+  }
 
   if (nullptr != pNode.prev) {
     pNode.prev->next = pNode.next;
   }
   else { // pNode.prev is NULL => pNode is the head
-    m_pNodeHead = pNode.next;
+    m_pNodeHead = pNode.getNextNode();
   }
 
   // 2. remove all fan-in arcs
-  Arc* fan_in = pNode.first_in;
+  Arc* fan_in = pNode.getFirstInArc();
   while(nullptr != fan_in) {
-    Arc* next_in = fan_in->next_in;
+    Arc* next_in = fan_in->getNextIn();
     erase(*fan_in);
     fan_in = next_in;
   }
 
   // 3. remove all fan-out arcs
-  Arc* fan_out = pNode.first_out;
+  Arc* fan_out = pNode.getFirstOutArc();
   while(nullptr != fan_out) {
-    Arc* next_out = fan_out->next_out;
+    Arc* next_out = fan_out->getNextOut();
     erase(*fan_out);
     fan_out = next_out;
   }
@@ -135,7 +148,7 @@ void Digraph<NodeType, ArcType>::erase(Arc& pArc)
     pArc.source->first_out = pArc.next_out;
   }
 
-  if (nullptr != pArc.next_out) {
+  if (nullptr != pArc.next_out) { // a middle arc
     pArc.next_out->prev_out = pArc.prev_out;
   }
 
@@ -161,6 +174,7 @@ template<typename NodeType, typename ArcType>
 void Digraph<NodeType, ArcType>::clear()
 {
   m_pNodeHead = nullptr;
+  m_pNodeRear = nullptr;
   m_pFreeNodeHead = nullptr;
   m_pFreeArcHead = nullptr;
 
@@ -176,4 +190,88 @@ void Digraph<NodeType, ArcType>::clear()
 
   m_NodeList.clear();
   m_ArcList.clear();
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::iterator
+Digraph<NodeType, ArcType>::begin()
+{
+  return iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::iterator
+Digraph<NodeType, ArcType>::end()
+{
+  return iterator(nullptr);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_iterator
+Digraph<NodeType, ArcType>::begin() const
+{
+  return const_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_iterator
+Digraph<NodeType, ArcType>::end() const
+{
+  return const_iterator(nullptr);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::dsf_iterator
+Digraph<NodeType, ArcType>::dsf_begin()
+{
+  return dsf_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::dsf_iterator
+Digraph<NodeType, ArcType>::dsf_end()
+{
+  return dsf_iterator();
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_dsf_iterator
+Digraph<NodeType, ArcType>::dsf_begin() const
+{
+  return const_dsf_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_dsf_iterator
+Digraph<NodeType, ArcType>::dsf_end() const
+{
+  return const_dsf_iterator();
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::bsf_iterator
+Digraph<NodeType, ArcType>::bsf_begin()
+{
+  return bsf_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::bsf_iterator
+Digraph<NodeType, ArcType>::bsf_end()
+{
+  return bsf_iterator();
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_bsf_iterator
+Digraph<NodeType, ArcType>::bsf_begin() const
+{
+  return const_bsf_iterator(m_pNodeHead);
+}
+
+template<typename NodeType, typename ArcType>
+typename Digraph<NodeType, ArcType>::const_bsf_iterator
+Digraph<NodeType, ArcType>::bsf_end() const
+{
+  return const_bsf_iterator();
 }

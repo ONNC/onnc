@@ -10,10 +10,13 @@ ONNC_SOURCES = \
 	Target/TG/TargetInfo/TGTargetInfo.cpp \
 	Target/X86/X86Backend.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp \
+	Core/PassRegistry.cpp \
+	Core/PassInfo.cpp \
 	Core/AnalysisUsage.cpp \
 	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
+	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \
 	ADT/ConstBuffer.cpp \

@@ -1,6 +1,8 @@
 #include <vector>
 #include <string>
 
+#pragma once
+
 namespace onnc {
 namespace tensor {
 
@@ -28,79 +30,112 @@ typedef ::std::string StringRef;
 class Operator;
 class Use;
 class Define;
+class OperatorVisitor;
 
-class Value {
+class Value
+{
 public:
-  StringRef getName();
+  typedef std::vector<Use> UseList;
 
-  // TODO: Program input?
-  Define* getDefine();
+public:
+  Value(StringRef pName)
+    : m_Name(pName) {
+  }
 
-  unsigned getDefineNo();
+  StringRef getName() const { return m_Name; }
+
+  Define* getDefine() { return m_pDefine; }
+
+  unsigned int getDefineNo() { return m_DefineNo; }
 
   // TODO: Iterator
-  std::vector<Use> *getUses();
+  const UseList& getUses() const { return m_Uses; }
+
+  // TODO: Iterator
+  UseList& getUses() { return m_Uses; }
 
   void replaceAllUsesWith(Value *v);
 
 private:
-  Define* define;
-  unsigned int defineNo;
-  std::vector<Use> *uses;
+  Define* m_pDefine;
+  unsigned int m_DefineNo;
+  UseList m_Uses;
+  std::string m_Name;
 };
 
 class Define
 {
 public:
-  Define(StringRef p_name): name(p_name) {}
+  Define(StringRef p_name): m_Name(p_name) {}
 
-  // TODO: Operator Type
   StringRef getName();
 
 private:
-  StringRef name;
+  std::string m_Name;
 };
 
-class Use {
+class Use
+{
 public:
   Value *get();
+
   Operator *getUser();
+
   unsigned getOperandNo() const;
 
 private:
-  Operator *user;
-  unsigned int operand_num;
-  Value *value;
+  Operator *m_User;
+  unsigned int m_OperandNo;
+  Value *m_Value;
 };
 
 class Operator : public Define
 {
 public:
-  Operator(StringRef p_name): Define(p_name) {}
+  Operator(const std::string& pName)
+    : Define(pName) {
+  }
 
-  Value *getInput(unsigned index);
+  Value *getInput(unsigned pIdx);
 
-  Value *getOutput(unsigned index);
+  const Value *getInput(unsigned pIdx) const;
+
+  Value *getOutput(unsigned pIdx);
+
+  const Value *getOutput(unsigned pIdx) const;
+
+  virtual void accept(OperatorVisitor& pV);
 
 private:
-  ::std::vector<Value*> inputs;
-  ::std::vector<Value*> outputs;
+  typedef std::vector<Value*> ValueRefList;
+
+private:
+  ValueRefList m_Inputs;  //< all values used as inputs in this operator
+  ValueRefList m_Outputs; //< all values used as outputs in this operator
 };
 
-template<typename T>
+
+// Value
+// Tensor
+// TensorT
 class Tensor: public Value {
+public:
+  std::vector<int64_t> dimensions;
+};
+template<typename T>
+class TensorT: public Tensor {
 };
 
 // XXX: AttrType
 namespace AttrType {
 typedef int64_t INT;
 typedef float FLOAT;
-typedef ::std::string STRING;
+typedef std::string STRING;
 class TENSOR {};
 class GRAPH {};
-typedef ::std::vector<INT> INTS;
-typedef ::std::vector<FLOAT> FLOATS;
-typedef ::std::vector<STRING> STRINGS;
+typedef std::vector<INT> INTS;
+typedef std::vector<FLOAT> FLOATS;
+typedef std::vector<STRING> STRINGS;
 }
 
 } // namespace tensor
