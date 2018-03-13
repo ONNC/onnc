@@ -1,6 +1,7 @@
 #include <skypat/skypat.h>
 #include <cstdlib>
 #include "onnx/common/ir.h"
+#include "onnx/common/ir_pb_converter.h"
 #include "Operator.h"
 #include <memory>
 #include <iostream>
@@ -27,7 +28,6 @@ namespace {
     val->setElemType(elemType);
   }
 }
-
 
 SKYPAT_F(llcTest, testTotalWeightSize){
   onnx::Graph graph;
@@ -100,9 +100,8 @@ SKYPAT_F(llcTest, testTotalWeightSize){
   // register graph output
   graph.registerOutput(convOutVal2);
 
-  TGTargetLowering tg(&graph);
-  MemTable memTable = tg.getMemLayout();
-
+  MemTable memTable;
+  TGBackend::ddrAllocInfo(graph, memTable);
 
   ASSERT_EQ(618348, (memTable[weight1->uniqueName()] & (uint64_t)~(0x3)));
   ASSERT_EQ(2059500, (memTable[convOutVal2->uniqueName()] & (uint64_t)~(0x3)));

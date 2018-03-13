@@ -2,32 +2,22 @@
 
 #include "onnx/common/ir.h"
 #include <memory>
+#include "TGBackend.h"
+#include "TargetLowering.h"
 
+class TGBackend;
 using MemTable = std::map<std::string, uint64_t>;
-
-class TargetLowering {
-
-  public:
-    TargetLowering(){};
-    ~TargetLowering(){};
-    void CodeGenAndEmitInst(onnx::Graph *graph,
-                            std::vector<std::unique_ptr<Operator> > &instList);
-    virtual void LowerOperation(const onnx::Node &node, std::vector<std::unique_ptr<Operator> > &instList) = 0;
-};
-
 class TGTargetLowering : public TargetLowering {
 
 public:
-  TGTargetLowering(onnx::Graph *onnxGraph);
+  TGTargetLowering(TGBackend *tgBackend)
+      : TargetLowering(), m_tgBackend(tgBackend) {}
   void
   LowerOperation(const onnx::Node &node,
                  std::vector<std::unique_ptr<Operator> > &instList) override;
 
-  // FOR UNITTEST
-  MemTable &getMemLayout(void) { return m_globalMemLayout; }
-
 private:
+  TGBackend *m_tgBackend;
   Operator *LowerHelper(const onnx::Node &node, MemTable &memTabl);
   void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph);
-  MemTable m_globalMemLayout;
 };

@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   }
 
   TGBackend tgBackend(model);
-  tgBackend.lowering().codeEmit();
+  tgBackend.ddrAllocInfo().lowering().codeEmit();
 
   // Optional:  Delete all global objects allocated by libprotobuf.
   google::protobuf::ShutdownProtobufLibrary();

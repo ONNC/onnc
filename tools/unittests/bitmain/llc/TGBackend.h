@@ -6,6 +6,8 @@
 #include <onnx/onnx_pb.h>
 #include <vector>
 #include "Operator.h"
+#include "TGISelLowering.h"
+#include "TargetLowering.h"
 
 #define CMD_BUF_NAME "cmdbuf.bin"
 
@@ -223,12 +225,26 @@ void removeUnusedNode(onnx::Graph &graph) {
 
 } // end anonymous namespace
 
+using MemTable = std::map<std::string, uint64_t>;
 class TGBackend {
+
+private:
+  void *m_bmkernelHandle;
+  std::vector<std::unique_ptr<Operator> > m_instructions;
+  MemTable m_globalMemLayout;
+  std::shared_ptr<onnx::Graph> m_onnxGraph;
+  TargetLowering *m_TLI;
+
 public:
   TGBackend(const onnx::ModelProto &model);
   ~TGBackend();
+  TGBackend &ddrAllocInfo(void);
   TGBackend &lowering(void);
   void codeEmit(void);
+  MemTable &getMemLayout() { return m_globalMemLayout; }
+
+  // FIXME for unit test
+  static void ddrAllocInfo(onnx::Graph &graph, MemTable &memTable);
 
 private:
   static void sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len);
@@ -239,8 +255,4 @@ private:
   static void emitDebugInfo(void *userData, char const *info, int nodeId,
                             long long unsigned int fwAddr, bool isFloat);
   void bmkernelContextPrepare(void);
-
-  void *m_bmkernelHandle;
-  std::vector<std::unique_ptr<Operator>> m_instructions;
-  std::shared_ptr<onnx::Graph> m_onnxGraph;
 };
