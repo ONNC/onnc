@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <memory>
 #include <onnx/common/ir.h>
 #include <onnx/onnx_pb.h>
@@ -8,11 +7,10 @@
 #include "Operator.h"
 #include "TGISelLowering.h"
 #include "TargetLowering.h"
+#include "TGCodeEmitter.h"
 
-#define CMD_BUF_NAME "cmdbuf.bin"
-
+class TGCodeEmitter;
 namespace {
-
 // FIXME remove this when pass finish
 namespace updateOutputInfoPass {
 
@@ -229,11 +227,11 @@ using MemTable = std::map<std::string, uint64_t>;
 class TGBackend {
 
 private:
-  void *m_bmkernelHandle;
   std::vector<std::unique_ptr<Operator> > m_instructions;
   MemTable m_globalMemLayout;
   std::shared_ptr<onnx::Graph> m_onnxGraph;
   TargetLowering *m_TLI;
+  TGCodeEmitter *m_CE;
 
 public:
   TGBackend(const onnx::ModelProto &model);
@@ -242,17 +240,11 @@ public:
   TGBackend &lowering(void);
   void codeEmit(void);
   MemTable &getMemLayout() { return m_globalMemLayout; }
+  std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
 
   // FIXME for unit test
   static void ddrAllocInfo(onnx::Graph &graph, MemTable &memTable);
 
 private:
-  static void sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len);
-  static void emitCmdBuf(void *userData, void *cmdBuf, uint32_t len);
-  static void freeCmdBuf(void *userData, void *cmdBuf);
-  static void *allocCmdBuf(void *userData, uint32_t size);
-  static void hostSync(void);
-  static void emitDebugInfo(void *userData, char const *info, int nodeId,
-                            long long unsigned int fwAddr, bool isFloat);
   void bmkernelContextPrepare(void);
 };
