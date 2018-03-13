@@ -2,7 +2,7 @@
 #include <bmkernel_api.h>
 
 TGMaxPool::TGMaxPool(const onnx::Node &node, MemTable &memTable)
-    : TGOperator(node, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
+    : Operator(node, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
       m_strideW(1) {
 
   auto inputs = node.inputs();

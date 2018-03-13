@@ -2,9 +2,10 @@
 #define ONNX_BM_TGGEMM_H
 
 #include "onnx/common/ir.h"
-#include "TGOperator.h"
+#include "Operator.h"
+#include "TGISelLowering.h"
 
-class TGGemm : public TGOperator {
+class TGGemm : public Operator {
 public:
   TGGemm(const onnx::Node &node, MemTable &memTable);
   void dumpOnnxConv(const onnx::Node &node);

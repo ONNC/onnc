@@ -2,7 +2,7 @@
 #include <bmkernel_api.h>
 
 TGLRN::TGLRN(const onnx::Node &node, MemTable &memTable)
-    : TGOperator(node, "LRN"), m_k(1) {
+    : Operator(node, "LRN"), m_k(1) {
 
   auto inputs = node.inputs();
   auto outputs = node.outputs();

@@ -1,10 +1,11 @@
 #include <skypat/skypat.h>
 #include <cstdlib>
 #include "onnx/common/ir.h"
-#include "TGOperator.h"
+#include "Operator.h"
 #include <memory>
 #include <iostream>
 #include "TGBackend.h"
+#include "TGISelLowering.h"
 #include "reader_helper.h"
 
 namespace {
@@ -96,19 +97,14 @@ SKYPAT_F(llcTest, testTotalWeightSize){
 
   ::updateOutputInfoPass::updateOutputInfo(graph);
 
-  MemTable memTable;
-  // plan global memory layout
-  targetInfo::ddrScanAndAlloc(memTable, graph);
-
   // register graph output
   graph.registerOutput(convOutVal2);
 
-  std::unique_ptr<TGOperator> tgOp(
-      TGOperator::makeTGOperator(*convNode1, memTable));
+  TGTargetLowering tg(&graph);
+  MemTable memTable = tg.getMemLayout();
+
 
   ASSERT_EQ(618348, (memTable[weight1->uniqueName()] & (uint64_t)~(0x3)));
-  std::unique_ptr<TGOperator> tgOp2(
-      TGOperator::makeTGOperator(*convNode2, memTable));
   ASSERT_EQ(2059500, (memTable[convOutVal2->uniqueName()] & (uint64_t)~(0x3)));
 }
 

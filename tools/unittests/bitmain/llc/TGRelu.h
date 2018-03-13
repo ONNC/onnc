@@ -2,9 +2,10 @@
 #define ONNX_BM_TGRELU_H
 
 #include "onnx/common/ir.h"
-#include "TGOperator.h"
+#include "Operator.h"
+#include "TGISelLowering.h"
 
-class TGRelu : public TGOperator {
+class TGRelu : public Operator {
 public:
   TGRelu(const onnx::Node &node, MemTable &memTable);
   void emit(void) const override;

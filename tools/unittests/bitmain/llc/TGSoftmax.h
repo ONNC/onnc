@@ -2,9 +2,10 @@
 #define ONNX_BM_TGSOFTMAX
 
 #include "onnx/common/ir.h"
-#include "TGOperator.h"
+#include "Operator.h"
+#include "TGISelLowering.h"
 
-class TGSoftmax : public TGOperator {
+class TGSoftmax : public Operator {
 public:
   TGSoftmax(const onnx::Node &node, MemTable &memTable);
   void emit(void) const override;

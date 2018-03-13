@@ -58,7 +58,7 @@ void TGGemm::dumpOnnxConv(const onnx::Node &node) {
 // Y = alpha * A * B + beta * C
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K X N), input tensor C and output tensor Y have dimension (M X N).
 TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
-    : TGOperator(node, "Gemm"), m_inputAddr(0x0), m_weightAddr(0x0),
+    : Operator(node, "Gemm"), m_inputAddr(0x0), m_weightAddr(0x0),
       m_biasAddr(0x0), m_outputAddr(0x0), m_inRowNum(0), m_inColNum(0), m_outColNum(0),
       m_haveBias(0), m_usingRelu(0), m_weightTp(false) {
 

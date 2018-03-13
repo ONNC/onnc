@@ -2,7 +2,7 @@
 #include <bmkernel_api.h>
 
 TGRelu::TGRelu(const onnx::Node &node, MemTable &memTable)
-    : TGOperator(node, "Relu"), m_negativeSlope(0) {
+    : Operator(node, "Relu"), m_negativeSlope(0) {
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
 
   auto inputs = node.inputs();

@@ -3,7 +3,7 @@
 #include <bmkernel_api.h>
 
 TGSoftmax::TGSoftmax(const onnx::Node &node, MemTable &memTable)
-    : TGOperator(node, "Softmax") {
+    : Operator(node, "Softmax") {
 
   auto inputs = node.inputs();
   auto outputs = node.outputs();
