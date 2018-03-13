@@ -89,7 +89,7 @@ ONNC_SOURCES = \
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
-ONNC_INCLUDES = @LIBONNC_INCLUDES@
+ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@
 
 ONNC_CPPFLAGS =
 
@@ -112,7 +112,7 @@ lib_LTLIBRARIES = libonnc.la
 
 libonnc_la_SOURCES = ${ONNC_SOURCES}
 
-libonnc_la_LIBADD = -lz
+libonnc_la_LIBADD = -lz @ONNX_LIBS@
 
 if HAVE_PTHREADS
 libonnc_la_LDFLAGS = -lpthread

@@ -16,20 +16,20 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // onnx::Reader
 //===----------------------------------------------------------------------===//
-onnx::Reader::Reader()
+onnc::onnx::Reader::Reader()
 {
   // Verify that the version of the library that we linked against is
   // compatible with the version of the headers we compiled against.
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 }
 
-onnx::Reader::~Reader()
+onnc::onnx::Reader::~Reader()
 {
   // Optional:  Delete all global objects allocated by libprotobuf.
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-bool onnx::Reader::parse(const Path& pFileName, Module& pModule)
+bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
 {
   FileHandle file;
   SystemError err = file.open(pFileName, FileHandle::kReadOnly);
@@ -56,7 +56,7 @@ bool onnx::Reader::parse(const Path& pFileName, Module& pModule)
   return err.isGood();
 }
 
-bool onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
+bool onnc::onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
 {
   {
     ::google::protobuf::io::CodedInputStream

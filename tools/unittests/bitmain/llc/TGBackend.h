@@ -202,7 +202,7 @@ void updateOutputInfo(onnx::Graph &graph) {
 }
 } // end updateOutputInfoPass namespace
 
-
+// FIXME remove this when pass finish
 // remove unsed node in reference
 namespace removeUnusedNodePass {
 

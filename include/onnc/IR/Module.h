@@ -8,6 +8,7 @@
 #ifndef ONNC_IR_MODULE_H
 #define ONNC_IR_MODULE_H
 #include <onnc/IR/SymbolTable.h>
+#include <onnx/common/ir.h>
 
 namespace onnc {
 
@@ -16,8 +17,12 @@ namespace onnc {
  */
 class Module
 {
+public:
+  onnx::Graph &getGraph() { return m_onnxGraph; }
+
 private:
   SymbolTable m_SymbolTable;
+  onnx::Graph m_onnxGraph;
 };
 
 } // namespace of onnc
