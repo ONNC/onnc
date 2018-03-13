@@ -1,22 +1,34 @@
-#pragma once
-
-#include <cstdint>
-#include <memory>
-#include <onnx/common/ir.h>
-#include <onnx/onnx_pb.h>
+#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/PassSupport.h>
+#include "onnx/common/ir.h"
 #include <vector>
-#include "Operator.h"
 
-#define CMD_BUF_NAME "cmdbuf.bin"
+using namespace onnc;
 
 namespace {
 
-// FIXME remove this when pass finish
-namespace updateOutputInfoPass {
+class updateOutputInfo : public ModulePass {
 
-void _updateOutputInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
-                      const std::vector<onnx::Dimension> &dims,
-                      onnx::TensorProto_DataType type) {
+public:
+  static char ID;
+  updateOutputInfo() : ModulePass(ID) {}
+
+  bool runOnModule(Module &pModule) override;
+
+private:
+  void updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
+                        const std::vector<onnx::Dimension> &dims,
+                        onnx::TensorProto_DataType type);
+  void updateInfoByInput(onnx::Node *const node);
+  void updateConvInfo(onnx::Node *const node);
+  void updatePoolInfo(onnx::Node *const node);
+  void updateGemmInfo(onnx::Node *const node);
+};
+
+void
+updateOutputInfo::updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
+                                   const std::vector<onnx::Dimension> &dims,
+                                   onnx::TensorProto_DataType type) {
   for (auto outVal : outputs) {
     outVal->setElemType(type);
     if (0 == outVal->sizes().size())
@@ -24,7 +36,7 @@ void _updateOutputInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
   }
 }
 
-void updateOutputInfoByInput(onnx::Node *const node) {
+void updateOutputInfo::updateInfoByInput(onnx::Node *const node) {
   auto input = node->inputs()[0];
   const std::vector<onnx::Dimension> inputDim = input->sizes();
   const onnx::TensorProto_DataType inputType = input->elemType();
@@ -32,10 +44,10 @@ void updateOutputInfoByInput(onnx::Node *const node) {
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
     return;
-  _updateOutputInfo(node->outputs(), inputDim, inputType);
+  updateInfo(node->outputs(), inputDim, inputType);
 }
 
-void updateConvOutputInfo(onnx::Node *const node) {
+void updateOutputInfo::updateConvInfo(onnx::Node *const node) {
   const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
@@ -92,10 +104,10 @@ void updateConvOutputInfo(onnx::Node *const node) {
                                         onnx::Dimension(oW) };
 
   const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
-  _updateOutputInfo(node->outputs(), outDims, inputType);
+  updateInfo(node->outputs(), outDims, inputType);
 }
 
-void updatePoolOutputInfo(onnx::Node *const node) {
+void updateOutputInfo::updatePoolInfo(onnx::Node *const node) {
   const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
@@ -129,15 +141,17 @@ void updatePoolOutputInfo(onnx::Node *const node) {
   int64_t oC = iC;
 #if 1
   // NOTE: It is for bmkernel only padding on both ends
-  int64_t oH = static_cast<int64_t>(ceil(static_cast<float>(
-      iH - kH + 2 * xb) / sH)) + 1;
-  int64_t oW = static_cast<int64_t>(ceil(static_cast<float>(
-      iW - kW + 2 * yb) / sW)) + 1;
+  int64_t oH =
+      static_cast<int64_t>(ceil(static_cast<float>(iH - kH + 2 * xb) / sH)) + 1;
+  int64_t oW =
+      static_cast<int64_t>(ceil(static_cast<float>(iW - kW + 2 * yb) / sW)) + 1;
 #else
-  int64_t oH = static_cast<int64_t>(ceil(static_cast<float>(
-      iH - kH + xb + xe) / sH)) + 1;
-  int64_t oW = static_cast<int64_t>(ceil(static_cast<float>(
-      iW - kW + yb + ye) / sW)) + 1;
+  int64_t oH =
+      static_cast<int64_t>(ceil(static_cast<float>(iH - kH + xb + xe) / sH)) +
+      1;
+  int64_t oW =
+      static_cast<int64_t>(ceil(static_cast<float>(iW - kW + yb + ye) / sW)) +
+      1;
 #endif
 
   std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
@@ -146,10 +160,10 @@ void updatePoolOutputInfo(onnx::Node *const node) {
                                         onnx::Dimension(oW) };
 
   const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
-  _updateOutputInfo(node->outputs(), outDims, inputType);
+  updateInfo(node->outputs(), outDims, inputType);
 }
 
-void updateGemmOutputInfo(onnx::Node *const node) {
+void updateOutputInfo::updateGemmInfo(onnx::Node *const node) {
 
   const std::vector<onnx::Dimension> aDim = node->inputs()[0]->sizes();
   const std::vector<onnx::Dimension> bDim = node->inputs()[1]->sizes();
@@ -172,75 +186,40 @@ void updateGemmOutputInfo(onnx::Node *const node) {
   std::vector<onnx::Dimension> outDims{ onnx::Dimension(oM),
                                         onnx::Dimension(oN) };
   const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
-  _updateOutputInfo(node->outputs(), outDims, inputType);
+  updateInfo(node->outputs(), outDims, inputType);
 }
 
-void updateOutputInfo(onnx::Graph &graph) {
+bool updateOutputInfo::runOnModule(Module &pModule) {
+  onnx::Graph &graph = pModule.getGraph();
   for (onnx::graph_node_list_iterator it = graph.begin(), ie = graph.end();
        it != ie; ++it) {
     onnx::Node *node = *it;
     auto symbol = node->kind();
 
     if (symbol == onnx::Symbol("Conv")) {
-      updateConvOutputInfo(node);
+      updateConvInfo(node);
     } else if (symbol == onnx::Symbol("Relu")) {
-      updateOutputInfoByInput(node);
+      updateInfoByInput(node);
     } else if (symbol == onnx::Symbol("LRN")) {
-      updateOutputInfoByInput(node);
+      updateInfoByInput(node);
     } else if (symbol == onnx::Symbol("MaxPool")) {
-      updatePoolOutputInfo(node);
+      updatePoolInfo(node);
     } else if (symbol == onnx::Symbol("Dropout")) {
-      updateOutputInfoByInput(node);
+      updateInfoByInput(node);
     } else if (symbol == onnx::Symbol("Gemm")) {
-      updateGemmOutputInfo(node);
+      updateGemmInfo(node);
     } else if (symbol == onnx::Symbol("Softmax")) {
-      updateOutputInfoByInput(node);
+      updateInfoByInput(node);
     } else {
       std::cerr << "unimplemented type: " << symbol.toString() << std::endl;
     }
   }
-}
-} // end updateOutputInfoPass namespace
-
-// FIXME remove this when pass finish
-// remove unsed node in reference
-namespace removeUnusedNodePass {
-
-void removeUnusedNode(onnx::Graph &graph) {
-  for (auto it = graph.begin(), ie = graph.end(); it != ie; ++it) {
-    auto *node = *it;
-    auto symbol = node->kind();
-    if (symbol == onnx::Symbol("Dropout")) {
-      // Dropout has multiple outputs
-      node->outputs()[0]->replaceAllUsesWith(node->input());
-      it.destroyCurrent();
-    }
-  }
+  return true;
 }
 
-} // end removeUnusedNodePass namespace
+} // anonymous namespace
 
+char updateOutputInfo::ID = 0;
+INITIALIZE_PASS(updateOutputInfo, "updateOutputInfo")
 
-} // end anonymous namespace
-
-class TGBackend {
-public:
-  TGBackend(const onnx::ModelProto &model);
-  ~TGBackend();
-  TGBackend &lowering(void);
-  void codeEmit(void);
-
-private:
-  static void sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len);
-  static void emitCmdBuf(void *userData, void *cmdBuf, uint32_t len);
-  static void freeCmdBuf(void *userData, void *cmdBuf);
-  static void *allocCmdBuf(void *userData, uint32_t size);
-  static void hostSync(void);
-  static void emitDebugInfo(void *userData, char const *info, int nodeId,
-                            long long unsigned int fwAddr, bool isFloat);
-  void bmkernelContextPrepare(void);
-
-  void *m_bmkernelHandle;
-  std::vector<std::unique_ptr<Operator>> m_instructions;
-  std::shared_ptr<onnx::Graph> m_onnxGraph;
-};
+// ModulePass *createRemoveUnusedNodePass() { return new updateOutputInfo(); }
