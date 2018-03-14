@@ -190,8 +190,8 @@ void updateOutputInfo::updateGemmInfo(onnx::Node *const node) {
 }
 
 bool updateOutputInfo::runOnModule(Module &pModule) {
-  onnx::Graph &graph = pModule.getGraph();
-  for (onnx::graph_node_list_iterator it = graph.begin(), ie = graph.end();
+  onnx::Graph *graph = pModule.getGraph();
+  for (onnx::graph_node_list_iterator it = graph->begin(), ie = graph->end();
        it != ie; ++it) {
     onnx::Node *node = *it;
     auto symbol = node->kind();

@@ -13,9 +13,9 @@ public:
   removeUnusedNode() : ModulePass(ID) {}
 
   bool runOnModule(Module &pModule) override {
-    onnx::Graph &graph = pModule.getGraph();
+    onnx::Graph *graph = pModule.getGraph();
     bool isChanged = false;
-    for (auto it = graph.begin(), ie = graph.end(); it != ie; ++it) {
+    for (auto it = graph->begin(), ie = graph->end(); it != ie; ++it) {
       auto *node = *it;
       auto symbol = node->kind();
       if (symbol == onnx::Symbol("Dropout")) {

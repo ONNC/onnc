@@ -1,5 +1,5 @@
 ONNC_INCLUDES = -I${abs_top_srcdir}/tools/onnx2tg \
-	@LIBONNC_INCLUDES@ @SKYPAT_INCLUDES@
+	@LIBONNC_INCLUDES@ @SKYPAT_INCLUDES@ @ONNX_INCLUDES@
 
 ANDROID_CPPFLAGS=-fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 

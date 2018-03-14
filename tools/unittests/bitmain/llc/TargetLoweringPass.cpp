@@ -18,9 +18,9 @@ public:
   // TargetISel(TGBackend* target) : ModulePass(ID), m_target(target) {}
 
   bool runOnModule(Module &pModule) override {
-    onnx::Graph &graph = pModule.getGraph();
+    onnx::Graph *graph = pModule.getGraph();
     TargetLowering *TLI = m_target->getTargetLowering();
-    TLI->CodeGenAndEmitInst(&graph, m_target->getInsts());
+    TLI->CodeGenAndEmitInst(graph, m_target->getInsts());
     return false;
   }
 };

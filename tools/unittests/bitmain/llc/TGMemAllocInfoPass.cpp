@@ -21,8 +21,8 @@ public:
   // TGMemAllocInfo(TGBackend *target) : ModulePass(ID), m_target(target){}
 
   bool runOnModule(Module &pModule) override {
-    onnx::Graph &graph = pModule.getGraph();
-    ddrAllocInfo(graph, m_target->getMemLayout());
+    onnx::Graph *graph = pModule.getGraph();
+    ddrAllocInfo(*graph, m_target->getMemLayout());
     return false;
   }
 };

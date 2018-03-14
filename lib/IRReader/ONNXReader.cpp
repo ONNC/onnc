@@ -9,7 +9,8 @@
 #include <onnc/Support/FileHandle.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
-//#include <onnx/onnx_pb.h>
+#include <onnc/Diagnostic/MsgHandling.h>
+#include <onnx/common/ir_pb_converter.h>
 
 using namespace onnc;
 
@@ -43,13 +44,12 @@ bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
     ::google::protobuf::io::FileInputStream raw_input(file.handler());
     ::google::protobuf::io::CodedInputStream coded_input(&raw_input);
 
-    /**
-    onnx::ModelProto model;
+    ::onnx::ModelProto model;
     if (!model.ParseFromCodedStream(&coded_input)) {
-      // TODO: show the error message
+      error(onnx_cannot_parsed) << pFileName;
       return false;
     }
-    **/
+    pModule.delegateGraph(::onnx::ImportModelProto(model));
   }
 
   err = file.close();

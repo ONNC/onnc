@@ -8,6 +8,8 @@
 #include "ONNX2TGApp.h"
 #include <cstdlib>
 #include <onnc/Target/TargetSelect.h>
+#include <onnc/IRReader/ONNXReader.h>
+#include <onnc/IR/Module.h>
 
 using namespace onnc;
 
@@ -15,7 +17,7 @@ using namespace onnc;
 // ONNX2TG
 //===----------------------------------------------------------------------===//
 ONNX2TG::ONNX2TG(int pArgc, char* pArgv[])
-  : onnc::CoreApplication(pArgc, pArgv) {
+  : onnc::CoreApplication(pArgc, pArgv), m_Config() {
   InitializeAllPlatforms();
   InitializeAllBackends();
 }
@@ -26,6 +28,10 @@ ONNX2TG::~ONNX2TG()
 
 int ONNX2TG::compile()
 {
-  // TODO
+  onnc::onnx::Reader reader;
+  Module module;
+  if (!reader.parse(m_Config.input(), module)) {
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
