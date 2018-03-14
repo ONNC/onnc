@@ -21,7 +21,8 @@ onnx2tg_LDFLAGS = @LIBONNC_LDFLAGS@
 onnx2tg_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@
 
 nodist_onnx2tg_SOURCES = main.cpp \
-	ONNX2TGApp.cpp
+	ONNX2TGApp.cpp \
+	Config.cpp
 
 if HAVE_PTHREADS
 onnx2tg_LDADD += -lpthread
