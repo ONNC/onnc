@@ -11,6 +11,8 @@
 
 namespace onnc {
 
+class TargetBackend;
+
 #define INITIALIZE_PASS(pass_name, name)                                      \
   static void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
     PassInfo *info = new PassInfo(                                            \
@@ -21,9 +23,24 @@ namespace onnc {
     return info;                                                              \
   }
 
+#define INITIALIZE_TB_PASS(pass_name, name)                                   \
+  static void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
+    PassInfo *info = new PassInfo(                                            \
+      name,                                                                   \
+      &pass_name::ID,                                                         \
+      PassInfo::PassCtorFn(callDefaultCtor<pass_name>),                       \
+      PassInfo::PassTargetCtorFn(callTargetBackendCtor<pass_name>));          \
+    pRegistry.registerPass(*info);                                            \
+    return info;                                                              \
+  }
+
 /// Default constructor wrapper. A wrapper to convert a constructor into normal
 /// function.
 template <typename PassName> Pass *callDefaultCtor() { return new PassName(); }
+
+template <typename PassName> Pass *callTargetBackendCtor(TargetBackend* pTB) {
+  return new PassName(pTB);
+}
 
 } // namespace of onnc
 

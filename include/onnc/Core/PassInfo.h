@@ -13,17 +13,21 @@
 
 namespace onnc {
 
+class TargetBackend;
+
 /** \class onnc::PassInfo
  */
 class PassInfo : private Uncopyable
 {
 public:
   typedef Pass *(*PassCtorFn)(void);
+  typedef Pass *(*PassTargetCtorFn)(TargetBackend*);
 
 public:
   PassInfo(StringRef pName, Pass::AnalysisID pID);
 
-  PassInfo(StringRef pName, Pass::AnalysisID pID, PassCtorFn pFn);
+  PassInfo(StringRef pName, Pass::AnalysisID pID,
+           PassCtorFn pFn, PassTargetCtorFn pTrgFn = nullptr);
 
   StringRef getPassName() const { return m_Name; }
 
@@ -33,12 +37,28 @@ public:
 
   void setPassCtor(PassCtorFn pCtor) { m_PassCtor = pCtor; }
 
+  PassTargetCtorFn getPassTargetCtor() const { return m_PassTargetCtor; }
+
+  void setPassTargetCtor(PassTargetCtorFn pCtor) { m_PassTargetCtor = pCtor; }
+
+  bool hasTargetCtor() const { return (nullptr != m_PassTargetCtor); }
+
+  /// Using PassTargetCtorFn to create a Pass only if @ref pTB is
+  /// not null. Otherwise, using PassCtorFn.
+  Pass *makePass(TargetBackend* pTB = nullptr) const;
+
+private:
+  /// Using PassCtorFn to create a pass
   Pass *createPass() const;
+
+  /// Using PassTargetCtorFn to create a Pass
+  Pass *createPass(TargetBackend* pTB) const;
 
 private:
   StringRef m_Name;
   Pass::AnalysisID m_PassID;
   PassCtorFn m_PassCtor;
+  PassTargetCtorFn m_PassTargetCtor;
 };
 
 } // namespace of onnc

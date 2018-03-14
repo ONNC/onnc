@@ -39,6 +39,16 @@ PassManager::~PassManager()
 // Use depth search first to build up a sub-graph of dependenciess.
 void PassManager::add(Pass* pPass)
 {
+  doAdd(pPass, nullptr);
+}
+
+void PassManager::add(Pass* pPass, TargetBackend* pBackend)
+{
+  doAdd(pPass, pBackend);
+}
+
+void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
+{
   /// Add a pass by DSF order
   bool exist = false;
   findAnalysisPassInfo(pPass->getPassID(), exist);
@@ -73,7 +83,7 @@ void PassManager::add(Pass* pPass)
           // use existed node or create a new node
           DepNode* new_node = findNode(*use);
           if (nullptr == new_node) {
-            Pass* new_pass = info->createPass();
+            Pass* new_pass = info->makePass(pBackend);
             new_node = m_Dependencies.addNode(new_pass);
             stack.push(new_node);
           }
