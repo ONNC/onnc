@@ -17,6 +17,8 @@
 
 namespace onnc {
 
+class TargetBackend;
+
 /** \class onnc::PassManager
  *  \brief stores a set of passes and run them.
  */
@@ -35,6 +37,8 @@ public:
   ~PassManager();
 
   void add(Pass* pPass);
+
+  void add(Pass* pPass, TargetBackend* pBackend);
 
   bool run(Module& pModule);
 
@@ -80,6 +84,8 @@ private:
   PassRegistry* getPassRegistry() { return m_pPassRegistry; }
 
   DepNode* findNode(Pass::AnalysisID pID);
+
+  void doAdd(Pass* pPass, TargetBackend* pBackend);
 
 private:
   PassRegistry* m_pPassRegistry;
