@@ -50,7 +50,6 @@ if test "$check_bmkernel" = "yes"; then
     AC_SUBST(BMAPI_INCLUDES)
     AC_SUBST(BMAPI_LIBS)
     AC_CONFIG_FILES([tools/unittests/bitmain/Makefile])
-    AC_CONFIG_FILES([tools/unittests/bitmain/bmkernel_test/Makefile])
     AC_CONFIG_FILES([tools/unittests/bitmain/llc/Makefile])
 fi
 AM_CONDITIONAL([HAVE_BMKERNEL], [test ${HAVE_BMKERNEL} = 1])
