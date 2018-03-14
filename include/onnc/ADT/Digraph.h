@@ -32,7 +32,7 @@ namespace onnc {
  *  Query adjacency | O(E)       | O(#(fan-in) + #(fan-out))
  *
  */
-template<typename NodeType, typename ArcType>
+template<typename NodeType = NodeBase, typename ArcType = ArcBase>
 class Digraph
 {
 public:
@@ -40,10 +40,10 @@ public:
   typedef ArcType  Arc;
   typedef NodeIterator<NodeType> iterator;
   typedef NodeIterator<const NodeType> const_iterator;
-  typedef PolicyNodeIterator<DSFIterator, NonConstTraits<NodeType> > dsf_iterator;
-  typedef PolicyNodeIterator<DSFIterator, ConstTraits<NodeType> > const_dsf_iterator;
-  typedef PolicyNodeIterator<BSFIterator, NonConstTraits<NodeType> > bsf_iterator;
-  typedef PolicyNodeIterator<BSFIterator, ConstTraits<NodeType> > const_bsf_iterator;
+  typedef PolicyNodeIterator<DFSIterator, NonConstTraits<NodeType> > dfs_iterator;
+  typedef PolicyNodeIterator<DFSIterator, ConstTraits<NodeType> > const_dfs_iterator;
+  typedef PolicyNodeIterator<BFSIterator, NonConstTraits<NodeType> > bfs_iterator;
+  typedef PolicyNodeIterator<BFSIterator, ConstTraits<NodeType> > const_bfs_iterator;
 
 public:
   Digraph();
@@ -69,6 +69,14 @@ public:
 
   void getRear(Node*& pNode) const { pNode = m_pNodeRear; }
 
+  void getHead(Node*& pNode) const { pNode = m_pNodeHead; }
+
+  const Node* head() const { return m_pNodeHead; }
+
+  Node* head() { return m_pNodeHead; }
+
+  bool hasHead() const { return (nullptr != m_pNodeHead); }
+
   unsigned int getNodeSize() const { return m_NodeList.size(); }
 
   unsigned int getArcSize() const { return m_ArcList.size(); }
@@ -81,21 +89,23 @@ public:
 
   const_iterator end() const;
 
-  dsf_iterator dsf_begin();
+  dfs_iterator dfs_begin();
 
-  dsf_iterator dsf_end();
+  dfs_iterator dfs_end();
 
-  const_dsf_iterator dsf_begin() const;
+  const_dfs_iterator dfs_begin() const;
 
-  const_dsf_iterator dsf_end() const;
+  const_dfs_iterator dfs_end() const;
 
-  bsf_iterator bsf_begin();
+  bfs_iterator bfs_begin();
 
-  bsf_iterator bsf_end();
+  bfs_iterator bfs_end();
 
-  const_bsf_iterator bsf_begin() const;
+  const_bfs_iterator bfs_begin() const;
 
-  const_bsf_iterator bsf_end() const;
+  const_bfs_iterator bfs_end() const;
+
+  bool exists(const Node& pNode) const;
 
 private:
   typedef std::vector<Node*> NodeList;

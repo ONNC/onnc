@@ -28,7 +28,7 @@ public:
   ArcBase *first_out, *last_out;
 };
 
-template<typename NodeType, typename ArcType>
+template<typename NodeType, typename ArcType = ArcBase>
 class DigraphNode : public NodeBase
 {
 public:
