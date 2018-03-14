@@ -7,8 +7,9 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Core/Pass.h>
 #include <onnc/Core/ModulePass.h>
-#include <onnc/Support/IOStream.h>
+#include <onnc/Support/Casting.h>
 #include <onnc/Diagnostic/MsgHandling.h>
+#include <onnc/Support/IOStream.h>
 
 using namespace onnc;
 
@@ -35,9 +36,13 @@ void Pass::dump()
   print(errs(), nullptr);
 }
 
-void Pass::getAnalysisUsage(AnalysisUsage& pUsage) const
+bool Pass::run(Module& pModule)
 {
-  // By default, no analysis results are used, all are invalidated.
+  ModulePass* pass = dyn_cast<ModulePass>(this);
+  if (nullptr != pass) {
+    return pass->runOnModule(pModule);
+  }
+  return false;
 }
 
 //===----------------------------------------------------------------------===//

@@ -41,7 +41,7 @@ void PassManager::add(Pass* pPass)
 {
   /// Add a pass by DSF order
   bool exist = false;
-  const PassInfo* info = findAnalysisPassInfo(pPass->getPassID(), exist);
+  findAnalysisPassInfo(pPass->getPassID(), exist);
   if (exist) { // The pass had been added
     return;
   }
@@ -80,27 +80,29 @@ void PassManager::add(Pass* pPass)
           m_Dependencies.connect(*new_node, *cur_node);
         }
       } // for each usage
-      m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;
     }
+    m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;
   } // leave stacking
 }
 
 bool PassManager::run(Module& pModule)
 {
+  bool changed = false;
   PassDependencyLattice::bfs_iterator node, pEnd = m_Dependencies.bfs_end();
   for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {
-    bool changed = node->pass->doInitialization(pModule);
+    changed |= node->pass->doInitialization(pModule);
   }
 
   // run the body
   for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {
-    // bool changed = node->pass->run(pModule);
+    changed |= node->pass->run(pModule);
   }
 
   // finalization
   for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {
-    bool changed = node->pass->doFinalization(pModule);
+    changed |= node->pass->doFinalization(pModule);
   }
+  return changed;
 }
 
 const PassInfo*
@@ -122,4 +124,9 @@ PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
     }
   }
   return nullptr;
+}
+
+unsigned int PassManager::size() const
+{
+  return m_AvailableAnalysis.size();
 }

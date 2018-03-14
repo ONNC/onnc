@@ -26,8 +26,8 @@ public:
   /// being operated on.
   virtual bool runOnModule(Module &pModule) = 0;
 
-  static bool classof(const Pass& pPass) {
-      return Pass::kPT_Module == pPass.getPassKind();
+  static bool classof(const Pass* pPass) {
+      return Pass::kPT_Module == pPass->getPassKind();
   }
 };
 

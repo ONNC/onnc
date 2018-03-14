@@ -48,6 +48,11 @@ public:
   /// @retval false We didn't modify the module
   virtual bool doInitialization(Module& pModule) { return false; }
 
+  /// Execute all of the passes scheduled for execution
+  /// @retval true The pass modifies the module.
+  /// @retval false The pass didn't modify the module.
+  bool run(Module& pModule);
+
   /// Virtual method overridden by subclasses to do any necessary
   /// finalization before any pass is run.
   ///
@@ -68,7 +73,7 @@ public:
   void dump();
 
   /// This function should be overriden by passes that need analysis information.
-  virtual void getAnalysisUsage(AnalysisUsage& pUsage) const;
+  virtual void getAnalysisUsage(AnalysisUsage& pUsage) const { }
 
 private:
   Kind m_Kind;

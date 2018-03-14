@@ -147,7 +147,12 @@ SKYPAT_F(PassManagerTest, query_passes)
 
   PassManager pm(registry);
   pm.add(pass);
+  EXPECT_EQ(pm.size(), 3);
+
   pm.add(pass);
+  // no additional passes
+  EXPECT_EQ(pm.size(), 3);
+
   Module module;
-  pm.run(module);
+  EXPECT_TRUE(pm.run(module));
 }
