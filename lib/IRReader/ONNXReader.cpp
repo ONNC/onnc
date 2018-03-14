@@ -43,7 +43,7 @@ bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
   { // protobuf should be destroyed before the file being closed.
     ::google::protobuf::io::FileInputStream raw_input(file.handler());
     ::google::protobuf::io::CodedInputStream coded_input(&raw_input);
-
+    coded_input.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
     ::onnx::ModelProto model;
     if (!model.ParseFromCodedStream(&coded_input)) {
       error(onnx_cannot_parsed) << pFileName;
