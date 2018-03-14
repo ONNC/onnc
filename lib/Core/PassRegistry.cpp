@@ -16,7 +16,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 static onnc::ManagedStatic<PassRegistry> g_PassRegistryObj;
 
-PassRegistry* GetPassRegistry()
+PassRegistry* onnc::GetPassRegistry()
 {
   return &*g_PassRegistryObj;
 }
