@@ -38,6 +38,9 @@ public:
 
   bool run(Module& pModule);
 
+  /// @return The number of registered passes.
+  unsigned int size() const;
+
 private:
   struct DepNode : public DigraphNode<DepNode>
   {
