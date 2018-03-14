@@ -8,6 +8,9 @@
 #include "ONNX2TGApp.h"
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Support/Path.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/ADT/Color.h>
+
 
 using namespace onnc;
 
@@ -25,9 +28,11 @@ static cl::opt<Path> OptInput("input", cl::kPositional, cl::kRequired,
                               cl::kValueRequired,
                               cl::desc("The input file"), cl::help(HelpManual));
 
-static cl::opt<Path> OptOutput("o", cl::kShort, cl::kOptional,
-                               cl::kValueRequired, cl::desc("The output file"),
-                               cl::help(HelpManual));
+static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
+                                      cl::kValueRequired,
+                                      cl::desc("The output file"),
+                                      cl::help(HelpManual),
+                                      cl::init("cmdbuf.bin"));
 
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
                              cl::kValueDisallowed, cl::init(false),
@@ -42,5 +47,21 @@ static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
 int main(int pArgc, char* pArgv[])
 {
   ONNX2TG onnx2tg(pArgc, pArgv);
+  // set up input
+  if (!exists(OptInput)) {
+    errs() << Color::MAGENTA << "Fatal" << Color::RESET
+           << ": input file not found: " << OptInput << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!is_regular(OptInput)) {
+    errs() << Color::MAGENTA << "Fatal" << Color::RESET
+           << ": input file is not a regular file: " << OptInput << std::endl;
+    return EXIT_FAILURE;
+  }
+  onnx2tg.options().setInput(OptInput);
+
+  // set up output
+  if (OptOutput.hasOccurrence())
+    onnx2tg.options().setOutput(OptOutput);
   return onnx2tg.compile();
 }
