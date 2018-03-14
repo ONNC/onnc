@@ -1,54 +1,33 @@
-#include <cstring>
-#include <cassert>
-#include <ios>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/PassSupport.h>
+#include "onnx/common/ir.h"
 #include "TGBackend.h"
-#include "TGISelLowering.h"
-#include "TGCodeEmitter.h"
-#include "reader_helper.h"
-#include "onnx/common/ir_pb_converter.h"
-#include "onnx/optimizer/optimize.h"
 
-TGBackend::TGBackend(const onnx::ModelProto &model)
-    : m_TLI(new TGTargetLowering(this)), m_CE(new TGCodeEmitter(this)) {
+using namespace onnc;
 
-  // test onnx opt passes
-  std::cout << "before onnx IR optimization" << std::endl;
-  onnx::optimization::Optimizer onnxOptimizer;
-  std::vector<std::string> passNames{"eliminate_nop_transpose", "fuse_consecutive_transposes", "fuse_transpose_into_gemm"};
-  auto optModel = onnxOptimizer.optimize(model, passNames);
-  std::cout << "after onnx IR optimization" << std::endl;
-  dumpONNXProto(optModel);
+namespace {
 
-  // transfer pb to onnx ir
-  m_onnxGraph = std::move(onnx::ImportModelProto(optModel));
+class TGMemAllocInfo : public ModulePass {
 
-  ::removeUnusedNodePass::removeUnusedNode(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
-  ::updateOutputInfoPass::updateOutputInfo(*const_cast<onnx::Graph *>(m_onnxGraph.get()));
+private:
+  TGBackend *m_target;
+  void ddrAllocInfo(onnx::Graph &graph, MemTable &memTable);
 
-  std::cout << "after ours IR passes" << std::endl;
-  // TODO, add IR dumpper
-  onnx::ModelProto lastModel;
-  onnx::ExportModelProto(&lastModel, m_onnxGraph);
-  dumpONNXProto(lastModel);
+public:
+  static char ID;
+  TGMemAllocInfo() : ModulePass(ID) {}
 
-}
+  // FIXME
+  // TGMemAllocInfo(TGBackend *target) : ModulePass(ID), m_target(target){}
 
-TGBackend::~TGBackend() {
-  delete m_TLI;
-  delete m_CE;
-}
+  bool runOnModule(Module &pModule) override {
+    onnx::Graph &graph = pModule.getGraph();
+    ddrAllocInfo(graph, m_target->getMemLayout());
+    return false;
+  }
+};
 
-// FIXME removed later
-TGBackend &TGBackend::ddrAllocInfo(void) {
-  ddrAllocInfo(*m_onnxGraph.get(), m_globalMemLayout);
-  return *this;
-}
-
-// FIXME removed later
-void TGBackend::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
+void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
   // Definition fom BM168xBackendContext.hpp
   // TAG will be masked by runtime while processing cmdbuf.
   const int GLOBAL_NEURON_TAG = 0x1;
@@ -138,12 +117,9 @@ void TGBackend::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
   std::cout << tab << "neuron size: " << neuron_offset << std::endl;
 }
 
-void TGBackend::codeEmit(void) {
-  m_CE->encodeInstructions();
-}
+} // anonymous namespace
 
-TGBackend &TGBackend::lowering(void) {
-  m_TLI->CodeGenAndEmitInst(m_onnxGraph.get(), m_instructions);
-  return *this;
-}
+char TGMemAllocInfo::ID = 0;
+INITIALIZE_PASS(TGMemAllocInfo, "TGMemAllocInfo")
 
+// ModulePass *createTGMemAllocInfoPass() { return new TGMemAllocInfo(); }
