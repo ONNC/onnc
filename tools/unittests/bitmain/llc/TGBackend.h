@@ -241,6 +241,7 @@ public:
   void codeEmit(void);
   MemTable &getMemLayout() { return m_globalMemLayout; }
   std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
+  TargetLowering *getTargetLowering() {return m_TLI;}
 
   // FIXME for unit test
   static void ddrAllocInfo(onnx::Graph &graph, MemTable &memTable);
