@@ -25,10 +25,10 @@ public:
 public:
   NodeBase* target;
   NodeBase* source;
-  ArcBase* prev_in;
-  ArcBase* next_in;
-  ArcBase* prev_out;
-  ArcBase* next_out;
+  ArcBase* prev_in;  // for target
+  ArcBase* next_in;  // for target
+  ArcBase* prev_out; // for source
+  ArcBase* next_out; // for source
 };
 
 template<typename NodeType, typename ArcType>

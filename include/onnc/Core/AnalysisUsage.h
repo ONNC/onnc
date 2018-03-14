@@ -20,8 +20,12 @@ namespace onnc {
  */
 class AnalysisUsage
 {
-public:
+private:
   typedef std::vector<Pass::AnalysisID> IDList;
+
+public:
+  typedef IDList::iterator iterator;
+  typedef IDList::const_iterator const_iterator;
 
 public:
   AnalysisUsage() { }
@@ -35,7 +39,15 @@ public:
     return addRequiredID(PassClass::ID);
   }
 
-  const IDList& getRequiredSet() const { return m_Required; }
+  iterator begin() { return m_Required.begin(); }
+
+  iterator end()   { return m_Required.end(); }
+
+  const_iterator begin() const { return m_Required.begin(); }
+
+  const_iterator end() const   { return m_Required.end(); }
+
+  bool isEmpty() const { return m_Required.empty(); }
 
 private:
   IDList m_Required;

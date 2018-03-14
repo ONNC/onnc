@@ -11,6 +11,7 @@ ONNC_SOURCES = \
 	Target/X86/X86Backend.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp \
 	Core/PassRegistry.cpp \
+	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
 	Core/AnalysisUsage.cpp \
 	Core/Pass.cpp \

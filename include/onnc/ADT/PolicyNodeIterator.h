@@ -14,12 +14,12 @@
 
 namespace onnc {
 
-class BSFIterator : public NodeIteratorBase
+class BFSIterator : public NodeIteratorBase
 {
 public:
-  BSFIterator();
+  BFSIterator();
 
-  BSFIterator(NodeBase* pNode);
+  BFSIterator(NodeBase* pNode);
 
   bool isEnd() const;
 
@@ -34,12 +34,12 @@ private:
   Visited m_Visited;
 };
 
-class DSFIterator : public NodeIteratorBase
+class DFSIterator : public NodeIteratorBase
 {
 public:
-  DSFIterator();
+  DFSIterator();
 
-  DSFIterator(NodeBase* pNode);
+  DFSIterator(NodeBase* pNode);
 
   bool isEnd() const;
 

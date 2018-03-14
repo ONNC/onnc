@@ -201,7 +201,7 @@ SKYPAT_F(DigraphTest, edge_iterator)
   ASSERT_TRUE(out2.isEnd());
 }
 
-SKYPAT_F(DigraphTest, bsf_iterator)
+SKYPAT_F(DigraphTest, bfs_iterator)
 {
   MyGraph g;
   MyNode* n1 = g.addNode(1);
@@ -215,21 +215,21 @@ SKYPAT_F(DigraphTest, bsf_iterator)
   g.connect(*n2, *n4, 4);
   g.connect(*n3, *n5, 5);
 
-  MyGraph::bsf_iterator iter = g.bsf_begin();
+  MyGraph::bfs_iterator iter = g.bfs_begin();
   ASSERT_EQ(iter->data, 1);
-  iter.next();
-  ASSERT_EQ(iter->data, 2);
   iter.next();
   ASSERT_EQ(iter->data, 3);
   iter.next();
-  ASSERT_EQ(iter->data, 4);
+  ASSERT_EQ(iter->data, 2);
   iter.next();
   ASSERT_EQ(iter->data, 5);
   iter.next();
-  ASSERT_TRUE(g.bsf_end() == iter);
+  ASSERT_EQ(iter->data, 4);
+  iter.next();
+  ASSERT_TRUE(g.bfs_end() == iter);
 }
 
-SKYPAT_F(DigraphTest, dsf_iterator)
+SKYPAT_F(DigraphTest, dfs_iterator)
 {
   MyGraph g;
   MyNode* n1 = g.addNode(1);
@@ -243,16 +243,44 @@ SKYPAT_F(DigraphTest, dsf_iterator)
   g.connect(*n2, *n4, 4);
   g.connect(*n3, *n5, 5);
 
-  MyGraph::dsf_iterator iter = g.dsf_begin();
+  MyGraph::dfs_iterator iter = g.dfs_begin();
   ASSERT_EQ(iter->data, 1);
+  iter.next();
+  ASSERT_EQ(iter->data, 3);
   iter.next();
   ASSERT_EQ(iter->data, 2);
   iter.next();
   ASSERT_EQ(iter->data, 4);
   iter.next();
-  ASSERT_EQ(iter->data, 3);
-  iter.next();
   ASSERT_EQ(iter->data, 5);
   iter.next();
-  ASSERT_TRUE(g.dsf_end() == iter);
+  ASSERT_TRUE(g.dfs_end() == iter);
+}
+
+SKYPAT_F(DigraphTest, default_graph)
+{
+  Digraph<> g;
+  NodeBase* n1 = g.addNode();
+  NodeBase* n2 = g.addNode();
+  NodeBase* n3 = g.addNode();
+  NodeBase* n4 = g.addNode();
+  NodeBase* n5 = g.addNode();
+  g.connect(*n1, *n2);
+  g.connect(*n1, *n3);
+  g.connect(*n3, *n2);
+  g.connect(*n2, *n4);
+  g.connect(*n3, *n5);
+
+  Digraph<>::dfs_iterator iter = g.dfs_begin();
+  ASSERT_TRUE(&*iter == n1);
+  iter.next();
+  ASSERT_TRUE(&*iter == n3);
+  iter.next();
+  ASSERT_TRUE(&*iter == n2);
+  iter.next();
+  ASSERT_TRUE(&*iter == n4);
+  iter.next();
+  ASSERT_TRUE(&*iter == n5);
+  iter.next();
+  ASSERT_TRUE(g.dfs_end() == iter);
 }

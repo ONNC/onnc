@@ -52,7 +52,7 @@ private:
 };
 
 /// Get the singleton of the PassRegistry
-static PassRegistry* GetPassRegistry();
+PassRegistry* GetPassRegistry();
 
 } // namespace of onnc
 
