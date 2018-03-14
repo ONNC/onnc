@@ -10,6 +10,9 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassRegistry.h>
 #include <onnc/Core/PassSupport.h>
+#include <onnc/Core/AnalysisUsage.h>
+#include <onnc/Core/PassManager.h>
+#include <onnc/IR/Module.h>
 
 using namespace skypat;
 using namespace onnc;
@@ -22,8 +25,12 @@ class A : public ModulePass
 {
 public:
   static char ID;
+
   A() : ModulePass(ID) { }
+
   bool runOnModule(Module &pModule) { return true; }
+
+  StringRef getPassName() const { return "A"; }
 };
 
 char A::ID = 0;
@@ -36,11 +43,15 @@ public:
   static char ID;
 
 public:
-  B() : ModulePass(ID), data(0x12) { }
+  B() : ModulePass(ID) { }
 
   bool runOnModule(Module &pModule) { return true; }
 
-  int data;
+  void getAnalysisUsage(AnalysisUsage& pUsage) const {
+    pUsage.addRequiredID(A::ID);
+  }
+
+  StringRef getPassName() const { return "B"; }
 };
 
 char B::ID = 0;
@@ -51,8 +62,17 @@ class C : public ModulePass
 {
 public:
   static char ID;
-  C() : ModulePass(ID) { }
+  C() : ModulePass(ID), data(0x12) { }
   bool runOnModule(Module &pModule) { return true; }
+
+  void getAnalysisUsage(AnalysisUsage& pUsage) const {
+    pUsage.addRequiredID(A::ID);
+    pUsage.addRequiredID(B::ID);
+  }
+
+  StringRef getPassName() const { return "C"; }
+
+  int data;
 };
 
 char C::ID = 0;
@@ -120,9 +140,14 @@ SKYPAT_F(PassManagerTest, query_passes)
   ASSERT_EQ(registry.numOfPasses(), 3);
   ASSERT_FALSE(registry.isEmpty());
 
-  const PassInfo* info = registry.getPassInfo(&B::ID);
-  EXPECT_TRUE(info->getPassName().equals("B"));
+  const PassInfo* info = registry.getPassInfo(&C::ID);
+  EXPECT_TRUE(info->getPassName().equals("C"));
   Pass* pass = info->createPass();
-  EXPECT_EQ(((B*)pass)->data, 0x12);
-  delete pass;
+  EXPECT_EQ(((C*)pass)->data, 0x12);
+
+  PassManager pm(registry);
+  pm.add(pass);
+  pm.add(pass);
+  Module module;
+  pm.run(module);
 }

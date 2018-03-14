@@ -79,3 +79,4 @@ DIAG(cassette_object_dup_key,     Warning, "key `%0` has been inserted in casset
 DIAG(core_pass_no_print,          Error,   "Pass::print not implemented for pass: '%0'!")
 DIAG(core_pass_no_name,           Error,   "Pass::getPassName not implemented for pass!")
 DIAG(pass_registered,             Error,   "Pass %0 registered multiple times!")
+DIAG(pass_not_registered,         Error,   "Pass %0 is not registered in global registry")
