@@ -16,9 +16,9 @@ class CompilerConfig;
 class DLATargetBackend : public TargetBackend
 {
 public:
-  DLATargetBackend(const CompilerConfig& pConfig);
+  DLATargetBackend(const CompilerConfig &pConfig) : TargetBackend(pConfig) {}
 
-  virtual ~DLATargetBackend();
+  virtual ~DLATargetBackend(){}
 };
 
 } // namespace of onnc

@@ -1,6 +1,7 @@
 #include "TGSoftmax.h"
-
 #include <bmkernel_api.h>
+
+using namespace onnc;
 
 TGSoftmax::TGSoftmax(const onnx::Node &node, MemTable &memTable)
     : Operator(node, "Softmax") {

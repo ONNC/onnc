@@ -26,6 +26,15 @@ TargetBackend* CreateTGBM1682Backend(const CompilerConfig& pConfig)
   return nullptr;
 }
 
+TGBackend::~TGBackend() {
+  delete m_TLI;
+  delete m_CE;
+}
+
+void TGBackend::codeEmit(void) {
+  m_CE->encodeInstructions();
+}
+
 extern "C" void InitializeTGONNCBackend()
 {
   onnc::TargetRegistry::RegisterTargetBackend(getTheTGBM1680Target(),

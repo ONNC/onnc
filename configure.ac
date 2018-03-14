@@ -83,8 +83,8 @@ CHECK_ENABLE_OPTION([gettimeofday], [yes], [ENABLE_GETTIMEOFDAY])
 
 ####################
 # Check for variables and targets
-CHECK_ONNC
 ENUM_ONNC_TARGETS
+CHECK_ONNC
 
 ####################
 # OUTPUT

@@ -1,6 +1,8 @@
 #include "TGRelu.h"
 #include <bmkernel_api.h>
 
+using namespace onnc;
+
 TGRelu::TGRelu(const onnx::Node &node, MemTable &memTable)
     : Operator(node, "Relu"), m_negativeSlope(0) {
   const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();

@@ -1,10 +1,11 @@
 #ifndef ONNX_BM_TGMAXPOOL_H
 #define ONNX_BM_TGMAXPOOL_H
 
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
 
+namespace onnc {
 class TGMaxPool : public Operator {
 public:
   TGMaxPool(const onnx::Node &node, MemTable &memTable);
@@ -24,5 +25,6 @@ private:
   int m_strideW;
 };
 
+} //namespace onnc
 
 #endif

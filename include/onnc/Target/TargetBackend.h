@@ -16,9 +16,9 @@ class CompilerConfig;
 class TargetBackend
 {
 public:
-  TargetBackend(const CompilerConfig& pConfig);
+  TargetBackend(const CompilerConfig& pConfig){}
 
-  virtual ~TargetBackend();
+  virtual ~TargetBackend(){}
 
   virtual void addTensorSel(PassManager& pPM) { return; }
 

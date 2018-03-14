@@ -1,6 +1,7 @@
 #include "TGGemm.h"
 #include <bmkernel_api.h>
 
+using namespace onnc;
 void TGGemm::dumpOnnxConv(const onnx::Node &node) {
 
   std::cout << "dump TGGemm:" << std::endl;

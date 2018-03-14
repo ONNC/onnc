@@ -6,7 +6,7 @@
 #include "TGSoftmax.h"
 #include "TGISelLowering.h"
 
-
+using namespace onnc;
 Operator *TGTargetLowering::LowerHelper(const onnx::Node &node,
                                         MemTable &memTable) {
   uint32_t symbol = node.kind();

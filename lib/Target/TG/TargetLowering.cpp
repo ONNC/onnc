@@ -1,5 +1,7 @@
 #include "TargetLowering.h"
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
+
+using namespace onnc;
 
 void TargetLowering::CodeGenAndEmitInst(
     onnx::Graph *onnxGraph, std::vector<std::unique_ptr<Operator> > &instList) {

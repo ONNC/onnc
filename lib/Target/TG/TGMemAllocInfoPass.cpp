@@ -1,6 +1,6 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "TGBackend.h"
 
 using namespace onnc;
@@ -15,15 +15,17 @@ private:
 
 public:
   static char ID;
-  TGMemAllocInfo() : ModulePass(ID) {}
 
-  // FIXME
+  TGMemAllocInfo() : ModulePass(ID), m_target(nullptr) {}
   // TGMemAllocInfo(TGBackend *target) : ModulePass(ID), m_target(target){}
 
   bool runOnModule(Module &pModule) override {
     onnx::Graph *graph = pModule.getGraph();
     ddrAllocInfo(*graph, m_target->getMemLayout());
     return false;
+  }
+  void setTarget(TGBackend* target){
+    m_target = target;
   }
 };
 
@@ -122,4 +124,8 @@ void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
 char TGMemAllocInfo::ID = 0;
 INITIALIZE_PASS(TGMemAllocInfo, "TGMemAllocInfo")
 
-// ModulePass *createTGMemAllocInfoPass() { return new TGMemAllocInfo(); }
+ModulePass *createTGMemAllocInfoPass(TGBackend *target) {
+  auto pass = new TGMemAllocInfo();
+  pass->setTarget(target);
+  return pass;
+}

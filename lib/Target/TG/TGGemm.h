@@ -1,9 +1,10 @@
 #ifndef ONNX_BM_TGGEMM_H
 #define ONNX_BM_TGGEMM_H
 
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
+namespace onnc {
 
 class TGGemm : public Operator {
 public:
@@ -25,4 +26,5 @@ private:
   bool m_weightTp;
 };
 
+} // namespace onnc
 #endif

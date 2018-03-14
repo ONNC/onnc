@@ -1,17 +1,17 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include <vector>
 
 using namespace onnc;
 
 namespace {
 
-class updateOutputInfo : public ModulePass {
+class UpdateOutputInfo : public ModulePass {
 
 public:
   static char ID;
-  updateOutputInfo() : ModulePass(ID) {}
+  UpdateOutputInfo() : ModulePass(ID) {}
 
   bool runOnModule(Module &pModule) override;
 
@@ -26,7 +26,7 @@ private:
 };
 
 void
-updateOutputInfo::updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
+UpdateOutputInfo::updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
                                    const std::vector<onnx::Dimension> &dims,
                                    onnx::TensorProto_DataType type) {
   for (auto outVal : outputs) {
@@ -36,7 +36,7 @@ updateOutputInfo::updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
   }
 }
 
-void updateOutputInfo::updateInfoByInput(onnx::Node *const node) {
+void UpdateOutputInfo::updateInfoByInput(onnx::Node *const node) {
   auto input = node->inputs()[0];
   const std::vector<onnx::Dimension> inputDim = input->sizes();
   const onnx::TensorProto_DataType inputType = input->elemType();
@@ -47,7 +47,7 @@ void updateOutputInfo::updateInfoByInput(onnx::Node *const node) {
   updateInfo(node->outputs(), inputDim, inputType);
 }
 
-void updateOutputInfo::updateConvInfo(onnx::Node *const node) {
+void UpdateOutputInfo::updateConvInfo(onnx::Node *const node) {
   const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
@@ -107,7 +107,7 @@ void updateOutputInfo::updateConvInfo(onnx::Node *const node) {
   updateInfo(node->outputs(), outDims, inputType);
 }
 
-void updateOutputInfo::updatePoolInfo(onnx::Node *const node) {
+void UpdateOutputInfo::updatePoolInfo(onnx::Node *const node) {
   const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
@@ -163,7 +163,7 @@ void updateOutputInfo::updatePoolInfo(onnx::Node *const node) {
   updateInfo(node->outputs(), outDims, inputType);
 }
 
-void updateOutputInfo::updateGemmInfo(onnx::Node *const node) {
+void UpdateOutputInfo::updateGemmInfo(onnx::Node *const node) {
 
   const std::vector<onnx::Dimension> aDim = node->inputs()[0]->sizes();
   const std::vector<onnx::Dimension> bDim = node->inputs()[1]->sizes();
@@ -189,7 +189,7 @@ void updateOutputInfo::updateGemmInfo(onnx::Node *const node) {
   updateInfo(node->outputs(), outDims, inputType);
 }
 
-bool updateOutputInfo::runOnModule(Module &pModule) {
+bool UpdateOutputInfo::runOnModule(Module &pModule) {
   onnx::Graph *graph = pModule.getGraph();
   for (onnx::graph_node_list_iterator it = graph->begin(), ie = graph->end();
        it != ie; ++it) {
@@ -219,7 +219,7 @@ bool updateOutputInfo::runOnModule(Module &pModule) {
 
 } // anonymous namespace
 
-char updateOutputInfo::ID = 0;
-INITIALIZE_PASS(updateOutputInfo, "updateOutputInfo")
+char UpdateOutputInfo::ID = 0;
+INITIALIZE_PASS(UpdateOutputInfo, "UpdateOutputInfo")
 
-// ModulePass *createRemoveUnusedNodePass() { return new updateOutputInfo(); }
+ModulePass *createUpdateOutputInfoPass() { return new UpdateOutputInfo(); }

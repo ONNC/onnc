@@ -8,6 +8,20 @@ ONNC_SOURCES = \
 	Target/Sophon/TargetInfo/SophonTargetInfo.cpp \
 	Target/TG/TGBackend.cpp \
 	Target/TG/TargetInfo/TGTargetInfo.cpp \
+	Target/TG/TGCodeEmitPass.cpp \
+	Target/TG/TGMemAllocInfoPass.cpp \
+	Target/TG/TGCodeEmitter.cpp \
+	Target/TG/TGConv.cpp \
+	Target/TG/TGGemm.cpp \
+	Target/TG/TGISelLowering.cpp \
+	Target/TG/TGLRN.cpp  \
+	Target/TG/TGMaxPool.cpp \
+	Target/TG/TGRelu.cpp \
+	Target/TG/TGSoftmax.cpp \
+	Target/TG/TargetLowering.cpp \
+	Target/TG/TargetLoweringPass.cpp \
+	Target/TG/RemoveUnusedNodePass.cpp \
+	Target/TG/UpdateOutputInfoPass.cpp \
 	Target/X86/X86Backend.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp \
 	Core/PassRegistry.cpp \
@@ -91,7 +105,7 @@ ONNC_SOURCES = \
 
 ANDROID_CPPFLAGS=-fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
-ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@
+ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ @BMKERNEL_INCLUDES@ @BMAPI_INCLUDES@
 
 ONNC_CPPFLAGS =
 

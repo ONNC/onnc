@@ -1,14 +1,16 @@
 #ifndef ONNX_BM_TGCONV_H
 #define ONNX_BM_TGCONV_H
 
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
 
+namespace onnc {
 class TGConv : public Operator {
 public:
   TGConv(const onnx::Node &node, MemTable &memTable);
   void emit(void) const override;
+
 private:
   std::vector<uint64_t> m_weightOffset;
   uint64_t m_ifmapAddr, m_ofmapAddr, m_weightAddr, m_biasAddr;
@@ -22,4 +24,5 @@ private:
   int m_doBias;
 };
 
+} // namespace onnc
 #endif

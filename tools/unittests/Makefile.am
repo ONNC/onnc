@@ -36,7 +36,3 @@ if HAVE_PTHREADS
 unittests_LDADD += -lpthread
 endif
 
-if HAVE_BMKERNEL
-SUBDIRS = bitmain
-endif
-

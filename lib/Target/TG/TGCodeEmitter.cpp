@@ -6,6 +6,7 @@
 #include <bmkernel_api.h>
 
 #define CMD_BUF_NAME "cmdbuf.bin"
+using namespace onnc;
 
 void TGCodeEmitter::sendCmdBuf(void *userData, const void *cmdBuf,
                                uint32_t len) {

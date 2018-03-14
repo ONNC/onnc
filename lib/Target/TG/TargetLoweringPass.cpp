@@ -1,6 +1,6 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "TGBackend.h"
 
 using namespace onnc;
@@ -14,7 +14,6 @@ private:
 public:
   static char ID;
   TargetISel() : ModulePass(ID), m_target(nullptr) {}
-  // FXIME
   // TargetISel(TGBackend* target) : ModulePass(ID), m_target(target) {}
 
   bool runOnModule(Module &pModule) override {
@@ -23,6 +22,9 @@ public:
     TLI->CodeGenAndEmitInst(graph, m_target->getInsts());
     return false;
   }
+  void setTarget(TGBackend* target){
+    m_target = target;
+  }
 };
 
 } // anonymous namespace
@@ -30,4 +32,8 @@ public:
 char TargetISel::ID = 0;
 INITIALIZE_PASS(TargetISel, "TargetISel")
 
-// ModulePass *createRemoveUnusedNodePass() { return new TargetISel(); }
+ModulePass *createTargetLoweringPass(TGBackend *target) {
+  auto pass = new TargetISel();
+  pass->setTarget(target);
+  return pass;
+}

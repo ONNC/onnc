@@ -1,6 +1,6 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "TGBackend.h"
 
 using namespace onnc;
@@ -15,12 +15,15 @@ private:
 public:
   static char ID;
   TGCodeEmit() : ModulePass(ID), m_target(nullptr) {}
-  // FXIME
   // TGCodeEmit(TGBackend *target) : ModulePass(ID), m_target(target) {}
 
   bool runOnModule(Module &pModule) override {
     m_target->codeEmit();
     return false;
+  }
+
+  void setTarget(TGBackend* target){
+    m_target = target;
   }
 };
 
@@ -29,4 +32,8 @@ public:
 char TGCodeEmit::ID = 0;
 INITIALIZE_PASS(TGCodeEmit, "TGCodeEmit")
 
-// ModulePass *createTGCodeEmitPass() { return new TGCodeEmit(); }
+ModulePass *createTGCodeEmitPass(TGBackend *target) {
+  auto pass = new TGCodeEmit();
+  pass->setTarget(target);
+  return pass;
+}

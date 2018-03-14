@@ -1,9 +1,11 @@
 #ifndef ONNX_BM_TGRELU_H
 #define ONNX_BM_TGRELU_H
 
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
+
+namespace onnc {
 
 class TGRelu : public Operator {
 public:
@@ -19,5 +21,5 @@ private:
   int m_W;
 };
 
-
+}  // namespace onnc
 #endif

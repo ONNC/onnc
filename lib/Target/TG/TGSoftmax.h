@@ -1,10 +1,10 @@
 #ifndef ONNX_BM_TGSOFTMAX
 #define ONNX_BM_TGSOFTMAX
 
-#include "onnx/common/ir.h"
+#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
-
+namespace onnc {
 class TGSoftmax : public Operator {
 public:
   TGSoftmax(const onnx::Node &node, MemTable &memTable);
@@ -18,4 +18,5 @@ private:
   int m_W;
 };
 
+}
 #endif

@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 
+namespace onnc {
 class TGBackend;
 class TGCodeEmitter {
 public:
@@ -22,3 +23,4 @@ private:
   void *m_bmkernelHandle;
   TGBackend *m_tgBackend;
 };
+} // namespace onnc

@@ -1,6 +1,8 @@
 #include "TGLRN.h"
 #include <bmkernel_api.h>
 
+using namespace onnc;
+
 TGLRN::TGLRN(const onnx::Node &node, MemTable &memTable)
     : Operator(node, "LRN"), m_k(1) {
 

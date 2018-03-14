@@ -20,7 +20,7 @@ LIBONNC_INCLUDES="-I${abs_srcdir}/include \
  -I${abs_builddir}/include \
  -I${abs_builddir}/lib"
 LIBONNC_LDFLAGS=
-LIBONNC_LIBS="-L${abs_builddir}/lib -lonnc ${PROTOBUF_LIBS} ${ONNX_LIBS}"
+LIBONNC_LIBS="-L${abs_builddir}/lib -lonnc ${PROTOBUF_LIBS} ${ONNX_LIBS} ${BMKERNEL_LIBS} ${BMAPI_LIBS}"
 
 AM_COND_IF([HAVE_PTHREADS],[
   LIBONNC_LIBS="${LIBONNC_LIBS} -lpthread"

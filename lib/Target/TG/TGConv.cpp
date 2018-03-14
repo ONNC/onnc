@@ -1,13 +1,15 @@
 #include "TGConv.h"
 #include <bmkernel_api.h>
 
+using namespace onnc;
 using namespace std;
 
-static auto KERNEL_SHAPE = onnx::Symbol("kernel_shape");
-static auto STRIDES = onnx::Symbol("strides");
-static auto PADS = onnx::Symbol("pads");
+namespace {
+auto KERNEL_SHAPE = onnx::Symbol("kernel_shape");
+auto STRIDES = onnx::Symbol("strides");
+auto PADS = onnx::Symbol("pads");
 
-static void dump_onnx_Conv(const onnx::Node &node)
+void dump_onnx_Conv(const onnx::Node &node)
 {
   auto vec = node.attributeNames();
   string tab = "\t";
@@ -68,6 +70,9 @@ static void dump_onnx_Conv(const onnx::Node &node)
   }
   cout << endl;
 }
+
+} // anonymous namespace
+
 // TGConv
 TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
     : Operator(node, "Conv"), m_dilationH(1), m_dilationW(1), m_groups(1),
