@@ -71,8 +71,7 @@ public:
     amdil,       // amdil: amd IL
     spir,        // SPIR: standard portable IR for OpenCL 32-bit version
     spir64,      // SPIR: standard portable IR for OpenCL 64-bit version
-    sophon,      // Sophon
-    tg           // Sophon without opt
+    sophon       // Sophon
   };
 
   /// ISA or architecture version of the architecture type.
@@ -89,7 +88,8 @@ public:
     ARMSubArch_v6t2,
     ARMSubArch_v5,
     ARMSubArch_v5te,
-    ARMSubArch_v4t
+    ARMSubArch_v4t,
+    SophonSubArch_tg
   };
 
   /// Vendor of the architecture
@@ -103,7 +103,8 @@ public:
     BGQ,
     Freescale,
     IBM,
-    Renesas
+    Renesas,
+    BITMAIN
   };
 
   /// Operating System
@@ -147,7 +148,9 @@ public:
     MachO,
     Android,
     AndroidEABI,
-    ELF
+    ELF,
+    UFF,
+    BMNet
   };
 
   /// Tool in toolchain or software model
@@ -185,8 +188,7 @@ public:
     Fedora,    // Fedora
     CentOS,    // CentOS
     Ubuntu,    // Ubuntu
-    Debian,    // Debian
-    BITMAIN    // BITMAIN
+    Debian     // Debian
   };
 
   /// Core name of the architecture
@@ -201,7 +203,8 @@ public:
     ARMArchCore_CortexA53,
     ARMArchCore_CortexA57,
     ARMArchCore_CortexA72,
-    ARMArchCore_CortexA73
+    ARMArchCore_CortexA73,
+    SophonArchCore_TG
   };
 
 public:
@@ -345,9 +348,6 @@ public:
   /// Set up tool vendor
   void setToolVendor(ToolVendorType pType) { m_ToolVendor = pType; }
 
-  /// Get the name of arhictecture model
-  StringRef getArchModelName() const;
-
   /// Get the parsed architecture core of this quadruple.
   ArchCoreType getArchCore() const { return m_ArchCore; }
 
@@ -475,10 +475,7 @@ StringRef FetchToolVersion(StringRef pName);
 /// Returns the 7th component of pName
 StringRef FetchToolVendorName(StringRef pName);
 
-/// Returns the 8nd component of pName
-StringRef FetchArchModelName(StringRef pName);
-
-/// Returns the 9th component of pName
+/// Returns the 8th component of pName
 StringRef FetchArchCoreName(StringRef pName);
 
 //===----------------------------------------------------------------------===//

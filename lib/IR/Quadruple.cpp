@@ -1,8 +1,8 @@
 //===- Quadruple.cpp ------------------------------------------------------===//
 //
-//                               Skymizer
+//                             The ONNC Project
 //
-// Copyright (C) 2013, 2014, Skymizer Inc.. All rights reserved.
+// See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Language/Quadruple.h>
@@ -50,6 +50,7 @@ Quadruple::ArchType onnc::ParseArch(StringRef pArchName)
     .Case("amdil", Quadruple::amdil)
     .Case("spir", Quadruple::spir)
     .Case("spir64", Quadruple::spir64)
+    .Case("sophon", Quadruple::sophon)
     .Default(Quadruple::UnknownArch);
 }
 
@@ -73,6 +74,7 @@ Quadruple::SubArchType onnc::ParseSubArch(StringRef pSubArchName)
     .EndsWith("v5t", Quadruple::ARMSubArch_v5)
     .EndsWith("v5te", Quadruple::ARMSubArch_v5te)
     .EndsWith("v4t", Quadruple::ARMSubArch_v4t)
+    .EndsWith("tg", Quadruple::SophonSubArch_tg)
     .Default(Quadruple::NoSubArch);
 }
 
@@ -87,6 +89,7 @@ Quadruple::ArchVendorType onnc::ParseArchVendor(StringRef pArchVendorName)
     .Case("fsl", Quadruple::Freescale)
     .Case("ibm", Quadruple::IBM)
     .Case("renesas", Quadruple::Renesas)
+    .Case("bitmain", Quadruple::BITMAIN)
     .Default(Quadruple::UnknownArchVendor);
 }
 
@@ -132,6 +135,8 @@ onnc::ParseEnvironment(StringRef pEnvironmentName)
     .StartsWith("androideabi", Quadruple::AndroidEABI)
     .StartsWith("android", Quadruple::Android)
     .StartsWith("elf", Quadruple::ELF)
+    .StartsWith("uff", Quadruple::UFF)
+    .StartsWith("bmnet", Quadruple::BMNet)
     .Default(Quadruple::UnknownEnvironment);
 }
 
@@ -174,6 +179,8 @@ Quadruple::ToolVendorType onnc::ParseToolVendor(StringRef pToolVendorName)
     .StartsWith("centos", Quadruple::CentOS)
     .StartsWith("ubuntu", Quadruple::Ubuntu)
     .StartsWith("debian", Quadruple::Debian)
+    .StartsWith("skymizer", Quadruple::Skymizer)
+    .StartsWith("bitmain", Quadruple::Skymizer)
     .Default(Quadruple::UnknownToolVendor);
 }
 
@@ -189,6 +196,7 @@ Quadruple::ArchCoreType onnc::ParseArchCore(StringRef pArchCoreName)
     .Cases("ca57", "cortexa15", Quadruple::ARMArchCore_CortexA57)
     .Cases("ca72", "cortexa15", Quadruple::ARMArchCore_CortexA72)
     .Cases("ca73", "cortexa15", Quadruple::ARMArchCore_CortexA73)
+    .Case("tg", Quadruple::SophonArchCore_TG)
     .Default(Quadruple::UnknownArchCore);
 }
 
@@ -260,7 +268,7 @@ StringRef onnc::FetchToolVendorName(StringRef pName)
 
 StringRef onnc::FetchArchCoreName(StringRef pName)
 {
-  // The 9th component
+  // The 8th component
   StringRef tmp = pName.split('-').second; // strip 1st component
   tmp = tmp.split('-').second;             // strip 2nd component
   tmp = tmp.split('-').second;             // strip 3rd component
@@ -268,7 +276,7 @@ StringRef onnc::FetchArchCoreName(StringRef pName)
   tmp = tmp.split('-').second;             // strip 5th component
   tmp = tmp.split('-').second;             // strip 6th component
   tmp = tmp.split('-').second;             // strip 7th component
-  return tmp.split('-').second;            // strip 8th component
+  return tmp.split('-').first;             // isolate 8th component
 }
 
 //===----------------------------------------------------------------------===//
@@ -321,6 +329,7 @@ onnc::ArchToName(Quadruple::ArchType pType, Quadruple::SubArchType pSubType)
     case Quadruple::amdil:       return "amdil";
     case Quadruple::spir:        return "spir";
     case Quadruple::spir64:      return "spir64";
+    case Quadruple::sophon:      return "sophon";
 
     case Quadruple::UnknownArch:
     default: return "unknown";
@@ -340,6 +349,7 @@ const char* onnc::ArchVendorToName(Quadruple::ArchVendorType pType)
     case Quadruple::BGQ:               return "bgq";
     case Quadruple::Freescale:         return "freescale";
     case Quadruple::IBM:               return "ibm";
+    case Quadruple::BITMAIN:           return "bitmain";
 
     case Quadruple::UnknownArchVendor:
     default: return "unknown";
@@ -398,6 +408,8 @@ const char* onnc::EnvironmentToName(Quadruple::EnvironmentType pType)
     case Quadruple::Android:            return "android";
     case Quadruple::AndroidEABI:        return "androideabi";
     case Quadruple::ELF:                return "elf";
+    case Quadruple::UFF:                return "uff";
+    case Quadruple::BMNet:              return "bmnet";
 
     case Quadruple::UnknownEnvironment:
     default: return "unknown";
@@ -440,7 +452,7 @@ const char* onnc::ToolVendorToName(Quadruple::ToolVendorType pType)
     case Quadruple::Google:            return "google";
     case Quadruple::LLVM:              return "llvm";
     case Quadruple::Linaro:            return "linaro";
-    case Quadruple::Skymizer:          return "onnc";
+    case Quadruple::Skymizer:          return "skymizer";
     case Quadruple::Sourcery:          return "sourcery";
     case Quadruple::XCode:             return "xcode";
     case Quadruple::Homebrew:          return "brew";
@@ -450,22 +462,9 @@ const char* onnc::ToolVendorToName(Quadruple::ToolVendorType pType)
     case Quadruple::CentOS:            return "centos";
     case Quadruple::Ubuntu:            return "ubuntu";
     case Quadruple::Debian:            return "debian";
+    case Quadruple::BITMAIN:           return "bitmain";
 
     case Quadruple::UnknownToolVendor:
-    default: return "unknown";
-  }
-
-  // FIXME: add unreachable here
-  assert(false && "Unreachable!");
-  return NULL;
-}
-
-const char* onnc::ArchModelToName(Quadruple::ArchModelType pType)
-{
-  switch (pType) {
-    case Quadruple::ODroidU2: return "odroidu2";
-
-    case Quadruple::UnknownArchModel:
     default: return "unknown";
   }
 
@@ -486,6 +485,7 @@ const char* onnc::ArchCoreToName(Quadruple::ArchCoreType pType)
     case Quadruple::ARMArchCore_CortexA57: return "ca57";
     case Quadruple::ARMArchCore_CortexA72: return "ca72";
     case Quadruple::ARMArchCore_CortexA73: return "ca73";
+    case Quadruple::SophonArchCore_TG: return "tg";
 
     case Quadruple::UnknownArchCore:
     default: return "unknown";
@@ -524,6 +524,7 @@ static unsigned getArchBitWidth(Quadruple::ArchType pArch)
   case Quadruple::x86:
   case Quadruple::xcore:
   case Quadruple::spir:
+  case Quadruple::sophon:
     return 32;
 
   case Quadruple::aarch64:
@@ -566,6 +567,7 @@ static unsigned getPointerBitWidth(Quadruple::ArchType pArch)
   case Quadruple::x86:
   case Quadruple::xcore:
   case Quadruple::spir:
+  case Quadruple::sophon:
     return 32;
 
   case Quadruple::aarch64:
@@ -587,7 +589,7 @@ static unsigned getPointerBitWidth(Quadruple::ArchType pArch)
 //===----------------------------------------------------------------------===//
 Quadruple::Quadruple()
   : m_Raw(), m_Arch(), m_SubArch(), m_ArchVendor(), m_OS(), m_Environment(),
-    m_Tool(), m_ToolVersion(), m_ToolVendor(), m_ArchModel(), m_ArchCore() {
+    m_Tool(), m_ToolVersion(), m_ToolVendor(), m_ArchCore() {
 }
 
 Quadruple::Quadruple(const Quadruple& pCopy)
@@ -600,7 +602,6 @@ Quadruple::Quadruple(const Quadruple& pCopy)
     m_Tool(pCopy.m_Tool),
     m_ToolVersion(pCopy.m_ToolVersion),
     m_ToolVendor(pCopy.m_ToolVendor),
-    m_ArchModel(pCopy.m_ArchModel),
     m_ArchCore(pCopy.m_ArchCore) {
 }
 
@@ -614,7 +615,6 @@ Quadruple::Quadruple(const std::string& pStr)
     m_Tool(ParseTool(FetchToolName(pStr))),
     m_ToolVersion(FetchToolVersion(pStr)),
     m_ToolVendor(ParseToolVendor(FetchToolVendorName(pStr))),
-    m_ArchModel(ParseArchModel(FetchArchModelName(pStr))),
     m_ArchCore(ParseArchCore(FetchArchCoreName(pStr))) {
 }
 
@@ -628,7 +628,6 @@ Quadruple::Quadruple(const char* pStr)
     m_Tool(ParseTool(FetchToolName(pStr))),
     m_ToolVersion(FetchToolVersion(pStr)),
     m_ToolVendor(ParseToolVendor(FetchToolVendorName(pStr))),
-    m_ArchModel(ParseArchModel(FetchArchModelName(pStr))),
     m_ArchCore(ParseArchCore(FetchArchCoreName(pStr))) {
 }
 
@@ -644,7 +643,6 @@ Quadruple::Quadruple(StringRef pArchStr,
     m_Tool(),
     m_ToolVersion(),
     m_ToolVendor(),
-    m_ArchModel(),
     m_ArchCore() {
 }
 
@@ -662,7 +660,6 @@ Quadruple::Quadruple(StringRef pArchStr,
     m_Tool(),
     m_ToolVersion(),
     m_ToolVendor(),
-    m_ArchModel(),
     m_ArchCore() {
 }
 
@@ -681,7 +678,6 @@ Quadruple::Quadruple(StringRef pArchStr,
     m_Tool(ParseTool(pToolStr)),
     m_ToolVersion(),
     m_ToolVendor(),
-    m_ArchModel(),
     m_ArchCore() {
 }
 
@@ -702,7 +698,6 @@ Quadruple::Quadruple(StringRef pArchStr,
     m_Tool(ParseTool(pToolStr)),
     m_ToolVersion(pToolVersionStr),
     m_ToolVendor(),
-    m_ArchModel(),
     m_ArchCore() {
 }
 
@@ -724,7 +719,6 @@ Quadruple::Quadruple(StringRef pArchStr,
     m_Tool(ParseTool(pToolStr)),
     m_ToolVersion(pToolVersionStr),
     m_ToolVendor(ParseToolVendor(pToolVendorStr)),
-    m_ArchModel(),
     m_ArchCore() {
 }
 
@@ -735,36 +729,11 @@ Quadruple::Quadruple(StringRef pArchStr,
                      StringRef pToolStr,
                      StringRef pToolVersionStr,
                      StringRef pToolVendorStr,
-                     StringRef pArchModelStr)
-  : m_Raw((pArchStr + Rope('-') + pArchVendorStr + Rope('-') + pOSStr +
-           Rope('-') + pEnvironStr + Rope('-') + pToolStr + Rope('-') +
-           pToolVersionStr + Rope('-') + pToolVendorStr + Rope('-') +
-           pArchModelStr).str()),
-    m_Arch(ParseArch(pArchStr)),
-    m_SubArch(ParseSubArch(pArchStr)),
-    m_ArchVendor(ParseArchVendor(pArchVendorStr)),
-    m_OS(ParseOS(pOSStr)),
-    m_Environment(ParseEnvironment(pEnvironStr)),
-    m_Tool(ParseTool(pToolStr)),
-    m_ToolVersion(pToolVersionStr),
-    m_ToolVendor(ParseToolVendor(pToolVendorStr)),
-    m_ArchModel(ParseArchModel(pArchModelStr)),
-    m_ArchCore() {
-}
-
-Quadruple::Quadruple(StringRef pArchStr,
-                     StringRef pArchVendorStr,
-                     StringRef pOSStr,
-                     StringRef pEnvironStr,
-                     StringRef pToolStr,
-                     StringRef pToolVersionStr,
-                     StringRef pToolVendorStr,
-                     StringRef pArchModelStr,
                      StringRef pArchCoreStr)
   : m_Raw((pArchStr + Rope('-') + pArchVendorStr + Rope('-') + pOSStr +
            Rope('-') + pEnvironStr + Rope('-') + pToolStr + Rope('-') +
            pToolVersionStr + Rope('-') + pToolVendorStr + Rope('-') +
-           pArchModelStr + Rope('-') + pArchCoreStr).str()),
+           + pArchCoreStr).str()),
     m_Arch(ParseArch(pArchStr)),
     m_SubArch(ParseSubArch(pArchStr)),
     m_ArchVendor(ParseArchVendor(pArchVendorStr)),
@@ -773,7 +742,6 @@ Quadruple::Quadruple(StringRef pArchStr,
     m_Tool(ParseTool(pToolStr)),
     m_ToolVersion(pToolVersionStr),
     m_ToolVendor(ParseToolVendor(pToolVendorStr)),
-    m_ArchModel(ParseArchModel(pArchModelStr)),
     m_ArchCore(ParseArchCore(pArchCoreStr)) {
 }
 
@@ -788,7 +756,6 @@ Quadruple& Quadruple::operator=(const Quadruple& pCopy)
   m_Tool        = pCopy.m_Tool;
   m_ToolVersion = pCopy.m_ToolVersion;
   m_ToolVendor  = pCopy.m_ToolVendor;
-  m_ArchModel   = pCopy.m_ArchModel;
   m_ArchCore    = pCopy.m_ArchCore;
   return *this;
 }
@@ -804,7 +771,6 @@ void Quadruple::setRaw(const std::string& pRaw)
   m_Tool        = ParseTool(FetchToolName(pRaw));
   m_ToolVersion = FetchToolVersion(pRaw);
   m_ToolVendor  = ParseToolVendor(FetchToolVendorName(pRaw));
-  m_ArchModel   = ParseArchModel(FetchArchModelName(pRaw));
   m_ArchCore    = ParseArchCore(FetchArchCoreName(pRaw));
 }
 
@@ -817,7 +783,6 @@ void Quadruple::canonical(std::string& pResult) const
              getToolName() + Rope('-') + //< use raw value if exists
              getToolVersion() + Rope('-') +
              ToolVendorToName(getToolVendor()) + Rope('-') +
-             ArchModelToName(getArchModel()) + Rope('-') +
              ArchCoreToName(getArchCore())).str();
 }
 
@@ -861,13 +826,6 @@ StringRef Quadruple::getToolVendorName() const
   if ((UnknownToolVendor != getToolVendor()) && hasRaw())
     return FetchToolVendorName(m_Raw);
   return ToolVendorToName(getToolVendor());
-}
-
-StringRef Quadruple::getArchModelName() const
-{
-  if ((UnknownArchModel != getArchModel()) && hasRaw())
-    return FetchArchModelName(m_Raw);
-  return ArchModelToName(getArchModel());
 }
 
 StringRef Quadruple::getArchCoreName() const
