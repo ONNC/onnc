@@ -69,6 +69,7 @@ ONNC_SOURCES = \
   Support/Windows/FileSystem.inc \
   Support/Dragon/Path.inc \
   Support/Dragon/FileSystem.inc \
+	IR/Quadruple.cpp \
   Diagnostic/Diagnostic.cpp \
   Diagnostic/DiagnosticInfoMap.cpp \
   Diagnostic/Engine.cpp \
