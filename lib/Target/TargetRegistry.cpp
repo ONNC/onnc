@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Support/ManagedStatic.h>
+#include <onnc/IR/Quadruple.h>
+#include <onnc/ADT/Rope.h>
 
 using namespace onnc;
 
@@ -44,4 +46,33 @@ void onnc::TargetRegistry::RegisterTarget(Target& pTarget,
   pTarget.m_ShortDesc = pShortDesc;
   pTarget.m_ArchMatchFn = pArchMatchFn;
   s_TargetList->push_back(&pTarget);
+}
+
+const onnc::Target*
+onnc::TargetRegistry::Lookup(const std::string& pQuadruple, std::string& pError)
+{
+  // Provide special warning when no targets are initialized.
+  if (IsEmpty()) {
+    pError = "Unable to find target for this quadruple (no targets are registered)";
+    return nullptr;
+  }
+
+  Quadruple input(pQuadruple);
+  auto match = [&](const Target* pTarget) { return pTarget->matchArch(input); };
+  iterator candidate = std::find_if(Begin(), End(), match);
+
+  if (End() == candidate) {
+    pError = "No available targets are compatible with this quadruple.";
+    return nullptr;
+  }
+
+  iterator next = std::find_if(std::next(candidate), End(), match);
+  if (End() != next) {
+    pError = (Rope("Cannot choose between targets \"") +
+             Rope((*candidate)->name()) + "\" and \"" +
+             Rope((*next)->name()) + "\"").str();
+    return nullptr;
+  }
+
+  return *candidate;
 }

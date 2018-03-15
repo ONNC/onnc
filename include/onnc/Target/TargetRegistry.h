@@ -42,6 +42,12 @@ public:
                                     Target::TargetBackendCtorFnTy pFn) {
     pTarget.m_TargetBackendCtorFn = pFn;
   }
+
+  /// Lookup a target based on a target triple
+  /// @param[in] pQuadruple The quadruple describes the target machine
+  /// @param[out] pError The error message produced during search
+  static const Target*
+  Lookup(const std::string& pQuadruple, std::string& pError);
 };
 
 } // namespace of onnc
