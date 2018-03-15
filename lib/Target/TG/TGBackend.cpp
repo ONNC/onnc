@@ -15,13 +15,21 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // TGBackend
 //===----------------------------------------------------------------------===//
-void TGBackend::addCodeEmit(PassManager& pPM)
+void TGBackend::addCodeEmit(PassManager& pPM, Path &output, CodeGenFileType &fileType)
 {
   pPM.add(createRemoveUnusedNodePass());
   pPM.add(createUpdateOutputInfoPass());
   pPM.add(createTGMemAllocInfoPass(this));
   pPM.add(createTargetLoweringPass(this));
-  pPM.add(createTGCodeEmitPass(this));
+
+  if (TargetBackend::AssemblyFile == fileType)
+    return;
+
+  if (TargetBackend::ObjectFile == fileType) {
+    m_outputPath = output;
+    pPM.add(createTGCodeEmitPass(this));
+  }
+
 }
 
 TargetBackend* CreateTGBM1680Backend(const TargetOptions& pOptions)
@@ -43,7 +51,7 @@ TGBackend::~TGBackend() {
 }
 
 void TGBackend::codeEmit(void) {
-  m_pCE->encodeInstructions();
+  m_pCE->encodeInstructions(m_outputPath);
 }
 
 extern "C" void InitializeTGONNCBackend()

@@ -8,11 +8,13 @@
 #define CMD_BUF_NAME "cmdbuf.bin"
 using namespace onnc;
 
+Path TGCodeEmitter::m_outputPath = Path(CMD_BUF_NAME);
+
 void TGCodeEmitter::sendCmdBuf(void *userData, const void *cmdBuf,
                                uint32_t len) {
   std::cout << __func__ << std::endl;
-  std::cout << "save to " << CMD_BUF_NAME << std::endl;
-  std::fstream output(CMD_BUF_NAME,
+  std::cout << "save to " << m_outputPath.generic_string() << std::endl;
+  std::fstream output(m_outputPath.generic_string().c_str(),
                       std::ios::out | std::ios::trunc | std::ios::binary);
   output.write((char *)cmdBuf, len);
 }
@@ -76,7 +78,8 @@ void TGCodeEmitter::bmkernelContextPrepare(void) {
   std::cout << "bmkernel_register done" << std::endl;
 }
 
-void TGCodeEmitter::encodeInstructions(void) {
+void TGCodeEmitter::encodeInstructions(Path &outputPath) {
+  m_outputPath = outputPath;
   // init bm1680 context
   bmkernelContextPrepare();
   kernel_enter(m_bmkernelHandle);

@@ -3,6 +3,7 @@ INCDIR=../include/onnc
 ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
 	Target/Target.cpp \
+	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Target/Sophon/SophonBackend.cpp \
 	Target/Sophon/TargetInfo/SophonTargetInfo.cpp \
@@ -110,13 +111,8 @@ ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ @BMKERNEL_INCLUDES@ @BMAPI_IN
 
 ONNC_CPPFLAGS =
 
-if ENABLE_DEBUG
 ONNC_CPPFLAGS += -O0 -g3
-endif
 
-if ENABLE_OPTIMIZE
-ONNC_CPPFLAGS += -O2 -DNDEBUG
-endif
 
 AM_CPPFLAGS = ${ONNC_INCLUDES} ${ONNC_CPPFLAGS} ${ANDROID_CPPFLAGS}
 

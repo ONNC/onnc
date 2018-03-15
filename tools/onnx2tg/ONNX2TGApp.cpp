@@ -51,13 +51,17 @@ int ONNX2TG::compile()
            << std::endl;
     return EXIT_FAILURE;
   }
+
   PassManager pm;
   TargetOptions options;
   TargetBackend* backend = target->createBackend(options);
-  backend->addTensorSel(pm);
-  backend->addMemAlloc(pm);
-  backend->addCodeEmit(pm);
-
+  if (!backend->addPassesToEmitFile(pm, m_Config.output(), TargetBackend::ObjectFile)){
+    errs() << Color::RED << "Error" << Color::RESET
+           << ": target does not support generation of this file type!"
+           << std::endl;
+    return EXIT_FAILURE;
+  }
   pm.run(module);
+
   return EXIT_SUCCESS;
 }

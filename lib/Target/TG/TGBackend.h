@@ -9,6 +9,7 @@
 #define TARGET_TG_TG_BACKEND_H
 #include <string>
 #include <onnc/Target/DLATargetBackend.h>
+#include <onnc/Support/Path.h>
 #include <memory>
 #include <onnx/common/ir.h>
 #include <vector>
@@ -30,7 +31,7 @@ public:
 
   void codeEmit();
 
-  void addCodeEmit(PassManager& pPM);
+  void addCodeEmit(PassManager& pPM,  Path &output, CodeGenFileType &fileType);
 
   MemTable &getMemLayout() { return m_globalMemLayout; }
 
@@ -43,7 +44,7 @@ private:
   MemTable m_globalMemLayout;
   TargetLowering *m_pTLI;
   TGCodeEmitter *m_pCE;
-
+  Path m_outputPath;
 };
 
 class BM1680Backend : public TGBackend
