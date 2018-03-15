@@ -23,6 +23,6 @@ Module::~Module()
 
 Module& Module::delegateGraph(std::unique_ptr<onnx::Graph> pGraph)
 {
-  m_pOnnxGraph = pGraph.get();
+  m_pOnnxGraph = std::move(pGraph);
   return *this;
 }

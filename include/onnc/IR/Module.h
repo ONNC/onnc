@@ -24,16 +24,16 @@ class Module
 public:
   Module();
   ~Module();
-  onnx::Graph *getGraph() { return m_pOnnxGraph; }
+  onnx::Graph *getGraph() { return m_pOnnxGraph.get(); }
 
-  const onnx::Graph *getGraph() const { return m_pOnnxGraph; }
+  const onnx::Graph *getGraph() const { return m_pOnnxGraph.get(); }
 
   // move @ref pGraph from outside.
   Module& delegateGraph(std::unique_ptr<onnx::Graph> pGraph);
 
 private:
   SymbolTable m_SymbolTable;
-  onnx::Graph* m_pOnnxGraph;
+  std::shared_ptr<onnx::Graph> m_pOnnxGraph;
 };
 
 } // namespace of onnc
