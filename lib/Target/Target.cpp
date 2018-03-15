@@ -17,4 +17,9 @@ onnc::Target::Target()
     m_ShortDesc(),
     m_ArchMatchFn(nullptr),
     m_TargetBackendCtorFn(nullptr) {
+}
+
+unsigned int onnc::Target::matchArch(const Quadruple& pQuadruple) const
+{
+  return m_ArchMatchFn(pQuadruple);
 } 

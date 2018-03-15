@@ -34,6 +34,8 @@ public:
 
   TargetBackend* createBackend(const CompilerConfig& pConfig) const;
 
+  unsigned int matchArch(const Quadruple& pQuadruple) const;
+
 private:
   friend class onnc::TargetRegistry;
 
