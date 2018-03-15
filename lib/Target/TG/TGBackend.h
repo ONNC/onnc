@@ -31,6 +31,7 @@ public:
 
   void codeEmit();
 
+  void addTensorSel(PassManager &pPM);
   void addCodeEmit(PassManager& pPM,  Path &output, CodeGenFileType &fileType);
 
   MemTable &getMemLayout() { return m_globalMemLayout; }

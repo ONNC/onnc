@@ -15,13 +15,19 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // TGBackend
 //===----------------------------------------------------------------------===//
-void TGBackend::addCodeEmit(PassManager& pPM, Path &output, CodeGenFileType &fileType)
-{
+
+void TGBackend::addTensorSel(PassManager &pPM) {
+  // IR level pass
   pPM.add(createRemoveUnusedNodePass());
   pPM.add(createUpdateOutputInfoPass());
+  // TGbackend require memory allocation before TensorSel (lowering)
   pPM.add(createTGMemAllocInfoPass(this));
   pPM.add(createTargetLoweringPass(this));
+  return;
+}
 
+void TGBackend::addCodeEmit(PassManager& pPM, Path &output, CodeGenFileType &fileType)
+{
   if (TargetBackend::AssemblyFile == fileType)
     return;
 
