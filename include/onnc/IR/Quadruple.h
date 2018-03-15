@@ -167,7 +167,8 @@ public:
     ELFEDIT,
     LD,
     RANLIB,
-    STRIP
+    STRIP,
+    WRAPPER
   };
 
   /// Vendor of the toolchain

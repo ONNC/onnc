@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Language/Quadruple.h>
+#include <onnc/IR/Quadruple.h>
 #include <onnc/ADT/Rope.h>
 #include <onnc/ADT/StringSwitch.h>
 
@@ -462,7 +462,6 @@ const char* onnc::ToolVendorToName(Quadruple::ToolVendorType pType)
     case Quadruple::CentOS:            return "centos";
     case Quadruple::Ubuntu:            return "ubuntu";
     case Quadruple::Debian:            return "debian";
-    case Quadruple::BITMAIN:           return "bitmain";
 
     case Quadruple::UnknownToolVendor:
     default: return "unknown";
@@ -733,7 +732,7 @@ Quadruple::Quadruple(StringRef pArchStr,
   : m_Raw((pArchStr + Rope('-') + pArchVendorStr + Rope('-') + pOSStr +
            Rope('-') + pEnvironStr + Rope('-') + pToolStr + Rope('-') +
            pToolVersionStr + Rope('-') + pToolVendorStr + Rope('-') +
-           + pArchCoreStr).str()),
+           pArchCoreStr).str()),
     m_Arch(ParseArch(pArchStr)),
     m_SubArch(ParseSubArch(pArchStr)),
     m_ArchVendor(ParseArchVendor(pArchVendorStr)),
