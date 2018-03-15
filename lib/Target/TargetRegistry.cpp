@@ -9,6 +9,7 @@
 #include <onnc/Support/ManagedStatic.h>
 #include <onnc/IR/Quadruple.h>
 #include <onnc/ADT/Rope.h>
+#include <algorithm>
 
 using namespace onnc;
 
