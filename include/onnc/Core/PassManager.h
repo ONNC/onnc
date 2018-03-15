@@ -77,10 +77,6 @@ private:
   typedef std::map<Pass::AnalysisID, DepNode*> AvailableAnalysisMap;
 
 private:
-  /// @param[out] pExist The pass found is already available.
-  /// @retval nullptr Not found
-  const PassInfo* findAnalysisPassInfo(Pass::AnalysisID pID, bool& pExist);
-
   PassRegistry* getPassRegistry() { return m_pPassRegistry; }
 
   DepNode* findNode(Pass::AnalysisID pID);

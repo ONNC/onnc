@@ -156,3 +156,17 @@ SKYPAT_F(PassManagerTest, query_passes)
   Module module;
   EXPECT_TRUE(pm.run(module));
 }
+
+SKYPAT_F(PassManagerTest, add_dependent_passes)
+{
+  PassRegistry registry;
+  InitializeAPass(registry);
+
+  PassManager pm(registry);
+  pm.add(new B());
+  EXPECT_EQ(pm.size(), 2);
+  pm.add(new A());
+  EXPECT_EQ(pm.size(), 2);
+  pm.add(new C());
+  EXPECT_EQ(pm.size(), 3);
+}

@@ -47,12 +47,11 @@ void PassManager::add(Pass* pPass, TargetBackend* pBackend)
   doAdd(pPass, pBackend);
 }
 
+/// Add a pass by DSF order
 void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
 {
-  /// Add a pass by DSF order
-  bool exist = false;
-  findAnalysisPassInfo(pPass->getPassID(), exist);
-  if (exist) { // The pass had been added
+  // The pass had been added
+  if (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pPass->getPassID())) {
     return;
   }
 
@@ -62,13 +61,11 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
 
   while (!stack.empty()) {
     cur_node = stack.top();
-    stack.pop();
-
-    bool exist = false;
-    const PassInfo* info = findAnalysisPassInfo(cur_node->pass->getPassID(), exist);
-    if (exist) { // The pass had been added
+    if (m_AvailableAnalysis.end() !=
+        m_AvailableAnalysis.find(cur_node->pass->getPassID()))
       return;
-    }
+
+    stack.pop();
 
     AnalysisUsage usage;
     cur_node->pass->getAnalysisUsage(usage);
@@ -77,12 +74,16 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
     }
     else {
       for (AnalysisUsage::iterator use = usage.begin(); use != usage.end(); ++use) {
-        exist = false;
-        info = findAnalysisPassInfo(*use, exist);
-        if (!exist) { // not in available analysis uet.
+        if (m_AvailableAnalysis.end() == m_AvailableAnalysis.find(*use)) {
           // use existed node or create a new node
           DepNode* new_node = findNode(*use);
           if (nullptr == new_node) {
+            // make the pass by ourself
+            const PassInfo* info = getPassRegistry()->getPassInfo(*use);
+            if (nullptr == info) {
+              error(pass_not_registered) << "nullptr";
+              return;
+            }
             Pass* new_pass = info->makePass(pBackend);
             new_node = m_Dependencies.addNode(new_pass);
             stack.push(new_node);
@@ -113,16 +114,6 @@ bool PassManager::run(Module& pModule)
     changed |= node->pass->doFinalization(pModule);
   }
   return changed;
-}
-
-const PassInfo*
-PassManager::findAnalysisPassInfo(Pass::AnalysisID pID, bool& pExist)
-{
-  pExist = (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pID));
-  const PassInfo* result = getPassRegistry()->getPassInfo(pID);
-  if (nullptr == result)
-    error(pass_not_registered) << "nullptr";
-  return result;
 }
 
 PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
