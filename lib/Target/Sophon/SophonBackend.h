@@ -15,7 +15,7 @@ namespace onnc {
 class SophonBackend : public DLATargetBackend
 {
 public:
-  SophonBackend(const CompilerConfig& pConfig);
+  SophonBackend(const TargetOptions& pOptions);
 
   virtual ~SophonBackend();
 };
@@ -23,7 +23,7 @@ public:
 class BM1680Backend : public SophonBackend
 {
 public:
-  BM1680Backend(const CompilerConfig& pConfig);
+  BM1680Backend(const TargetOptions& pOptions);
 
   virtual ~BM1680Backend();
 };
@@ -31,7 +31,7 @@ public:
 class BM1682Backend : public SophonBackend
 {
 public:
-  BM1682Backend(const CompilerConfig& pConfig);
+  BM1682Backend(const TargetOptions& pOptions);
 
   virtual ~BM1682Backend();
 };

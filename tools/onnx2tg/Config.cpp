@@ -11,5 +11,5 @@
 // Config
 //===----------------------------------------------------------------------===//
 Config::Config()
-  : CompilerConfig(), m_Input(), m_Output() {
+  : m_Input(), m_Output() {
 }

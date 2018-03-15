@@ -12,7 +12,7 @@
 namespace onnc {
 
 class TargetBackend;
-class CompilerConfig;
+class TargetOptions;
 class TargetRegistry;
 
 /** \class Target
@@ -22,7 +22,7 @@ class Target
 {
 public:
   typedef unsigned int (*QuadrupleMatchFnTy)(const Quadruple& pQuadruple);
-  typedef TargetBackend* (*TargetBackendCtorFnTy)(const CompilerConfig&);
+  typedef TargetBackend* (*TargetBackendCtorFnTy)(const TargetOptions&);
 
 public:
   /// Constructor. Set all member variables to nullptr.
@@ -32,7 +32,7 @@ public:
 
   const std::string& getShortDescription() const { return m_ShortDesc; }
 
-  TargetBackend* createBackend(const CompilerConfig& pConfig) const;
+  TargetBackend* createBackend(const TargetOptions& pOptions) const;
 
   unsigned int matchArch(const Quadruple& pQuadruple) const;
 

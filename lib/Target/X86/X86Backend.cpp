@@ -14,13 +14,13 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // X86Backend
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateX86_32Backend(const CompilerConfig& pConfig)
+TargetBackend* CreateX86_32Backend(const TargetOptions& pOptions)
 {
   // TODO
   return nullptr;
 }
 
-TargetBackend* CreateX86_64Backend(const CompilerConfig& pConfig)
+TargetBackend* CreateX86_64Backend(const TargetOptions& pOptions)
 {
   // TODO
   return nullptr;

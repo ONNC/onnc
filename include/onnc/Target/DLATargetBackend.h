@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class CompilerConfig;
+class TargetOptions;
 
 class DLATargetBackend : public TargetBackend
 {
 public:
-  DLATargetBackend(const CompilerConfig &pConfig) : TargetBackend(pConfig) {}
+  DLATargetBackend(const TargetOptions &pOptions) : TargetBackend(pOptions) {}
 
   virtual ~DLATargetBackend(){}
 };

@@ -24,7 +24,7 @@ using MemTable = std::map<std::string, uint64_t>;
 class TGBackend : public DLATargetBackend
 {
 public:
-  TGBackend(const CompilerConfig &pConfig);
+  TGBackend(const TargetOptions &pOptions);
 
   virtual ~TGBackend();
 
@@ -49,7 +49,7 @@ private:
 class BM1680Backend : public TGBackend
 {
 public:
-  BM1680Backend(const CompilerConfig& pConfig);
+  BM1680Backend(const TargetOptions& pOptions);
 
   virtual ~BM1680Backend();
 };
@@ -57,7 +57,7 @@ public:
 class BM1682Backend : public TGBackend
 {
 public:
-  BM1682Backend(const CompilerConfig& pConfig);
+  BM1682Backend(const TargetOptions& pOptions);
 
   virtual ~BM1682Backend();
 };

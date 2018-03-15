@@ -14,13 +14,13 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // SophonBackend
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateBM1680Backend(const CompilerConfig& pConfig)
+TargetBackend* CreateBM1680Backend(const TargetOptions& pOptions)
 {
   // TODO
   return nullptr;
 }
 
-TargetBackend* CreateBM1682Backend(const CompilerConfig& pConfig)
+TargetBackend* CreateBM1682Backend(const TargetOptions& pOptions)
 {
   // TODO
   return nullptr;

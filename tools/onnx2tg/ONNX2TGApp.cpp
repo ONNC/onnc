@@ -10,6 +10,7 @@
 #include <onnc/Target/TargetSelect.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetBackend.h>
+#include <onnc/Target/TargetOptions.h>
 #include <onnc/IRReader/ONNXReader.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Core/PassManager.h>
@@ -51,7 +52,8 @@ int ONNX2TG::compile()
     return EXIT_FAILURE;
   }
   PassManager pm;
-  TargetBackend* backend = target->createBackend(m_Config);
+  TargetOptions options;
+  TargetBackend* backend = target->createBackend(options);
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm);

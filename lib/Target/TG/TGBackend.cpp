@@ -24,18 +24,18 @@ void TGBackend::addCodeEmit(PassManager& pPM)
   pPM.add(createTGCodeEmitPass(this));
 }
 
-TargetBackend* CreateTGBM1680Backend(const CompilerConfig& pConfig)
+TargetBackend* CreateTGBM1680Backend(const TargetOptions& pOptions)
 {
-  return new TGBackend(pConfig);
+  return new TGBackend(pOptions);
 }
 
-TargetBackend* CreateTGBM1682Backend(const CompilerConfig& pConfig)
+TargetBackend* CreateTGBM1682Backend(const TargetOptions& pOptions)
 {
-  return new TGBackend(pConfig);
+  return new TGBackend(pOptions);
 }
 
-TGBackend::TGBackend(const CompilerConfig &pConfig)
-    : DLATargetBackend(pConfig), m_pTLI(new TGTargetLowering(this)), m_pCE(new TGCodeEmitter(this)) {}
+TGBackend::TGBackend(const TargetOptions &pOptions)
+    : DLATargetBackend(pOptions), m_pTLI(new TGTargetLowering(this)), m_pCE(new TGCodeEmitter(this)) {}
 
 TGBackend::~TGBackend() {
   delete m_pTLI;

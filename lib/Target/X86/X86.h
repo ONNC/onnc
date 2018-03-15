@@ -14,7 +14,7 @@ namespace onnc {
 class Target;
 class TargetLDBackend;
 
-TargetBackend* CreateX86Backend(const CompilerConfig& pConfig);
+TargetBackend* CreateX86Backend(const TargetOptions& pOptions);
 
 }  // namespace onnc
 

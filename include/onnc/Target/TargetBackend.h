@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class CompilerConfig;
+class TargetOptions;
 
 class TargetBackend
 {
 public:
-  TargetBackend(const CompilerConfig& pConfig){}
+  TargetBackend(const TargetOptions& pOptions){}
 
   virtual ~TargetBackend(){}
 
