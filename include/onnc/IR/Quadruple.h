@@ -89,7 +89,8 @@ public:
     ARMSubArch_v5,
     ARMSubArch_v5te,
     ARMSubArch_v4t,
-    SophonSubArch_tg
+    SophonSubArch_vBM1680,
+    SophonSubArch_vBM1682,
   };
 
   /// Vendor of the architecture
