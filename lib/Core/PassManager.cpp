@@ -50,10 +50,8 @@ void PassManager::add(Pass* pPass, TargetBackend* pBackend)
 /// Add a pass by DSF order
 void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
 {
-  // The pass had been added
-  if (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pPass->getPassID())) {
+  if (hasAdded(pPass->getPassID()))
     return;
-  }
 
   DepNode* cur_node = m_Dependencies.addNode(pPass);
   std::stack<DepNode*> stack;
@@ -61,8 +59,7 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
 
   while (!stack.empty()) {
     cur_node = stack.top();
-    if (m_AvailableAnalysis.end() !=
-        m_AvailableAnalysis.find(cur_node->pass->getPassID()))
+    if (hasAdded(cur_node->pass->getPassID()))
       return;
 
     stack.pop();
@@ -74,7 +71,7 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
     }
     else {
       for (AnalysisUsage::iterator use = usage.begin(); use != usage.end(); ++use) {
-        if (m_AvailableAnalysis.end() == m_AvailableAnalysis.find(*use)) {
+        if (!hasAdded(*use)) {
           // use existed node or create a new node
           DepNode* new_node = findNode(*use);
           if (nullptr == new_node) {
@@ -130,4 +127,9 @@ PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
 unsigned int PassManager::size() const
 {
   return m_AvailableAnalysis.size();
+}
+
+bool PassManager::hasAdded(Pass::AnalysisID pID) const
+{
+  return (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pID));
 }
