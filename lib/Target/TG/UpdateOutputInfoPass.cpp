@@ -2,6 +2,7 @@
 #include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
 #include <vector>
+#include "TG.h"
 
 using namespace onnc;
 
@@ -220,6 +221,5 @@ bool UpdateOutputInfo::runOnModule(Module &pModule) {
 } // anonymous namespace
 
 char UpdateOutputInfo::ID = 0;
-INITIALIZE_PASS(UpdateOutputInfo, "UpdateOutputInfo")
 
-ModulePass *createUpdateOutputInfoPass() { return new UpdateOutputInfo(); }
+ModulePass *onnc::createUpdateOutputInfoPass() { return new UpdateOutputInfo(); }

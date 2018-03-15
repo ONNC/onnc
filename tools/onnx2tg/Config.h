@@ -8,13 +8,14 @@
 #ifndef ONNC_COMPILER_ONNX_TO_TG_CONFIG_H
 #define ONNC_COMPILER_ONNX_TO_TG_CONFIG_H
 #include <onnc/Support/Path.h>
+#include <onnc/Core/CompilerConfig.h>
 
 using namespace onnc;
 
 /** \class Config
  *  \brief Config stores all application configurations.
  */
-class Config
+class Config : public CompilerConfig
 {
 public:
   Config();

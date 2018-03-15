@@ -36,6 +36,10 @@ public:
 
   unsigned int matchArch(const Quadruple& pQuadruple) const;
 
+  void setMatchFn(QuadrupleMatchFnTy pFn) { m_ArchMatchFn = pFn; }
+
+  void setBackendCtor(TargetBackendCtorFnTy pFn) { m_TargetBackendCtorFn = pFn; }
+
 private:
   friend class onnc::TargetRegistry;
 

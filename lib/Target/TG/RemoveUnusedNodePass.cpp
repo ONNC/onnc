@@ -1,16 +1,19 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include "onnx/common/ir.h"
+#include "TG.h"
 
 using namespace onnc;
 
 namespace {
 
-class removeUnusedNode : public ModulePass {
+class RemoveUnusedNode : public ModulePass {
 
 public:
   static char ID;
-  removeUnusedNode() : ModulePass(ID) {}
+
+public:
+  RemoveUnusedNode() : ModulePass(ID) {}
 
   bool runOnModule(Module &pModule) override {
     onnx::Graph *graph = pModule.getGraph();
@@ -31,7 +34,6 @@ public:
 
 } // anonymous namespace
 
-char removeUnusedNode::ID = 0;
-INITIALIZE_PASS(removeUnusedNode, "removeUnusedNode")
+char RemoveUnusedNode::ID = 0;
 
-// ModulePass *createRemoveUnusedNodePass() { return new removeUnusedNode(); }
+ModulePass *onnc::createRemoveUnusedNodePass() { return new RemoveUnusedNode(); }

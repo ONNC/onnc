@@ -21,20 +21,28 @@ namespace onnc {
 class TGCodeEmitter;
 
 using MemTable = std::map<std::string, uint64_t>;
-class TGBackend : public DLATargetBackend {
+class TGBackend : public DLATargetBackend
+{
+public:
+  TGBackend(const CompilerConfig &pConfig);
+
+  virtual ~TGBackend();
+
+  void codeEmit();
+
+  void addCodeEmit(PassManager& pPM);
+
+  MemTable &getMemLayout() { return m_globalMemLayout; }
+
+  std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
+
+  TargetLowering *getTargetLowering() { return m_pTLI; }
+
 private:
   std::vector<std::unique_ptr<Operator> > m_instructions;
   MemTable m_globalMemLayout;
-  TargetLowering *m_TLI;
-  TGCodeEmitter *m_CE;
-
-public:
-  TGBackend(const CompilerConfig &pConfig);
-  virtual ~TGBackend();
-  void codeEmit();
-  MemTable &getMemLayout() { return m_globalMemLayout; }
-  std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
-  TargetLowering *getTargetLowering() { return m_TLI; }
+  TargetLowering *m_pTLI;
+  TGCodeEmitter *m_pCE;
 
 };
 
