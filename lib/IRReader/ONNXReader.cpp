@@ -17,7 +17,7 @@ using namespace onnc;
 // onnx::Reader
 //===----------------------------------------------------------------------===//
 onnx::Reader::Reader()
-{
+  : m_TotalBytesLimit(1024LL << 20), pWarningThreshold(512LL << 20) {
   // Verify that the version of the library that we linked against is
   // compatible with the version of the headers we compiled against.
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -45,6 +45,7 @@ bool onnx::Reader::parse(const Path& pFileName, Module& pModule)
 
     /**
     onnx::ModelProto model;
+    coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
     if (!model.ParseFromCodedStream(&coded_input)) {
       // TODO: show the error message
       return false;
@@ -64,6 +65,7 @@ bool onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
 
     /**
     onnx::ModelProto model;
+    coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
     if (!model.ParseFromCodedStream(&coded_input)) {
       // TODO: show the error message
       return false;
@@ -71,4 +73,10 @@ bool onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
     **/
   }
   return true;
+}
+
+void onnc::onnx::Reader::setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold)
+{
+  m_TotalBytesLimit = pTotalBytesLimit;
+  pWarningThreshold = pWarningThreshold;
 }

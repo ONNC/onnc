@@ -36,6 +36,15 @@ public:
   /// @param[out] pModule The parsing result.
   /// @retval false Error occurs
   bool parse(ConstBuffer pContent, Module& pModule);
+
+  /// Set the total bytes limit.
+  /// @param[in] pTotalBytesLimit
+  /// @param[in] pWarningThreshold
+  void setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold);
+
+private:
+  int m_TotalBytesLimit;
+  int pWarningThreshold;
 };
 
 } // namespace of onnx
