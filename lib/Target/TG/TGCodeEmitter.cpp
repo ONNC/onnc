@@ -79,7 +79,11 @@ void TGCodeEmitter::bmkernelContextPrepare(void) {
 }
 
 void TGCodeEmitter::encodeInstructions(Path &outputPath) {
-  m_outputPath = outputPath;
+  if (outputPath.empty()) {
+    m_outputPath = Path(CMD_BUF_NAME);
+  } else {
+    m_outputPath = outputPath;
+  }
   // init bm1680 context
   bmkernelContextPrepare();
   kernel_enter(m_bmkernelHandle);
