@@ -51,6 +51,7 @@ Quadruple::ArchType onnc::ParseArch(StringRef pArchName)
     .Case("spir", Quadruple::spir)
     .Case("spir64", Quadruple::spir64)
     .Case("sophon", Quadruple::sophon)
+    .StartsWith("sophonv", Quadruple::sophon)
     .Default(Quadruple::UnknownArch);
 }
 
