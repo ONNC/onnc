@@ -50,6 +50,19 @@ public:
   Lookup(const std::string& pQuadruple, std::string& pError);
 };
 
+template <Quadruple::ArchType TargetArchType = Quadruple::UnknownArch>
+struct RegisterTarget {
+  RegisterTarget(Target &pT, const char* pName, const char* pDesc) {
+    TargetRegistry::RegisterTarget(pT, pName, pDesc, &getQuadrupleMatch);
+  }
+
+  static unsigned int getQuadrupleMatch(const Quadruple& pQuadruple) {
+    if (TargetArchType == pQuadruple.getArch())
+      return 10; // magic number
+    return 0;
+  }
+};
+
 } // namespace of onnc
 
 #endif
