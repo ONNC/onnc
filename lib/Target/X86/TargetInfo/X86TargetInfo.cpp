@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86TargetInfo.h"
+#include <onnc/IR/Quadruple.h>
+#include <onnc/Target/TargetRegistry.h>
 
 using namespace onnc;
 
@@ -25,4 +27,9 @@ onnc::Target& onnc::getTheX86_64Target()
 }
 
 extern "C" void InitializeX86ONNCPlatform() {
+  RegisterTarget<Quadruple::x86>(getTheX86_32Target(),
+      "x86", "32-bit X86: Pentium-Pro and above");
+
+  RegisterTarget<Quadruple::x86_64>(getTheX86_64Target(),
+      "x86-64", "64-bit X86: EM64T and AMD64");
 }
