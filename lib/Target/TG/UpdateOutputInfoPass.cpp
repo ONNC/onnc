@@ -194,6 +194,19 @@ void UpdateOutputInfo::updateGemmInfo(onnx::Node *const node) {
 bool UpdateOutputInfo::runOnModule(Module &pModule) {
 
   onnx::Graph *graph = pModule.getGraph();
+
+  // workaround code for update alexnet input dimension
+  if (graph->has_name() && std::string::npos != graph->name().find("alexnet")) {
+    onnx::ArrayRef<onnx::Value*> inputValues = graph->inputs();
+    for (auto &v : inputValues) {
+      if (v->has_unique_name() && v->uniqueName() == std::string("data_0")) {
+          std::vector<onnx::Dimension> dims = { 10, 3, 227, 227 };
+          v->setSizes(dims);
+          break;
+      }
+    }
+  }
+
   for (onnx::graph_node_list_iterator it = graph->begin(), ie = graph->end();
        it != ie; ++it) {
     onnx::Node *node = *it;
