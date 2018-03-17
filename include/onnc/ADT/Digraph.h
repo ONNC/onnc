@@ -7,10 +7,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ADT_DIGRAPH_H
 #define ONNC_ADT_DIGRAPH_H
-#include <onnc/ADT/DigraphNode.h>
-#include <onnc/ADT/DigraphArc.h>
+#include <onnc/ADT/Bits/DigraphNode.h>
+#include <onnc/ADT/Bits/DigraphArc.h>
+#include <onnc/ADT/Bits/PolicyNodeIterator.h>
 #include <onnc/ADT/NodeIterator.h>
-#include <onnc/ADT/PolicyNodeIterator.h>
 #include <onnc/ADT/TypeTraits.h>
 #include <vector>
 
@@ -32,7 +32,7 @@ namespace onnc {
  *  Query adjacency | O(E)       | O(#(fan-in) + #(fan-out))
  *
  */
-template<typename NodeType = NodeBase, typename ArcType = ArcBase>
+template<typename NodeType = digraph::NodeBase, typename ArcType = digraph::ArcBase>
 class Digraph
 {
 public:
@@ -40,10 +40,10 @@ public:
   typedef ArcType  Arc;
   typedef NodeIterator<NodeType> iterator;
   typedef NodeIterator<const NodeType> const_iterator;
-  typedef PolicyNodeIterator<DFSIterator, NonConstTraits<NodeType> > dfs_iterator;
-  typedef PolicyNodeIterator<DFSIterator, ConstTraits<NodeType> > const_dfs_iterator;
-  typedef PolicyNodeIterator<BFSIterator, NonConstTraits<NodeType> > bfs_iterator;
-  typedef PolicyNodeIterator<BFSIterator, ConstTraits<NodeType> > const_bfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::DFSIterator, NonConstTraits<NodeType> > dfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::DFSIterator, ConstTraits<NodeType> > const_dfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::BFSIterator, NonConstTraits<NodeType> > bfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::BFSIterator, ConstTraits<NodeType> > const_bfs_iterator;
 
 public:
   Digraph();

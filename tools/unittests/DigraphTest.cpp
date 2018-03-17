@@ -8,7 +8,6 @@
 #include <skypat/skypat.h>
 #include <onnc/ADT/Digraph.h>
 #include <onnc/ADT/NodeIterator.h>
-#include <onnc/ADT/PolicyNodeIterator.h>
 #include <onnc/ADT/ArcIterator.h>
 #include <onnc/ADT/TypeTraits.h>
 #include <onnc/Support/IOStream.h>
@@ -260,11 +259,11 @@ SKYPAT_F(DigraphTest, dfs_iterator)
 SKYPAT_F(DigraphTest, default_graph)
 {
   Digraph<> g;
-  NodeBase* n1 = g.addNode();
-  NodeBase* n2 = g.addNode();
-  NodeBase* n3 = g.addNode();
-  NodeBase* n4 = g.addNode();
-  NodeBase* n5 = g.addNode();
+  digraph::NodeBase* n1 = g.addNode();
+  digraph::NodeBase* n2 = g.addNode();
+  digraph::NodeBase* n3 = g.addNode();
+  digraph::NodeBase* n4 = g.addNode();
+  digraph::NodeBase* n5 = g.addNode();
   g.connect(*n1, *n2);
   g.connect(*n1, *n3);
   g.connect(*n3, *n2);

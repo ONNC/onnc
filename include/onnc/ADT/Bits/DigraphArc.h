@@ -10,6 +10,7 @@
 #include <vector>
 
 namespace onnc {
+namespace digraph {
 
 class NodeBase;
 class ArcBase;
@@ -31,8 +32,10 @@ public:
   ArcBase* next_out; // for source
 };
 
+} // namespace of digraph
+
 template<typename NodeType, typename ArcType>
-class DigraphArc : public ArcBase
+class DigraphArc : public digraph::ArcBase
 {
 public:
   DigraphArc() : ArcBase() { }
@@ -120,6 +123,6 @@ template<typename NodeType, typename ArcType>
 template<typename NodeType, typename ArcType>
 ArcType* DigraphArc<NodeType, ArcType>::getNextOut() { return static_cast<ArcType*>(next_out); }
 
-} // namespace onnc
+} // namespace of onnc
 
 #endif

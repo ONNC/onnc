@@ -4,7 +4,8 @@ TEST_SOURCES = DigraphTest.cpp \
 	PassManagerTest.cpp \
   QuadrupleTest.cpp \
 	StringRefTest.cpp \
-	AnyTest.cpp
+	AnyTest.cpp \
+	BinaryTreeTest.cpp
 endif
 
 if ENABLE_REGRESSION

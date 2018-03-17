@@ -5,11 +5,12 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/ADT/PolicyNodeIterator.h>
+#include <onnc/ADT/Bits/PolicyNodeIterator.h>
 #include <onnc/ADT/ArcIterator.h>
 #include <onnc/Support/IOStream.h>
 
 using namespace onnc;
+using namespace onnc::digraph;
 
 //===----------------------------------------------------------------------===//
 // BFSIterator

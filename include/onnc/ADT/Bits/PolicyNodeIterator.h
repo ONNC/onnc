@@ -13,6 +13,7 @@
 #include <stack>
 
 namespace onnc {
+namespace digraph {
 
 class BFSIterator : public NodeIteratorBase
 {
@@ -94,6 +95,7 @@ operator==(const PolicyNodeIterator<IteratorType, Traits>& pX,
   return (pX.node() == pY.node()); 
 }
 
+} // namespace of digraph
 } // namespace of onnc
 
 #endif

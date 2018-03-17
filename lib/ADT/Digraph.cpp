@@ -12,7 +12,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // NodeBase
 //===----------------------------------------------------------------------===//
-NodeBase::NodeBase()
+digraph::NodeBase::NodeBase()
   : prev(nullptr), next(nullptr),
     first_in(nullptr), last_in(nullptr),
     first_out(nullptr), last_out(nullptr) {
@@ -21,7 +21,7 @@ NodeBase::NodeBase()
 //===----------------------------------------------------------------------===//
 // ArcBase
 //===----------------------------------------------------------------------===//
-ArcBase::ArcBase()
+digraph::ArcBase::ArcBase()
   : target(nullptr), source(nullptr),
     prev_in(nullptr), next_in(nullptr),
     prev_out(nullptr), next_out(nullptr) {

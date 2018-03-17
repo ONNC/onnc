@@ -13,6 +13,7 @@
 #include <cstddef>
 
 namespace onnc {
+namespace bintree {
 
 /** \class NodeBase
  *  \brief As the based class, NodeBase provides linkages for a node.
@@ -46,6 +47,7 @@ public:
   Node(const DataType& pValue) : NodeBase(), data(&pValue) { }
 };
 
+} // namespace of bintree
 } // namespace of onnc 
 
 #endif

@@ -13,6 +13,7 @@
 #include <stack>
 
 namespace onnc {
+namespace bintree {
 
 /** \class TreeIteratorBase
  *  \brief TreeIteratorBase provides basic operators on a tree node
@@ -261,6 +262,7 @@ public:
   node_type* node()       { return static_cast<node_type*>(m_pNode); }
 };
 
+} // namespace of bintree
 } // namespace of onnc
 
 #endif

@@ -10,6 +10,7 @@
 #include <vector>
 
 namespace onnc {
+namespace digraph {
 
 class NodeBase;
 class ArcBase;
@@ -28,8 +29,10 @@ public:
   ArcBase *first_out, *last_out;
 };
 
-template<typename NodeType, typename ArcType = ArcBase>
-class DigraphNode : public NodeBase
+} // namespace of digraph
+
+template<typename NodeType, typename ArcType = digraph::ArcBase>
+class DigraphNode : public digraph::NodeBase
 {
 public:
   DigraphNode() : NodeBase() { }

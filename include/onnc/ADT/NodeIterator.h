@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ADT_DIGRAPH_NODE_ITERATOR_H
 #define ONNC_ADT_DIGRAPH_NODE_ITERATOR_H
-#include <onnc/ADT/DigraphNode.h>
+#include <onnc/ADT/Bits/DigraphNode.h>
 #include <onnc/Support/DataTypes.h>
 
 namespace onnc {
@@ -19,21 +19,21 @@ public:
   typedef ptrdiff_t difference_type;
 
 protected:
-  NodeBase* m_pNodePtr;
+  digraph::NodeBase* m_pNodePtr;
 
 public:
   NodeIteratorBase()
     : m_pNodePtr(nullptr) {
   }
 
-  explicit NodeIteratorBase(NodeBase* pPtr)
+  explicit NodeIteratorBase(digraph::NodeBase* pPtr)
     : m_pNodePtr(pPtr) {
   }
 
   virtual ~NodeIteratorBase() { m_pNodePtr = nullptr; }
 
 protected:
-  void setNode(NodeBase* pPtr) { m_pNodePtr = pPtr; }
+  void setNode(digraph::NodeBase* pPtr) { m_pNodePtr = pPtr; }
 };
 
 template<typename NodeType>

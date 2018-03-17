@@ -11,6 +11,7 @@
 #include <onnc/ADT/Bits/TreeNode.h>
 
 namespace onnc {
+namespace bintree {
 
 /** \class TreeNodeAllocator
  *  \brief TreeNodeAllocator manages onnc::Node.
@@ -48,6 +49,7 @@ public:
   void delegate(TreeNodeAllocator& pClient) { Alloc::doConcatenate(pClient); }
 };
 
+} // namespace of bintree
 } // namespace of onnc
 
 #endif

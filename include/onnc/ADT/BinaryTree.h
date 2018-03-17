@@ -28,7 +28,7 @@ template<class DataType>
 class BinaryTreeBase : private Uncopyable
 {
 public:
-  typedef Node<DataType> NodeType;
+  typedef bintree::Node<DataType> NodeType;
 
 protected:
   /// TreeImpl - TreeImpl records the root node and the number of nodes
@@ -40,18 +40,18 @@ protected:
   //    |  Left     Right   |
   //    +---/         \-----+
   //
-  class TreeImpl : public TreeNodeAllocator<NodeType>
+  class TreeImpl : public bintree::TreeNodeAllocator<NodeType>
   {
   private:
-    typedef typename TreeNodeAllocator<NodeType>::const_iterator const_iterator;
-    typedef typename TreeNodeAllocator<NodeType>::iterator       iterator;
+    typedef typename bintree::TreeNodeAllocator<NodeType>::const_iterator const_iterator;
+    typedef typename bintree::TreeNodeAllocator<NodeType>::iterator       iterator;
 
   public:
-    NodeBase node;
+    bintree::NodeBase node;
 
   public:
     TreeImpl()
-      : TreeNodeAllocator<NodeType>() {
+      : bintree::TreeNodeAllocator<NodeType>() {
       node.left = node.right = &node;
     }
 
@@ -120,17 +120,17 @@ public:
 
   typedef BinaryTree<DataType>  Self;
 
-  typedef TreeIterator<NonConstTraits<DataType> > iterator;
-  typedef TreeIterator<ConstTraits<DataType> >    const_iterator;
+  typedef bintree::TreeIterator<NonConstTraits<DataType> > iterator;
+  typedef bintree::TreeIterator<ConstTraits<DataType> >    const_iterator;
 
-  typedef PolicyIterator<DFSIterator, ConstTraits<DataType> >    const_dfs_iterator;
-  typedef PolicyIterator<DFSIterator, NonConstTraits<DataType> > dfs_iterator;
+  typedef bintree::PolicyIterator<bintree::DFSIterator, ConstTraits<DataType> >    const_dfs_iterator;
+  typedef bintree::PolicyIterator<bintree::DFSIterator, NonConstTraits<DataType> > dfs_iterator;
 
-  typedef PolicyIterator<BFSIterator, ConstTraits<DataType> >    const_bfs_iterator;
-  typedef PolicyIterator<BFSIterator, NonConstTraits<DataType> > bfs_iterator;
+  typedef bintree::PolicyIterator<bintree::BFSIterator, ConstTraits<DataType> >    const_bfs_iterator;
+  typedef bintree::PolicyIterator<bintree::BFSIterator, NonConstTraits<DataType> > bfs_iterator;
 
 protected:
-  typedef Node<value_type> node_type;
+  typedef bintree::Node<value_type> node_type;
 
 public:
   BinaryTree() : BinaryTreeBase<DataType>() { }
@@ -183,13 +183,13 @@ public:
   //  This version of join determines the direction on compilation time.
   //  @param DIRECT the direction of the connecting edge of the parent node.
   template<size_t DIRECT>
-  BinaryTree& join(TreeIteratorBase& pPosition, DataType& pValue)
+  BinaryTree& join(bintree::TreeIteratorBase& pPosition, DataType& pValue)
   {
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = &pValue;
 
     if (pPosition.isRoot())
-      pPosition.hook<TreeIteratorBase::Leftward>(node);
+      pPosition.hook<bintree::TreeIteratorBase::Leftward>(node);
     else
       pPosition.hook<DIRECT>(node);
 
@@ -202,7 +202,7 @@ public:
   //  @param the tree being joined.
   //  @return the joined tree
   template<size_t DIRECT>
-  BinaryTree& merge(TreeIteratorBase& pPosition, BinaryTree& pOther)
+  BinaryTree& merge(bintree::TreeIteratorBase& pPosition, BinaryTree& pOther)
   {
     if (this == &pOther)
       return *this;

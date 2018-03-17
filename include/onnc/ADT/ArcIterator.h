@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ADT_DIGRAPH_INPUT_OUTPUT_ARC_ITERATOR_H
 #define ONNC_ADT_DIGRAPH_INPUT_OUTPUT_ARC_ITERATOR_H
-#include <onnc/ADT/DigraphArc.h>
+#include <onnc/ADT/Bits/DigraphArc.h>
 
 namespace onnc {
 
@@ -23,14 +23,14 @@ public:
   typedef ArcType* pointer;
 
 protected:
-  ArcBase* m_pArcPtr;
+  digraph::ArcBase* m_pArcPtr;
 
 public:
   ArcIteratorBase()
     : m_pArcPtr(nullptr) {
   }
 
-  explicit ArcIteratorBase(ArcBase* pPtr)
+  explicit ArcIteratorBase(digraph::ArcBase* pPtr)
     : m_pArcPtr(pPtr) {
   }
 
