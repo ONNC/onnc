@@ -3,7 +3,8 @@ TEST_SOURCES = DigraphTest.cpp \
 	FileHandleTest.cpp \
 	PassManagerTest.cpp \
   QuadrupleTest.cpp \
-	StringRefTest.cpp
+	StringRefTest.cpp \
+	AnyTest.cpp
 endif
 
 if ENABLE_REGRESSION
