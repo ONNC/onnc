@@ -2,6 +2,7 @@
 #include <onnc/Core/PassSupport.h>
 #include "onnx/common/ir.h"
 #include "TG.h"
+#include "ONNXIRPrinter.h"
 
 using namespace onnc;
 
@@ -28,6 +29,11 @@ public:
         isChanged = true;
       }
     }
+
+    // TODO use IR printer pass, or add passes by option (ex. printf-after-all)
+    std::cout << "==================after RemoveUnusedNodePass: =====================" << std::endl;
+    ONNXIRPrinter::dumpGraph(pModule.getGraphSP());
+
     return isChanged;
   }
 };

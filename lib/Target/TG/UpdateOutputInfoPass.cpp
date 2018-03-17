@@ -3,6 +3,7 @@
 #include <onnx/common/ir.h>
 #include <vector>
 #include "TG.h"
+#include "ONNXIRPrinter.h"
 
 using namespace onnc;
 
@@ -191,6 +192,7 @@ void UpdateOutputInfo::updateGemmInfo(onnx::Node *const node) {
 }
 
 bool UpdateOutputInfo::runOnModule(Module &pModule) {
+
   onnx::Graph *graph = pModule.getGraph();
   for (onnx::graph_node_list_iterator it = graph->begin(), ie = graph->end();
        it != ie; ++it) {
@@ -215,6 +217,11 @@ bool UpdateOutputInfo::runOnModule(Module &pModule) {
       std::cerr << "unimplemented type: " << symbol.toString() << std::endl;
     }
   }
+
+  // TODO use IR printer pass, or add passes by option (ex. printf-after-all)
+  std::cout << "==================after UpdateOutputInfoPass: =====================" << std::endl;
+  ONNXIRPrinter::dumpGraph(pModule.getGraphSP());
+
   return true;
 }
 

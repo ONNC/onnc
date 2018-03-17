@@ -28,6 +28,9 @@ public:
 
   const onnx::Graph *getGraph() const { return m_pOnnxGraph.get(); }
 
+  // for demo
+  const std::shared_ptr<onnx::Graph> &getGraphSP() { return m_pOnnxGraph; }
+
   // move @ref pGraph from outside.
   Module& delegateGraph(std::unique_ptr<onnx::Graph> pGraph);
 
