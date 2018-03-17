@@ -2,7 +2,8 @@ if ENABLE_UNITTEST
 TEST_SOURCES = DigraphTest.cpp \
 	FileHandleTest.cpp \
 	PassManagerTest.cpp \
-  QuadrupleTest.cpp
+  QuadrupleTest.cpp \
+	StringRefTest.cpp
 endif
 
 if ENABLE_REGRESSION
