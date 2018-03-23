@@ -12,6 +12,12 @@
 #define ONNC_CONFIG_CONFIG_H
 
 
+/* define AArch64 target */
+#undef ENABLE_AArch64_TARGET
+
+/* define ARM target */
+#undef ENABLE_ARM_TARGET
+
 /* Enable clock_gettime */
 #undef ENABLE_CLOCK_GETTIME
 
@@ -27,8 +33,17 @@
 /* Enable regression */
 #undef ENABLE_REGRESSION
 
+/* define sohpon target */
+#undef ENABLE_SOPHON_TARGET
+
+/* define tg target */
+#undef ENABLE_TG_TARGET
+
 /* Enable unittest */
 #undef ENABLE_UNITTEST
+
+/* define x86_64 target */
+#undef ENABLE_X86_TARGET
 
 /* the name of <hash_map> */
 #undef HASH_MAP_CLASS

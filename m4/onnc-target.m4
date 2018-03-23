@@ -28,14 +28,26 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
         ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
-    x86)      TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;
-    x86_64)   TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;
+    x86)
+        TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_X86_TARGET, 1, [define x86 target])
+        ;;
+    x86_64)
+        TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_X86_TARGET, 1, [define x86_64 target])
+        ;;
     sparc)    TARGETS_TO_BUILD="Sparc $TARGETS_TO_BUILD" ;;
     powerpc)  TARGETS_TO_BUILD="PowerPC $TARGETS_TO_BUILD" ;;
     alpha)    TARGETS_TO_BUILD="Alpha $TARGETS_TO_BUILD" ;;
     aarch64)  TARGETS_TO_BUILD="AArch64 $TARGETS_TO_BUILD" ;;
-    arm64)    TARGETS_TO_BUILD="AArch64 $TARGETS_TO_BUILD" ;;
-    arm)      TARGETS_TO_BUILD="ARM $TARGETS_TO_BUILD" ;;
+    arm64)
+        TARGETS_TO_BUILD="AArch64 $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_AArch64_TARGET, 1, [define AArch64 target])
+        ;;
+    arm)
+        TARGETS_TO_BUILD="ARM $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_ARM_TARGET, 1, [define ARM target])
+        ;;
     mips)     TARGETS_TO_BUILD="Mips $TARGETS_TO_BUILD" ;;
     hexagon)  TARGETS_TO_BUILD="Hexagon $TARGETS_TO_BUILD" ;;
     spu)      TARGETS_TO_BUILD="CellSPU $TARGETS_TO_BUILD" ;;
@@ -49,20 +61,17 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
     ptx)      TARGETS_TO_BUILD="PTX $TARGETS_TO_BUILD" ;;
     sophon)
         TARGETS_TO_BUILD="Sophon $TARGETS_TO_BUILD"
-        check_bmkernel=yes
+        AC_DEFINE(ENABLE_SOPHON_TARGET, 1, [define sohpon target])
         ;;
     tg)
         TARGETS_TO_BUILD="TG $TARGETS_TO_BUILD"
-        check_bmkernel=yes
+        AC_DEFINE(ENABLE_TG_TARGET, 1, [define tg target])
         ;;
     *) AC_MSG_ERROR([Unrecognized target $a_target]) ;;
         esac
     done
     ;;
   esac
-
-  dnl Library check for target: Sophon, TG
-  CHECK_BMKERNEL
 
   AC_SUBST(TARGETS_TO_BUILD,$TARGETS_TO_BUILD)
   AC_MSG_RESULT([$TARGETS_TO_BUILD])
@@ -79,6 +88,13 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
       ONNC_TARGET_BACKENDS="ONNC_BACKEND($target_to_build) $ONNC_TARGET_BACKENDS";
     fi
   done
+
   AC_SUBST(ONNC_TARGET_PLATFORMS)
   AC_SUBST(ONNC_TARGET_BACKENDS)
+
+  AM_CONDITIONAL([ENABLE_X86_TARGET],     [ test "${TARGETS_TO_BUILD/X86}"     != "${TARGETS_TO_BUILD}" ])
+  AM_CONDITIONAL([ENABLE_AArch64_TARGET], [ test "${TARGETS_TO_BUILD/AArch64}" != "${TARGETS_TO_BUILD}" ])
+  AM_CONDITIONAL([ENABLE_ARM_TARGET],     [ test "${TARGETS_TO_BUILD/ARM}"     != "${TARGETS_TO_BUILD}" ])
+  AM_CONDITIONAL([ENABLE_SOPHON_TARGET],  [ test "${TARGETS_TO_BUILD/Sophon}"  != "${TARGETS_TO_BUILD}" ])
+  AM_CONDITIONAL([ENABLE_TG_TARGET],      [ test "${TARGETS_TO_BUILD/TG}"      != "${TARGETS_TO_BUILD}" ])
 ])

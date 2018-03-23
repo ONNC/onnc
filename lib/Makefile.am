@@ -4,12 +4,6 @@ ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
 	Target/Target.cpp \
 	Target/TargetRegistry.cpp \
-	Target/Sophon/SophonBackend.cpp \
-	Target/Sophon/TargetInfo/SophonTargetInfo.cpp \
-	Target/TG/TGBackend.cpp \
-	Target/TG/TargetInfo/TGTargetInfo.cpp \
-	Target/X86/X86Backend.cpp \
-	Target/X86/TargetInfo/X86TargetInfo.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
@@ -89,6 +83,29 @@ ONNC_SOURCES = \
   Option/OptionPool.cpp \
   Option/OptParser.cpp
 
+if ENABLE_SOPHON_TARGET
+ONNC_SOPHON_TARGET_SOURCES = \
+	Target/Sophon/SophonBackend.cpp \
+	Target/Sophon/TargetInfo/SophonTargetInfo.cpp
+endif
+
+if ENABLE_TG_TARGET
+ONNC_TG_TARGET_SOURCES = \
+	Target/TG/TGBackend.cpp \
+	Target/TG/TargetInfo/TGTargetInfo.cpp
+endif
+
+if ENABLE_X86_TARGET
+ONNC_X86_TARGET_SOURCES = \
+	Target/X86/X86Backend.cpp \
+	Target/X86/TargetInfo/X86TargetInfo.cpp
+endif
+
+ONNC_TARGET_SOURCES = \
+  ${ONNC_SOPHON_TARGET_SOURCES} \
+  ${ONNC_TG_TARGET_SOURCES} \
+  ${ONNC_X86_TARGET_SOURCES}
+
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
 ONNC_INCLUDES = @LIBONNC_INCLUDES@
@@ -112,7 +129,7 @@ AM_LFLAGS = -olex.yy.c
 # Build shared libraries
 lib_LTLIBRARIES = libonnc.la
 
-libonnc_la_SOURCES = ${ONNC_SOURCES}
+libonnc_la_SOURCES = ${ONNC_SOURCES} ${ONNC_TARGET_SOURCES}
 
 libonnc_la_LIBADD = -lz
 
