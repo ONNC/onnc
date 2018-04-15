@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class CompilerConfig;
+class TargetOptions;
 
 class NPUTargetBackend : public TargetBackend
 {
 public:
-  NPUTargetBackend(const CompilerConfig& pConfig);
+  NPUTargetBackend(const TargetOptions& pOptions);
 
   virtual ~NPUTargetBackend();
 };

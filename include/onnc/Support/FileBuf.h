@@ -45,7 +45,7 @@ public:
 
   virtual ~BasicFileBuf();
 
-  bool is_open() const throw();
+  bool is_open() const;
 
   file_type* open(const Path& pFileName, std::ios_base::openmode pMode);
 

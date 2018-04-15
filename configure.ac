@@ -72,6 +72,7 @@ AC_CHECK_FUNCS([gettimeofday])
 # Check for options
 CHECK_PTHREAD
 CHECK_SKYPAT
+CHECK_ONNX
 CHECK_ZLIB
 CHECK_ENABLE_OPTION([debug], [no], [ENABLE_DEBUG])
 CHECK_ENABLE_OPTION([unittest], [no], [ENABLE_UNITTEST])
@@ -82,8 +83,8 @@ CHECK_ENABLE_OPTION([gettimeofday], [yes], [ENABLE_GETTIMEOFDAY])
 
 ####################
 # Check for variables and targets
-CHECK_ONNC
 ENUM_ONNC_TARGETS
+CHECK_ONNC
 
 ####################
 # OUTPUT
@@ -96,5 +97,6 @@ AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([tools/Makefile])
 AC_CONFIG_FILES([tools/unittests/Makefile])
 AC_CONFIG_FILES([tools/onnc/Makefile])
+AC_CONFIG_FILES([tools/onnx2tg/Makefile])
 
 AC_OUTPUT

@@ -13,7 +13,7 @@ namespace onnc {
 
 extern onnc::Target TheSophonTarget;
 
-TargetBackend* CreateSophonBackend(const CompilerConfig& pConfig);
+TargetBackend* CreateSophonBackend(const TargetOptions& pOptions);
 
 }  // namespace onnc
 

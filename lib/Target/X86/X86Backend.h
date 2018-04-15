@@ -15,7 +15,7 @@ namespace onnc {
 class X86Backend : public NPUTargetBackend
 {
 public:
-  X86Backend(const CompilerConfig& pConfig);
+  X86Backend(const TargetOptions& pOptions);
 
   virtual ~X86Backend();
 };
@@ -23,7 +23,7 @@ public:
 class X86_32Backend : public X86Backend
 {
 public:
-  X86_32Backend(const CompilerConfig& pConfig);
+  X86_32Backend(const TargetOptions& pOptions);
 
   virtual ~X86_32Backend();
 };
@@ -31,7 +31,7 @@ public:
 class X86_64Backend : public X86Backend
 {
 public:
-  X86_64Backend(const CompilerConfig& pConfig);
+  X86_64Backend(const TargetOptions& pOptions);
 
   virtual ~X86_64Backend();
 };

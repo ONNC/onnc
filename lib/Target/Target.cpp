@@ -25,7 +25,7 @@ unsigned int onnc::Target::matchArch(const Quadruple& pQuadruple) const
 } 
 
 onnc::TargetBackend*
-onnc::Target::createBackend(const CompilerConfig& pConfig) const
+onnc::Target::createBackend(const TargetOptions& pOptions) const
 {
-  return m_TargetBackendCtorFn(pConfig);
+  return m_TargetBackendCtorFn(pOptions);
 }

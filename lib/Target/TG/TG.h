@@ -8,12 +8,20 @@
 #ifndef TARGET_TG_TG_H
 #define TARGET_TG_TG_H
 #include <string>
+#include <onnc/Target/Target.h>
+#include "TGBackend.h"
+
 
 namespace onnc {
-
+class ModulePass;
 extern onnc::Target TheTGTarget;
 
-TargetBackend* CreateTGBackend(const CompilerConfig& pConfig);
+unsigned int TGQuadrupleMatchFn(const Quadruple& pQuadruple);
+ModulePass *createRemoveUnusedNodePass();
+ModulePass *createTGCodeEmitPass(TGBackend *target);
+ModulePass *createTGMemAllocInfoPass(TGBackend *target);
+ModulePass *createTargetLoweringPass(TGBackend *target);
+ModulePass *createUpdateOutputInfoPass();
 
 }  // namespace onnc
 

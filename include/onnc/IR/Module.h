@@ -8,6 +8,11 @@
 #ifndef ONNC_IR_MODULE_H
 #define ONNC_IR_MODULE_H
 #include <onnc/IR/SymbolTable.h>
+#include <memory>
+
+namespace onnx {
+  class Graph;
+} // namespace of onnx
 
 namespace onnc {
 
@@ -16,8 +21,22 @@ namespace onnc {
  */
 class Module
 {
+public:
+  Module();
+  ~Module();
+  onnx::Graph *getGraph() { return m_pOnnxGraph.get(); }
+
+  const onnx::Graph *getGraph() const { return m_pOnnxGraph.get(); }
+
+  // for demo
+  const std::shared_ptr<onnx::Graph> &getGraphSP() { return m_pOnnxGraph; }
+
+  // move @ref pGraph from outside.
+  Module& delegateGraph(std::unique_ptr<onnx::Graph> pGraph);
+
 private:
   SymbolTable m_SymbolTable;
+  std::shared_ptr<onnx::Graph> m_pOnnxGraph;
 };
 
 } // namespace of onnc

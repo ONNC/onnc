@@ -9,21 +9,49 @@
 #define TARGET_TG_TG_BACKEND_H
 #include <string>
 #include <onnc/Target/DLATargetBackend.h>
+#include <onnc/Support/Path.h>
+#include <memory>
+#include <onnx/common/ir.h>
+#include <vector>
+#include "Operator.h"
+#include "TGISelLowering.h"
+#include "TargetLowering.h"
+#include "TGCodeEmitter.h"
 
 namespace onnc {
+class TGCodeEmitter;
 
+using MemTable = std::map<std::string, uint64_t>;
 class TGBackend : public DLATargetBackend
 {
 public:
-  TGBackend(const CompilerConfig& pConfig);
+  TGBackend(const TargetOptions &pOptions);
 
   virtual ~TGBackend();
+
+  void codeEmit();
+
+  void addTensorSel(PassManager &pPM);
+  void addCodeEmit(PassManager& pPM,  Path &output, CodeGenFileType &fileType);
+
+  MemTable &getMemLayout() { return m_globalMemLayout; }
+
+  std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
+
+  TargetLowering *getTargetLowering() { return m_pTLI; }
+
+private:
+  std::vector<std::unique_ptr<Operator> > m_instructions;
+  MemTable m_globalMemLayout;
+  TargetLowering *m_pTLI;
+  TGCodeEmitter *m_pCE;
+  Path m_outputPath;
 };
 
 class BM1680Backend : public TGBackend
 {
 public:
-  BM1680Backend(const CompilerConfig& pConfig);
+  BM1680Backend(const TargetOptions& pOptions);
 
   virtual ~BM1680Backend();
 };
@@ -31,7 +59,7 @@ public:
 class BM1682Backend : public TGBackend
 {
 public:
-  BM1682Backend(const CompilerConfig& pConfig);
+  BM1682Backend(const TargetOptions& pOptions);
 
   virtual ~BM1682Backend();
 };

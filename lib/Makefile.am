@@ -3,6 +3,7 @@ INCDIR=../include/onnc
 ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
 	Target/Target.cpp \
+	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
@@ -23,6 +24,7 @@ ONNC_SOURCES = \
 	ADT/Rope.cpp \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
+	IR/Module.cpp \
   Support/AsyncPipe.cpp \
   Support/CArgu.cpp \
   Support/CArguRef.cpp \
@@ -83,6 +85,10 @@ ONNC_SOURCES = \
   Option/OptionPool.cpp \
   Option/OptParser.cpp
 
+ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@
+
+ONNC_LIBS = -lz @ONNX_LIBS@
+
 if ENABLE_SOPHON_TARGET
 ONNC_SOPHON_TARGET_SOURCES = \
 	Target/Sophon/SophonBackend.cpp \
@@ -92,7 +98,25 @@ endif
 if ENABLE_TG_TARGET
 ONNC_TG_TARGET_SOURCES = \
 	Target/TG/TGBackend.cpp \
-	Target/TG/TargetInfo/TGTargetInfo.cpp
+	Target/TG/TargetInfo/TGTargetInfo.cpp \
+	Target/TG/TGCodeEmitPass.cpp \
+	Target/TG/TGMemAllocInfoPass.cpp \
+	Target/TG/TGCodeEmitter.cpp \
+	Target/TG/TGConv.cpp \
+	Target/TG/TGGemm.cpp \
+	Target/TG/TGISelLowering.cpp \
+	Target/TG/TGLRN.cpp  \
+	Target/TG/TGMaxPool.cpp \
+	Target/TG/TGRelu.cpp \
+	Target/TG/TGSoftmax.cpp \
+	Target/TG/TargetLowering.cpp \
+	Target/TG/TargetLoweringPass.cpp \
+	Target/TG/RemoveUnusedNodePass.cpp \
+	Target/TG/UpdateOutputInfoPass.cpp
+
+ONNC_INCLUDES += @BMKERNEL_INCLUDES@ @BMAPI_INCLUDES@
+ONNC_LIBS += ${BMKERNEL_LIBS} ${BMAPI_LIBS}
+
 endif
 
 if ENABLE_X86_TARGET
@@ -106,9 +130,7 @@ ONNC_TARGET_SOURCES = \
   ${ONNC_TG_TARGET_SOURCES} \
   ${ONNC_X86_TARGET_SOURCES}
 
-ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
-
-ONNC_INCLUDES = @LIBONNC_INCLUDES@
+ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
 ONNC_CPPFLAGS =
 
@@ -131,7 +153,7 @@ lib_LTLIBRARIES = libonnc.la
 
 libonnc_la_SOURCES = ${ONNC_SOURCES} ${ONNC_TARGET_SOURCES}
 
-libonnc_la_LIBADD = -lz
+libonnc_la_LIBADD = ${ONNC_LIBS}
 
 if HAVE_PTHREADS
 libonnc_la_LDFLAGS = -lpthread
