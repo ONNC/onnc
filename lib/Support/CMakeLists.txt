@@ -1,0 +1,30 @@
+
+add_libonnc_src(
+    AsyncPipe.cpp 
+    CArgu.cpp 
+    CArguRef.cpp 
+    CEnv.cpp 
+    Directory.cpp 
+    DirIterator.cpp 
+    ErrorCode.cpp 
+    Environ.cpp 
+    Expansion.cpp 
+    Glob.cpp 
+    IOStream.cpp 
+    IndentOStreamBuf.cpp 
+    ManagedStatic.cpp 
+    MappedFileRegion.cpp 
+    MemoryMap.cpp 
+    Path.cpp 
+    Pipe.cpp 
+    FileHandle.cpp 
+    FileLock.cpp 
+    FileInfo.cpp 
+    FileStatus.cpp 
+    FileSystem.cpp 
+    Timer.cpp 
+    Random.cpp 
+    Readline.cpp 
+    linenoise.cpp 
+    SelfPipe.cpp 
+    Signal.cpp)

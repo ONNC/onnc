@@ -1,0 +1,26 @@
+
+option(ENABLE_TG_TARGET "" ON)
+if (ENABLE_TG_TARGET)
+    include_directories(${ONNC_SOURCE_DIR}/external/bmtap/common/include)
+    include_directories(${ONNC_SOURCE_DIR}/external/bmtap/common/include/bm1680)
+    #include_directories(${ONNC_SOURCE_DIR}/external/bmtap/libbmdnn/src/bmkernel_api)
+    include_directories(${ONNC_SOURCE_DIR}/external/bmnet/src/targets/plat-bm168x/bmkernel_api_origin)
+    include_directories(${ONNC_SOURCE_DIR}/external/bmtap/bmkernel/include)
+    add_libonnc_src(
+        TGBackend.cpp 
+        TargetInfo/TGTargetInfo.cpp 
+        TGCodeEmitPass.cpp 
+        TGMemAllocInfoPass.cpp 
+        TGCodeEmitter.cpp 
+        TGConv.cpp 
+        TGGemm.cpp 
+        TGISelLowering.cpp 
+        TGLRN.cpp  
+        TGMaxPool.cpp 
+        TGRelu.cpp 
+        TGSoftmax.cpp 
+        TargetLowering.cpp 
+        TargetLoweringPass.cpp 
+        RemoveUnusedNodePass.cpp 
+        UpdateOutputInfoPass.cpp)
+endif()

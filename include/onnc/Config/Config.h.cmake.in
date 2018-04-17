@@ -1,0 +1,229 @@
+
+
+//===- Config.h.in --------------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef ONNC_CONFIG_CONFIG_H
+#define ONNC_CONFIG_CONFIG_H
+
+
+/* define AArch64 target */
+#cmakedefine ENABLE_AArch64_TARGET 1
+
+/* define ARM target */
+#cmakedefine ENABLE_ARM_TARGET 1
+
+/* Enable clock_gettime */
+#cmakedefine ENABLE_CLOCK_GETTIME 1
+
+/* Enable debug */
+#cmakedefine ENABLE_DEBUG 1
+
+/* Enable gettimeofday */
+#cmakedefine ENABLE_GETTIMEOFDAY 1
+
+/* Enable optimize */
+#cmakedefine ENABLE_OPTIMIZE 1
+
+/* Enable regression */
+#cmakedefine ENABLE_REGRESSION 1
+
+/* define sohpon target */
+#cmakedefine ENABLE_SOPHON_TARGET 1
+
+/* define tg target */
+#cmakedefine ENABLE_TG_TARGET 1
+
+/* Enable unittest */
+#cmakedefine ENABLE_UNITTEST 1
+
+/* define x86_64 target */
+#cmakedefine ENABLE_X86_TARGET 1
+
+/* the name of <hash_map> */
+#cmakedefine HASH_MAP_CLASS ${HASH_MAP_CLASS}
+
+/* the location of <unordered_map> or <hash_map> */
+#cmakedefine HASH_MAP_H <${HASH_MAP_H}>
+
+/* the namespace of hash_map/hash_set */
+#cmakedefine HASH_NAMESPACE ${HASH_NAMESPACE}
+
+/* the name of <hash_set> */
+#cmakedefine HASH_SET_CLASS ${HASH_SET_CLASS}
+
+/* the location of <unordered_set> or <hash_set> */
+#cmakedefine HASH_SET_H <${HASH_SET_H}>
+
+/* Have clock_gettime */
+#cmakedefine HAVE_CLOCK_GETTIME 1
+
+/* define if the compiler supports basic C++14 syntax */
+#cmakedefine HAVE_CXX14 1
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H 1
+
+/* Define to 1 if you have the `gettimeofday' function. */
+#cmakedefine HAVE_GETTIMEOFDAY 1
+
+/* define if the compiler has hash_map */
+#cmakedefine HAVE_HASH_MAP 1
+
+/* define if the compiler has hash_set */
+#cmakedefine HAVE_HASH_SET 1
+
+/* Define to 1 if the system has the type `int16_t'. */
+#cmakedefine HAVE_INT16_T 1
+
+/* Define to 1 if the system has the type `int32_t'. */
+#cmakedefine HAVE_INT32_T 1
+
+/* Define to 1 if the system has the type `int64_t'. */
+#cmakedefine HAVE_INT64_T 1
+
+/* Define to 1 if the system has the type `int8_t'. */
+#cmakedefine HAVE_INT8_T 1
+
+/* Define to 1 if the system has the type `intptr_t'. */
+#cmakedefine HAVE_INTPTR_T 1
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H 1
+
+/* Define to 1 if the system has the type `long double'. */
+#cmakedefine HAVE_LONG_DOUBLE 1
+
+/* Define to 1 if the type `long double' works and has more range or precision
+   than `double'. */
+#cmakedefine HAVE_LONG_DOUBLE_WIDER 1
+
+/* Define to 1 if the system has the type `long long'. */
+#cmakedefine HAVE_LONG_LONG 1
+
+/* Define to 1 if the system has the type `long long int'. */
+#cmakedefine HAVE_LONG_LONG_INT 1
+
+/* Define to 1 if you have the <memory.h> header file. */
+#cmakedefine HAVE_MEMORY_H 1
+
+/* Define to 1 if the system has the type `off_t'. */
+#cmakedefine HAVE_OFF_T 1
+
+/* Define if you have POSIX threads libraries and header files. */
+#cmakedefine HAVE_PTHREAD 1
+
+/* Define to 1 if the system has the type `size_t'. */
+#cmakedefine HAVE_SIZE_T 1
+
+/* Define to 1 if the system has the type `ssize_t'. */
+#cmakedefine HAVE_SSIZE_T 1
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#cmakedefine HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#cmakedefine HAVE_STDLIB_H 1
+
+/* Define to 1 if you have the <strings.h> header file. */
+#cmakedefine HAVE_STRINGS_H 1
+
+/* Define to 1 if you have the <string.h> header file. */
+#cmakedefine HAVE_STRING_H 1
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#cmakedefine HAVE_SYS_STAT_H 1
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#cmakedefine HAVE_SYS_TIME_H 1
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#cmakedefine HAVE_SYS_TYPES_H 1
+
+/* Define to 1 if the system has the type `uint16_t'. */
+#cmakedefine HAVE_UINT16_T 1
+
+/* Define to 1 if the system has the type `uint32_t'. */
+#cmakedefine HAVE_UINT32_T 1
+
+/* Define to 1 if the system has the type `uint64_t'. */
+#cmakedefine HAVE_UINT64_T 1
+
+/* Define to 1 if the system has the type `uint8_t'. */
+#cmakedefine HAVE_UINT8_T 1
+
+/* Define to 1 if the system has the type `uintptr_t'. */
+#cmakedefine HAVE_UINTPTR_T 1
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#cmakedefine HAVE_UNISTD_H 1
+
+/* Define to 1 if the system has the type `unsigned long long int'. */
+#cmakedefine HAVE_UNSIGNED_LONG_LONG_INT 1
+
+/* Enable classes using zlib compression. */
+#cmakedefine HAVE_ZLIB 1
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#cmakedefine LT_OBJDIR
+
+/* default target triple */
+#cmakedefine ONNC_DEFAULT_TARGET_TRIPLE ${ONNC_DEFAULT_TARGET_TRIPLE}
+
+/* Define if this is Apple platform */
+#cmakedefine ONNC_ON_APPLE 1
+
+/* Define if this is common BSD platform */
+#cmakedefine ONNC_ON_BSD 1
+
+/* Define if this is Linux platform */
+#cmakedefine ONNC_ON_LINUX 1
+
+/* Define if this is Unixish platform */
+#cmakedefine ONNC_ON_UNIX 1
+
+/* Define if this is Win32ish platform */
+#cmakedefine ONNC_ON_WIN32 1
+
+/* Name of package */
+#cmakedefine PACKAGE "${PACKAGE}"
+
+/* Define to the address where bug reports for this package should be sent. */
+#cmakedefine PACKAGE_BUGREPORT "${PACKAGE_BUGREPORT}"
+
+/* Define to the full name of this package. */
+#cmakedefine PACKAGE_NAME "${PACKAGE_NAME}"
+
+/* Define to the full name and version of this package. */
+#cmakedefine PACKAGE_STRING "${PACKAGE_STRING}"
+
+/* Define to the one symbol short name of this package. */
+#cmakedefine PACKAGE_TARNAME "${PACKAGE_TARNAME}"
+
+/* Define to the home page for this package. */
+#cmakedefine PACKAGE_URL "${PACKAGE_URL}"
+
+/* Define to the version of this package. */
+#cmakedefine PACKAGE_VERSION "${PACKAGE_VERSION}"
+
+/* Define to necessary symbol if this constant uses a non-standard name on
+   your system. */
+#cmakedefine PTHREAD_CREATE_JOINABLE
+
+/* Define to 1 if you have the ANSI C header files. */
+#cmakedefine STDC_HEADERS 1
+
+/* Version number of package */
+#cmakedefine VERSION "${VERSION}"
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#cmakedefine YYTEXT_POINTER
+
+
+#endif
+
