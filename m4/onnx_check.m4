@@ -21,11 +21,11 @@ HAVE_ONNX=0
 
 AC_LANG_PUSH([C++])
 orig_CXXFLAGS="${CXXFLAGS}"
-CXXFLAGS="-I${onnx_dir} -DONNX_NAMESPACE=onnx"
+CXXFLAGS="-I${onnx_dir}/include -DONNX_NAMESPACE=onnx"
 
 AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM([[
-    #include <onnx/onnx_pb.h>
+    #include <onnx/onnx.pb.h>
   ]], [])],
   [dnl action if true
     HAVE_ONNX=1
@@ -39,8 +39,8 @@ AC_COMPILE_IFELSE(
 CXXFLAGS="${orig_CXXFLAGS}"
 AC_LANG_POP([C++])
 
-ONNX_INCLUDES="-I${onnx_dir} -DONNX_NAMESPACE=onnx"
-ONNX_LIBS="${onnx_dir}/onnx/onnx_cpp2py_export.so -lprotobuf -lpython2.7"
+ONNX_INCLUDES="-I${onnx_dir}/include -DONNX_NAMESPACE=onnx"
+ONNX_LIBS="${onnx_dir}/lib/libonnx.a ${onnx_dir}/lib/libonnx_proto.a -lprotobuf -lpython2.7"
 
 AC_SUBST(ONNX_INCLUDES)
 AC_SUBST(ONNX_LIBS)
