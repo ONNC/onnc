@@ -12,6 +12,7 @@ ONNC_SOURCES = \
 	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
+  Analysis/LivenessAnalysis.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \

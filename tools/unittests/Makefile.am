@@ -2,6 +2,7 @@ if ENABLE_UNITTEST
 TEST_SOURCES = DigraphTest.cpp \
 	FileHandleTest.cpp \
 	PassManagerTest.cpp \
+	LivenessAnalysisTest.cpp \
   QuadrupleTest.cpp \
 	StringRefTest.cpp \
 	AnyTest.cpp \
