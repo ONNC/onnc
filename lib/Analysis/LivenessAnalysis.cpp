@@ -8,8 +8,7 @@
 #include <onnc/Analysis/LivenessAnalysis.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include "onnx/common/ir.h"
-
+#include <onnx/common/ir.h>
 #include <iostream>
 #include <cassert>
 #include <algorithm>
@@ -18,12 +17,18 @@
 
 using namespace onnc;
 
+//===----------------------------------------------------------------------===//
+// LiveInterval
+//===----------------------------------------------------------------------===//
 LiveInterval::LiveInterval(SlotIndex pStart, SlotIndex pEnd,
                            onnx::Value *pValue)
   : m_Start(pStart), m_End(pEnd), m_Value(pValue) {
   assert(m_Start <= m_End && "Invalid live interval.");
 }
 
+//===----------------------------------------------------------------------===//
+// GraphLivenessAnalysis
+//===----------------------------------------------------------------------===//
 GraphLivenessAnalysis::GraphLivenessAnalysis()
   : ModulePass(ID) {
 }
@@ -128,6 +133,9 @@ void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &graph)
   }
 }
 
+//===----------------------------------------------------------------------===//
+// Factory method
+//===----------------------------------------------------------------------===//
 char GraphLivenessAnalysis::ID = 0;
 
 GraphLivenessAnalysis *onnc::createLivenessAnalysisPass()
