@@ -1,22 +1,25 @@
 
-set(TEST_SOURCES 
-    DigraphTest.cpp 
-    FileHandleTest.cpp 
-    PassManagerTest.cpp 
-    QuadrupleTest.cpp 
-    StringRefTest.cpp 
-    AnyTest.cpp 
-    BinaryTreeTest.cpp 
-    StringSwitchTest.cpp)
-
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${SKYPAT_INCLUDE_DIRS})
 
 add_definitions(-DTOPDIR="${ONNC_SOURCE_DIR}/src")
 add_definitions(-DBUILDDIR="${ONNC_BINARY_DIR}/src")
 
-add_executable(unittests main.cpp ${TEST_SOURCES})
-target_link_libraries(unittests libonnc
+add_library(libskypat_main main.cpp)
+target_link_libraries(libskypat_main libonnc
     ${SKYPAT_LIBRARIES})
 
-add_test(test1 unittests)
+
+function(add_onnc_test name)
+    add_executable(unittest_${name} ${ARGN})
+    target_link_libraries(unittest_${name} libskypat_main)
+    add_test(${name} unittest_${name})
+endfunction()
+add_onnc_test(Digraph DigraphTest.cpp)
+add_onnc_test(FileHandle FileHandleTest.cpp)
+add_onnc_test(PassManager PassManagerTest.cpp)
+add_onnc_test(Quadruple QuadrupleTest.cpp)
+add_onnc_test(StringRef StringRefTest.cpp)
+add_onnc_test(Any AnyTest.cpp)
+add_onnc_test(BinaryTree BinaryTreeTest.cpp)
+add_onnc_test(StringSwitch StringSwitchTest.cpp)
