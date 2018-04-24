@@ -93,7 +93,7 @@ void GraphLivenessAnalysis::print(std::ostream& pOS) const
   for (const LiveInterval *li : m_LiveIntervals) {
     pOS << li->getValue().uniqueName()
         << " [" << li->getStart() << ", " << li->getEnd() << "]"
-        << std::endl;
+        << "\n";
   }
 }
 

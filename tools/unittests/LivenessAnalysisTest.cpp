@@ -267,6 +267,5 @@ SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   OStrStream oss(result);
   liveAnalPass->print(oss);
 
-  errs() << result;
   ASSERT_TRUE(result == testAlexNetAnswer);
 }
