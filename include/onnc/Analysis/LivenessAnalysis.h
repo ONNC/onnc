@@ -7,40 +7,35 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_LIVENESS_ANALYSIS_H
 #define ONNC_LIVENESS_ANALYSIS_H
-
-#include <onnc/Core/Pass.h>
 #include <onnc/Core/ModulePass.h>
+#include <onnx/common/ir.h>
 #include <string>
-#include <unordered_map>
+#include <iosfwd>
 #include <vector>
 
-namespace onnx {
-  struct Value;
-  struct Node;
-  struct Graph;
-}
-
 namespace onnc {
-
-typedef unsigned SlotIndex;
 
 /** \class LiveInterval
  */
 class LiveInterval 
 {
 public:
-  LiveInterval(SlotIndex pStart, SlotIndex pEnd, onnx::Value *pValue);
-  LiveInterval() {}
+  typedef unsigned SlotIndex;
+
+public:
+  LiveInterval(SlotIndex pStart, SlotIndex pEnd, const onnx::Value& pValue);
 
   SlotIndex getStart() const { return m_Start; }
+
   SlotIndex getEnd() const { return m_End; }
-  onnx::Value * getValue() const { return m_Value; }
+
+  const onnx::Value& getValue() const { return m_Value; }
 
 protected:
   // Live interval = [start, end]
   SlotIndex m_Start;
   SlotIndex m_End;
-  onnx::Value *m_Value;
+  const onnx::Value& m_Value;
 };
 
 /** \class GraphLivenessAnalysis
@@ -50,22 +45,28 @@ class GraphLivenessAnalysis : public ModulePass
 public:
   static char ID;
 
+  typedef std::vector<LiveInterval*> LiveIntervalList;
+
 public:
   GraphLivenessAnalysis();
-  bool runOnModule(Module &pModule) override;
-  std::string toString() const;
-  const std::vector<LiveInterval> & getLiveIntervals() const;
+
+  bool runOnModule(Module& pModule) override;
+
+  const LiveIntervalList& getLiveIntervals() const { return m_LiveIntervals; }
+
+  void print(std::ostream& pOS) const;
 
 private:
-  void buildVirtualIndex(onnx::Graph &graph,
-                   std::unordered_map<onnx::Value *, unsigned> &pValueVirIdxMap,
-                   std::unordered_map<onnx::Node *, unsigned> &pNodeVirIdxMap);
-  void calculateLiveness(onnx::Graph &graph);
+  void calculateLiveness(onnx::Graph &pGraph);
 
-  std::vector<LiveInterval> m_LiveIntervals;
+  /// delete LiveIntervals in m_LiveIntervals
+  void clear();
+
+private:
+  LiveIntervalList m_LiveIntervals;
 };
 
-GraphLivenessAnalysis *createLivenessAnalysisPass();
+GraphLivenessAnalysis *CreateLivenessAnalysisPass();
 
 } // namespace of onnc
 

@@ -1,14 +1,16 @@
+//===- LivenessAnalysisTest.cpp -------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
 #include <onnc/Analysis/LivenessAnalysis.h>
-#include <onnc/Core/Pass.h>
-#include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassManager.h>
-#include "onnx/common/ir.h"
-#include "onnx/common/ir_pb_converter.h"
-
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include <onnc/Support/OStrStream.h>
+#include <onnc/Support/IOStream.h>
+#include <onnx/common/ir_pb_converter.h>
 
 using namespace onnc;
 using namespace std;
@@ -256,10 +258,15 @@ SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   Module module;
   module.delegateGraph(std::unique_ptr<onnx::Graph>(graph.getGraph()));
 
-  GraphLivenessAnalysis *liveAnalPass = createLivenessAnalysisPass();
+  GraphLivenessAnalysis *liveAnalPass = CreateLivenessAnalysisPass();
   PassManager pm;
   pm.add(liveAnalPass);
   pm.run(module);
 
-  ASSERT_EQ(liveAnalPass->toString(), testAlexNetAnswer);
+  std::string result;
+  OStrStream oss(result);
+  liveAnalPass->print(oss);
+
+  errs() << result;
+  ASSERT_TRUE(result == testAlexNetAnswer);
 }

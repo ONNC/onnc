@@ -8,60 +8,23 @@
 #include <onnc/Analysis/LivenessAnalysis.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
-#include <iostream>
+#include <unordered_map>
+#include <iosfwd>
 #include <cassert>
 #include <algorithm>
-#include <vector>
 #include <unordered_map>
 
 using namespace onnc;
 
-//===----------------------------------------------------------------------===//
-// LiveInterval
-//===----------------------------------------------------------------------===//
-LiveInterval::LiveInterval(SlotIndex pStart, SlotIndex pEnd,
-                           onnx::Value *pValue)
-  : m_Start(pStart), m_End(pEnd), m_Value(pValue) {
-  assert(m_Start <= m_End && "Invalid live interval.");
-}
+typedef std::unordered_map<onnx::Value *, unsigned> ValueIdxMap;
+typedef std::unordered_map<onnx::Node*, unsigned> NodeIdxMap;
 
 //===----------------------------------------------------------------------===//
-// GraphLivenessAnalysis
+// Non-member functions
 //===----------------------------------------------------------------------===//
-GraphLivenessAnalysis::GraphLivenessAnalysis()
-  : ModulePass(ID) {
-}
-
-bool GraphLivenessAnalysis::runOnModule(Module &pModule)
-{
-  onnx::Graph *graph = pModule.getGraph();
-  m_LiveIntervals.clear();
-  calculateLiveness(*graph);
-
-  return false;
-}
-
-std::string GraphLivenessAnalysis::toString() const
-{
-  std::ostringstream oss;
-  for (const LiveInterval &li : m_LiveIntervals)
-    oss << li.getValue()->uniqueName()
-        << " [" << li.getStart() << ", " << li.getEnd() << "]"
-        << std::endl;
-  return oss.str();
-}
-
-const std::vector<LiveInterval> &
-GraphLivenessAnalysis::getLiveIntervals() const
-{
-  return m_LiveIntervals;
-}
-
-void GraphLivenessAnalysis::buildVirtualIndex(
-                  onnx::Graph &graph,
-                  std::unordered_map<onnx::Value *, unsigned> &pValueVirIdxMap,
-                  std::unordered_map<onnx::Node *, unsigned> &pNodeVirIdxMap)
+static void BuildVirtualIndex(onnx::Graph &pGraph,
+                              ValueIdxMap& pValueVirIdxMap,
+                              NodeIdxMap& pNodeVirIdxMap)
 {
   // graph-ir example:
   // graph net(tensor<..> %data_0,
@@ -81,11 +44,11 @@ void GraphLivenessAnalysis::buildVirtualIndex(
 
   // assign virtual index to data initializers.
   std::unordered_map<std::string, unsigned> initializerVirIdxMap;
-  for (const onnx::Tensor &t : graph.initializers())
+  for (const onnx::Tensor &t : pGraph.initializers())
     initializerVirIdxMap[t.name()] = virIdx++;
 
   // assign virtual index to graph inputs.
-  for (onnx::Value *v : graph.inputs()) {
+  for (onnx::Value *v : pGraph.inputs()) {
     auto iter = initializerVirIdxMap.find(v->uniqueName());
     // parameters without initializer has virIdx = 0
     if (iter != initializerVirIdxMap.end())
@@ -95,42 +58,82 @@ void GraphLivenessAnalysis::buildVirtualIndex(
   }
 
   // assign virtual index to each node's output.
-  for (onnx::Node *n : graph.nodes()) {
+  for (onnx::Node *n : pGraph.nodes()) {
     for (onnx::Value *v : n->outputs())
       pValueVirIdxMap[v] = virIdx;
     pNodeVirIdxMap[n] = virIdx++;
   }
 }
 
-void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &graph)
+//===----------------------------------------------------------------------===//
+// LiveInterval
+//===----------------------------------------------------------------------===//
+LiveInterval::LiveInterval(SlotIndex pStart, SlotIndex pEnd,
+                           const onnx::Value& pValue)
+  : m_Start(pStart), m_End(pEnd), m_Value(pValue) {
+  assert(m_Start <= m_End && "Invalid live interval.");
+}
+
+//===----------------------------------------------------------------------===//
+// GraphLivenessAnalysis
+//===----------------------------------------------------------------------===//
+GraphLivenessAnalysis::GraphLivenessAnalysis()
+  : ModulePass(ID), m_LiveIntervals() {
+}
+
+bool GraphLivenessAnalysis::runOnModule(Module &pModule)
+{
+  clear();
+  calculateLiveness(*pModule.getGraph());
+  return false;
+}
+
+void GraphLivenessAnalysis::print(std::ostream& pOS) const
+{
+  for (const LiveInterval *li : m_LiveIntervals) {
+    pOS << li->getValue().uniqueName()
+        << " [" << li->getStart() << ", " << li->getEnd() << "]"
+        << std::endl;
+  }
+}
+
+void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &pGraph)
 {
   // Basically, node's virtual index value can be calculated from it's output
   // value (onnx::Value), but some of nodes may not have output, so use
   // nodeVirIdxMap to record each node's index.
   std::unordered_map<onnx::Value *, unsigned>  valueVirIdxMap;
   std::unordered_map<onnx::Node *, unsigned> nodeVirIdxMap;
-  buildVirtualIndex(graph, valueVirIdxMap, nodeVirIdxMap);
+  BuildVirtualIndex(pGraph, valueVirIdxMap, nodeVirIdxMap);
 
   // calculate initializer's live range
-  for (onnx::Value *v : graph.inputs()) {
+  for (onnx::Value *v : pGraph.inputs()) {
     unsigned start = valueVirIdxMap[v];
     unsigned end = start;
     for(auto u : v->uses())
       end = std::max(end, nodeVirIdxMap[u.user]);
-    m_LiveIntervals.push_back(LiveInterval(start, end, v));
+    m_LiveIntervals.push_back(new LiveInterval(start, end, *v));
   }
 
   // calculate live range for each output of a node
-  for (onnx::Node *n : graph.nodes()) {
+  for (onnx::Node *n : pGraph.nodes()) {
     for (onnx::Value *v : n->outputs()) {
       unsigned start = valueVirIdxMap[v];
       unsigned end = start;
       for(auto u : v->uses())
         end = std::max(end, nodeVirIdxMap[u.user]);
 
-      m_LiveIntervals.push_back(LiveInterval(start, end, v));
+      m_LiveIntervals.push_back(new LiveInterval(start, end, *v));
     }
+  } // for each node
+}
+
+void GraphLivenessAnalysis::clear()
+{
+  for (LiveInterval* live: m_LiveIntervals) {
+    delete live;
   }
+  m_LiveIntervals.clear();
 }
 
 //===----------------------------------------------------------------------===//
@@ -138,7 +141,7 @@ void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &graph)
 //===----------------------------------------------------------------------===//
 char GraphLivenessAnalysis::ID = 0;
 
-GraphLivenessAnalysis *onnc::createLivenessAnalysisPass()
+GraphLivenessAnalysis *onnc::CreateLivenessAnalysisPass()
 {
   return new GraphLivenessAnalysis();
 }
