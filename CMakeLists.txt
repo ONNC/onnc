@@ -122,11 +122,14 @@ set(ONNX_LIBRARIES
     ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
     
 if (TARGET_TG)
-    set(BM_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap/bmnet install path")
-    set(BMTAP_SOURCE_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap source path")
-    set(BMNET_SOURCE_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmnet source path")
-    set(BMNET_BINARY_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmnet binary path")
-    set(BMLIB ${BMNET_BINARY_DIR}/src/targets/.libs/libtargets.a ${BM_INSTALL_DIR}/lib/libbmtap.a)
+    find_package(Boost COMPONENTS program_options system REQUIRED)
+    set(BMTAP_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap2 install path")
+    set(BMTAP_SOURCE_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap2 source path")
+    set(BMTAP_BINARY_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap2 binary path")
+    set(BMLIB 
+        ${Boost_LIBRARIES}
+        ${BMTAP_INSTALL_DIR}/lib/libbmnet.so
+        ${BMTAP_INSTALL_DIR}/lib/libbmkernel-static.a)
 endif()
 
 

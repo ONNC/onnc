@@ -31,6 +31,8 @@ void TGLRN::TGLRN::emit(void) const {
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
             << " m_alpha:" << m_alpha << "m_localSize:" << m_localSize
             << " m_beta:" << m_beta << "m_k:" << m_k << std::endl;
-  bmnet_lrn_forward_bmkernel(m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W,
+  bmnet::bmnet_lrn_forward_bmkernel(
+                             *tg_kernel::getInstance().ctx,
+                             m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W,
                              m_alpha, m_localSize, m_beta, m_k);
 }

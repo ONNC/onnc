@@ -43,7 +43,9 @@ void TGMaxPool::emit(void) const {
             << " m_strideW:" << m_strideW << std::endl;
 
   // bmnet_pooling_forward_bmkernel
-  bmnet_pooling_forward_bmkernel(m_inputAddr, m_outputAddr,
+  bmnet::bmnet_pooling_forward_bmkernel(
+                                 *tg_kernel::getInstance().ctx,
+                                 m_inputAddr, m_outputAddr,
                                  GADDR_INVALID, // useless oindex_gaddr
                                  GADDR_INVALID, // useless relu_gaddr
                                  m_N, m_C, m_H, m_W, m_kH, m_kW, m_padH, m_padW,

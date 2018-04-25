@@ -33,6 +33,8 @@ void TGRelu::emit(void) const {
             << " m_outputAddr:" << m_outputAddr
             << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
-  bmnet_relu_forward_bmkernel(m_inputAddr, m_outputAddr, m_negativeSlope, m_N,
+  bmnet::bmnet_relu_forward_bmkernel(
+                              *tg_kernel::getInstance().ctx,
+                              m_inputAddr, m_outputAddr, m_negativeSlope, m_N,
                               m_C, m_H, m_W);
 }

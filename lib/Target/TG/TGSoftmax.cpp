@@ -31,5 +31,7 @@ void TGSoftmax::emit(void) const {
   std::cout << "TGSoftmax::emit\tm_inputAddr:" << m_inputAddr
             << " m_outputAddr:" << m_outputAddr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
-  bmnet_softmax_forward_bmkernel(m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W);
+  bmnet::bmnet_softmax_forward_bmkernel(
+          *tg_kernel::getInstance().ctx,
+          m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W);
 }

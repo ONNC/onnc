@@ -136,7 +136,9 @@ void TGConv::emit(void) const {
             << " m_strideH:" << (int)m_strideH
             << " m_strideW:" << (int)m_strideW << " m_doBias:" << m_doBias
             << std::endl;
-  bmnet_conv_forward_bmkernel(m_ifmapAddr, m_ofmapAddr, m_weightAddr,
+  bmnet::bmnet_conv_forward_bmkernel(
+                              *tg_kernel::getInstance().ctx,
+                              m_ifmapAddr, m_ofmapAddr, m_weightAddr,
                               m_biasAddr, GADDR_INVALID, // ga_bn_mean,
                               GADDR_INVALID,             // ga_bn_variance,
                               GADDR_INVALID,             // ga_scale,

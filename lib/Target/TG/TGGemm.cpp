@@ -98,7 +98,9 @@ void TGGemm::emit(void) const {
             << " m_inColNum:" << m_inColNum << " m_outColNum:" << m_outColNum
             << " m_haveBias:" << m_haveBias << " m_usingRelu:" << m_usingRelu
             << " m_weightTp:" << m_weightTp << std::endl;
-  bmnet_fc_forward_bmkernel(m_inputAddr, m_weightAddr, m_biasAddr, m_outputAddr,
+  bmnet::bmnet_fc_forward_bmkernel(
+                            *tg_kernel::getInstance().ctx,
+                            m_inputAddr, m_weightAddr, m_biasAddr, m_outputAddr,
                             m_inRowNum, m_inColNum, m_outColNum, m_haveBias,
                             m_usingRelu, m_weightTp);
 }

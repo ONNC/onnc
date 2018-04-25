@@ -1,8 +1,12 @@
 
-include_directories(${BMTAP_SOURCE_DIR}/common/include)
-include_directories(${BMTAP_SOURCE_DIR}/common/include/bm1680)
-include_directories(${BMNET_SOURCE_DIR}/src/targets/plat-bm168x/bmkernel_api_origin)
-include_directories(${BMTAP_SOURCE_DIR}/bmkernel/include)
+
+include_directories(
+    ${BMTAP_BINARY_DIR}/bmnet/src
+    ${BMTAP_INSTALL_DIR}/include
+    ${BMTAP_SOURCE_DIR}/bmnet/include
+    ${BMTAP_SOURCE_DIR}/bmnet/include/targets
+    ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm168x/bmkernel)
+
 add_libonnc_src(
     TGBackend.cpp 
     TargetInfo/TGTargetInfo.cpp 
