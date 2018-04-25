@@ -29,7 +29,6 @@ add_subdirectory(Option)
 add_subdirectory(Support)
 add_subdirectory(Target)
 
-option(HAVE_PTHREADS "use pthreads" ON)
 if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
 endif()

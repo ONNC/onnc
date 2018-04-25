@@ -1,10 +1,5 @@
 
-option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_X86_TARGET "enable x86" ON)
-option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
-if (ENABLE_WERROR)
-    add_compile_options(-Werror)
-endif()
 
 
 
@@ -26,6 +21,18 @@ set(PACKAGE_URL "")
 #  Check environments - `host`, `target` and `build`
 include(cmake/canoncial_system.cmake)
 check_canonical_system()
+
+####################
+#  Languages
+include(cmake/stl_hash.cmake)
+determine_hash_namespace()
+
+####################
+# Check for compiler warnings
+option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
+if (ENABLE_WERROR)
+    add_compile_options(-Werror)
+endif()
 
 ####################
 # Check for libraries
@@ -73,25 +80,32 @@ check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
 check_symbol_exists(clock_gettime sys/time.h HAVE_CLOCK_GETTIME)
 ####################
 # Check for options
+option(ENABLE_PTHREAD "use pthreads" ON)
+set(HAVE_PTHREADS ${ENABLE_PTHREAD})
+option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 
-configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
-
-include(cmake/stl_hash.cmake)
-
-determine_hash_namespace()
-configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
-set(ONNC_TARGET_PLATFORMS "ONNC_PLATFORM(X86)")
-configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
-set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(X86)")
-configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
+####################
+# Check for variables and targets
 
 set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
+
+####################
+# OUTPUT
+configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
+configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
+set(ONNC_TARGET_PLATFORMS "ONNC_PLATFORM(X86)")
+configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
+set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(X86)")
+configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
+
+####################
+# Other
 set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address)
 add_compile_options(${ANDROID_CPPFLAGS})
 add_subdirectory(lib)
