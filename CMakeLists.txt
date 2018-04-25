@@ -94,9 +94,7 @@ set(ONNC_INCLUDE_DIRS
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
 configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
-set(ONNC_TARGET_PLATFORMS "ONNC_PLATFORM(X86)")
 configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
-set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(X86)")
 configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
 
 ####################
