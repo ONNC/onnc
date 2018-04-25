@@ -1,11 +1,4 @@
 
-option(ENABLE_X86_TARGET "enable x86" ON)
-
-
-
-
-
-
 
 set(VERSION dev)
 set(PACKAGE_VERSION dev)
@@ -88,6 +81,8 @@ option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 
 ####################
 # Check for variables and targets
+include(cmake/onnc_target.cmake)
+enum_onnc_targets()
 
 set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
