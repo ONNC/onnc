@@ -1,4 +1,20 @@
+cmake_minimum_required(VERSION 3.5)
 
+include(cmake/option.cmake)
+
+set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used by the CXX compiler during RELWITHDEBINFO builds.")
+option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release RelWithDebInfo)
+
+project(ONNC)
+
+set(ONNX_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
+set(SKYPAT_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "skypat install path")
+
+if (NOT TARGET build_external)
+    add_custom_target(build_external)
+endif()
 
 set(VERSION dev)
 set(PACKAGE_VERSION dev)
@@ -17,6 +33,9 @@ check_canonical_system()
 
 ####################
 #  Languages
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 include(cmake/stl_hash.cmake)
 determine_hash_namespace()
 
@@ -88,6 +107,16 @@ set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+set(SKYPAT_INCLUDE_DIRS
+    ${SKYPAT_INSTALL_DIR}/include)
+set(SKYPAT_LIBRARIES
+    ${SKYPAT_INSTALL_DIR}/lib/libskypat.a)
+set(ONNX_INCLUDE_DIRS
+    ${ONNX_INSTALL_DIR}/include)
+set(ONNX_LIBRARIES
+    ${ONNX_INSTALL_DIR}/lib/libonnx.a
+    ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
 
 
 ####################

@@ -1,9 +1,8 @@
 
-include_directories(${ONNC_SOURCE_DIR}/external/bmtap/common/include)
-include_directories(${ONNC_SOURCE_DIR}/external/bmtap/common/include/bm1680)
-#include_directories(${ONNC_SOURCE_DIR}/external/bmtap/libbmdnn/src/bmkernel_api)
-include_directories(${ONNC_SOURCE_DIR}/external/bmnet/src/targets/plat-bm168x/bmkernel_api_origin)
-include_directories(${ONNC_SOURCE_DIR}/external/bmtap/bmkernel/include)
+include_directories(${ONNC_UMBRELLA_SOURCE_DIR}/external/bmtap/common/include)
+include_directories(${ONNC_UMBRELLA_SOURCE_DIR}/external/bmtap/common/include/bm1680)
+include_directories(${ONNC_UMBRELLA_SOURCE_DIR}/external/bmnet/src/targets/plat-bm168x/bmkernel_api_origin)
+include_directories(${ONNC_UMBRELLA_SOURCE_DIR}/external/bmtap/bmkernel/include)
 add_libonnc_src(
     TGBackend.cpp 
     TargetInfo/TGTargetInfo.cpp 
