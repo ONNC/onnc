@@ -152,23 +152,15 @@ namespace {
 }
 
 static const char *testAlexNetAnswer =
-  "data_0 [0, 17]\nconv1_w_0 [1, 17]\nconv1_b_0 [2, 17]\n"
-  "conv2_w_0 [3, 21]\nconv2_b_0 [4, 21]\n"
-  "conv3_w_0 [5, 25]\nconv3_b_0 [6, 25]\n"
-  "conv4_w_0 [7, 27]\nconv4_b_0 [8, 27]\n"
-  "conv5_w_0 [9, 29]\nconv5_b_0 [10, 29]\n"
-  "fc6_w_0 [11, 32]\nfc6_b_0 [12, 32]\n"
-  "fc7_w_0 [13, 35]\nfc7_b_0 [14, 35]\n"
-  "fc8_w_0 [15, 38]\nfc8_b_0 [16, 38]\n"
-  "conv1_1 [17, 18]\nconv1_2 [18, 19]\nnorm1_1 [19, 20]\n"
-  "pool1_1 [20, 21]\nconv2_1 [21, 22]\nconv2_2 [22, 23]\n"
-  "norm2_1 [23, 24]\npool2_1 [24, 25]\n"
-  "conv3_1 [25, 26]\nconv3_2 [26, 27]\n"
-  "conv4_1 [27, 28]\nconv4_2 [28, 29]\n"
-  "conv5_1 [29, 30]\nconv5_2 [30, 31]\npool5_1 [31, 32]\n"
-  "fc6_1 [32, 33]\nfc6_2 [33, 34]\nfc6_3 [34, 35]\n_fc6_mask_1 [34, 34]\n"
-  "fc7_1 [35, 36]\nfc7_2 [36, 37]\nfc7_3 [37, 38]\n_fc7_mask_1 [37, 37]\n"
-  "fc8_1 [38, 39]\nprob_1 [39, 39]\n";
+  "conv1_1 [0, 1]\nconv1_2 [1, 2]\nnorm1_1 [2, 3]\n"
+  "pool1_1 [3, 4]\nconv2_1 [4, 5]\nconv2_2 [5, 6]\n"
+  "norm2_1 [6, 7]\npool2_1 [7, 8]\n"
+  "conv3_1 [8, 9]\nconv3_2 [9, 10]\n"
+  "conv4_1 [10, 11]\nconv4_2 [11, 12]\n"
+  "conv5_1 [12, 13]\nconv5_2 [13, 14]\npool5_1 [14, 15]\n"
+  "fc6_1 [15, 16]\nfc6_2 [16, 17]\nfc6_3 [17, 18]\n_fc6_mask_1 [17, 17]\n"
+  "fc7_1 [18, 19]\nfc7_2 [19, 20]\nfc7_3 [20, 21]\n_fc7_mask_1 [20, 20]\n"
+  "fc8_1 [21, 22]\nprob_1 [22, 22]\n";
 
 SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   GraphHelper graph(new onnx::Graph());
