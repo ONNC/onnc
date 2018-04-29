@@ -4,12 +4,12 @@ add_libonnc_src(
     TargetBackend.cpp 
     TargetRegistry.cpp)
 
-if (ENABLE_SOPHON_TARGET)
+if (TARGET_SOPHON)
     add_subdirectory(Sophon)
 endif()
-if (ENABLE_TG_TARGET)
+if (TARGET_TG)
     add_subdirectory(TG)
 endif()
-if (ENABLE_X86_TARGET)
+if (TARGET_X86)
     add_subdirectory(X86)
 endif()

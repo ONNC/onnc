@@ -11,7 +11,7 @@ function(enum_onnc_targets)
         else()
             set(TARGET_${op_name} ${default_value} CACHE BOOL "Build ${name}")
         endif()
-        set(ENABLE_${op_name}_TARGET ${TARGET_${op_name}} PARENT_SCOPE)
+        set(ENABLE_${op_name}_TARGET ${TARGET_${op_name}} PARENT_SCOPE) # for Config.h
         if (TARGET_${op_name})
             set(ONNC_TARGET_PLATFORMS "${ONNC_TARGET_PLATFORMS} ONNC_PLATFORM(${op_name})")
             set(ONNC_TARGET_BACKENDS "${ONNC_TARGET_BACKENDS} ONNC_BACKEND(${op_name})")
