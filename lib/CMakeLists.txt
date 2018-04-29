@@ -35,3 +35,6 @@ endif()
 target_link_libraries(libonnc
     ${ONNX_LIBRARIES}
     ${PROTOBUF_LIBRARIES})
+if (TARGET_TG)
+    target_link_libraries(libonnc ${BMLIB})
+endif()

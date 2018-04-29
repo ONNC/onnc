@@ -9,9 +9,6 @@ option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Re
 
 project(ONNC)
 
-set(ONNX_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
-set(SKYPAT_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "skypat install path")
-
 if (NOT TARGET build_external)
     add_custom_target(build_external)
 endif()
@@ -104,21 +101,35 @@ option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 # Check for variables and targets
 include(cmake/onnc_target.cmake)
 enum_onnc_targets()
+if (ONNC_ON_APPLE)
+    set(TARGET_TG OFF CACHE BOOL "force OFF in Apple platform" FORCE)
+endif()
 
 set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
+set(SKYPAT_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "skypat install path")
 set(SKYPAT_INCLUDE_DIRS
     ${SKYPAT_INSTALL_DIR}/include)
 set(SKYPAT_LIBRARIES
     ${SKYPAT_INSTALL_DIR}/lib/libskypat.a)
+
+set(ONNX_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
 set(ONNX_INCLUDE_DIRS
     ${ONNX_INSTALL_DIR}/include)
 set(ONNX_LIBRARIES
     ${ONNX_INSTALL_DIR}/lib/libonnx.a
     ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
+    
+if (TARGET_TG)
+    set(BM_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap/bmnet install path")
+    set(BMTAP_SOURCE_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap source path")
+    set(BMNET_SOURCE_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmnet source path")
+    set(BMNET_BINARY_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmnet binary path")
+    set(BMLIB ${BMNET_BINARY_DIR}/src/targets/.libs/libtargets.a ${BM_INSTALL_DIR}/lib/libbmtap.a)
+endif()
 
 
 ####################
