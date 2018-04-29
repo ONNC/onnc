@@ -32,3 +32,6 @@ add_subdirectory(Target)
 if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
 endif()
+target_link_libraries(libonnc
+    ${ONNX_LIBRARIES}
+    ${PROTOBUF_LIBRARIES})

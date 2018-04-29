@@ -12,7 +12,5 @@ add_executable(onnx2tg
     Config.cpp)
 target_link_libraries(onnx2tg
     libonnc
-    ${SKYPAT_LIBRARIES}
-    ${ONNX_LIBRARIES}
-    ${PROTOBUF_LIBRARIES})
+    ${SKYPAT_LIBRARIES})
 
