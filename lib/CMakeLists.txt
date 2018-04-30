@@ -15,7 +15,7 @@ include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${ONNX_INCLUDE_DIRS})
 add_definitions(-DONNX_NAMESPACE=onnx)
 
-add_library(libonnc)
+add_library(libonnc "")
 add_dependencies(libonnc build_external)
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
