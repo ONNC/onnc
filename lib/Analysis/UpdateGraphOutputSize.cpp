@@ -35,7 +35,7 @@ static void UpdateOutputInfoByInput(onnx::Node* pNode)
   const onnx::Value* in = pNode->inputs()[0];
 
   if (in->elemType() == onnx::TensorProto_DataType_UNDEFINED) {
-    outs() << in->uniqueName() << ": Undefined element type.\n";
+    errs() << in->uniqueName() << ": Undefined element type.\n";
     return;
   }
 
@@ -43,7 +43,7 @@ static void UpdateOutputInfoByInput(onnx::Node* pNode)
   //       "Undefined element type.");
 
   if (in->sizes().empty()) {
-    outs() << "No available input size to update output size.\n"
+    errs() << "No available input size to update output size.\n"
            << "  Input value : " << in->uniqueName() << "\n"
            << "  Output value : " << pNode->outputs()[0]->uniqueName() << "\n";
     return;
