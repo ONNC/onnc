@@ -13,6 +13,7 @@
 
 using TensorSizes = std::vector<onnx::Dimension>;
 using TP_DataTy = onnx::TensorProto_DataType;
+using LongIntVec = std::vector<int64_t>;
 
 using namespace onnc;
 
@@ -51,6 +52,31 @@ static void UpdateOutputInfoByInput(onnx::Node* pNode)
   UpdateOutputInfo(pNode, in->sizes(), in->elemType());
 }
 
+static void GetAttrVals(onnx::Node* pNode, onnx::BuiltinSymbol pAttr,
+                        LongIntVec& pVal)
+{
+  if (pNode->hasAttribute(pAttr)) {
+    const auto &attr = pNode->is(pAttr);
+    pVal.resize(attr.size());
+    for (int i = 0; i < attr.size(); ++i)
+      pVal[i] = attr[i];
+  }
+}
+
+static void GetPads(onnx::Node* pNode, LongIntVec& pPadsB, LongIntVec& pPadsE)
+{
+  if (pNode->hasAttribute(onnx::kpads)) {
+    // get pads begin and offset to pads end.
+    const auto &pads = pNode->is(onnx::kpads);
+    const size_t padEndOffset = pads.size() / 2;
+
+    for (int i = 0; i < padEndOffset; ++i) {
+      pPadsB[i] = pads[i];
+      pPadsE[i] = pads[i + padEndOffset];
+    }
+  }
+}
+
 static void UpdateConvOutputInfo(onnx::Node* pNode)
 {
   const TensorSizes &xDim = pNode->inputs()[0]->sizes(),
@@ -67,33 +93,15 @@ static void UpdateConvOutputInfo(onnx::Node* pNode)
                        padsB(numAxis, 0), padsE(numAxis, 0);
 
   if (pNode->hasAttribute(onnx::kkernel_shape)) {
-    const auto &ks = pNode->is(onnx::kkernel_shape);
-    for (int i = 0; i < numAxis; ++i)
-      kShape[i] = ks[i];
+    GetAttrVals(pNode, onnx::kkernel_shape, kShape);
   } else {
     // If the kernel shape is not present, it should be inferred from input W.
     for (int i = 0; i < numAxis; ++i)
       kShape[i] = wDim[i + 2].dim;
   }
 
-  if (pNode->hasAttribute(onnx::kstrides)) {
-    const auto &stid = pNode->is(onnx::kstrides);
-    for (int i = 0; i < numAxis; ++i)
-      strides[i] = stid[i];
-  }
-
-  if (pNode->hasAttribute(onnx::kpads)) {
-    // get pads begin and offset to pads end.
-    const auto &pads = pNode->is(onnx::kpads);
-    const size_t padEndOffset = pads.size() / 2;
-
-    assert(numAxis == padEndOffset && "pads count mismatch.");
-
-    for (int i = 0; i < numAxis; ++i) {
-      padsB[i] = pads[i];
-      padsE[i] = pads[i + padEndOffset];
-    }
-  }
+  GetAttrVals(pNode, onnx::kstrides, strides);
+  GetPads(pNode, padsB, padsE);
 
   // output dimensions.
   TensorSizes yDim(xDim.size(), onnx::Dimension(0));
