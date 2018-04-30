@@ -11,7 +11,7 @@
 
 #include <unordered_set>
 
-using TensorSize = std::vector<onnx::Dimension>;
+using TensorSizes = std::vector<onnx::Dimension>;
 using TP_DataTy = onnx::TensorProto_DataType;
 
 using namespace onnc;
@@ -19,7 +19,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-static void UpdateOutputInfo(onnx::Node* pNode, const TensorSize &pSize,
+static void UpdateOutputInfo(onnx::Node* pNode, const TensorSizes &pSize,
                              TP_DataTy pTy)
 {
   for (onnx::Value* out : pNode->outputs()) {
@@ -51,6 +51,77 @@ static void UpdateOutputInfoByInput(onnx::Node* pNode)
   UpdateOutputInfo(pNode, in->sizes(), in->elemType());
 }
 
+static void UpdateConvOutputInfo(onnx::Node* pNode)
+{
+  const TensorSizes &xDim = pNode->inputs()[0]->sizes(),
+                    &wDim = pNode->inputs()[1]->sizes();
+
+  //assert(!xDim.empty() && !wDim.empty() &&
+  //       "No available input dimension for Conv.");
+  if (xDim.empty() || wDim.empty())
+    return;
+
+  const size_t numAxis = xDim.size() - 2;
+  std::vector<int64_t> kShape(numAxis),
+                       strides(numAxis, 1),
+                       padsB(numAxis, 0), padsE(numAxis, 0);
+
+  if (pNode->hasAttribute(onnx::kkernel_shape)) {
+    const auto &ks = pNode->is(onnx::kkernel_shape);
+    for (int i = 0; i < numAxis; ++i)
+      kShape[i] = ks[i];
+  } else {
+    // If the kernel shape is not present, it should be inferred from input W.
+    for (int i = 0; i < numAxis; ++i)
+      kShape[i] = wDim[i + 2].dim;
+  }
+
+  if (pNode->hasAttribute(onnx::kstrides)) {
+    const auto &stid = pNode->is(onnx::kstrides);
+    for (int i = 0; i < numAxis; ++i)
+      strides[i] = stid[i];
+  }
+
+  if (pNode->hasAttribute(onnx::kpads)) {
+    // get pads begin and offset to pads end.
+    const auto &pads = pNode->is(onnx::kpads);
+    const size_t padEndOffset = pads.size() / 2;
+
+    assert(numAxis == padEndOffset && "pads count mismatch.");
+
+    for (int i = 0; i < numAxis; ++i) {
+      padsB[i] = pads[i];
+      padsE[i] = pads[i + padEndOffset];
+    }
+  }
+
+  // output dimensions.
+  TensorSizes yDim(xDim.size(), onnx::Dimension(0));
+
+  // setup output N, C.
+  // Note: Channel of ouput (yDim) is equal to the number of feature weight,
+  //       i.e. channel of weight (wDim).
+  yDim[0] = xDim[0]; // N
+  yDim[1] = wDim[0]; // C
+
+  // Calculate output size for each dimension.
+  for (int i = 0; i < numAxis; ++i) {
+    // Formula:
+    //   (xDim[i+2] - (kernelShap[i] / 2) * 2
+    //              + padsBegin[i] + padsEnd[i]) / strides[i] + 1
+    //
+    // e.g. dim = 2 (i.e. W, H), xDim = [5, 5], kernel shape = [3, 3],
+    //      pads = [1, 1, 1, 1], strides = [1, 1]
+    //
+    //      yDim (output) = [(5-3+1+1)/1 + 1, (5-3+1+1)/1 + 1] = [5, 5]
+    int64_t d = xDim[i + 2].dim - kShape[i] + padsB[i] + padsE[i];
+    d /= strides[i];
+    d += 1;
+    yDim[i + 2] = onnx::Dimension(d);
+  }
+  UpdateOutputInfo(pNode, yDim, pNode->inputs()[0]->elemType());
+}
+
 //===----------------------------------------------------------------------===//
 // UpdateGraphOutputSize
 //===----------------------------------------------------------------------===//
@@ -58,7 +129,7 @@ UpdateGraphOutputSize::UpdateGraphOutputSize()
   : ModulePass(ID) {
 }
 
-/// Operator set whose output size equal to input size.
+/// Operator set whose output size equals to input size.
 static std::unordered_set<onnx::NodeKind> g_InputSizeIsOutputSize = {
   onnx::Symbol("Relu"), onnx::Symbol("kLRN"),
   onnx::Symbol("Dropout"), onnx::Symbol("Softmax")
@@ -70,6 +141,11 @@ bool UpdateGraphOutputSize::runOnModule(Module& pModule)
     if (g_InputSizeIsOutputSize.count(n->kind())) {
       UpdateOutputInfoByInput(n);
       continue;
+    }
+
+    if (n->kind() == onnx::kConv)
+      UpdateConvOutputInfo(n);
+    else {
     }
   }
 
