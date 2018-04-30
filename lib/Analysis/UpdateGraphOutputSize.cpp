@@ -167,6 +167,12 @@ static void UpdatePoolOutputInfo(onnx::Node* pNode)
   UpdateOutputInfo(pNode, yDim, pNode->inputs()[0]->elemType());
 }
 
+static void UpdateGemmOutputInfo(onnx::Node* pNode)
+{
+  const TensorSizes &MatCdim = pNode->inputs()[2]->sizes();
+  UpdateOutputInfo(pNode, MatCdim, pNode->inputs()[0]->elemType());
+}
+
 //===----------------------------------------------------------------------===//
 // UpdateGraphOutputSize
 //===----------------------------------------------------------------------===//
@@ -193,6 +199,8 @@ bool UpdateGraphOutputSize::runOnModule(Module& pModule)
       UpdateConvOutputInfo(n);
     } else if (kind == onnx::Symbol("MaxPool")) {
       UpdatePoolOutputInfo(n);
+    } else if (kind == onnx::kGemm) {
+      UpdateGemmOutputInfo(n);
     }
   }
 
