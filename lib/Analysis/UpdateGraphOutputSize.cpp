@@ -130,6 +130,43 @@ static void UpdateConvOutputInfo(onnx::Node* pNode)
   UpdateOutputInfo(pNode, yDim, pNode->inputs()[0]->elemType());
 }
 
+static void UpdatePoolOutputInfo(onnx::Node* pNode)
+{
+  const TensorSizes &xDim = pNode->inputs()[0]->sizes();
+
+  //assert(!xDim.empty() && !wDim.empty() &&
+  //       "No available input dimension for Conv.");
+  // FIXME: remove this after supporting all kinds of nodes.
+  if (xDim.empty())
+    return;
+
+  const size_t numAxis = xDim.size() - 2;
+  LongIntVec kShape,
+             strides(numAxis, 1),
+             padsB(numAxis, 0), padsE(numAxis, 0);
+
+  GetAttrVals(pNode, onnx::kkernel_shape, kShape);
+  GetAttrVals(pNode, onnx::kstrides, strides);
+  GetPads(pNode, padsB, padsE);
+
+  // output dimensions.
+  TensorSizes yDim(xDim.size(), onnx::Dimension(0));
+
+  // setup output N, C.
+  yDim[0] = xDim[0]; // N
+  yDim[1] = xDim[1]; // C
+
+  // Calculate output size for each dimension.
+  for (int i = 0; i < numAxis; ++i) {
+    int64_t d = xDim[i + 2].dim - kShape[i] + padsB[i] + padsE[i];
+    d /= strides[i];
+    d += 1;
+    yDim[i + 2] = onnx::Dimension(d);
+  }
+
+  UpdateOutputInfo(pNode, yDim, pNode->inputs()[0]->elemType());
+}
+
 //===----------------------------------------------------------------------===//
 // UpdateGraphOutputSize
 //===----------------------------------------------------------------------===//
@@ -146,14 +183,16 @@ static std::unordered_set<onnx::NodeKind> g_InputSizeIsOutputSize = {
 bool UpdateGraphOutputSize::runOnModule(Module& pModule)
 {
   for (onnx::Node *n : pModule.getGraph()->nodes()) {
-    if (g_InputSizeIsOutputSize.count(n->kind())) {
+    const auto kind = n->kind();
+    if (g_InputSizeIsOutputSize.count(kind)) {
       UpdateOutputInfoByInput(n);
       continue;
     }
 
-    if (n->kind() == onnx::kConv)
+    if (kind == onnx::kConv) {
       UpdateConvOutputInfo(n);
-    else {
+    } else if (kind == onnx::Symbol("MaxPool")) {
+      UpdatePoolOutputInfo(n);
     }
   }
 
