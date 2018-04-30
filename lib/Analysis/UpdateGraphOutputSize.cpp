@@ -131,7 +131,7 @@ UpdateGraphOutputSize::UpdateGraphOutputSize()
 
 /// Operator set whose output size equals to input size.
 static std::unordered_set<onnx::NodeKind> g_InputSizeIsOutputSize = {
-  onnx::Symbol("Relu"), onnx::Symbol("kLRN"),
+  onnx::Symbol("Relu"), onnx::Symbol("LRN"),
   onnx::Symbol("Dropout"), onnx::Symbol("Softmax")
 };
 
