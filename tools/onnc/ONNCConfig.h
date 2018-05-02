@@ -17,6 +17,9 @@
 class ONNCConfig
 {
 public:
+  static constexpr const char* DefaultOutputName = "a.out";
+
+public:
   ONNCConfig();
 
   ~ONNCConfig();

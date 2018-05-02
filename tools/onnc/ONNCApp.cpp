@@ -15,7 +15,8 @@ using namespace onnc;
 // ONNCApp
 //===----------------------------------------------------------------------===//
 ONNCApp::ONNCApp(int pArgc, char* pArgv[])
-  : onnc::CoreApplication(pArgc, pArgv) {
+  : onnc::CoreApplication(pArgc, pArgv),
+    m_Options() {
   InitializeAllPlatforms();
   InitializeAllBackends();
 }
