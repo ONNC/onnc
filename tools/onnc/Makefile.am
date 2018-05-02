@@ -21,7 +21,8 @@ onnc_LDFLAGS = @LIBONNC_LDFLAGS@
 onnc_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@
 
 nodist_onnc_SOURCES = main.cpp \
-	ONNCApp.cpp
+	ONNCApp.cpp \
+	ONNCConfig.cpp
 
 if HAVE_PTHREADS
 onnc_LDADD += -lpthread

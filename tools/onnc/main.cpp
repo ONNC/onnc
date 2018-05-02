@@ -19,7 +19,7 @@ static const char* HelpManual =
   "\t-march=<arch>        Select backend <arch>\n"
   "\n"
   "\t-h | -? | --help Show this manual\n"
-  "onnx2tg version 0.1.0\n";
+  "onnc version 0.1.0\n";
 
 static cl::opt<Path> OptInput("input", cl::kPositional, cl::kRequired,
                               cl::kValueRequired,
@@ -46,6 +46,5 @@ static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
 int main(int pArgc, char* pArgv[])
 {
   ONNCApp onnc(pArgc, pArgv);
-  
   return onnc.compile();
 }
