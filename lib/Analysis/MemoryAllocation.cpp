@@ -147,8 +147,8 @@ bool MemoryAllocation::runOnModule(Module& pModule)
 
 void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(GraphLivenessAnalysis::ID);
-  pUsage.addRequiredID(UpdateGraphOutputSize::ID);
+//  pUsage.addRequiredID(GraphLivenessAnalysis::ID);
+//  pUsage.addRequiredID(UpdateGraphOutputSize::ID);
 }
 
 void MemoryAllocation::print(std::ostream& pOS) const
