@@ -34,4 +34,5 @@ nobase_nodist_include_HEADERS = \
 	ADT/TypeSwitch.h \
 	ADT/TypeTag.h \
 	ADT/TypeTraits.h \
-	ADT/Uncopyable.h
+	ADT/Uncopyable.h \
+	Target/TargetBackend.h

@@ -12,6 +12,7 @@
 
 namespace onnc {
 
+class TargetMemInfo;
 class TargetOptions;
 
 class TargetBackend
@@ -37,6 +38,15 @@ public:
   virtual void addMemAlloc(PassManager& pPM) { return; }
 
   virtual void addCodeEmit(PassManager& pPM, Path &output, CodeGenFileType &fileType) { return; }
+
+  /// This is not a constant function. Because there in case memory emulator must change its
+  /// internal state.
+  TargetMemInfo* getMemInfo() { return m_pMemInfo; }
+
+  const TargetMemInfo* getMemInfo() const { return m_pMemInfo; }
+
+private:
+  TargetMemInfo* m_pMemInfo;
 };
 
 } // namespace of onnc
