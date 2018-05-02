@@ -13,6 +13,7 @@
 #include <cassert>
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace onnc;
 
@@ -69,7 +70,7 @@ bool GraphLivenessAnalysis::runOnModule(Module &pModule)
   calculateLiveness(*pModule.getGraph());
   return false;
 }
-#include <iostream>
+
 void GraphLivenessAnalysis::print(std::ostream& pOS) const
 {
   for (const LiveInterval *li : m_LiveIntervals) {
@@ -88,6 +89,9 @@ void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &pGraph)
   std::unordered_map<onnx::Node *, unsigned> nodeVirIdxMap;
   BuildVirtualIndex(pGraph, valueVirIdxMap, nodeVirIdxMap);
 
+  // Values that have been visited.
+  std::unordered_set<onnx::Value*> visited;
+
   // calculate live range for each output of a node
   for (onnx::Node *n : pGraph.nodes()) {
     for (onnx::Value *v : n->outputs()) {
@@ -96,9 +100,41 @@ void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &pGraph)
       for(auto u : v->uses())
         end = std::max(end, nodeVirIdxMap[u.user]);
 
+      visited.insert(v);
       m_LiveIntervals.push_back(new LiveInterval(start, end, *v));
     }
   } // for each node
+
+  // calculate live range graph's input parameters.
+  // input parameters' live range dependent on the first and last node which
+  // use this input.
+  for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    unsigned nVid = nodeVirIdxMap[n];
+    for (onnx::Value *v : n->inputs()) {
+      if (visited.count(v))
+        continue;
+
+      unsigned start = nVid;
+      unsigned end = nVid;
+      for(auto u : v->uses()) {
+        unsigned uVid = nodeVirIdxMap[u.user];
+        start = std::min(start, uVid);
+        end = std::max(end, uVid);
+      }
+
+      visited.insert(v);
+      m_LiveIntervals.push_back(new LiveInterval(start, end, *v));
+    }
+  } // for each node
+
+  // Sort live intervals by start slot.
+  std::sort(m_LiveIntervals.begin(), m_LiveIntervals.end(),
+            [](const LiveInterval* lia, const LiveInterval* lib) {
+              return lia->getStart() < lib->getStart();
+            });
 }
 
 void GraphLivenessAnalysis::clear()
