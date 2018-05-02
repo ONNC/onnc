@@ -60,6 +60,11 @@ LiveInterval::LiveInterval(SlotIndex pStart, SlotIndex pEnd,
   assert(m_Start <= m_End && "Invalid live interval.");
 }
 
+bool LiveInterval::intersect(const LiveInterval& pLive) const
+{
+  return !(pLive.m_End < m_Start || m_End < pLive.m_Start);
+}
+
 //===----------------------------------------------------------------------===//
 // GraphLivenessAnalysis
 //===----------------------------------------------------------------------===//
