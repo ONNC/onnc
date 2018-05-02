@@ -42,6 +42,9 @@ static void BuildVirtualIndex(onnx::Graph &pGraph,
 
   // assign virtual index to each node's output.
   for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
     for (onnx::Value *v : n->outputs())
       pValueVirIdxMap[v] = virIdx;
     pNodeVirIdxMap[n] = virIdx++;
@@ -94,6 +97,9 @@ void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &pGraph)
 
   // calculate live range for each output of a node
   for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
     for (onnx::Value *v : n->outputs()) {
       unsigned start = valueVirIdxMap[v];
       unsigned end = start;
