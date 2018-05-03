@@ -172,8 +172,8 @@
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
-/* default target triple */
-#undef ONNC_DEFAULT_TARGET_TRIPLE
+/* default target quadruple */
+#undef ONNC_DEFAULT_TARGET_QUADRUPLE
 
 /* Define if this is Apple platform */
 #undef ONNC_ON_APPLE

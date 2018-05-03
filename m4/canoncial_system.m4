@@ -189,11 +189,10 @@ fi
 
 AC_SUBST(TARGET_ARCH,$onnc_cv_target_arch_type)
 
-dnl Set the "ONNC_DEFAULT_TARGET_TRIPLE" variable based on $target.
-dnl This is used to determine the default target triple and emulation
+dnl Set the "ONNC_DEFAULT_TARGET_QUADRUPLE" variable based on $target.
+dnl This is used to determine the default target quadruple and emulation
 dnl to use.
-AC_DEFINE_UNQUOTED([ONNC_DEFAULT_TARGET_TRIPLE],
-                   $target,
-                   [default target triple])
-
+AC_DEFINE([ONNC_DEFAULT_TARGET_QUADRUPLE],
+          "$target",
+          [default target quadruple])
 ])

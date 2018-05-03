@@ -36,6 +36,7 @@ ONNC_SOURCES = \
   Support/Environ.cpp \
   Support/Expansion.cpp \
   Support/Glob.cpp \
+	Support/Host.cpp \
   Support/IOStream.cpp \
   Support/IndentOStreamBuf.cpp \
   Support/ManagedStatic.cpp \

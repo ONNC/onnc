@@ -30,7 +30,11 @@ namespace sys {
 #endif
 
   static const bool IsLittleEndianHost = !IsBigEndianHost;
-}
-}
+
+  /// Get the host quadruple.
+  std::string GetHostQuadruple();
+
+} // namespace of sys
+} // namespace of onnc
 
 #endif
