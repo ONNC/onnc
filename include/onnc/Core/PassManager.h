@@ -40,6 +40,7 @@ public:
 
   void add(Pass* pPass, TargetBackend* pBackend);
 
+  /// @retval true The module was modified.
   bool run(Module& pModule);
 
   /// @return The number of registered passes.
