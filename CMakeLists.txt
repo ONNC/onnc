@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used b
 option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release RelWithDebInfo)
 
 project(ONNC)
+enable_testing()
 
 if (NOT TARGET build_external)
     add_custom_target(build_external)
