@@ -1,16 +1,14 @@
+//===-- TargetBackend.cpp -------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include <onnc/Target/TargetBackend.h>
 
-namespace onnc {
+using namespace onnc;
 
-bool TargetBackend::addPassesToEmitFile(PassManager &pPM, Path output,
-                                 CodeGenFileType fileType) {
-  // add common codegen passes
-  addTensorSel(pPM);
-  addMemAlloc(pPM);
-
-  // add code emitter
-  addCodeEmit(pPM, output, fileType);
-  return true;
-}
-
-} // namespace onnc
+//===----------------------------------------------------------------------===//
+// TargetBackend
+//===----------------------------------------------------------------------===//

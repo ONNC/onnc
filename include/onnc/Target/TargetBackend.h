@@ -22,22 +22,11 @@ public:
 
   virtual ~TargetBackend(){}
 
-  /// These enums are meant to be passed into addPassesToEmitFile to indicate
-  /// what type of file to emit, and returned by it to indicate what type of
-  /// file could actually be made.
-  enum CodeGenFileType {
-    AssemblyFile,
-    ObjectFile,
-    Null // Do not emit any output.
-  };
-
-  virtual bool addPassesToEmitFile(PassManager &pPM, Path output, CodeGenFileType fileType);
-
   virtual void addTensorSel(PassManager& pPM) { return; }
 
   virtual void addMemAlloc(PassManager& pPM) { return; }
 
-  virtual void addCodeEmit(PassManager& pPM, Path &output, CodeGenFileType &fileType) { return; }
+  virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
 
   /// This is not a constant function. Because there in case memory emulator must change its
   /// internal state.
