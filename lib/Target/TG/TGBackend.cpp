@@ -1,4 +1,4 @@
-//===- TGBackend.cpp --------------------------------------------------===//
+//===- TGBackend.cpp ------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -15,8 +15,16 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // TGBackend
 //===----------------------------------------------------------------------===//
+TGBackend::TGBackend(const TargetOptions &pOptions)
+    : DLATargetBackend(pOptions), m_pTLI(new TGTargetLowering(this)), m_pCE(new TGCodeEmitter(this)) {}
 
-void TGBackend::addTensorSel(PassManager &pPM) {
+TGBackend::~TGBackend() {
+  delete m_pTLI;
+  delete m_pCE;
+}
+
+void TGBackend::addTensorSel(PassManager &pPM)
+{
   // IR level pass
   pPM.add(createRemoveUnusedNodePass());
   pPM.add(createUpdateOutputInfoPass());
@@ -26,18 +34,20 @@ void TGBackend::addTensorSel(PassManager &pPM) {
   return;
 }
 
-void TGBackend::addCodeEmit(PassManager& pPM, Path &output, CodeGenFileType &fileType)
+void TGBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  if (TargetBackend::AssemblyFile == fileType)
-    return;
-
-  if (TargetBackend::ObjectFile == fileType) {
-    m_outputPath = output;
-    pPM.add(createTGCodeEmitPass(this));
-  }
-
+  m_outputPath = pOutput;
+  pPM.add(createTGCodeEmitPass(this));
 }
 
+void TGBackend::codeEmit(void)
+{
+  m_pCE->encodeInstructions(m_outputPath);
+}
+
+//===----------------------------------------------------------------------===//
+// Non member functions
+//===----------------------------------------------------------------------===//
 TargetBackend* CreateTGBM1680Backend(const TargetOptions& pOptions)
 {
   return new TGBackend(pOptions);
@@ -46,18 +56,6 @@ TargetBackend* CreateTGBM1680Backend(const TargetOptions& pOptions)
 TargetBackend* CreateTGBM1682Backend(const TargetOptions& pOptions)
 {
   return new TGBackend(pOptions);
-}
-
-TGBackend::TGBackend(const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_pTLI(new TGTargetLowering(this)), m_pCE(new TGCodeEmitter(this)) {}
-
-TGBackend::~TGBackend() {
-  delete m_pTLI;
-  delete m_pCE;
-}
-
-void TGBackend::codeEmit(void) {
-  m_pCE->encodeInstructions(m_outputPath);
 }
 
 extern "C" void InitializeTGONNCBackend()

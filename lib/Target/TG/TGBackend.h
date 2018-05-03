@@ -1,4 +1,4 @@
-//===- TGBackend.h ----------------------------------------------------===//
+//===- TGBackend.h --------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -19,9 +19,11 @@
 #include "TGCodeEmitter.h"
 
 namespace onnc {
+
 class TGCodeEmitter;
 
 using MemTable = std::map<std::string, uint64_t>;
+
 class TGBackend : public DLATargetBackend
 {
 public:
