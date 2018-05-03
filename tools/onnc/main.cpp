@@ -6,9 +6,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ONNCApp.h"
-#include <onnc/Option/CommandLine.h>
-#include <onnc/Support/IOStream.h>
 #include <onnc/ADT/Color.h>
+#include <onnc/Support/Host.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/Option/CommandLine.h>
 
 using namespace onnc;
 
@@ -17,8 +18,10 @@ static const char* HelpManual =
   "\tonnc [input] -o [output]\n"
   "\n"
   "General Options:\n"
-  "\t-o     <path>        Output file path\n"
-  "\t-march=<arch>        Select backend <arch>\n"
+  "\t-o     <path>        the output file path\n"
+  "\t-mquadruple=<quad>   target a specific backend\n"
+  "\t-march=<arch>        target a specific architecture\n"
+  "\t-mcpu=<cpu>          target a specific CPU type\n"
   "\n"
   "\t-h | -? | --help Show this manual\n"
   "onnc version 0.1.0\n";
@@ -52,8 +55,6 @@ int main(int pArgc, char* pArgv[])
 {
   ONNCApp onnc(pArgc, pArgv);
 
-  // check quadruple
-
   // check inputs
   if (OptInput.empty()) {
     errs() << Color::RED << "Error" << Color::RESET
@@ -81,6 +82,18 @@ int main(int pArgc, char* pArgv[])
     onnc.options().setOutput(OptOutput);
   else
     onnc.options().setOutput(ONNCConfig::DefaultOutputName);
+
+  // Set quadruple. We shall check target instance at compilation time.
+  if (!OptQuadruple.hasOccurrence() && ! OptMArch.hasOccurrence()) {
+    onnc.options().setQuadruple(sys::GetHostQuadruple());
+  }
+  else {
+    if (OptQuadruple.hasOccurrence())
+      onnc.options().setQuadruple(OptQuadruple);
+
+    if (OptMArch.hasOccurrence())
+      onnc.options().setArchName(OptMArch);
+  }
 
   return onnc.compile();
 }
