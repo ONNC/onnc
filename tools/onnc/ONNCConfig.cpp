@@ -13,22 +13,11 @@ using namespace onnc;
 // ONNCConfig
 //===----------------------------------------------------------------------===//
 ONNCConfig::ONNCConfig()
-  : m_Inputs(), m_Output(), m_Quadruple(), m_Arch() {
+  : m_Input(), m_Output(), m_Quadruple(), m_Arch(), m_TargetOptions() {
 }
 
 ONNCConfig::~ONNCConfig()
 {
-}
-
-ONNCConfig& ONNCConfig::addInput(const Path& pFilePath)
-{
-  m_Inputs.push_back(pFilePath);
-  return *this;
-}
-
-std::vector<Path> ONNCConfig::inputs() const
-{
-  return m_Inputs;
 }
 
 void ONNCConfig::setQuadruple(const std::string& pValue)

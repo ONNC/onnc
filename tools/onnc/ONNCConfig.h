@@ -10,6 +10,7 @@
 #include <onnc/Core/Application.h>
 #include <onnc/Support/Path.h>
 #include <onnc/IR/Quadruple.h>
+#include <onnc/Target/TargetOptions.h>
 #include <vector>
 
 /** \class ONNCConfig
@@ -25,9 +26,9 @@ public:
 
   ~ONNCConfig();
 
-  ONNCConfig& addInput(const onnc::Path& pFilePath);
+  const onnc::Path& input() const { return m_Input; }
 
-  std::vector<onnc::Path> inputs() const;
+  void setInput(const onnc::Path& pFilePath) { m_Input = pFilePath; }
 
   const onnc::Path& output() const { return m_Output; }
 
@@ -42,14 +43,16 @@ public:
 
   void setArchName(const std::string& pName) { m_Arch = pName; }
 
-private:
-  typedef std::vector<onnc::Path> FilePathList;
+  onnc::TargetOptions& target() { return m_TargetOptions; }
+
+  const onnc::TargetOptions& target() const { return m_TargetOptions; }
 
 private:
-  FilePathList m_Inputs;
+  onnc::Path m_Input;
   onnc::Path m_Output;
   onnc::Quadruple m_Quadruple;
   std::string m_Arch;
+  onnc::TargetOptions m_TargetOptions;
 };
 
 #endif
