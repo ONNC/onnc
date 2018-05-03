@@ -23,8 +23,9 @@ using namespace onnc;
 // Non-member functions
 //===----------------------------------------------------------------------===//
 
+#pragma weak GetGraphLivenessAnalysis
 // FIXME: Temporary work around for getting dependent pass.
-GraphLivenessAnalysis *GetGraphLivenessAnalysis();
+GraphLivenessAnalysis *GetGraphLivenessAnalysis() { return nullptr; }
 
 // FIXME: Query from TargetInfo
 size_t GetElemSize(TP_DataTy pTy)
