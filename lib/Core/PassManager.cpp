@@ -86,6 +86,9 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
             stack.push(new_node);
           }
           m_Dependencies.connect(*new_node, *cur_node);
+        } else {
+          DepNode* dep_node = findNode(*use);
+          m_Dependencies.connect(*dep_node, *cur_node);
         }
       } // for each usage
     }
