@@ -14,6 +14,14 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // X86Backend
 //===----------------------------------------------------------------------===//
+X86Backend::X86Backend(const TargetOptions& pOptions)
+  : NPUTargetBackend(pOptions) {
+}
+
+X86Backend::~X86Backend()
+{
+}
+
 void X86Backend::addTensorSel(PassManager& pPM)
 {
   // TODO
@@ -27,6 +35,28 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 void X86Backend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   // TODO
+}
+
+//===----------------------------------------------------------------------===//
+// X86_32Backend
+//===----------------------------------------------------------------------===//
+X86_32Backend::X86_32Backend(const TargetOptions& pOptions)
+  : X86Backend(pOptions) {
+}
+
+X86_32Backend::~X86_32Backend()
+{
+}
+
+//===----------------------------------------------------------------------===//
+// X86_64Backend
+//===----------------------------------------------------------------------===//
+X86_64Backend::X86_64Backend(const TargetOptions& pOptions)
+  : X86Backend(pOptions) {
+}
+
+X86_64Backend::~X86_64Backend()
+{
 }
 
 //===----------------------------------------------------------------------===//
