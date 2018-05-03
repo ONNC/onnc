@@ -18,6 +18,12 @@ public:
   X86Backend(const TargetOptions& pOptions);
 
   virtual ~X86Backend();
+
+  void addTensorSel(PassManager& pPM);
+
+  void addMemAlloc(PassManager& pPM);
+
+  void addCodeEmit(PassManager& pPM, const Path& pOutput);
 };
 
 class X86_32Backend : public X86Backend

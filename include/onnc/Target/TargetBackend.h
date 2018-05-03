@@ -27,15 +27,6 @@ public:
   virtual void addMemAlloc(PassManager& pPM) { return; }
 
   virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
-
-  /// This is not a constant function. Because there in case memory emulator must change its
-  /// internal state.
-  TargetMemInfo* getMemInfo() { return m_pMemInfo; }
-
-  const TargetMemInfo* getMemInfo() const { return m_pMemInfo; }
-
-private:
-  TargetMemInfo* m_pMemInfo;
 };
 
 } // namespace of onnc
