@@ -38,3 +38,6 @@ target_link_libraries(libonnc
 if (TARGET_TG)
     target_link_libraries(libonnc ${BMLIB})
 endif()
+
+install(TARGETS libonnc
+    ARCHIVE DESTINATION lib)

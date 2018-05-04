@@ -14,3 +14,5 @@ target_link_libraries(onnx2tg
     libonnc
     ${SKYPAT_LIBRARIES})
 
+install(TARGETS onnx2tg
+    RUNTIME DESTINATION bin)

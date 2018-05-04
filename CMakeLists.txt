@@ -146,3 +146,4 @@ set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparenthese
 add_compile_options(${ANDROID_CPPFLAGS})
 add_subdirectory(lib)
 add_subdirectory(tools)
+add_subdirectory(include)
