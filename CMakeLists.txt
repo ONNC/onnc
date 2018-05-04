@@ -102,9 +102,6 @@ option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 # Check for variables and targets
 include(cmake/onnc_target.cmake)
 enum_onnc_targets()
-if (ONNC_ON_APPLE)
-    set(TARGET_TG OFF CACHE BOOL "force OFF in Apple platform" FORCE)
-endif()
 
 set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include

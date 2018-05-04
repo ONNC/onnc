@@ -1,6 +1,7 @@
 # Returns the host triple.
 # Invokes config.guess
 
+set(config_guess ${CMAKE_CURRENT_LIST_DIR}/config.guess)
 function( get_host_triple var )
   if( MSVC )
     if( CMAKE_CL_64 )
@@ -15,7 +16,6 @@ function( get_host_triple var )
       set( value "i686-pc-mingw32" )
     endif()
   else( MSVC )
-    set(config_guess ${ONNC_SOURCE_DIR}/cmake/config.guess)
     execute_process(COMMAND sh ${config_guess}
       RESULT_VARIABLE TT_RV
       OUTPUT_VARIABLE TT_OUT
