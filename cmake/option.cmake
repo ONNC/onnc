@@ -1,0 +1,20 @@
+
+
+function(option_bool)
+    cmake_parse_arguments(OPT "" "NAME;HELP;CHECK;DEFAULT" "" ${ARGN})
+    set(${OPT_NAME} ${OPT_DEFAULT} CACHE BOOL ${OPT_HELP})
+    if (OPT_CHECK AND NOT ${OPT_CHECK})
+        unset(${OPT_NAME} CACHE)
+    endif()
+endfunction()
+
+function(option_enum)
+    cmake_parse_arguments(OPT "" "NAME;HELP;CHECK" "VALUE" ${ARGN})
+    list(GET OPT_VALUE 0 DEFAULT)
+    string(REPLACE ";" " " VALUE_HELP "${OPT_VALUE}")
+    set(${OPT_NAME} ${DEFAULT} CACHE STRING "${OPT_HELP}, options are: ${VALUE_HELP}")
+    set_property(CACHE ${OPT_NAME} PROPERTY STRINGS ${OPT_VALUE})
+    if (OPT_CHECK AND NOT ${OPT_CHECK})
+        unset(${OPT_NAME} CACHE)
+    endif()
+endfunction()

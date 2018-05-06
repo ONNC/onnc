@@ -1,0 +1,22 @@
+
+include_directories(${BMTAP_SOURCE_DIR}/common/include)
+include_directories(${BMTAP_SOURCE_DIR}/common/include/bm1680)
+include_directories(${BMNET_SOURCE_DIR}/src/targets/plat-bm168x/bmkernel_api_origin)
+include_directories(${BMTAP_SOURCE_DIR}/bmkernel/include)
+add_libonnc_src(
+    TGBackend.cpp 
+    TargetInfo/TGTargetInfo.cpp 
+    TGCodeEmitPass.cpp 
+    TGMemAllocInfoPass.cpp 
+    TGCodeEmitter.cpp 
+    TGConv.cpp 
+    TGGemm.cpp 
+    TGISelLowering.cpp 
+    TGLRN.cpp  
+    TGMaxPool.cpp 
+    TGRelu.cpp 
+    TGSoftmax.cpp 
+    TargetLowering.cpp 
+    TargetLoweringPass.cpp 
+    RemoveUnusedNodePass.cpp 
+    UpdateOutputInfoPass.cpp)

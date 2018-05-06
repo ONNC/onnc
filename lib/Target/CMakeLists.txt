@@ -1,0 +1,15 @@
+
+add_libonnc_src(
+    Target.cpp 
+    TargetBackend.cpp 
+    TargetRegistry.cpp)
+
+if (TARGET_SOPHON)
+    add_subdirectory(Sophon)
+endif()
+if (TARGET_TG)
+    add_subdirectory(TG)
+endif()
+if (TARGET_X86)
+    add_subdirectory(X86)
+endif()
