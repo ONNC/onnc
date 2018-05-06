@@ -2,7 +2,8 @@
 add_libonnc_src(
     Target.cpp 
     TargetBackend.cpp 
-    TargetRegistry.cpp)
+    TargetRegistry.cpp
+    NPUTargetBackend.cpp)
 
 if (TARGET_SOPHON)
     add_subdirectory(Sophon)

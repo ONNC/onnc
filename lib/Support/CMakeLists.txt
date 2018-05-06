@@ -10,6 +10,7 @@ add_libonnc_src(
     Environ.cpp 
     Expansion.cpp 
     Glob.cpp 
+    Host.cpp
     IOStream.cpp 
     IndentOStreamBuf.cpp 
     ManagedStatic.cpp 

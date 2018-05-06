@@ -1,8 +1,8 @@
-# Returns the host triple.
+# Returns the host quadruple.
 # Invokes config.guess
 
 set(config_guess ${CMAKE_CURRENT_LIST_DIR}/config.guess)
-function( get_host_triple var )
+function( get_host_quadruple var )
   if( MSVC )
     if( CMAKE_CL_64 )
       set( value "x86_64-pc-win32" )
@@ -26,4 +26,4 @@ function( get_host_triple var )
     set( value ${TT_OUT} )
   endif( MSVC )
   set( ${var} ${value} PARENT_SCOPE )
-endfunction( get_host_triple var )
+endfunction( get_host_quadruple var )
