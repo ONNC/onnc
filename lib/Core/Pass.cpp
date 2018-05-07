@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Core/Pass.h>
+#include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Diagnostic/MsgHandling.h>
@@ -18,6 +19,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::~Pass()
 {
+  delete m_pResolver;
 }
 
 StringRef Pass::getPassName() const

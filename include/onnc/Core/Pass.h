@@ -14,6 +14,7 @@
 namespace onnc {
 
 class AnalysisUsage;
+class AnalysisResolver;
 
 /** \class onnc::Pass
  *  \brief encapsulate transformation algorithms.
@@ -31,7 +32,7 @@ public:
 
 public:
   explicit Pass(Kind pKind, char& pPassID)
-    : m_Kind(pKind), m_PassID(&pPassID) { }
+    : m_Kind(pKind), m_PassID(&pPassID), m_pResolver(nullptr) { }
 
   virtual ~Pass();
 
@@ -75,9 +76,18 @@ public:
   /// This function should be overriden by passes that need analysis information.
   virtual void getAnalysisUsage(AnalysisUsage& pUsage) const { }
 
+  void setResolver(AnalysisResolver& pResolver) { m_pResolver = &pResolver; }
+
+  AnalysisResolver* getResolver() const { return m_pResolver; }
+
+  bool hasResolver() const { return (nullptr != m_pResolver); }
+
+  template<class AnalysisType> AnalysisType* getAnalysis() const;
+
 private:
   Kind m_Kind;
   AnalysisID m_PassID;
+  AnalysisResolver* m_pResolver;
 };
 
 } // namespace of onnc

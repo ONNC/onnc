@@ -3,6 +3,8 @@ nobase_nodist_include_HEADERS = \
 	Core/Application.h \
 	Core/AnalysisUsage.h \
 	Core/AnalysisResolver.h \
+	Core/Pass.h \
+	Core/PassAnalysisSupport.h \
 	ADT/Bits/HashBase.tcc \
 	ADT/Bits/HashIterator.tcc \
 	ADT/Bits/HashTable.tcc \

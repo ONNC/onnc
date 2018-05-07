@@ -8,6 +8,7 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/Core/PassRegistry.h>
 #include <onnc/Core/AnalysisUsage.h>
+#include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/Support/IOStream.h>
 #include <stack>
@@ -75,18 +76,27 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
           // use existed node or create a new node
           DepNode* new_node = findNode(*use);
           if (nullptr == new_node) {
-            // make the pass by ourself
+            // a new node: make the pass by ourself
             const PassInfo* info = getPassRegistry()->getPassInfo(*use);
             if (nullptr == info) {
               error(pass_not_registered) << "nullptr";
               return;
             }
             Pass* new_pass = info->makePass(pBackend);
+
+            // create resolver on demand
+            AnalysisResolver* resolver = nullptr;
+            if (!cur_node->pass->hasResolver()) {
+              resolver = new AnalysisResolver(*this);
+              cur_node->pass->setResolver(*resolver);
+            }
+            // add new dependency
+            cur_node->pass->getResolver()->add(*use, *new_pass);
             new_node = m_Dependencies.addNode(new_pass);
             stack.push(new_node);
           }
           m_Dependencies.connect(*new_node, *cur_node);
-        }
+        } // handle with new node.
       } // for each usage
     }
     m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;

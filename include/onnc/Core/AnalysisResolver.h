@@ -7,11 +7,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CORE_ANALYSIS_RESOLVER_H
 #define ONNC_CORE_ANALYSIS_RESOLVER_H
-#include <onnc/Core/PassManager.h>
+#include <onnc/Core/Pass.h>
 #include <vector>
 #include <utility>
 
 namespace onnc {
+
+class PassManager;
 
 /** \class AnalysisResolver
  *  \brief AnalysisResolver tracks the required passes of a certain pass.
