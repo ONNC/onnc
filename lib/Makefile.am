@@ -10,6 +10,7 @@ ONNC_SOURCES = \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
 	Core/AnalysisUsage.cpp \
+	Core/AnalysisResolver.cpp \
 	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
