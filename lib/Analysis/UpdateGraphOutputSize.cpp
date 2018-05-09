@@ -169,8 +169,27 @@ static void UpdatePoolOutputInfo(onnx::Node* pNode)
 
 static void UpdateGemmOutputInfo(onnx::Node* pNode)
 {
-  const TensorSizes &MatCdim = pNode->inputs()[2]->sizes();
-  UpdateOutputInfo(pNode, MatCdim, pNode->inputs()[0]->elemType());
+  // Directly use matrix C's dimension if kbroadcast attribute has no effect.
+  if (!pNode->hasAttribute(onnx::kbroadcast) ||
+      !pNode->i(onnx::kbroadcast)) {
+    const TensorSizes &MatCdim = pNode->inputs()[2]->sizes();
+    UpdateOutputInfo(pNode, MatCdim, pNode->inputs()[0]->elemType());
+  } else {
+    const TensorSizes &aDim = pNode->inputs()[0]->sizes(),
+                      &bDim = pNode->inputs()[1]->sizes();
+    // A: M x K
+    onnx::Dimension oM = aDim[0];
+    if (pNode->hasAttribute(onnx::ktransA) &&
+        pNode->i(onnx::ktransA))
+      oM = aDim[1].dim;
+
+    // B: K x N
+    onnx::Dimension oN = aDim[1];
+    if (pNode->hasAttribute(onnx::ktransB) &&
+        pNode->i(onnx::ktransB))
+      oM = aDim[0].dim;
+    UpdateOutputInfo(pNode, {oM, oN}, pNode->inputs()[0]->elemType());
+  }
 }
 
 //===----------------------------------------------------------------------===//
