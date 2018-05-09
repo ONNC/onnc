@@ -31,7 +31,7 @@ size_t GetElemSize(TP_DataTy pTy)
   return 4;
 }
 
-size_t GetTensorMemSize(const TensorSizes &pTS, TP_DataTy pTy)
+static size_t GetTensorMemSize(const TensorSizes &pTS, TP_DataTy pTy)
 {
   size_t s = GetElemSize(pTy);
   for (const onnx::Dimension &dim : pTS)

@@ -28,7 +28,7 @@ void MemoryUsageAnalysis::print(std::ostream& pOS) const
 {
 }
 
-size_t GetTensorMemSize(const TensorSize &pTS, TP_DataTy pTy)
+static size_t GetTensorMemSize(const TensorSize &pTS, TP_DataTy pTy)
 {
   outs() << "- size = " << pTS.size() << " (";
   for (const onnx::Dimension &dim : pTS)
