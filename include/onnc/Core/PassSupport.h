@@ -30,7 +30,7 @@ class TargetBackend;
       &pass_name::ID,                                                         \
       PassInfo::PassCtorFn(callDefaultCtor<pass_name>),                       \
       PassInfo::PassTargetCtorFn(                                             \
-          callTargetBackendCtor<pass_name, ##backend_type##>));               \
+          callTargetBackendCtor<pass_name, backend_type>));                   \
     pRegistry.registerPass(*info);                                            \
     return info;                                                              \
   }

@@ -18,7 +18,7 @@ template<class AnalysisType>
 AnalysisType* onnc::Pass::getAnalysis() const
 {
   assert(hasResolver() && "Pass not reside a PassManager object!");
-  return getResolver()->find(AnalysisType::ID);
+  return (AnalysisType*)getResolver()->find(&AnalysisType::ID);
 }
 
 #endif
