@@ -8,12 +8,14 @@
 #ifndef ONNC_MEMORY_ALLOCATION_H
 #define ONNC_MEMORY_ALLOCATION_H
 #include <onnc/Core/ModulePass.h>
+#include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
 #include <vector>
 
 namespace onnc {
 
 class LiveInterval;
+class TargetBackend;
 
 struct MemAllocEntry {
 public:
@@ -38,7 +40,7 @@ public:
   virtual ~MemoryAllocation();
 
 public:
-  MemoryAllocation();
+  MemoryAllocation(TargetBackend* pTB = nullptr);
 
   bool runOnModule(Module& pModule) override;
 
@@ -55,6 +57,8 @@ private:
 };
 
 MemoryAllocation* CreateMemoryAllocationPass();
+
+INITIALIZE_TB_PASS(MemoryAllocation, "MemoryAllocation")
 
 } // namespace of onnc
 

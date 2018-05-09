@@ -8,6 +8,7 @@
 #ifndef ONNC_LIVENESS_ANALYSIS_H
 #define ONNC_LIVENESS_ANALYSIS_H
 #include <onnc/Core/ModulePass.h>
+#include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
 #include <string>
 #include <iosfwd>
@@ -70,6 +71,8 @@ private:
 };
 
 GraphLivenessAnalysis *CreateLivenessAnalysisPass();
+
+INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")
 
 } // namespace of onnc
 

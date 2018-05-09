@@ -8,7 +8,9 @@
 #include <onnc/Analysis/MemoryAllocation.h>
 #include <onnc/Analysis/LivenessAnalysis.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
+#include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/Support/IOStream.h>
 #include <limits>
 #include <vector>
@@ -22,10 +24,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-
-#pragma weak GetGraphLivenessAnalysis
-// FIXME: Temporary work around for getting dependent pass.
-GraphLivenessAnalysis *GetGraphLivenessAnalysis() { return nullptr; }
 
 // FIXME: Query from TargetInfo
 size_t GetElemSize(TP_DataTy pTy)
@@ -64,7 +62,7 @@ static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
 //===----------------------------------------------------------------------===//
 // MemoryAllocation
 //===----------------------------------------------------------------------===//
-MemoryAllocation::MemoryAllocation()
+MemoryAllocation::MemoryAllocation(TargetBackend* pTB)
   : ModulePass(ID), m_MemAllocList() {
 }
 
@@ -118,7 +116,7 @@ bool MemoryAllocation::runOnModule(Module& pModule)
   clear();
 
   // getAnalysis<GraphLivenessAnalysis>(pModule)
-  GraphLivenessAnalysis *liveAnaly = GetGraphLivenessAnalysis();
+  GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
 
   ValMemSizeMap valMemSMap;
   GetMemoryUsageForAllValues(*pModule.getGraph(), valMemSMap);

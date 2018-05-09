@@ -8,6 +8,7 @@
 #ifndef ONNC_UPDATE_GRAPH_OUTPUT_SIZE_H
 #define ONNC_UPDATE_GRAPH_OUTPUT_SIZE_H
 #include <onnc/Core/ModulePass.h>
+#include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -28,6 +29,8 @@ public:
 };
 
 UpdateGraphOutputSize* CreateUpdateGraphOutputSizePass();
+
+INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
 
 } // namespace of onnc
 
