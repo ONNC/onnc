@@ -51,6 +51,10 @@ bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
       return false;
     }
     pModule.delegateGraph(::onnx::ImportModelProto(model));
+    for (int i = 0; i < model.metadata_props_size(); i++) {
+      auto strStrEntry = model.metadata_props(i);
+      pModule.insertMetaData(strStrEntry.key(), strStrEntry.value());
+    }
   }
 
   err = file.close();
