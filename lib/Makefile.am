@@ -31,6 +31,7 @@ ONNC_SOURCES = \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
 	IR/Module.cpp \
+	IR/Dump.cpp \
   Support/AsyncPipe.cpp \
   Support/CArgu.cpp \
   Support/CArguRef.cpp \
