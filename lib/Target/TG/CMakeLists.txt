@@ -6,6 +6,7 @@ include_directories(
     ${BMTAP_SOURCE_DIR}/bmnet/include
     ${BMTAP_SOURCE_DIR}/bmnet/include/targets
     ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm168x/bmkernel)
+include_directories(${PYTORCH_INCLUDE_DIRS})
 
 add_libonnc_src(
     TGBackend.cpp 
