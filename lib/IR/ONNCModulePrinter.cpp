@@ -190,6 +190,13 @@ void dumpModelProto(const ::onnx::ModelProto &model)
   }
   std::cout << std::endl;
   std::cout << '}' << std::endl;
+
+  // dump meata data
+  for (int i = 0; i < model.metadata_props_size(); i++) {
+     auto strStrEntry = model.metadata_props(i);
+     std::cout << "key:" << strStrEntry.key() << std::endl;
+     std::cout << "value:" << strStrEntry.value() << std::endl;
+  }
 }
 
 class ONNCModulePrinter : public ModulePass
@@ -200,10 +207,17 @@ public:
 
   Pass::ReturnType runOnModule(Module &pModule) override
   {
+    // FIXME because we use legacy dumpModelProto funtion
+    //     translate graph/meta into ModelProto first
     auto graph = pModule.getGraph();
-    ::onnx::ModelProto model;
-    ::onnx::ExportModelProto(&model, graph);
-    dumpModelProto(model);
+    ::onnx::ModelProto modelProto;
+    ::onnx::ExportModelProto(&modelProto, graph);
+    for (auto &metaData : pModule.getMetaData()) {
+      auto *metadata_props = modelProto.add_metadata_props();
+      metadata_props->set_key(metaData.first);
+      metadata_props->set_value(metaData.second);
+    }
+    dumpModelProto(modelProto);
     return Pass::kModuleNoChanged;
   }
 };
