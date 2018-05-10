@@ -4,14 +4,22 @@
 #include <onnc/Support/Path.h>
 #include <vector>
 #include <memory>
-namespace bmnet{
-  class BM168xBackendContext;
-}
+
+namespace bmnet {
+
+class BM168xBackendContext;
+
+} // namespace of bmnet
+
 namespace onnc {
+
 class TGBackend;
-class TGCodeEmitter {
+
+class TGCodeEmitter
+{
 public:
   TGCodeEmitter(TGBackend *tgBackend);
+
   void encodeInstructions(Path &m_outputPath);
 
 private:
@@ -23,11 +31,14 @@ private:
   static void emitDebugInfo(void *userData, char const *info, int nodeId,
                             long long unsigned int fwAddr, bool isFloat);
   void bmkernelContextPrepare(void);
+
+private:
   void *m_bmkernelHandle;
   TGBackend *m_tgBackend;
 };
 
-class tg_kernel {
+class tg_kernel
+{
 public:
   static tg_kernel &getInstance() {
     static tg_kernel instance; // Guaranteed to be destroyed.
@@ -35,12 +46,17 @@ public:
     return instance;
   }
 
+public:
+  bmnet::BM168xBackendContext *ctx;
+
 private:
+  tg_kernel(tg_kernel const &) = delete;
+
+  void operator=(tg_kernel const &) = delete;
+
   tg_kernel() {} // Constructor? (the {} brackets) are needed here.
 
-public:
-  tg_kernel(tg_kernel const &) = delete;
-  void operator=(tg_kernel const &) = delete;
-bmnet::BM168xBackendContext *ctx;
+  ~tg_kernel() {}
 };
+
 } // namespace onnc
