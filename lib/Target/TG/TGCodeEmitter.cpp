@@ -8,10 +8,13 @@
 
 using namespace onnc;
 
-TGCodeEmitter::TGCodeEmitter(TGBackend *tgBackend) : m_tgBackend(tgBackend) {}
+TGCodeEmitter::TGCodeEmitter(TGBackend *tgBackend)
+  : m_tgBackend(tgBackend) {
+}
 
-void TGCodeEmitter::encodeInstructions(Path &outputPath) {
-  auto m_outputPath = Path("cmdbuf.bin");
+void TGCodeEmitter::encodeInstructions(Path &outputPath)
+{
+  Path m_outputPath("cmdbuf.bin");
   if (!outputPath.empty())
     m_outputPath = outputPath;
   // tap2
