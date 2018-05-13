@@ -16,9 +16,13 @@ using namespace onnc;
 // TGBackend
 //===----------------------------------------------------------------------===//
 TGBackend::TGBackend(const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_pTLI(new TGTargetLowering(this)), m_pCE(new TGCodeEmitter(this)) {}
+  : DLATargetBackend(pOptions),
+    m_pTLI(new TGTargetLowering(this)),
+    m_pCE(new TGCodeEmitter(this)) {
+}
 
-TGBackend::~TGBackend() {
+TGBackend::~TGBackend()
+{
   delete m_pTLI;
   delete m_pCE;
 }
