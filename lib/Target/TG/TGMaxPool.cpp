@@ -34,7 +34,8 @@ TGMaxPool::TGMaxPool(const onnx::Node &node, MemTable &memTable)
   }
 }
 
-void TGMaxPool::emit(void) const {
+void TGMaxPool::emit(void) const
+{
   std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_inputAddr
             << " m_outputAddr:" << m_outputAddr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W

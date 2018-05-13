@@ -28,7 +28,8 @@ TGRelu::TGRelu(const onnx::Node &node, MemTable &memTable)
 
 }
 
-void TGRelu::emit(void) const {
+void TGRelu::emit(void) const
+{
   std::cout << "TGRelu::emit\tm_inputAddr:" << m_inputAddr
             << " m_outputAddr:" << m_outputAddr
             << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N

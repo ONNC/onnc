@@ -9,10 +9,12 @@ using namespace onnc;
 
 namespace {
 
-class UpdateOutputInfo : public ModulePass {
-
+class UpdateOutputInfo : public ModulePass
+{
 public:
   static char ID;
+
+public:
   UpdateOutputInfo() : ModulePass(ID) {}
 
   bool runOnModule(Module &pModule) override;

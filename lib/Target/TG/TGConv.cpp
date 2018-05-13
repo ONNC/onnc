@@ -5,6 +5,7 @@ using namespace onnc;
 using namespace std;
 
 namespace {
+
 auto KERNEL_SHAPE = onnx::Symbol("kernel_shape");
 auto STRIDES = onnx::Symbol("strides");
 auto PADS = onnx::Symbol("pads");

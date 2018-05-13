@@ -13,6 +13,7 @@
 
 
 namespace onnc {
+
 class ModulePass;
 extern onnc::Target TheTGTarget;
 

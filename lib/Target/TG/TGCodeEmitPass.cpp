@@ -8,8 +8,8 @@ using namespace onnc;
 
 namespace {
 
-class TGCodeEmit : public ModulePass {
-
+class TGCodeEmit : public ModulePass
+{
 private:
   TGBackend *m_target;
 

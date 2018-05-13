@@ -6,7 +6,8 @@
 #include "TGISelLowering.h"
 namespace onnc {
 
-class TGGemm : public Operator {
+class TGGemm : public Operator
+{
 public:
   TGGemm(const onnx::Node &node, MemTable &memTable);
   void dumpOnnxConv(const onnx::Node &node);
@@ -27,4 +28,5 @@ private:
 };
 
 } // namespace onnc
+
 #endif

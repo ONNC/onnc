@@ -2,8 +2,9 @@
 #include <bmkernel_api.h>
 
 using namespace onnc;
-void TGGemm::dumpOnnxConv(const onnx::Node &node) {
 
+void TGGemm::dumpOnnxConv(const onnx::Node &node)
+{
   std::cout << "dump TGGemm:" << std::endl;
   if (node.hasAttribute(onnx::Symbol("transA"))) {
     auto transA = node.i(onnx::Symbol("transA"));
@@ -90,8 +91,8 @@ TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
   }
 }
 
-void TGGemm::emit(void) const {
-
+void TGGemm::emit(void) const
+{
   std::cout << "TGGemm::emit\tm_inputAddr:" << m_inputAddr
             << " m_weightAddr:" << m_weightAddr << " m_biasAddr:" << m_biasAddr
             << " m_outputAddr:" << m_outputAddr << " m_inRowNum:" << m_inRowNum

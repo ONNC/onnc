@@ -7,10 +7,13 @@
 
 namespace onnc {
 
-class TGRelu : public Operator {
+class TGRelu : public Operator
+{
 public:
   TGRelu(const onnx::Node &node, MemTable &memTable);
+
   void emit(void) const override;
+
 private:
   uint64_t m_inputAddr;
   uint64_t m_outputAddr;
@@ -22,4 +25,5 @@ private:
 };
 
 }  // namespace onnc
+
 #endif

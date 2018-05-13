@@ -7,8 +7,10 @@
 #include "TGISelLowering.h"
 
 using namespace onnc;
-Operator *TGTargetLowering::LowerHelper(const onnx::Node &node,
-                                        MemTable &memTable) {
+
+Operator*
+TGTargetLowering::LowerHelper(const onnx::Node &node, MemTable &memTable)
+{
   uint32_t symbol = node.kind();
   if (symbol == onnx::Symbol("Conv"))
     return new TGConv(node, memTable);
@@ -27,7 +29,8 @@ Operator *TGTargetLowering::LowerHelper(const onnx::Node &node,
 }
 
 void TGTargetLowering::LowerOperation(
-    const onnx::Node &node, std::vector<std::unique_ptr<Operator> > &instList) {
+    const onnx::Node &node, std::vector<std::unique_ptr<Operator> > &instList)
+{
   MemTable &globalMemLayout = m_tgBackend->getMemLayout();
   uint32_t symbol = node.kind();
   std::unique_ptr<Operator> oper(LowerHelper(node, globalMemLayout));

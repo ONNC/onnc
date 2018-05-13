@@ -6,10 +6,14 @@
 #include "TGISelLowering.h"
 
 namespace onnc {
-class TGMaxPool : public Operator {
+
+class TGMaxPool : public Operator
+{
 public:
   TGMaxPool(const onnx::Node &node, MemTable &memTable);
+
   void emit(void) const override;
+
 private:
   uint64_t m_inputAddr;
   uint64_t m_outputAddr;

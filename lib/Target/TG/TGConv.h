@@ -6,9 +6,12 @@
 #include "TGISelLowering.h"
 
 namespace onnc {
-class TGConv : public Operator {
+
+class TGConv : public Operator
+{
 public:
   TGConv(const onnx::Node &node, MemTable &memTable);
+
   void emit(void) const override;
 
 private:
@@ -25,4 +28,5 @@ private:
 };
 
 } // namespace onnc
+
 #endif
