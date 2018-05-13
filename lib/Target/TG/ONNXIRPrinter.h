@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONNC_TARGET_TG_ONNX_IR_PRINTER_H
+#define ONNC_TARGET_TG_ONNX_IR_PRINTER_H
 
 #include <string>
 #include <sstream>
@@ -215,3 +216,5 @@ void dumpGraph(const std::shared_ptr<onnx::Graph>& g) {
 } // ONNXIRPrinter namespace
 
 } // anonymous namespace
+
+#endif
