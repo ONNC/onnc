@@ -5,11 +5,15 @@
 
 namespace onnc {
 
-class Operator {
+class Operator
+{
 public:
-  Operator(const onnx::Node &node, const std::string &name) {};
-  virtual ~Operator() {};
-  const std::string &getName(void) { return m_name; }
+  Operator(const onnx::Node &node, const std::string &name) { }
+
+  virtual ~Operator() { }
+
+  const std::string &getName(void) const { return m_name; }
+
   virtual void emit(void) const = 0;
 
 private:
