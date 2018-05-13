@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef ONNC_TARGET_TG_CODE_EMITTER_H
+#define ONNC_TARGET_TG_CODE_EMITTER_H
 #include "TGBackend.h"
 #include <onnc/Support/Path.h>
 #include <vector>
@@ -60,3 +60,5 @@ private:
 };
 
 } // namespace onnc
+
+#endif
