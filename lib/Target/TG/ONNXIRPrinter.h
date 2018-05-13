@@ -11,11 +11,11 @@ using namespace onnc;
 
 // FIXME Printer can a a ModulePass
 
-namespace {
 namespace ONNXIRPrinter {
 
-std::string convertSnakeCaseToCamelCase(const std::string &str,
-                                        bool initial_to_upper = false) {
+inline std::string
+convertSnakeCaseToCamelCase(const std::string &str, bool initial_to_upper = false)
+{
   // TODO: preserve memory
   std::ostringstream r;
   bool to_upper = initial_to_upper;
@@ -32,7 +32,8 @@ std::string convertSnakeCaseToCamelCase(const std::string &str,
   return r.str();
 }
 
-std::string ConvertTypeToString(const onnx::TypeProto type) {
+inline std::string ConvertTypeToString(const onnx::TypeProto type)
+{
   std::ostringstream r;
   r << "tensor<";
   const onnx::TensorShapeProto &tensor_shape = type.tensor_type().shape();
@@ -51,7 +52,8 @@ std::string ConvertTypeToString(const onnx::TypeProto type) {
   return r.str();
 }
 
-void dumpModelProto(const onnx::ModelProto &model) {
+inline void dumpModelProto(const onnx::ModelProto &model)
+{
 
   // dump model info
   if (model.has_ir_version()) {
@@ -207,14 +209,13 @@ void dumpModelProto(const onnx::ModelProto &model) {
   std::cout << '}' << std::endl;
 }
 
-void dumpGraph(const std::shared_ptr<onnx::Graph>& g) {
+inline void dumpGraph(const std::shared_ptr<onnx::Graph>& g)
+{
   onnx::ModelProto model;
   onnx::ExportModelProto(&model, g);
   dumpModelProto(model);
 }
 
 } // ONNXIRPrinter namespace
-
-} // anonymous namespace
 
 #endif
