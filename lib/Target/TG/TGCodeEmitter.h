@@ -20,7 +20,7 @@ class TGCodeEmitter
 public:
   TGCodeEmitter(TGBackend *tgBackend);
 
-  void encodeInstructions(Path &m_outputPath);
+  void encodeInstructions(const Path& pOutputPath);
 
 private:
   static void sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len);

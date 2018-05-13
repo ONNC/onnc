@@ -12,11 +12,11 @@ TGCodeEmitter::TGCodeEmitter(TGBackend *tgBackend)
   : m_tgBackend(tgBackend) {
 }
 
-void TGCodeEmitter::encodeInstructions(Path &outputPath)
+void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
 {
-  Path m_outputPath("cmdbuf.bin");
-  if (!outputPath.empty())
-    m_outputPath = outputPath;
+  Path output_path("cmdbuf.bin");
+  if (!pOutputPath.empty())
+    output_path = pOutputPath;
   // tap2
   std::vector<float> weight_data;
   // ReadFloatDataFromBinaryFile(weight, weight_data);
@@ -24,6 +24,8 @@ void TGCodeEmitter::encodeInstructions(Path &outputPath)
   tg_kernel::getInstance().ctx = &ctx;
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());
+
+  // XXX: we use auto only when the type is keeping changing.
   // onnc part
   auto &instList = m_tgBackend->getInsts();
   for (auto const &i : instList)
@@ -36,5 +38,5 @@ void TGCodeEmitter::encodeInstructions(Path &outputPath)
   std::vector<uint8_t> cmdbuf;
   ctx.read_cmdbuf(cmdbuf);
   bmnet::WriteFloatDataToBinaryFile(cmdbuf.data(), cmdbuf.size(),
-                                    m_outputPath.generic_string());
+                                    output_path.generic_string());
 }
