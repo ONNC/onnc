@@ -21,10 +21,12 @@ public:
     kCycleCount,  ///< Get graph (or compute) IR cycle count.
   };
 
+  /// Get coarse-grained (approximately) cost of onnx node.
   virtual int getOperatorCost(const onnx::Node *pNode,
-                              enum TargetCostKind kind) const { return 0; }
-
-  virtual int getOperatorMemorySize(onnx::Value *pValue) { return 0; }
+                              enum TargetCostKind kind) const
+  {
+    return 0;
+  }
 
   virtual int getWarpSize() const { return 0; }
 
