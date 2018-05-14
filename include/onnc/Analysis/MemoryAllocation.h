@@ -15,7 +15,7 @@
 namespace onnc {
 
 class LiveInterval;
-class TargetBackend;
+class DLATargetBackend;
 
 struct MemAllocEntry {
 public:
@@ -40,7 +40,7 @@ public:
   virtual ~MemoryAllocation();
 
 public:
-  MemoryAllocation(TargetBackend* pTB = nullptr);
+  MemoryAllocation(DLATargetBackend* pDLATB = nullptr);
 
   bool runOnModule(Module& pModule) override;
 
@@ -54,11 +54,12 @@ private:
 
 private:
   MemAllocList m_MemAllocList;
+  DLATargetBackend* m_DLATB = nullptr;
 };
 
-MemoryAllocation* CreateMemoryAllocationPass();
+MemoryAllocation* CreateMemoryAllocationPass(DLATargetBackend* pDLATB);
 
-INITIALIZE_TB_PASS(MemoryAllocation, "MemoryAllocation")
+INITIALIZE_DLA_PASS(MemoryAllocation, "MemoryAllocation")
 
 } // namespace of onnc
 

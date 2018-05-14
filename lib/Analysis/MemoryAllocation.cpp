@@ -62,8 +62,8 @@ static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
 //===----------------------------------------------------------------------===//
 // MemoryAllocation
 //===----------------------------------------------------------------------===//
-MemoryAllocation::MemoryAllocation(TargetBackend* pTB)
-  : ModulePass(ID), m_MemAllocList() {
+MemoryAllocation::MemoryAllocation(DLATargetBackend* pDLATB)
+  : ModulePass(ID), m_MemAllocList(), m_DLATB(pDLATB) {
 }
 
 MemoryAllocation::~MemoryAllocation()
@@ -113,6 +113,11 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
 
 bool MemoryAllocation::runOnModule(Module& pModule)
 {
+  if (!m_DLATB) {
+    errs() << "No backend infomation that is needed for memory allcation.\n";
+    return false;
+  }
+
   clear();
 
   // getAnalysis<GraphLivenessAnalysis>(pModule)
@@ -175,7 +180,7 @@ void MemoryAllocation::clear()
 //===----------------------------------------------------------------------===//
 char MemoryAllocation::ID = 0;
 
-MemoryAllocation* onnc::CreateMemoryAllocationPass()
+MemoryAllocation* onnc::CreateMemoryAllocationPass(DLATargetBackend* pDLATB)
 {
-  return new MemoryAllocation();
+  return new MemoryAllocation(pDLATB);
 }
