@@ -5,6 +5,13 @@
 namespace onnc {
 namespace onnx {
 
+void SerializeToString(std::string &output, const Module &pModule)
+{
+  ::onnx::ModelProto modelProto;
+  ExportModelProto(modelProto, pModule);
+  modelProto.SerializeToString(&output);
+}
+
 void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
 {
   pModelProto.set_ir_version(pModule.m_OnnxIRVersion);

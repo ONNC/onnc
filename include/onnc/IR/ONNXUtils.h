@@ -12,6 +12,7 @@
 namespace onnc {
 namespace onnx {
 
+void SerializeToString(std::string &output, const Module &pModule);
 void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule);
 
 void ImportModelProto(Module &pModule, const ::onnx::ModelProto &pModelProto);
