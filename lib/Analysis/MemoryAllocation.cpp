@@ -12,37 +12,23 @@
 #include <onnc/Core/AnalysisUsage.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Target/DLATargetBackend.h>
+#include <onnc/Target/TargetMemInfo.h>
+#include <onnc/Target/TargetTransformInfo.h>
 #include <limits>
 #include <vector>
 #include <unordered_map>
-
-using TensorSizes = std::vector<onnx::Dimension>;
-using TP_DataTy = onnx::TensorProto_DataType;
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-
-// FIXME: Query from TargetInfo
-size_t GetElemSize(TP_DataTy pTy)
-{
-  return 4;
-}
-
-static size_t GetTensorMemSize(const TensorSizes &pTS, TP_DataTy pTy)
-{
-  size_t s = GetElemSize(pTy);
-  for (const onnx::Dimension &dim : pTS)
-    s *= dim.dim;
-  return s;
-}
-
 using ValMemSizeMap = std::unordered_map<const onnx::Value *, size_t>;
 
 static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
-                                       ValMemSizeMap &pVMSMap)
+                                       ValMemSizeMap &pVMSMap,
+                                       DLATargetBackend* pDLATB)
 {
   // Try to allocate virtual memory according to liveness range.
   for (onnx::Node* n : pGraph.nodes()) {
@@ -51,11 +37,11 @@ static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
 
     // get required memory size of each input.
     for (onnx::Value *v : n->inputs())
-      pVMSMap[v] = GetTensorMemSize(v->sizes(), v->elemType());
+      pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v).size;
 
     // get required memory size of each output.
     for (onnx::Value *v : n->outputs())
-      pVMSMap[v] = GetTensorMemSize(v->sizes(), v->elemType());
+      pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v).size;
   }
 }
 
@@ -120,11 +106,10 @@ bool MemoryAllocation::runOnModule(Module& pModule)
 
   clear();
 
-  // getAnalysis<GraphLivenessAnalysis>(pModule)
   GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
 
   ValMemSizeMap valMemSMap;
-  GetMemoryUsageForAllValues(*pModule.getGraph(), valMemSMap);
+  GetMemoryUsageForAllValues(*pModule.getGraph(), valMemSMap, m_DLATB);
 
   // allocate memory considering liveness.
   auto &livesInfo = liveAnaly->getLiveIntervals();
@@ -135,6 +120,7 @@ bool MemoryAllocation::runOnModule(Module& pModule)
 
     MemRegionList conflicts = GetUsedMemRegions(m_MemAllocList, *li);
 
+    // Note: conflicts has been sorted by starting address in GetUsedMemRegions.
     for (const MemRegion &reg : conflicts) {
       if (!HasConflict(reg.start, reg.size, startAddr, required))
         break;
