@@ -18,9 +18,25 @@ namespace onnc {
 class TargetMemInfo
 {
 public:
+  struct MemSize
+  {
+    unsigned alignment;
+    unsigned size;
+
+    MemSize(unsigned alignment, unsigned size)
+      : alignment(alignment), size(size) {}
+  };
+
+public:
   virtual unsigned getGlobalMemSize() const { return 0; }
 
   virtual unsigned getLocalMemSize() const { return 0; }
+
+  /// Return actual memory size and alignment requirement of onnx::Value.
+  virtual MemSize getValueMemorySize(onnx::Value *pValue)
+  {
+    return MemSize(0, 0);
+  }
 };
 
 } // namespace of onnc
