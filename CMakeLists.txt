@@ -138,7 +138,8 @@ set(PYTORCH_INCLUDE_DIRS
     ${PYTORCH_INSTALL_DIR}/include)
 set(PYTORCH_LIBRARIES
     ${PYTORCH_INSTALL_DIR}/lib/libonnx.a
-    ${PYTORCH_INSTALL_DIR}/lib/libonnx_proto.a)
+    ${PYTORCH_INSTALL_DIR}/lib/libonnx_proto.a
+    ${PYTORCH_INSTALL_DIR}/lib/libcaffe2.so)
 
 ####################
 # OUTPUT
