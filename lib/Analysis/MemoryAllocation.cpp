@@ -22,6 +22,12 @@
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
+// Extension IR for onnx
+//===----------------------------------------------------------------------===//
+static const onnx::Symbol g_LoadKind("Load");
+static const onnx::Symbol g_StoreKind("Store");
+
+//===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
 using ValMemSizeMap = std::unordered_map<const onnx::Value *, size_t>;
@@ -42,6 +48,45 @@ static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
     // get required memory size of each output.
     for (onnx::Value *v : n->outputs())
       pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v).size;
+  }
+}
+
+static void InsertLoadStoreNode(onnx::Graph &pGraph)
+{
+  for (onnx::Value* v : pGraph.inputs()) {
+    onnx::Node* first = nullptr;
+    for(auto u : v->uses()) {
+      if (!first) {
+        first = u.user;
+        continue;
+      }
+
+      if (!first->isBefore(u.user))
+        first = u.user;
+    }
+
+    // Create load node and insert before the first use node.
+    onnx::Node* loadN = pGraph.create(g_LoadKind);
+    loadN->insertBefore(first);
+    loadN->output()->copyMetadata(v);
+    v->replaceAllUsesWith(loadN->output());
+  }
+
+  for (onnx::Value* v : pGraph.outputs()) {
+    onnx::Node* last = nullptr;
+    for(auto u : v->uses()) {
+      if (!last) {
+        last = u.user;
+        continue;
+      }
+
+      if (last->isBefore(u.user))
+        last = u.user;
+    }
+
+    // Create store node and insert before the last use node.
+    onnx::Node* storeN = pGraph.create(g_StoreKind, {v}, 0);
+    storeN->insertBefore(last);
   }
 }
 
@@ -110,6 +155,8 @@ bool MemoryAllocation::runOnModule(Module& pModule)
 
   ValMemSizeMap valMemSMap;
   GetMemoryUsageForAllValues(*pModule.getGraph(), valMemSMap, m_DLATB);
+
+  InsertLoadStoreNode(*pModule.getGraph());
 
   // allocate memory considering liveness.
   auto &livesInfo = liveAnaly->getLiveIntervals();
