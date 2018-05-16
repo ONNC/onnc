@@ -15,6 +15,9 @@ ONNC_SOURCES = \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
   Analysis/LivenessAnalysis.cpp \
+  Analysis/MemoryUsageAnalysis.cpp \
+  Analysis/MemoryAllocation.cpp \
+  Analysis/UpdateGraphOutputSize.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \
@@ -28,6 +31,7 @@ ONNC_SOURCES = \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
 	IR/Module.cpp \
+	IR/Dump.cpp \
   Support/AsyncPipe.cpp \
   Support/CArgu.cpp \
   Support/CArguRef.cpp \

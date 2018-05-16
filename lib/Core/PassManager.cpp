@@ -55,51 +55,61 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
     return;
 
   DepNode* cur_node = m_Dependencies.addNode(pPass);
+  m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;
+
   std::stack<DepNode*> stack;
   stack.push(cur_node);
 
+  // process pass dependency.
   while (!stack.empty()) {
     cur_node = stack.top();
-    if (hasAdded(cur_node->pass->getPassID()))
-      return;
-
     stack.pop();
 
     AnalysisUsage usage;
     cur_node->pass->getAnalysisUsage(usage);
     if (usage.isEmpty()) {
       m_Dependencies.connect(*m_pStart, *cur_node);
+      continue;
     }
-    else {
-      for (AnalysisUsage::iterator use = usage.begin(); use != usage.end(); ++use) {
-        if (!hasAdded(*use)) {
-          // use existed node or create a new node
-          DepNode* new_node = findNode(*use);
-          if (nullptr == new_node) {
-            // a new node: make the pass by ourself
-            const PassInfo* info = getPassRegistry()->getPassInfo(*use);
-            if (nullptr == info) {
-              error(pass_not_registered) << "nullptr";
-              return;
-            }
-            Pass* new_pass = info->makePass(pBackend);
 
-            // create resolver on demand
-            AnalysisResolver* resolver = nullptr;
-            if (!cur_node->pass->hasResolver()) {
-              resolver = new AnalysisResolver(*this);
-              cur_node->pass->setResolver(*resolver);
-            }
-            // add new dependency
-            cur_node->pass->getResolver()->add(*use, *new_pass);
-            new_node = m_Dependencies.addNode(new_pass);
-            stack.push(new_node);
-          }
-          m_Dependencies.connect(*new_node, *cur_node);
-        } // handle with new node.
-      } // for each usage
+    // create resolver on demand.
+    // The pass is might be added to other PassManager, so it's resolver
+    // does exist.
+    AnalysisResolver* resolver = cur_node->pass->getResolver();
+    if (!resolver) {
+      resolver = new AnalysisResolver(*this);
+      cur_node->pass->setResolver(*resolver);
     }
-    m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;
+
+    for (Pass::AnalysisID& use : usage) {
+      if (hasAdded(use)) {
+        DepNode* dep_node = findNode(use);
+        assert(dep_node && "dependency node doesn't exist?!");
+        // add dependency.
+        m_Dependencies.connect(*dep_node, *cur_node);
+        resolver->add(use, *dep_node->pass);
+        continue;
+      }
+
+      // Create dependent pass.
+      const PassInfo* info = getPassRegistry()->getPassInfo(use);
+      if (nullptr == info) {
+        error(pass_not_registered) << "nullptr";
+        return;
+      }
+      Pass* new_pass = info->makePass(pBackend);
+
+      // Register the newly created pass
+      DepNode* new_node = m_Dependencies.addNode(new_pass);
+      m_AvailableAnalysis[new_node->pass->getPassID()] = new_node;
+
+      // add dependency for cur_node.
+      m_Dependencies.connect(*new_node, *cur_node);
+      resolver->add(use, *new_pass);
+
+      // continue traverse dependency of new node.
+      stack.push(new_node);
+    } // for each usage
   } // leave stacking
 }
 

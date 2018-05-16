@@ -1,4 +1,5 @@
 
 add_libonnc_src(
     Module.cpp 
-    Quadruple.cpp)
+    Quadruple.cpp
+    Dump.cpp)

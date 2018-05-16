@@ -8,6 +8,7 @@
 #ifndef ONNC_LIVENESS_ANALYSIS_H
 #define ONNC_LIVENESS_ANALYSIS_H
 #include <onnc/Core/ModulePass.h>
+#include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
 #include <string>
 #include <iosfwd>
@@ -17,7 +18,7 @@ namespace onnc {
 
 /** \class LiveInterval
  */
-class LiveInterval 
+class LiveInterval
 {
 public:
   typedef unsigned SlotIndex;
@@ -30,6 +31,9 @@ public:
   SlotIndex getEnd() const { return m_End; }
 
   const onnx::Value& getValue() const { return m_Value; }
+
+  /// return true if two live intervals have intersection
+  bool intersect(const LiveInterval& pLive) const;
 
 protected:
   // Live interval = [start, end]
@@ -67,6 +71,8 @@ private:
 };
 
 GraphLivenessAnalysis *CreateLivenessAnalysisPass();
+
+INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")
 
 } // namespace of onnc
 

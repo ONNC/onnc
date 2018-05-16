@@ -14,6 +14,7 @@ namespace onnc {
 
 class TargetMemInfo;
 class TargetOptions;
+class TargetTransformInfo;
 
 class TargetBackend
 {
@@ -27,6 +28,8 @@ public:
   virtual void addMemAlloc(PassManager& pPM) { return; }
 
   virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
+
+  virtual const TargetTransformInfo* getTTI() const { return nullptr; }
 };
 
 } // namespace of onnc
