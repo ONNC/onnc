@@ -72,8 +72,6 @@ private:
 
 GraphLivenessAnalysis *CreateLivenessAnalysisPass();
 
-INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")
-
 } // namespace of onnc
 
 #endif

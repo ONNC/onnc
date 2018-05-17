@@ -30,8 +30,6 @@ public:
 
 UpdateGraphOutputSize* CreateUpdateGraphOutputSizePass();
 
-INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
-
 } // namespace of onnc
 
 #endif

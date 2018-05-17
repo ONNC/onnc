@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/LivenessAnalysis.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <unordered_map>
@@ -160,6 +161,8 @@ void GraphLivenessAnalysis::clear()
 // Factory method
 //===----------------------------------------------------------------------===//
 char GraphLivenessAnalysis::ID = 0;
+
+INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")
 
 GraphLivenessAnalysis *onnc::CreateLivenessAnalysisPass()
 {

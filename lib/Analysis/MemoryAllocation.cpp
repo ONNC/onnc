@@ -8,6 +8,7 @@
 #include <onnc/Analysis/MemoryAllocation.h>
 #include <onnc/Analysis/LivenessAnalysis.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
 #include <onnc/Core/PassAnalysisSupport.h>
@@ -212,6 +213,8 @@ void MemoryAllocation::clear()
 // Factory method
 //===----------------------------------------------------------------------===//
 char MemoryAllocation::ID = 0;
+
+INITIALIZE_DLA_PASS(MemoryAllocation, "MemoryAllocation")
 
 MemoryAllocation* onnc::CreateMemoryAllocationPass(DLATargetBackend* pDLATB)
 {

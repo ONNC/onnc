@@ -59,8 +59,6 @@ private:
 
 MemoryAllocation* CreateMemoryAllocationPass(DLATargetBackend* pDLATB);
 
-INITIALIZE_DLA_PASS(MemoryAllocation, "MemoryAllocation")
-
 } // namespace of onnc
 
 #endif

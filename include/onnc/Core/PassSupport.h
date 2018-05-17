@@ -14,7 +14,7 @@ namespace onnc {
 class TargetBackend;
 
 #define INITIALIZE_PASS(pass_name, name)                                      \
-  static void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
+  void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
     PassInfo *info = new PassInfo(                                            \
         name,                                                                 \
         &pass_name::ID,                                                       \
@@ -24,7 +24,7 @@ class TargetBackend;
   }
 
 #define INITIALIZE_TB_PASS_BASE(pass_name, backend_type, name)                \
-  static void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
+  void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
     PassInfo *info = new PassInfo(                                            \
       name,                                                                   \
       &pass_name::ID,                                                         \

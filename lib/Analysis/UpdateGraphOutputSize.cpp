@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Support/IOStream.h>
 #include <onnx/common/interned_strings.h>
 
@@ -174,7 +175,8 @@ static void UpdateGemmOutputInfo(onnx::Node* pNode)
       !pNode->i(onnx::kbroadcast)) {
     const TensorSizes &MatCdim = pNode->inputs()[2]->sizes();
     UpdateOutputInfo(pNode, MatCdim, pNode->inputs()[0]->elemType());
-  } else {
+  }
+  else {
     const TensorSizes &aDim = pNode->inputs()[0]->sizes(),
                       &bDim = pNode->inputs()[1]->sizes();
     // A: M x K
@@ -230,6 +232,8 @@ bool UpdateGraphOutputSize::runOnModule(Module& pModule)
 // Factory method
 //===----------------------------------------------------------------------===//
 char UpdateGraphOutputSize::ID = 0;
+
+INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
 
 UpdateGraphOutputSize *onnc::CreateUpdateGraphOutputSizePass()
 {
