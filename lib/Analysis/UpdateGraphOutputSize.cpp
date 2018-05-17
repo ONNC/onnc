@@ -233,7 +233,10 @@ bool UpdateGraphOutputSize::runOnModule(Module& pModule)
 //===----------------------------------------------------------------------===//
 char UpdateGraphOutputSize::ID = 0;
 
-INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
+namespace onnc
+{
+  INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
+}
 
 UpdateGraphOutputSize *onnc::CreateUpdateGraphOutputSizePass()
 {

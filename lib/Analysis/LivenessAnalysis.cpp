@@ -162,7 +162,10 @@ void GraphLivenessAnalysis::clear()
 //===----------------------------------------------------------------------===//
 char GraphLivenessAnalysis::ID = 0;
 
-INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")
+namespace onnc
+{
+  INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")
+}
 
 GraphLivenessAnalysis *onnc::CreateLivenessAnalysisPass()
 {

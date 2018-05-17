@@ -18,9 +18,9 @@ void InitializeAnalysis(PassRegistry&);
 //===----------------------------------------------------------------------===//
 // Declarations of every single pass
 //===----------------------------------------------------------------------===//
-void InitializeGraphLivenessAnalysisPass(PassRegistry&);
-void InitializeMemoryAllocationPass(PassRegistry&);
-void InitializeUpdateGraphOutputSizePass(PassRegistry&);
+void* InitializeGraphLivenessAnalysisPass(PassRegistry&);
+void* InitializeMemoryAllocationPass(PassRegistry&);
+void* InitializeUpdateGraphOutputSizePass(PassRegistry&);
 
 } // namespace of onnc
 
