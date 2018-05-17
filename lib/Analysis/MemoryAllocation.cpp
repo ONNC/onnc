@@ -214,7 +214,10 @@ void MemoryAllocation::clear()
 //===----------------------------------------------------------------------===//
 char MemoryAllocation::ID = 0;
 
-INITIALIZE_DLA_PASS(MemoryAllocation, "MemoryAllocation")
+namespace onnc
+{
+  INITIALIZE_DLA_PASS(MemoryAllocation, "MemoryAllocation")
+}
 
 MemoryAllocation* onnc::CreateMemoryAllocationPass(DLATargetBackend* pDLATB)
 {
