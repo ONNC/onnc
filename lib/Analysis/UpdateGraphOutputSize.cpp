@@ -186,10 +186,10 @@ static void UpdateGemmOutputInfo(onnx::Node* pNode)
       oM = aDim[1].dim;
 
     // B: K x N
-    onnx::Dimension oN = aDim[1];
+    onnx::Dimension oN = bDim[1];
     if (pNode->hasAttribute(onnx::ktransB) &&
         pNode->i(onnx::ktransB))
-      oM = aDim[0].dim;
+      oN = bDim[0].dim;
     UpdateOutputInfo(pNode, {oM, oN}, pNode->inputs()[0]->elemType());
   }
 }
