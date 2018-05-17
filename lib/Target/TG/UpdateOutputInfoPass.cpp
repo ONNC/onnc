@@ -17,7 +17,7 @@ public:
 public:
   UpdateOutputInfo() : ModulePass(ID) {}
 
-  bool runOnModule(Module &pModule) override;
+  Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:
   void updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
@@ -193,7 +193,7 @@ void UpdateOutputInfo::updateGemmInfo(onnx::Node *const node) {
   updateInfo(node->outputs(), outDims, inputType);
 }
 
-bool UpdateOutputInfo::runOnModule(Module &pModule) {
+Pass::ReturnType UpdateOutputInfo::runOnModule(Module &pModule) {
 
   onnx::Graph *graph = pModule.getGraph();
 
@@ -237,7 +237,7 @@ bool UpdateOutputInfo::runOnModule(Module &pModule) {
   std::cout << "==================after UpdateOutputInfoPass: =====================" << std::endl;
   ONNXIRPrinter::dumpGraph(pModule.getGraphSP());
 
-  return true;
+  return Pass::kModuleChanged;
 }
 
 } // anonymous namespace

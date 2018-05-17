@@ -23,10 +23,10 @@ public:
     : ModulePass(ID), m_pTarget(pTarget){
   }
 
-  bool runOnModule(Module &pModule) override {
+  Pass::ReturnType runOnModule(Module &pModule) override {
     onnx::Graph *graph = pModule.getGraph();
     ddrAllocInfo(*graph, m_pTarget->getMemLayout());
-    return false;
+    return Pass::kModuleNoChanged;
   }
 };
 

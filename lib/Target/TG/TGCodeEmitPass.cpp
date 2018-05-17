@@ -19,9 +19,9 @@ public:
 public:
   TGCodeEmit(TGBackend *target) : ModulePass(ID), m_target(target) {}
 
-  bool runOnModule(Module &pModule) override {
+  Pass::ReturnType runOnModule(Module &pModule) override {
     m_target->codeEmit();
-    return false;
+    return Pass::kModuleNoChanged;
   }
 
   void setTarget(TGBackend* target){

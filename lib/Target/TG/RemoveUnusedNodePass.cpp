@@ -16,9 +16,9 @@ public:
 public:
   RemoveUnusedNode() : ModulePass(ID) {}
 
-  bool runOnModule(Module &pModule) override {
+  Pass::ReturnType runOnModule(Module &pModule) override {
     onnx::Graph *graph = pModule.getGraph();
-    bool isChanged = false;
+    Pass::ReturnType isChanged = Pass::kModuleNoChanged;
     for (auto it = graph->begin(), ie = graph->end(); it != ie; ++it) {
       auto *node = *it;
       auto symbol = node->kind();
@@ -26,7 +26,7 @@ public:
         // Dropout has multiple outputs
         node->outputs()[0]->replaceAllUsesWith(node->input());
         it.destroyCurrent();
-        isChanged = true;
+        isChanged = Pass::kModuleChanged;
       }
     }
 
