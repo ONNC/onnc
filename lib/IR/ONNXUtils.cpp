@@ -67,5 +67,21 @@ void ImportModelProto(Module &pModule, const ::onnx::ModelProto &pModelProto)
   }
 }
 
+size_t getTotalCount(const std::vector<int64_t> &pDim)
+{
+  size_t s = 1;
+  for (auto &size : pDim)
+    s *= size;
+  return s;
+}
+
+const ::onnx::Tensor &getTensor(std::string name, const ::onnx::Graph &graph)
+{
+  auto initNames = const_cast< ::onnx::Graph &>(graph).initializer_names();
+  std::ptrdiff_t idx = std::distance(
+      initNames.begin(), std::find(initNames.begin(), initNames.end(), name));
+  return const_cast< ::onnx::Graph &>(graph).initializers()[idx];
+}
+
 } // namespace onnx
 } // namespace onnc

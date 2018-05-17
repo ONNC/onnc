@@ -9,6 +9,7 @@
 #include <onnc/Core/InitializePasses.h>
 #include <onnc/Support/IOStream.h>
 #include <onnx/common/interned_strings.h>
+#include <onnc/IR/ONNXUtils.h>
 
 #include <unordered_set>
 
@@ -21,22 +22,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-const size_t getTotalCount(const std::vector<int64_t> &pSize)
-{
-  size_t s = 1;
-  for (auto &size : pSize)
-    s *= size;
-  return s;
-}
-
-static const ::onnx::Tensor &getTensor(std::string pName,
-                                       const ::onnx::Graph &pGraph)
-{
-  auto initNames = const_cast< ::onnx::Graph &>(pGraph).initializer_names();
-  std::ptrdiff_t idx = std::distance(
-      initNames.begin(), std::find(initNames.begin(), initNames.end(), pName));
-  return const_cast< ::onnx::Graph &>(pGraph).initializers()[idx];
-}
 
 static void UpdateOutputInfo(::onnx::Node *pNode, const TensorSizes &pSize,
                              TP_DataTy pTy)
@@ -216,12 +201,12 @@ static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
   // second input is a shape tensor
   const ::onnx::Value *input1 = pNode->inputs()[1];
   const ::onnx::Tensor shapeTensor =
-      getTensor(input1->uniqueName(), *pNode->owningGraph());
+      ::onnc::onnx::getTensor(input1->uniqueName(), *pNode->owningGraph());
   TensorSizes dims;
 
   // tensor is raw data
   if (0 == shapeTensor.int64s().size()) {
-    size_t size = getTotalCount(shapeTensor.sizes());
+    size_t size = ::onnc::onnx::getTotalCount(shapeTensor.sizes());
     std::vector<int64_t> int64Dims;
     int64Dims.reserve(size);
     int64Dims.resize(size);
