@@ -7,4 +7,5 @@ add_libonnc_src(
     AnalysisResolver.cpp
     Pass.cpp 
     ObjectWriter.cpp 
-    Application.cpp)
+    Application.cpp
+    InitializePasses.cpp)

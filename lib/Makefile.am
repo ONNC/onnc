@@ -14,6 +14,7 @@ ONNC_SOURCES = \
 	Core/Pass.cpp \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
+	Core/InitializePasses.cpp \
   Analysis/LivenessAnalysis.cpp \
   Analysis/MemoryUsageAnalysis.cpp \
   Analysis/MemoryAllocation.cpp \
