@@ -31,6 +31,7 @@ add_subdirectory(JSON)
 add_subdirectory(Option)
 add_subdirectory(Support)
 add_subdirectory(Target)
+add_subdirectory(Transforms)
 
 if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
