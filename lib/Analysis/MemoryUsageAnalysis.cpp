@@ -17,15 +17,16 @@ MemoryUsageAnalysis::MemoryUsageAnalysis()
   : ModulePass(ID), m_MemUsageMap() {
 }
 
-bool MemoryUsageAnalysis::runOnModule(Module& pModule)
+Pass::ReturnType MemoryUsageAnalysis::runOnModule(Module& pModule)
 {
   clear();
   calculateMemoryUsages(*pModule.getGraph());
-  return false;
+  return kModuleNoChanged;
 }
 
 void MemoryUsageAnalysis::print(std::ostream& pOS) const
 {
+  // TODO
 }
 
 static size_t GetTensorMemSize(const TensorSize &pTS, TP_DataTy pTy)

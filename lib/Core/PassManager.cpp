@@ -115,6 +115,7 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
 
 bool PassManager::run(Module& pModule)
 {
+  /// TODO: If a pass return kPassRetry, run all dependent passes again until success.
   bool changed = false;
   PassDependencyLattice::bfs_iterator node, pEnd = m_Dependencies.bfs_end();
   for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {

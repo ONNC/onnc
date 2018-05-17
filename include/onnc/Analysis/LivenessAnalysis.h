@@ -54,7 +54,7 @@ public:
 public:
   GraphLivenessAnalysis();
 
-  bool runOnModule(Module& pModule) override;
+  ReturnType runOnModule(Module& pModule) override;
 
   const LiveIntervalList& getLiveIntervals() const { return m_LiveIntervals; }
 

@@ -29,7 +29,7 @@ public:
 public:
   MemoryUsageAnalysis();
 
-  bool runOnModule(Module& pModule) override;
+  ReturnType runOnModule(Module& pModule) override;
 
   const ValueMemUsageMap& getMemUsages() const { return m_MemUsageMap; }
 

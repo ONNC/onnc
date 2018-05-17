@@ -38,13 +38,13 @@ void Pass::dump()
   print(errs(), nullptr);
 }
 
-bool Pass::run(Module& pModule)
+Pass::ReturnType Pass::run(Module& pModule)
 {
   ModulePass* pass = dyn_cast<ModulePass>(this);
   if (nullptr != pass) {
     return pass->runOnModule(pModule);
   }
-  return false;
+  return kPassFailure;
 }
 
 //===----------------------------------------------------------------------===//

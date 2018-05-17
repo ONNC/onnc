@@ -28,7 +28,7 @@ public:
 
   A() : ModulePass(ID) { }
 
-  bool runOnModule(Module &pModule) { return true; }
+  ReturnType runOnModule(Module &pModule) { return kModuleChanged; }
 
   StringRef getPassName() const { return "A"; }
 };
@@ -45,7 +45,7 @@ public:
 public:
   B() : ModulePass(ID) { }
 
-  bool runOnModule(Module &pModule) { return true; }
+  ReturnType runOnModule(Module &pModule) { return kModuleChanged; }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const {
     pUsage.addRequiredID(A::ID);
@@ -63,7 +63,7 @@ class C : public ModulePass
 public:
   static char ID;
   C() : ModulePass(ID), data(0x12) { }
-  bool runOnModule(Module &pModule) { return true; }
+  ReturnType runOnModule(Module &pModule) { return kModuleChanged; }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const {
     pUsage.addRequiredID(A::ID);

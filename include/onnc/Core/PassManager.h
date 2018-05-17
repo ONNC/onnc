@@ -68,7 +68,7 @@ private:
   public:
     StartPass() : ModulePass(ID) { }
 
-    bool runOnModule(Module &pModule) { return false; }
+    ReturnType runOnModule(Module &pModule) { return kModuleNoChanged; }
 
     StringRef getPassName() const { return "start"; }
   };

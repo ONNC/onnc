@@ -17,7 +17,8 @@ namespace onnc {
 class LiveInterval;
 class DLATargetBackend;
 
-struct MemAllocEntry {
+struct MemAllocEntry
+{
 public:
   MemAllocEntry(size_t pStartAddr, size_t pSize, const LiveInterval& pIntrvl)
     : startAddr(pStartAddr), size(pSize), liveIntrvl(pIntrvl) {
@@ -42,7 +43,7 @@ public:
 public:
   MemoryAllocation(DLATargetBackend* pDLATB = nullptr);
 
-  bool runOnModule(Module& pModule) override;
+  ReturnType runOnModule(Module& pModule) override;
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 

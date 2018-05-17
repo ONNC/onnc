@@ -25,7 +25,7 @@ public:
 public:
   UpdateGraphOutputSize();
 
-  bool runOnModule(Module& pModule) override;
+  ReturnType runOnModule(Module& pModule) override;
 };
 
 UpdateGraphOutputSize* CreateUpdateGraphOutputSizePass();

@@ -27,6 +27,13 @@ public:
     kPT_Tensor
   };
 
+  enum ReturnType {
+    kModuleNoChanged,
+    kModuleChanged,
+    kPassRetry,
+    kPassFailure
+  };
+
   /// Identity of a pass
   typedef const void* AnalysisID;
 
@@ -44,22 +51,14 @@ public:
 
   /// Virtual method overridden by subclasses to do any necessary
   /// initialization before any pass is run.
-  ///
-  /// @retval true If we modified the module
-  /// @retval false We didn't modify the module
-  virtual bool doInitialization(Module& pModule) { return false; }
+  virtual ReturnType doInitialization(Module& pModule) { return kModuleNoChanged; }
 
   /// Execute all of the passes scheduled for execution
-  /// @retval true The pass modifies the module.
-  /// @retval false The pass didn't modify the module.
-  bool run(Module& pModule);
+  ReturnType run(Module& pModule);
 
   /// Virtual method overridden by subclasses to do any necessary
   /// finalization before any pass is run.
-  ///
-  /// @retval true We modified the module
-  /// @retval false We didn't modify the module
-  virtual bool doFinalization(Module& pModule) { return false; }
+  virtual ReturnType doFinalization(Module& pModule) { return kModuleNoChanged; }
 
   /// Print out the internal state of the pass.
   /// Beware that the module pointer MAY be null.

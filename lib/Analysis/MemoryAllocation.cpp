@@ -143,11 +143,11 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
   return !(endA <= pStartB || endB <= pStartA);
 }
 
-bool MemoryAllocation::runOnModule(Module& pModule)
+Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
 {
   if (!m_DLATB) {
     errs() << "No backend infomation that is needed for memory allcation.\n";
-    return false;
+    return kPassFailure;
   }
 
   clear();
@@ -180,7 +180,7 @@ bool MemoryAllocation::runOnModule(Module& pModule)
                                                required, *li));
   }
 
-  return false;
+  return kModuleNoChanged;
 }
 
 void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const

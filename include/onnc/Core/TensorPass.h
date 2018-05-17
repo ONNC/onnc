@@ -24,7 +24,7 @@ public:
 
   /// Virtual method overriden by subclasses to process the module
   /// being operated on.
-  virtual bool runOnTensor(Tensor &pTensor) = 0;
+  virtual Pass::ReturnType runOnTensor(Tensor &pTensor) = 0;
 };
 
 } // namespace of onnc

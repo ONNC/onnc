@@ -207,7 +207,7 @@ static std::unordered_set<onnx::NodeKind> g_InputSizeIsOutputSize = {
   onnx::Symbol("Dropout"), onnx::Symbol("Softmax")
 };
 
-bool UpdateGraphOutputSize::runOnModule(Module& pModule)
+Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
 {
   for (onnx::Node *n : pModule.getGraph()->nodes()) {
     const auto kind = n->kind();
@@ -225,7 +225,7 @@ bool UpdateGraphOutputSize::runOnModule(Module& pModule)
     }
   }
 
-  return true;
+  return kModuleChanged;
 }
 
 //===----------------------------------------------------------------------===//

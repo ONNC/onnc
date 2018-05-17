@@ -24,7 +24,7 @@ public:
 
   /// Virtual method overriden by subclasses to process the module
   /// being operated on.
-  virtual bool runOnModule(Module &pModule) = 0;
+  virtual Pass::ReturnType runOnModule(Module &pModule) = 0;
 
   static bool classof(const Pass* pPass) {
       return Pass::kPT_Module == pPass->getPassKind();

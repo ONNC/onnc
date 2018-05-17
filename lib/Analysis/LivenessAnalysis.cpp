@@ -73,11 +73,11 @@ GraphLivenessAnalysis::GraphLivenessAnalysis()
   : ModulePass(ID), m_LiveIntervals() {
 }
 
-bool GraphLivenessAnalysis::runOnModule(Module &pModule)
+Pass::ReturnType GraphLivenessAnalysis::runOnModule(Module &pModule)
 {
   clear();
   calculateLiveness(*pModule.getGraph());
-  return false;
+  return kModuleNoChanged;
 }
 
 void GraphLivenessAnalysis::print(std::ostream& pOS) const
