@@ -67,6 +67,14 @@ public:
   virtual ~BM1682Backend();
 };
 
+class BM1880Backend : public TGBackend
+{
+public:
+  BM1880Backend(const TargetOptions& pOptions);
+
+  virtual ~BM1880Backend();
+};
+
 }  // namespace onnc
 
 #endif  // TARGET_TG_TG_BACKEND_H

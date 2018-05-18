@@ -91,6 +91,7 @@ public:
     ARMSubArch_v4t,
     SophonSubArch_vBM1680,
     SophonSubArch_vBM1682,
+    SophonSubArch_vBM1880,
   };
 
   /// Vendor of the architecture

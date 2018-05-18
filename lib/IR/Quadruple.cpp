@@ -77,6 +77,7 @@ Quadruple::SubArchType onnc::ParseSubArch(StringRef pSubArchName)
     .EndsWith("v4t", Quadruple::ARMSubArch_v4t)
     .EndsWith("v1680", Quadruple::SophonSubArch_vBM1680)
     .EndsWith("v1682", Quadruple::SophonSubArch_vBM1682)
+    .EndsWith("v1880", Quadruple::SophonSubArch_vBM1880)
     .Default(Quadruple::NoSubArch);
 }
 
@@ -303,6 +304,7 @@ onnc::ArchToName(Quadruple::ArchType pType, Quadruple::SubArchType pSubType)
         case Quadruple::ARMSubArch_v4t:  return "armv4t";
         case Quadruple::SophonSubArch_vBM1680: return "sophonv1680";
         case Quadruple::SophonSubArch_vBM1682: return "sophonv1682";
+        case Quadruple::SophonSubArch_vBM1880: return "sophonv1880";
         case Quadruple::NoSubArch:
         default: return "arm";
       }
