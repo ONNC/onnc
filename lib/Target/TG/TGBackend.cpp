@@ -8,6 +8,7 @@
 #include "TG.h"
 #include "TGBackend.h"
 #include "TargetInfo/TGTargetInfo.h"
+#include <onnc/Transforms/removeUnusedNodes.h>
 #include <onnc/Target/TargetRegistry.h>
 
 using namespace onnc;
@@ -30,7 +31,7 @@ TGBackend::~TGBackend()
 void TGBackend::addTensorSel(PassManager &pPM)
 {
   // IR level pass
-  pPM.add(createRemoveUnusedNodePass());
+  pPM.add(createRemoveUnusedNodesPass());
   pPM.add(createUpdateOutputInfoPass());
   // TGbackend require memory allocation before TensorSel (lowering)
   pPM.add(createTGMemAllocInfoPass(this));

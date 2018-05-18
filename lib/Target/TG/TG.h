@@ -18,7 +18,6 @@ class ModulePass;
 extern onnc::Target TheTGTarget;
 
 unsigned int TGQuadrupleMatchFn(const Quadruple& pQuadruple);
-ModulePass *createRemoveUnusedNodePass();
 ModulePass *createTGCodeEmitPass(TGBackend *target);
 ModulePass *createTGMemAllocInfoPass(TGBackend *target);
 ModulePass *createTargetLoweringPass(TGBackend *target);

@@ -23,5 +23,4 @@ add_libonnc_src(
     TGSoftmax.cpp 
     TargetLowering.cpp 
     TargetLoweringPass.cpp 
-    RemoveUnusedNodePass.cpp 
     UpdateOutputInfoPass.cpp)
