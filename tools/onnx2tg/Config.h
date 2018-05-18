@@ -27,9 +27,14 @@ public:
 
   void setOutput(const onnc::Path &pFileName) { m_Output = pFileName; }
 
+  const std::string march() const { return m_Arch; }
+
+  void setMarch(const std::string &pArch) { m_Arch = pArch; }
+
 private:
   onnc::Path m_Input;
   onnc::Path m_Output;
+  std::string m_Arch;
 };
 
 #endif

@@ -45,8 +45,18 @@ int ONNX2TG::compile()
     return EXIT_FAILURE;
   }
 
+  std::string quadruple;
+  if (m_Config.march() == "bm1680") {
+    quadruple = "sophonv1680-bitmain-linux-bmnet-all-0.1.0-none-tg";
+  } else if (m_Config.march() == "bm1880") {
+    quadruple = "sophonv1880-bitmain-linux-bmnet-all-0.1.0-none-tg";
+  } else {
+    errs() << Color::RED << "Error" << Color::RESET << ": can not found march `"
+           << m_Config.march() << "\n";
+    return EXIT_FAILURE;
+  }
+
   std::string error;
-  std::string quadruple("sophonv1680-bitmain-linux-bmnet-all-0.1.0-none-tg");
   const onnc::Target* target = TargetRegistry::Lookup(quadruple, error);
   if (nullptr == target) {
     errs() << Color::RED << "Error" << Color::RESET
