@@ -22,5 +22,4 @@ add_libonnc_src(
     TGRelu.cpp 
     TGSoftmax.cpp 
     TargetLowering.cpp 
-    TargetLoweringPass.cpp 
-    UpdateOutputInfoPass.cpp)
+    TargetLoweringPass.cpp)

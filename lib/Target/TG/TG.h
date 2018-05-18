@@ -21,7 +21,6 @@ unsigned int TGQuadrupleMatchFn(const Quadruple& pQuadruple);
 ModulePass *createTGCodeEmitPass(TGBackend *target);
 ModulePass *createTGMemAllocInfoPass(TGBackend *target);
 ModulePass *createTargetLoweringPass(TGBackend *target);
-ModulePass *createUpdateOutputInfoPass();
 
 }  // namespace onnc
 
