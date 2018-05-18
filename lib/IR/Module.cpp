@@ -13,11 +13,16 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Module
 //===----------------------------------------------------------------------===//
-Module::Module() : m_OnnxGraph(nullptr) {}
+Module::Module()
+    : m_OnnxIRVersion(0), m_OnnxProducerName(""), m_OnnxProducerVersion(""),
+      m_OnnxDomain(""), m_OnnxModelVersion(0), m_OnnxDocString(""),
+      m_OnnxGraph(nullptr)
+{
+}
 
 Module::~Module() {}
 
-Module &Module::delegateGraph(std::unique_ptr<::onnx::Graph> pGraph)
+Module &Module::delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph)
 {
   m_OnnxGraph = std::move(pGraph);
   return *this;

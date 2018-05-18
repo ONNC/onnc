@@ -13,15 +13,23 @@
 
 namespace onnx {
 class Graph;
+class ModelProto;
 } // namespace onnx
 
 namespace onnc {
-
+class Module;
+namespace onnx {
+void ExportModelProto(::onnx::ModelProto &pModelProto,
+                      const ::onnc::Module &pModule);
+void ImportModelProto(::onnc::Module &pModule,
+                      const ::onnx::ModelProto &pModelProto);
+} // namespace onnx
 /** \class Module
  *  \brief Rrepresentation of ONNX model
  */
 class Module
 {
+  typedef StringMap<int64_t> opsetImport_t;
   typedef StringMap<std::string> metaDataMap_t;
 
 public:
@@ -60,8 +68,20 @@ public:
   }
 
 private:
+  friend void onnx::ExportModelProto(::onnx::ModelProto &pModelProto,
+                                     const Module &pModule);
+  friend void onnx::ImportModelProto(Module &pModule,
+                                     const ::onnx::ModelProto &pModelProto);
   SymbolTable m_SymbolTable;
+  // onnc keeps all ModelProto info
+  int64_t m_OnnxIRVersion;
+  std::string m_OnnxProducerName;
+  std::string m_OnnxProducerVersion;
+  std::string m_OnnxDomain;
+  int64_t m_OnnxModelVersion;
+  std::string m_OnnxDocString;
   std::shared_ptr< ::onnx::Graph> m_OnnxGraph;
+  opsetImport_t m_OnnxSetId;
   metaDataMap_t m_OnnxMetadata;
 };
 
