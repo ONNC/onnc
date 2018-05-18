@@ -13,7 +13,7 @@ class TGMemAllocInfo : public ModulePass
 
 private:
   TGBackend *m_pTarget;
-  void ddrAllocInfo(onnx::Graph &graph, MemTable &memTable);
+  void ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable);
 
 public:
   static char ID;
@@ -23,14 +23,14 @@ public:
     : ModulePass(ID), m_pTarget(pTarget){
   }
 
-  Pass::ReturnType runOnModule(Module &pModule) override {
-    onnx::Graph *graph = pModule.getGraph();
+  Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
+    ::onnx::Graph *graph = pModule.getGraph();
     ddrAllocInfo(*graph, m_pTarget->getMemLayout());
     return Pass::kModuleNoChanged;
   }
 };
 
-void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
+void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
   // Definition fom BM168xBackendContext.hpp
   // TAG will be masked by runtime while processing cmdbuf.
   const int GLOBAL_NEURON_TAG = 0x1;
@@ -50,7 +50,7 @@ void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
     memTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
     std::cout << tab << i.name() << " = " << weight_offset;
 
-    assert(i.elem_type() == onnx::TensorProto_DataType_FLOAT);
+    assert(i.elem_type() == ::onnx::TensorProto_DataType_FLOAT);
     if (i.sizes().size() > 0) {
       int tensor_size = F32_SIZE;
       std::cout << " <";
@@ -75,7 +75,7 @@ void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
       memTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       std::cout << tab << i->uniqueName() << " = " << neuron_offset;
 
-      assert(i->elemType() == onnx::TensorProto_DataType_FLOAT);
+      assert(i->elemType() == ::onnx::TensorProto_DataType_FLOAT);
       if (i->sizes().size() > 0) {
         int tensor_size = F32_SIZE;
         std::cout << " <";
@@ -92,7 +92,7 @@ void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
   }
   // allocate space for outputs
   for (auto i : graph.nodes()) {
-    if (i->kind() == onnx::Symbol("Undefined"))
+    if (i->kind() == ::onnx::Symbol("Undefined"))
       continue;
 
     for (auto o : i->outputs()) {
@@ -101,7 +101,7 @@ void TGMemAllocInfo::ddrAllocInfo(onnx::Graph &graph, MemTable &memTable) {
       std::cout << tab << o->uniqueName() << " = " << neuron_offset;
 
       // FIXME: remove this after output dimension is fixed
-      assert(o->elemType() == onnx::TensorProto_DataType_FLOAT);
+      assert(o->elemType() == ::onnx::TensorProto_DataType_FLOAT);
       if (o->sizes().size() > 0) {
         int tensor_size = F32_SIZE;
         std::cout << " <";

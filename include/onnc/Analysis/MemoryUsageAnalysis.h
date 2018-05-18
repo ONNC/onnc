@@ -14,8 +14,8 @@
 
 namespace onnc {
 
-using TensorSize = std::vector<onnx::Dimension>;
-using TP_DataTy = onnx::TensorProto_DataType;
+using TensorSize = std::vector<::onnx::Dimension>;
+using TP_DataTy = ::onnx::TensorProto_DataType;
 
 /** \class MemoryUsageAnalysis
  */
@@ -24,7 +24,7 @@ class MemoryUsageAnalysis : public ModulePass
 public:
   static char ID;
 
-  using ValueMemUsageMap = std::unordered_map<onnx::Value*, size_t>;
+  using ValueMemUsageMap = std::unordered_map<::onnx::Value*, size_t>;
 
 public:
   MemoryUsageAnalysis();
@@ -38,7 +38,7 @@ public:
 private:
   void clear();
 
-  void calculateMemoryUsages(onnx::Graph &pGraph);
+  void calculateMemoryUsages(::onnx::Graph &pGraph);
 
 private:
   ValueMemUsageMap m_MemUsageMap;

@@ -25,37 +25,37 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Extension IR for onnx
 //===----------------------------------------------------------------------===//
-static const onnx::Symbol g_LoadKind("Load");
-static const onnx::Symbol g_StoreKind("Store");
+static const ::onnx::Symbol g_LoadKind("Load");
+static const ::onnx::Symbol g_StoreKind("Store");
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-using ValMemSizeMap = std::unordered_map<const onnx::Value *, size_t>;
+using ValMemSizeMap = std::unordered_map<const ::onnx::Value *, size_t>;
 
-static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
+static void GetMemoryUsageForAllValues(::onnx::Graph &pGraph,
                                        ValMemSizeMap &pVMSMap,
                                        DLATargetBackend* pDLATB)
 {
   // Try to allocate virtual memory according to liveness range.
-  for (onnx::Node* n : pGraph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
+  for (::onnx::Node* n : pGraph.nodes()) {
+    if (n->kind() == ::onnx::kUndefined)
       continue;
 
     // get required memory size of each input.
-    for (onnx::Value *v : n->inputs())
+    for (::onnx::Value *v : n->inputs())
       pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v).size;
 
     // get required memory size of each output.
-    for (onnx::Value *v : n->outputs())
+    for (::onnx::Value *v : n->outputs())
       pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v).size;
   }
 }
 
-static void InsertLoadStoreNode(onnx::Graph &pGraph)
+static void InsertLoadStoreNode(::onnx::Graph &pGraph)
 {
-  for (onnx::Value* v : pGraph.inputs()) {
-    onnx::Node* first = nullptr;
+  for (::onnx::Value* v : pGraph.inputs()) {
+    ::onnx::Node* first = nullptr;
     for(auto u : v->uses()) {
       if (!first) {
         first = u.user;
@@ -67,14 +67,14 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create load node and insert before the first use node.
-    onnx::Node* loadN = pGraph.create(g_LoadKind);
+    ::onnx::Node* loadN = pGraph.create(g_LoadKind);
     loadN->insertBefore(first);
     loadN->output()->copyMetadata(v);
     v->replaceAllUsesWith(loadN->output());
   }
 
-  for (onnx::Value* v : pGraph.outputs()) {
-    onnx::Node* last = nullptr;
+  for (::onnx::Value* v : pGraph.outputs()) {
+    ::onnx::Node* last = nullptr;
     for(auto u : v->uses()) {
       if (!last) {
         last = u.user;
@@ -86,7 +86,7 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create store node and insert before the last use node.
-    onnx::Node* storeN = pGraph.create(g_StoreKind, {v}, 0);
+    ::onnx::Node* storeN = pGraph.create(g_StoreKind, {v}, 0);
     storeN->insertBefore(last);
   }
 }

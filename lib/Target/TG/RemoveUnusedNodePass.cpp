@@ -16,13 +16,13 @@ public:
 public:
   RemoveUnusedNode() : ModulePass(ID) {}
 
-  Pass::ReturnType runOnModule(Module &pModule) override {
-    onnx::Graph *graph = pModule.getGraph();
+  Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
+    ::onnx::Graph *graph = pModule.getGraph();
     Pass::ReturnType isChanged = Pass::kModuleNoChanged;
     for (auto it = graph->begin(), ie = graph->end(); it != ie; ++it) {
       auto *node = *it;
       auto symbol = node->kind();
-      if (symbol == onnx::Symbol("Dropout")) {
+      if (symbol == ::onnx::Symbol("Dropout")) {
         // Dropout has multiple outputs
         node->outputs()[0]->replaceAllUsesWith(node->input());
         it.destroyCurrent();

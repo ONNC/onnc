@@ -10,7 +10,7 @@ namespace onnc {
 class TGConv : public Operator
 {
 public:
-  TGConv(const onnx::Node &node, MemTable &memTable);
+  TGConv(const ::onnx::Node &node, MemTable &memTable);
 
   void emit(void) const override;
 

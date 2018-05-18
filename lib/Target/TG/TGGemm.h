@@ -9,8 +9,8 @@ namespace onnc {
 class TGGemm : public Operator
 {
 public:
-  TGGemm(const onnx::Node &node, MemTable &memTable);
-  void dumpOnnxConv(const onnx::Node &node);
+  TGGemm(const ::onnx::Node &node, MemTable &memTable);
+  void dumpOnnxConv(const ::onnx::Node &node);
   void emit(void) const override;
 
 private:

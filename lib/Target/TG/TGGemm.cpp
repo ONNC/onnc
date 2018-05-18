@@ -3,41 +3,41 @@
 
 using namespace onnc;
 
-void TGGemm::dumpOnnxConv(const onnx::Node &node)
+void TGGemm::dumpOnnxConv(const ::onnx::Node &node)
 {
   std::cout << "dump TGGemm:" << std::endl;
-  if (node.hasAttribute(onnx::Symbol("transA"))) {
-    auto transA = node.i(onnx::Symbol("transA"));
+  if (node.hasAttribute(::onnx::Symbol("transA"))) {
+    auto transA = node.i(::onnx::Symbol("transA"));
     std::cout << "transA:" << transA << std::endl;
     assert(0 && "unimplemented attribute!");
   }
 
-  if (node.hasAttribute(onnx::Symbol("transB"))) {
-    auto transB = node.i(onnx::Symbol("transB"));
+  if (node.hasAttribute(::onnx::Symbol("transB"))) {
+    auto transB = node.i(::onnx::Symbol("transB"));
     std::cout << "transB:" << transB << std::endl;
     m_weightTp = true;
   }
 
-  if (node.hasAttribute(onnx::Symbol("broadcast"))) {
-    auto broadcast = node.i(onnx::Symbol("broadcast"));
+  if (node.hasAttribute(::onnx::Symbol("broadcast"))) {
+    auto broadcast = node.i(::onnx::Symbol("broadcast"));
     std::cout << "broadcast:" << broadcast << std::endl;
   }
 
-  if (node.hasAttribute(onnx::Symbol("alpha"))) {
-    auto alpha = node.i(onnx::Symbol("alpha"));
+  if (node.hasAttribute(::onnx::Symbol("alpha"))) {
+    auto alpha = node.i(::onnx::Symbol("alpha"));
     std::cout << "alpha:" << alpha << std::endl;
     assert(0 && "unimplemented attribute!");
   }
 
-  if (node.hasAttribute(onnx::Symbol("beta"))) {
-    auto beta = node.i(onnx::Symbol("beta"));
+  if (node.hasAttribute(::onnx::Symbol("beta"))) {
+    auto beta = node.i(::onnx::Symbol("beta"));
     std::cout << "beta:" << beta << std::endl;
     assert(1.0 == beta && "unimplemented attribute!");
   }
 
   for (auto it = node.inputs().begin(), ie = node.inputs().end(); it != ie;
        ++it) {
-    const onnx::Value *val = *it;
+    const ::onnx::Value *val = *it;
     std::cout << "input:" << val->uniqueName() << ":<";
     for (auto &dimension : val->sizes()) {
       std::cout << dimension.dim << ",";
@@ -47,7 +47,7 @@ void TGGemm::dumpOnnxConv(const onnx::Node &node)
 
   for (auto it = node.outputs().begin(), ie = node.outputs().end(); it != ie;
        ++it) {
-    const onnx::Value *val = *it;
+    const ::onnx::Value *val = *it;
     std::cout << "output:" << val->uniqueName() << ":<";
     for (auto &dimension : val->sizes()) {
       std::cout << dimension.dim << ",";
@@ -59,7 +59,7 @@ void TGGemm::dumpOnnxConv(const onnx::Node &node)
 // TGGemm
 // Y = alpha * A * B + beta * C
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K X N), input tensor C and output tensor Y have dimension (M X N).
-TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
+TGGemm::TGGemm(const ::onnx::Node &node, MemTable &memTable)
     : Operator(node, "Gemm"), m_inputAddr(0x0), m_weightAddr(0x0),
       m_biasAddr(0x0), m_outputAddr(0x0), m_inRowNum(0), m_inColNum(0), m_outColNum(0),
       m_haveBias(0), m_usingRelu(0), m_weightTp(false) {
@@ -73,8 +73,8 @@ TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
   m_biasAddr = memTable[inputs[2]->uniqueName()];
   m_outputAddr = memTable[outputs[0]->uniqueName()];
 
-  const std::vector<onnx::Dimension> aDim = node.inputs()[0]->sizes();
-  const std::vector<onnx::Dimension> bDim = node.outputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> aDim = node.inputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> bDim = node.outputs()[0]->sizes();
   m_inRowNum = aDim[0].dim;
   m_inColNum = aDim[1].dim;
   if (aDim.size() == 4) {
@@ -84,8 +84,8 @@ TGGemm::TGGemm(const onnx::Node &node, MemTable &memTable)
   m_haveBias = true;
   m_usingRelu = false;
 
-  if (node.hasAttribute(onnx::Symbol("transB"))) {
-    auto transB = node.i(onnx::Symbol("transB"));
+  if (node.hasAttribute(::onnx::Symbol("transB"))) {
+    auto transB = node.i(::onnx::Symbol("transB"));
     std::cout << "transB:" << transB << std::endl;
     m_weightTp = true;
   }

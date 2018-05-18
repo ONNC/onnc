@@ -32,21 +32,21 @@ void MemoryUsageAnalysis::print(std::ostream& pOS) const
 static size_t GetTensorMemSize(const TensorSize &pTS, TP_DataTy pTy)
 {
   outs() << "- size = " << pTS.size() << " (";
-  for (const onnx::Dimension &dim : pTS)
+  for (const ::onnx::Dimension &dim : pTS)
     outs() << dim.param << ":" << dim.dim << " ";
   outs() << ")" << "\n";
   return 0;
 }
 
-void MemoryUsageAnalysis::calculateMemoryUsages(onnx::Graph &pGraph)
+void MemoryUsageAnalysis::calculateMemoryUsages(::onnx::Graph &pGraph)
 {
-  for (onnx::Node *n : pGraph.nodes()) {
-    for (onnx::Value *v : n->inputs()) {
+  for (::onnx::Node *n : pGraph.nodes()) {
+    for (::onnx::Value *v : n->inputs()) {
       outs() << v->uniqueName() << "\n";
       GetTensorMemSize(v->sizes(), v->elemType());
     }
 
-    for (onnx::Value *v : n->outputs()) {
+    for (::onnx::Value *v : n->outputs()) {
       outs() << v->uniqueName() << "\n";
       GetTensorMemSize(v->sizes(), v->elemType());
     }

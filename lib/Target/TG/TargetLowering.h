@@ -13,11 +13,11 @@ public:
 
   ~TargetLowering() {}
 
-  void CodeGenAndEmitInst(onnx::Graph *graph,
+  void CodeGenAndEmitInst(::onnx::Graph *graph,
                           std::vector<std::unique_ptr<Operator> > &instList);
 
   virtual void
-  LowerOperation(const onnx::Node &node,
+  LowerOperation(const ::onnx::Node &node,
                  std::vector<std::unique_ptr<Operator> > &instList) = 0;
 };
 

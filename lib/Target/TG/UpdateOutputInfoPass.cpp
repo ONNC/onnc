@@ -20,19 +20,19 @@ public:
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:
-  void updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
-                        const std::vector<onnx::Dimension> &dims,
-                        onnx::TensorProto_DataType type);
-  void updateInfoByInput(onnx::Node *const node);
-  void updateConvInfo(onnx::Node *const node);
-  void updatePoolInfo(onnx::Node *const node);
-  void updateGemmInfo(onnx::Node *const node);
+  void updateInfo(::onnx::ArrayRef<::onnx::Value *> &&outputs,
+                        const std::vector<::onnx::Dimension> &dims,
+                        ::onnx::TensorProto_DataType type);
+  void updateInfoByInput(::onnx::Node *const node);
+  void updateConvInfo(::onnx::Node *const node);
+  void updatePoolInfo(::onnx::Node *const node);
+  void updateGemmInfo(::onnx::Node *const node);
 };
 
 void
-UpdateOutputInfo::updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
-                                   const std::vector<onnx::Dimension> &dims,
-                                   onnx::TensorProto_DataType type) {
+UpdateOutputInfo::updateInfo(::onnx::ArrayRef<::onnx::Value *> &&outputs,
+                                   const std::vector<::onnx::Dimension> &dims,
+                                   ::onnx::TensorProto_DataType type) {
   for (auto outVal : outputs) {
     outVal->setElemType(type);
     if (0 == outVal->sizes().size())
@@ -40,19 +40,19 @@ UpdateOutputInfo::updateInfo(onnx::ArrayRef<onnx::Value *> &&outputs,
   }
 }
 
-void UpdateOutputInfo::updateInfoByInput(onnx::Node *const node) {
+void UpdateOutputInfo::updateInfoByInput(::onnx::Node *const node) {
   auto input = node->inputs()[0];
-  const std::vector<onnx::Dimension> inputDim = input->sizes();
-  const onnx::TensorProto_DataType inputType = input->elemType();
-  assert(inputType != onnx::TensorProto_DataType_UNDEFINED);
+  const std::vector<::onnx::Dimension> inputDim = input->sizes();
+  const ::onnx::TensorProto_DataType inputType = input->elemType();
+  assert(inputType != ::onnx::TensorProto_DataType_UNDEFINED);
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
     return;
   updateInfo(node->outputs(), inputDim, inputType);
 }
 
-void UpdateOutputInfo::updateConvInfo(onnx::Node *const node) {
-  const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
+void UpdateOutputInfo::updateConvInfo(::onnx::Node *const node) {
+  const std::vector<::onnx::Dimension> inputDim = node->inputs()[0]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
     return;
@@ -71,20 +71,20 @@ void UpdateOutputInfo::updateConvInfo(onnx::Node *const node) {
   // pads for x_begin, y_begin, x_end, y_end
   int64_t xb(0), yb(0), xe(0), ye(0);
 
-  if (node->hasAttribute(onnx::Symbol("kernel_shape"))) {
-    auto &i = node->is(onnx::Symbol("kernel_shape"));
+  if (node->hasAttribute(::onnx::Symbol("kernel_shape"))) {
+    auto &i = node->is(::onnx::Symbol("kernel_shape"));
     kH = i[0];
     kW = i[1];
   }
 
-  if (node->hasAttribute(onnx::Symbol("strides"))) {
-    auto &i = node->is(onnx::Symbol("strides"));
+  if (node->hasAttribute(::onnx::Symbol("strides"))) {
+    auto &i = node->is(::onnx::Symbol("strides"));
     sH = i[0];
     sW = i[1];
   }
 
-  if (node->hasAttribute(onnx::Symbol("pads"))) {
-    auto &i = node->is(onnx::Symbol("pads"));
+  if (node->hasAttribute(::onnx::Symbol("pads"))) {
+    auto &i = node->is(::onnx::Symbol("pads"));
     xb = i[0];
     yb = i[1];
     xe = i[2];
@@ -102,17 +102,17 @@ void UpdateOutputInfo::updateConvInfo(onnx::Node *const node) {
   int64_t oW = (iW - kW + yb + ye) / sW + 1;
 #endif
 
-  std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
-                                        onnx::Dimension(oC),
-                                        onnx::Dimension(oH),
-                                        onnx::Dimension(oW) };
+  std::vector<::onnx::Dimension> outDims{ ::onnx::Dimension(oN),
+                                        ::onnx::Dimension(oC),
+                                        ::onnx::Dimension(oH),
+                                        ::onnx::Dimension(oW) };
 
-  const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
+  const ::onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
   updateInfo(node->outputs(), outDims, inputType);
 }
 
-void UpdateOutputInfo::updatePoolInfo(onnx::Node *const node) {
-  const std::vector<onnx::Dimension> inputDim = node->inputs()[0]->sizes();
+void UpdateOutputInfo::updatePoolInfo(::onnx::Node *const node) {
+  const std::vector<::onnx::Dimension> inputDim = node->inputs()[0]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == inputDim.size())
     return;
@@ -120,21 +120,21 @@ void UpdateOutputInfo::updatePoolInfo(onnx::Node *const node) {
   const auto iC = inputDim[1].dim;
   const auto iH = inputDim[2].dim;
   const auto iW = inputDim[3].dim;
-  const auto kH = node->is(onnx::Symbol("kernel_shape"))[0];
-  const auto kW = node->is(onnx::Symbol("kernel_shape"))[1];
+  const auto kH = node->is(::onnx::Symbol("kernel_shape"))[0];
+  const auto kW = node->is(::onnx::Symbol("kernel_shape"))[1];
 
   int64_t sH(1), sW(1);
   // pads for x_begin, y_begin, x_end, y_end
   int64_t xb(0), yb(0), xe(0), ye(0);
 
-  if (node->hasAttribute(onnx::Symbol("strides"))) {
-    auto &i = node->is(onnx::Symbol("strides"));
+  if (node->hasAttribute(::onnx::Symbol("strides"))) {
+    auto &i = node->is(::onnx::Symbol("strides"));
     sH = i[0];
     sW = i[1];
   }
 
-  if (node->hasAttribute(onnx::Symbol("pads"))) {
-    auto &i = node->is(onnx::Symbol("pads"));
+  if (node->hasAttribute(::onnx::Symbol("pads"))) {
+    auto &i = node->is(::onnx::Symbol("pads"));
     xb = i[0];
     yb = i[1];
     xe = i[2];
@@ -158,75 +158,75 @@ void UpdateOutputInfo::updatePoolInfo(onnx::Node *const node) {
       1;
 #endif
 
-  std::vector<onnx::Dimension> outDims{ onnx::Dimension(oN),
-                                        onnx::Dimension(oC),
-                                        onnx::Dimension(oH),
-                                        onnx::Dimension(oW) };
+  std::vector<::onnx::Dimension> outDims{ ::onnx::Dimension(oN),
+                                        ::onnx::Dimension(oC),
+                                        ::onnx::Dimension(oH),
+                                        ::onnx::Dimension(oW) };
 
-  const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
+  const ::onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
   updateInfo(node->outputs(), outDims, inputType);
 }
 
-void UpdateOutputInfo::updateGemmInfo(onnx::Node *const node) {
+void UpdateOutputInfo::updateGemmInfo(::onnx::Node *const node) {
 
-  const std::vector<onnx::Dimension> aDim = node->inputs()[0]->sizes();
-  const std::vector<onnx::Dimension> bDim = node->inputs()[1]->sizes();
+  const std::vector<::onnx::Dimension> aDim = node->inputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> bDim = node->inputs()[1]->sizes();
   // FIXME workaorund unimplemented type
   if (0 == aDim.size() || 0 == bDim.size())
     return;
   // A: M x K
   int64_t oM = aDim[0].dim;
-  if (node->hasAttribute(onnx::Symbol("transA"))) {
-    auto transA = node->i(onnx::Symbol("transA"));
+  if (node->hasAttribute(::onnx::Symbol("transA"))) {
+    auto transA = node->i(::onnx::Symbol("transA"));
     oM = transA ? aDim[1].dim : aDim[0].dim;
   }
   // B: K x N
   int64_t oN = bDim[1].dim;
-  if (node->hasAttribute(onnx::Symbol("transB"))) {
-    auto transB = node->i(onnx::Symbol("transB"));
+  if (node->hasAttribute(::onnx::Symbol("transB"))) {
+    auto transB = node->i(::onnx::Symbol("transB"));
     oN = transB ? bDim[0].dim : bDim[1].dim;
   }
 
-  std::vector<onnx::Dimension> outDims{ onnx::Dimension(oM),
-                                        onnx::Dimension(oN) };
-  const onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
+  std::vector<::onnx::Dimension> outDims{ ::onnx::Dimension(oM),
+                                        ::onnx::Dimension(oN) };
+  const ::onnx::TensorProto_DataType inputType = node->inputs()[0]->elemType();
   updateInfo(node->outputs(), outDims, inputType);
 }
 
 Pass::ReturnType UpdateOutputInfo::runOnModule(Module &pModule) {
 
-  onnx::Graph *graph = pModule.getGraph();
+  ::onnx::Graph *graph = pModule.getGraph();
 
   // workaround code for update alexnet input dimension
   if (graph->has_name() && std::string::npos != graph->name().find("alexnet")) {
-    onnx::ArrayRef<onnx::Value*> inputValues = graph->inputs();
+    ::onnx::ArrayRef<::onnx::Value*> inputValues = graph->inputs();
     for (auto &v : inputValues) {
       if (v->has_unique_name() && v->uniqueName() == std::string("data_0")) {
-          std::vector<onnx::Dimension> dims = { 10, 3, 227, 227 };
+          std::vector<::onnx::Dimension> dims = { 10, 3, 227, 227 };
           v->setSizes(dims);
           break;
       }
     }
   }
 
-  for (onnx::graph_node_list_iterator it = graph->begin(), ie = graph->end();
+  for (::onnx::graph_node_list_iterator it = graph->begin(), ie = graph->end();
        it != ie; ++it) {
-    onnx::Node *node = *it;
+    ::onnx::Node *node = *it;
     auto symbol = node->kind();
 
-    if (symbol == onnx::Symbol("Conv")) {
+    if (symbol == ::onnx::Symbol("Conv")) {
       updateConvInfo(node);
-    } else if (symbol == onnx::Symbol("Relu")) {
+    } else if (symbol == ::onnx::Symbol("Relu")) {
       updateInfoByInput(node);
-    } else if (symbol == onnx::Symbol("LRN")) {
+    } else if (symbol == ::onnx::Symbol("LRN")) {
       updateInfoByInput(node);
-    } else if (symbol == onnx::Symbol("MaxPool")) {
+    } else if (symbol == ::onnx::Symbol("MaxPool")) {
       updatePoolInfo(node);
-    } else if (symbol == onnx::Symbol("Dropout")) {
+    } else if (symbol == ::onnx::Symbol("Dropout")) {
       updateInfoByInput(node);
-    } else if (symbol == onnx::Symbol("Gemm")) {
+    } else if (symbol == ::onnx::Symbol("Gemm")) {
       updateGemmInfo(node);
-    } else if (symbol == onnx::Symbol("Softmax")) {
+    } else if (symbol == ::onnx::Symbol("Softmax")) {
       updateInfoByInput(node);
     } else {
       std::cerr << "unimplemented type: " << symbol.toString() << std::endl;

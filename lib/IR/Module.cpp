@@ -17,7 +17,7 @@ Module::Module() : m_OnnxGraph(nullptr) {}
 
 Module::~Module() {}
 
-Module &Module::delegateGraph(std::unique_ptr<onnx::Graph> pGraph)
+Module &Module::delegateGraph(std::unique_ptr<::onnx::Graph> pGraph)
 {
   m_OnnxGraph = std::move(pGraph);
   return *this;

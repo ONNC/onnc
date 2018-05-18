@@ -3,7 +3,7 @@
 
 using namespace onnc;
 
-TGSoftmax::TGSoftmax(const onnx::Node &node, MemTable &memTable)
+TGSoftmax::TGSoftmax(const ::onnx::Node &node, MemTable &memTable)
     : Operator(node, "Softmax") {
 
   auto inputs = node.inputs();
@@ -11,7 +11,7 @@ TGSoftmax::TGSoftmax(const onnx::Node &node, MemTable &memTable)
   m_inputAddr = memTable[inputs[0]->uniqueName()];
   m_outputAddr = memTable[outputs[0]->uniqueName()];
 
-  const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> inDim = node.inputs()[0]->sizes();
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;

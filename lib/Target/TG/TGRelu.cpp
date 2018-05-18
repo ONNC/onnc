@@ -3,9 +3,9 @@
 
 using namespace onnc;
 
-TGRelu::TGRelu(const onnx::Node &node, MemTable &memTable)
+TGRelu::TGRelu(const ::onnx::Node &node, MemTable &memTable)
     : Operator(node, "Relu"), m_negativeSlope(0) {
-  const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> inDim = node.inputs()[0]->sizes();
 
   auto inputs = node.inputs();
   auto outputs = node.outputs();

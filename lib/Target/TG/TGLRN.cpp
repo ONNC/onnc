@@ -3,7 +3,7 @@
 
 using namespace onnc;
 
-TGLRN::TGLRN(const onnx::Node &node, MemTable &memTable)
+TGLRN::TGLRN(const ::onnx::Node &node, MemTable &memTable)
     : Operator(node, "LRN"), m_k(1) {
 
   auto inputs = node.inputs();
@@ -11,18 +11,18 @@ TGLRN::TGLRN(const onnx::Node &node, MemTable &memTable)
   m_inputAddr = memTable[inputs[0]->uniqueName()];
   m_outputAddr = memTable[outputs[0]->uniqueName()];
 
-  const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> inDim = node.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
 
-  m_alpha = node.f(onnx::Symbol("alpha"));
-  m_beta = node.f(onnx::Symbol("beta"));
-  if (node.hasAttribute(onnx::Symbol("bias"))) {
-    m_k = node.f(onnx::Symbol("bias"));
+  m_alpha = node.f(::onnx::Symbol("alpha"));
+  m_beta = node.f(::onnx::Symbol("beta"));
+  if (node.hasAttribute(::onnx::Symbol("bias"))) {
+    m_k = node.f(::onnx::Symbol("bias"));
   }
-  m_localSize = node.i(onnx::Symbol("size"));
+  m_localSize = node.i(::onnx::Symbol("size"));
 }
 
 void TGLRN::TGLRN::emit(void) const {

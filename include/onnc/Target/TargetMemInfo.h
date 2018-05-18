@@ -36,18 +36,18 @@ public:
 
   virtual uint64_t getLocalMemSize() const { return 0; }
 
-  virtual uint64_t getElemSize(onnx::TensorProto_DataType pTy) const
+  virtual uint64_t getElemSize(::onnx::TensorProto_DataType pTy) const
   {
     return 0;
   }
 
   /// Return actual memory size and alignment requirement of onnx::Value.
-  virtual MemSize getValueMemorySize(onnx::Value *pValue)
+  virtual MemSize getValueMemorySize(::onnx::Value *pValue)
   {
     return MemSize(0, 0);
   }
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

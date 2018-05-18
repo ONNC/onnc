@@ -18,11 +18,11 @@ namespace onnc {
 class TargetTransformInfo {
 public:
   enum TargetCostKind {
-    kCycleCount,  ///< Get graph (or compute) IR cycle count.
+    kCycleCount, ///< Get graph (or compute) IR cycle count.
   };
 
   /// Get coarse-grained (approximately) cost of onnx node.
-  virtual int getOperatorCost(const onnx::Node *pNode,
+  virtual int getOperatorCost(const ::onnx::Node *pNode,
                               enum TargetCostKind kind) const
   {
     return 0;

@@ -17,15 +17,15 @@ public:
   TGTargetLowering(TGBackend *tgBackend)
       : TargetLowering(), m_tgBackend(tgBackend) {}
   void
-  LowerOperation(const onnx::Node &node,
+  LowerOperation(const ::onnx::Node &node,
                  std::vector<std::unique_ptr<Operator> > &instList) override;
 
 private:
-  void ddrScanAndAlloc(MemTable &memTable, onnx::Graph &graph);
+  void ddrScanAndAlloc(MemTable &memTable, ::onnx::Graph &graph);
 
 private:
   TGBackend *m_tgBackend;
-  Operator *LowerHelper(const onnx::Node &node, MemTable &memTabl);
+  Operator *LowerHelper(const ::onnx::Node &node, MemTable &memTabl);
 };
 
 } // namespace onnc

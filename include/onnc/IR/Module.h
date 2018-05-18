@@ -27,15 +27,15 @@ class Module
 public:
   Module();
   ~Module();
-  onnx::Graph *getGraph() { return m_OnnxGraph.get(); }
+  ::onnx::Graph *getGraph() { return m_OnnxGraph.get(); }
 
-  const onnx::Graph *getGraph() const { return m_OnnxGraph.get(); }
+  const ::onnx::Graph *getGraph() const { return m_OnnxGraph.get(); }
 
   // for demo
-  const std::shared_ptr<onnx::Graph> &getGraphSP() { return m_OnnxGraph; }
+  const std::shared_ptr< ::onnx::Graph> &getGraphSP() { return m_OnnxGraph; }
 
   // move @ref pGraph from outside.
-  Module &delegateGraph(std::unique_ptr<onnx::Graph> pGraph);
+  Module &delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph);
 
   metaDataMap_t::const_iterator metaData_cbegin() const
   {
@@ -61,7 +61,7 @@ public:
 
 private:
   SymbolTable m_SymbolTable;
-  std::shared_ptr<onnx::Graph> m_OnnxGraph;
+  std::shared_ptr< ::onnx::Graph> m_OnnxGraph;
   metaDataMap_t m_OnnxMetadata;
 };
 

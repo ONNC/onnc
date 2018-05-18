@@ -8,7 +8,7 @@ namespace onnc {
 class Operator
 {
 public:
-  Operator(const onnx::Node &node, const std::string &name) { }
+  Operator(const ::onnx::Node &node, const std::string &name) { }
 
   virtual ~Operator() { }
 

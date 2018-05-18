@@ -30,13 +30,13 @@ convertSnakeCaseToCamelCase(const std::string &str, bool initial_to_upper = fals
   return r.str();
 }
 
-inline std::string ConvertTypeToString(const onnx::TypeProto type)
+inline std::string ConvertTypeToString(const ::onnx::TypeProto type)
 {
   std::ostringstream r;
   r << "tensor<";
-  const onnx::TensorShapeProto &tensor_shape = type.tensor_type().shape();
+  const ::onnx::TensorShapeProto &tensor_shape = type.tensor_type().shape();
   for (int i = 0; i < tensor_shape.dim_size(); i++) {
-    const onnx::TensorShapeProto_Dimension &dim = tensor_shape.dim(i);
+    const ::onnx::TensorShapeProto_Dimension &dim = tensor_shape.dim(i);
     if (i != 0) {
       r << ", ";
     }
@@ -50,7 +50,7 @@ inline std::string ConvertTypeToString(const onnx::TypeProto type)
   return r.str();
 }
 
-inline void dumpModelProto(const onnx::ModelProto &model)
+inline void dumpModelProto(const ::onnx::ModelProto &model)
 {
 
   // dump model info
@@ -79,17 +79,17 @@ inline void dumpModelProto(const onnx::ModelProto &model)
   }
 
   // dump graph
-  const onnx::GraphProto &graph = model.graph();
+  const ::onnx::GraphProto &graph = model.graph();
 
   std::cout << "graph " << graph.name() << " (";
 
   for (int i = 0; i < graph.input_size(); i++) {
     if (i != 0) { std::cout << ", "; }
-    const onnx::TypeProto &type = graph.input(i).type();
+    const ::onnx::TypeProto &type = graph.input(i).type();
     if (type.has_tensor_type()) {
-      const onnx::TypeProto::Tensor &tensor_type = type.tensor_type();
+      const ::onnx::TypeProto::Tensor &tensor_type = type.tensor_type();
       std::cout << TensorProto_DataType_Name(tensor_type.elem_type()) << " tensor <";
-      const onnx::TensorShapeProto &shape = tensor_type.shape();
+      const ::onnx::TensorShapeProto &shape = tensor_type.shape();
       for (int j = 0; j < shape.dim_size(); j++) {
         if (j != 0) { std::cout << ", "; }
         if (shape.dim(j).has_dim_value()) {
@@ -105,12 +105,12 @@ inline void dumpModelProto(const onnx::ModelProto &model)
   std::cout << ") {" << std::endl;
 
   for (int i = 0; i < graph.initializer_size(); i++) {
-    const onnx::TensorProto &initializer = graph.initializer(i);
+    const ::onnx::TensorProto &initializer = graph.initializer(i);
     std::cout << "  initialize input %" << initializer.name() << std::endl;
   }
 
   for (int i = 0; i < graph.node_size(); i++) {
-    const onnx::NodeProto &node = graph.node(i);
+    const ::onnx::NodeProto &node = graph.node(i);
     std::cout << "  ";
     for (int j = 0; j < node.output_size(); j++) {
       if (j != 0) {
@@ -124,26 +124,26 @@ inline void dumpModelProto(const onnx::ModelProto &model)
       std::cout << '<';
     }
     for (int j = 0; j < node.attribute_size(); j++) {
-      const onnx::AttributeProto &attribute = node.attribute(j);
+      const ::onnx::AttributeProto &attribute = node.attribute(j);
       if (j != 0) {
         std::cout << ", ";
       }
       std::cout << attribute.name() << ":";
       switch (attribute.type()) {
-      case onnx::AttributeProto::FLOAT:
+      case ::onnx::AttributeProto::FLOAT:
         std::cout << attribute.f();
         break;
-      case onnx::AttributeProto::INT:
+      case ::onnx::AttributeProto::INT:
         std::cout << attribute.i();
         break;
-      case onnx::AttributeProto::STRING:
+      case ::onnx::AttributeProto::STRING:
         std::cout << attribute.s();
         break;
-      case onnx::AttributeProto::TENSOR:
-      case onnx::AttributeProto::GRAPH:
+      case ::onnx::AttributeProto::TENSOR:
+      case ::onnx::AttributeProto::GRAPH:
         std::cout << attribute.name();
         break;
-      case onnx::AttributeProto::FLOATS:
+      case ::onnx::AttributeProto::FLOATS:
         std::cout << '[';
         for (int k = 0; k < attribute.floats_size(); k++) {
           if (k != 0) {
@@ -153,7 +153,7 @@ inline void dumpModelProto(const onnx::ModelProto &model)
         }
         std::cout << ']';
         break;
-      case onnx::AttributeProto::INTS:
+      case ::onnx::AttributeProto::INTS:
         std::cout << '[';
         for (int k = 0; k < attribute.ints_size(); k++) {
           if (k != 0) {
@@ -163,7 +163,7 @@ inline void dumpModelProto(const onnx::ModelProto &model)
         }
         std::cout << ']';
         break;
-      case onnx::AttributeProto::STRINGS:
+      case ::onnx::AttributeProto::STRINGS:
         std::cout << '[';
         for (int k = 0; k < attribute.strings_size(); k++) {
           if (k != 0) {
@@ -173,8 +173,8 @@ inline void dumpModelProto(const onnx::ModelProto &model)
         }
         std::cout << ']';
         break;
-      case onnx::AttributeProto::TENSORS:
-      case onnx::AttributeProto::GRAPHS:
+      case ::onnx::AttributeProto::TENSORS:
+      case ::onnx::AttributeProto::GRAPHS:
         std::cout << attribute.name();
         break;
       default:
@@ -207,10 +207,10 @@ inline void dumpModelProto(const onnx::ModelProto &model)
   std::cout << '}' << std::endl;
 }
 
-inline void dumpGraph(const std::shared_ptr<onnx::Graph>& g)
+inline void dumpGraph(const std::shared_ptr<::onnx::Graph>& g)
 {
-  onnx::ModelProto model;
-  onnx::ExportModelProto(&model, g);
+  ::onnx::ModelProto model;
+  ::onnx::ExportModelProto(&model, g);
   dumpModelProto(model);
 }
 

@@ -6,11 +6,11 @@ using namespace std;
 
 namespace {
 
-auto KERNEL_SHAPE = onnx::Symbol("kernel_shape");
-auto STRIDES = onnx::Symbol("strides");
-auto PADS = onnx::Symbol("pads");
+auto KERNEL_SHAPE = ::onnx::Symbol("kernel_shape");
+auto STRIDES = ::onnx::Symbol("strides");
+auto PADS = ::onnx::Symbol("pads");
 
-void dump_onnx_Conv(const onnx::Node &node)
+void dump_onnx_Conv(const ::onnx::Node &node)
 {
   auto vec = node.attributeNames();
   string tab = "\t";
@@ -75,7 +75,7 @@ void dump_onnx_Conv(const onnx::Node &node)
 } // anonymous namespace
 
 // TGConv
-TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
+TGConv::TGConv(const ::onnx::Node &node, MemTable &memTable)
     : Operator(node, "Conv"), m_dilationH(1), m_dilationW(1), m_groups(1),
       m_padH(0), m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0) {
   dump_onnx_Conv(node);
@@ -85,35 +85,35 @@ TGConv::TGConv(const onnx::Node &node, MemTable &memTable)
   m_weightAddr = memTable[inputs[1]->uniqueName()];
   m_ofmapAddr = memTable[outputs[0]->uniqueName()];
 
-  const std::vector<onnx::Dimension> inDim = node.inputs()[0]->sizes();
+  const std::vector<::onnx::Dimension> inDim = node.inputs()[0]->sizes();
   m_inN = inDim[0].dim;
   m_inC = inDim[1].dim;
   m_inH = inDim[2].dim;
   m_inW = inDim[3].dim;
-  const std::vector<onnx::Dimension> weightDim = node.inputs()[1]->sizes();
+  const std::vector<::onnx::Dimension> weightDim = node.inputs()[1]->sizes();
   m_outC = weightDim[0].dim;
-  if (node.hasAttribute(onnx::Symbol("group"))) {
-     m_groups = node.i(onnx::Symbol("group"));
+  if (node.hasAttribute(::onnx::Symbol("group"))) {
+     m_groups = node.i(::onnx::Symbol("group"));
   }
-  if (node.hasAttribute(onnx::Symbol("kernel_shape"))) {
-    auto &i = node.is(onnx::Symbol("kernel_shape"));
+  if (node.hasAttribute(::onnx::Symbol("kernel_shape"))) {
+    auto &i = node.is(::onnx::Symbol("kernel_shape"));
     m_kH = i[0];
     m_kW = i[1];
   }
-  if (node.hasAttribute(onnx::Symbol("dilations"))) {
-    auto &i = node.is(onnx::Symbol("dilations"));
+  if (node.hasAttribute(::onnx::Symbol("dilations"))) {
+    auto &i = node.is(::onnx::Symbol("dilations"));
     m_dilationH = i[0];
     m_dilationW = i[1];
   }
   // [leftPad, downPad, rightPad, upPad]
-  if (node.hasAttribute(onnx::Symbol("pads"))) {
-    auto &i = node.is(onnx::Symbol("pads"));
+  if (node.hasAttribute(::onnx::Symbol("pads"))) {
+    auto &i = node.is(::onnx::Symbol("pads"));
     // NOTE: It is for bmkernel only padding on both ends
     m_padH = i[0];
     m_padW = i[1];
   }
-  if (node.hasAttribute(onnx::Symbol("strides"))) {
-    auto &i = node.is(onnx::Symbol("strides"));
+  if (node.hasAttribute(::onnx::Symbol("strides"))) {
+    auto &i = node.is(::onnx::Symbol("strides"));
     m_strideH = i[0];
     m_strideW = i[1];
   }

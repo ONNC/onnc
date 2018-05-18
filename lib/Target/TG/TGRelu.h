@@ -10,7 +10,7 @@ namespace onnc {
 class TGRelu : public Operator
 {
 public:
-  TGRelu(const onnx::Node &node, MemTable &memTable);
+  TGRelu(const ::onnx::Node &node, MemTable &memTable);
 
   void emit(void) const override;
 
