@@ -40,7 +40,6 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
   // allocate spaces for weight
   unsigned int weight_offset = 0;
   // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
-  int F32_SIZE = 4;
   std::string tab = "\t";
 
   std::cout << __func__ << " dump global memory layout:" << std::endl;
@@ -50,9 +49,8 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
     memTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
     std::cout << tab << i.name() << " = " << weight_offset;
 
-    assert(i.elem_type() == ::onnx::TensorProto_DataType_FLOAT);
     if (i.sizes().size() > 0) {
-      int tensor_size = F32_SIZE;
+      int tensor_size = m_pTarget->sizeOfTensorType(i.elem_type());
       std::cout << " <";
       for (auto dim : i.sizes()) {
         std::cout << dim << ",";
@@ -75,9 +73,8 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
       memTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       std::cout << tab << i->uniqueName() << " = " << neuron_offset;
 
-      assert(i->elemType() == ::onnx::TensorProto_DataType_FLOAT);
       if (i->sizes().size() > 0) {
-        int tensor_size = F32_SIZE;
+        int tensor_size = m_pTarget->sizeOfTensorType(i->elemType());
         std::cout << " <";
         for (auto &dim : i->sizes()) {
           std::cout << dim.dim << ",";
@@ -100,10 +97,8 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
       memTable[o->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       std::cout << tab << o->uniqueName() << " = " << neuron_offset;
 
-      // FIXME: remove this after output dimension is fixed
-      assert(o->elemType() == ::onnx::TensorProto_DataType_FLOAT);
       if (o->sizes().size() > 0) {
-        int tensor_size = F32_SIZE;
+        int tensor_size = m_pTarget->sizeOfTensorType(o->elemType());
         std::cout << " <";
         for (auto dim : o->sizes()) {
           std::cout << dim.dim << ",";

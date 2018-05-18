@@ -43,6 +43,17 @@ public:
 
   TargetLowering *getTargetLowering() { return m_pTLI; }
 
+  // default sizeof function
+  virtual size_t sizeOfTensorType(::onnx::TensorProto_DataType type);
+
+  // backend can descript which tensor types are supported
+  virtual bool isNativeTensorType(::onnx::TensorProto_DataType type);
+
+  // for debug usage
+  virtual std::string getBackendName() {
+    return "TGBackend";
+  };
+
 private:
   std::vector<std::unique_ptr<Operator> > m_instructions;
   MemTable m_globalMemLayout;
@@ -57,6 +68,10 @@ public:
   BM1680Backend(const TargetOptions& pOptions);
 
   virtual ~BM1680Backend();
+  bool isNativeTensorType(::onnx::TensorProto_DataType type) override;
+  std::string getBackendName() override{
+    return "BM1680Backend";
+  };
 };
 
 class BM1682Backend : public TGBackend
@@ -65,6 +80,10 @@ public:
   BM1682Backend(const TargetOptions& pOptions);
 
   virtual ~BM1682Backend();
+  bool isNativeTensorType(::onnx::TensorProto_DataType type) override;
+  std::string getBackendName() override{
+    return "BM1682Backend";
+  };
 };
 
 class BM1880Backend : public TGBackend
@@ -73,6 +92,10 @@ public:
   BM1880Backend(const TargetOptions& pOptions);
 
   virtual ~BM1880Backend();
+  bool isNativeTensorType(::onnx::TensorProto_DataType type) override;
+  std::string getBackendName() override{
+    return "BM1880Backend";
+  };
 };
 
 }  // namespace onnc
