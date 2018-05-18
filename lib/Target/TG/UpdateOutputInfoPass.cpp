@@ -3,7 +3,6 @@
 #include <onnx/common/ir.h>
 #include <vector>
 #include "TG.h"
-#include "ONNXIRPrinter.h"
 
 using namespace onnc;
 
@@ -232,10 +231,6 @@ Pass::ReturnType UpdateOutputInfo::runOnModule(Module &pModule) {
       std::cerr << "unimplemented type: " << symbol.toString() << std::endl;
     }
   }
-
-  // TODO use IR printer pass, or add passes by option (ex. printf-after-all)
-  std::cout << "==================after UpdateOutputInfoPass: =====================" << std::endl;
-  ONNXIRPrinter::dumpGraph(pModule.getGraphIR());
 
   return Pass::kModuleChanged;
 }
