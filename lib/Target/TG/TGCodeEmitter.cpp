@@ -50,4 +50,9 @@ void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
   }
 
   DEBUG(dbgs() << "BM1880Backend TGCodeEmitter::encodeInstructions\n");
+  std::vector<int8_t> weight_data;
+  // ReadInt8DataFromBinaryFile(weight, weight_data);
+  bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
+  const std::string& ctableString = m_tgBackend->getCtable();
+  DEBUG(dbgs() << "ctable = \n" << ctableString << "\n";);
 }

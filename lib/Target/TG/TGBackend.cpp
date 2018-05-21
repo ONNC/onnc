@@ -48,12 +48,13 @@ void TGBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
   pPM.add(createTGCodeEmitPass(this));
 }
 
-void TGBackend::codeEmit(void)
+void TGBackend::codeEmit()
 {
   m_pCE->encodeInstructions(m_outputPath);
 }
 
-bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType type){
+bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType type)
+{
   return true;
 }
 
@@ -74,6 +75,11 @@ size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType type){
     assert(0 && "unimplemented size of type!");
   }
   return 0;
+}
+
+void TGBackend::setCtable(const std::string &pCtable)
+{
+  m_Ctable = pCtable;
 }
 
 // BM1680

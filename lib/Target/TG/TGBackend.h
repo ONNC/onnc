@@ -49,6 +49,16 @@ public:
   // backend can descript which tensor types are supported
   virtual bool isNativeTensorType(::onnx::TensorProto_DataType type);
 
+  // calibration table name
+  virtual std::string getCtableName() { return ""; }
+
+  // load ctable from onx meta data
+  const std::string &getCtable() { return m_Ctable; }
+
+  // store ctable in target backend
+  void setCtable(const std::string &pCtable);
+
+
   // for debug usage
   virtual std::string getBackendName() {
     return "TGBackend";
@@ -60,6 +70,7 @@ private:
   TargetLowering *m_pTLI;
   TGCodeEmitter *m_pCE;
   Path m_outputPath;
+  std::string m_Ctable;
 };
 
 class BM1680Backend : public TGBackend
@@ -96,6 +107,8 @@ public:
   std::string getBackendName() override{
     return "BM1880Backend";
   };
+
+  std::string getCtableName() override { return "bm1880_ctable"; }
 };
 
 }  // namespace onnc
