@@ -1,80 +1,85 @@
 #include "TGGemm.h"
 #include <bmkernel_api.h>
 
+#define DEBUG_TYPE "tg_gemm"
+#include <onnc/Support/Debug.h>
+
 using namespace onnc;
 
-void TGGemm::dumpOnnxConv(const ::onnx::Node &node)
+void TGGemm::dumpOnnxGemm(const ::onnx::Node &pNode)
 {
-  std::cout << "dump TGGemm:" << std::endl;
-  if (node.hasAttribute(::onnx::Symbol("transA"))) {
-    auto transA = node.i(::onnx::Symbol("transA"));
-    std::cout << "transA:" << transA << std::endl;
+  DEBUG(dbgs() << "dump TGGemm:" << std::endl;);
+  if (pNode.hasAttribute(::onnx::Symbol("transA"))) {
+    auto transA = pNode.i(::onnx::Symbol("transA"));
+    DEBUG(dbgs() << "transA:" << transA << std::endl;);
     assert(0 && "unimplemented attribute!");
   }
 
-  if (node.hasAttribute(::onnx::Symbol("transB"))) {
-    auto transB = node.i(::onnx::Symbol("transB"));
-    std::cout << "transB:" << transB << std::endl;
+  if (pNode.hasAttribute(::onnx::Symbol("transB"))) {
+    auto transB = pNode.i(::onnx::Symbol("transB"));
+    DEBUG(dbgs() << "transB:" << transB << std::endl;);
     m_weightTp = true;
   }
 
-  if (node.hasAttribute(::onnx::Symbol("broadcast"))) {
-    auto broadcast = node.i(::onnx::Symbol("broadcast"));
-    std::cout << "broadcast:" << broadcast << std::endl;
+  if (pNode.hasAttribute(::onnx::Symbol("broadcast"))) {
+    auto broadcast = pNode.i(::onnx::Symbol("broadcast"));
+    DEBUG(dbgs() << "broadcast:" << broadcast << std::endl;);
   }
 
-  if (node.hasAttribute(::onnx::Symbol("alpha"))) {
-    auto alpha = node.i(::onnx::Symbol("alpha"));
-    std::cout << "alpha:" << alpha << std::endl;
+  if (pNode.hasAttribute(::onnx::Symbol("alpha"))) {
+    auto alpha = pNode.i(::onnx::Symbol("alpha"));
+    DEBUG(dbgs() << "alpha:" << alpha << std::endl;);
     assert(0 && "unimplemented attribute!");
   }
 
-  if (node.hasAttribute(::onnx::Symbol("beta"))) {
-    auto beta = node.i(::onnx::Symbol("beta"));
-    std::cout << "beta:" << beta << std::endl;
+  if (pNode.hasAttribute(::onnx::Symbol("beta"))) {
+    auto beta = pNode.i(::onnx::Symbol("beta"));
+    DEBUG(dbgs() << "beta:" << beta << std::endl;);
     assert(1.0 == beta && "unimplemented attribute!");
   }
 
-  for (auto it = node.inputs().begin(), ie = node.inputs().end(); it != ie;
+  for (auto it = pNode.inputs().begin(), ie = pNode.inputs().end(); it != ie;
        ++it) {
     const ::onnx::Value *val = *it;
-    std::cout << "input:" << val->uniqueName() << ":<";
+    DEBUG(dbgs() << "input:" << val->uniqueName() << ":<";);
     for (auto &dimension : val->sizes()) {
-      std::cout << dimension.dim << ",";
+      DEBUG(dbgs() << dimension.dim << ",";);
     }
-    std::cout << ">" << std::endl;
+    DEBUG(dbgs() << ">" << std::endl;);
   }
 
-  for (auto it = node.outputs().begin(), ie = node.outputs().end(); it != ie;
+  for (auto it = pNode.outputs().begin(), ie = pNode.outputs().end(); it != ie;
        ++it) {
     const ::onnx::Value *val = *it;
-    std::cout << "output:" << val->uniqueName() << ":<";
+    DEBUG(dbgs() << "output:" << val->uniqueName() << ":<";);
     for (auto &dimension : val->sizes()) {
-      std::cout << dimension.dim << ",";
+      DEBUG(dbgs() << dimension.dim << ",";);
     }
-    std::cout << ">" << std::endl;
+    DEBUG(dbgs() << ">" << std::endl;);
   }
 }
 
 // TGGemm
 // Y = alpha * A * B + beta * C
-// where input tensor A has dimension (M X K) , input tensor B has dimension (K X N), input tensor C and output tensor Y have dimension (M X N).
-TGGemm::TGGemm(const ::onnx::Node &node, MemTable &memTable)
-    : Operator(node, "Gemm"), m_inputAddr(0x0), m_weightAddr(0x0),
-      m_biasAddr(0x0), m_outputAddr(0x0), m_inRowNum(0), m_inColNum(0), m_outColNum(0),
-      m_haveBias(0), m_usingRelu(0), m_weightTp(false) {
+// where input tensor A has dimension (M X K) , input tensor B has dimension (K
+// X N), input tensor C and output tensor Y have dimension (M X N).
+TGGemm::TGGemm(const ::onnx::Node &pNode, MemTable &pMemTable)
+    : Operator(pNode, "Gemm"), m_inputAddr(0x0), m_weightAddr(0x0),
+      m_biasAddr(0x0), m_outputAddr(0x0), m_inRowNum(0), m_inColNum(0),
+      m_outColNum(0), m_haveBias(0), m_usingRelu(0), m_weightTp(false)
+{
 
-  dumpOnnxConv(node);
+  dumpOnnxGemm(pNode);
 
-  auto inputs = node.inputs();
-  auto outputs = node.outputs();
-  m_inputAddr = memTable[inputs[0]->uniqueName()];
-  m_weightAddr = memTable[inputs[1]->uniqueName()];
-  m_biasAddr = memTable[inputs[2]->uniqueName()];
-  m_outputAddr = memTable[outputs[0]->uniqueName()];
+  auto inputs = pNode.inputs();
+  auto outputs = pNode.outputs();
+  m_inputAddr = pMemTable[inputs[0]->uniqueName()];
+  m_weightAddr = pMemTable[inputs[1]->uniqueName()];
+  m_biasAddr = pMemTable[inputs[2]->uniqueName()];
+  m_outputAddr = pMemTable[outputs[0]->uniqueName()];
 
-  const std::vector<::onnx::Dimension> aDim = node.inputs()[0]->sizes();
-  const std::vector<::onnx::Dimension> bDim = node.outputs()[0]->sizes();
+  const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
+  const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();
   m_inRowNum = aDim[0].dim;
   m_inColNum = aDim[1].dim;
   if (aDim.size() == 4) {
@@ -84,24 +89,24 @@ TGGemm::TGGemm(const ::onnx::Node &node, MemTable &memTable)
   m_haveBias = true;
   m_usingRelu = false;
 
-  if (node.hasAttribute(::onnx::Symbol("transB"))) {
-    auto transB = node.i(::onnx::Symbol("transB"));
-    std::cout << "transB:" << transB << std::endl;
+  if (pNode.hasAttribute(::onnx::Symbol("transB"))) {
+    auto transB = pNode.i(::onnx::Symbol("transB"));
+    DEBUG(dbgs() << "transB:" << transB << std::endl;);
     m_weightTp = true;
   }
 }
 
-void TGGemm::emit(void) const
+void TGGemm::emit() const
 {
-  std::cout << "TGGemm::emit\tm_inputAddr:" << m_inputAddr
-            << " m_weightAddr:" << m_weightAddr << " m_biasAddr:" << m_biasAddr
-            << " m_outputAddr:" << m_outputAddr << " m_inRowNum:" << m_inRowNum
-            << " m_inColNum:" << m_inColNum << " m_outColNum:" << m_outColNum
-            << " m_haveBias:" << m_haveBias << " m_usingRelu:" << m_usingRelu
-            << " m_weightTp:" << m_weightTp << std::endl;
-  bmnet::bmnet_fc_forward_bmkernel(
-                            *tg_kernel::getInstance().ctx,
-                            m_inputAddr, m_weightAddr, m_biasAddr, m_outputAddr,
-                            m_inRowNum, m_inColNum, m_outColNum, m_haveBias,
-                            m_usingRelu, m_weightTp);
+  DEBUG(dbgs() << "TGGemm::emit\tm_inputAddr:" << m_inputAddr
+               << " m_weightAddr:" << m_weightAddr << " m_biasAddr:"
+               << m_biasAddr << " m_outputAddr:" << m_outputAddr
+               << " m_inRowNum:" << m_inRowNum << " m_inColNum:" << m_inColNum
+               << " m_outColNum:" << m_outColNum << " m_haveBias:" << m_haveBias
+               << " m_usingRelu:" << m_usingRelu << " m_weightTp:" << m_weightTp
+               << std::endl;);
+  bmnet::bmnet_fc_forward_bmkernel(*tg_kernel::getInstance().ctx, m_inputAddr,
+                                   m_weightAddr, m_biasAddr, m_outputAddr,
+                                   m_inRowNum, m_inColNum, m_outColNum,
+                                   m_haveBias, m_usingRelu, m_weightTp);
 }

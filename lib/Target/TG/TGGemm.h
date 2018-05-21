@@ -1,17 +1,17 @@
 #ifndef ONNX_BM_TGGEMM_H
 #define ONNX_BM_TGGEMM_H
 
-#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
+#include <onnx/common/ir.h>
 namespace onnc {
 
 class TGGemm : public Operator
 {
 public:
-  TGGemm(const ::onnx::Node &node, MemTable &memTable);
-  void dumpOnnxConv(const ::onnx::Node &node);
-  void emit(void) const override;
+  TGGemm(const ::onnx::Node &pNode, MemTable &pMemTable);
+  void dumpOnnxGemm(const ::onnx::Node &pNode);
+  void emit() const override;
 
 private:
   std::vector<uint64_t> m_weightOffset;
