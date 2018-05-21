@@ -6,6 +6,9 @@
 #include "TGSoftmax.h"
 #include "TGISelLowering.h"
 
+#define DEBUG_TYPE "tg_lowering"
+#include <onnc/Support/Debug.h>
+
 using namespace onnc;
 
 Operator*
@@ -24,7 +27,8 @@ TGTargetLowering::LowerHelper(const ::onnx::Node &node, MemTable &memTable)
     return new TGGemm(node, memTable);
   else if (symbol == ::onnx::Symbol("Softmax"))
     return new TGSoftmax(node, memTable);
-  std::cerr << "unsupported node type: " << node.kind().toString() << std::endl;
+  DEBUG(dbgs() << "unsupported node type: " << node.kind().toString()
+                << std::endl;);
   return nullptr;
 }
 
@@ -37,6 +41,6 @@ void TGTargetLowering::LowerOperation(
   // FIXME ignore unsupported operation
   if (nullptr == oper)
     return;
-  std::cout << "lowering: " << oper->getName() << std::endl;
+  DEBUG(dbgs() << "lowering: " << oper->getName() << std::endl;);
   instList.push_back(std::move(oper));
 }
