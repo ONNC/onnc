@@ -6,11 +6,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ONNX2TGApp.h"
-#include <onnc/Option/CommandLine.h>
-#include <onnc/Support/Path.h>
-#include <onnc/Support/IOStream.h>
 #include <onnc/ADT/Color.h>
-
+#include <onnc/Option/CommandLine.h>
+#include <onnc/Support/Debug.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/Support/Path.h>
 
 using namespace onnc;
 
@@ -46,6 +46,7 @@ static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
 //===----------------------------------------------------------------------===//
 int main(int pArgc, char* pArgv[])
 {
+  ENABLE_DEBUG();
   ONNX2TG onnx2tg(pArgc, pArgv);
   // set up input
   if (!exists(OptInput)) {
