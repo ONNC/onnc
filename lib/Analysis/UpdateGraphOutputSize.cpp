@@ -204,7 +204,10 @@ UpdateGraphOutputSize::UpdateGraphOutputSize()
 /// Operator set whose output size equals to input size.
 static std::unordered_set<onnx::NodeKind> g_InputSizeIsOutputSize = {
   onnx::Symbol("Relu"), onnx::Symbol("LRN"),
-  onnx::Symbol("Dropout"), onnx::Symbol("Softmax")
+  onnx::Symbol("Dropout"), onnx::Symbol("Softmax"),
+  onnx::kBatchNormalization,
+  onnx::kMul, onnx::kDiv, onnx::kAdd, onnx::kSub, onnx::kNeg,
+  onnx::Symbol("Sum")
 };
 
 Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
@@ -218,7 +221,8 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
 
     if (kind == onnx::kConv) {
       UpdateConvOutputInfo(n);
-    } else if (kind == onnx::Symbol("MaxPool")) {
+    } else if (kind == onnx::Symbol("MaxPool") ||
+               kind == onnx::Symbol("AveragePool")) {
       UpdatePoolOutputInfo(n);
     } else if (kind == onnx::kGemm) {
       UpdateGemmOutputInfo(n);
