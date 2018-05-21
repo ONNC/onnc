@@ -1,8 +1,11 @@
+#include "TG.h"
+#include "TGBackend.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
-#include "TGBackend.h"
-#include "TG.h"
+
+#define DEBUG_TYPE "tg_mem_alloc"
+#include <onnc/Support/Debug.h>
 
 using namespace onnc;
 
@@ -19,18 +22,18 @@ public:
   static char ID;
 
 public:
-  TGMemAllocInfo(TGBackend *pTarget)
-    : ModulePass(ID), m_pTarget(pTarget){
-  }
+  TGMemAllocInfo(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
 
-  Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
+  Pass::ReturnType runOnModule(::onnc::Module &pModule) override
+  {
     ::onnx::Graph *graph = pModule.getGraphIR().get();
     ddrAllocInfo(*graph, m_pTarget->getMemLayout());
     return Pass::kModuleNoChanged;
   }
 };
 
-void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
+void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable)
+{
   // Definition fom BM168xBackendContext.hpp
   // TAG will be masked by runtime while processing cmdbuf.
   const int GLOBAL_NEURON_TAG = 0x1;
@@ -42,24 +45,24 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
   // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
   std::string tab = "\t";
 
-  std::cout << __func__ << " dump global memory layout:" << std::endl;
+  DEBUG(dbgs() << __func__ << " dump global memory layout:" << std::endl;);
 
   for (auto i : graph.initializers()) {
 
     memTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
-    std::cout << tab << i.name() << " = " << weight_offset;
+    DEBUG(dbgs() << tab << i.name() << " = " << weight_offset;);
 
     if (i.sizes().size() > 0) {
       int tensor_size = m_pTarget->sizeOfTensorType(i.elem_type());
-      std::cout << " <";
+      DEBUG(dbgs() << " <";);
       for (auto dim : i.sizes()) {
-        std::cout << dim << ",";
+        DEBUG(dbgs() << dim << ",";);
         tensor_size *= dim;
       }
-      std::cout << ">" << std::endl;
+      DEBUG(dbgs() << ">" << std::endl;);
       weight_offset += tensor_size;
     } else {
-      std::cout << std::endl;
+      DEBUG(dbgs() << std::endl;);
     }
   }
 
@@ -71,19 +74,19 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
     if (0 == initNames.count(i->uniqueName())) {
 
       memTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
-      std::cout << tab << i->uniqueName() << " = " << neuron_offset;
+      DEBUG(dbgs() << tab << i->uniqueName() << " = " << neuron_offset;);
 
       if (i->sizes().size() > 0) {
         int tensor_size = m_pTarget->sizeOfTensorType(i->elemType());
-        std::cout << " <";
+        DEBUG(dbgs() << " <";);
         for (auto &dim : i->sizes()) {
-          std::cout << dim.dim << ",";
+          DEBUG(dbgs() << dim.dim << ",";);
           tensor_size *= dim.dim;
         }
-        std::cout << ">" << std::endl;
+        DEBUG(dbgs() << ">" << std::endl;);
         neuron_offset += tensor_size;
       } else {
-        std::cout << std::endl;
+        DEBUG(dbgs() << std::endl;);
       }
     }
   }
@@ -95,30 +98,31 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable) {
     for (auto o : i->outputs()) {
 
       memTable[o->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
-      std::cout << tab << o->uniqueName() << " = " << neuron_offset;
+      DEBUG(dbgs() << tab << o->uniqueName() << " = " << neuron_offset;);
 
       if (o->sizes().size() > 0) {
         int tensor_size = m_pTarget->sizeOfTensorType(o->elemType());
-        std::cout << " <";
+        DEBUG(dbgs() << " <";);
         for (auto dim : o->sizes()) {
-          std::cout << dim.dim << ",";
+          DEBUG(dbgs() << dim.dim << ",";);
           tensor_size *= dim.dim;
         }
-        std::cout << ">" << std::endl;
+        DEBUG(dbgs() << ">" << std::endl;);
         neuron_offset += tensor_size;
       } else {
-        std::cout << std::endl;
+        DEBUG(dbgs() << "\n";);
       }
     }
   }
-  std::cout << tab << "weight size: " << weight_offset << std::endl;
-  std::cout << tab << "neuron size: " << neuron_offset << std::endl;
+  DEBUG(dbgs() << tab << "weight size: " << weight_offset << "\n";);
+  DEBUG(dbgs() << tab << "neuron size: " << neuron_offset << "\n";);
 }
 
 } // anonymous namespace
 
 char TGMemAllocInfo::ID = 0;
 
-ModulePass *onnc::createTGMemAllocInfoPass(TGBackend *target) {
+ModulePass *onnc::createTGMemAllocInfoPass(TGBackend *target)
+{
   return new TGMemAllocInfo(target);
 }
