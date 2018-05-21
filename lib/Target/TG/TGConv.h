@@ -1,9 +1,9 @@
 #ifndef ONNX_BM_TGCONV_H
 #define ONNX_BM_TGCONV_H
 
-#include <onnx/common/ir.h>
 #include "Operator.h"
 #include "TGISelLowering.h"
+#include <onnx/common/ir.h>
 
 namespace onnc {
 
