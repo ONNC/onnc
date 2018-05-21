@@ -8,8 +8,9 @@
 #ifndef ONNC_ADT_STRINGREF_H
 #define ONNC_ADT_STRINGREF_H
 #include <iosfwd>
-#include <string>
 #include <onnc/ADT/TypeTag.h>
+#include <string>
+#include <vector>
 
 namespace onnc {
 
@@ -200,6 +201,40 @@ public:
   /// \returns The split substrings.
   std::pair<StringRef, StringRef> split(char pSeparator) const;
   std::pair<StringRef, StringRef> split(StringRef pSeparator) const;
+
+  /// Split into substrings around the occurrences of a separator string.
+  ///
+  /// Each substring is stored in \p pA. If \p pMaxSplit is >= 0, at most
+  /// \p pMaxSplit splits are done and consequently <= \p pMaxSplit + 1
+  /// elements are added to A.
+  /// If \p pKeepEmpty is false, empty strings are not added to \p pA. They
+  /// still count when considering \p pMaxSplit
+  /// An useful invariant is that
+  /// pSeparator.join(A) == *this if pMaxSplit == -1 and pKeepEmpty == true
+  ///
+  /// \param pA - Where to put the substrings.
+  /// \param pSeparator - The string to split on.
+  /// \param pMaxSplit - The maximum number of times the string is split.
+  /// \param pKeepEmpty - True if empty substring should be added.
+  void split(std::vector<StringRef> &pA, StringRef pSeparator,
+             int pMaxSplit = -1, bool pKeepEmpty = true) const;
+
+  /// Split into substrings around the occurrences of a separator character.
+  ///
+  /// Each substring is stored in \p pA. If \p pMaxSplit is >= 0, at most
+  /// \p pMaxSplit splits are done and consequently <= \p pMaxSplit + 1
+  /// elements are added to A.
+  /// If \p pKeepEmpty is false, empty strings are not added to \p pA. They
+  /// still count when considering \p pMaxSplit
+  /// An useful invariant is that
+  /// pSeparator.join(A) == *this if pMaxSplit == -1 and pKeepEmpty == true
+  ///
+  /// \param pA - Where to put the substrings.
+  /// \param pSeparator - The string to split on.
+  /// \param pMaxSplit - The maximum number of times the string is split.
+  /// \param pKeepEmpty - True if empty substring should be added.
+  void split(std::vector<StringRef> &pA, char pSeparator, int pMaxSplit = -1,
+             bool pKeepEmpty = true) const;
 
   /// Return string with consecutive characters in \p pChars starting from
   /// the left and right removed.
