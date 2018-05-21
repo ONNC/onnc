@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <fstream>
 
+#define DEBUG_TYPE "tg_code_emitter"
+#include <onnc/Support/Debug.h>
 using namespace onnc;
 
 TGCodeEmitter::TGCodeEmitter(TGBackend *tgBackend)
@@ -19,7 +21,9 @@ void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
     output_path = pOutputPath;
 
   // TODO refactor
-  if (auto *subTarget1680 = dynamic_cast<BM1680Backend *>(m_tgBackend)) {
+  if (dynamic_cast<BM1680Backend *>(m_tgBackend) ||
+      dynamic_cast<BM1682Backend *>(m_tgBackend)) {
+    DEBUG(dbgs() << "BM1680Backend TGCodeEmitter::encodeInstructions\n");
     // tap2
     std::vector<float> weight_data;
     // ReadFloatDataFromBinaryFile(weight, weight_data);
@@ -42,7 +46,8 @@ void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
     ctx.read_cmdbuf(cmdbuf);
     bmnet::WriteFloatDataToBinaryFile(cmdbuf.data(), cmdbuf.size(),
                                       output_path.generic_string());
-  } else if (auto *subTarget1880 = dynamic_cast<BM1880Backend*>(m_tgBackend)) {
-    std::cout << "BM1880Backend TGCodeEmitter::encodeInstructions\n";
+    return;
   }
+
+  DEBUG(dbgs() << "BM1880Backend TGCodeEmitter::encodeInstructions\n");
 }
