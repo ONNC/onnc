@@ -21,11 +21,6 @@ public:
 
   Pass::ReturnType runOnModule(Module &pModule) override
   {
-    if (m_target->getCtableName() != "") {
-      auto &ctable = pModule.getMetaData().at(m_target->getCtableName());
-      assert(ctable != "");
-      m_target->setCtable(ctable);
-    }
     m_target->codeEmit();
     return Pass::kModuleNoChanged;
   }

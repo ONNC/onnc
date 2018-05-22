@@ -9,17 +9,20 @@ include_directories(
 include_directories(${PYTORCH_INCLUDE_DIRS})
 
 add_libonnc_src(
-    TGBackend.cpp 
+    TargetLowering.cpp 
     TargetInfo/TGTargetInfo.cpp 
+    TGBackend.cpp 
+    TGISelLowering.cpp 
+    TGCodeEmitter.cpp 
+    BM1880Backend.cpp
+    BM1880ISelLowering.cpp
+    BM1880CodeEmitter.cpp
     TGCodeEmitPass.cpp 
     TGMemAllocInfoPass.cpp 
-    TGCodeEmitter.cpp 
+    TargetLoweringPass.cpp
     TGConv.cpp 
     TGGemm.cpp 
-    TGISelLowering.cpp 
     TGLRN.cpp  
     TGMaxPool.cpp 
     TGRelu.cpp 
-    TGSoftmax.cpp 
-    TargetLowering.cpp 
-    TargetLoweringPass.cpp)
+    TGSoftmax.cpp)

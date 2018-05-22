@@ -12,7 +12,7 @@ public:
   {
   }
 
-  virtual ~Operator() { }
+  virtual ~Operator() = default;
 
   const std::string &getName(void) const { return m_name; }
 

@@ -3,11 +3,11 @@
 
 using namespace onnc;
 
-void TargetLowering::CodeGenAndEmitInst(
-    ::onnx::Graph *onnxGraph, std::vector<std::unique_ptr<Operator> > &instList) {
+void TargetLowering::CodeGenAndEmitInst(const ::onnx::Graph *pOnnxGraph)
+{
+  std::vector<std::unique_ptr<Operator> > &instList = m_pBackend->getInsts();
   instList.clear();
-  for (auto it = onnxGraph->begin(), ie = onnxGraph->end(); it != ie;
-       ++it) {
+  for (auto it = pOnnxGraph->begin(), ie = pOnnxGraph->end(); it != ie; ++it) {
     const ::onnx::Node *const node = *it;
     LowerOperation(*node, instList);
   }

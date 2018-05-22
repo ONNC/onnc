@@ -1,6 +1,6 @@
 #include "TGCodeEmitter.h"
+#include "TGBackend.h"
 #include "plat-bm168x/BM168xBackendContext.hpp"
-#include "plat-bm188x/BM188xBackendContext.hpp"
 #include "utils/io.hpp"
 #include <bm_kernel.h>
 #include <cstdint>
@@ -10,8 +10,8 @@
 #include <onnc/Support/Debug.h>
 using namespace onnc;
 
-TGCodeEmitter::TGCodeEmitter(TGBackend *tgBackend)
-  : m_tgBackend(tgBackend) {
+TGCodeEmitter::TGCodeEmitter(TGBackend *pTgBackend) : m_pTGBackend(pTgBackend)
+{
 }
 
 void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
@@ -21,8 +21,7 @@ void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
     output_path = pOutputPath;
 
   // TODO refactor
-  if (dynamic_cast<BM1680Backend *>(m_tgBackend) ||
-      dynamic_cast<BM1682Backend *>(m_tgBackend)) {
+  if (dynamic_cast<BM1680Backend *>(m_pTGBackend)) {
     DEBUG(dbgs() << "BM1680Backend TGCodeEmitter::encodeInstructions\n");
     // tap2
     std::vector<float> weight_data;
@@ -34,7 +33,7 @@ void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
 
     // XXX: we use auto only when the type is keeping changing.
     // onnc part
-    auto &instList = m_tgBackend->getInsts();
+    auto &instList = m_pTGBackend->getInsts();
     for (auto const &i : instList)
       i->emit();
     instList.clear();
@@ -48,11 +47,5 @@ void TGCodeEmitter::encodeInstructions(const Path &pOutputPath)
                                       output_path.generic_string());
     return;
   }
-
-  DEBUG(dbgs() << "BM1880Backend TGCodeEmitter::encodeInstructions\n");
-  std::vector<int8_t> weight_data;
-  // ReadInt8DataFromBinaryFile(weight, weight_data);
-  bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
-  const std::string& ctableString = m_tgBackend->getCtable();
-  DEBUG(dbgs() << "ctable = \n" << ctableString << "\n";);
+  assert(0);
 }

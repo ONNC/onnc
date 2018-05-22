@@ -32,7 +32,7 @@ public:
   }
 };
 
-void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable)
+void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &pGraph, MemTable &pMemTable)
 {
   // Definition fom BM168xBackendContext.hpp
   // TAG will be masked by runtime while processing cmdbuf.
@@ -47,9 +47,9 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable)
 
   DEBUG(dbgs() << __func__ << " dump global memory layout:" << std::endl;);
 
-  for (auto i : graph.initializers()) {
+  for (auto i : pGraph.initializers()) {
 
-    memTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
+    pMemTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
     DEBUG(dbgs() << tab << i.name() << " = " << weight_offset;);
 
     if (i.sizes().size() > 0) {
@@ -67,13 +67,13 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable)
   }
 
   unsigned int neuron_offset = 0;
-  std::unordered_set<std::string> initNames(graph.initializer_names().begin(),
-                                            graph.initializer_names().end());
+  std::unordered_set<std::string> initNames(pGraph.initializer_names().begin(),
+                                            pGraph.initializer_names().end());
   // allocate space for inputs
-  for (auto i : graph.inputs()) {
+  for (auto i : pGraph.inputs()) {
     if (0 == initNames.count(i->uniqueName())) {
 
-      memTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
+      pMemTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       DEBUG(dbgs() << tab << i->uniqueName() << " = " << neuron_offset;);
 
       if (i->sizes().size() > 0) {
@@ -91,13 +91,13 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable)
     }
   }
   // allocate space for outputs
-  for (auto i : graph.nodes()) {
+  for (auto i : pGraph.nodes()) {
     if (i->kind() == ::onnx::Symbol("Undefined"))
       continue;
 
     for (auto o : i->outputs()) {
 
-      memTable[o->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
+      pMemTable[o->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
       DEBUG(dbgs() << tab << o->uniqueName() << " = " << neuron_offset;);
 
       if (o->sizes().size() > 0) {
@@ -122,7 +122,7 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable)
 
 char TGMemAllocInfo::ID = 0;
 
-ModulePass *onnc::createTGMemAllocInfoPass(TGBackend *target)
+ModulePass *onnc::createTGMemAllocInfoPass(TGBackend *pTarget)
 {
-  return new TGMemAllocInfo(target);
+  return new TGMemAllocInfo(pTarget);
 }

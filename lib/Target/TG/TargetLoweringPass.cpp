@@ -16,10 +16,12 @@ public:
 public:
   TargetISel(TGBackend* pBackend) : ModulePass(ID), m_pTarget(pBackend) {}
 
-  Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
-    ::onnx::Graph *graph = pModule.getGraphIR().get();
+  Pass::ReturnType runOnModule(::onnc::Module &pModule) override
+  {
     TargetLowering *TLI = m_pTarget->getTargetLowering();
-    TLI->CodeGenAndEmitInst(graph, m_pTarget->getInsts());
+    TLI->PrepareCodeGenAndEmitInst(pModule);
+    ::onnx::Graph *graph = pModule.getGraphIR().get();
+    TLI->CodeGenAndEmitInst(graph);
     return Pass::kModuleNoChanged;
   }
 

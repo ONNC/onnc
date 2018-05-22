@@ -5,23 +5,25 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "TG.h"
 #include "TGBackend.h"
+#include "BM1880Backend.h"
+#include "TG.h"
+#include "TGISelLowering.h"
 #include "TargetInfo/TGTargetInfo.h"
-#include <onnc/Transforms/removeUnusedNodes.h>
-#include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Target/TargetRegistry.h>
+#include <onnc/Transforms/removeUnusedNodes.h>
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
 // TGBackend
 //===----------------------------------------------------------------------===//
-TGBackend::TGBackend(const TargetOptions &pOptions)
-  : DLATargetBackend(pOptions),
-    m_pTLI(new TGTargetLowering(this)),
-    m_pCE(new TGCodeEmitter(this)) {
+TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
+                     const TargetOptions &pOptions)
+    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE)
+{
 }
 
 TGBackend::~TGBackend()
@@ -53,18 +55,19 @@ void TGBackend::codeEmit()
   m_pCE->encodeInstructions(m_outputPath);
 }
 
-bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType type)
+bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 {
   return true;
 }
 
-size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType type){
-  if (!isNativeTensorType(type))  {
-    std::cerr << "unsupported type " << TensorProto_DataType_Name(type)
-                << "in " << getBackendName() << "\n";
+size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType pType)
+{
+  if (!isNativeTensorType(pType)) {
+    std::cerr << "unsupported pType " << TensorProto_DataType_Name(pType)
+              << "in " << getBackendName() << "\n";
     return 0;
   }
-  switch (type) {
+  switch (pType) {
   case ::onnx::TensorProto_DataType_FLOAT:
     return sizeof(float);
   case ::onnx::TensorProto_DataType_INT8:
@@ -72,19 +75,20 @@ size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType type){
   case ::onnx::TensorProto_DataType_INT16:
     return sizeof(int16_t);
   default:
-    assert(0 && "unimplemented size of type!");
+    assert(0 && "unimplemented size of pType!");
   }
   return 0;
 }
 
-void TGBackend::setCtable(const std::string &pCtable)
+const std::string &TGBackend::getCtable(const Module &pModule)
 {
-  m_Ctable = pCtable;
+  auto &ctable = pModule.getMetaData().at(getCtableName());
+  return ctable;
 }
 
 // BM1680
 BM1680Backend::BM1680Backend(const TargetOptions &pOptions)
-    : TGBackend(pOptions)
+    : TGBackend(new TGTargetLowering(this), new TGCodeEmitter(this), pOptions)
 {
 }
 
@@ -92,9 +96,9 @@ BM1680Backend::~BM1680Backend()
 {
 }
 
-bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType type)
+bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 {
-  if (type == ::onnx::TensorProto_DataType_FLOAT) {
+  if (pType == ::onnx::TensorProto_DataType_FLOAT) {
     return true;
   }
   return false;
@@ -102,7 +106,7 @@ bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType type)
 
 // BM1682
 BM1682Backend::BM1682Backend(const TargetOptions &pOptions)
-    : TGBackend(pOptions)
+    : TGBackend(new TGTargetLowering(this), new TGCodeEmitter(this), pOptions)
 {
 }
 
@@ -110,35 +114,14 @@ BM1682Backend::~BM1682Backend()
 {
 }
 
-bool BM1682Backend::isNativeTensorType(::onnx::TensorProto_DataType type)
+bool BM1682Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 {
-  if (type == ::onnx::TensorProto_DataType_FLOAT) {
+  if (pType == ::onnx::TensorProto_DataType_FLOAT) {
     return true;
   }
   return false;
 }
 
-// BM1880
-BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
-    : TGBackend(pOptions)
-{
-}
-
-BM1880Backend::~BM1880Backend()
-{
-
-}
-
-bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType type)
-{
-  switch (type) {
-  case ::onnx::TensorProto_DataType_INT8:
-  case ::onnx::TensorProto_DataType_INT16:
-    return true;
-  default:
-    return false;
-  }
-}
 
 //===----------------------------------------------------------------------===//
 // Non member functions

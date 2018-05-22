@@ -35,8 +35,7 @@ TGTargetLowering::LowerHelper(const ::onnx::Node &node, MemTable &memTable)
 void TGTargetLowering::LowerOperation(
     const ::onnx::Node &node, std::vector<std::unique_ptr<Operator> > &instList)
 {
-  MemTable &globalMemLayout = m_tgBackend->getMemLayout();
-  uint32_t symbol = node.kind();
+  MemTable &globalMemLayout = m_pBackend->getMemLayout();
   std::unique_ptr<Operator> oper(LowerHelper(node, globalMemLayout));
   // FIXME ignore unsupported operation
   if (nullptr == oper)

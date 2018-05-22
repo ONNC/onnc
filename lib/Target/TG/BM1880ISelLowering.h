@@ -1,25 +1,26 @@
 #pragma once
 
-#include "TGBackend.h"
+#include "BM1880Backend.h"
 #include "TargetLowering.h"
 #include <memory>
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
-class TargetLowering;
-class TGBackend;
+class BM1880Backend;
 
 using MemTable = std::map<std::string, uint64_t>;
 
-class TGTargetLowering : public TargetLowering
+class BM1880ISelLowering : public TargetLowering
 {
 public:
-  TGTargetLowering(TGBackend *pBackend) : TargetLowering(pBackend) {}
+  BM1880ISelLowering(BM1880Backend *pBackend) : TargetLowering(pBackend) {}
 
   void
   LowerOperation(const ::onnx::Node &node,
                  std::vector<std::unique_ptr<Operator> > &instList) override;
+
+  void PrepareCodeGenAndEmitInst(Module &pModule) override;
 
 private:
   void ddrScanAndAlloc(MemTable &memTable, ::onnx::Graph &graph);

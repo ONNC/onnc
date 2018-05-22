@@ -1,6 +1,5 @@
 #ifndef ONNC_TARGET_TG_CODE_EMITTER_H
 #define ONNC_TARGET_TG_CODE_EMITTER_H
-#include "TGBackend.h"
 #include <onnc/Support/Path.h>
 #include <vector>
 #include <memory>
@@ -20,21 +19,13 @@ class TGCodeEmitter
 public:
   TGCodeEmitter(TGBackend *tgBackend);
 
-  void encodeInstructions(const Path& pOutputPath);
+  virtual ~TGCodeEmitter() = default;
 
-private:
-  static void sendCmdBuf(void *userData, const void *cmdBuf, uint32_t len);
-  static void emitCmdBuf(void *userData, void *cmdBuf, uint32_t len);
-  static void freeCmdBuf(void *userData, void *cmdBuf);
-  static void *allocCmdBuf(void *userData, uint32_t size);
-  static void hostSync(void);
-  static void emitDebugInfo(void *userData, char const *info, int nodeId,
-                            long long unsigned int fwAddr, bool isFloat);
-  void bmkernelContextPrepare(void);
+  virtual void encodeInstructions(const Path &pOutputPath);
 
 private:
   void *m_bmkernelHandle;
-  TGBackend *m_tgBackend;
+  TGBackend *m_pTGBackend;
 };
 
 class tg_kernel
