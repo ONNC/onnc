@@ -20,6 +20,7 @@ class Module;
 /// DumpGraph. Callable in GDB.
 void DumpGraph(::onnx::Graph& pGraph);
 void DumpGraph(Module &pModule);
+void DumpModule(Module &pModule);
 
 }
 

@@ -59,6 +59,8 @@ private:
   friend void onnx::ImportModelProto(Module &pModule,
                                      const ::onnx::ModelProto &pModelProto);
 
+  friend void onnc::DumpModule(Module &pModule);
+
 private:
   SymbolTable m_SymbolTable;
   // onnc keeps all ModelProto info
