@@ -1,9 +1,8 @@
 #ifndef ONNX_BM_TGLRN_H
 #define ONNX_BM_TGLRN_H
 
-#include <onnx/common/ir.h>
 #include "Operator.h"
-#include "TGISelLowering.h"
+#include <onnx/common/ir.h>
 
 namespace onnc {
 
@@ -12,7 +11,7 @@ class TGLRN : public Operator
 public:
   TGLRN(const ::onnx::Node &node, MemTable &memTable);
 
-  void emit(void) const override;
+  void emit() const override;
 
 private:
   uint64_t m_inputAddr;
@@ -28,6 +27,6 @@ private:
   int m_localSize;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

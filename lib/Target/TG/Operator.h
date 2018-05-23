@@ -5,6 +5,7 @@
 
 namespace onnc {
 
+using MemTable = std::map<std::string, uint64_t>;
 class Operator
 {
 public:

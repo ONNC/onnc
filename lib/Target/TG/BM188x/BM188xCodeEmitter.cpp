@@ -1,4 +1,4 @@
-#include "BM1880CodeEmitter.h"
+#include "BM188xCodeEmitter.h"
 #include "plat-bm188x/BM188xBackendContext.hpp"
 #include "utils/io.hpp"
 #include <bm_kernel.h>
@@ -9,23 +9,23 @@
 #include <onnc/Support/Debug.h>
 using namespace onnc;
 
-BM1880CodeEmitter::BM1880CodeEmitter(BM1880Backend *pBackend)
+BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
     : TGCodeEmitter(pBackend), m_Backend(pBackend)
 {
 }
 
-void BM1880CodeEmitter::encodeInstructions(const Path &pOutputPath)
+void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
 {
   Path output_path("cmdbuf.bin");
   if (!pOutputPath.empty())
     output_path = pOutputPath;
 
-  DEBUG(dbgs() << "BM1880Backend BM1880CodeEmitter::encodeInstructions\n");
+  DEBUG(dbgs() << "BM1880Backend BM188xCodeEmitter::encodeInstructions\n");
 // TODO
 #if 0
   std::vector<int8_t> weight_data;
   // ReadInt8DataFromBinaryFile(weight, weight_data);
-  bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
+  bmnet::BM1880BackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
   bm1880_kernel::getInstance().m_Ctx = &ctx;
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());

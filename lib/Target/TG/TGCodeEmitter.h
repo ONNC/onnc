@@ -4,12 +4,6 @@
 #include <vector>
 #include <memory>
 
-namespace bmnet {
-
-class BM168xBackendContext;
-
-} // namespace of bmnet
-
 namespace onnc {
 
 class TGBackend;
@@ -17,37 +11,15 @@ class TGBackend;
 class TGCodeEmitter
 {
 public:
-  TGCodeEmitter(TGBackend *tgBackend);
+  TGCodeEmitter(TGBackend *pBackend) : m_pBackend(pBackend) {}
 
   virtual ~TGCodeEmitter() = default;
 
-  virtual void encodeInstructions(const Path &pOutputPath);
+  virtual void encodeInstructions(const Path &pOutputPath) = 0;
 
 private:
   void *m_bmkernelHandle;
-  TGBackend *m_pTGBackend;
-};
-
-class tg_kernel
-{
-public:
-  static tg_kernel &getInstance() {
-    static tg_kernel instance; // Guaranteed to be destroyed.
-                               // Instantiated on first use.
-    return instance;
-  }
-
-public:
-  bmnet::BM168xBackendContext *ctx;
-
-private:
-  tg_kernel(tg_kernel const &) = delete;
-
-  void operator=(tg_kernel const &) = delete;
-
-  tg_kernel() {} // Constructor? (the {} brackets) are needed here.
-
-  ~tg_kernel() {}
+  TGBackend *m_pBackend;
 };
 
 } // namespace onnc

@@ -2,7 +2,6 @@
 #define ONNX_BM_TGCONV_H
 
 #include "Operator.h"
-#include "TGISelLowering.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -12,7 +11,7 @@ class TGConv : public Operator
 public:
   TGConv(const ::onnx::Node &node, MemTable &memTable);
 
-  void emit(void) const override;
+  void emit() const override;
 
 private:
   std::vector<uint64_t> m_weightOffset;

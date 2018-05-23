@@ -1,9 +1,8 @@
 #ifndef ONNX_BM_TGSOFTMAX
 #define ONNX_BM_TGSOFTMAX
 
-#include <onnx/common/ir.h>
 #include "Operator.h"
-#include "TGISelLowering.h"
+#include <onnx/common/ir.h>
 
 namespace onnc {
 
@@ -12,7 +11,7 @@ class TGSoftmax : public Operator
 public:
   TGSoftmax(const ::onnx::Node &node, MemTable &memTable);
 
-  void emit(void) const override;
+  void emit() const override;
 
 private:
   uint64_t m_inputAddr;
@@ -23,6 +22,6 @@ private:
   int m_W;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

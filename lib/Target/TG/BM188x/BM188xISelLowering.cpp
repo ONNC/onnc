@@ -1,4 +1,4 @@
-#include "BM1880ISelLowering.h"
+#include "BM188xISelLowering.h"
 #include "TGConv.h"
 #include "TGGemm.h"
 #include "TGLRN.h"
@@ -11,7 +11,7 @@
 
 using namespace onnc;
 
-Operator *BM1880ISelLowering::LowerHelper(const ::onnx::Node &pNode,
+Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode,
                                           MemTable &pMemTable)
 {
   uint32_t symbol = pNode.kind();
@@ -32,7 +32,7 @@ Operator *BM1880ISelLowering::LowerHelper(const ::onnx::Node &pNode,
   return nullptr;
 }
 
-void BM1880ISelLowering::LowerOperation(
+void BM188xISelLowering::LowerOperation(
     const ::onnx::Node &pNode,
     std::vector<std::unique_ptr<Operator> > &pInstList)
 {
@@ -45,7 +45,7 @@ void BM1880ISelLowering::LowerOperation(
   pInstList.push_back(std::move(oper));
 }
 
-void BM1880ISelLowering::PrepareCodeGenAndEmitInst(Module &pModule)
+void BM188xISelLowering::PrepareCodeGenAndEmitInst(Module &pModule)
 {
   // prepare ctable
   auto &ctable = m_pBackend->getCtable(pModule);

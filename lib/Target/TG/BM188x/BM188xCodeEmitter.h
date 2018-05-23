@@ -1,6 +1,6 @@
-#ifndef BM1880_CODE_EMITTER_H
-#define BM1880_CODE_EMITTER_H
-#include "BM1880Backend.h"
+#ifndef BM188X_CODE_EMITTER_H
+#define BM188X_CODE_EMITTER_H
+#include "BM188xBackend.h"
 #include "TGCodeEmitter.h"
 #include <memory>
 #include <onnc/Support/Path.h>
@@ -8,7 +8,7 @@
 
 namespace bmnet {
 
-class BM188xBackendContext;
+class BM1880BackendContext;
 
 } // namespace bmnet
 
@@ -16,12 +16,12 @@ namespace onnc {
 
 class BM1880Backend;
 
-class BM1880CodeEmitter : public TGCodeEmitter
+class BM188xCodeEmitter : public TGCodeEmitter
 {
 public:
-  BM1880CodeEmitter(BM1880Backend *pBackend);
+  BM188xCodeEmitter(BM1880Backend *pBackend);
 
-  virtual ~BM1880CodeEmitter() = default;
+  virtual ~BM188xCodeEmitter() = default;
 
   void encodeInstructions(const Path &pOutputPath) override;
 
@@ -41,7 +41,7 @@ public:
   }
 
 public:
-  bmnet::BM188xBackendContext *m_Ctx;
+  bmnet::BM1880BackendContext *m_Ctx;
 
 private:
   bm1880_kernel(bm1880_kernel const &) = delete;

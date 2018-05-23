@@ -2,7 +2,6 @@
 #define ONNX_BM_TGGEMM_H
 
 #include "Operator.h"
-#include "TGISelLowering.h"
 #include <onnx/common/ir.h>
 namespace onnc {
 

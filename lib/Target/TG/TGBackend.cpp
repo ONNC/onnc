@@ -6,9 +6,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include "TGBackend.h"
-#include "BM1880Backend.h"
+#include "BM168x/BM168xBackend.h"
+#include "BM188x/BM188xBackend.h"
 #include "TG.h"
-#include "TGISelLowering.h"
 #include "TargetInfo/TGTargetInfo.h"
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
@@ -85,43 +85,6 @@ const std::string &TGBackend::getCtable(const Module &pModule)
   auto &ctable = pModule.getMetaData().at(getCtableName());
   return ctable;
 }
-
-// BM1680
-BM1680Backend::BM1680Backend(const TargetOptions &pOptions)
-    : TGBackend(new TGTargetLowering(this), new TGCodeEmitter(this), pOptions)
-{
-}
-
-BM1680Backend::~BM1680Backend()
-{
-}
-
-bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
-{
-  if (pType == ::onnx::TensorProto_DataType_FLOAT) {
-    return true;
-  }
-  return false;
-}
-
-// BM1682
-BM1682Backend::BM1682Backend(const TargetOptions &pOptions)
-    : TGBackend(new TGTargetLowering(this), new TGCodeEmitter(this), pOptions)
-{
-}
-
-BM1682Backend::~BM1682Backend()
-{
-}
-
-bool BM1682Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
-{
-  if (pType == ::onnx::TensorProto_DataType_FLOAT) {
-    return true;
-  }
-  return false;
-}
-
 
 //===----------------------------------------------------------------------===//
 // Non member functions

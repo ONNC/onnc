@@ -6,15 +6,15 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "BM1880Backend.h"
-#include "BM1880CodeEmitter.h"
-#include "BM1880ISelLowering.h"
+#include "BM188xBackend.h"
+#include "BM188xCodeEmitter.h"
+#include "BM188xISelLowering.h"
 
 using namespace onnc;
 
 // BM1880
 BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
-    : TGBackend(new BM1880ISelLowering(this), new BM1880CodeEmitter(this),
+    : TGBackend(new BM188xISelLowering(this), new BM188xCodeEmitter(this),
                 pOptions)
 {
 }

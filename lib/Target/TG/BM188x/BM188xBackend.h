@@ -1,12 +1,12 @@
-//===- BM1880Backend.h ----------------------------------------------------===//
+//===- BM188xBackend.h ----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef BM1880_BACKEND_H
-#define BM1880_BACKEND_H
+#ifndef BM188X_BACKEND_H
+#define BM188X_BACKEND_H
 #include "TGBackend.h"
 #include <memory>
 #include <onnx/common/ir.h>
@@ -15,8 +15,6 @@
 namespace onnc {
 
 class TGCodeEmitter;
-
-using MemTable = std::map<std::string, uint64_t>;
 
 class BM1880Backend : public TGBackend
 {
@@ -30,4 +28,4 @@ public:
 
 } // namespace onnc
 
-#endif // BM1880_BACKEND_H
+#endif // BM188X_BACKEND_H

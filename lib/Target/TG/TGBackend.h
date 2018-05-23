@@ -69,30 +69,6 @@ private:
   Path m_outputPath;
 };
 
-class BM1680Backend : public TGBackend
-{
-public:
-  BM1680Backend(const TargetOptions& pOptions);
-
-  virtual ~BM1680Backend();
-  bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
-  std::string getBackendName() override{
-    return "BM1680Backend";
-  };
-};
-
-class BM1682Backend : public TGBackend
-{
-public:
-  BM1682Backend(const TargetOptions& pOptions);
-
-  virtual ~BM1682Backend();
-  bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
-  std::string getBackendName() override{
-    return "BM1682Backend";
-  };
-};
-
 }  // namespace onnc
 
 #endif  // TARGET_TG_TG_BACKEND_H

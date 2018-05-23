@@ -1,17 +1,19 @@
 #include "TGSoftmax.h"
+#include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
 
 using namespace onnc;
 
-TGSoftmax::TGSoftmax(const ::onnx::Node &node, MemTable &memTable)
-    : Operator(node, "Softmax") {
+TGSoftmax::TGSoftmax(const ::onnx::Node &pNode, MemTable &pMemTable)
+    : Operator(pNode, "Softmax")
+{
 
-  auto inputs = node.inputs();
-  auto outputs = node.outputs();
-  m_inputAddr = memTable[inputs[0]->uniqueName()];
-  m_outputAddr = memTable[outputs[0]->uniqueName()];
+  auto inputs = pNode.inputs();
+  auto outputs = pNode.outputs();
+  m_inputAddr = pMemTable[inputs[0]->uniqueName()];
+  m_outputAddr = pMemTable[outputs[0]->uniqueName()];
 
-  const std::vector<::onnx::Dimension> inDim = node.inputs()[0]->sizes();
+  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;
@@ -27,11 +29,14 @@ TGSoftmax::TGSoftmax(const ::onnx::Node &node, MemTable &memTable)
   }
 }
 
-void TGSoftmax::emit(void) const {
+void TGSoftmax::emit() const
+{
   std::cout << "TGSoftmax::emit\tm_inputAddr:" << m_inputAddr
             << " m_outputAddr:" << m_outputAddr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
+#if 0
   bmnet::bmnet_softmax_forward_bmkernel(
-          *tg_kernel::getInstance().ctx,
+          *bm1880_kernel::getInstance().m_Ctx,
           m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W);
+#endif
 }
