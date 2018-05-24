@@ -318,7 +318,35 @@ public:
 
   LongInts calNewInputSize(unsigned pIdx) override
   {
-    return m_NewOutSizes;
+    assert(pIdx == 0 && "SplitReshape::calNewInputSize: Invalid input id.");
+
+    // [FIXME] It is hard to compute new input size for reshape. Here has some
+    //         assumptions and is buggy.
+    // [TODO] If there is un-handled case, just give up.
+    //
+    // Assume we are handling this kind of case:
+    // Reshape
+    //   pool5_1     : size = 4 (   10  256    6    6)
+    //   OC2_DUMMY_1 : size = 1 (    2)
+    //   OC2_DUMMY_0 : size = 2 (   10 9216)
+    // Gemm
+    //   OC2_DUMMY_0 : size = 2 (   10 9216)
+    //   fc6_w_0     : size = 2 ( 4096 9216)
+    //   fc6_b_0     : size = 1 ( 4096)
+    //   fc6_1       : size = 2 (   10 4096)
+
+    LongInts newIS(4); // common case: N C H W
+    const TensorSizes &data = m_Node.inputs()[0]->sizes();
+    newIS[0] = m_NewOutSizes[0];
+
+    // newIS[1] remains unchanged.
+    int64_t C = data[1].dim;
+    newIS[1] = C;
+
+    int64_t HW = m_NewOutSizes[1] / C;
+    newIS[2] = HW/2;
+    newIS[3] = HW/2;
+    return newIS;
   }
 };
 
@@ -331,7 +359,7 @@ static SplitNode* SplitNodeCreator(onnx::Node& pN)
   if (kind == onnx::kConv) {
     return new SplitConv(pN);
   } else if (kind == onnx::Symbol("MaxPool")) {
-    return new SplitMaxPool(pN);
+    return new SplitPool(pN);
   } else if (kind == onnx::kGemm) {
     return new SplitGemm(pN);
   } else if (kind == ::onnx::kReshape) {
