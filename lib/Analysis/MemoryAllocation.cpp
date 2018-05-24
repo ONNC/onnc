@@ -12,6 +12,7 @@
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
 #include <onnc/Core/PassAnalysisSupport.h>
+#include <onnc/IR/OnnxUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Target/DLATargetBackend.h>
 #include <onnc/Target/TargetMemInfo.h>
@@ -31,8 +32,6 @@ static const onnx::Symbol g_StoreKind("Store");
 //===----------------------------------------------------------------------===//
 // SplitNode
 //===----------------------------------------------------------------------===//
-using UInts = std::vector<unsigned>;
-
 class SplitNode
 {
 friend class SplitNodeManager;
@@ -82,13 +81,6 @@ static SplitNode* SplitNodeCreator(onnx::Node& pN);
 //===----------------------------------------------------------------------===//
 // SplitNodeManager
 //===----------------------------------------------------------------------===//
-
-/// Operator set whose output size equals to input size.
-static std::unordered_set<onnx::NodeKind> g_InputSizeIsOutputSize = {
-  onnx::Symbol("Relu"), onnx::Symbol("LRN"),
-  onnx::Symbol("Dropout"), onnx::Symbol("Softmax")
-};
-
 class SplitNodeManager
 {
 public:
@@ -176,11 +168,55 @@ class SplitConv : public SplitNode {
 public:
   SplitConv(onnx::Node& pN)
     : SplitNode(pN) {
+    assert(pN.kind() == onnx::kConv && "This is not a convolution node.");
+
+    GetConvKernelShape(pN, m_KShape);
+    GetAttrVals(pN, onnx::kstrides, m_Stride);
+    GetPads(pN, m_PadBegin, m_PadEnd);
   }
 
   UInts calNewInputSize(unsigned pIdx) override
   {
-    return m_NewOutSizes;
+    // Conv inputs:
+    //  0   x:T   (N x C x D1 x D2 .. Dn)
+    //  1   w:T   (M x C x k1 x k2 .. kn)
+    //  2   B:T   (M)
+    //
+    //  kernel_shape  [k1 x k2 .. kn]
+    //  pads          [x1_begin, x2_begin .. x1_end, x2_end]
+    //  strides       [s1 x s2 .. sn]
+    //
+    // Conv output:
+    //  0   y:T   (N x M x [(D1 - K1 + x1_begin + x1_end)/s1 + 1] x ..)
+    //
+    // Please also ref: UpdateGraphOutputSize.cpp:UpdateConvOutputInfo.
+    switch (pIdx) {
+    case 0: {
+      LongInts newIS(4); // common case: N C H W
+      const TensorSizes &xDim = m_Node.inputs()[0]->sizes();
+      newIS[0] = m_NewOutSizes[0];
+      newIS[1] = xDim[1].dim;
+      const size_t numAxis = xDim.size() - 2;
+      for (int i = 0; i < numAxis; ++i) {
+        newIS[i + 2] = (m_NewOutSizes[i + 2] - 1) * m_Stride[i]
+                       - m_PadBegin[i] - m_PadEnd[i] + m_KShape[i];
+      }
+      return newIS;
+    }
+    case 1: {
+      const TensorSizes &wDim = m_Node.inputs()[1]->sizes();
+      LongInts newIS(wDim.size());
+      newIS[0] = m_NewOutSizes[1];
+      for (int i = 1; i < wDim.size(); ++i)
+        newIS[i] = wDim[i].dim;
+      return newIS;
+    }
+    case 2:
+      return {m_NewOutSizes[1]};
+    default:
+      assert(false && "Error in SplitConv::calNewInputSize. Invalid input id.");
+      return {};
+    }
   }
 
 private:

@@ -20,7 +20,7 @@ struct MemSize
   unsigned alignment;
   unsigned size;
 
-  MemSize(unsigned alignment, unsigned size)
+  MemSize(unsigned alignment = 0, unsigned size = 0)
     : alignment(alignment), size(size) {}
 };
 
