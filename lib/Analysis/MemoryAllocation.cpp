@@ -278,7 +278,7 @@ public:
   }
 };
 
-class SplitMaxPool : public SplitNode {
+class SplitPool : public SplitNode {
 public:
   SplitPool(onnx::Node& pN)
     : SplitNode(pN) {
