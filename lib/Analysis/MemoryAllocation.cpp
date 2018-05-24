@@ -233,7 +233,43 @@ public:
 
   UInts calNewInputSize(unsigned pIdx) override
   {
-    return m_NewOutSizes;
+    // Gemm inputs:
+    //  0   A:T   (M x K)
+    //  1   B:T   (K x N)
+    //  2   C:T   (M x N)
+    //
+    //  broadcast  [int]
+    //  transA     [int]
+    //  transB     [int]
+    //
+    // Gemm output:
+    //  0   Y:T   (M x N)
+    const TensorSizes &aDim = m_Node.inputs()[0]->sizes();
+    const int64_t K = IsTranspose(m_Node, onnx::ktransA) ?
+                        aDim[0].dim : aDim[1].dim;
+
+    switch (pIdx) {
+    case 0: {
+      // Get new size of A.
+      if (IsTranspose(m_Node, onnx::ktransA))
+        return {K, m_NewOutSizes[0]};
+      return {m_NewOutSizes[0], K};
+    }
+    case 1: {
+      // Get new size of B.
+      if (IsTranspose(m_Node, onnx::ktransB))
+        return {m_NewOutSizes[1], K};
+      return {K, m_NewOutSizes[1]};
+    }
+    case 2: {
+      // [FIXME] We use original value. Should we change this?
+      const TensorSizes &Cdim = m_Node.inputs()[2]->sizes();
+      return {Cdim[0].dim, Cdim[1].dim};
+    }
+    default:
+      assert(false && "Error in SplitGemm::calNewInputSize. Invalid input id.");
+      return {};
+    }
   }
 };
 
