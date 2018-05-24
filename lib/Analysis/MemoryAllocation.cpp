@@ -50,6 +50,8 @@ public:
   /// pIdx: Which input.
   virtual LongInts calNewInputSize(unsigned pIdx) const;
 
+  virtual LongInts getNewOutputSize(unsigned pIdx) const;
+
 protected:
   LongInts m_NewOutSizes;
   const LongInts m_OutSizes;
@@ -65,7 +67,13 @@ bool SplitNode::useNewOutSize(const LongInts& pNewOutSize)
 
 /// Calculate required input size based on new output size.
 /// pIdx: Which input.
+/// Many operators have input size equal to output size.
 LongInts SplitNode::calNewInputSize(unsigned pIdx) const
+{
+  return m_NewOutSizes;
+}
+
+LongInts SplitNode::getNewOutputSize(unsigned pIdx) const
 {
   return m_NewOutSizes;
 }
@@ -91,6 +99,8 @@ public:
 
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
+
+  void getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap);
 
   /// Dump splitting result. Callable in GDB.
   void dump() const;
@@ -456,47 +466,14 @@ static SplitNode* SplitNodeCreator(onnx::Node& pN)
     return new SplitReshape(pN);
   }
 
+  errs() << "Unsupport node: " << kind.toString() << "\n";
   assert(false && "Unsupport node.");
   return nullptr;
-}
-
-static void tryToSplitGraph(onnx::Graph &pGraph,
-                            DLATargetBackend* pDLATB)
-{
-  const unsigned lsize = pDLATB->getMemInfo()->getLocalMemSize();
-
-  SplitNodeManager snMgr(pGraph, *pDLATB);
-  // Try to split backward with greedy. Try to split first dim.
-
-  for (onnx::Value* v : pGraph.outputs()) {
-    if (v->node())
-      snMgr.splitNodeByFactor(v->node(), 0, 2, true);
-  }
 }
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
-
-static void GetMemoryUsageForAllValues(onnx::Graph &pGraph,
-                                       ValMemSizeMap &pVMSMap,
-                                       DLATargetBackend* pDLATB)
-{
-  for (onnx::Node* n : pGraph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
-      continue;
-
-    // get required memory size of each input.
-    for (onnx::Value *v : n->inputs())
-      pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v);
-
-    // get required memory size of each output.
-    for (onnx::Value *v : n->outputs())
-      pVMSMap[v] = pDLATB->getMemInfo()->getValueMemorySize(v);
-  }
-}
-
 static void InsertLoadStoreNode(onnx::Graph &pGraph)
 {
   for (onnx::Value* v : pGraph.inputs()) {
@@ -618,14 +595,64 @@ size_t MemoryAllocation::allocByLiveness(ValMemSizeMap &pValMemSizeMap)
                                                required, *li));
     minSize = std::max(minSize, startAddr + required);
   }
+  return minSize;
+}
 
-  if (minSize > m_DLATB->getMemInfo()->getLocalMemSize()) {
-    tryToSplitGraph(graph, m_DLATB);
+Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
+{
+  if (!m_DLATB) {
+    errs() << "No backend infomation that is needed for memory allcation.\n";
+    return kPassFailure;
   }
 
-  outs() << "Size req. Min = " << minSize << "(" << (float)minSize/(1024.f*1024.f) << " mb)"
-         << " Max = " <<  maxSize << "(" << (float)maxSize/(1024.f*1024.f) << " mb)\n";
+  clear();
 
+  onnx::Graph& graph = *pModule.getGraph();
+
+  SplitNodeManager snMgr(graph, *m_DLATB);
+
+  bool stop = false, success = false;
+  unsigned splitAxis = 0, factor = 1;
+  while (!stop) {
+    ValMemSizeMap valMemSMap;
+    snMgr.getMemoryUsageForAllValues(valMemSMap);
+
+    // get maximum requirements.
+    size_t maxSize = 0;
+    for (auto & req : valMemSMap)
+      maxSize += req.second.size;
+
+    size_t minSize = allocByLiveness(valMemSMap);
+    if (minSize < m_DLATB->getMemInfo()->getLocalMemSize()) {
+      success = true;
+      break;
+    }
+
+    // Try to split backward. Try to split from first dim.
+    for (onnx::Value* v : graph.outputs()) {
+      if (v->node()) {
+        const TensorSizes &origSizes = v->sizes();
+        ++factor;
+        // Can't divide this axis further, try next axis.
+        if (origSizes[splitAxis].dim < factor) {
+          ++splitAxis;
+          factor = 1;
+        }
+
+        if (origSizes.size() == splitAxis) {
+          stop = true;
+          break;
+        }
+
+        snMgr.splitNodeByFactor(v->node(), splitAxis, factor, true);
+      }
+    }
+
+    outs() << "Size req. Min = " << minSize << "(" << (float)minSize/(1024.f*1024.f) << " mb)"
+           << " Max = " <<  maxSize << "(" << (float)maxSize/(1024.f*1024.f) << " mb)\n";
+
+  }
+  snMgr.dump();
   return kModuleNoChanged;
 }
 
