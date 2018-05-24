@@ -9,6 +9,7 @@
 #define ONNC_MEMORY_ALLOCATION_H
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
+#include <onnc/Target/TargetMemInfo.h>
 #include <onnx/common/ir.h>
 #include <vector>
 
@@ -29,6 +30,7 @@ public:
 };
 
 using MemAllocList = std::vector<MemAllocEntry*>;
+using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
 
 /** \class MemoryAllocation
  *  Perform memory allocation and generate allocation map.
@@ -50,6 +52,8 @@ public:
   void print(std::ostream& pOS) const;
 
 private:
+  size_t allocByLiveness(ValMemSizeMap &pValMemSizeMap);
+
   /// delete MemAllocEntry in m_MemAllocList
   void clear();
 

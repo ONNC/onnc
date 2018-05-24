@@ -15,7 +15,6 @@
 #include <onnc/IR/OnnxUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Target/DLATargetBackend.h>
-#include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Target/TargetTransformInfo.h>
 #include <limits>
 #include <iomanip> // for setw
@@ -589,36 +588,20 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
   return !(endA <= pStartB || endB <= pStartA);
 }
 
-Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
+size_t MemoryAllocation::allocByLiveness(ValMemSizeMap &pValMemSizeMap)
 {
-  if (!m_DLATB) {
-    errs() << "No backend infomation that is needed for memory allcation.\n";
-    return kPassFailure;
-  }
-
   clear();
 
-  onnx::Graph& graph = *pModule.getGraph();
   GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
 
-  ValMemSizeMap valMemSMap;
-  GetMemoryUsageForAllValues(graph, valMemSMap, m_DLATB);
-
-  InsertLoadStoreNode(graph);
-
-  // get maximum requirements.
-  unsigned maxSize = 0;
-  for (auto & req : valMemSMap)
-    maxSize += req.second.size;
-
   // by liverange analysis, we can get minimun requirement memory size.
-  unsigned minSize = 0;
+  size_t minSize = 0;
 
   // allocate memory considering liveness.
   auto &livesInfo = liveAnaly->getLiveIntervals();
   for (const LiveInterval* li : livesInfo) {
     auto v = &li->getValue();
-    unsigned required = valMemSMap[v].size,
+    size_t required = pValMemSizeMap[v].size,
            startAddr = 0;
 
     MemRegionList conflicts = GetUsedMemRegions(m_MemAllocList, *li);
