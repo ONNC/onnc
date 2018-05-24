@@ -53,11 +53,11 @@ public:
 
   /// Calculate required input size based on new output size.
   /// pIdx: Which input.
-  virtual LongInts calNewInputSize(unsigned pIdx);
+  virtual LongInts calNewInputSize(unsigned pIdx) const;
 
 protected:
   LongInts m_NewOutSizes;
-  LongInts m_OutSizes;
+  const LongInts m_OutSizes;
 
   onnx::Node& m_Node;
 };
@@ -70,7 +70,7 @@ bool SplitNode::useNewOutSize(const LongInts& pNewOutSize)
 
 /// Calculate required input size based on new output size.
 /// pIdx: Which input.
-LongInts SplitNode::calNewInputSize(unsigned pIdx)
+LongInts SplitNode::calNewInputSize(unsigned pIdx) const
 {
   return m_NewOutSizes;
 }
@@ -99,6 +99,7 @@ public:
 
 private:
   SplitNode* getSplitNode(onnx::Node* pN);
+  const SplitNode* getSplitNode(onnx::Node* pN) const;
   void clear();
 
   SplitInfoHash m_SplitInfos;
@@ -126,11 +127,19 @@ void SplitNodeManager::clear()
   m_SplitInfos.clear();
 }
 
-SplitNode* SplitNodeManager::getSplitNode(onnx::Node* n)
+SplitNode* SplitNodeManager::getSplitNode(onnx::Node* pN)
 {
-  assert(m_SplitInfos.find(n) != m_SplitInfos.end() &&
+  assert(m_SplitInfos.find(pN) != m_SplitInfos.end() &&
          "onnx::Node doesn't exist in SplitNodeManager.");
-  return m_SplitInfos[n];
+  return m_SplitInfos[pN];
+}
+
+const SplitNode* SplitNodeManager::getSplitNode(onnx::Node* pN) const
+{
+  auto it = m_SplitInfos.find(pN);
+  assert(m_SplitInfos.find(pN) != m_SplitInfos.end() &&
+         "onnx::Node doesn't exist in SplitNodeManager.");
+  return it->second;
 }
 
 void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
@@ -180,7 +189,7 @@ public:
     GetPads(pN, m_PadBegin, m_PadEnd);
   }
 
-  LongInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) const override
   {
     // Conv inputs:
     //  0   x:T   (N x C x D1 x D2 .. Dn)
@@ -236,7 +245,7 @@ public:
     : SplitNode(pN) {
   }
 
-  LongInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) const override
   {
     // Gemm inputs:
     //  0   A:T   (M x K)
@@ -289,7 +298,7 @@ public:
     GetPads(pN, m_PadBegin, m_PadEnd);
   }
 
-  LongInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) const override
   {
     assert(pIdx == 0 && "SplitPool::calNewInputSize: Invalid input id.");
 
@@ -304,6 +313,7 @@ public:
     }
     return newIS;
   }
+
 private:
   LongInts m_PadBegin, m_PadEnd;
   LongInts m_KShape;
@@ -316,7 +326,7 @@ public:
     : SplitNode(pN) {
   }
 
-  LongInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) const override
   {
     assert(pIdx == 0 && "SplitReshape::calNewInputSize: Invalid input id.");
 
