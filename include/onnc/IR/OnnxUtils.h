@@ -77,7 +77,8 @@ inline void GetConvKernelShape(onnx::Node& pNode, LongInts& pKShape)
 }
 
 /// @param pAttr Can be 'onnx::ktransA', 'onnx::ktransB'
-inline bool IsTranspose(onnx::Node& pNode, onnx::BuiltinSymbol pAttr)
+inline bool IsTranspose(const onnx::Node& pNode,
+                        const onnx::BuiltinSymbol pAttr)
 {
   assert((pAttr == onnx::ktransA || pAttr == onnx::ktransB) &&
          "This is not transpose attribute.");
@@ -85,6 +86,17 @@ inline bool IsTranspose(onnx::Node& pNode, onnx::BuiltinSymbol pAttr)
       pNode.i(pAttr))
     return true;
   return false;
+}
+
+inline LongInts GetValueSizes(const onnx::Value& pVal)
+{
+  LongInts sizes;
+
+  // General case: N C H W.
+  sizes.reserve(4);
+  for (auto & dim: pVal.sizes())
+    sizes.emplace_back(dim.dim);
+  return sizes;
 }
 
 }
