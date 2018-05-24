@@ -49,20 +49,20 @@ public:
 
   virtual ~SplitNode() {}
 
-  virtual bool useNewOutSize(const UInts& pNewOutSize);
+  virtual bool useNewOutSize(const LongInts& pNewOutSize);
 
   /// Calculate required input size based on new output size.
   /// pIdx: Which input.
-  virtual UInts calNewInputSize(unsigned pIdx);
+  virtual LongInts calNewInputSize(unsigned pIdx);
 
 protected:
-  UInts m_NewOutSizes;
-  UInts m_OutSizes;
+  LongInts m_NewOutSizes;
+  LongInts m_OutSizes;
 
   onnx::Node& m_Node;
 };
 
-bool SplitNode::useNewOutSize(const UInts& pNewOutSize)
+bool SplitNode::useNewOutSize(const LongInts& pNewOutSize)
 {
   m_NewOutSizes = pNewOutSize;
   return true;
@@ -70,7 +70,7 @@ bool SplitNode::useNewOutSize(const UInts& pNewOutSize)
 
 /// Calculate required input size based on new output size.
 /// pIdx: Which input.
-UInts SplitNode::calNewInputSize(unsigned pIdx)
+LongInts SplitNode::calNewInputSize(unsigned pIdx)
 {
   return m_NewOutSizes;
 }
@@ -89,14 +89,16 @@ public:
   SplitNodeManager(onnx::Graph& pGraph);
   ~SplitNodeManager();
 
-  void splitNodeByFactor(onnx::Node* n, unsigned pAxis, unsigned pFactor,
-                         bool updateUpper = true);
+  /// @param pN Split from node pN.
+  /// @param pUpdateUpper Propogate new size to upper levels.
+  void splitNodeByFactor(onnx::Node* pN, unsigned pAxis, unsigned pFactor,
+                         bool pUpdateUpper = true);
 
-  bool splitNodeBySize(onnx::Node* n, const UInts& newOutSize,
-                       bool updateUpper = true);
+  bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
+                       bool pUpdateUpper = true);
 
 private:
-  SplitNode* getSplitNode(onnx::Node* n);
+  SplitNode* getSplitNode(onnx::Node* pN);
   void clear();
 
   SplitInfoHash m_SplitInfos;
@@ -131,30 +133,31 @@ SplitNode* SplitNodeManager::getSplitNode(onnx::Node* n)
   return m_SplitInfos[n];
 }
 
-void SplitNodeManager::splitNodeByFactor(onnx::Node* n, unsigned pAxis,
-                                         unsigned pFactor, bool updateUpper)
+void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
+                                         unsigned pFactor, bool pUpdateUpper)
 {
-  SplitNode* ns = getSplitNode(n);
-  UInts newS = ns->m_OutSizes;
+  SplitNode* ns = getSplitNode(pN);
+  LongInts newS = ns->m_OutSizes;
   newS[pAxis] = (newS[pAxis] + pFactor - 1)/ pFactor;
-  splitNodeBySize(n, newS, updateUpper);
+  splitNodeBySize(pN, newS, pUpdateUpper);
 }
 
-bool SplitNodeManager::splitNodeBySize(onnx::Node* n, const UInts& newOutSize,
-                                       bool updateUpper)
+bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
+                                       const LongInts& pNewOutSize,
+                                       bool pUpdateUpper)
 {
-  SplitNode* ns = getSplitNode(n);
-  if (!ns->useNewOutSize(newOutSize))
+  SplitNode* ns = getSplitNode(pN);
+  if (!ns->useNewOutSize(pNewOutSize))
     return false;
 
-  if (!updateUpper)
+  if (!pUpdateUpper)
     return true;
 
   bool status = true;
   for (unsigned i = 0; i < ns->m_Node.inputs().size(); ++i) {
     if (onnx::Node* child = ns->m_Node.inputs()[i]->node()) {
       SplitNode* childNs = getSplitNode(child);
-      UInts newInS = childNs->calNewInputSize(i);
+      LongInts newInS = childNs->calNewInputSize(i);
       status &= splitNodeBySize(child, newInS, true);
     }
   }
@@ -175,7 +178,7 @@ public:
     GetPads(pN, m_PadBegin, m_PadEnd);
   }
 
-  UInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) override
   {
     // Conv inputs:
     //  0   x:T   (N x C x D1 x D2 .. Dn)
@@ -220,9 +223,9 @@ public:
   }
 
 private:
-  UInts m_PadBegin, m_PadEnd;
-  UInts m_KShape;
-  UInts m_Stride;
+  LongInts m_PadBegin, m_PadEnd;
+  LongInts m_KShape;
+  LongInts m_Stride;
 };
 
 class SplitGemm : public SplitNode {
@@ -231,7 +234,7 @@ public:
     : SplitNode(pN) {
   }
 
-  UInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) override
   {
     // Gemm inputs:
     //  0   A:T   (M x K)
@@ -284,7 +287,7 @@ public:
     GetPads(pN, m_PadBegin, m_PadEnd);
   }
 
-  UInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) override
   {
     assert(pIdx == 0 && "SplitPool::calNewInputSize: Invalid input id.");
 
@@ -299,6 +302,10 @@ public:
     }
     return newIS;
   }
+private:
+  LongInts m_PadBegin, m_PadEnd;
+  LongInts m_KShape;
+  LongInts m_Stride;
 };
 
 class SplitReshape : public SplitNode {
@@ -307,7 +314,7 @@ public:
     : SplitNode(pN) {
   }
 
-  UInts calNewInputSize(unsigned pIdx) override
+  LongInts calNewInputSize(unsigned pIdx) override
   {
     return m_NewOutSizes;
   }
@@ -315,10 +322,10 @@ public:
 
 static SplitNode* SplitNodeCreator(onnx::Node& pN)
 {
-  const auto kind = pN.kind();
-  if (g_InputSizeIsOutputSize.count(kind))
+  if (OutputSizeIsInputSize(pN))
     return new SplitNode(pN);
 
+  const auto kind = pN.kind();
   if (kind == onnx::kConv) {
     return new SplitConv(pN);
   } else if (kind == onnx::Symbol("MaxPool")) {
