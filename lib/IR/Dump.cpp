@@ -158,11 +158,15 @@ static void PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
       pGraph.initializer_names().begin(), pGraph.initializer_names().end());
 
   // dump graph input
-  for (::onnx::Value *v : pGraph.inputs()) {
+  for (int i = 0; i < pGraph.inputs().size(); ++i) {
+    auto *v = pGraph.inputs()[i];
     if (0 != initializerNames.count(v->uniqueName())) {
       continue;
     }
-    pOS << "%" << v->uniqueName() << " ";
+    if (i != 0) {
+      pOS << ", ";
+    }
+    PrintValue(pOS, v);
   }
   pOS << ")\n";
 
@@ -180,7 +184,7 @@ static void PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
     }
 
     ::onnx::Value *v = pGraph.outputs()[i];
-    pOS << "%" << v->uniqueName();
+    PrintValue(pOS, v);
   }
   pOS << "\n";
 }
