@@ -376,8 +376,8 @@ public:
     newIS[1] = m_NewOutSizes[1];
     const size_t numAxis = xDim.size() - 2;
     for (int i = 0; i < numAxis; ++i) {
-      newIS[i + 2] = (m_NewOutSizes[i + 2] - 1) * m_Stride[i]
-                     - m_PadBegin[i] - m_PadEnd[i] + m_KShape[i];
+      newIS[i + 2] = m_NewOutSizes[i + 2] * m_Stride[i]
+                     - m_PadBegin[i] - m_PadEnd[i] + 2 * (m_KShape[i] / 2);
     }
     return newIS;
   }
