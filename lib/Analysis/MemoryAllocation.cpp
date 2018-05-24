@@ -82,7 +82,7 @@ class SplitNodeManager
 public:
   using SplitInfoHash = std::unordered_map<onnx::Node*, SplitNode*>;
 
-  SplitNodeManager(onnx::Graph& pGraph);
+  SplitNodeManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
   ~SplitNodeManager();
 
   /// @param pN Split from node pN.
@@ -93,15 +93,24 @@ public:
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
 
+  /// Dump splitting result. Callable in GDB.
+  void dump() const;
+
+  void print(OStream &pOS) const;
+
 private:
   SplitNode* getSplitNode(onnx::Node* pN);
   const SplitNode* getSplitNode(onnx::Node* pN) const;
   void clear();
 
+  DLATargetBackend& m_DLATB;
+  onnx::Graph& m_Graph;
   SplitInfoHash m_SplitInfos;
 };
 
-SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph)
+SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
+                                   DLATargetBackend& pDLATB)
+  : m_Graph(pGraph), m_DLATB(pDLATB)
 {
   for (onnx::Node *n : pGraph.nodes()) {
     if (n->kind() == onnx::kUndefined)
@@ -436,7 +445,7 @@ static void tryToSplitGraph(onnx::Graph &pGraph,
 {
   const unsigned lsize = pDLATB->getMemInfo()->getLocalMemSize();
 
-  SplitNodeManager snMgr(pGraph);
+  SplitNodeManager snMgr(pGraph, *pDLATB);
   // Try to split backward with greedy. Try to split first dim.
 
   for (onnx::Value* v : pGraph.outputs()) {
