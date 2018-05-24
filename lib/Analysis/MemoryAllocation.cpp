@@ -275,13 +275,29 @@ public:
 
 class SplitMaxPool : public SplitNode {
 public:
-  SplitMaxPool(onnx::Node& pN)
+  SplitPool(onnx::Node& pN)
     : SplitNode(pN) {
+    assert(pN.kind() == onnx::Symbol("MaxPool") && "This is not a pool node.");
+
+    GetAttrVals(pN, onnx::kkernel_shape, m_KShape);
+    GetAttrVals(pN, onnx::kstrides, m_Stride);
+    GetPads(pN, m_PadBegin, m_PadEnd);
   }
 
   UInts calNewInputSize(unsigned pIdx) override
   {
-    return m_NewOutSizes;
+    assert(pIdx == 0 && "SplitPool::calNewInputSize: Invalid input id.");
+
+    LongInts newIS(4); // common case: N C H W
+    const TensorSizes &xDim = m_Node.inputs()[0]->sizes();
+    newIS[0] = m_NewOutSizes[0];
+    newIS[1] = m_NewOutSizes[1];
+    const size_t numAxis = xDim.size() - 2;
+    for (int i = 0; i < numAxis; ++i) {
+      newIS[i + 2] = (m_NewOutSizes[i + 2] - 1) * m_Stride[i]
+                     - m_PadBegin[i] - m_PadEnd[i] + m_KShape[i];
+    }
+    return newIS;
   }
 };
 
