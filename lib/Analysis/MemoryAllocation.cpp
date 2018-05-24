@@ -119,7 +119,7 @@ private:
 
 SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
                                    DLATargetBackend& pDLATB)
-  : m_Graph(pGraph), m_DLATB(pDLATB)
+  : m_DLATB(pDLATB), m_Graph(pGraph)
 {
   for (onnx::Node *n : pGraph.nodes()) {
     if (n->kind() == onnx::kUndefined)
