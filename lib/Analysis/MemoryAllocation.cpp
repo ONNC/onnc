@@ -337,8 +337,7 @@ public:
     }
     case 2: {
       // [FIXME] We use original value. Should we change this?
-      const TensorSizes &Cdim = m_Node.inputs()[2]->sizes();
-      return {Cdim[0].dim, Cdim[1].dim};
+      return GetValueSizes(*m_Node.inputs()[2]);
     }
     default:
       assert(false && "Error in SplitGemm::calNewInputSize. Invalid input id.");
