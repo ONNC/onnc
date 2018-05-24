@@ -12,6 +12,8 @@
 
 namespace onnc {
 
+using TP_DataTy = onnx::TensorProto_DataType;
+
 /** \struct MemSize
  *
  */
@@ -34,6 +36,10 @@ public:
   virtual unsigned getGlobalMemSize() const { return 0; }
 
   virtual unsigned getLocalMemSize() const { return 0; }
+
+  virtual unsigned getElemSize(TP_DataTy pTy) const { return 0; }
+
+  virtual unsigned getAlignment(TP_DataTy pTy) const { return 0; }
 
   /// Return actual memory size and alignment requirement of onnx::Value.
   virtual MemSize getValueMemorySize(onnx::Value *pValue)

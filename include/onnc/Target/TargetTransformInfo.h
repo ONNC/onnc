@@ -51,6 +51,22 @@ public:
     return MemSize();
   }
 
+  /// @param pIdx Get required memory size of input[pIdx].
+  /// @param pNewInputSize Based on new input size, get actual required size.
+  virtual MemSize getOperatorInputMemUsage(const onnx::Node *pNode,
+                                unsigned pIdx,
+                                const LongInts &pNewInputSize) const
+  {
+    return MemSize();
+  }
+
+  virtual MemSize getOperatorOutputMemUsage(const onnx::Node *pNode,
+                                unsigned pIdx,
+                                const LongInts &pNewOutputSize) const
+  {
+    return MemSize();
+  }
+
   virtual int getWarpSize() const { return 0; }
 
   virtual int getProcessingUnitCount() const { return 0; }
