@@ -388,7 +388,10 @@ public:
 
   LongInts calNewInputSize(unsigned pIdx) const override
   {
-    assert(pIdx == 0 && "SplitReshape::calNewInputSize: Invalid input id.");
+    assert(pIdx <= 1 && "SplitReshape::calNewInputSize: Invalid input id.");
+
+    if (pIdx == 1)
+      return {};
 
     // [FIXME] It is hard to compute new input size for reshape. Here has some
     //         assumptions and is buggy.
@@ -404,18 +407,37 @@ public:
     //   fc6_w_0     : size = 2 ( 4096 9216)
     //   fc6_b_0     : size = 1 ( 4096)
     //   fc6_1       : size = 2 (   10 4096)
+    assert(m_OutSizes.size() == 2 && "Reshape size assumption.");
 
-    LongInts newIS(4); // common case: N C H W
-    const TensorSizes &data = m_Node.inputs()[0]->sizes();
+    onnx::Value *v = m_Node.inputs()[0];
+    const TensorSizes &origSizes = v->sizes();
+    LongInts newIS(origSizes.size());
+
     newIS[0] = m_NewOutSizes[0];
 
-    // newIS[1] remains unchanged.
-    int64_t C = data[1].dim;
-    newIS[1] = C;
+    int64_t origCHWSize = 1, newCHWSize = 1;
+    for (int i = 1; i < m_NewOutSizes.size(); ++i) {
+      origCHWSize *= m_NewOutSizes[i];
+      newCHWSize *= m_OutSizes[i];
+    }
 
-    int64_t HW = m_NewOutSizes[1] / C;
-    newIS[2] = HW/2;
-    newIS[3] = HW/2;
+    assert(origCHWSize >= newCHWSize && "SplitReshape: Invalid resize.");
+
+    if (origCHWSize % newCHWSize != 0) {
+      errs() << "SplitReshape: origCHWSize mod newCHWSize is not zero!\n"
+             << "  " << origCHWSize << " % " << newCHWSize << "\n";
+    }
+
+    int64_t resizeFactor = origCHWSize / newCHWSize;
+
+    if (origSizes[1].dim % resizeFactor != 0) {
+      errs() << "SplitReshape: origSizes[1].dim mod resizeFactor is not zero!\n"
+             << "  " << origSizes[1].dim << " % " << resizeFactor << "\n";
+    }
+
+    newIS[1] = origSizes[1].dim / resizeFactor;
+    newIS[2] = origSizes[2].dim;
+    newIS[3] = origSizes[3].dim;
     return newIS;
   }
 };
