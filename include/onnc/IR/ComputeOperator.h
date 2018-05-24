@@ -45,6 +45,19 @@ private:
   };
 };
 
+class ComputeMemOperand
+{
+public:
+  unsigned getBankID() const;
+
+private:
+  unsigned m_BankID;
+};
+
+class ComputeAttrOperand
+{
+};
+
 /** \class ComputeOperator
  */
 class ComputeOperator
