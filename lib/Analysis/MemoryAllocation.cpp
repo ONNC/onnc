@@ -156,6 +156,8 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
   bool status = true;
   for (unsigned i = 0; i < ns->m_Node.inputs().size(); ++i) {
     if (onnx::Node* child = ns->m_Node.inputs()[i]->node()) {
+      if (child->kind() == onnx::kParam)
+        continue;
       SplitNode* childNs = getSplitNode(child);
       LongInts newInS = childNs->calNewInputSize(i);
       status &= splitNodeBySize(child, newInS, true);
