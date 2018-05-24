@@ -188,20 +188,82 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
   return status;
 }
 
+void SplitNodeManager::getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap)
+{
+  for (onnx::Node* n : m_Graph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    const SplitNode *sn = getSplitNode(n);
+
+    // get required memory size of each input.
+    for (unsigned i = 0; i < n->inputs().size(); ++i) {
+      onnx::Value *v = n->inputs()[i];
+      pVMSMap[v] =
+        m_DLATB.getTTI()
+               ->getOperatorInputMemUsage(n, i, sn->calNewInputSize(i));
+    }
+
+    // get required memory size of each output.
+    for (unsigned i = 0; i < n->outputs().size(); ++i) {
+      onnx::Value *v = n->outputs()[i];
+      pVMSMap[v] =
+        m_DLATB.getTTI()
+               ->getOperatorOutputMemUsage(n, i, sn->calNewInputSize(i));
+    }
+  }
+}
+
 void SplitNodeManager::dump() const
 {
   print(outs());
 }
 
+void PrintAttr(OStream &pOS, const onnx::Node &pN)
+{
+  for (auto attrId : pN.attributeNames()) {
+    pOS << attrId.toString() << ": ";
+    switch (pN.kindOf(attrId)) {
+    case onnx::AttributeKind::f   :
+      pOS << pN.f(attrId) << " ";
+      break;
+    case onnx::AttributeKind::fs  :
+      for (float f : pN.fs(attrId))
+        pOS << f << " ";
+      break;
+    case onnx::AttributeKind::i   :
+      pOS << pN.i(attrId) << " ";
+      break;
+    case onnx::AttributeKind::is  :
+      for (int i : pN.is(attrId))
+        pOS << i << " ";
+      break;
+    case onnx::AttributeKind::s   :
+      pOS << pN.s(attrId) << " ";
+      break;
+    case onnx::AttributeKind::ss  :
+      for (auto &s : pN.ss(attrId))
+        pOS << s << " ";
+      break;
+    default :
+      pOS << "[TODO]";
+    }
+    pOS << " ";
+  }
+}
+
 void SplitNodeManager::print(OStream &pOS) const
 {
+  size_t graphOldS = 0, graphNewS = 0;
   for (const onnx::Node *n : m_Graph.nodes()) {
     if (n->kind() == onnx::kUndefined)
       continue;
 
     std::vector<LongInts> newInputSizes;
     const SplitNode *sn = getSplitNode((onnx::Node*)n);
-    pOS << n->kind().toString() << ":\n";
+    pOS << n->kind().toString() << ": ";
+    PrintAttr(pOS, *n);
+    pOS << "\n";
 
     pOS << "  inputs:\n";
     for (int i = 0; i < n->inputs().size(); ++i) {
@@ -239,9 +301,13 @@ void SplitNodeManager::print(OStream &pOS) const
                                             {sn->m_NewOutSizes});
     MemSize oldS = m_DLATB.getTTI()->getOperatorMemUsage(n);
 
+    graphOldS += oldS.size;
+    graphNewS += newS.size;
     pOS << "  total: " << oldS.size/1024.f << " kb -> "
         << newS.size/1024.f << " kb" << "\n";
   }
+  pOS << "Graph total size: " << (float)graphOldS/1024.f << " kb -> "
+      << (float)graphNewS/1024.f << " kb" << "\n";
 }
 
 //===----------------------------------------------------------------------===//
