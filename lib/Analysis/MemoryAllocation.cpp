@@ -160,7 +160,7 @@ void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
                                          unsigned pFactor, bool pUpdateUpper)
 {
   SplitNode* ns = getSplitNode(pN);
-  LongInts newS = ns->m_OutSizes;
+  LongInts newS = ns->m_NewOutSizes;
   newS[pAxis] = (newS[pAxis] + pFactor - 1)/ pFactor;
   splitNodeBySize(pN, newS, pUpdateUpper);
 }
