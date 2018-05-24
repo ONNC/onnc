@@ -18,6 +18,7 @@
 #include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Target/TargetTransformInfo.h>
 #include <limits>
+#include <iomanip> // for setw
 #include <vector>
 #include <unordered_map>
 
@@ -162,12 +163,67 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
     if (onnx::Node* child = ns->m_Node.inputs()[i]->node()) {
       if (child->kind() == onnx::kParam)
         continue;
-      SplitNode* childNs = getSplitNode(child);
-      LongInts newInS = childNs->calNewInputSize(i);
+      LongInts newInS = ns->calNewInputSize(i);
       status &= splitNodeBySize(child, newInS, true);
     }
   }
   return status;
+}
+
+void SplitNodeManager::dump() const
+{
+  print(outs());
+}
+
+void SplitNodeManager::print(OStream &pOS) const
+{
+  for (const onnx::Node *n : m_Graph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    std::vector<LongInts> newInputSizes;
+    const SplitNode *sn = getSplitNode((onnx::Node*)n);
+    pOS << n->kind().toString() << ":\n";
+
+    pOS << "  inputs:\n";
+    for (int i = 0; i < n->inputs().size(); ++i) {
+      LongInts newInS = sn->calNewInputSize(i);
+      newInputSizes.push_back(newInS);
+
+      const onnx::Value *v = n->inputs()[i];
+
+      pOS << "    " << std::setw(12) << std::left << v->uniqueName() << "(";
+      for (auto d : v->sizes())
+        pOS << std::setw(5) << std::right << d.dim;
+
+      pOS << ") -> (";
+      for (int64_t s : newInS)
+        pOS << std::setw(5) << std::right << s;
+      pOS << ")\n";
+    }
+
+    pOS << "  outputs:\n";
+    for (int i = 0; i < n->outputs().size(); ++i) {
+      const onnx::Value *v = n->outputs()[i];
+
+      pOS << "    " << std::setw(12) << std::left << v->uniqueName() << "(";
+      for (auto s : v->sizes())
+        pOS << std::setw(5) << std::right << s.dim;
+
+      pOS << ") -> (";
+      for (int64_t s : sn->m_NewOutSizes)
+        pOS << std::setw(5) << std::right << s;
+      pOS << ")\n";
+    }
+
+    MemSize newS =
+      m_DLATB.getTTI()->getOperatorMemUsage(n, newInputSizes,
+                                            {sn->m_NewOutSizes});
+    MemSize oldS = m_DLATB.getTTI()->getOperatorMemUsage(n);
+
+    pOS << "  total: " << oldS.size/1024.f << " kb -> "
+        << newS.size/1024.f << " kb" << "\n";
+  }
 }
 
 //===----------------------------------------------------------------------===//
