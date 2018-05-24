@@ -37,13 +37,8 @@ class SplitNode
 friend class SplitNodeManager;
 
 public:
-  SplitNode(onnx::Node& pN) : m_Node(pN) {
-    // General case: N C H W.
-    m_OutSizes.reserve(4);
-
-    // TODO: If node has more than 1 outputs and each one with different sizes.
-    for (auto & dim: m_Node.outputs()[0]->sizes())
-      m_OutSizes.emplace_back(dim.dim);
+  SplitNode(onnx::Node& pN)
+    : m_OutSizes(GetValueSizes(*pN.outputs()[0])), m_Node(pN) {
     m_NewOutSizes = m_OutSizes;
   }
 
