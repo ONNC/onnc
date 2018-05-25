@@ -20,6 +20,7 @@ add_dependencies(libonnc build_external)
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
 add_subdirectory(ADT)
+add_subdirectory(Analysis)
 add_subdirectory(Config)
 add_subdirectory(Core)
 add_subdirectory(Diagnostic)
