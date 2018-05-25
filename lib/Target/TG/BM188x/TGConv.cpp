@@ -8,85 +8,20 @@
 using namespace onnc;
 using namespace std;
 
-namespace {
-
-auto KERNEL_SHAPE = ::onnx::Symbol("kernel_shape");
-auto STRIDES = ::onnx::Symbol("strides");
-auto PADS = ::onnx::Symbol("pads");
-
-void dump_onnx_Conv(const ::onnx::Node &pNode)
-{
-  auto vec = pNode.attributeNames();
-  string tab = "\t";
-  DEBUG(dbgs() << "dump TGConv:" << endl;);
-
-  DEBUG(dbgs() << tab << "Attr: ";);
-  for (auto i : vec) {
-    DEBUG(dbgs() << i.toString() << ",";);
-  }
-  DEBUG(dbgs() << endl;);
-
-  if (pNode.hasAttribute(KERNEL_SHAPE)) {
-    DEBUG(dbgs() << tab << "kernel_shape: ";);
-    DEBUG(dbgs() << "<";);
-    for (auto &i : pNode.is(KERNEL_SHAPE)) {
-      DEBUG(dbgs() << i << ",";);
-    }
-    DEBUG(dbgs() << ">" << endl;);
-  } else {
-  }
-
-  if (pNode.hasAttribute(STRIDES)) {
-    DEBUG(dbgs() << tab << "strides: ";);
-    DEBUG(dbgs() << "<";);
-    for (auto &i : pNode.is(STRIDES)) {
-      DEBUG(dbgs() << i << ",";);
-    }
-    DEBUG(dbgs() << ">" << endl;);
-  }
-
-  if (pNode.hasAttribute(PADS)) {
-    DEBUG(dbgs() << tab << "pads: ";);
-    DEBUG(dbgs() << "<";);
-    for (auto &i : pNode.is(PADS)) {
-      DEBUG(dbgs() << i << ",";);
-    }
-    DEBUG(dbgs() << ">" << endl;);
-  }
-
-  auto inputs = pNode.inputs();
-  DEBUG(dbgs() << tab << "inputs: ";);
-  for (auto i : inputs) {
-    DEBUG(dbgs() << i->uniqueName() << "<";);
-    for (auto &dim : i->sizes()) {
-      DEBUG(dbgs() << dim.dim << ",";);
-    }
-    DEBUG(dbgs() << ">,";);
-  }
-  DEBUG(dbgs() << endl;);
-  auto outputs = pNode.outputs();
-  DEBUG(dbgs() << tab << "outputs: ";);
-  for (auto i : outputs) {
-    DEBUG(dbgs() << i->uniqueName() << "<";);
-    for (auto &dim : i->sizes()) {
-      DEBUG(dbgs() << dim.dim << ",";);
-    }
-    DEBUG(dbgs() << ">,";);
-  }
-  DEBUG(dbgs() << endl;);
-}
-
-} // anonymous namespace
-
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode)
-    : Operator(pNode, "Conv"), m_ifmapAddr(0), m_ofmapAddr(0), m_weightAddr(0),
-      m_biasAddr(0), m_groups(1), m_dilationH(1), m_dilationW(1), m_padH(0),
-      m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0)
+    : Operator(pNode, "Conv"), m_groups(1), m_dilationH(1), m_dilationW(1),
+      m_padH(0), m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0)
 {
-  dump_onnx_Conv(pNode);
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
+
+  // ifmap
+  m_MemOperands.push_back({ inputs[0]->uniqueName(), 0 });
+  // weight
+  m_MemOperands.push_back({ inputs[1]->uniqueName(), 0 });
+  // ofmap
+  m_MemOperands.push_back({ outputs[0]->uniqueName(), 0 });
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_inN = inDim[0].dim;
@@ -122,16 +57,17 @@ TGConv::TGConv(const ::onnx::Node &pNode)
   }
   if (3 == pNode.inputs().size()) {
     m_doBias = 1;
-  } else {
-    m_biasAddr = 0;
   }
+  // bias
+  m_MemOperands.push_back({ inputs[2]->uniqueName(), 0 });
 }
 
 void TGConv::emit() const
 {
-  DEBUG(dbgs() << "TGConv::emit\tm_ifmapAddr:" << m_ifmapAddr << " m_ofmapAddr:"
-               << m_ofmapAddr << " m_weightAddr:" << m_weightAddr
-               << " m_biasAddr:" << m_biasAddr << " m_inN:" << m_inN
+  DEBUG(dbgs() << "TGConv::emit\tm_ifmapAddr:" << m_MemOperands[0].addr
+               << " m_ofmapAddr:" << m_MemOperands[2].addr
+               << " m_weightAddr:" << m_MemOperands[1].addr
+               << " m_biasAddr:" << m_MemOperands[3].addr << " m_inN:" << m_inN
                << " m_inC:" << m_inC << " m_inH:" << m_inH << " m_inW:" << m_inW
                << " m_outC:" << m_outC << " m_groups:" << m_groups << " m_kH:"
                << m_kH << " m_kW:" << m_kW << " m_dilationH:" << m_dilationH

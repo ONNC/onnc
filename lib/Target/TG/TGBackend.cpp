@@ -38,10 +38,13 @@ void TGBackend::addTensorSel(PassManager &pPM)
   pPM.add(createRemoveUnusedNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(createONNCModulePrinterPass());
-  // TGbackend require memory allocation before TensorSel (lowering)
-  pPM.add(createTGMemAllocInfoPass(this));
   pPM.add(createTargetLoweringPass(this));
   return;
+}
+
+void TGBackend::addMemAlloc(PassManager &pPM)
+{
+  pPM.add(createTGMemAllocInfoPass(this));
 }
 
 void TGBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)

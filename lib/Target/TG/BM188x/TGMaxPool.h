@@ -1,11 +1,12 @@
-#ifndef ONNX_BM_TGMAXPOOL_H
-#define ONNX_BM_TGMAXPOOL_H
+#ifndef ONNX_BM1880_TGMAXPOOL_H
+#define ONNX_BM1880_TGMAXPOOL_H
 
 #include "Operator.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
+// m_MemOperands: input, output
 class TGMaxPool : public Operator
 {
 public:
@@ -14,8 +15,6 @@ public:
   void emit() const override;
 
 private:
-  uint64_t m_inputAddr;
-  uint64_t m_outputAddr;
   int m_N;
   int m_C;
   int m_H;

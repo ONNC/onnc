@@ -5,12 +5,17 @@
 using namespace onnc;
 
 TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
-    : Operator(pNode, "MaxPool"), m_inputAddr(0), m_outputAddr(0), m_padH(0),
-      m_padW(0), m_strideH(1), m_strideW(1)
+    : Operator(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
+      m_strideW(1)
 {
 
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
+
+  // input
+  m_MemOperands.push_back({ inputs[0]->uniqueName(), 0 });
+  // output
+  m_MemOperands.push_back({ outputs[0]->uniqueName(), 0 });
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
@@ -36,8 +41,8 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
 
 void TGMaxPool::emit() const
 {
-  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_inputAddr
-            << " m_outputAddr:" << m_outputAddr << " m_N:" << m_N
+  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0].addr
+            << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
             << " m_kH:" << m_kH << " m_kW:" << m_kW << " m_padH:" << m_padH
             << " m_padW:" << m_padW << " m_srideH:" << m_strideH

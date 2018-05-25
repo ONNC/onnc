@@ -5,18 +5,14 @@
 #include <onnx/common/ir.h>
 namespace onnc {
 
+//  m_MemOperands: input, weight, bias, output
 class TGGemm : public Operator
 {
 public:
   TGGemm(const ::onnx::Node &pNode);
-  void dumpOnnxGemm(const ::onnx::Node &pNode);
   void emit() const override;
 
 private:
-  uint64_t m_inputAddr;
-  uint64_t m_weightAddr;
-  uint64_t m_biasAddr;
-  uint64_t m_outputAddr;
   int m_inRowNum;
   int m_inColNum;
   int m_outColNum;

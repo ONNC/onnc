@@ -5,13 +5,17 @@
 using namespace onnc;
 
 TGRelu::TGRelu(const ::onnx::Node &pNode)
-    : Operator(pNode, "Relu"), m_inputAddr(0), m_outputAddr(0),
-      m_negativeSlope(0)
+    : Operator(pNode, "Relu"), m_negativeSlope(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
 
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
+
+  // input
+  m_MemOperands.push_back({ inputs[0]->uniqueName(), 0 });
+  // output
+  m_MemOperands.push_back({ outputs[0]->uniqueName(), 0 });
 
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
@@ -30,11 +34,11 @@ TGRelu::TGRelu(const ::onnx::Node &pNode)
 
 void TGRelu::emit() const
 {
-  std::cout << "TGRelu::emit\tm_inputAddr:" << m_inputAddr
-            << " m_outputAddr:" << m_outputAddr
+  std::cout << "TGRelu::emit\tm_inputAddr:" << m_MemOperands[0].addr
+            << " m_outputAddr:" << m_MemOperands[1].addr
             << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
-  bmnet::bmnet_relu_forward_bmkernel(*bm168x_kernel::getInstance().ctx,
-                                     m_inputAddr, m_outputAddr, m_negativeSlope,
-                                     m_N, m_C, m_H, m_W);
+  bmnet::bmnet_relu_forward_bmkernel(
+      *bm168x_kernel::getInstance().ctx, m_MemOperands[0].addr,
+      m_MemOperands[1].addr, m_negativeSlope, m_N, m_C, m_H, m_W);
 }

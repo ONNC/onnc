@@ -4,6 +4,7 @@
 #include "Operator.h"
 #include <onnx/common/ir.h>
 
+// m_MemOperands: input, output
 namespace onnc {
 
 class TGLRN : public Operator
@@ -14,8 +15,6 @@ public:
   void emit() const override;
 
 private:
-  uint64_t m_inputAddr;
-  uint64_t m_outputAddr;
   int m_N;
   int m_C;
   int m_H;

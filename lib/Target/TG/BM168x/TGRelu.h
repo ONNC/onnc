@@ -6,6 +6,7 @@
 
 namespace onnc {
 
+// m_MemOperands: input, output
 class TGRelu : public Operator
 {
 public:
@@ -14,8 +15,6 @@ public:
   void emit() const override;
 
 private:
-  uint64_t m_inputAddr;
-  uint64_t m_outputAddr;
   float m_negativeSlope;
   int m_N;
   int m_C;

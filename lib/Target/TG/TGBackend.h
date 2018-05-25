@@ -34,11 +34,11 @@ public:
 
   void codeEmit();
 
-  void addTensorSel(PassManager &pPM);
+  void addTensorSel(PassManager &pPM) override;
 
-  void addCodeEmit(PassManager& pPM, const Path& pOutputFile);
+  void addCodeEmit(PassManager &pPM, const Path &pOutputFile) override;
 
-  MemTable &getMemLayout() { return m_globalMemLayout; }
+  void addMemAlloc(PassManager &pPM) override;
 
   std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
 
@@ -66,7 +66,6 @@ public:
 
 private:
   std::vector<std::unique_ptr<Operator> > m_instructions;
-  MemTable m_globalMemLayout;
   TargetLowering *m_pTLI;
   TGCodeEmitter *m_pCE;
   Path m_outputPath;

@@ -6,6 +6,7 @@
 
 namespace onnc {
 
+// m_MemOperands: ifmap, weight, ofmap, bias
 class TGConv : public Operator
 {
 public:
@@ -14,7 +15,6 @@ public:
   void emit() const override;
 
 private:
-  uint64_t m_ifmapAddr, m_ofmapAddr, m_weightAddr, m_biasAddr;
   int m_inN, m_inC, m_inH, m_inW;
   int m_groups;
   int m_outC;

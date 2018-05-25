@@ -1,11 +1,12 @@
-#ifndef ONNX_BM_TGRELU_H
-#define ONNX_BM_TGRELU_H
+#ifndef ONNX_BM1880_TGRELU_H
+#define ONNX_BM1880_TGRELU_H
 
 #include "Operator.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
+// m_MemOperands: input, output
 class TGRelu : public Operator
 {
 public:

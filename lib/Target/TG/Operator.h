@@ -6,6 +6,12 @@
 namespace onnc {
 
 using MemTable = std::map<std::string, uint64_t>;
+
+struct MemOperand {
+  std::string name;
+  uint64_t addr;
+};
+
 class Operator
 {
 public:
@@ -24,9 +30,20 @@ public:
 
   virtual void emit(void) const = 0;
 
+  void memAlloc(MemTable &p_MemLayout)
+  {
+    for (auto &i : m_MemOperands) {
+      if (p_MemLayout.find(i.name) != p_MemLayout.end())
+        i.addr = p_MemLayout[i.name];
+    }
+  }
+
 private:
   std::string m_TypeName;
   std::string m_LayerName;
+
+protected:
+  std::vector<MemOperand> m_MemOperands;
 };
 
 } // namespace onnc
