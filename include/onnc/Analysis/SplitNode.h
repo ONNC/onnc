@@ -30,7 +30,6 @@ public:
 
   virtual bool useNewOutSize(const LongInts& pNewOutSize);
 
-
   /// Calculate required input size based on new output size.
   /// Many operators have input size equal to output size.
   ///
@@ -38,6 +37,8 @@ public:
   virtual LongInts calNewInputSize(unsigned pIdx) const;
 
   virtual LongInts getNewOutputSize(unsigned pIdx) const;
+
+  onnx::NodeKind kind() const { return m_Node.kind(); }
 
 protected:
   LongInts m_NewOutSizes;
@@ -54,6 +55,8 @@ class SplitNodeManager
 {
 public:
   using SplitInfoHash = std::unordered_map<onnx::Node*, SplitNode*>;
+  using StoreGroup = std::vector<onnx::Node*>;
+  using StoreGroups = std::vector<StoreGroup>;
 
   SplitNodeManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
   ~SplitNodeManager();
@@ -66,8 +69,13 @@ public:
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
 
+  /// Split a group for meeting memory size constraint.
+  bool splitGroup(StoreGroup &pGroup, size_t pMemSize);
+
   /// Get memory usages based on splitting result.
   void getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap);
+
+  StoreGroups & getGroups() { return m_Groups; }
 
   /// Dump splitting result. Callable in GDB.
   void dump() const;
@@ -82,6 +90,13 @@ private:
   DLATargetBackend& m_DLATB;
   onnx::Graph& m_Graph;
   SplitInfoHash m_SplitInfos;
+
+  /// Store means local memory spilling to global memory. Each group can have
+  /// n stores, and each group forms a subgraph. Communication (data exchange)
+  /// between groups (subgraph) is through load/store.
+  ///
+  /// Graph splitting and get memory usages are operating on a group.
+  StoreGroups m_Groups;
 };
 
 } // namespace of onnc

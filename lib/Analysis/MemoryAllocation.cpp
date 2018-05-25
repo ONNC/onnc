@@ -63,7 +63,8 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create store node and insert before the last use node.
-    onnx::Node* storeN = pGraph.create(g_StoreKind, {v}, 0);
+    onnx::Node* storeN = pGraph.create(g_StoreKind, {v}/*, 0*/);
+    storeN->output()->copyMetadata(v);
     storeN->insertBefore(last);
   }
 }
@@ -163,6 +164,8 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
   clear();
 
   onnx::Graph& graph = *pModule.getGraph();
+
+  InsertLoadStoreNode(graph);
 
   SplitNodeManager snMgr(graph, *m_DLATB);
 

@@ -13,6 +13,9 @@
 
 using namespace onnc;
 
+static const onnx::NodeKind g_LoadKind = onnx::Symbol("Load");
+static const onnx::NodeKind g_StoreKind = onnx::Symbol("Store");
+
 //===----------------------------------------------------------------------===//
 // SplitNode
 //===----------------------------------------------------------------------===//
@@ -47,11 +50,16 @@ SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
                                    DLATargetBackend& pDLATB)
   : m_DLATB(pDLATB), m_Graph(pGraph)
 {
+  m_Groups.resize(4);
+
   for (onnx::Node *n : pGraph.nodes()) {
     if (n->kind() == onnx::kUndefined)
       continue;
 
     m_SplitInfos[n] = SplitNodeCreator(*n);
+
+    if (n->kind() == g_StoreKind)
+      m_Groups[0].push_back(n);
   }
 }
 
@@ -112,6 +120,11 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
     }
   }
   return status;
+}
+
+bool SplitNodeManager::splitGroup(StoreGroup &pGroup, size_t pMemSize)
+{
+  return true;
 }
 
 void SplitNodeManager::getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap)
@@ -444,7 +457,9 @@ public:
 
 static SplitNode* SplitNodeCreator(onnx::Node& pN)
 {
-  if (OutputSizeIsInputSize(pN))
+  if (OutputSizeIsInputSize(pN) ||
+      pN.kind() == g_LoadKind ||
+      pN.kind() == g_StoreKind)
     return new SplitNode(pN);
 
   const auto kind = pN.kind();
