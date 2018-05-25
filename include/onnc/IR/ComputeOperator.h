@@ -12,52 +12,6 @@
 
 namespace onnc {
 
-/** \class ComputeOperand
- * 
- */
-class ComputeOperand
-{
-public:
-  enum Type : unsigned char {
-    kInvalid,
-    kRegister,
-    kImmediate,
-  };
-
-public:
-  ComputeOperand() : m_Type(kInvalid) { }
-
-  bool isValid() const { return kInvalid != m_Type; }
-
-  bool isReg() const { return kRegister == m_Type; }
-
-  bool isImm() const { return kImmediate == m_Type; }
-
-  void print(std::ostream& pOS) const;
-
-private:
-
-  Type m_Type;
-
-  union {
-    unsigned int m_RegVal;
-    int64_t m_ImmVal;
-  };
-};
-
-class ComputeMemOperand
-{
-public:
-  unsigned getBankID() const;
-
-private:
-  unsigned m_BankID;
-};
-
-class ComputeAttrOperand
-{
-};
-
 /** \class ComputeOperator
  */
 class ComputeOperator

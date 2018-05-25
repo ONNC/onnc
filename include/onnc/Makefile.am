@@ -41,4 +41,7 @@ nobase_nodist_include_HEADERS = \
 	ADT/TypeTraits.h \
 	ADT/Uncopyable.h \
 	Target/TargetBackend.h \
-	IR/ComputeOperator.h
+	IR/ComputeOperator.h \
+  IR/ComputeMemOperand.h \
+  IR/ComputeAttrOperand.h \
+  IR/ComputeOperand.h
