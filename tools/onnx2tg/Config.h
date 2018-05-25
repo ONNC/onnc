@@ -9,8 +9,6 @@
 #define ONNC_COMPILER_ONNX_TO_TG_CONFIG_H
 #include <onnc/Support/Path.h>
 
-using namespace onnc;
-
 /** \class Config
  *  \brief Config stores all application configurations.
  */
@@ -21,17 +19,17 @@ public:
 
   ~Config() {}
 
-  const Path& input() const { return m_Input; }
+  const onnc::Path &input() const { return m_Input; }
 
-  void setInput(const Path& pFileName) { m_Input = pFileName; }
+  void setInput(const onnc::Path &pFileName) { m_Input = pFileName; }
 
-  const Path& output() const { return m_Output; }
+  const onnc::Path &output() const { return m_Output; }
 
-  void setOutput(const Path& pFileName) { m_Output = pFileName; }
+  void setOutput(const onnc::Path &pFileName) { m_Output = pFileName; }
 
 private:
-  Path m_Input;
-  Path m_Output;
+  onnc::Path m_Input;
+  onnc::Path m_Output;
 };
 
 #endif

@@ -7,8 +7,6 @@
 #include <onnx/onnx_pb.h>
 #include "onnx/common/ir_pb_converter.h"
 
-using namespace onnc;
-
 // FIXME Printer can a a ModulePass
 
 namespace ONNXIRPrinter {
