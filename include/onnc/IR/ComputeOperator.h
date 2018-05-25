@@ -9,6 +9,9 @@
 #define ONNC_IR_COMPUTE_OPERATOR_H
 #include <ostream>
 #include <onnx/common/ir.h>
+#include <onnc/IR/ComputeOperand.h>
+#include <onnc/IR/ComputeAttrOperand.h>
+#include <onnc/IR/ComputeMemOperand.h>
 
 namespace onnc {
 

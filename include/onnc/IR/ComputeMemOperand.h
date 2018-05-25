@@ -1,12 +1,12 @@
-//===- ComputeOperator.h --------------------------------------------------===//
+//===- ComputeMemOperand.h ------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_H
-#define ONNC_IR_COMPUTE_OPERATOR_H
+#ifndef ONNC_IR_COMPUTE_MEMORY_OPERAND_H
+#define ONNC_IR_COMPUTE_MEMORY_OPERAND_H
 #include <ostream>
 #include <onnx/common/ir.h>
 
