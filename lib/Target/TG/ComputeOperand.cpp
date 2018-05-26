@@ -1,6 +1,14 @@
 #include "ComputeOperand.h"
+#include <iomanip>
 
 namespace onnc {
+
+OStream &operator<<(OStream &pOS, const MemOperand pMem)
+{
+  pOS << "0x" << std::hex << std::uppercase << std::setw(8) << std::setfill('0')
+      << pMem.addr;
+  return pOS;
+}
 
 ComputeOperand2::ComputeOperand2(const ::onnx::Node &pNode,
                                const std::string &pTypeName)

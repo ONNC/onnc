@@ -15,6 +15,7 @@ public:
          const LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
+  void print(OStream &pOS) const override;
 
 private:
   int m_inN, m_inC, m_inH, m_inW;
