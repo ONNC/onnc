@@ -13,6 +13,7 @@ add_libonnc_src(
     TargetInfo/TGTargetInfo.cpp 
     TGBackend.cpp 
     TGCodeEmitPass.cpp 
+    ComputeOperand.cpp
     TGMemAllocInfoPass.cpp 
     TargetLoweringPass.cpp)
 

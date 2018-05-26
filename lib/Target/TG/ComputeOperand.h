@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onnc/Support/IOStream.h>
 #include <onnx/common/ir.h>
 #include <string>
 
@@ -15,11 +16,7 @@ struct MemOperand {
 class ComputeOperand2
 {
 public:
-  ComputeOperand2(const ::onnx::Node &pNode, const std::string &pTypeName)
-      : m_TypeName(pTypeName)
-  {
-    m_LayerName = const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
-  }
+  ComputeOperand2(const ::onnx::Node &pNode, const std::string &pTypeName);
 
   virtual ~ComputeOperand2() = default;
 
@@ -30,13 +27,9 @@ public:
 
   virtual void emit(void) const = 0;
 
-  void memAlloc(MemTable &p_MemLayout)
-  {
-    for (auto &i : m_MemOperands) {
-      if (p_MemLayout.find(i.name) != p_MemLayout.end())
-        i.addr = p_MemLayout[i.name];
-    }
-  }
+  virtual void memAlloc(MemTable &p_MemLayout);
+
+  virtual void print(OStream &pOS) const;
 
 private:
   std::string m_TypeName;
