@@ -7,6 +7,7 @@
 
 namespace onnc {
 namespace BM188X {
+
 // m_MemOperands: ifmap, weight, ofmap, bias
 class TGConv : public ComputeOperand2
 {

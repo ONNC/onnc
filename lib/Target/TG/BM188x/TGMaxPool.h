@@ -5,6 +5,7 @@
 #include <onnx/common/ir.h>
 
 namespace onnc {
+namespace BM188X {
 
 // m_MemOperands: input, output
 class TGMaxPool : public ComputeOperand2
@@ -27,6 +28,7 @@ private:
   int m_strideW;
 };
 
+} // namespace BM188X
 } // namespace onnc
 
 #endif

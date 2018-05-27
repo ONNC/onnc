@@ -5,6 +5,7 @@
 #include <onnx/common/ir.h>
 
 namespace onnc {
+namespace BM188X {
 
 // m_MemOperands: input, output
 class TGSoftmax : public ComputeOperand2
@@ -21,6 +22,7 @@ private:
   int m_W;
 };
 
+} // namespace BM188X
 } // namespace onnc
 
 #endif

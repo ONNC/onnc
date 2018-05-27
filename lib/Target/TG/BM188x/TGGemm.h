@@ -3,7 +3,9 @@
 
 #include "ComputeOperand.h"
 #include <onnx/common/ir.h>
+
 namespace onnc {
+namespace BM188X {
 
 // m_MemOperands: input, weight, bias, output
 class TGGemm : public ComputeOperand2
@@ -21,6 +23,7 @@ private:
   bool m_weightTp;
 };
 
+} // namespace BM188X
 } // namespace onnc
 
 #endif

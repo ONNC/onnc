@@ -2,7 +2,11 @@
 #include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
 
-using namespace onnc;
+#define DEBUG_TYPE "tg_relu"
+#include <onnc/Support/Debug.h>
+
+namespace onnc {
+namespace BM188X {
 
 TGRelu::TGRelu(const ::onnx::Node &pNode)
     : ComputeOperand2(pNode, "Relu"), m_inputAddr(0), m_outputAddr(0),
@@ -35,10 +39,11 @@ TGRelu::TGRelu(const ::onnx::Node &pNode)
 
 void TGRelu::emit() const
 {
-  std::cout << "TGRelu::emit\tm_inputAddr:" << m_MemOperands[0].addr
-            << " m_outputAddr:" << m_MemOperands[1].addr
-            << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
-            << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
+  DEBUG(dbgs() << "TGRelu::emit\tm_inputAddr:" << m_MemOperands[0].addr
+               << " m_outputAddr:" << m_MemOperands[1].addr
+               << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
+               << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
+               << std::endl;);
 #if 0
   bmnet::bmnet_relu_forward_bmkernel(
                               *bm1880_kernel::getInstance().m_Ctx,
@@ -46,3 +51,6 @@ void TGRelu::emit() const
                               m_C, m_H, m_W);
 #endif
 }
+
+} // namespace BM188X
+} // namespace onnc

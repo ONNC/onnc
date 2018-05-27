@@ -5,7 +5,8 @@
 #define DEBUG_TYPE "tg_gemm"
 #include <onnc/Support/Debug.h>
 
-using namespace onnc;
+namespace onnc {
+namespace BM188X {
 
 // TGGemm
 // Y = alpha * A * B + beta * C
@@ -62,3 +63,6 @@ void TGGemm::emit() const
                                    m_haveBias, m_usingRelu, m_weightTp);
 #endif
 }
+
+} // namespace BM188X
+} // namespace onnc

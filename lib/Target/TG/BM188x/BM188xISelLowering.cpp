@@ -28,15 +28,15 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
   if (symbol == ::onnx::Symbol("Conv"))
     return new BM188X::TGConv(pNode, layerCtable);
   else if (symbol == ::onnx::Symbol("Relu"))
-    return new TGRelu(pNode);
+    return new BM188X::TGRelu(pNode);
   else if (symbol == ::onnx::Symbol("LRN"))
-    return new TGLRN(pNode);
+    return new BM188X::TGLRN(pNode);
   else if (symbol == ::onnx::Symbol("MaxPool"))
-    return new TGMaxPool(pNode);
+    return new BM188X::TGMaxPool(pNode);
   else if (symbol == ::onnx::Symbol("Gemm"))
-    return new TGGemm(pNode);
+    return new BM188X::TGGemm(pNode);
   else if (symbol == ::onnx::Symbol("Softmax"))
-    return new TGSoftmax(pNode);
+    return new BM188X::TGSoftmax(pNode);
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
   return nullptr;

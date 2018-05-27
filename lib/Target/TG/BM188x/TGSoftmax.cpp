@@ -2,7 +2,11 @@
 #include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
 
-using namespace onnc;
+#define DEBUG_TYPE "tg_softmax"
+#include <onnc/Support/Debug.h>
+
+namespace onnc {
+namespace BM188X {
 
 TGSoftmax::TGSoftmax(const ::onnx::Node &pNode)
     : ComputeOperand2(pNode, "Softmax")
@@ -34,12 +38,16 @@ TGSoftmax::TGSoftmax(const ::onnx::Node &pNode)
 
 void TGSoftmax::emit() const
 {
-  std::cout << "TGSoftmax::emit\tm_inputAddr:" << m_MemOperands[0].addr
-            << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
-            << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
+  DEBUG(dbgs() << "TGSoftmax::emit\tm_inputAddr:" << m_MemOperands[0].addr
+               << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
+               << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
+               << std::endl;);
 #if 0
   bmnet::bmnet_softmax_forward_bmkernel(
           *bm1880_kernel::getInstance().m_Ctx,
           m_inputAddr, m_outputAddr, m_N, m_C, m_H, m_W);
 #endif
 }
+
+} // namespace BM188X
+} // namespace onnc

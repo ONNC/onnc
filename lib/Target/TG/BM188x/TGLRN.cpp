@@ -2,7 +2,8 @@
 #include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
 
-using namespace onnc;
+namespace onnc {
+namespace BM188X {
 
 TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperand2(pNode, "LRN"), m_k(1)
 {
@@ -43,3 +44,6 @@ void TGLRN::TGLRN::emit() const
                              m_alpha, m_localSize, m_beta, m_k);
 #endif
 }
+
+} // namespace BM188X
+} // namespace onnc

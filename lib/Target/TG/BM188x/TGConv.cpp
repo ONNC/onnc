@@ -9,6 +9,7 @@ using namespace std;
 
 namespace onnc {
 namespace BM188X {
+
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode,
                const LayerCalibrationParameter &pLayerCtable)
@@ -109,9 +110,14 @@ void TGConv::emit() const
       nullptr,     // activation_arg[],
       0,           // activation_ga_slope,
       0,           // activation_channel_shared
+      0,           // activation_gt_rshift
+      0,           // activation_gt_rshift
+      0,           // activation_le_scale
+      0,           // activation_le_rshift
       rShiftWidth, // right_shift_width
       0,           // bn_right_shift_width
-      0            // scale_right_shift_width
+      0,           // scale_right_shift_width
+      0            // use_winograd
   );
 }
 

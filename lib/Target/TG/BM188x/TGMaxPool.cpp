@@ -2,7 +2,11 @@
 #include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
 
-using namespace onnc;
+#define DEBUG_TYPE "tg_maxpool"
+#include <onnc/Support/Debug.h>
+
+namespace onnc {
+namespace BM188X {
 
 TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
     : ComputeOperand2(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
@@ -41,12 +45,12 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
 
 void TGMaxPool::emit() const
 {
-  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0].addr
-            << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
-            << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
-            << " m_kH:" << m_kH << " m_kW:" << m_kW << " m_padH:" << m_padH
-            << " m_padW:" << m_padW << " m_srideH:" << m_strideH
-            << " m_strideW:" << m_strideW << std::endl;
+  DEBUG(dbgs() << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0].addr
+               << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
+               << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
+               << " m_kH:" << m_kH << " m_kW:" << m_kW << " m_padH:" << m_padH
+               << " m_padW:" << m_padW << " m_srideH:" << m_strideH
+               << " m_strideW:" << m_strideW << std::endl;);
 #if 0
   // bmnet_pooling_forward_bmkernel
   bmnet::bmnet_pooling_forward_bmkernel(
@@ -61,3 +65,6 @@ void TGMaxPool::emit() const
                                  );
 #endif
 }
+
+} // namespace BM188X
+} // namespace onnc

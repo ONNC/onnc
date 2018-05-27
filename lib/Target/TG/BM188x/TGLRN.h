@@ -5,6 +5,7 @@
 #include <onnx/common/ir.h>
 
 namespace onnc {
+namespace BM188X {
 
 // m_MemOperands: input, output
 class TGLRN : public ComputeOperand2
@@ -26,6 +27,7 @@ private:
   int m_localSize;
 };
 
+} // namespace BM188X
 } // namespace onnc
 
 #endif
