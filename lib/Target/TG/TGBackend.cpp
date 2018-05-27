@@ -22,7 +22,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
                      const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE)
+    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE), m_Options(pOptions)
 {
 }
 
@@ -37,7 +37,8 @@ void TGBackend::addTensorSel(PassManager &pPM)
   // IR level pass
   pPM.add(createRemoveUnusedNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
-  pPM.add(createONNCModulePrinterPass());
+  if (m_Options.PrintModuleBeforeSel)
+    pPM.add(createONNCModulePrinterPass());
   pPM.add(createTargetLoweringPass(this));
   return;
 }

@@ -67,7 +67,9 @@ int ONNX2TG::compile()
 
   PassManager pm;
   TargetOptions options;
-  TargetBackend* backend = target->createBackend(options);
+  if (m_Config.PrintModuleBeforeISel())
+    options.PrintModuleBeforeSel = 1;
+  TargetBackend *backend = target->createBackend(options);
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, m_Config.output());

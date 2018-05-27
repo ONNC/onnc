@@ -31,10 +31,15 @@ public:
 
   void setMarch(const std::string &pArch) { m_Arch = pArch; }
 
+  bool PrintModuleBeforeISel() const { return m_PrintModuleBeforeISel; }
+
+  void setPrintModuleBeforeISel(bool pSet) { m_PrintModuleBeforeISel = pSet; }
+
 private:
   onnc::Path m_Input;
   onnc::Path m_Output;
   std::string m_Arch;
+  bool m_PrintModuleBeforeISel;
 };
 
 #endif

@@ -13,6 +13,7 @@
 #include <memory>
 #include <onnc/Support/Path.h>
 #include <onnc/Target/DLATargetBackend.h>
+#include <onnc/Target/TargetOptions.h>
 #include <onnx/common/ir.h>
 #include <string>
 #include <vector>
@@ -72,6 +73,7 @@ private:
   TargetLowering *m_pTLI;
   TGCodeEmitter *m_pCE;
   Path m_outputPath;
+  TargetOptions m_Options;
 };
 
 }  // namespace onnc

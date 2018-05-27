@@ -22,6 +22,8 @@ static const char *HelpManual = "Usage:\n"
                                 "\n"
                                 "\t-march [bm1680|bm1880]        \n"
                                 "\n"
+                                "\t-print-module-before-isel      \n"
+                                "\n"
                                 "\t-h | -? | --help Show this manual\n"
                                 "onnx2tg version 0.1.0\n";
 
@@ -39,6 +41,11 @@ static cl::opt<std::string> march("march", cl::kShort, cl::kOptional,
                                   cl::kValueRequired,
                                   cl::desc("The march of TG [bm1680|bm1880]"),
                                   cl::help(HelpManual), cl::init("bm1880"));
+
+static cl::opt<bool> printModuleBeforeISel("print-module-before-isel",
+                                           cl::kShort, cl::kOptional,
+                                           cl::kValueDisallowed,
+                                           cl::init(false));
 
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
                              cl::kValueDisallowed, cl::init(false),
@@ -72,6 +79,7 @@ int main(int pArgc, char* pArgv[])
     onnx2tg.options().setOutput(OptOutput);
 
   onnx2tg.options().setMarch(march);
+  onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
 
   return onnx2tg.compile();
 }
