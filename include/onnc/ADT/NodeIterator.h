@@ -15,13 +15,6 @@ namespace onnc {
 class NodeIteratorBase
 {
 public:
-  typedef std::bidirectional_iterator_tag iterator_category;
-  typedef ptrdiff_t difference_type;
-
-protected:
-  digraph::NodeBase* m_pNodePtr;
-
-public:
   NodeIteratorBase()
     : m_pNodePtr(nullptr) {
   }
@@ -34,15 +27,21 @@ public:
 
 protected:
   void setNode(digraph::NodeBase* pPtr) { m_pNodePtr = pPtr; }
+
+protected:
+  digraph::NodeBase* m_pNodePtr;
 };
 
-template<typename NodeType>
+template<typename NodeType, template<typename N = NodeType> class Traits>
 class NodeIterator : public NodeIteratorBase
 {
 public:
-  typedef NodeType  value_type;
-  typedef NodeType& reference;
-  typedef NodeType* pointer;
+  typedef Traits<NodeType>    traits;
+  typedef size_t              size_type;
+  typedef ptrdiff_t           difference_type;
+  typedef typename traits::value_type value_type;
+  typedef typename traits::pointer    pointer;
+  typedef typename traits::reference  reference;
 
 public:
   NodeIterator();
@@ -61,7 +60,9 @@ public:
 
   pointer   operator->() const;
   reference operator*()  const;
+
   pointer node() const;
+  pointer node();
 
   NodeIterator& operator++();
   NodeIterator& operator--();
@@ -70,88 +71,99 @@ public:
   NodeIterator  operator--(int);
 };
 
-template<typename NodeType> inline bool
-operator==(const NodeIterator<NodeType>& pX, const NodeIterator<NodeType>& pY) {
+template<typename NodeType, template<typename N = NodeType> class Traits>
+inline bool operator==(const NodeIterator<NodeType, Traits>& pX,
+           const NodeIterator<NodeType, Traits>& pY) {
   return (pX.node() == pY.node()); 
 }
 
 //===----------------------------------------------------------------------===//
 // Template Implementation
 //===----------------------------------------------------------------------===//
-template<typename NodeType>
-NodeIterator<NodeType>::NodeIterator()
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits>::NodeIterator()
   : NodeIteratorBase() {
 }
 
-template<typename NodeType>
-NodeIterator<NodeType>::NodeIterator(NodeType* pNode)
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits>::NodeIterator(NodeType* pNode)
   : NodeIteratorBase(pNode) {
 }
 
-template<typename NodeType>
-bool NodeIterator<NodeType>::isEnd() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+bool NodeIterator<NodeType, Traits>::isEnd() const
 {
   return (nullptr == m_pNodePtr);
 }
 
-template<typename NodeType>
-bool NodeIterator<NodeType>::hasNext() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+bool NodeIterator<NodeType, Traits>::hasNext() const
 {
   return (nullptr != m_pNodePtr->next);
 }
 
-template<typename NodeType>
-bool NodeIterator<NodeType>::hasPrev() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+bool NodeIterator<NodeType, Traits>::hasPrev() const
 {
   return (nullptr != m_pNodePtr->prev);
 }
 
-template<typename NodeType>
-NodeIterator<NodeType>::operator pointer() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits>::operator pointer() const
 {
   return static_cast<pointer>(m_pNodePtr);
 }
 
-template<typename NodeType>
-typename NodeIterator<NodeType>::pointer NodeIterator<NodeType>::operator->() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+typename NodeIterator<NodeType, Traits>::pointer
+NodeIterator<NodeType, Traits>::operator->() const
 {
   return static_cast<pointer>(m_pNodePtr);
 }
 
-template<typename NodeType>
-typename NodeIterator<NodeType>::reference NodeIterator<NodeType>::operator*() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+typename NodeIterator<NodeType, Traits>::reference
+NodeIterator<NodeType, Traits>::operator*() const
 {
   return *static_cast<pointer>(m_pNodePtr);
 }
 
-template<typename NodeType>
-typename NodeIterator<NodeType>::pointer NodeIterator<NodeType>::node() const
+template<typename NodeType, template<typename N = NodeType> class Traits>
+typename NodeIterator<NodeType, Traits>::pointer
+NodeIterator<NodeType, Traits>::node() const
 {
   return static_cast<pointer>(m_pNodePtr);
 }
 
-template<typename NodeType>
-NodeIterator<NodeType>& NodeIterator<NodeType>::operator++()
+template<typename NodeType, template<typename N = NodeType> class Traits>
+typename NodeIterator<NodeType, Traits>::pointer
+NodeIterator<NodeType, Traits>::node()
 {
-  m_pNodePtr = node()->getNextNode();
+  return static_cast<pointer>(m_pNodePtr);
+}
+
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits>& NodeIterator<NodeType, Traits>::operator++()
+{
+  m_pNodePtr = m_pNodePtr->next;
   return *this;
 }
 
-template<typename NodeType>
-NodeIterator<NodeType>& NodeIterator<NodeType>::operator--()
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits>& NodeIterator<NodeType, Traits>::operator--()
 {
-  m_pNodePtr = node()->getPrevNode();
+  m_pNodePtr = m_pNodePtr->prev;
   return *this;
 }
 
-template<typename NodeType>
-NodeIterator<NodeType> NodeIterator<NodeType>::operator++(int)
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits> NodeIterator<NodeType, Traits>::operator++(int)
 {
   return NodeIterator(node()->getNextNode());
 }
 
-template<typename NodeType>
-NodeIterator<NodeType> NodeIterator<NodeType>::operator--(int)
+template<typename NodeType, template<typename N = NodeType> class Traits>
+NodeIterator<NodeType, Traits> NodeIterator<NodeType, Traits>::operator--(int)
 {
   return NodeIterator(node()->getPrevNode());
 }

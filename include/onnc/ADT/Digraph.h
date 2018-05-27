@@ -38,12 +38,13 @@ class Digraph
 public:
   typedef NodeType Node;
   typedef ArcType  Arc;
-  typedef NodeIterator<NodeType> iterator;
-  typedef NodeIterator<const NodeType> const_iterator;
-  typedef digraph::PolicyNodeIterator<digraph::DFSIterator, NonConstTraits<NodeType> > dfs_iterator;
-  typedef digraph::PolicyNodeIterator<digraph::DFSIterator, ConstTraits<NodeType> > const_dfs_iterator;
-  typedef digraph::PolicyNodeIterator<digraph::BFSIterator, NonConstTraits<NodeType> > bfs_iterator;
-  typedef digraph::PolicyNodeIterator<digraph::BFSIterator, ConstTraits<NodeType> > const_bfs_iterator;
+
+  typedef NodeIterator<Node, NonConstTraits> iterator;
+  typedef NodeIterator<Node, ConstTraits> const_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::DFSIterator, NonConstTraits<Node> > dfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::DFSIterator, ConstTraits<Node> > const_dfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::BFSIterator, NonConstTraits<Node> > bfs_iterator;
+  typedef digraph::PolicyNodeIterator<digraph::BFSIterator, ConstTraits<Node> > const_bfs_iterator;
 
 public:
   Digraph();
