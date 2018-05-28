@@ -8,11 +8,10 @@
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/IR/Dump.h>
 #include <onnc/IR/Module.h>
-#include <onnc/Support/IOStream.h>
 
 using namespace onnc;
 
-static void PrintNode(OStream &pOS, onnx::Node& pNode)
+void onnc::PrintNode(OStream &pOS, onnx::Node& pNode)
 {
   pOS << "  ";
 
@@ -33,7 +32,7 @@ static void PrintNode(OStream &pOS, onnx::Node& pNode)
   pOS << ")\n";
 }
 
-static void PrintGraph(OStream &pOS, onnx::Graph& pGraph)
+void onnc::PrintGraph(OStream &pOS, onnx::Graph& pGraph)
 {
   pOS << "graph " << pGraph.name() << " (..) {" << "\n";
   for (onnx::Node *n : pGraph.nodes()) {
