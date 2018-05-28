@@ -34,7 +34,7 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
   else if (symbol == ::onnx::Symbol("MaxPool"))
     return new BM188X::TGMaxPool(pNode);
   else if (symbol == ::onnx::Symbol("Gemm"))
-    return new BM188X::TGGemm(pNode);
+    return new BM188X::TGGemm(pNode, layerCtable);
   else if (symbol == ::onnx::Symbol("Softmax"))
     return new BM188X::TGSoftmax(pNode);
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
