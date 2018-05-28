@@ -28,7 +28,7 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
   if (symbol == ::onnx::Symbol("Conv"))
     return new BM188X::TGConv(pNode, layerCtable);
   else if (symbol == ::onnx::Symbol("Relu"))
-    return new BM188X::TGRelu(pNode);
+    return new BM188X::TGRelu(pNode, layerCtable);
   else if (symbol == ::onnx::Symbol("LRN"))
     return new BM188X::TGLRN(pNode);
   else if (symbol == ::onnx::Symbol("MaxPool"))

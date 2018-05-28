@@ -1,16 +1,16 @@
+#define DEBUG_TYPE "tg_relu"
 #include "TGRelu.h"
 #include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
-
-#define DEBUG_TYPE "tg_relu"
 #include <onnc/Support/Debug.h>
 
 namespace onnc {
 namespace BM188X {
 
-TGRelu::TGRelu(const ::onnx::Node &pNode)
-    : ComputeOperand2(pNode, "Relu"), m_inputAddr(0), m_outputAddr(0),
-      m_negativeSlope(0)
+TGRelu::TGRelu(const ::onnx::Node &pNode,
+               const LayerCalibrationParameter &pLayerCtable)
+    : ComputeOperand2(pNode, "Relu"), m_negativeSlope(0),
+      m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
 
@@ -37,19 +37,27 @@ TGRelu::TGRelu(const ::onnx::Node &pNode)
   }
 }
 
+void TGRelu::print(OStream &pOS) const
+{
+  pOS << m_MemOperands[1] << " = ReLU <negativeSlope:" << m_negativeSlope
+      << ", N:" << m_N << ", C:" << m_C << ", H:" << m_H << ", W:" << m_W
+      << "> (" << m_MemOperands[1] << ")\n";
+}
+
 void TGRelu::emit() const
 {
-  DEBUG(dbgs() << "TGRelu::emit\tm_inputAddr:" << m_MemOperands[0].addr
-               << " m_outputAddr:" << m_MemOperands[1].addr
-               << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
-               << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
-               << std::endl;);
-#if 0
-  bmnet::bmnet_relu_forward_bmkernel(
-                              *bm1880_kernel::getInstance().m_Ctx,
-                              m_inputAddr, m_outputAddr, m_negativeSlope, m_N,
-                              m_C, m_H, m_W);
-#endif
+  DEBUG(print(dbgs()));
+
+  bmnet::bmnet_relu_fixed_forward_bmkernel(
+      *bm1880_kernel::getInstance().m_Ctx,
+      m_MemOperands[0].addr, // input_gaddr
+      m_MemOperands[1].addr, // output_gaddr
+      m_negativeSlope,       // negative_slope
+      m_N,                   // input_n
+      m_C,                   // input_c
+      m_H,                   // input_h
+      m_W                    // input_w
+  );
 }
 
 } // namespace BM188X
