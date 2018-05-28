@@ -5,12 +5,11 @@ include_directories(
     ${BMTAP_BINARY_DIR}/bmnet/src
     ${BMTAP_INSTALL_DIR}/include
     ${BMTAP_SOURCE_DIR}/bmnet/include
-    ${BMTAP_SOURCE_DIR}/bmnet/include/targets)
-include_directories(${PYTORCH_INCLUDE_DIRS})
+    ${BMTAP_SOURCE_DIR}/bmnet/include/targets
+    ${PYTORCH_INCLUDE_DIRS})
 
 add_libonnc_src(
     TargetLowering.cpp 
-    TargetInfo/TGTargetInfo.cpp 
     TGBackend.cpp 
     TGCodeEmitPass.cpp 
     ComputeOperand.cpp
@@ -19,3 +18,4 @@ add_libonnc_src(
 
 add_subdirectory(BM168x)
 add_subdirectory(BM188x)
+add_subdirectory(TargetInfo)
