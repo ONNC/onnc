@@ -108,7 +108,7 @@ SKYPAT_F(DigraphTest, node_erase_head)
   g.connect(*n1, *n2, 1);
   g.erase(*n1);
 
-  NodeIterator<MyNode> iter(n1);
+  NodeIterator<MyNode, NonConstTraits> iter(n1);
   // n1 became a free node. g shall not delete n1 until its destrunction.
   ASSERT_EQ(n1->data, 1);
   ASSERT_FALSE(iter.hasNext());
@@ -147,7 +147,7 @@ SKYPAT_F(DigraphTest, node_erase_rear)
 
   g.erase(*n4);
 
-  NodeIterator<MyNode> iter(n1);
+  NodeIterator<MyNode, NonConstTraits> iter(n1);
   ASSERT_EQ(iter->data, 1);
   ASSERT_TRUE(iter.hasNext());
   ++iter;
