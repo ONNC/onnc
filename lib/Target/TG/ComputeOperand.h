@@ -13,7 +13,7 @@ struct MemOperand {
   uint64_t addr;
 };
 
-OStream &operator<<(OStream &pOS, const MemOperand mem);
+std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem);
 
 class ComputeOperand2
 {

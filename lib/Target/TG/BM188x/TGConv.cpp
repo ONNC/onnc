@@ -75,11 +75,9 @@ void TGConv::print(OStream &pOS) const
       << ", padH:" << (int)m_padH << ", padW:" << (int)m_padW
       << ", strideH:" << (int)m_strideH << ", strideW:" << (int)m_strideW
       << ", m_doBias:" << m_doBias
-      << ", rShiftWidth:" << m_LayerCtable.right_shift_width() << "> (";
-  // TODO fix OStream bug
-  pOS << m_MemOperands[0] << ", ";
-  pOS << m_MemOperands[1] << ", ";
-  pOS << m_MemOperands[3] << ")\n";
+      << ", rShiftWidth:" << m_LayerCtable.right_shift_width() << "> ("
+      << m_MemOperands[0] << ", " << m_MemOperands[1] << ", "
+      << m_MemOperands[3] << ")\n";
 }
 
 void TGConv::emit() const
