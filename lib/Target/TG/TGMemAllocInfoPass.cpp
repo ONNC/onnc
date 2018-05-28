@@ -42,7 +42,7 @@ void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &pGraph, MemTable &pMemTable)
   // TAG will be masked by runtime while processing cmdbuf.
   const int GLOBAL_NEURON_TAG = 0x1;
   const int GLOBAL_WEIGHT_TAG = 0x2;
-  const int GLOBAL_ARM_TAG = 0x3;
+  // const int GLOBAL_ARM_TAG = 0x3;
 
   // allocate spaces for weight
   unsigned int weight_offset = 0;

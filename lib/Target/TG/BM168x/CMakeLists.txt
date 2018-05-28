@@ -1,6 +1,5 @@
 
-include_directories(
-    ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm168x/bmkernel)
+include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm168x/bmkernel)
 
 add_libonnc_src(
     BM168xBackend.cpp

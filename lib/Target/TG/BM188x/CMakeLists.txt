@@ -1,6 +1,5 @@
 
-include_directories(
-    ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm188x/bmkernel)
+include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm188x/bmkernel)
 
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/common_calibration.pb.cc
