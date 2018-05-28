@@ -16,3 +16,5 @@ target_link_libraries(onnx2tg
 
 install(TARGETS onnx2tg
     RUNTIME DESTINATION bin)
+
+add_test(NAME onnx2tg COMMAND onnx2tg dummy_input -h)

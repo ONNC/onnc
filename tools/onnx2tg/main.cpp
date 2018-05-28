@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ONNX2TGApp.h"
+#include <iostream>
 #include <onnc/ADT/Color.h>
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Support/Debug.h>
@@ -28,8 +29,8 @@ static const char *HelpManual = "Usage:\n"
                                 "onnx2tg version 0.1.0\n";
 
 static cl::opt<Path> OptInput("input", cl::kPositional, cl::kRequired,
-                              cl::kValueRequired,
-                              cl::desc("The input file"), cl::help(HelpManual));
+                              cl::kValueRequired, cl::desc("The input file"),
+                              cl::help(HelpManual));
 
 static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
                                       cl::kValueRequired,
@@ -57,10 +58,15 @@ static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
 //===----------------------------------------------------------------------===//
 // Main procedure
 //===----------------------------------------------------------------------===//
-int main(int pArgc, char* pArgv[])
+int main(int pArgc, char *pArgv[])
 {
   ENABLE_DEBUG();
   ONNX2TG onnx2tg(pArgc, pArgv);
+  if (OptHelp) {
+    std::cout << HelpManual;
+    exit(0);
+  }
+
   // set up input
   if (!exists(OptInput)) {
     errs() << Color::MAGENTA << "Fatal" << Color::RESET
