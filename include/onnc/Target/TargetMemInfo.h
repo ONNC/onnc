@@ -17,11 +17,12 @@ namespace onnc {
  */
 struct MemSize
 {
-  unsigned alignment;
-  unsigned size;
+  uint64_t alignment;
+  uint64_t size;
 
-  MemSize(unsigned alignment, unsigned size)
-    : alignment(alignment), size(size) {}
+  MemSize(uint64_t alignment, uint64_t size) : alignment(alignment), size(size)
+  {
+  }
 };
 
 /** \class TargetMemInfo
@@ -31,9 +32,14 @@ struct MemSize
 class TargetMemInfo
 {
 public:
-  virtual unsigned getGlobalMemSize() const { return 0; }
+  virtual uint64_t getGlobalMemSize() const { return 0; }
 
-  virtual unsigned getLocalMemSize() const { return 0; }
+  virtual uint64_t getLocalMemSize() const { return 0; }
+
+  virtual uint64_t getElemSize(onnx::TensorProto_DataType pTy) const
+  {
+    return 0;
+  }
 
   /// Return actual memory size and alignment requirement of onnx::Value.
   virtual MemSize getValueMemorySize(onnx::Value *pValue)
