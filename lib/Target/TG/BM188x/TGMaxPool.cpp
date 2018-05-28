@@ -1,16 +1,16 @@
+#define DEBUG_TYPE "tg_maxpool"
 #include "TGMaxPool.h"
 #include "BM188xCodeEmitter.h"
 #include <bmkernel_api.h>
-
-#define DEBUG_TYPE "tg_maxpool"
 #include <onnc/Support/Debug.h>
 
 namespace onnc {
 namespace BM188X {
 
-TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
+TGMaxPool::TGMaxPool(const ::onnx::Node &pNode,
+                     const LayerCalibrationParameter &pLayerCtable)
     : ComputeOperand2(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
-      m_strideW(1)
+      m_strideW(1), m_LayerCtable(pLayerCtable)
 {
 
   auto inputs = pNode.inputs();
@@ -43,27 +43,34 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
   }
 }
 
+void TGMaxPool::print(OStream &pOS) const
+{
+
+  pOS << m_MemOperands[1] << " = MaxPool <N:" << m_N << ", C:" << m_C
+      << ", H:" << m_H << ", W:" << m_W << ",  kH:" << m_kH << ", kW:" << m_kW
+      << ", padH:" << m_padH << ", padW:" << m_padW << ", srideH:" << m_strideH
+      << ", strideW:" << m_strideW << "> (" << m_MemOperands[0] << ")\n";
+}
+
 void TGMaxPool::emit() const
 {
-  DEBUG(dbgs() << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0].addr
-               << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
-               << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
-               << " m_kH:" << m_kH << " m_kW:" << m_kW << " m_padH:" << m_padH
-               << " m_padW:" << m_padW << " m_srideH:" << m_strideH
-               << " m_strideW:" << m_strideW << std::endl;);
-#if 0
-  // bmnet_pooling_forward_bmkernel
-  bmnet::bmnet_pooling_forward_bmkernel(
-                                 *bm1880_kernel::getInstance().m_Ctx,
-                                 m_inputAddr, m_outputAddr,
-                                 GADDR_INVALID, // useless oindex_gaddr
-                                 GADDR_INVALID, // useless relu_gaddr
-                                 m_N, m_C, m_H, m_W, m_kH, m_kW, m_padH, m_padW,
-                                 m_strideH, m_strideW, false, // is_avg_pooling
-                                 0.0f,                        // always is 0.0f
-                                 false // disable actvation
-                                 );
-#endif
+  DEBUG(print(dbgs()));
+
+  int rShiftWidth = m_LayerCtable.right_shift_width();
+  const int *thresholdXQuantized = m_LayerCtable.threshold_x_quantized().data();
+  bmnet::bmnet_pooling_fixed_forward_bmkernel(
+      *bm1880_kernel::getInstance().m_Ctx,
+      m_MemOperands[0].addr, // ifmap_gaddr
+      m_MemOperands[1].addr, // ofmap_gaddr
+      GADDR_INVALID,         // index_gaddr
+      GADDR_INVALID,         // o_findex_gaddr
+      m_N, m_C, m_H, m_W, m_kH, m_kW, m_padH, m_padW, m_strideH, m_strideW,
+      0,                  // is_avg_pooling
+      0.0f,               // avg_const
+      0,                  // do_relu
+      rShiftWidth,        // right_shift_width
+      thresholdXQuantized // threshold_x_quantized
+  );
 }
 
 } // namespace BM188X

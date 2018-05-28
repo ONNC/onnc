@@ -2,6 +2,7 @@
 #define ONNX_BM1880_TGMAXPOOL_H
 
 #include "ComputeOperand.h"
+#include "common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -11,9 +12,11 @@ namespace BM188X {
 class TGMaxPool : public ComputeOperand2
 {
 public:
-  TGMaxPool(const ::onnx::Node &node);
+  TGMaxPool(const ::onnx::Node &node,
+            const LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
+  void print(OStream &pOS) const override;
 
 private:
   int m_N;
@@ -26,6 +29,7 @@ private:
   int m_padW;
   int m_strideH;
   int m_strideW;
+  LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X
