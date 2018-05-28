@@ -21,6 +21,7 @@ void InitializeAnalysis(PassRegistry&);
 void* InitializeGraphLivenessAnalysisPass(PassRegistry&);
 void* InitializeMemoryAllocationPass(PassRegistry&);
 void* InitializeUpdateGraphOutputSizePass(PassRegistry&);
+void* InitializeNodeIRSchedulerPass(PassRegistry&);
 
 } // namespace of onnc
 
