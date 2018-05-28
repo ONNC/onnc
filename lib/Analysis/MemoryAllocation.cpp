@@ -21,55 +21,6 @@ using namespace onnc;
 using TensorSizes = std::vector<onnx::Dimension>;
 
 //===----------------------------------------------------------------------===//
-// Extension IR for onnx
-//===----------------------------------------------------------------------===//
-static const onnx::Symbol g_LoadKind("Load");
-static const onnx::Symbol g_StoreKind("Store");
-
-//===----------------------------------------------------------------------===//
-// Non-member functions
-//===----------------------------------------------------------------------===//
-static void InsertLoadStoreNode(onnx::Graph &pGraph)
-{
-  for (onnx::Value* v : pGraph.inputs()) {
-    onnx::Node* first = nullptr;
-    for(auto u : v->uses()) {
-      if (!first) {
-        first = u.user;
-        continue;
-      }
-
-      if (!first->isBefore(u.user))
-        first = u.user;
-    }
-
-    // Create load node and insert before the first use node.
-    onnx::Node* loadN = pGraph.create(g_LoadKind);
-    loadN->insertBefore(first);
-    loadN->output()->copyMetadata(v);
-    v->replaceAllUsesWith(loadN->output());
-  }
-
-  for (onnx::Value* v : pGraph.outputs()) {
-    onnx::Node* last = nullptr;
-    for(auto u : v->uses()) {
-      if (!last) {
-        last = u.user;
-        continue;
-      }
-
-      if (last->isBefore(u.user))
-        last = u.user;
-    }
-
-    // Create store node and insert before the last use node.
-    onnx::Node* storeN = pGraph.create(g_StoreKind, {v}/*, 0*/);
-    storeN->output()->copyMetadata(v);
-    storeN->insertBefore(last);
-  }
-}
-
-//===----------------------------------------------------------------------===//
 // MemoryAllocation
 //===----------------------------------------------------------------------===//
 MemoryAllocation::MemoryAllocation(DLATargetBackend* pDLATB)
@@ -164,8 +115,6 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
   clear();
 
   onnx::Graph& graph = *pModule.getGraph();
-
-  InsertLoadStoreNode(graph);
 
   SplitNodeManager snMgr(graph, *m_DLATB);
 
