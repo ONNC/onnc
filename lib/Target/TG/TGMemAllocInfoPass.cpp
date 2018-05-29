@@ -5,7 +5,9 @@
 #include <onnx/common/ir.h>
 
 #define DEBUG_TYPE "tg_mem_alloc"
+#include <onnc/ADT/Color.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Support/IOStream.h>
 
 using namespace onnc;
 
@@ -16,115 +18,51 @@ class TGMemAllocInfo : public ModulePass
 
 private:
   TGBackend *m_pTarget;
-  MemTable m_MemLayout;
-  void ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable);
+  void ddrAllocInfo();
 
 public:
   static char ID;
 
 public:
-  TGMemAllocInfo(TGBackend *pTarget)
-      : ModulePass(ID), m_pTarget(pTarget), m_MemLayout()
-  {
-  }
-
-  const MemTable &getMemLayout() const { return m_MemLayout; }
+  TGMemAllocInfo(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
-    ::onnx::Graph *graph = pModule.getGraphIR().get();
-    ddrAllocInfo(*graph, m_MemLayout);
-    for (auto &inst : m_pTarget->getInsts()) {
-      inst->memAlloc(m_MemLayout);
-    }
+    ddrAllocInfo();
     return Pass::kModuleNoChanged;
   }
 };
 
-void TGMemAllocInfo::ddrAllocInfo(::onnx::Graph &pGraph, MemTable &pMemTable)
+void TGMemAllocInfo::ddrAllocInfo()
 {
-  // Definition fom BM168xBackendContext.hpp
-  // TAG will be masked by runtime while processing cmdbuf.
-  const int GLOBAL_NEURON_TAG = 0x1;
-  const int GLOBAL_WEIGHT_TAG = 0x2;
-  // const int GLOBAL_ARM_TAG = 0x3;
-
-  // allocate spaces for weight
   unsigned int weight_offset = 0;
-  // BMKernel only supports DATA_FMT_F32 & DATA_FMT_I1
+  unsigned int neuron_offset = 0;
   std::string tab = "\t";
 
-  DEBUG(dbgs() << __func__ << " dump global memory layout:" << std::endl;);
+  DEBUG(dbgs() << __func__ << " dump global memory layout:"
+               << "\n";);
 
-  for (auto i : pGraph.initializers()) {
-
-    pMemTable[i.name()] = weight_offset + GLOBAL_WEIGHT_TAG;
-    DEBUG(dbgs() << tab << i.name() << " = " << weight_offset;);
-
-    if (i.sizes().size() > 0) {
-      int tensor_size = m_pTarget->sizeOfTensorType(i.elem_type());
-      DEBUG(dbgs() << " <";);
-      for (auto dim : i.sizes()) {
-        DEBUG(dbgs() << dim << ",";);
-        tensor_size *= dim;
-      }
-      DEBUG(dbgs() << ">" << std::endl;);
-      weight_offset += tensor_size;
-    } else {
-      DEBUG(dbgs() << std::endl;);
-    }
-  }
-
-  unsigned int neuron_offset = 0;
-  std::unordered_set<std::string> initNames(pGraph.initializer_names().begin(),
-                                            pGraph.initializer_names().end());
-  // allocate space for inputs
-  for (auto i : pGraph.inputs()) {
-    if (0 == initNames.count(i->uniqueName())) {
-
-      pMemTable[i->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
-      DEBUG(dbgs() << tab << i->uniqueName() << " = " << neuron_offset;);
-
-      if (i->sizes().size() > 0) {
-        int tensor_size = m_pTarget->sizeOfTensorType(i->elemType());
-        DEBUG(dbgs() << " <";);
-        for (auto &dim : i->sizes()) {
-          DEBUG(dbgs() << dim.dim << ",";);
-          tensor_size *= dim.dim;
-        }
-        DEBUG(dbgs() << ">" << std::endl;);
+  for (auto &inst : m_pTarget->getInsts()) {
+    DEBUG(dbgs() << tab << "=== Inst: " << inst->getLayerName() << "\n";);
+    for (auto &mem : inst->getMemOprnds()) {
+      int tensor_size = 0;
+      if (mem.tag == GLOBAL_NEURON_TAG) {
+        mem.addr = neuron_offset + GLOBAL_NEURON_TAG;
+        tensor_size = m_pTarget->sizeOfTensorType(mem.type) * mem.count;
         neuron_offset += tensor_size;
+      } else if (mem.tag == GLOBAL_WEIGHT_TAG) {
+        mem.addr = weight_offset + GLOBAL_WEIGHT_TAG;
+        tensor_size = m_pTarget->sizeOfTensorType(mem.type) * mem.count;
+        weight_offset += tensor_size;
       } else {
-        DEBUG(dbgs() << std::endl;);
+        errs() << Color::RED << "Error" << Color::RESET
+               << ": Unsupport mem type " << mem.tag << "\n";
+        assert(0);
       }
+      mem.size = tensor_size;
+      DEBUG(dbgs() << tab << mem << "\n");
     }
   }
-  // allocate space for outputs
-  for (auto i : pGraph.nodes()) {
-    if (i->kind() == ::onnx::Symbol("Undefined"))
-      continue;
-
-    for (auto o : i->outputs()) {
-
-      pMemTable[o->uniqueName()] = neuron_offset + GLOBAL_NEURON_TAG;
-      DEBUG(dbgs() << tab << o->uniqueName() << " = " << neuron_offset;);
-
-      if (o->sizes().size() > 0) {
-        int tensor_size = m_pTarget->sizeOfTensorType(o->elemType());
-        DEBUG(dbgs() << " <";);
-        for (auto dim : o->sizes()) {
-          DEBUG(dbgs() << dim.dim << ",";);
-          tensor_size *= dim.dim;
-        }
-        DEBUG(dbgs() << ">" << std::endl;);
-        neuron_offset += tensor_size;
-      } else {
-        DEBUG(dbgs() << "\n";);
-      }
-    }
-  }
-  DEBUG(dbgs() << tab << "weight size: " << weight_offset << "\n";);
-  DEBUG(dbgs() << tab << "neuron size: " << neuron_offset << "\n";);
 }
 
 } // anonymous namespace

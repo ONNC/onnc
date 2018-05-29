@@ -25,6 +25,10 @@ class TGCodeEmitter;
 
 using MemTable = std::map<std::string, uint64_t>;
 
+// FIXME: Move to an appropriate file.
+const int GLOBAL_NEURON_TAG = 0x1;
+const int GLOBAL_WEIGHT_TAG = 0x2;
+
 class TGBackend : public DLATargetBackend
 {
 public:
@@ -64,9 +68,7 @@ public:
   virtual void setCtableProto(const std::string &pTextString);
 
   // for debug usage
-  virtual std::string getBackendName() {
-    return "TGBackend";
-  };
+  virtual std::string getBackendName() { return "TGBackend"; };
 
 private:
   std::vector<std::unique_ptr<ComputeOperand2> > m_instructions;
@@ -76,6 +78,6 @@ private:
   TargetOptions m_Options;
 };
 
-}  // namespace onnc
+} // namespace onnc
 
-#endif  // TARGET_TG_TG_BACKEND_H
+#endif // TARGET_TG_TG_BACKEND_H

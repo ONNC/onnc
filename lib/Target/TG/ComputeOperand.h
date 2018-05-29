@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnx/common/ir.h>
 #include <string>
@@ -11,6 +12,12 @@ using MemTable = std::map<std::string, uint64_t>;
 struct MemOperand {
   std::string name;
   uint64_t addr;
+  size_t count;
+  size_t size;
+  ::onnx::TensorProto_DataType type;
+  int tag;
+  MemOperand(std::string pName, const std::vector< ::onnx::Dimension> &pDim,
+             ::onnx::TensorProto_DataType pType, int pTag);
 };
 
 std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem);
@@ -26,6 +33,8 @@ public:
   const std::string &getTypeName() { return m_TypeName; }
 
   const std::string &getLayerName() { return m_LayerName; };
+
+  std::vector<MemOperand> &getMemOprnds() { return m_MemOperands; };
 
   virtual void emit(void) const = 0;
 

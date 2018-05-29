@@ -23,13 +23,21 @@ TGGemm::TGGemm(const ::onnx::Node &pNode,
   auto outputs = pNode.outputs();
 
   // input
-  m_MemOperands.push_back({ inputs[0]->uniqueName(), 0 });
+  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
+                                     inputs[0]->sizes(), inputs[0]->elemType(),
+                                     GLOBAL_NEURON_TAG));
   // weight
-  m_MemOperands.push_back({ inputs[1]->uniqueName(), 0 });
+  m_MemOperands.push_back(MemOperand(inputs[1]->uniqueName(),
+                                     inputs[1]->sizes(), inputs[1]->elemType(),
+                                     GLOBAL_WEIGHT_TAG));
   // bias
-  m_MemOperands.push_back({ inputs[2]->uniqueName(), 0 });
+  m_MemOperands.push_back(MemOperand(inputs[2]->uniqueName(),
+                                     inputs[2]->sizes(), inputs[2]->elemType(),
+                                     GLOBAL_WEIGHT_TAG));
   // output
-  m_MemOperands.push_back({ outputs[0]->uniqueName(), 0 });
+  m_MemOperands.push_back(
+      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
+                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
 
   const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
   const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();

@@ -18,9 +18,13 @@ TGRelu::TGRelu(const ::onnx::Node &pNode,
   auto outputs = pNode.outputs();
 
   // input
-  m_MemOperands.push_back({ inputs[0]->uniqueName(), 0 });
+  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
+                                     inputs[0]->sizes(), inputs[0]->elemType(),
+                                     GLOBAL_NEURON_TAG));
   // output
-  m_MemOperands.push_back({ outputs[0]->uniqueName(), 0 });
+  m_MemOperands.push_back(
+      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
+                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
 
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
