@@ -100,7 +100,7 @@ static DegreeMap BuildDegreeMap(onnx::Graph &pGraph)
 
 bool NodeIRScheduler::isExeResAvailable(const ExeResource *pExeRes) const
 {
-  return m_ExeResUsers.find(pExeRes)->second.size() < pExeRes->count;
+  return m_ExeResUsers.find(pExeRes)->second.size() < pExeRes->numUnits;
 }
 
 void NodeIRScheduler::addExeResUser(const ExeResource *pExeRes,

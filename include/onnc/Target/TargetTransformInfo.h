@@ -15,6 +15,16 @@ namespace onnc {
 
 using LongInts = std::vector<int64_t>;
 
+/** \class ExeResource
+ *  \brief Define a coarse grained execution resource which is used by scheduler
+ *         when modeling.
+ */
+struct ExeResource
+{
+  unsigned numUnits;
+  const char *name;
+};
+
 /** \class TargetTransformInfo
  *  \brief TargetTransformInfo provides interfaces to explore target
  *         information which is used by target dependent passes.
@@ -66,6 +76,8 @@ public:
   {
     return MemSize();
   }
+
+  virtual const ExeResource *queryExeResType(const onnx::Node *pNode) const = 0;
 
   virtual int getWarpSize() const { return 0; }
 
