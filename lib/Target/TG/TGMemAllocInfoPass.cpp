@@ -16,21 +16,26 @@ class TGMemAllocInfo : public ModulePass
 
 private:
   TGBackend *m_pTarget;
+  MemTable m_MemLayout;
   void ddrAllocInfo(::onnx::Graph &graph, MemTable &memTable);
 
 public:
   static char ID;
 
 public:
-  TGMemAllocInfo(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
+  TGMemAllocInfo(TGBackend *pTarget)
+      : ModulePass(ID), m_pTarget(pTarget), m_MemLayout()
+  {
+  }
+
+  const MemTable &getMemLayout() const { return m_MemLayout; }
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
     ::onnx::Graph *graph = pModule.getGraphIR().get();
-    MemTable memLayout;
-    ddrAllocInfo(*graph, memLayout);
+    ddrAllocInfo(*graph, m_MemLayout);
     for (auto &inst : m_pTarget->getInsts()) {
-      inst->memAlloc(memLayout);
+      inst->memAlloc(m_MemLayout);
     }
     return Pass::kModuleNoChanged;
   }
