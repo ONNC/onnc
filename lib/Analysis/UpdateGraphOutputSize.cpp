@@ -240,6 +240,17 @@ static std::unordered_set<::onnx::NodeKind> g_InputSizeIsOutputSize = {
 Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
 {
   for (::onnx::Node *n : pModule.getGraphIR()->nodes()) {
+
+    bool hasOutputInfo = true;
+    for (::onnx::Value *out : n->outputs()) {
+      if (out->sizes().empty()) {
+        hasOutputInfo = false;
+        break;
+      }
+    }
+    if (hasOutputInfo)
+      continue;
+
     const auto kind = n->kind();
     std::cout << "update inst Kind:" << kind.toString() << "\n";
     if (g_InputSizeIsOutputSize.count(kind)) {
