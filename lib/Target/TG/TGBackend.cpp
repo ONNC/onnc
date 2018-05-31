@@ -58,7 +58,11 @@ void TGBackend::addCodeEmit(PassManager &pPM, const Path &pOutput)
   pPM.add(createTGCodeEmitPass(this));
 }
 
-void TGBackend::codeEmit() { m_pCE->encodeInstructions(m_OutputPath); }
+void TGBackend::codeEmit(const ::onnx::Graph *pOnnxGraph)
+{
+  m_pCE->genRuntimeInfo(pOnnxGraph);
+  m_pCE->encodeInstructions(m_OutputPath);
+}
 
 bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 {

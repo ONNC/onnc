@@ -25,6 +25,8 @@ public:
 
   void encodeInstructions(const Path &pOutputPath) override;
 
+  void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
+
 private:
   void *m_BmkernelHandle; // NOLINT
   TGBackend *m_pBackend;  // NOLINT

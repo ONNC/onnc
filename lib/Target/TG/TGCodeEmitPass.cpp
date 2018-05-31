@@ -21,7 +21,8 @@ public:
 
   Pass::ReturnType runOnModule(Module &pModule) override
   {
-    m_Target->codeEmit();
+    ::onnx::Graph *graph = pModule.getGraphIR().get();
+    m_Target->codeEmit(graph);
     return Pass::kModuleNoChanged;
   }
 

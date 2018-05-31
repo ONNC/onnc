@@ -37,7 +37,7 @@ public:
 
   ~TGBackend() override;
 
-  void codeEmit();
+  void codeEmit(const ::onnx::Graph *pOnnxGraph);
 
   void addTensorSel(PassManager &pPM) override;
 

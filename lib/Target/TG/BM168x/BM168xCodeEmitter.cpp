@@ -50,3 +50,9 @@ void BM168xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   // TODO BM1682
   assert(0);
 }
+
+void BM168xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
+{
+  // TODO: Generate runtime info for BM168x.
+  return;
+}

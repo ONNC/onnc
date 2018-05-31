@@ -7,6 +7,12 @@
 #include <fstream>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/Debug.h>
+
+#include <onnc/JSON/Object.h>
+#include <onnc/JSON/Reader.h>
+#include <onnc/JSON/Value.h>
+#include <onnc/Support/IOStream.h>
+
 using namespace onnc;
 
 BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
@@ -130,4 +136,61 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   ctx.read_cmdbuf(cmdbuf);
   bmnet::WriteFloatDataToBinaryFile(cmdbuf.data(), cmdbuf.size(),
                                     output_path.generic_string());
+}
+
+void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
+{
+  onnc::json::Object jRoot;
+  onnc::json::Object jMemLayout;
+  onnc::json::Object jInputThres;
+  onnc::json::Object jOutputLayer;
+  onnc::json::Object jBatch;
+  // Generate memory layout.
+  auto &instList = m_Backend->getInsts();
+  for (auto const &inst : instList) {
+    onnc::json::Object jLayer;
+    for (auto &mem : inst->getMemOperands()) {
+      onnc::json::Object jMem;
+      jMem.insert("addr", onnc::json::Value(mem->m_Addr));
+      jMem.insert("size", onnc::json::Value(mem->m_Size));
+      jLayer.insert(mem->m_Name, jMem);
+    }
+    DEBUG(dbgs() << "inst name == " << inst->getLayerName() << "\n");
+    jMemLayout.insert(inst->getLayerName(), jLayer);
+  }
+
+  // Generate the threshold of data_layer for quantization.
+  std::string dataLayerName = pOnnxGraph->inputs()[0]->uniqueName();
+  const tg::bm1880::LayerCalibrationParameter &layerCtable =
+      m_Backend->getCtableLayerParam(dataLayerName);
+  const float threshold = layerCtable.blob_param(0).threshold_y();
+  DEBUG(dbgs() << "data layer name = " << dataLayerName
+               << ", threshold = " << threshold << "\n");
+  jInputThres.insert("data layer threshold", threshold);
+
+  // Generate batch size of the input.
+  auto sizes = pOnnxGraph->inputs()[0]->sizes();
+  auto batchSize = sizes[0].dim;
+  jBatch.insert("size", batchSize);
+
+  // Generate output layer name.
+  std::string onnxOutputLayerName = pOnnxGraph->outputs()[0]->uniqueName();
+  jOutputLayer.insert("onnx output", onnxOutputLayerName);
+  std::string onncOutputLayerName =
+      instList[instList.size() - 1]->getLayerName();
+  jOutputLayer.insert("onnc output", onncOutputLayerName);
+
+  // Insert all information to root.
+  jRoot.insert("memory layout", jMemLayout);
+  jRoot.insert("layer threshold", jInputThres);
+  jRoot.insert("output layer", jOutputLayer);
+  jRoot.insert("batch", jBatch);
+
+  // FIXME: Remove the hardcode path.
+  std::ofstream outfile("runtime.json", std::ofstream::binary);
+  onnc::IndentOStream oss(outfile);
+  jRoot.print(oss);
+  outfile.close();
+
+  return;
 }
