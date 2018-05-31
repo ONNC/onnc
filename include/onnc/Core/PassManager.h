@@ -89,8 +89,13 @@ private:
 
 private:
   PassRegistry* m_pPassRegistry;
-  AvailableAnalysisMap m_AvailableAnalysis;
+
+  // a graph describes the dependencies among passes.
   PassDependencyLattice m_Dependencies;
+
+  // A map from ID to node in dependency graph.
+  AvailableAnalysisMap m_AvailableAnalysis;
+
   DepNode *m_pStart;
 };
 

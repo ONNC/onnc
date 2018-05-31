@@ -22,13 +22,13 @@ char PassManager::StartPass::ID = 0;
 //===----------------------------------------------------------------------===//
 PassManager::PassManager()
   : m_pPassRegistry(onnc::GetPassRegistry()),
-    m_AvailableAnalysis(), m_Dependencies(),
+    m_Dependencies(), m_AvailableAnalysis(),
     m_pStart(m_Dependencies.addNode(new StartPass())) {
 }
 
 PassManager::PassManager(PassRegistry& pRegistry)
   : m_pPassRegistry(&pRegistry),
-    m_AvailableAnalysis(), m_Dependencies(),
+    m_Dependencies(), m_AvailableAnalysis(),
     m_pStart(m_Dependencies.addNode(new StartPass())) {
 }
 
