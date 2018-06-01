@@ -28,9 +28,10 @@ static const char *HelpManual = "Usage:\n"
                                 "\t-h | -? | --help Show this manual\n"
                                 "onnx2tg version 0.1.0\n";
 
-static cl::opt<Path> OptInput("input", cl::kPositional, cl::kRequired,
-                              cl::kValueRequired, cl::desc("The input file"),
-                              cl::help(HelpManual));
+static cl::opt<std::string> OptInput("input", cl::kPositional, cl::kOptional,
+                                     cl::kValueRequired,
+                                     cl::desc("The input file"),
+                                     cl::help(HelpManual), cl::init("-"));
 
 static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
                                       cl::kValueRequired,
@@ -67,17 +68,6 @@ int main(int pArgc, char *pArgv[])
     exit(0);
   }
 
-  // set up input
-  if (!exists(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file not found: " << OptInput << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (!is_regular(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file is not a regular file: " << OptInput << std::endl;
-    return EXIT_FAILURE;
-  }
   onnx2tg.options().setInput(OptInput);
 
   // set up output

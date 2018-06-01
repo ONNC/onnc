@@ -19,9 +19,9 @@ public:
 
   ~Config() {}
 
-  const onnc::Path &input() const { return m_Input; }
+  const std::string &input() const { return m_Input; }
 
-  void setInput(const onnc::Path &pFileName) { m_Input = pFileName; }
+  void setInput(const std::string &pFileName) { m_Input = pFileName; }
 
   const onnc::Path &output() const { return m_Output; }
 
@@ -36,7 +36,7 @@ public:
   void setPrintModuleBeforeISel(bool pSet) { m_PrintModuleBeforeISel = pSet; }
 
 private:
-  onnc::Path m_Input;
+  std::string m_Input;
   onnc::Path m_Output;
   std::string m_Arch;
   bool m_PrintModuleBeforeISel;
