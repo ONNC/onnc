@@ -5,6 +5,12 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#ifndef ONNXUTILS_H
+#define ONNXUTILS_H
+
+#define ONNX_NAMESPACE onnx
+
 #include <onnc/IR/Module.h>
 #include <onnx/common/ir_pb_converter.h>
 
@@ -26,3 +32,5 @@ size_t getTotalCount(const std::vector<int64_t> &pDim);
 const ::onnx::Tensor &getTensor(std::string name, const ::onnx::Graph &graph);
 
 } // namespace onnc
+
+#endif
