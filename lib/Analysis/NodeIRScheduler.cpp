@@ -111,7 +111,7 @@ void NodeIRScheduler::addExeResUser(const ExeResource *pExeRes,
   m_ExeResUsers[pExeRes].emplace_back(pUser, c);
 }
 
-unsigned NodeIRScheduler::updateResList()
+Nodes NodeIRScheduler::issue()
 {
   // find min cycle count
   unsigned minCycle = std::numeric_limits<unsigned>::max();
@@ -120,20 +120,23 @@ unsigned NodeIRScheduler::updateResList()
       minCycle = std::min(minCycle, user.remainCycles);
 
   // update cycle count based on min cycle count.
+  Nodes complete;
   for (auto &it : m_ExeResUsers) {
     std::vector<unsigned> rmList;
     auto &userList = it.second;
     for (unsigned i = 0; i < userList.size(); ++i) {
       userList[i].remainCycles -= minCycle;
-      if (userList[i].remainCycles == 0)
+      if (userList[i].remainCycles == 0) {
         rmList.push_back(i);
+        complete.push_back(userList[i].user);
+      }
     }
 
     // release exe resource.
     for (int i = rmList.size() - 1; i >= 0; --i)
       userList.erase(userList.begin() + i);
   }
-  return minCycle;
+  return complete;
 }
 
 Nodes NodeIRScheduler::greedyPickNextNodes(Nodes &pCands)
@@ -141,6 +144,7 @@ Nodes NodeIRScheduler::greedyPickNextNodes(Nodes &pCands)
   Nodes next;
   Ints rmList;
 
+  // Greedy pick from beginning of the list.
   for (unsigned i = 0; i < pCands.size(); ++i) {
     onnx::Node *n = pCands[i];
     const ExeResource *res = m_DLATB->getTTI()->queryExeResType(n);
@@ -155,6 +159,7 @@ Nodes NodeIRScheduler::greedyPickNextNodes(Nodes &pCands)
     }
   }
 
+  // Remove picked node in backward direction.
   for (auto it = rmList.rbegin(); it != rmList.rend(); ++it)
     pCands.erase(pCands.begin() + *it);
 
@@ -188,7 +193,10 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
 
   while (!worklist.empty()) {
     // worklist is modified in greedyPickNextNodes
-    for (onnx::Node *n : greedyPickNextNodes(worklist)) {
+    greedyPickNextNodes(worklist);
+    Nodes completes = issue();
+
+    for (onnx::Node *n : completes) {
       for (onnx::Value *v : n->outputs()) {
         // Update degree map.
         for(auto u : v->uses()) {

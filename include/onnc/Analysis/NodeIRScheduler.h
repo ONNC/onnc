@@ -65,7 +65,7 @@ private:
 
   void addExeResUser(const ExeResource *pExeRes, onnx::Node *pUser);
 
-  unsigned updateResList();
+  Nodes issue();
 
   void clear() { m_NewIROrder.clear(); }
 
