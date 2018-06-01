@@ -77,7 +77,12 @@ public:
     return MemSize();
   }
 
-  virtual const ExeResource *queryExeResType(const onnx::Node *pNode) const = 0;
+  /// Expose coarse grained execution units infomation, so scheduler can use
+  /// it to scheduling graph IR.
+  virtual const ExeResource *queryExeResType(const onnx::Node *pNode) const
+  {
+    return nullptr;
+  }
 
   virtual int getWarpSize() const { return 0; }
 
