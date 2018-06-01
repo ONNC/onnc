@@ -72,6 +72,8 @@ private:
 
   bool isExeResAvailable(const ExeResource *pExeRes) const;
 
+  bool isAllExeResEmpty() const;
+
   void addExeResUser(const ExeResource *pExeRes, onnx::Node *pUser);
 
   Nodes issue();

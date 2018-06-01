@@ -170,6 +170,16 @@ Nodes NodeIRScheduler::greedyPickNextNodes(Nodes &pCands)
   return next;
 }
 
+bool NodeIRScheduler::isAllExeResEmpty() const
+{
+  for (auto &it : m_ExeResUsers) {
+    auto &userList = it.second;
+    if (!userList.empty())
+      return false;
+  }
+  return true;
+}
+
 Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
 {
   if (!m_DLATB) {
@@ -195,7 +205,7 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
       worklist.push_back(n);
   }
 
-  while (!worklist.empty()) {
+  while (!worklist.empty() || !isAllExeResEmpty()) {
     // worklist is modified in greedyPickNextNodes
     greedyPickNextNodes(worklist);
     Nodes completes = issue();
