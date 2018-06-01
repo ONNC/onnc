@@ -226,9 +226,18 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
         } // for each user of this value.
       } // for each output value.
     } // for each picked node.
-  } // while !worklist.empty()
+  } // while !worklist.empty() || !isAllExeResEmpty()
 
-  return kModuleNoChanged;
+  // Reorder the IR position based on scheduling result.
+  for (unsigned i = 1; i < m_SchedTimeLine.size(); ++i) {
+    onnx::Node *prev = m_SchedTimeLine[i - 1].node,
+               *next = m_SchedTimeLine[i].node;
+
+    if (!prev->isBefore(next))
+      prev->moveBefore(next);
+  }
+
+  return kModuleChanged;
 }
 
 void NodeIRScheduler::getAnalysisUsage(AnalysisUsage& pUsage) const
