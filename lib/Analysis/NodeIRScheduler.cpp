@@ -69,7 +69,7 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
 // NodeIRScheduler
 //===----------------------------------------------------------------------===//
 NodeIRScheduler::NodeIRScheduler(DLATargetBackend* pDLATB)
-  : ModulePass(ID), m_DLATB(pDLATB) {
+  : ModulePass(ID), m_DLATB(pDLATB), m_CurCycle(0) {
 }
 
 NodeIRScheduler::~NodeIRScheduler()
@@ -106,18 +106,22 @@ bool NodeIRScheduler::isExeResAvailable(const ExeResource *pExeRes) const
 void NodeIRScheduler::addExeResUser(const ExeResource *pExeRes,
                                     onnx::Node *pUser)
 {
-  int c = m_DLATB->getTTI()
-                 ->getOperatorCost(pUser, TargetTransformInfo::kCycleCount);
+  uint64_t c = m_DLATB->getTTI()
+                     ->getOperatorCost(pUser, TargetTransformInfo::kCycleCount);
+
   m_ExeResUsers[pExeRes].emplace_back(pUser, c);
+  m_SchedTimeLine.emplace_back(pUser, m_CurCycle, m_CurCycle + c);
 }
 
 Nodes NodeIRScheduler::issue()
 {
   // find min cycle count
-  unsigned minCycle = std::numeric_limits<unsigned>::max();
+  uint64_t minCycle = std::numeric_limits<uint64_t>::max();
   for (auto &it : m_ExeResUsers)
     for (auto &user : it.second)
       minCycle = std::min(minCycle, user.remainCycles);
+
+  m_CurCycle += minCycle;
 
   // update cycle count based on min cycle count.
   Nodes complete;
@@ -220,6 +224,23 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
 void NodeIRScheduler::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
   pUsage.addRequiredID(UpdateGraphOutputSize::ID);
+}
+
+void NodeIRScheduler::print(std::ostream& pOS) const
+{
+  auto normalize = [] (uint64_t c) -> unsigned {
+                     // 1 million cycle.
+                     const uint64_t cycleUnit = 1000000;
+                     return (c + cycleUnit - 1) / cycleUnit;
+                   };
+
+  // print schedule diagram
+  for (const ExeCycle &exe : m_SchedTimeLine) {
+    pOS << std::setw(normalize(exe.begin));
+    for (unsigned i = 0; i < normalize(exe.end - exe.begin); ++i)
+      pOS << '*';
+    PrintNode(outs(), *exe.node);
+  }
 }
 
 //===----------------------------------------------------------------------===//

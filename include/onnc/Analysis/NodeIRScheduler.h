@@ -35,10 +35,19 @@ public:
   struct ExeResUser
   {
     onnx::Node *user;
-    unsigned remainCycles;  /// Remaining cycles to finish executing the user.
+    uint64_t remainCycles;  /// Remaining cycles to finish executing the user.
 
-    ExeResUser(onnx::Node *user, unsigned rcycles)
+    ExeResUser(onnx::Node *user, uint64_t rcycles)
       : user(user), remainCycles(rcycles) {}
+  };
+
+  struct ExeCycle
+  {
+    onnx::Node *node;
+    uint64_t begin, end;  /// Execution time: [begin, end)
+
+    ExeCycle(onnx::Node *pNode, uint64_t pBegin, uint64_t pEnd)
+      : node(pNode), begin(pBegin), end(pEnd) {}
   };
 
   // <execution resource, list of <user, remaining cycles>>
@@ -67,11 +76,17 @@ private:
 
   Nodes issue();
 
-  void clear() { m_NewIROrder.clear(); }
+  void clear()
+  {
+    m_SchedTimeLine.clear();
+    m_ExeResUsers.clear();
+    m_CurCycle = 0;
+  }
 
 private:
   DLATargetBackend* m_DLATB;
-  Nodes m_NewIROrder;
+  std::vector<ExeCycle> m_SchedTimeLine;
+  uint64_t m_CurCycle;
   ExeResUserMap m_ExeResUsers;
 };
 
