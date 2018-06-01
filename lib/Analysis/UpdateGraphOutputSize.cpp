@@ -21,7 +21,24 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-static void UpdateOutputInfo(onnx::Node* pNode, const TensorSizes &pSize,
+const size_t getTotalCount(const std::vector<int64_t> &pSize)
+{
+  size_t s = 1;
+  for (auto &size : pSize)
+    s *= size;
+  return s;
+}
+
+static const ::onnx::Tensor &getTensor(std::string pName,
+                                       const ::onnx::Graph &pGraph)
+{
+  auto initNames = const_cast< ::onnx::Graph &>(pGraph).initializer_names();
+  std::ptrdiff_t idx = std::distance(
+      initNames.begin(), std::find(initNames.begin(), initNames.end(), pName));
+  return const_cast< ::onnx::Graph &>(pGraph).initializers()[idx];
+}
+
+static void UpdateOutputInfo(::onnx::Node *pNode, const TensorSizes &pSize,
                              TP_DataTy pTy)
 {
   for (onnx::Value* out : pNode->outputs()) {
@@ -194,6 +211,34 @@ static void UpdateGemmOutputInfo(onnx::Node* pNode)
   }
 }
 
+static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
+{
+  // second input is a shape tensor
+  const ::onnx::Value *input1 = pNode->inputs()[1];
+  const ::onnx::Tensor shapeTensor =
+      getTensor(input1->uniqueName(), *pNode->owningGraph());
+  TensorSizes dims;
+
+  // tensor is raw data
+  if (0 == shapeTensor.int64s().size()) {
+    size_t size = getTotalCount(shapeTensor.sizes());
+    std::vector<int64_t> int64Dims;
+    int64Dims.reserve(size);
+    int64Dims.resize(size);
+    memcpy(int64Dims.data(), shapeTensor.raw().data(), size * sizeof(int64_t));
+    for (auto &i : int64Dims) {
+      dims.push_back(::onnx::Dimension(i));
+    }
+  } else {
+    for (auto &i : shapeTensor.int64s()) {
+      dims.push_back(::onnx::Dimension(i));
+    }
+  }
+  // First input is the data tensor
+  const ::onnx::Value *in = pNode->inputs()[0];
+  UpdateOutputInfo(pNode, dims, in->elemType());
+}
+
 //===----------------------------------------------------------------------===//
 // UpdateGraphOutputSize
 //===----------------------------------------------------------------------===//
@@ -211,6 +256,7 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
 {
   for (onnx::Node *n : pModule.getGraph()->nodes()) {
     const auto kind = n->kind();
+    std::cout << "update inst Kind:" << kind.toString() << "\n";
     if (g_InputSizeIsOutputSize.count(kind)) {
       UpdateOutputInfoByInput(n);
       continue;
@@ -222,6 +268,10 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
       UpdatePoolOutputInfo(n);
     } else if (kind == onnx::kGemm) {
       UpdateGemmOutputInfo(n);
+    } else if (kind == ::onnx::kReshape) {
+      UpdateReshapeOutputInfo(n);
+    } else {
+      errs() << "Unsupported type :" << kind.toString() << "\n";
     }
   }
 
