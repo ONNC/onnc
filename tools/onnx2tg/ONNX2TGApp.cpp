@@ -81,6 +81,9 @@ int ONNX2TG::compile()
   TargetOptions options;
   if (m_Config.PrintModuleBeforeISel())
     options.PrintModuleBeforeSel = 1;
+  if (m_Config.PrintMachineCode())
+    options.PrintMachineCode = 1;
+
   TargetBackend *backend = target->createBackend(options);
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);

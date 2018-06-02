@@ -44,6 +44,11 @@ static cl::opt<std::string> march("march", cl::kShort, cl::kOptional,
                                   cl::desc("The march of TG [bm1680|bm1880]"),
                                   cl::help(HelpManual), cl::init("bm1880"));
 
+static cl::opt<bool>
+    PrintMachineCode("print-machineinstrs", cl::kShort, cl::kOptional,
+                     cl::kValueDisallowed, cl::init(false),
+                     cl::desc("Print generated machine code for debugging)"));
+
 static cl::opt<bool> printModuleBeforeISel("print-module-before-isel",
                                            cl::kShort, cl::kOptional,
                                            cl::kValueDisallowed,
@@ -76,6 +81,7 @@ int main(int pArgc, char *pArgv[])
 
   onnx2tg.options().setMarch(march);
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
+  onnx2tg.options().setPrintMachineCode(PrintMachineCode);
 
   return onnx2tg.compile();
 }

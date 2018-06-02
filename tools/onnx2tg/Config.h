@@ -35,11 +35,16 @@ public:
 
   void setPrintModuleBeforeISel(bool pSet) { m_PrintModuleBeforeISel = pSet; }
 
+  bool PrintMachineCode() const { return m_PrintMachineCode; }
+
+  void setPrintMachineCode(bool pSet) { m_PrintMachineCode = pSet; }
+
 private:
   std::string m_Input;
   onnc::Path m_Output;
   std::string m_Arch;
   bool m_PrintModuleBeforeISel;
+  bool m_PrintMachineCode;
 };
 
 #endif
