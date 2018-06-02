@@ -77,7 +77,7 @@ TGConv::TGConv(const ::onnx::Node &pNode,
 void TGConv::print(OStream &pOS) const
 {
   pOS << m_MemOperands[2] << " = Conv <inN:" << m_inN << ", inC:" << m_inC
-      << ", inH:" << m_inH << ", inW:" << m_inW << ", outC: " << m_outC
+      << ", inH:" << m_inH << ", inW:" << m_inW << ", outC:" << m_outC
       << ", groups:" << m_groups << ", kH:" << m_kH << ", kW:" << m_kW
       << ", dilationH:" << m_dilationH << ", dilationW:" << m_dilationW
       << ", padH:" << (int)m_padH << ", padW:" << (int)m_padW
