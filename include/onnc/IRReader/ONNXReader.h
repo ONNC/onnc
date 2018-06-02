@@ -31,6 +31,8 @@ public:
   /// @param[out] pError error occurred in the parsing.
   Module* parse(const Path& pFileName, SystemError& pError);
 
+  Module* parse(ConstBuffer pContent, SystemError& pError);
+
   /// Set the total bytes limit.
   /// @param[in] pTotalBytesLimit
   /// @param[in] pWarningThreshold
