@@ -9,13 +9,14 @@ include_directories(
     ${PYTORCH_INCLUDE_DIRS})
 
 add_libonnc_src(
-    TargetLowering.cpp 
-    TGBackend.cpp 
-    TGCodeEmitPass.cpp 
+    TargetLowering.cpp
+    TGBackend.cpp
+    TGCodeEmitPass.cpp
     ComputeOperand.cpp
-    TGMemAllocInfoPass.cpp 
+    TGMemAllocInfoPass.cpp
     TargetLoweringPass.cpp)
 
 add_subdirectory(BM168x)
 add_subdirectory(BM188x)
 add_subdirectory(TargetInfo)
+add_subdirectory(test)

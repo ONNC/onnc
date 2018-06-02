@@ -9,6 +9,7 @@ option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Re
 
 project(ONNC)
 enable_testing()
+include(cmake/test.cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (NOT TARGET build_external)

@@ -1,11 +1,11 @@
 #; RUN : onnx-as lenet.onnx.s | onnx2tg -march bm1880 -print-machineinstrs | FileCheck lenet.onnx.s
-#; CHECK: Conv <inN:1, inC:1, inH:1C, inW:1C, outC: 14, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_doBias:1, rShiftWidth:9>
-#; CHECK: MaxPool <N:1, C:14, H:18, W:18,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2>
-#; CHECK: Conv <inN:1, inC:14, inH:C, inW:C, outC: 32, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_doBias:1, rShiftWidth:B>
-#; CHECK: MaxPool <N:1, C:32, H:8, W:8,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2>
-#; CHECK: Gemm <inRowNum:1, inColNum:320, outColNum:1F4, m_weightTp:1>
-#; CHECK: ReLU <negativeSlope:0, N:1, C:1, H:1, W:1F4>
-#; CHECK: Gemm <inRowNum:1, inColNum:1F4, outColNum:A, m_weightTp:1>
+#; CHECK: Conv <inN:1, inC:1, inH:28, inW:28, outC: 20, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_doBias:1, rShiftWidth:9> (MemOP = data_0, addr = 0x00000001, size = 784(count = 784), tag = 1, type = 3, MemOP = conv1_w_0, addr = 0x00000002, size = 500(count = 500), tag = 2, type = 3, MemOP = conv1_b_0, addr = 0x000001F6, size = 40(count = 20), tag = 2, type = 5)
+#; CHECK: MaxPool <N:1, C:20, H:24, W:24,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2> (MemOP = conv1_1, addr = 0x00003011, size = 11520(count = 11520), tag = 1, type = 3)
+#; CHECK: Conv <inN:1, inC:20, inH:12, inW:12, outC: 50, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_doBias:1, rShiftWidth:11> (MemOP = pool1_1, addr = 0x00006851, size = 2880(count = 2880), tag = 1, type = 3, MemOP = conv2_w_0, addr = 0x0000021E, size = 25000(count = 25000), tag = 2, type = 3, MemOP = conv2_b_0, addr = 0x000063C6, size = 100(count = 50), tag = 2, type = 5)
+#; CHECK: MaxPool <N:1, C:50, H:8, W:8,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2> (MemOP = conv2_1, addr = 0x00008011, size = 3200(count = 3200), tag = 1, type = 3)
+#; CHECK: Gemm <inRowNum:1, inColNum:800, outColNum:500, m_weightTp:1> (MemOP = OC2_DUMMY_0, addr = 0x00008FB1, size = 800(count = 800), tag = 1, type = 3, MemOP = ip1_w_0, addr = 0x0000642A, size = 400000(count = 400000), tag = 2, type = 3, MemOP = ip1_b_0, addr = 0x00067EAA, size = 1000(count = 500), tag = 2, type = 5)
+#; CHECK: ReLU <negativeSlope:0, N:1, C:1, H:1, W:500> (MemOP = relu1_1, addr = 0x000096B9, size = 500(count = 500), tag = 1, type = 3)
+#; CHECK: Gemm <inRowNum:1, inColNum:500, outColNum:10, m_weightTp:1> (MemOP = relu1_1, addr = 0x000098AD, size = 500(count = 500), tag = 1, type = 3, MemOP = ip2_w_0, addr = 0x00068292, size = 5000(count = 5000), tag = 2, type = 3, MemOP = ip2_b_0, addr = 0x0006961A, size = 20(count = 10), tag = 2, type = 5)
 
 ir_version: 3
 producer_name: "onnx-caffe2"
