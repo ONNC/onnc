@@ -74,6 +74,13 @@ ONNC_SOURCES = \
   Support/Windows/FileSystem.inc \
   Support/Dragon/Path.inc \
   Support/Dragon/FileSystem.inc \
+	JSON/Array.cpp \
+  JSON/Object.cpp \
+  JSON/Value.cpp \
+  JSON/JsonParser.ypp \
+  JSON/JsonScanner.lpp \
+  JSON/String.cpp \
+  JSON/Notation.cpp \
 	IR/Quadruple.cpp \
   Diagnostic/Diagnostic.cpp \
   Diagnostic/DiagnosticInfoMap.cpp \
