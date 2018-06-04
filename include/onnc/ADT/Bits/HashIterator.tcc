@@ -22,7 +22,7 @@ ChainIterBase<HT>::ChainIterBase(HT* pTable, const key_type& pKey)
   m_EndIndex = m_Index = m_HashValue % m_pHashTable->numOfBuckets();
   const unsigned int probe = 1;
   while(true) {
-    bucket_type &bucket = m_pHashTable->bucket(m_Index);
+    const bucket_type &bucket = m_pHashTable->bucket(m_Index);
     if (hash_table::Tombstone() == bucket.entry) {
       // Ignore tombstones.
     }
@@ -120,7 +120,7 @@ void ChainIterBase<HT>::advance()
       return;
     }
 
-    bucket_type &bucket = m_pHashTable->bucket(m_Index);
+    const bucket_type &bucket = m_pHashTable->bucket(m_Index);
 
     if (hash_table::Tombstone() == bucket.entry ||
         hash_table::EmptyBucket() == bucket.entry) {
