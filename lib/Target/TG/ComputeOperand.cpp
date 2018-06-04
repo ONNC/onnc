@@ -13,7 +13,7 @@ std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem)
 
 MemOperand::MemOperand(std::string pName,
                        const std::vector< ::onnx::Dimension> &pDim,
-                       ::onnx::TensorProto_DataType pType, int pTag)
+                       ::onnx::TensorProto_DataType pType, MemType pMemType)
 {
   name = pName;
   addr = 0x0;
@@ -23,7 +23,7 @@ MemOperand::MemOperand(std::string pName,
   }
   size = 0;
   type = pType;
-  tag = pTag;
+  memType = pMemType;
 }
 
 ComputeOperand2::ComputeOperand2(const ::onnx::Node &pNode,
@@ -36,14 +36,20 @@ ComputeOperand2::ComputeOperand2(const ::onnx::Node &pNode,
 void ComputeOperand2::memAlloc(MemTable &pPMemLayout)
 {
   for (auto &i : m_MemOperands) {
-    if (pPMemLayout.find(i.name) != pPMemLayout.end())
-      i.addr = pPMemLayout[i.name];
+    if (pPMemLayout.find(i->name) != pPMemLayout.end())
+      i->addr = pPMemLayout[i->name];
   }
 }
 
 void ComputeOperand2::print(OStream &pOS) const
 {
   pOS << m_TypeName << " " << m_LayerName << "\n";
+}
+
+ComputeOperand2 *ComputeOperand2::addMemOperand(MemOperand *pMemOperand)
+{
+  m_MemOperands.push_back(pMemOperand);
+  return this;
 }
 
 } // namespace onnc

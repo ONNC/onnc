@@ -9,17 +9,18 @@ TGRelu::TGRelu(const ::onnx::Node &pNode)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
 
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
+  // auto inputs = pNode.inputs();
+  // auto outputs = pNode.outputs();
 
-  // input
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // output
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
+  //// input
+  // m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
+  //                                   inputs[0]->sizes(),
+  //                                   inputs[0]->elemType(), MemType::NEURON));
+  //// output
+  // m_MemOperands.push_back(MemOperand(outputs[0]->uniqueName(),
+  //                                   outputs[0]->sizes(),
+  //                                   outputs[0]->elemType(),
+  //                                   MemType::NEURON));
 
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
@@ -38,11 +39,11 @@ TGRelu::TGRelu(const ::onnx::Node &pNode)
 
 void TGRelu::emit() const
 {
-  std::cout << "TGRelu::emit\tm_inputAddr:" << m_MemOperands[0].addr
-            << " m_outputAddr:" << m_MemOperands[1].addr
+  std::cout << "TGRelu::emit\tm_inputAddr:" << m_MemOperands[0]->addr
+            << " m_outputAddr:" << m_MemOperands[1]->addr
             << " m_negativeSlope:" << m_negativeSlope << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
   bmnet::bmnet_relu_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0].addr,
-      m_MemOperands[1].addr, m_negativeSlope, m_N, m_C, m_H, m_W);
+      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
+      m_MemOperands[1]->addr, m_negativeSlope, m_N, m_C, m_H, m_W);
 }

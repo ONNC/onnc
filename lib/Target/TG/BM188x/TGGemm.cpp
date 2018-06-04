@@ -19,26 +19,6 @@ TGGemm::TGGemm(const ::onnx::Node &pNode,
       m_LayerCtable(pLayerCtable)
 {
 
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
-
-  // input
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // weight
-  m_MemOperands.push_back(MemOperand(inputs[1]->uniqueName(),
-                                     inputs[1]->sizes(), inputs[1]->elemType(),
-                                     GLOBAL_WEIGHT_TAG));
-  // bias
-  m_MemOperands.push_back(MemOperand(inputs[2]->uniqueName(),
-                                     inputs[2]->sizes(), inputs[2]->elemType(),
-                                     GLOBAL_WEIGHT_TAG));
-  // output
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
-
   const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
   const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();
   m_inRowNum = aDim[0].dim;
@@ -58,10 +38,10 @@ TGGemm::TGGemm(const ::onnx::Node &pNode,
 
 void TGGemm::print(OStream &pOS) const
 {
-  pOS << m_MemOperands[3] << " = Gemm <inRowNum:" << m_inRowNum
+  pOS << *m_MemOperands[3] << " = Gemm <inRowNum:" << m_inRowNum
       << ", inColNum:" << m_inColNum << ", outColNum:" << m_outColNum
-      << ", m_weightTp:" << m_weightTp << "> (" << m_MemOperands[0] << ", "
-      << m_MemOperands[1] << ", " << m_MemOperands[2] << ")\n";
+      << ", m_weightTp:" << m_weightTp << "> (" << *m_MemOperands[0] << ", "
+      << *m_MemOperands[1] << ", " << *m_MemOperands[2] << ")\n";
 }
 
 void TGGemm::emit() const
@@ -70,25 +50,25 @@ void TGGemm::emit() const
   int rShiftWidth = m_LayerCtable.right_shift_width();
   bmnet::bmnet_fc_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_Ctx,
-      m_MemOperands[0].addr, // input_data_gaddr
-      m_MemOperands[1].addr, // weight_data_gaddr
-      m_MemOperands[2].addr, // bias_data_gaddr
-      m_MemOperands[3].addr, // output_data_gaddr
-      m_inRowNum,            // input_row_num
-      m_inColNum,            // input_col_num
-      m_outColNum,           // weight_col_num
-      m_haveBias,            // have_bias
-      0,                     // do_activation
-      0,                     // activation_method
-      GADDR_INVALID,         // activation_ga_slope
-      0,                     // activation_channel_shared
-      0,                     // activation_gt_scale
-      0,                     // activation_gt_rshift
-      0,                     // activation_le_scale
-      0,                     // activation_le_rshift
-      m_weightTp,            // weight_transpose
-      0,                     // left_shift_width //TODO
-      rShiftWidth            // right_shift_width
+      m_MemOperands[0]->addr, // input_data_gaddr
+      m_MemOperands[1]->addr, // weight_data_gaddr
+      m_MemOperands[2]->addr, // bias_data_gaddr
+      m_MemOperands[3]->addr, // output_data_gaddr
+      m_inRowNum,             // input_row_num
+      m_inColNum,             // input_col_num
+      m_outColNum,            // weight_col_num
+      m_haveBias,             // have_bias
+      0,                      // do_activation
+      0,                      // activation_method
+      GADDR_INVALID,          // activation_ga_slope
+      0,                      // activation_channel_shared
+      0,                      // activation_gt_scale
+      0,                      // activation_gt_rshift
+      0,                      // activation_le_scale
+      0,                      // activation_le_rshift
+      m_weightTp,             // weight_transpose
+      0,                      // left_shift_width //TODO
+      rShiftWidth             // right_shift_width
   );
 }
 

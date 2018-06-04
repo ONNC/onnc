@@ -17,26 +17,6 @@ TGConv::TGConv(const ::onnx::Node &pNode,
       m_dilationW(1), m_padH(0), m_padW(0), m_strideH(1), m_strideW(1),
       m_doBias(0), m_LayerCtable(pLayerCtable)
 {
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
-
-  // ifmap
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // weight
-  m_MemOperands.push_back(MemOperand(inputs[1]->uniqueName(),
-                                     inputs[1]->sizes(), inputs[1]->elemType(),
-                                     GLOBAL_WEIGHT_TAG));
-  // ofmap
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
-  // bias
-  m_MemOperands.push_back(MemOperand(inputs[2]->uniqueName(),
-                                     inputs[2]->sizes(), inputs[2]->elemType(),
-                                     GLOBAL_WEIGHT_TAG));
-
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_inN = inDim[0].dim;
   m_inC = inDim[1].dim;
@@ -76,7 +56,7 @@ TGConv::TGConv(const ::onnx::Node &pNode,
 
 void TGConv::print(OStream &pOS) const
 {
-  pOS << m_MemOperands[2] << " = Conv <inN:" << m_inN << ", inC:" << m_inC
+  pOS << *m_MemOperands[2] << " = Conv <inN:" << m_inN << ", inC:" << m_inC
       << ", inH:" << m_inH << ", inW:" << m_inW << ", outC:" << m_outC
       << ", groups:" << m_groups << ", kH:" << m_kH << ", kW:" << m_kW
       << ", dilationH:" << m_dilationH << ", dilationW:" << m_dilationW
@@ -84,8 +64,8 @@ void TGConv::print(OStream &pOS) const
       << ", strideH:" << (int)m_strideH << ", strideW:" << (int)m_strideW
       << ", m_doBias:" << m_doBias
       << ", rShiftWidth:" << m_LayerCtable.right_shift_width() << "> ("
-      << m_MemOperands[0] << ", " << m_MemOperands[1] << ", "
-      << m_MemOperands[3] << ")\n";
+      << *m_MemOperands[0] << ", " << *m_MemOperands[1] << ", "
+      << *m_MemOperands[3] << ")\n";
 }
 
 void TGConv::emit() const
@@ -95,11 +75,11 @@ void TGConv::emit() const
   int rShiftWidth = m_LayerCtable.right_shift_width();
 
   bmnet::bmnet_conv_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_Ctx, m_MemOperands[0].addr, // ifmap
-      m_MemOperands[2].addr,                                      // ofmap
-      m_MemOperands[1].addr,                                      // weight
-      m_MemOperands[3].addr,                                      // bias
-      GADDR_INVALID,                                              // ga_bn_mean,
+      *bm1880_kernel::getInstance().m_Ctx, m_MemOperands[0]->addr, // ifmap
+      m_MemOperands[2]->addr,                                      // ofmap
+      m_MemOperands[1]->addr,                                      // weight
+      m_MemOperands[3]->addr,                                      // bias
+      GADDR_INVALID, // ga_bn_mean,
       GADDR_INVALID, // ga_bn_variance,
       GADDR_INVALID, // ga_scale,
       GADDR_INVALID, // ga_scale_bias,

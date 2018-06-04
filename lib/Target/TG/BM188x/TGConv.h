@@ -2,6 +2,7 @@
 #define ONNX_BM1880_TGCONV_H
 
 #include "ComputeOperand.h"
+#include "TGBackend.h"
 #include "common_calibration.pb.h"
 #include <onnx/common/ir.h>
 

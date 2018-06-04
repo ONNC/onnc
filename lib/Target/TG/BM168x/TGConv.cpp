@@ -14,25 +14,28 @@ TGConv::TGConv(const ::onnx::Node &pNode)
       m_dilationW(1), m_padH(0), m_padW(0), m_strideH(1), m_strideW(1),
       m_doBias(0)
 {
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
+  // auto inputs = pNode.inputs();
+  // auto outputs = pNode.outputs();
 
-  // ifmap
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // weight
-  m_MemOperands.push_back(MemOperand(inputs[1]->uniqueName(),
-                                     inputs[1]->sizes(), inputs[1]->elemType(),
-                                     GLOBAL_WEIGHT_TAG));
-  // bias
-  m_MemOperands.push_back(MemOperand(inputs[2]->uniqueName(),
-                                     inputs[2]->sizes(), inputs[2]->elemType(),
-                                     GLOBAL_WEIGHT_TAG));
-  // ofmap
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
+  //// ifmap
+  // m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
+  //                                   inputs[0]->sizes(),
+  //                                   inputs[0]->elemType(),
+  //                                   GLOBAL_NEURON_TAG));
+  //// weight
+  // m_MemOperands.push_back(MemOperand(inputs[1]->uniqueName(),
+  //                                   inputs[1]->sizes(),
+  //                                   inputs[1]->elemType(),
+  //                                   GLOBAL_WEIGHT_TAG));
+  //// bias
+  // m_MemOperands.push_back(MemOperand(inputs[2]->uniqueName(),
+  //                                   inputs[2]->sizes(),
+  //                                   inputs[2]->elemType(),
+  //                                   GLOBAL_WEIGHT_TAG));
+  //// ofmap
+  // m_MemOperands.push_back(
+  //    MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
+  //               outputs[0]->elemType(), GLOBAL_NEURON_TAG));
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_inN = inDim[0].dim;
@@ -73,10 +76,10 @@ TGConv::TGConv(const ::onnx::Node &pNode)
 
 void TGConv::emit() const
 {
-  DEBUG(dbgs() << "TGConv::emit\tm_ifmapAddr:" << m_MemOperands[0].addr
-               << " m_ofmapAddr:" << m_MemOperands[2].addr
-               << " m_weightAddr:" << m_MemOperands[1].addr
-               << " m_biasAddr:" << m_MemOperands[3].addr << " m_inN:" << m_inN
+  DEBUG(dbgs() << "TGConv::emit\tm_ifmapAddr:" << m_MemOperands[0]->addr
+               << " m_ofmapAddr:" << m_MemOperands[2]->addr
+               << " m_weightAddr:" << m_MemOperands[1]->addr
+               << " m_biasAddr:" << m_MemOperands[3]->addr << " m_inN:" << m_inN
                << " m_inC:" << m_inC << " m_inH:" << m_inH << " m_inW:" << m_inW
                << " m_outC:" << m_outC << " m_groups:" << m_groups << " m_kH:"
                << m_kH << " m_kW:" << m_kW << " m_dilationH:" << m_dilationH
@@ -85,8 +88,8 @@ void TGConv::emit() const
                << " m_strideW:" << (int)m_strideW << " m_doBias:" << m_doBias
                << std::endl;);
   bmnet::bmnet_conv_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0].addr,
-      m_MemOperands[2].addr, m_MemOperands[1].addr, m_MemOperands[3].addr,
+      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
+      m_MemOperands[2]->addr, m_MemOperands[1]->addr, m_MemOperands[3]->addr,
       GADDR_INVALID, // ga_bn_mean,
       GADDR_INVALID, // ga_bn_variance,
       GADDR_INVALID, // ga_scale,

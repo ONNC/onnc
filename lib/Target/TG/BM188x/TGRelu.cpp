@@ -13,19 +13,6 @@ TGRelu::TGRelu(const ::onnx::Node &pNode,
       m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
-
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
-
-  // input
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // output
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
-
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;
@@ -43,9 +30,9 @@ TGRelu::TGRelu(const ::onnx::Node &pNode,
 
 void TGRelu::print(OStream &pOS) const
 {
-  pOS << m_MemOperands[1] << " = ReLU <negativeSlope:" << m_negativeSlope
+  pOS << *m_MemOperands[1] << " = ReLU <negativeSlope:" << m_negativeSlope
       << ", N:" << m_N << ", C:" << m_C << ", H:" << m_H << ", W:" << m_W
-      << "> (" << m_MemOperands[1] << ")\n";
+      << "> (" << *m_MemOperands[1] << ")\n";
 }
 
 void TGRelu::emit() const
@@ -54,13 +41,13 @@ void TGRelu::emit() const
 
   bmnet::bmnet_relu_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_Ctx,
-      m_MemOperands[0].addr, // input_gaddr
-      m_MemOperands[1].addr, // output_gaddr
-      m_negativeSlope,       // negative_slope
-      m_N,                   // input_n
-      m_C,                   // input_c
-      m_H,                   // input_h
-      m_W                    // input_w
+      m_MemOperands[0]->addr, // input_gaddr
+      m_MemOperands[1]->addr, // output_gaddr
+      m_negativeSlope,        // negative_slope
+      m_N,                    // input_n
+      m_C,                    // input_c
+      m_H,                    // input_h
+      m_W                     // input_w
   );
 }
 

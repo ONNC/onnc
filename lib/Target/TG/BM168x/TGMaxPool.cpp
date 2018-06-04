@@ -9,17 +9,18 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
       m_strideW(1)
 {
 
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
+  // auto inputs = pNode.inputs();
+  // auto outputs = pNode.outputs();
 
-  // input
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // output
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
+  //// input
+  // m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
+  //                                   inputs[0]->sizes(),
+  //                                   inputs[0]->elemType(), MemType::NEURON));
+  //// output
+  // m_MemOperands.push_back(MemOperand(outputs[0]->uniqueName(),
+  //                                   outputs[0]->sizes(),
+  //                                   outputs[0]->elemType(),
+  //                                   MemType::NEURON));
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
@@ -45,8 +46,8 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
 
 void TGMaxPool::emit() const
 {
-  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0].addr
-            << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
+  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0]->addr
+            << " m_outputAddr:" << m_MemOperands[1]->addr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
             << " m_kH:" << m_kH << " m_kW:" << m_kW << " m_padH:" << m_padH
             << " m_padW:" << m_padW << " m_srideH:" << m_strideH
@@ -54,8 +55,8 @@ void TGMaxPool::emit() const
 
   // bmnet_pooling_forward_bmkernel
   bmnet::bmnet_pooling_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0].addr,
-      m_MemOperands[1].addr,
+      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
+      m_MemOperands[1]->addr,
       GADDR_INVALID, // useless oindex_gaddr
       GADDR_INVALID, // useless relu_gaddr
       m_N, m_C, m_H, m_W, m_kH, m_kW, m_padH, m_padW, m_strideH, m_strideW,

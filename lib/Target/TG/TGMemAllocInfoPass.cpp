@@ -41,34 +41,20 @@ void TGMemAllocInfo::ddrAllocInfo()
 
   DEBUG(dbgs() << __func__ << " dump global memory layout:"
                << "\n";);
-  std::map<std::string, MemOperand *> memoryMap;
-  for (auto &inst : m_pTarget->getInsts()) {
-    DEBUG(dbgs() << tab << "=== Inst: " << inst->getLayerName() << "\n";);
-    for (auto &mem : inst->getMemOprnds()) {
-      int tensor_size = 0;
-      if (memoryMap.find(mem.name) != memoryMap.end()) {
-        mem.addr = memoryMap.at(mem.name)->addr;
-        mem.size = memoryMap.at(mem.name)->size;
-        continue;
-      }
-      if (mem.tag == GLOBAL_NEURON_TAG) {
-        mem.addr = neuron_offset;
-        tensor_size = m_pTarget->sizeOfTensorType(mem.type) * mem.count;
-        neuron_offset += tensor_size;
-      } else if (mem.tag == GLOBAL_WEIGHT_TAG) {
-        mem.addr = weight_offset;
-        tensor_size = m_pTarget->sizeOfTensorType(mem.type) * mem.count;
-        weight_offset += tensor_size;
-      } else {
-        errs() << Color::RED << "Error" << Color::RESET
-               << ": Unsupport mem type " << mem.tag << "\n";
-        assert(0);
-      }
-      mem.size = tensor_size;
-      memoryMap.insert({ mem.name, &mem });
-      DEBUG(dbgs() << tab << mem << "\n");
+  for (auto &mem : m_pTarget->getMemOperands()) {
+    int tensor_size = 0;
+    if (mem->memType == MemType::NEURON) {
+      mem->addr = neuron_offset;
+      tensor_size = m_pTarget->sizeOfTensorType(mem->type) * mem->count;
+      neuron_offset += tensor_size;
+    } else if (mem->memType == MemType::WEIGHT) {
+      mem->addr = weight_offset;
+      tensor_size = m_pTarget->sizeOfTensorType(mem->type) * mem->count;
+      weight_offset += tensor_size;
     }
-  }
+    mem->size = tensor_size;
+    DEBUG(dbgs() << tab << mem << "\n");
+    }
 }
 
 } // anonymous namespace

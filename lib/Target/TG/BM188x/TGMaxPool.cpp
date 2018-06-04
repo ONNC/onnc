@@ -12,19 +12,6 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode,
     : ComputeOperand2(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
       m_strideW(1), m_LayerCtable(pLayerCtable)
 {
-
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
-
-  // input
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // output
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
-
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
@@ -50,10 +37,10 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode,
 void TGMaxPool::print(OStream &pOS) const
 {
 
-  pOS << m_MemOperands[1] << " = MaxPool <N:" << m_N << ", C:" << m_C
+  pOS << *m_MemOperands[1] << " = MaxPool <N:" << m_N << ", C:" << m_C
       << ", H:" << m_H << ", W:" << m_W << ",  kH:" << m_kH << ", kW:" << m_kW
       << ", padH:" << m_padH << ", padW:" << m_padW << ", srideH:" << m_strideH
-      << ", strideW:" << m_strideW << "> (" << m_MemOperands[0] << ")\n";
+      << ", strideW:" << m_strideW << "> (" << *m_MemOperands[0] << ")\n";
 }
 
 void TGMaxPool::emit() const
@@ -64,10 +51,10 @@ void TGMaxPool::emit() const
   const int *thresholdXQuantized = m_LayerCtable.threshold_x_quantized().data();
   bmnet::bmnet_pooling_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_Ctx,
-      m_MemOperands[0].addr, // ifmap_gaddr
-      m_MemOperands[1].addr, // ofmap_gaddr
-      GADDR_INVALID,         // index_gaddr
-      GADDR_INVALID,         // o_findex_gaddr
+      m_MemOperands[0]->addr, // ifmap_gaddr
+      m_MemOperands[1]->addr, // ofmap_gaddr
+      GADDR_INVALID,          // index_gaddr
+      GADDR_INVALID,          // o_findex_gaddr
       m_N, m_C, m_H, m_W, m_kH, m_kW, m_padH, m_padW, m_strideH, m_strideW,
       0,                  // is_avg_pooling
       0.0f,               // avg_const

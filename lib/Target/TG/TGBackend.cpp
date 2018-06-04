@@ -10,6 +10,7 @@
 #include "BM188x/BM188xBackend.h"
 #include "TG.h"
 #include "TargetInfo/TGTargetInfo.h"
+#include <algorithm>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Target/TargetRegistry.h>
@@ -28,6 +29,9 @@ TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
 
 TGBackend::~TGBackend()
 {
+  for (auto &memOp : m_memOperands) {
+    delete (memOp);
+  }
   delete m_pTLI;
   delete m_pCE;
 }
@@ -96,6 +100,23 @@ void TGBackend::setCtableProto(const std::string &pTextString)
     // implemnt this function when target has ctable
     assert(0);
   }
+}
+
+MemOperand *TGBackend::getMemOperand(const ::onnx::Value *pValue,
+                                     MemType pMemType, const std::string &pName)
+{
+  std::string name = pName;
+  if (pName.empty())
+    name = pValue->uniqueName();
+  auto it = std::find_if(m_memOperands.begin(), m_memOperands.end(),
+                         [&](const auto &elem) { return elem->name == name; });
+  if (it != m_memOperands.end()) {
+    return *it;
+  }
+  MemOperand *memOp =
+      new MemOperand(name, pValue->sizes(), pValue->elemType(), pMemType);
+  m_memOperands.push_back(memOp);
+  return memOp;
 }
 
 //===----------------------------------------------------------------------===//

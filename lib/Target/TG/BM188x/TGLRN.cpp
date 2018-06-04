@@ -5,21 +5,10 @@
 namespace onnc {
 namespace BM188X {
 
-TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperand2(pNode, "LRN"), m_k(1)
+TGLRN::TGLRN(const ::onnx::Node &pNode,
+             const LayerCalibrationParameter &pLayerCtable)
+    : ComputeOperand2(pNode, "LRN"), m_k(1)
 {
-
-  auto inputs = pNode.inputs();
-  auto outputs = pNode.outputs();
-
-  // input
-  m_MemOperands.push_back(MemOperand(inputs[0]->uniqueName(),
-                                     inputs[0]->sizes(), inputs[0]->elemType(),
-                                     GLOBAL_NEURON_TAG));
-  // output
-  m_MemOperands.push_back(
-      MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
-                 outputs[0]->elemType(), GLOBAL_NEURON_TAG));
-
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
@@ -36,8 +25,8 @@ TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperand2(pNode, "LRN"), m_k(1)
 
 void TGLRN::TGLRN::emit() const
 {
-  std::cout << "TGLRUN::emit\tm_inputAddr:" << m_MemOperands[0].addr
-            << " m_outputAddr:" << m_MemOperands[1].addr << " m_N:" << m_N
+  std::cout << "TGLRUN::emit\tm_inputAddr:" << m_MemOperands[0]->addr
+            << " m_outputAddr:" << m_MemOperands[1]->addr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
             << " m_alpha:" << m_alpha << "m_localSize:" << m_localSize
             << " m_beta:" << m_beta << "m_k:" << m_k << std::endl;
