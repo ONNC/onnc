@@ -4,7 +4,7 @@
 #; CHECK: <3200 x INT8>({{.*}}) %conv2_1 = Conv <inN:1, inC:14, inH:c, inW:c, outC:32, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_doBias:1, rShiftWidth:b> (<2880 x INT8>({{.*}}) %pool1_1, <25000 x INT8>({{.*}}) %conv2_w_0, <50 x INT16>({{.*}}) %conv2_b_0)
 #; CHECK: <800 x INT8>({{.*}}) %pool2_1 = MaxPool <N:1, C:32, H:8, W:8,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2> (<3200 x INT8>({{.*}}) %conv2_1)
 #; CHECK: <500 x INT8>({{.*}}) %ip1_1 = Gemm <inRowNum:1, inColNum:320, outColNum:1f4, m_weightTp:1> (<800 x INT8>({{.*}}) %OC2_DUMMY_0, <400000 x INT8>({{.*}}) %ip1_w_0, <500 x INT16>({{.*}}) %ip1_b_0)
-#; CHECK: <500 x INT8>({{.*}}) %relu1_1 = ReLU <negativeSlope:0, N:1, C:1, H:1, W:1f4> (<500 x INT8>({{.*}}) %relu1_1)
+#; CHECK: <500 x INT8>({{.*}}) %relu1_1 = ReLU <negativeSlope:0, N:1, C:1, H:1f4, W:1> (<500 x INT8>({{.*}}) %relu1_1)
 #; CHECK: <10 x INT8>({{.*}}) %ip2_1 = Gemm <inRowNum:1, inColNum:1f4, outColNum:a, m_weightTp:1> (<500 x INT8>({{.*}}) %relu1_1, <5000 x INT8>({{.*}}) %ip2_w_0, <10 x INT16>({{.*}}) %ip2_b_0)
 
 ir_version: 3

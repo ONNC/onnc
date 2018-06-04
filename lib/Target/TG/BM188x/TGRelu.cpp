@@ -19,10 +19,10 @@ TGRelu::TGRelu(const ::onnx::Node &pNode,
     m_H = inDim[2].dim;
     m_W = inDim[3].dim;
   } else if (inDim.size() == 2) {
-    m_N = 1;
+    m_N = inDim[0].dim;
     m_C = 1;
-    m_H = inDim[0].dim;
-    m_W = inDim[1].dim;
+    m_H = inDim[1].dim;
+    m_W = 1;
   } else {
     assert(0 && "inDim.size() != 4 & !=2");
   }
