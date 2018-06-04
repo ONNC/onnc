@@ -229,12 +229,16 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
   } // while !worklist.empty() || !isAllExeResEmpty()
 
   // Reorder the IR position based on scheduling result.
-  for (unsigned i = 1; i < m_SchedTimeLine.size(); ++i) {
-    onnx::Node *prev = m_SchedTimeLine[i - 1].node,
-               *next = m_SchedTimeLine[i].node;
+  auto it = graph.begin();
+  if (it->kind() == onnx::kUndefined)
+    ++it;
 
-    if (!prev->isBefore(next))
-      prev->moveBefore(next);
+  for (unsigned i = 0; i < m_SchedTimeLine.size(); ++i) {
+    onnx::Node *n = m_SchedTimeLine[i].node;
+    if (*it != n)
+      n->moveBefore(*it);
+    else
+      ++it;
   }
 
   return kModuleChanged;
