@@ -5,11 +5,9 @@ namespace onnc {
 
 std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem)
 {
-  pOS << "MemOP = " << pMem.name << ", addr = 0x" << std::hex << std::uppercase
-      << std::setw(8) << std::setfill('0') << pMem.addr
-      << ", size = " << std::dec << pMem.size << "(count = " << pMem.count
-      << ")"
-      << ", tag = " << pMem.tag << ", type = " << pMem.type;
+  pOS << "<" << std::dec << pMem.count << " x "
+      << TensorProto_DataType_Name(pMem.type) << ">(0x" << std::hex << pMem.addr
+      << ") %" << pMem.name;
   return pOS;
 }
 
