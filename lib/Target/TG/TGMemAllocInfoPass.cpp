@@ -41,8 +41,14 @@ void TGMemAllocInfo::ddrAllocInfo()
 
   DEBUG(dbgs() << __func__ << " dump global memory layout:"
                << "\n";);
+  std::unordered_map<const ::onnx::Value *, MemOperand*> allocatedValue;
   for (auto &mem : m_pTarget->getMemOperands()) {
     int tensor_size = 0;
+    if (allocatedValue.count(mem->value)) {
+      mem->addr = allocatedValue[mem->value]->addr;
+      mem->size = allocatedValue[mem->value]->size;
+      continue;
+    }
     if (mem->memType == MemType::NEURON) {
       mem->addr = neuron_offset;
       tensor_size = m_pTarget->sizeOfTensorType(mem->type) * mem->count;
@@ -53,8 +59,9 @@ void TGMemAllocInfo::ddrAllocInfo()
       weight_offset += tensor_size;
     }
     mem->size = tensor_size;
+    allocatedValue.insert({ mem->value, mem });
     DEBUG(dbgs() << tab << mem << "\n");
-    }
+  }
 }
 
 } // anonymous namespace

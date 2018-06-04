@@ -113,8 +113,7 @@ MemOperand *TGBackend::getMemOperand(const ::onnx::Value *pValue,
   if (it != m_memOperands.end()) {
     return *it;
   }
-  MemOperand *memOp =
-      new MemOperand(name, pValue->sizes(), pValue->elemType(), pMemType);
+  MemOperand *memOp = new MemOperand(name, pValue, pMemType);
   m_memOperands.push_back(memOp);
   return memOp;
 }

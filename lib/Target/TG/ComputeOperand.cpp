@@ -11,19 +11,16 @@ std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem)
   return pOS;
 }
 
-MemOperand::MemOperand(std::string pName,
-                       const std::vector< ::onnx::Dimension> &pDim,
-                       ::onnx::TensorProto_DataType pType, MemType pMemType)
+MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
+                       MemType pMemType)
+    : name(pName), addr(0x0), size(0), type(pValue->elemType()),
+      memType(pMemType), value(pValue)
 {
-  name = pName;
-  addr = 0x0;
   count = 1;
-  for (size_t i = 0; i < pDim.size(); i++) {
-    count *= pDim[i].dim;
+  auto &dim = pValue->sizes();
+  for (size_t i = 0; i < dim.size(); i++) {
+    count *= dim[i].dim;
   }
-  size = 0;
-  type = pType;
-  memType = pMemType;
 }
 
 ComputeOperand2::ComputeOperand2(const ::onnx::Node &pNode,

@@ -18,8 +18,8 @@ struct MemOperand {
   size_t size;
   ::onnx::TensorProto_DataType type;
   MemType memType;
-  MemOperand(std::string pName, const std::vector< ::onnx::Dimension> &pDim,
-             ::onnx::TensorProto_DataType pType, MemType pMemType);
+  const ::onnx::Value *value;
+  MemOperand(std::string pName, const ::onnx::Value *pValue, MemType pMemType);
 };
 
 std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem);
