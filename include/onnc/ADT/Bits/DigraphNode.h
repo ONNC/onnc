@@ -60,6 +60,14 @@ public:
   const ArcType* getLastOutArc() const;
 
   ArcType* getLastOutArc();
+
+  /// include <onnc/ADT/Bits/DigraphSupport.h>
+  /// time complexity O(n)
+  unsigned int getNumOfOutArcs() const;
+
+  /// include <onnc/ADT/Bits/DigraphSupport.h>
+  /// time complexity O(n)
+  unsigned int getNumOfInArcs() const;
 };
 
 //===----------------------------------------------------------------------===//
