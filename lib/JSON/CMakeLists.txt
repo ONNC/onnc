@@ -24,4 +24,4 @@ add_libonnc_src(
     String.cpp
     Value.cpp)
 
-add_dependencies(${cur_target} gen_json_scanner gen_json_parser)
+add_dependencies(code_gen gen_json_scanner gen_json_parser)

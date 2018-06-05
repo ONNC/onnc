@@ -153,6 +153,7 @@ configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.
 # Other
 set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address)
 add_compile_options(${ANDROID_CPPFLAGS})
+add_custom_target(code_gen)
 add_subdirectory(lib)
 add_subdirectory(tools)
 add_subdirectory(include)
