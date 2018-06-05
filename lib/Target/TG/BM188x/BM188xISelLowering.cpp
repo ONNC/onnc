@@ -37,30 +37,21 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
   auto *input = m_pBackend->getMemOperand(inputs[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(outputs[0], MemType::NEURON);
   if (symbol == ::onnx::Symbol("Conv")) {
-    ComputeOperand2 *op = new BM188X::TGConv(pNode, layerCtable);
     auto *weight = m_pBackend->getMemOperand(inputs[1], MemType::WEIGHT);
     auto *bias = m_pBackend->getMemOperand(inputs[2], MemType::WEIGHT);
-    return op->addMemOperand(input)
-        ->addMemOperand(weight)
-        ->addMemOperand(output)
-        ->addMemOperand(bias);
+    auto *op = new BM188X::TGConv(pNode, layerCtable);
+    return op->addMemOperands(input, output, weight, bias);
   } else if (symbol == ::onnx::Symbol("Relu")) {
-    ComputeOperand2 *op = new BM188X::TGRelu(pNode, layerCtable);
-    return op->addMemOperand(input)->addMemOperand(output);
-  } else if (symbol == ::onnx::Symbol("LRN")) {
-    ComputeOperand2 *op = new BM188X::TGLRN(pNode, layerCtable);
-    return op->addMemOperand(input)->addMemOperand(output);
+    auto *op = new BM188X::TGRelu(pNode, layerCtable);
+    return op->addMemOperands(input, output);
   } else if (symbol == ::onnx::Symbol("MaxPool")) {
-    ComputeOperand2 *op = new BM188X::TGMaxPool(pNode, layerCtable);
+    auto *op = new BM188X::TGMaxPool(pNode, layerCtable);
     return op->addMemOperand(input)->addMemOperand(output);
   } else if (symbol == ::onnx::Symbol("Gemm")) {
-    ComputeOperand2 *op = new BM188X::TGGemm(pNode, layerCtable);
     auto *weight = m_pBackend->getMemOperand(inputs[1], MemType::WEIGHT);
     auto *bias = m_pBackend->getMemOperand(inputs[2], MemType::WEIGHT);
-    return op->addMemOperand(input)
-        ->addMemOperand(weight)
-        ->addMemOperand(bias)
-        ->addMemOperand(output);
+    auto *op = new BM188X::TGGemm(pNode, layerCtable);
+    return op->addMemOperands(input, output, weight, bias);
   }
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);

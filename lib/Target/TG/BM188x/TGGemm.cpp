@@ -36,6 +36,16 @@ TGGemm::TGGemm(const ::onnx::Node &pNode,
   }
 }
 
+TGGemm *TGGemm::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
+                               MemOperand *pWeight, MemOperand *pBias)
+{
+  m_MemOperands.push_back(pInput);
+  m_MemOperands.push_back(pWeight);
+  m_MemOperands.push_back(pBias);
+  m_MemOperands.push_back(pOutput);
+  return this;
+}
+
 void TGGemm::print(OStream &pOS) const
 {
   pOS << *m_MemOperands[3] << " = Gemm <inRowNum:" << m_inRowNum

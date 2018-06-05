@@ -16,6 +16,8 @@ public:
          const LayerCalibrationParameter &pLayerCtable);
   void emit() const override;
   void print(OStream &pOS) const override;
+  TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
+                         MemOperand *pWeight, MemOperand *pBias);
 
 private:
   int m_inRowNum;

@@ -54,6 +54,16 @@ TGConv::TGConv(const ::onnx::Node &pNode,
   }
 }
 
+TGConv *TGConv::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
+                               MemOperand *pWeight, MemOperand *pBias)
+{
+  m_MemOperands.push_back(pInput);
+  m_MemOperands.push_back(pWeight);
+  m_MemOperands.push_back(pOutput);
+  m_MemOperands.push_back(pBias);
+  return this;
+}
+
 void TGConv::print(OStream &pOS) const
 {
   pOS << *m_MemOperands[2] << " = Conv <inN:" << m_inN << ", inC:" << m_inC

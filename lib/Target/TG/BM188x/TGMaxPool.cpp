@@ -34,6 +34,13 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode,
   }
 }
 
+TGMaxPool *TGMaxPool::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
+{
+  m_MemOperands.push_back(pInput);
+  m_MemOperands.push_back(pOutput);
+  return this;
+}
+
 void TGMaxPool::print(OStream &pOS) const
 {
 

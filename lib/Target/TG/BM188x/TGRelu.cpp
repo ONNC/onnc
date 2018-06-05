@@ -28,6 +28,13 @@ TGRelu::TGRelu(const ::onnx::Node &pNode,
   }
 }
 
+TGRelu *TGRelu::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
+{
+  m_MemOperands.push_back(pInput);
+  m_MemOperands.push_back(pOutput);
+  return this;
+}
+
 void TGRelu::print(OStream &pOS) const
 {
   pOS << *m_MemOperands[1] << " = ReLU <negativeSlope:" << m_negativeSlope

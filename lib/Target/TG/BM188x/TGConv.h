@@ -18,6 +18,8 @@ public:
 
   void emit() const override;
   void print(OStream &pOS) const override;
+  TGConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
+                         MemOperand *pWeight, MemOperand *pBias);
 
 private:
   int m_inN, m_inC, m_inH, m_inW;

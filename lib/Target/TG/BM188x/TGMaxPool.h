@@ -17,6 +17,7 @@ public:
 
   void emit() const override;
   void print(OStream &pOS) const override;
+  TGMaxPool *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
 
 private:
   int m_N;

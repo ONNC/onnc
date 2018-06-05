@@ -17,6 +17,7 @@ public:
 
   void emit() const override;
   void print(OStream &pOS) const override;
+  TGRelu *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
 
 private:
   float m_negativeSlope;
