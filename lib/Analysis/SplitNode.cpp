@@ -16,11 +16,18 @@ using namespace onnc;
 static const onnx::NodeKind g_LoadKind = onnx::Symbol("Load");
 static const onnx::NodeKind g_StoreKind = onnx::Symbol("Store");
 
+static LongInts GetOutputValueSizes(const onnx::Node& pN)
+{
+  if (pN.outputs().size())
+    return GetValueSizes(*pN.outputs()[0]);
+  return {};
+}
+
 //===----------------------------------------------------------------------===//
 // SplitNode
 //===----------------------------------------------------------------------===//
 SplitNode::SplitNode(onnx::Node& pN)
-  : m_OutSizes(GetValueSizes(*pN.outputs()[0])), m_Node(pN) {
+  : m_OutSizes(GetOutputValueSizes(pN)), m_Node(pN) {
   m_NewOutSizes = m_OutSizes;
 }
 
@@ -46,20 +53,121 @@ static SplitNode* SplitNodeCreator(onnx::Node& pN);
 //===----------------------------------------------------------------------===//
 // SplitNodeManager
 //===----------------------------------------------------------------------===//
+void SplitGroup::resetToOrigSize()
+{
+  for (unsigned i = 0; i < m_Stores.size(); ++i) {
+    m_CurSplitAxis[i] = 0;
+    m_CurSplitFactor[i] = 1;
+  }
+
+  std::vector<SplitNode *> worklist(m_Stores);
+  while (!worklist.empty()) {
+    SplitNode *sn = worklist.back();
+    worklist.pop_back();
+
+    sn->resetSize();
+    // reset upper layer.
+    for (onnx::Value *v : sn->getNode().inputs()) {
+      onnx::Node *n = v->node();
+      if (m_SnMgr.hasSplitNode(n) || n->kind() == g_LoadKind)
+        continue;
+
+      worklist.push_back(m_SnMgr.getSplitNode(n));
+    }
+  }
+}
+
+void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
+                             ValMemSizeMap &pVMSMap)
+{
+  std::vector<SplitNode *> worklist(m_Stores);
+  while (!worklist.empty()) {
+    SplitNode *sn = worklist.back();
+    worklist.pop_back();
+
+    onnx::Node &n = sn->getNode();
+
+    // get required memory size of each input.
+    for (unsigned i = 0; i < n.inputs().size(); ++i) {
+      onnx::Value *v = n.inputs()[i];
+      pVMSMap[v] = pTTI->getOperatorInputMemUsage(&n, i,
+                                                  sn->calNewInputSize(i));
+    }
+
+    // get required memory size of each output.
+    for (unsigned i = 0; i < n.outputs().size(); ++i) {
+      onnx::Value *v = n.outputs()[i];
+      pVMSMap[v] = pTTI->getOperatorOutputMemUsage(&n, i,
+                                                   sn->calNewInputSize(i));
+    }
+
+    // add upper layer to worklist until load ir.
+    for (onnx::Value *v : n.inputs()) {
+      onnx::Node *upperN = v->node();
+      if (m_SnMgr.hasSplitNode(upperN) || upperN->kind() == g_LoadKind)
+        continue;
+
+      worklist.push_back(m_SnMgr.getSplitNode(upperN));
+    }
+  }
+}
+
+void SplitGroup::shrinkSize()
+{
+  // Shrink size, and propogate backward.
+  for (unsigned i = 0; i < m_Stores.size(); ++i) {
+    SplitNode *sn = m_Stores[i];
+
+    const TensorSizes &origSizes = sn->getNode().inputs()[0]->sizes();
+    unsigned &factor = m_CurSplitFactor[i],
+             &splitAxis = m_CurSplitAxis[i];
+    ++factor;
+    // Can't divide this axis further, try next axis.
+    if (origSizes[splitAxis].dim < factor) {
+      ++splitAxis;
+      factor = 1;
+    }
+
+    // Unable divide further.
+    if (origSizes.size() == splitAxis)
+      continue;
+
+    m_SnMgr.splitNodeByFactor(&sn->getNode(), splitAxis, factor, true);
+  }
+}
+
+void SplitGroup::addStore(SplitNode *pStore)
+{
+  m_Stores.push_back(pStore);
+  m_CurSplitAxis.push_back(0);
+  m_CurSplitFactor.push_back(1);
+}
+
+SplitGroup *SplitGroup::splitNewGroup()
+{
+  // choose a good split point.
+  SplitGroup *newgroup = nullptr;
+  return newgroup;
+}
+
+//===----------------------------------------------------------------------===//
+// SplitNodeManager
+//===----------------------------------------------------------------------===//
 SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
                                    DLATargetBackend& pDLATB)
   : m_DLATB(pDLATB), m_Graph(pGraph)
 {
-  m_Groups.resize(4);
+  m_Groups.push_back(new SplitGroup(*this));
 
   for (onnx::Node *n : pGraph.nodes()) {
     if (n->kind() == onnx::kUndefined)
       continue;
 
-    m_SplitInfos[n] = SplitNodeCreator(*n);
+    SplitNode *sn = SplitNodeCreator(*n);
+    m_SplitInfos[n] = sn;
 
     if (n->kind() == g_StoreKind)
-      m_Groups[0].push_back(n);
+      m_Groups[0]->addStore(sn);
   }
 }
 
@@ -73,6 +181,10 @@ void SplitNodeManager::clear()
   for (auto snIt : m_SplitInfos)
     delete snIt.second;
   m_SplitInfos.clear();
+
+  for (SplitGroup *sg : m_Groups)
+    delete sg;
+  m_Groups.clear();
 }
 
 SplitNode* SplitNodeManager::getSplitNode(onnx::Node* pN)
@@ -99,6 +211,11 @@ void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
   splitNodeBySize(pN, newS, pUpdateUpper);
 }
 
+bool SplitNodeManager::hasSplitNode(onnx::Node *pN) const
+{
+  return m_SplitInfos.find(pN) != m_SplitInfos.end();
+}
+
 bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
                                        const LongInts& pNewOutSize,
                                        bool pUpdateUpper)
@@ -107,7 +224,8 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
   if (!ns->useNewOutSize(pNewOutSize))
     return false;
 
-  if (!pUpdateUpper)
+  // Load IR is a boundary, it is paired with Store IR and form a subgraph.
+  if (!pUpdateUpper || pN->kind() == g_LoadKind)
     return true;
 
   bool status = true;
@@ -120,37 +238,6 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
     }
   }
   return status;
-}
-
-bool SplitNodeManager::splitGroup(StoreGroup &pGroup, size_t pMemSize)
-{
-  return true;
-}
-
-void SplitNodeManager::getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap)
-{
-  for (onnx::Node* n : m_Graph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
-      continue;
-
-    const SplitNode *sn = getSplitNode(n);
-
-    // get required memory size of each input.
-    for (unsigned i = 0; i < n->inputs().size(); ++i) {
-      onnx::Value *v = n->inputs()[i];
-      pVMSMap[v] =
-        m_DLATB.getTTI()
-               ->getOperatorInputMemUsage(n, i, sn->calNewInputSize(i));
-    }
-
-    // get required memory size of each output.
-    for (unsigned i = 0; i < n->outputs().size(); ++i) {
-      onnx::Value *v = n->outputs()[i];
-      pVMSMap[v] =
-        m_DLATB.getTTI()
-               ->getOperatorOutputMemUsage(n, i, sn->calNewInputSize(i));
-    }
-  }
 }
 
 void SplitNodeManager::dump() const
@@ -196,6 +283,10 @@ void SplitNodeManager::print(OStream &pOS) const
   size_t graphOldS = 0, graphNewS = 0;
   for (const onnx::Node *n : m_Graph.nodes()) {
     if (n->kind() == onnx::kUndefined)
+      continue;
+
+    if (n->kind() == g_LoadKind ||
+        n->kind() == g_StoreKind)
       continue;
 
     std::vector<LongInts> newInputSizes;

@@ -118,57 +118,45 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
 
   SplitNodeManager snMgr(graph, *m_DLATB);
 
-  bool stop = false, success = false;
-  unsigned splitAxis = 0, factor = 1;
-  size_t prevMinSize = 0;
+  const uint64_t localMemSize = m_DLATB->getMemInfo()
+                                       ->getLocalMemSize();
+  std::queue<SplitGroup*> worklist;
+  while (!worklist.empty()) {
+    SplitGroup *group = worklist.front();
+    worklist.pop();
 
-  // 90% splitting threshold.
-  float threshold = 0.9f;
-
-  while (!stop) {
+    // per group
     ValMemSizeMap valMemSMap;
-    snMgr.getMemoryUsageForAllValues(valMemSMap);
+    int64_t prevMinSize = 0;
+    const float threshold = 0.9f; // 90% splitting threshold.
+    while (true) {
+      group->getMemUsage(m_DLATB->getTTI(), valMemSMap);
 
-    // get maximum requirements.
-    size_t maxSize = 0;
-    for (auto & req : valMemSMap)
-      maxSize += req.second.size;
+      // get maximum requirements.
+      uint64_t maxSize = 0;
+      for (auto & req : valMemSMap)
+        maxSize += req.second.size;
 
-    size_t minSize = allocByLiveness(valMemSMap);
-    if (minSize < m_DLATB->getMemInfo()->getLocalMemSize()) {
-      success = true;
-      break;
-    }
+      uint64_t minSize = allocByLiveness(valMemSMap);
+      if (minSize < localMemSize)
+        break;
 
-    // If new allocation is not smaller enough than previous allocation, then
-    // create group
-    if (prevMinSize && (float)minSize / prevMinSize > threshold)
-      break;
-
-    prevMinSize = minSize;
-
-    // Try to split backward. Try to split from first dim.
-    for (onnx::Value* v : graph.outputs()) {
-      if (v->node()) {
-        const TensorSizes &origSizes = v->sizes();
-        ++factor;
-        // Can't divide this axis further, try next axis.
-        if (origSizes[splitAxis].dim < factor) {
-          ++splitAxis;
-          factor = 1;
-        }
-
-        if (origSizes.size() == splitAxis) {
-          stop = true;
+      // If new allocation is not smaller enough than previous allocation, then
+      // create new sub group
+      if (prevMinSize && (float)minSize / prevMinSize > threshold) {
+        group->resetToOrigSize();
+        SplitGroup *newgroup = group->splitNewGroup();
+        if (newgroup)
+          worklist.push(newgroup);
+        else {
+          errs() << "[MemoryAllocation] Unable to allocate memory for group.\n";
           break;
         }
-
-        snMgr.splitNodeByFactor(v->node(), splitAxis, factor, true);
       }
-    }
+      prevMinSize = minSize;
 
-    outs() << "Size req. Min = " << minSize << "(" << (float)minSize/(1024.f*1024.f) << " mb)"
-           << " Max = " <<  maxSize << "(" << (float)maxSize/(1024.f*1024.f) << " mb)\n";
+      group->shrinkSize();
+    }
   }
   snMgr.dump();
   return kModuleNoChanged;

@@ -59,8 +59,8 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create store node and insert before the last use node.
-    onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {v}/*, 0*/);
-    storeN->output()->copyMetadata(v);
+    onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {v}, 0);
+    //storeN->output()->copyMetadata(v);
     storeN->insertBefore(last);
   }
 }

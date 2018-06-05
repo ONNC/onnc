@@ -40,11 +40,46 @@ public:
 
   onnx::NodeKind kind() const { return m_Node.kind(); }
 
+  void resetSize() { m_NewOutSizes = m_OutSizes; }
+
+  const onnx::Node &getNode() const { return m_Node; }
+
+  onnx::Node &getNode() { return m_Node; }
+
 protected:
   LongInts m_NewOutSizes;
   const LongInts m_OutSizes;
 
   onnx::Node& m_Node;
+};
+
+class SplitNodeManager;
+class SplitGroup
+{
+friend class SplitNodeManager;
+public:
+  SplitGroup(SplitNodeManager &pSnMgr)
+    : m_SnMgr(pSnMgr) {}
+
+  void resetToOrigSize();
+
+  void getMemUsage(const TargetTransformInfo *pTTI, ValMemSizeMap &pVMSMap);
+
+  /// Reduce size of all values in a group to meet memory size constraint.
+  void shrinkSize();
+
+  /// Split a group for meeting memory size constraint.
+  SplitGroup *splitNewGroup();
+
+private:
+  void addStore(SplitNode *pStore);
+
+  SplitNodeManager &m_SnMgr;
+
+  std::vector<SplitNode*> m_Stores;
+  // Each store has split parameters.
+  std::vector<unsigned> m_CurSplitAxis;
+  std::vector<unsigned> m_CurSplitFactor;
 };
 
 /** \class SplitNodeManager
@@ -54,9 +89,8 @@ protected:
 class SplitNodeManager
 {
 public:
-  using SplitInfoHash = std::unordered_map<onnx::Node*, SplitNode*>;
-  using StoreGroup = std::vector<onnx::Node*>;
-  using StoreGroups = std::vector<StoreGroup>;
+  typedef std::vector<SplitGroup*> SplitGroups;
+  typedef std::unordered_map<onnx::Node*, SplitNode*> SplitInfoHash;
 
   SplitNodeManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
   ~SplitNodeManager();
@@ -69,13 +103,16 @@ public:
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
 
-  /// Split a group for meeting memory size constraint.
-  bool splitGroup(StoreGroup &pGroup, size_t pMemSize);
-
   /// Get memory usages based on splitting result.
-  void getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap);
+  //void getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap);
 
-  StoreGroups & getGroups() { return m_Groups; }
+  SplitGroups &getGroups() { return m_Groups; }
+
+  SplitNode* getSplitNode(onnx::Node* pN);
+
+  const SplitNode* getSplitNode(onnx::Node* pN) const;
+
+  bool hasSplitNode(onnx::Node *pN) const;
 
   /// Dump splitting result. Callable in GDB.
   void dump() const;
@@ -83,8 +120,6 @@ public:
   void print(OStream &pOS) const;
 
 private:
-  SplitNode* getSplitNode(onnx::Node* pN);
-  const SplitNode* getSplitNode(onnx::Node* pN) const;
   void clear();
 
   DLATargetBackend& m_DLATB;
@@ -96,7 +131,7 @@ private:
   /// between groups (subgraph) is through load/store.
   ///
   /// Graph splitting and get memory usages are operating on a group.
-  StoreGroups m_Groups;
+  SplitGroups m_Groups;
 };
 
 } // namespace of onnc
