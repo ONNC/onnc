@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
-include(cmake/option.cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(option)
 
 set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
@@ -9,7 +10,7 @@ option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Re
 
 project(ONNC)
 enable_testing()
-include(cmake/test.cmake)
+include(test)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (NOT TARGET build_external)
@@ -28,7 +29,7 @@ set(PACKAGE_URL "")
 
 ####################
 #  Check environments - `host`, `target` and `build`
-include(cmake/canoncial_system.cmake)
+include(canoncial_system)
 check_canonical_system()
 
 ####################
@@ -36,7 +37,7 @@ check_canonical_system()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-include(cmake/stl_hash.cmake)
+include(stl_hash)
 determine_hash_namespace()
 
 ####################
@@ -62,7 +63,7 @@ find_package(Protobuf REQUIRED)
 
 ####################
 # Check for types
-include(cmake/platform_check.cmake)
+include(platform_check)
 check_types(int8_t int16_t int32_t int64_t intptr_t)
 check_types(uint8_t uint16_t uint32_t uint64_t uintptr_t)
 check_types(double "long double" "long long" "long long int" "unsigned long long int")
@@ -102,7 +103,7 @@ option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 
 ####################
 # Check for variables and targets
-include(cmake/onnc_target.cmake)
+include(onnc_target)
 enum_onnc_targets()
 
 set(ONNC_INCLUDE_DIRS
