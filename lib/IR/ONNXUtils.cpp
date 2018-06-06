@@ -14,17 +14,15 @@ void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
   pModelProto.set_model_version(pModule.m_OnnxModelVersion);
   pModelProto.set_doc_string(pModule.m_OnnxDocString);
   ::onnx::ExportModelProto(&pModelProto, pModule.m_OnnxGraph);
-  for (auto setId = pModule.m_OnnxSetId.begin();
-       setId != pModule.m_OnnxSetId.end(); ++setId) {
+  for (const auto &setId : pModule.getSetId()) {
     auto *opset_imports = pModelProto.add_opset_import();
-    opset_imports->set_domain(setId->key());
-    opset_imports->set_version(setId->value());
+    opset_imports->set_domain(setId.first);
+    opset_imports->set_version(setId.second);
   }
-  for (auto metaData = pModule.m_OnnxMetadata.begin();
-       metaData != pModule.m_OnnxMetadata.end(); ++metaData) {
+  for (const auto &metaData : pModule.getMetaData()) {
     auto *metadata_props = pModelProto.add_metadata_props();
-    metadata_props->set_key(metaData->key());
-    metadata_props->set_value(metaData->value());
+    metadata_props->set_key(metaData.first);
+    metadata_props->set_value(metaData.second);
   }
 }
 
@@ -50,19 +48,14 @@ void ImportModelProto(Module &pModule, const ::onnx::ModelProto &pModelProto)
   }
   pModule.m_OnnxGraph = std::move(::onnx::ImportModelProto(pModelProto));
 
-  pModule.m_OnnxSetId.clear();
   for (int i = 0; i < pModelProto.opset_import_size(); i++) {
     auto &opset = pModelProto.opset_import(i);
-    bool retExist;
-    pModule.m_OnnxSetId.insert(opset.domain(), retExist)->value() =
-        opset.version();
+    pModule.getSetId().insert({ opset.domain(), opset.version() });
   }
-  pModule.m_OnnxMetadata.clear();
+
   for (int i = 0; i < pModelProto.metadata_props_size(); i++) {
     auto &strStrEntry = pModelProto.metadata_props(i);
-    bool retExist;
-    pModule.m_OnnxMetadata.insert(strStrEntry.key(), retExist)->value() =
-        strStrEntry.value();
+    pModule.getMetaData().insert({ strStrEntry.key(), strStrEntry.value() });
   }
 }
 

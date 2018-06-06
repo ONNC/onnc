@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_MODULE_H
 #define ONNC_IR_MODULE_H
+#include <map>
 #include <memory>
 #include <onnc/ADT/StringMap.h>
 #include <onnc/IR/SymbolTable.h>
@@ -29,12 +30,15 @@ void ImportModelProto(::onnc::Module &pModule,
  */
 class Module
 {
-  typedef StringMap<int64_t> opsetImport_t;
-  typedef StringMap<std::string> metaDataMap_t;
+public:
+  typedef std::map<std::string, int64_t> OpsetImportType;
+  typedef std::map<std::string, std::string> MetaDataMapType;
 
 public:
   Module();
+
   ~Module();
+
   ::onnx::Graph *getGraph() { return m_OnnxGraph.get(); }
 
   const ::onnx::Graph *getGraph() const { return m_OnnxGraph.get(); }
@@ -45,33 +49,21 @@ public:
   // move @ref pGraph from outside.
   Module &delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph);
 
-  metaDataMap_t::const_iterator metaData_cbegin() const
-  {
-    return m_OnnxMetadata.begin();
-  }
-  metaDataMap_t::const_iterator metaData_cend() const
-  {
-    return m_OnnxMetadata.end();
-  }
+  MetaDataMapType &getMetaData() { return m_OnnxMetaData; }
 
-  const std::string &lookupMetaData(const std::string &pKey) const
-  {
-    auto it = m_OnnxMetadata.find(pKey);
-    assert(it != m_OnnxMetadata.end());
-    return it->value();
-  }
+  const MetaDataMapType &getMetaData() const { return m_OnnxMetaData; }
 
-  void insertMetaData(const std::string &pKey, const std::string &pValue)
-  {
-    bool exist;
-    m_OnnxMetadata.insert(pKey, exist)->value() = pValue;
-  }
+  OpsetImportType &getSetId() { return m_OnnxSetId; }
+
+  const OpsetImportType &getSetId() const { return m_OnnxSetId; }
 
 private:
   friend void onnx::ExportModelProto(::onnx::ModelProto &pModelProto,
                                      const Module &pModule);
   friend void onnx::ImportModelProto(Module &pModule,
                                      const ::onnx::ModelProto &pModelProto);
+
+private:
   SymbolTable m_SymbolTable;
   // onnc keeps all ModelProto info
   int64_t m_OnnxIRVersion;
@@ -80,9 +72,10 @@ private:
   std::string m_OnnxDomain;
   int64_t m_OnnxModelVersion;
   std::string m_OnnxDocString;
+
   std::shared_ptr< ::onnx::Graph> m_OnnxGraph;
-  opsetImport_t m_OnnxSetId;
-  metaDataMap_t m_OnnxMetadata;
+  OpsetImportType m_OnnxSetId;
+  MetaDataMapType m_OnnxMetaData;
 };
 
 } // namespace onnc
