@@ -16,6 +16,7 @@ public:
         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
+  void toASM(tg::bm1880::Insn *pI) const override;
 
 private:
   int m_N;

@@ -38,5 +38,25 @@ void TGLRN::TGLRN::emit() const
 #endif
 }
 
+void TGLRN::toASM(tg::bm1880::Insn *pI) const
+{
+  pI->set_name(getLayerName());
+  pI->set_type(tg::bm1880::Insn::LRN);
+  {
+    auto *lrn = pI->mutable_lrn_param();
+    lrn->set_alpha(m_Alpha);
+    lrn->set_beta(m_Beta);
+    {
+      auto *input = lrn->mutable_input();
+      bm_asm::setDim(input, m_N, m_C, m_H, m_W);
+      bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
+    }
+    {
+      auto *output = lrn->mutable_output();
+      bm_asm::setMem(output, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
+    }
+  }
+}
+
 } // namespace BM188X
 } // namespace onnc

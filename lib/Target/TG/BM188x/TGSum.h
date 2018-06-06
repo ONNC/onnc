@@ -18,6 +18,7 @@ public:
   void emit() const override;
   void print(OStream &pOS) const override;
   TGSum *addMemOperands(std::vector<MemOperand *> pVInput, MemOperand *pOutput);
+  void toASM(tg::bm1880::Insn *pI) const override;
 
 private:
   int m_InN, m_InC, m_InH, m_InW;

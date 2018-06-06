@@ -83,6 +83,34 @@ void TGGemm::emit() const
       rShiftWidth               // right_shift_width
   );
 }
-
+void TGGemm::toASM(tg::bm1880::Insn *pI) const
+{
+  // bool m_WeightTp;
+  pI->set_name(getLayerName());
+  pI->set_type(tg::bm1880::Insn::GEMM);
+  auto *gemm = pI->mutable_gemm_param();
+  assert(m_MemOperands.size() == 4);
+  {
+    auto *input = gemm->mutable_input();
+    bm_asm::setDim(input, m_InRowNum, m_InColNum);
+    bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
+  }
+  {
+    auto *weight = gemm->mutable_weight();
+    bm_asm::setDim(weight, m_InColNum, m_OutColNum);
+    bm_asm::setMem(weight, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
+    weight->set_transpose(m_WeightTp);
+  }
+  if (m_HaveBias) {
+    auto *bias = gemm->mutable_bias();
+    bm_asm::setDim(bias, m_InRowNum, m_OutColNum);
+    bm_asm::setMem(bias, m_MemOperands.at(2), tg::bm1880::Operand::Int16);
+  }
+  {
+    auto *output = gemm->mutable_output();
+    bm_asm::setDim(output, m_InRowNum, m_OutColNum);
+    bm_asm::setMem(output, m_MemOperands.at(3), tg::bm1880::Operand::Int8);
+  }
+}
 } // namespace BM188X
 } // namespace onnc

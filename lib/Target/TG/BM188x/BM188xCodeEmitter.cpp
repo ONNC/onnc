@@ -166,6 +166,12 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
     for (auto const &i : instList)
       i->print(onnc::outs());
   }
+  if (m_Backend->getOption().PrintMachineCode) {
+    tg::bm1880::CommandBuffer buf;
+    for (auto &insn : instList)
+      insn->toASM(buf.add_insn());
+    onnc::outs() << buf.DebugString() << std::endl;
+  }
 
   // ReadInt8DataFromBinaryFile(weight, weight_data);
   bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);

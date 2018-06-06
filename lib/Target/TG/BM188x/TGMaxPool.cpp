@@ -74,5 +74,53 @@ void TGMaxPool::emit() const
   );
 }
 
+void TGMaxPool::toASM(tg::bm1880::Insn *pI) const
+{
+  pI->set_name(getLayerName());
+  pI->set_type(tg::bm1880::Insn::MaxPool);
+  {
+    auto *max_pool = pI->mutable_max_pool_param();
+    {
+      auto *input = max_pool->mutable_input();
+      input->set_n(m_N);
+      input->set_c(m_C);
+      input->set_h(m_H);
+      input->set_w(m_W);
+      auto *m = m_MemOperands.at(0);
+      input->set_addr(m->m_Addr);
+      input->set_type(tg::bm1880::Operand::Int8);
+      assert(m->m_Size == m->m_Count * 1);
+      input->set_count(m->m_Count);
+    }
+    {
+      auto *output = max_pool->mutable_output();
+      auto *m = m_MemOperands.at(1);
+      output->set_addr(m->m_Addr);
+      output->set_type(tg::bm1880::Operand::Int8);
+      assert(m->m_Size == m->m_Count * 1);
+      output->set_count(m->m_Count);
+    }
+    {
+      auto *k = max_pool->mutable_kernel();
+      k->set_h(m_KH);
+      k->set_w(m_KW);
+    }
+    {
+      auto *p = max_pool->mutable_pad();
+      p->set_h(m_PadH);
+      p->set_w(m_PadW);
+    }
+    {
+      auto *s = max_pool->mutable_stride();
+      s->set_h(m_StrideH);
+      s->set_w(m_StrideW);
+    }
+    {
+      auto *cal = max_pool->mutable_ctable();
+      cal->set_right_shift_width(m_LayerCtable.right_shift_width());
+    }
+  }
+}
+
 } // namespace BM188X
 } // namespace onnc

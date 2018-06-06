@@ -57,6 +57,24 @@ void TGRelu::emit() const
       m_W                       // input_w
   );
 }
+void TGRelu::toASM(tg::bm1880::Insn *pI) const
+{
+  pI->set_name(getLayerName());
+  pI->set_type(tg::bm1880::Insn::ReLU);
+  {
+    auto *relu = pI->mutable_relu_param();
+    relu->set_negative_slope(m_NegativeSlope);
+    {
+      auto *input = relu->mutable_input();
+      bm_asm::setDim(input, m_N, m_C, m_H, m_W);
+      bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
+    }
+    {
+      auto *output = relu->mutable_output();
+      bm_asm::setMem(output, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
+    }
+  }
+}
 
 } // namespace BM188X
 } // namespace onnc

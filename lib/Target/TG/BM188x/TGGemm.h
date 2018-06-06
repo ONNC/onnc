@@ -18,6 +18,7 @@ public:
   void print(OStream &pOS) const override;
   TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
+  void toASM(tg::bm1880::Insn *pI) const override;
 
 private:
   int m_InRowNum;

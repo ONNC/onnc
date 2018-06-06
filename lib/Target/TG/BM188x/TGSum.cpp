@@ -78,6 +78,24 @@ void TGSum::emit() const
 
   delete[] input;
 }
+void TGSum::toASM(tg::bm1880::Insn *pI) const
+{
+  pI->set_name(getLayerName());
+  pI->set_type(tg::bm1880::Insn::ReLU);
+  {
+    auto *sum = pI->mutable_sum_param();
+    for (size_t i = 0; i < m_MemOperands.size() - 1; i++) {
+      auto *input = sum->add_input();
+      if (i == 0)
+        bm_asm::setDim(input, m_InN, m_InC, m_InH, m_InW);
+      bm_asm::setMem(input, m_MemOperands.at(i), tg::bm1880::Operand::Int8);
+    }
+    {
+      auto *output = sum->mutable_output();
+      bm_asm::setMem(output, m_MemOperands.back(), tg::bm1880::Operand::Int8);
+    }
+  }
+}
 
 } // namespace BM188X
 } // namespace onnc

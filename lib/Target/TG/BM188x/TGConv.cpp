@@ -184,5 +184,43 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
   }
 }
 
+void TGConv::toASM(tg::bm1880::Insn *pI) const
+{
+  pI->set_name(getLayerName());
+  pI->set_type(tg::bm1880::Insn::Convolution);
+  {
+    auto *conv = pI->mutable_convolution_param();
+    conv->set_group(m_Groups);
+    conv->set_do_bias(m_DoBias);
+    {
+      auto *input = conv->mutable_input();
+      bm_asm::setDim(input, m_InN, m_InC, m_InH, m_InW);
+      bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
+    }
+    {
+      auto *output = conv->mutable_output();
+      bm_asm::setMem(output, m_MemOperands.at(2), tg::bm1880::Operand::Int8);
+    }
+    {
+      auto *weight = conv->mutable_weight();
+      weight->set_c(m_OutC);
+      bm_asm::setMem(weight, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
+    }
+    {
+      auto *bias = conv->mutable_bias();
+      bias->set_c(m_OutC);
+      bm_asm::setMem(bias, m_MemOperands.at(3), tg::bm1880::Operand::Int16);
+    }
+    bm_asm::setDim(conv->mutable_kernel(), m_KH, m_KW);
+    bm_asm::setDim(conv->mutable_pad(), m_PadH, m_PadW);
+    bm_asm::setDim(conv->mutable_stride(), m_StrideH, m_StrideW);
+    bm_asm::setDim(conv->mutable_dilation(), m_DilationH, m_DilationW);
+    {
+      auto *cal = conv->mutable_ctable();
+      cal->set_right_shift_width(m_LayerCtable.right_shift_width());
+    }
+  }
+}
+
 } // namespace BM188X
 } // namespace onnc

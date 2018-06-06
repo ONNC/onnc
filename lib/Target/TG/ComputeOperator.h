@@ -10,6 +10,7 @@
 
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Target/TG/BM188x/asm.h>
 #include <onnx/common/ir.h>
 #include <string>
 
@@ -40,9 +41,9 @@ public:
   virtual ~ComputeOperator2() = default;
 
   // FIXME changed to use ENUM when compute ir finish
-  const std::string &getTypeName() { return m_TypeName; }
+  const std::string &getTypeName() const { return m_TypeName; }
 
-  const std::string &getLayerName() { return m_LayerName; };
+  const std::string &getLayerName() const { return m_LayerName; };
 
   std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; };
 
@@ -51,6 +52,7 @@ public:
   virtual void memAlloc(MemTable &pPMemLayout);
 
   virtual void print(OStream &pOS) const;
+  virtual void toASM(tg::bm1880::Insn *pI) const { (void)pI; };
 
   ComputeOperator2 *addMemOperand(MemOperand *pMemOperand);
 
