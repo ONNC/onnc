@@ -132,6 +132,9 @@ if (TARGET_TG)
     set(BMLIB 
         ${Boost_LIBRARIES}
         ${BMTAP_INSTALL_DIR}/lib/libbmnet.so
+        ${BMTAP_INSTALL_DIR}/lib/libbm_cmodel.so
+        ${BMTAP_INSTALL_DIR}/lib/libbmutils.so
+        ${BMTAP_INSTALL_DIR}/lib/libbmruntime.so
         ${BMTAP_INSTALL_DIR}/lib/libbmkernel-static.a)
 endif()
 
