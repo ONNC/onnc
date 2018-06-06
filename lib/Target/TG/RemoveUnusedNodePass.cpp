@@ -17,7 +17,7 @@ public:
   RemoveUnusedNode() : ModulePass(ID) {}
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
-    ::onnx::Graph *graph = pModule.getGraph();
+    ::onnx::Graph *graph = pModule.getGraph().get();
     Pass::ReturnType isChanged = Pass::kModuleNoChanged;
     for (auto it = graph->begin(), ie = graph->end(); it != ie; ++it) {
       auto *node = *it;
@@ -32,7 +32,7 @@ public:
 
     // TODO use IR printer pass, or add passes by option (ex. printf-after-all)
     std::cout << "==================after RemoveUnusedNodePass: =====================" << std::endl;
-    ONNXIRPrinter::dumpGraph(pModule.getGraphSP());
+    ONNXIRPrinter::dumpGraph(pModule.getGraph());
 
     return isChanged;
   }

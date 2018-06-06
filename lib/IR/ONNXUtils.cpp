@@ -13,7 +13,8 @@ void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
   pModelProto.set_domain(pModule.m_OnnxDomain);
   pModelProto.set_model_version(pModule.m_OnnxModelVersion);
   pModelProto.set_doc_string(pModule.m_OnnxDocString);
-  ::onnx::ExportModelProto(&pModelProto, pModule.m_OnnxGraph);
+  ::onnx::ExportModelProto(&pModelProto,
+                          const_cast<Module &>(pModule).getGraph());
   for (const auto &setId : pModule.getSetId()) {
     auto *opset_imports = pModelProto.add_opset_import();
     opset_imports->set_domain(setId.first);
@@ -46,7 +47,7 @@ void ImportModelProto(Module &pModule, const ::onnx::ModelProto &pModelProto)
   if (pModelProto.has_doc_string()) {
     pModule.m_OnnxDocString = pModelProto.doc_string();
   }
-  pModule.m_OnnxGraph = std::move(::onnx::ImportModelProto(pModelProto));
+  pModule.delegateGraph(::onnx::ImportModelProto(pModelProto));
 
   for (int i = 0; i < pModelProto.opset_import_size(); i++) {
     auto &opset = pModelProto.opset_import(i);

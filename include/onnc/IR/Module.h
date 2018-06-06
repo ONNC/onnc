@@ -39,12 +39,8 @@ public:
 
   ~Module();
 
-  ::onnx::Graph *getGraph() { return m_OnnxGraph.get(); }
-
-  const ::onnx::Graph *getGraph() const { return m_OnnxGraph.get(); }
-
-  // for demo
-  const std::shared_ptr< ::onnx::Graph> &getGraphSP() { return m_OnnxGraph; }
+  std::shared_ptr< ::onnx::Graph> getGraph() { return m_pOnnxGraph; }
+  std::shared_ptr<const ::onnx::Graph> getGraph() const { return m_pOnnxGraph; }
 
   // move @ref pGraph from outside.
   Module &delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph);
@@ -73,7 +69,7 @@ private:
   int64_t m_OnnxModelVersion;
   std::string m_OnnxDocString;
 
-  std::shared_ptr< ::onnx::Graph> m_OnnxGraph;
+  std::shared_ptr< ::onnx::Graph> m_pOnnxGraph;
   OpsetImportType m_OnnxSetId;
   MetaDataMapType m_OnnxMetaData;
 };
