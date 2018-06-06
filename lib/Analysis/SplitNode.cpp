@@ -10,6 +10,7 @@
 #include <onnc/Support/IOStream.h>
 #include <limits>
 #include <iomanip> // for setw
+#include <tuple>
 
 using namespace onnc;
 
@@ -20,6 +21,8 @@ static LongInts GetOutputValueSizes(const onnx::Node& pN)
 {
   if (pN.outputs().size())
     return GetValueSizes(*pN.outputs()[0]);
+  if (pN.kind() == g_StoreKind)
+    return GetValueSizes(*pN.inputs()[0]);
   return {};
 }
 
@@ -69,7 +72,7 @@ void SplitGroup::resetToOrigSize()
     // reset upper layer.
     for (onnx::Value *v : sn->getNode().inputs()) {
       onnx::Node *n = v->node();
-      if (m_SnMgr.hasSplitNode(n) || n->kind() == g_LoadKind)
+      if (m_SnMgr.hasSplitNode(n))
         continue;
 
       worklist.push_back(m_SnMgr.getSplitNode(n));
@@ -80,7 +83,11 @@ void SplitGroup::resetToOrigSize()
 void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
                              ValMemSizeMap &pVMSMap)
 {
-  std::vector<SplitNode *> worklist(m_Stores);
+  std::vector<SplitNode *> worklist;
+  for (SplitNode *store : m_Stores)
+    for (onnx::Value *v : store->getNode().inputs())
+      worklist.push_back(m_SnMgr.getSplitNode(v->node()));
+
   while (!worklist.empty()) {
     SplitNode *sn = worklist.back();
     worklist.pop_back();
@@ -104,7 +111,7 @@ void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
     // add upper layer to worklist until load ir.
     for (onnx::Value *v : n.inputs()) {
       onnx::Node *upperN = v->node();
-      if (m_SnMgr.hasSplitNode(upperN) || upperN->kind() == g_LoadKind)
+      if (!m_SnMgr.hasSplitNode(upperN))
         continue;
 
       worklist.push_back(m_SnMgr.getSplitNode(upperN));
@@ -143,11 +150,71 @@ void SplitGroup::addStore(SplitNode *pStore)
   m_CurSplitFactor.push_back(1);
 }
 
-SplitGroup *SplitGroup::splitNewGroup()
+SplitGroup *SplitGroup::splitNewGroup(const TargetTransformInfo *pTTI)
 {
-  // choose a good split point.
-  SplitGroup *newgroup = nullptr;
+  // choose a split point. Currently choose a point that can split the group
+  // (roughly) evenly in terms of memory size.
+  std::vector<onnx::Node *> worklist;
+  for (SplitNode *store : m_Stores)
+    for (onnx::Value *v : store->getNode().inputs())
+      worklist.push_back(v->node());
+
+  std::vector<onnx::Node *> halfPtList;
+  while (!worklist.empty()) {
+    onnx::Node *n = worklist.back();
+    worklist.pop_back();
+    halfPtList.push_back(findHalfSizePoints(pTTI, n));
+  }
+
+  SplitGroup *newgroup = m_SnMgr.createNewGroup();
+
+  for (onnx::Node *halfpt : halfPtList)
+    m_SnMgr.createLoadStoreAtNode(halfpt, newgroup);
+
   return newgroup;
+}
+
+onnx::Node *SplitGroup::findHalfSizePoints(const TargetTransformInfo *pTTI,
+                                           onnx::Node *pStart) const
+{
+  // <accumulated size, node>
+  using AccSizeNodePair = std::tuple<uint64_t, onnx::Node *>;
+  std::vector<AccSizeNodePair> accSizes;
+  std::vector<onnx::Node *> worklist;
+  worklist.push_back(pStart);
+
+  uint64_t total = 0;
+  while (!worklist.empty()) {
+    onnx::Node *n = worklist.back();
+    worklist.pop_back();
+
+    if (n->kind() == g_LoadKind)
+      continue;
+
+    total = pTTI->getOperatorMemUsage(n).size;
+    if (!accSizes.empty())
+      total += std::get<0>(accSizes.back());
+
+    accSizes.emplace_back(total, n);
+
+    // add upper layer to worklist.
+    for (onnx::Value *v : n->inputs()) {
+      onnx::Node *upperN = v->node();
+      if (!m_SnMgr.hasSplitNode(upperN))
+        continue;
+
+      worklist.push_back(upperN);
+    }
+  }
+
+  AccSizeNodePair target = std::make_tuple(total/2, nullptr);
+  const auto &halfPt =
+    std::upper_bound(accSizes.begin(), accSizes.end(),
+                     target,
+                     [] (const AccSizeNodePair &a, const AccSizeNodePair &b) {
+                       return std::get<0>(a) < std::get<0>(b);
+                     });
+  return std::get<1>(*halfPt);
 }
 
 //===----------------------------------------------------------------------===//
@@ -225,7 +292,7 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
     return false;
 
   // Load IR is a boundary, it is paired with Store IR and form a subgraph.
-  if (!pUpdateUpper || pN->kind() == g_LoadKind)
+  if (!pUpdateUpper)
     return true;
 
   bool status = true;
@@ -238,6 +305,46 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
     }
   }
   return status;
+}
+
+SplitGroup *SplitNodeManager::createNewGroup()
+{
+  SplitGroup *ngrp = new SplitGroup(*this);
+  m_Groups.push_back(ngrp);
+  return ngrp;
+}
+
+void SplitNodeManager::createLoadStoreAtNode(onnx::Node *pN, SplitGroup *pGroup)
+{
+  // Create new store and load pairs.
+  for (onnx::Value *outv : pN->outputs()) {
+    onnx::Node* first = nullptr;
+    for(auto u : outv->uses()) {
+      if (!first) {
+        first = u.user;
+        continue;
+      }
+
+      if (!first->isBefore(u.user))
+        first = u.user;
+    }
+
+    // Create load node and insert before the first use node.
+    // FIXME: the first using should be in the same group, should we need to
+    //        check this?
+    onnx::Node* loadN = m_Graph.create(onnx::Symbol("Load"));
+    loadN->insertBefore(first);
+    loadN->output()->copyMetadata(outv);
+    outv->replaceAllUsesWith(loadN->output());
+
+    // create store after creating load (since replaceAllUseWith).
+    onnx::Node* storeN = m_Graph.create(onnx::Symbol("Store"), {outv}, 0);
+    storeN->insertAfter(pN);
+
+    m_SplitInfos[loadN] = SplitNodeCreator(*loadN);
+    m_SplitInfos[storeN] = SplitNodeCreator(*storeN);
+    pGroup->addStore(m_SplitInfos[storeN]);
+  }
 }
 
 void SplitNodeManager::dump() const
@@ -285,10 +392,6 @@ void SplitNodeManager::print(OStream &pOS) const
     if (n->kind() == onnx::kUndefined)
       continue;
 
-    if (n->kind() == g_LoadKind ||
-        n->kind() == g_StoreKind)
-      continue;
-
     std::vector<LongInts> newInputSizes;
     const SplitNode *sn = getSplitNode((onnx::Node*)n);
     pOS << n->kind().toString() << ": ";
@@ -325,6 +428,11 @@ void SplitNodeManager::print(OStream &pOS) const
         pOS << std::setw(5) << std::right << s;
       pOS << ")\n";
     }
+
+    // don't count store/load node since it's size has been added by upper node.
+    if (n->kind() == g_StoreKind ||
+        n->kind() == g_LoadKind)
+      continue;
 
     MemSize newS =
       m_DLATB.getTTI()->getOperatorMemUsage(n, newInputSizes,

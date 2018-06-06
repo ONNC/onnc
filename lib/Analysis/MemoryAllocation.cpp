@@ -120,10 +120,10 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
 
   const uint64_t localMemSize = m_DLATB->getMemInfo()
                                        ->getLocalMemSize();
-  std::queue<SplitGroup*> worklist;
+  std::vector<SplitGroup*> worklist(snMgr.getGroups());
   while (!worklist.empty()) {
-    SplitGroup *group = worklist.front();
-    worklist.pop();
+    SplitGroup *group = worklist.back();
+    worklist.pop_back();
 
     // per group
     ValMemSizeMap valMemSMap;
@@ -144,10 +144,11 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
       // If new allocation is not smaller enough than previous allocation, then
       // create new sub group
       if (prevMinSize && (float)minSize / prevMinSize > threshold) {
+        prevMinSize = 0;
         group->resetToOrigSize();
-        SplitGroup *newgroup = group->splitNewGroup();
+        SplitGroup *newgroup = group->splitNewGroup(m_DLATB->getTTI());
         if (newgroup)
-          worklist.push(newgroup);
+          worklist.push_back(newgroup);
         else {
           errs() << "[MemoryAllocation] Unable to allocate memory for group.\n";
           break;

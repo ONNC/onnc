@@ -69,7 +69,10 @@ public:
   void shrinkSize();
 
   /// Split a group for meeting memory size constraint.
-  SplitGroup *splitNewGroup();
+  SplitGroup *splitNewGroup(const TargetTransformInfo *pTTI);
+
+  onnx::Node *findHalfSizePoints(const TargetTransformInfo *pTTI,
+                                 onnx::Node *pStart) const;
 
 private:
   void addStore(SplitNode *pStore);
@@ -103,8 +106,9 @@ public:
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
 
-  /// Get memory usages based on splitting result.
-  //void getMemoryUsageForAllValues(ValMemSizeMap &pVMSMap);
+  void createLoadStoreAtNode(onnx::Node *pN, SplitGroup *pGroup);
+
+  SplitGroup *createNewGroup();
 
   SplitGroups &getGroups() { return m_Groups; }
 
