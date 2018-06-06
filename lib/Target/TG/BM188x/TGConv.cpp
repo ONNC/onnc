@@ -5,8 +5,6 @@
 #define DEBUG_TYPE "tg_conv"
 #include <onnc/Support/Debug.h>
 
-using namespace std;
-
 namespace onnc {
 namespace BM188X {
 

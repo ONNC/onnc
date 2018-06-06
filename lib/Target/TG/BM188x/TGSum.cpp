@@ -5,8 +5,6 @@
 #define DEBUG_TYPE "tg_sum"
 #include <onnc/Support/Debug.h>
 
-using namespace std;
-
 namespace onnc {
 namespace BM188X {
 
@@ -22,7 +20,8 @@ TGSum::TGSum(const ::onnx::Node &pNode,
   m_inSize = m_inN * m_inC * m_inH * m_inW;
 }
 
-TGSum *TGSum::addMemOperands(vector<MemOperand *> pInput, MemOperand *pOutput)
+TGSum *TGSum::addMemOperands(std::vector<MemOperand *> pInput,
+                             MemOperand *pOutput)
 {
   for (auto in : pInput)
     m_MemOperands.push_back(in);

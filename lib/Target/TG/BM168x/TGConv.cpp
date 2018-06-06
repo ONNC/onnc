@@ -6,7 +6,6 @@
 #include <onnc/Support/Debug.h>
 
 using namespace onnc;
-using namespace std;
 
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode)
