@@ -11,6 +11,7 @@
 #include <memory>
 #include <onnc/ADT/StringMap.h>
 #include <onnc/IR/SymbolTable.h>
+#include <onnc/IR/Dump.h>
 
 namespace onnx {
 class Graph;
@@ -40,6 +41,7 @@ public:
   ~Module();
 
   std::shared_ptr< ::onnx::Graph> getGraph() { return m_pOnnxGraph; }
+
   std::shared_ptr<const ::onnx::Graph> getGraph() const { return m_pOnnxGraph; }
 
   // move @ref pGraph from outside.
@@ -54,11 +56,15 @@ public:
   const OpsetImportType &getSetId() const { return m_OnnxSetId; }
 
 private:
+  // XXX: use accessors to explore private data member.
   friend void onnx::ExportModelProto(::onnx::ModelProto &pModelProto,
                                      const Module &pModule);
+
+  // XXX: use accessors to explore private data member.
   friend void onnx::ImportModelProto(Module &pModule,
                                      const ::onnx::ModelProto &pModelProto);
 
+  // XXX: use accessors to explore private data member.
   friend void onnc::DumpModule(Module &pModule);
 
 private:
