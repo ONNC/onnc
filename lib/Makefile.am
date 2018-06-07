@@ -3,6 +3,7 @@ INCDIR=../include/onnc
 ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
 	IR/ComputeOperator.cpp \
+	IR/ComputeGraph.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \

@@ -9,6 +9,7 @@
 #define ONNC_IR_COMPUTE_OPERATOR_H
 #include <ostream>
 #include <onnx/common/ir.h>
+#include <onnc/ADT/Bits/DigraphNode.h>
 #include <onnc/IR/ComputeOperand.h>
 #include <onnc/IR/ComputeAttrOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
@@ -17,7 +18,7 @@ namespace onnc {
 
 /** \class ComputeOperator
  */
-class ComputeOperator
+class ComputeOperator : public DigraphNode<ComputeOperator, ComputeOperand>
 {
 public:
   ComputeOperator(const ::onnx::Node* pOperator = nullptr)

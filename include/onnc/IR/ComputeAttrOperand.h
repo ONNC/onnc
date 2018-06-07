@@ -9,13 +9,14 @@
 #define ONNC_IR_COMPUTE_ATTRIBUTE_OPERAND_H
 #include <ostream>
 #include <onnx/common/ir.h>
+#include <onnc/IR/ComputeOperand.h>
 
 namespace onnc {
 
 /** \class ComputeAttrOperand
  * 
  */
-class ComputeAttrOperand
+class ComputeAttrOperand : public ComputeOperand
 {
 };
 

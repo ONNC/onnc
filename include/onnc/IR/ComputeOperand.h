@@ -1,4 +1,4 @@
-//===- ComputeOperator.h --------------------------------------------------===//
+//===- ComputeOperand.h ----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -9,40 +9,17 @@
 #define ONNC_IR_COMPUTE_OPERAND_H
 #include <ostream>
 #include <onnx/common/ir.h>
+#include <onnc/ADT/Bits/DigraphArc.h>
 
 namespace onnc {
+
+class ComputeOperator;
 
 /** \class ComputeOperand
  * 
  */
-class ComputeOperand
+class ComputeOperand : public DigraphArc<ComputeOperator, ComputeOperand>
 {
-public:
-  enum Type : unsigned char {
-    kInvalid,
-    kRegister,
-    kImmediate,
-  };
-
-public:
-  ComputeOperand() : m_Type(kInvalid) { }
-
-  bool isValid() const { return kInvalid != m_Type; }
-
-  bool isReg() const { return kRegister == m_Type; }
-
-  bool isImm() const { return kImmediate == m_Type; }
-
-  void print(std::ostream& pOS) const;
-
-private:
-
-  Type m_Type;
-
-  union {
-    unsigned int m_RegVal;
-    int64_t m_ImmVal;
-  };
 };
 
 
