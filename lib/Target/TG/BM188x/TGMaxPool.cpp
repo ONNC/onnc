@@ -43,11 +43,14 @@ TGMaxPool *TGMaxPool::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
 
 void TGMaxPool::print(OStream &pOS) const
 {
-
+  int rShiftWidth = m_LayerCtable.right_shift_width();
+  const int *thresholdXQuantized = m_LayerCtable.threshold_x_quantized().data();
   pOS << *m_MemOperands[1] << " = MaxPool <N:" << m_N << ", C:" << m_C
       << ", H:" << m_H << ", W:" << m_W << ",  kH:" << m_kH << ", kW:" << m_kW
       << ", padH:" << m_padH << ", padW:" << m_padW << ", srideH:" << m_strideH
-      << ", strideW:" << m_strideW << "> (" << *m_MemOperands[0] << ")\n";
+      << ", strideW:" << m_strideW << ", rShiftWidth:" << rShiftWidth
+      << ", thresholdX:" << thresholdXQuantized[0] << "> (" << *m_MemOperands[0]
+      << ")\n";
 }
 
 void TGMaxPool::emit() const

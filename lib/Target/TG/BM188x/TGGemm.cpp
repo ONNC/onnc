@@ -48,9 +48,11 @@ TGGemm *TGGemm::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
 
 void TGGemm::print(OStream &pOS) const
 {
+  int rShiftWidth = m_LayerCtable.right_shift_width();
   pOS << *m_MemOperands[3] << " = Gemm <inRowNum:" << m_inRowNum
       << ", inColNum:" << m_inColNum << ", outColNum:" << m_outColNum
-      << ", m_weightTp:" << m_weightTp << "> (" << *m_MemOperands[0] << ", "
+      << ", m_weightTp:" << m_weightTp << ", lShiftWidth:0"
+      << ", rShiftWidth:" << rShiftWidth << "> (" << *m_MemOperands[0] << ", "
       << *m_MemOperands[1] << ", " << *m_MemOperands[2] << ")\n";
 }
 
