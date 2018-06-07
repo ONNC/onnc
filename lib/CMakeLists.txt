@@ -18,6 +18,8 @@ add_definitions(-DONNX_NAMESPACE=onnx)
 
 add_library(libonnc "")
 add_dependencies(libonnc build_external)
+target_include_directories(libonnc PUBLIC ${ONNX_INCLUDE_DIRS})
+target_compile_definitions(libonnc PUBLIC -DONNX_NAMESPACE=onnx)
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
 add_subdirectory(ADT)

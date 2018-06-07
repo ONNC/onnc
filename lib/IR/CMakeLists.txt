@@ -1,7 +1,9 @@
 
 add_libonnc_src(
-    Module.cpp 
-    Quadruple.cpp
+    ComputeGraph.cpp
+    ComputeOperator.cpp
+    Dump.cpp
+    Module.cpp
     ONNCModulePrinter.cpp
     ONNXUtils.cpp
-    Dump.cpp)
+    Quadruple.cpp)
