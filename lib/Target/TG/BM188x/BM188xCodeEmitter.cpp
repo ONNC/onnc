@@ -15,6 +15,54 @@
 
 using namespace onnc;
 
+static onnc::json::Object genFallbackPlan(std::string pONNCLast,
+                                          std::string pONNXLast,
+                                          const ::onnx::Graph *pOnnxGraph)
+{
+  bool is_find_fallback = false;
+  int step = 0;
+
+  onnc::json::Object jExeSteps;
+  for (auto n : pOnnxGraph->nodes()) {
+    // Find the left layers info for fallback.
+    if (is_find_fallback) {
+      onnc::json::Object jLayerInfo;
+      jLayerInfo.insert("type", n->kind().toString());
+
+      onnc::json::Object jInputs;
+      for (size_t i = 0; i < n->inputs().size(); ++i) {
+        onnc::json::Object jValue;
+        jValue.insert("name", n->inputs()[i]->uniqueName());
+
+        onnc::json::Array jDim;
+        auto Dims = n->inputs()[i]->sizes();
+        for (size_t j = 0; j < Dims.size(); j++) {
+          jDim.push_back(onnc::json::Value(Dims[j].dim));
+        }
+        jValue.insert("dim", jDim);
+
+        jLayerInfo.insert("input" + std::to_string(i), jValue);
+        // TODO: gen Attributes
+      }
+
+      for (size_t i = 0; i < n->outputs().size(); ++i) {
+        onnc::json::Object jValue;
+        jValue.insert("name", n->outputs()[i]->uniqueName());
+
+        jLayerInfo.insert("output" + std::to_string(i), jValue);
+      }
+      jExeSteps.insert(std::to_string(step), jLayerInfo);
+      step++;
+    }
+
+    if (n->outputs()[0]->uniqueName() == pONNCLast) {
+      is_find_fallback = true;
+    }
+  }
+
+  return jExeSteps;
+}
+
 BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
     : TGCodeEmitter(pBackend), m_Backend(pBackend)
 {
@@ -143,8 +191,10 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   onnc::json::Object jRoot;
   onnc::json::Object jMemLayout;
   onnc::json::Object jInputThres;
+  onnc::json::Object jOutputThres;
   onnc::json::Object jOutputLayer;
   onnc::json::Object jBatch;
+  onnc::json::Object jFallback;
   // Generate memory layout.
   auto &instList = m_Backend->getInsts();
   for (auto const &inst : instList) {
@@ -161,12 +211,12 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
 
   // Generate the threshold of data_layer for quantization.
   std::string dataLayerName = pOnnxGraph->inputs()[0]->uniqueName();
-  const tg::bm1880::LayerCalibrationParameter &layerCtable =
+  const tg::bm1880::LayerCalibrationParameter &dataCtable =
       m_Backend->getCtableLayerParam(dataLayerName);
-  const float threshold = layerCtable.blob_param(0).threshold_y();
+  float threshold = dataCtable.blob_param(0).threshold_y();
   DEBUG(dbgs() << "data layer name = " << dataLayerName
                << ", threshold = " << threshold << "\n");
-  jInputThres.insert("data layer threshold", threshold);
+  jInputThres.insert("threshold", threshold);
 
   // Generate batch size of the input.
   auto sizes = pOnnxGraph->inputs()[0]->sizes();
@@ -180,14 +230,35 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
       instList[instList.size() - 1]->getLayerName();
   jOutputLayer.insert("onnc output", onncOutputLayerName);
 
+  // Generate fallback plan if need.
+  if (onnxOutputLayerName != onncOutputLayerName) {
+    jFallback =
+        genFallbackPlan(onncOutputLayerName, onnxOutputLayerName, pOnnxGraph);
+    jRoot.insert("cpu fallback", jFallback);
+  }
+
+  // Generate the threshold of onnc out layer for de-quantization.
+  const tg::bm1880::LayerCalibrationParameter &outCtable =
+      m_Backend->getCtableLayerParam(onncOutputLayerName);
+  for (int i = 0; i < dataCtable.blob_param_size(); i++) {
+    if (outCtable.blob_param(i).name() == onncOutputLayerName) {
+      threshold = outCtable.blob_param(i).threshold_y();
+      jOutputThres.insert("threshold", threshold);
+      break;
+    }
+  }
+
   // Insert all information to root.
   jRoot.insert("memory layout", jMemLayout);
-  jRoot.insert("layer threshold", jInputThres);
+  jRoot.insert("data layer threshold", jInputThres);
   jRoot.insert("output layer", jOutputLayer);
   jRoot.insert("batch", jBatch);
+  jRoot.insert("onnc out layer threshold", jOutputThres);
 
-  // FIXME: Remove the hardcode path.
-  std::ofstream outfile("runtime.json", std::ofstream::binary);
+  std::string sOutPath = pOnnxGraph->has_name()
+                             ? (pOnnxGraph->name() + "_runtime.json")
+                             : "runtime.json";
+  std::ofstream outfile(sOutPath, std::ofstream::binary);
   onnc::IndentOStream oss(outfile);
   jRoot.print(oss);
   outfile.close();

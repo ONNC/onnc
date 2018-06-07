@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <onnc/Core/PassManager.h>
 #include <onnc/JSON/Object.h>
 #include <onnc/JSON/Reader.h>
 #include <onnc/JSON/Value.h>
@@ -16,9 +17,16 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Path.h>
 
+#include <caffe2/core/init.h>
+#include <caffe2/core/net.h>
+
 #include <bm_debug.h>
 #include <bmruntime.h>
 #include <bmruntime_bmnet.h>
+
+#include "Fallback.h"
+
+using namespace caffe2;
 
 namespace po = boost::program_options;
 
@@ -55,6 +63,16 @@ static void quantize(float *pData, int8_t *pQData, size_t pSize,
   return;
 }
 
+static void dequantize(float *pData, int8_t *pQData, size_t pSize,
+                       float pThreshold)
+{
+  for (size_t i = 0; i < pSize; i++) {
+    float data = (float)pQData[i];
+    pData[i] = data * (pThreshold / 128.0);
+  }
+  return;
+}
+
 int main(int pArgc, char *pArgv[])
 {
   onnc::Path inputPath;
@@ -62,6 +80,7 @@ int main(int pArgc, char *pArgv[])
   onnc::Path cmdbufPath;
   onnc::Path descPath;
   std::string outputFileName;
+  bool fallback;
   {
     po::options_description desc("Allowed options");
     // clang-format off
@@ -71,6 +90,7 @@ int main(int pArgc, char *pArgv[])
         ("weight,w", po::value(&weightPath)->required(), "weight file (.bin)")
         ("cmdbuf,c", po::value(&cmdbufPath)->required(), "bm command buffer (.bin)")
         ("desc,d", po::value(&descPath)->required(), "bm runtime description file (.json)")
+        ("fallback,f", po::bool_switch(&fallback), "cpu fallback bm unsupported op")
         ("output,o", po::value(&outputFileName)->default_value("output.bin"), "output .bin file");
     // clang-format on
 
@@ -105,25 +125,27 @@ int main(int pArgc, char *pArgv[])
 
   // Get data layer threshold and quantize it.
   onnc::json::Object jRoot = runtimeInfo.asObject();
-  onnc::json::Object jThresh = jRoot["layer threshold"].asObject();
-  float dataThresh = jThresh["data layer threshold"].toFloating();
+  onnc::json::Object jDataThresh = jRoot["data layer threshold"].asObject();
+  float dataThresh = jDataThresh["threshold"].toFloating();
   int8_t *input = (int8_t *)malloc(inputSize);
   quantize(inputFp32, input, inputSize, dataThresh);
 
+  // Get input batch size.
   onnc::json::Object jBatch = jRoot["batch"].asObject();
   auto batchSize = jBatch["size"].toInteger();
 
+  // Get output information.
   onnc::json::Object jOutputLayer = jRoot["output layer"].asObject();
   std::string outputLayerName = jOutputLayer["onnc output"].toString();
   std::fstream fOutput(outputFileName,
                        std::ios::out | std::ios::trunc | std::ios::binary);
-
   uint64_t outputOffset;
   size_t outputSize;
   parseOutputInfo(jRoot, outputLayerName, &outputOffset, &outputSize);
-  uint8_t *output = new uint8_t[outputSize];
+  int8_t *output = new int8_t[outputSize];
   size_t neuronSize = outputOffset + outputSize;
 
+  // Start bm inference and extract output data.
   bmctx_t ctx;
   bmerr_t ret;
   ret = bm_init(0, &ctx);
@@ -132,14 +154,28 @@ int main(int pArgc, char *pArgv[])
     assert(0);
   }
 
-  bmnet_inference_once(ctx, (uint8_t *)input, output, batchSize, weight,
-                       weightSize, cmdbuf, cmdbufSize, neuronSize, inputSize,
-                       outputOffset, outputSize);
+  bmnet_inference_once(ctx, (uint8_t *)input, (uint8_t *)output, batchSize,
+                       weight, weightSize, cmdbuf, cmdbufSize, neuronSize,
+                       inputSize, outputOffset, outputSize);
 
   bm_exit(ctx);
 
   // FIXME: read output nchw from descriptor.
   // dump_data_int8("output", output, batchSize, 1, 1, 10);
+
+  if (fallback) {
+    float *outputFp32 = new float[outputSize];
+    onnc::json::Object jOutThresh =
+        jRoot["onnc out layer threshold"].asObject();
+    float outThresh = jOutThresh["threshold"].toFloating();
+    dequantize(outputFp32, output, outputSize, outThresh);
+
+    onnc::Module module;
+    onnc::PassManager pm;
+    pm.add(onnc::createFallbackPass(outputFp32, outputSize, jRoot));
+    pm.run(module);
+  }
+
   fOutput.write((char *)output, outputSize);
 
   fOutput.close();
