@@ -169,7 +169,7 @@ void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
   pUsage.addRequiredID(UpdateGraphOutputSize::ID);
 }
 
-void MemoryAllocation::print(std::ostream& pOS) const
+void MemoryAllocation::print(OStream& pOS) const
 {
   for (const MemAllocEntry *e : m_MemAllocList) {
     const LiveInterval &li = e->liveIntrvl;

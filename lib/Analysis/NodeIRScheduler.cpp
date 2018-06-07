@@ -249,7 +249,7 @@ void NodeIRScheduler::getAnalysisUsage(AnalysisUsage& pUsage) const
   pUsage.addRequiredID(UpdateGraphOutputSize::ID);
 }
 
-void NodeIRScheduler::print(std::ostream& pOS) const
+void NodeIRScheduler::print(OStream& pOS) const
 {
   auto normalize = [] (uint64_t c) -> unsigned {
                      // 1 million cycle.
@@ -262,7 +262,7 @@ void NodeIRScheduler::print(std::ostream& pOS) const
     pOS << std::setw(normalize(exe.begin));
     for (unsigned i = 0; i < normalize(exe.end - exe.begin); ++i)
       pOS << '*';
-    PrintNode(outs(), *exe.node);
+    PrintNode(pOS, *exe.node);
   }
 }
 

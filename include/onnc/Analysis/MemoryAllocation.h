@@ -49,7 +49,7 @@ public:
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
-  void print(std::ostream& pOS) const;
+  void print(OStream& pOS) const;
 
 private:
   size_t allocByLiveness(ValMemSizeMap &pValMemSizeMap);
