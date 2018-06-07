@@ -148,7 +148,7 @@ ONNC_TARGET_SOURCES = \
 
 ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
-ONNC_CPPFLAGS =
+ONNC_CPPFLAGS = -DONNX_NAMESPACE=onnx
 
 if ENABLE_DEBUG
 ONNC_CPPFLAGS += -O0 -g3
