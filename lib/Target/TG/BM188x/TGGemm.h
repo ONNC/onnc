@@ -2,7 +2,7 @@
 #define ONNX_BM1880_TGGEMM_H
 
 #include "ComputeOperand.h"
-#include "common_calibration.pb.h"
+#include "bm188x_common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -13,7 +13,7 @@ class TGGemm : public ComputeOperand2
 {
 public:
   TGGemm(const ::onnx::Node &pNode,
-         const LayerCalibrationParameter &pLayerCtable);
+         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
   void emit() const override;
   void print(OStream &pOS) const override;
   TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
@@ -25,7 +25,7 @@ private:
   int m_outColNum;
   int m_haveBias;
   bool m_weightTp;
-  LayerCalibrationParameter m_LayerCtable;
+  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X

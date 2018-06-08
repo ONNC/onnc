@@ -3,7 +3,7 @@
 
 #include "ComputeOperand.h"
 #include "TGBackend.h"
-#include "common_calibration.pb.h"
+#include "bm188x_common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -14,7 +14,7 @@ class TGConv : public ComputeOperand2
 {
 public:
   TGConv(const ::onnx::Node &pNode,
-         const LayerCalibrationParameter &pLayerCtable);
+         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
   void print(OStream &pOS) const override;
@@ -30,7 +30,7 @@ private:
   uint8_t m_padH, m_padW;
   uint8_t m_strideH, m_strideW;
   int m_doBias;
-  LayerCalibrationParameter m_LayerCtable;
+  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X

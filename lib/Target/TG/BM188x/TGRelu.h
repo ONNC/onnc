@@ -2,7 +2,7 @@
 #define ONNX_BM1880_TGRELU_H
 
 #include "ComputeOperand.h"
-#include "common_calibration.pb.h"
+#include "bm188x_common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -13,7 +13,7 @@ class TGRelu : public ComputeOperand2
 {
 public:
   TGRelu(const ::onnx::Node &node,
-         const LayerCalibrationParameter &pLayerCtable);
+         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
   void print(OStream &pOS) const override;
@@ -25,7 +25,7 @@ private:
   int m_C;
   int m_H;
   int m_W;
-  LayerCalibrationParameter m_LayerCtable;
+  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X

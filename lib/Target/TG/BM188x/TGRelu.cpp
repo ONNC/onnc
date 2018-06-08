@@ -8,7 +8,7 @@ namespace onnc {
 namespace BM188X {
 
 TGRelu::TGRelu(const ::onnx::Node &pNode,
-               const LayerCalibrationParameter &pLayerCtable)
+               const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
     : ComputeOperand2(pNode, "Relu"), m_negativeSlope(0),
       m_LayerCtable(pLayerCtable)
 {

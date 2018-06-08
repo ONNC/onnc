@@ -2,7 +2,7 @@
 #define ONNX_BM1880_TGLRN_H
 
 #include "ComputeOperand.h"
-#include "common_calibration.pb.h"
+#include "bm188x_common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -13,7 +13,7 @@ class TGLRN : public ComputeOperand2
 {
 public:
   TGLRN(const ::onnx::Node &node,
-        const LayerCalibrationParameter &pLayerCtable);
+        const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
 
@@ -27,7 +27,7 @@ private:
   // bias
   float m_k;
   int m_localSize;
-  LayerCalibrationParameter m_LayerCtable;
+  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X

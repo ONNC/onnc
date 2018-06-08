@@ -1,4 +1,5 @@
 syntax = "proto2";
+package onnc.tg.bm1880;
 
 message ConvolutionCalibrationCalibrationParameter {
   optional int32 bn_right_shift_width = 1;

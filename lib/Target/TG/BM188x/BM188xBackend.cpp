@@ -37,11 +37,11 @@ void BM1880Backend::setCtableProto(const std::string &pTextString)
                                                   &m_NetCtableParam);
 }
 
-const LayerCalibrationParameter &
+const tg::bm1880::LayerCalibrationParameter &
 BM1880Backend::getCtableLayerParam(std::string &pName)
 {
   for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
-    const LayerCalibrationParameter &layer = m_NetCtableParam.layer(i);
+    const tg::bm1880::LayerCalibrationParameter &layer = m_NetCtableParam.layer(i);
     if (layer.name() == pName) {
       return layer;
     }

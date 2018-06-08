@@ -29,7 +29,7 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 
   std::string layerName =
       const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
-  const LayerCalibrationParameter &layerCtable =
+  const tg::bm1880::LayerCalibrationParameter &layerCtable =
       m_p1880backend->getCtableLayerParam(layerName);
   DEBUG(dbgs() << "layerName:" << layerName << "\n";);
   DEBUG(dbgs() << "LayerCalibrationParameter:" << layerCtable.DebugString(););

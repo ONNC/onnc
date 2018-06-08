@@ -8,7 +8,7 @@
 #ifndef BM188X_BACKEND_H
 #define BM188X_BACKEND_H
 #include "TGBackend.h"
-#include "common_calibration.pb.h"
+#include "bm188x_common_calibration.pb.h"
 #include <memory>
 #include <onnx/common/ir.h>
 #include <string>
@@ -26,10 +26,10 @@ public:
   std::string getBackendName() override { return "BM1880Backend"; };
   std::string getCtableName() override { return "bm1880_ctable"; }
   void setCtableProto(const std::string &pTextString) override;
-  const LayerCalibrationParameter &getCtableLayerParam(std::string &pName);
+  const tg::bm1880::LayerCalibrationParameter &getCtableLayerParam(std::string &pName);
 
 private:
-  NetCalibrationParameter m_NetCtableParam;
+  tg::bm1880::NetCalibrationParameter m_NetCtableParam;
 };
 
 } // namespace onnc
