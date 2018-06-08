@@ -11,6 +11,7 @@
 namespace onnc {
 
 void SerializeToString(std::string &output, const Module &pModule);
+
 void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule);
 
 /// Factory of Module
@@ -21,6 +22,7 @@ Module* CreateModule(const ::onnx::ModelProto &pModelProto);
 void DestroyModule(Module*& pModule);
 
 size_t getTotalCount(const std::vector<int64_t> &pDim);
+
 const ::onnx::Tensor &getTensor(std::string name, const ::onnx::Graph &graph);
 
 } // namespace onnc
