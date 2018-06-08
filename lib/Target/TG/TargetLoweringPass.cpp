@@ -19,9 +19,9 @@ public:
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
     TargetLowering *TLI = m_pTarget->getTargetLowering();
-    TLI->PrepareCodeGenAndEmitInst(pModule);
+    TLI->PrepareISelLowering(pModule);
     ::onnx::Graph *graph = pModule.getGraphIR().get();
-    TLI->CodeGenAndEmitInst(graph);
+    TLI->ISelLowering(graph);
     return Pass::kModuleNoChanged;
   }
 

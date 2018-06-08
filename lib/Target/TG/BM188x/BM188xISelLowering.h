@@ -18,7 +18,7 @@ public:
   LowerOperation(const ::onnx::Node &node,
                  std::vector<std::unique_ptr<Operator> > &instList) override;
 
-  void PrepareCodeGenAndEmitInst(Module &pModule) override;
+  void PrepareISelLowering(Module &pModule) override;
 
 private:
   Operator *LowerHelper(const ::onnx::Node &node);

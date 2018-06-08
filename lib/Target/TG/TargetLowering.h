@@ -18,10 +18,11 @@ public:
 
   virtual ~TargetLowering() = default;
 
-  // do something before CodeGenAndEmitInst
-  virtual void PrepareCodeGenAndEmitInst(Module &pModule) { return; };
+  // do something before ISelLowering
+  virtual void PrepareISelLowering(Module &pModule) { return; };
 
-  virtual void CodeGenAndEmitInst(const ::onnx::Graph *onnxGraph);
+  // Lowering ONNX IR to Compute IR
+  virtual void ISelLowering(const ::onnx::Graph *onnxGraph);
 
   virtual void
   LowerOperation(const ::onnx::Node &node,

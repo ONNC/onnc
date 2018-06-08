@@ -55,7 +55,7 @@ void BM188xISelLowering::LowerOperation(
   pInstList.push_back(std::move(oper));
 }
 
-void BM188xISelLowering::PrepareCodeGenAndEmitInst(Module &pModule)
+void BM188xISelLowering::PrepareISelLowering(Module &pModule)
 {
   // prepare ctable
   auto &ctable = m_pBackend->getCtable(pModule);
