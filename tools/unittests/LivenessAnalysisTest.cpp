@@ -253,8 +253,7 @@ SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   // set graph output value(s).
   graph.finish({"prob_1"});
 
-  Module module;
-  module.delegateGraph(std::unique_ptr<::onnx::Graph>(graph.getGraph()));
+  Module module(std::unique_ptr<::onnx::Graph>(graph.getGraph()));
 
   GraphLivenessAnalysis *liveAnalPass = CreateLivenessAnalysisPass();
   PassManager pm;

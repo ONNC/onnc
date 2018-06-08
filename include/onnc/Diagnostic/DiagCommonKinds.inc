@@ -81,3 +81,4 @@ DIAG(core_pass_no_name,           Error,   "Pass::getPassName not implemented fo
 DIAG(pass_registered,             Error,   "Pass %0 registered multiple times!")
 DIAG(pass_not_registered,         Error,   "Pass %0 is not registered in global registry")
 DIAG(onnx_cannot_parsed,          Error,   "Cannot parse onnx input file `%0`")
+DIAG(onnx_graph_alive,            Error,   "onnx::Graph still alive after Module dead.")

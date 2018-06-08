@@ -36,7 +36,7 @@ void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
 Module* onnc::CreateModule(const ::onnx::ModelProto &pModelProto)
 {
   Module* module = new Module();
-  module->delegateGraph(::onnx::ImportModelProto(pModelProto));
+  module->delegate(::onnx::ImportModelProto(pModelProto));
 
   if (pModelProto.has_ir_version())
     module->getOnnxInfo().setIRVersion(pModelProto.ir_version());

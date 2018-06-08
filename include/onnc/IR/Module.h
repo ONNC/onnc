@@ -72,16 +72,24 @@ public:
   using GraphIR = ::onnx::Graph;
 
 public:
+  /// default constructor. No graph IR is set.
   Module();
 
+  /// delegation constructor.
+  Module(std::unique_ptr< ::onnx::Graph> pGraph);
+
+  /// Destructor. Check and delete IRs.
+  /// Module responses for the life cycle of the delegated ::onnx::Graph.
   ~Module();
+
+  // move @ref pGraph from outside.
+  Module& delegate(std::unique_ptr< ::onnx::Graph> pGraph);
 
   std::shared_ptr< ::onnx::Graph> getGraphIR() { return m_pOnnxGraph; }
 
   std::shared_ptr<const ::onnx::Graph> getGraphIR() const { return m_pOnnxGraph; }
 
-  // move @ref pGraph from outside.
-  Module &delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph);
+  bool hasGraphIR() const { return (0 != m_pOnnxGraph.use_count()); }
 
   MetaDataMapType &getMetaData() { return m_OnnxMetaData; }
 
