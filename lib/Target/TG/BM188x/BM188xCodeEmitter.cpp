@@ -19,8 +19,12 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (!pOutputPath.empty())
     output_path = pOutputPath;
 
-  DEBUG(dbgs() << "BM1880Backend BM188xCodeEmitter::encodeInstructions\n");
-// TODO
+  auto &instList = m_Backend->getInsts();
+  if (m_Backend->getOption().PrintMachineCode) {
+    for (auto const &i : instList)
+      i->print(onnc::outs());
+  }
+
   std::vector<int8_t> weight_data;
   // ReadInt8DataFromBinaryFile(weight, weight_data);
   bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
@@ -28,7 +32,6 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());
 
-  auto &instList = m_Backend->getInsts();
   for (auto const &i : instList)
     i->emit();
   instList.clear();

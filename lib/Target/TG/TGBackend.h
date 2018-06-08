@@ -50,6 +50,8 @@ public:
     return m_instructions;
   }
 
+  const TargetOptions &getOption() { return m_Options; }
+
   TargetLowering *getTargetLowering() { return m_pTLI; }
 
   // default sizeof function
