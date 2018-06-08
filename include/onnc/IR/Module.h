@@ -21,8 +21,8 @@ namespace onnc {
 class Module
 {
 public:
-  typedef std::map<std::string, int64_t> OpsetImportType;
-  typedef std::map<std::string, std::string> MetaDataMapType;
+  typedef std::map<std::string, int64_t> OpsetImport;
+  typedef std::map<std::string, std::string> MetaDataMap;
 
   class OnnxInfo
   {
@@ -60,6 +60,9 @@ public:
     /// print the information in @ref pOS
     void print(std::ostream& pOS) const;
 
+    /// print the information to stderrs.
+    void dump() const;
+
   private:
     int64_t m_IRVersion;
     std::string m_ProducerName;
@@ -91,13 +94,13 @@ public:
 
   bool hasGraphIR() const { return (0 != m_pOnnxGraph.use_count()); }
 
-  MetaDataMapType &getMetaData() { return m_OnnxMetaData; }
+  MetaDataMap &getMetaData() { return m_OnnxMetaData; }
 
-  const MetaDataMapType &getMetaData() const { return m_OnnxMetaData; }
+  const MetaDataMap &getMetaData() const { return m_OnnxMetaData; }
 
-  OpsetImportType &getSetId() { return m_OnnxSetId; }
+  OpsetImport &getSetId() { return m_OnnxSetId; }
 
-  const OpsetImportType &getSetId() const { return m_OnnxSetId; }
+  const OpsetImport &getSetId() const { return m_OnnxSetId; }
 
   OnnxInfo& getOnnxInfo() { return m_OnnxInfo; }
 
@@ -110,16 +113,41 @@ public:
   // print the whole module to @ref pOS.
   void print(std::ostream& pOS) const;
 
+  template<typename PART>
+  void print(std::ostream& pOS) const { assert(false && "no part to print!"); }
+
+  template<typename PART>
+  void print(std::ostream& pOS, const PART& pPart) const {
+    assert(false && "no part to print!");
+  }
+
+  /// print the information to stderrs.
+  void dump() const;
+
 private:
   // Graph IR field
   std::shared_ptr< ::onnx::Graph> m_pOnnxGraph;
   OnnxInfo m_OnnxInfo;
-  OpsetImportType m_OnnxSetId;
-  MetaDataMapType m_OnnxMetaData;
+  OpsetImport m_OnnxSetId;
+  MetaDataMap m_OnnxMetaData;
 
   // compute IR field
   ComputeGraph m_ComputeGraph;
 };
+
+template<> void Module::print<Module::OpsetImport>(std::ostream& pOS) const;
+
+template<> void Module::print<Module::MetaDataMap>(std::ostream& pOS) const;
+
+template<> void
+Module::print(std::ostream& pOS, const ::onnx::Value& pValue) const;
+
+template<> void
+Module::print(std::ostream& pOS,
+              const ::onnx::Attributes<::onnx::Node>& pAttr) const;
+
+template<> void
+Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const;
 
 } // namespace onnc
 
