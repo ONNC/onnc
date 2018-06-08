@@ -1,10 +1,12 @@
 #include "BM188xISelLowering.h"
+#include "BM188xBackend.h"
 #include "TGConv.h"
 #include "TGGemm.h"
 #include "TGLRN.h"
 #include "TGMaxPool.h"
 #include "TGRelu.h"
 #include "TGSoftmax.h"
+#include "common_calibration.pb.h"
 
 #define DEBUG_TYPE "bm1880_lowering"
 #include <onnc/Support/Debug.h>
@@ -14,7 +16,16 @@ using namespace onnc;
 Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode,
                                           MemTable &pMemTable)
 {
+
   uint32_t symbol = pNode.kind();
+  if (symbol == ::onnx::Symbol("Undefined"))
+    return nullptr;
+  std::string layerName =
+      const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
+  const LayerCalibrationParameter &layerCtable =
+      m_p1880backend->getCtableLayerParam(layerName);
+  DEBUG(dbgs() << "layerName:" << layerName << "\n";);
+  DEBUG(dbgs() << "LayerCalibrationParameter:" << layerCtable.DebugString(););
   if (symbol == ::onnx::Symbol("Conv"))
     return new TGConv(pNode, pMemTable);
   else if (symbol == ::onnx::Symbol("Relu"))
@@ -49,5 +60,5 @@ void BM188xISelLowering::PrepareCodeGenAndEmitInst(Module &pModule)
 {
   // prepare ctable
   auto &ctable = m_pBackend->getCtable(pModule);
-  DEBUG(dbgs() << "prepare ctable:" << ctable << "\n";);
+  m_p1880backend->setCtable(ctable);
 }

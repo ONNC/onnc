@@ -8,6 +8,7 @@
 #ifndef BM188X_BACKEND_H
 #define BM188X_BACKEND_H
 #include "TGBackend.h"
+#include "common_calibration.pb.h"
 #include <memory>
 #include <onnx/common/ir.h>
 #include <string>
@@ -24,6 +25,11 @@ public:
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
   std::string getBackendName() override { return "BM1880Backend"; };
   std::string getCtableName() override { return "bm1880_ctable"; }
+  void setCtable(const std::string &pTextString);
+  const LayerCalibrationParameter &getCtableLayerParam(std::string &pName);
+
+private:
+  NetCalibrationParameter m_NetCtableParam;
 };
 
 } // namespace onnc
