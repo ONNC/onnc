@@ -11,6 +11,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnx/common/ir_pb_converter.h>
+#include <onnc/IR/ONNXUtils.h>
 
 using namespace onnc;
 

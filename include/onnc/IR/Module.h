@@ -9,22 +9,11 @@
 #define ONNC_IR_MODULE_H
 #include <map>
 #include <memory>
-#include <onnc/ADT/StringMap.h>
 #include <onnc/IR/ComputeGraph.h>
-
-namespace onnx {
-class Graph;
-class ModelProto;
-} // namespace onnx
+#include <onnx/common/ir.h>
 
 namespace onnc {
-class Module;
-namespace onnx {
-void ExportModelProto(::onnx::ModelProto &pModelProto,
-                      const ::onnc::Module &pModule);
-void ImportModelProto(::onnc::Module &pModule,
-                      const ::onnx::ModelProto &pModelProto);
-} // namespace onnx
+
 /** \class Module
  *  \brief Rrepresentation of ONNX model
  */
