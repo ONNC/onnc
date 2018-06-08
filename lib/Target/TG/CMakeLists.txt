@@ -1,7 +1,6 @@
 
 
 include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}/BM188x
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${BMTAP_BINARY_DIR}/bmnet/src
     ${BMTAP_INSTALL_DIR}/include

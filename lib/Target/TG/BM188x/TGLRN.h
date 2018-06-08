@@ -2,7 +2,7 @@
 #define ONNX_BM1880_TGLRN_H
 
 #include "ComputeOperator.h"
-#include "bm188x_common_calibration.pb.h"
+#include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
 
 namespace onnc {

@@ -8,7 +8,7 @@
 #ifndef BM188X_BACKEND_H
 #define BM188X_BACKEND_H
 #include "TGBackend.h"
-#include "bm188x_common_calibration.pb.h"
+#include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <memory>
 #include <onnx/common/ir.h>
 #include <string>
