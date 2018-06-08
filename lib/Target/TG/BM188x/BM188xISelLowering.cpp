@@ -1,14 +1,10 @@
-#include "BM188xBackend.h"
+#define DEBUG_TYPE "bm188x_lowering"
 #include "BM188xISelLowering.h"
 #include "TGConv.h"
 #include "TGGemm.h"
 #include "TGLRN.h"
 #include "TGMaxPool.h"
 #include "TGRelu.h"
-#include "TGSoftmax.h"
-#include "common_calibration.pb.h"
-
-#define DEBUG_TYPE "bm1880_lowering"
 #include <onnc/Support/Debug.h>
 
 using namespace onnc;
@@ -35,8 +31,6 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
     return new BM188X::TGMaxPool(pNode, layerCtable);
   else if (symbol == ::onnx::Symbol("Gemm"))
     return new BM188X::TGGemm(pNode, layerCtable);
-  else if (symbol == ::onnx::Symbol("Softmax"))
-    return new BM188X::TGSoftmax(pNode);
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
   return nullptr;
