@@ -13,4 +13,5 @@ add_libonnc_src(
     TGGemm.cpp 
     TGLRN.cpp  
     TGMaxPool.cpp 
-    TGRelu.cpp)
+    TGRelu.cpp
+    TGSum.cpp)

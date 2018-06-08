@@ -5,6 +5,7 @@
 #include "TGLRN.h"
 #include "TGMaxPool.h"
 #include "TGRelu.h"
+#include "TGSum.h"
 #include <onnc/Support/Debug.h>
 
 using namespace onnc;
@@ -53,6 +54,21 @@ ComputeOperator2 *BM188xISelLowering::LowerGemm(
   return op->addMemOperands(input, output, weight, bias);
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerSum(
+    const ::onnx::Node &pNode, ComputeGraph &graph,
+    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+{
+  std::vector<MemOperand *> vInput;
+  int input_size = pNode.inputs().size();
+
+  for (int i = 0; i < input_size - 1; ++i)
+    vInput.push_back(
+        m_pBackend->getMemOperand(pNode.inputs()[i], MemType::NEURON));
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGSum(pNode, layerCtable);
+  return op->addMemOperands(vInput, output);
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerReshape(const ::onnx::Node &pNode)
 {
   // reshape is in-place layer
@@ -94,6 +110,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerMaxPool(pNode, graph, layerCtable);
   } else if (symbol == ::onnx::Symbol("Gemm")) {
     return LowerGemm(pNode, graph, layerCtable);
+  } else if (symbol == ::onnx::Symbol("Sum")) {
+    return LowerSum(pNode, graph, layerCtable);
   }
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);

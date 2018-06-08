@@ -37,6 +37,9 @@ private:
   LowerGemm(const ::onnx::Node &pNode, ComputeGraph &graph,
             const tg::bm1880::LayerCalibrationParameter &layerCtable);
   ComputeOperator2 *LowerReshape(const ::onnx::Node &pNode);
+  ComputeOperator2 *
+  LowerSum(const ::onnx::Node &pNode, ComputeGraph &graph,
+           const tg::bm1880::LayerCalibrationParameter &layerCtable);
 
 private:
   BM1880Backend *m_p1880backend;
