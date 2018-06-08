@@ -11,6 +11,7 @@ ONNC_SOURCES = \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp \
+	Transforms/removeUnusedNodes.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
