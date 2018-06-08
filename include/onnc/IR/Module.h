@@ -36,6 +36,48 @@ public:
   typedef std::map<std::string, int64_t> OpsetImportType;
   typedef std::map<std::string, std::string> MetaDataMapType;
 
+  class OnnxInfo
+  {
+  public:
+    OnnxInfo();
+
+    ~OnnxInfo() { }
+
+    void setIRVersion(int64_t pVersion) { m_IRVersion = pVersion; }
+
+    int64_t getIRVersion() const { return m_IRVersion; }
+
+    void setProducer(const std::string& pName, const std::string& pVersion);
+
+    const std::string& getProducerName() const { return m_ProducerName; }
+
+    void setProducerName(const std::string& pName) { m_ProducerName = pName; }
+
+    const std::string& getProducerVersion() const { return m_ProducerVersion; }
+
+    void setProducerVersion(const std::string& pVersion) { m_ProducerVersion = pVersion; }
+
+    const std::string& getDomain() const { return m_Domain; }
+
+    void setDomain(const std::string& pDomain) { m_Domain = pDomain; }
+
+    int64_t getModelVersion() const { return m_ModelVersion; }
+
+    void setModelVersion(int64_t pModelVersion) { m_ModelVersion = pModelVersion; }
+
+    const std::string& getDocString() const { return m_DocString; }
+
+    void setDocString(const std::string& pDocString) { m_DocString = pDocString; }
+
+  private:
+    int64_t m_IRVersion;
+    std::string m_ProducerName;
+    std::string m_ProducerVersion;
+    std::string m_Domain;
+    int64_t m_ModelVersion;
+    std::string m_DocString;
+  };
+
 public:
   Module();
 
@@ -56,31 +98,9 @@ public:
 
   const OpsetImportType &getSetId() const { return m_OnnxSetId; }
 
-  void setIRVersion(int64_t pVersion) { m_OnnxIRVersion = pVersion; }
+  OnnxInfo& getOnnxInfo() { return m_OnnxInfo; }
 
-  int64_t getIRVersion() const { return m_OnnxIRVersion; }
-
-  void setProducer(const std::string& pName, const std::string& pVersion);
-
-  const std::string& getProducerName() const { return m_OnnxProducerName; }
-
-  void setProducerName(const std::string& pName) { m_OnnxProducerName = pName; }
-
-  const std::string& getProducerVersion() const { return m_OnnxProducerVersion; }
-
-  void setProducerVersion(const std::string& pVersion) { m_OnnxProducerVersion = pVersion; }
-
-  const std::string& getDomain() const { return m_OnnxDomain; }
-
-  void setDomain(const std::string& pDomain) { m_OnnxDomain = pDomain; }
-
-  int64_t getModelVersion() const { return m_OnnxModelVersion; }
-
-  void setModelVersion(int64_t pModelVersion) { m_OnnxModelVersion = pModelVersion; }
-
-  const std::string& getDocString() const { return m_OnnxDocString; }
-
-  void setDocString(const std::string& pDocString) { m_OnnxDocString = pDocString; }
+  const OnnxInfo& getOnnxInfo() const { return m_OnnxInfo; }
 
   ComputeGraph& getComputeIR() { return m_ComputeGraph; }
 
@@ -89,15 +109,8 @@ public:
 private:
   SymbolTable m_SymbolTable;
 
-  // onnc keeps all ModelProto info
-  int64_t m_OnnxIRVersion;
-  std::string m_OnnxProducerName;
-  std::string m_OnnxProducerVersion;
-  std::string m_OnnxDomain;
-  int64_t m_OnnxModelVersion;
-  std::string m_OnnxDocString;
-
   std::shared_ptr< ::onnx::Graph> m_pOnnxGraph;
+  OnnxInfo m_OnnxInfo;
   OpsetImportType m_OnnxSetId;
   MetaDataMapType m_OnnxMetaData;
 

@@ -199,12 +199,12 @@ void onnc::DumpGraph(Module &pModule)
 void onnc::DumpModule(Module &pModule)
 {
   // dump model info
-  errs() << "ir_version:" << pModule.getIRVersion() << "\n";
-  errs() << "producer_name:" << pModule.getProducerName() << "\n";
-  errs() << "producer_version:" << pModule.getProducerVersion() << "\n";
-  errs() << "domain:" << pModule.getDomain() << "\n";
-  errs() << "model_version:" << pModule.getModelVersion() << "\n";
-  errs() << "doc_string:" << pModule.getDocString() << "\n";
+  errs() << "ir_version:" << pModule.getOnnxInfo().getIRVersion() << "\n";
+  errs() << "producer_name:" << pModule.getOnnxInfo().getProducerName() << "\n";
+  errs() << "producer_version:" << pModule.getOnnxInfo().getProducerVersion() << "\n";
+  errs() << "domain:" << pModule.getOnnxInfo().getDomain() << "\n";
+  errs() << "model_version:" << pModule.getOnnxInfo().getModelVersion() << "\n";
+  errs() << "doc_string:" << pModule.getOnnxInfo().getDocString() << "\n";
 
   DumpGraph(pModule);
 

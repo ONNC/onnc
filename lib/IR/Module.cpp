@@ -14,9 +14,8 @@ using namespace onnc;
 // Module
 //===----------------------------------------------------------------------===//
 Module::Module()
-    : m_OnnxIRVersion(0), m_OnnxProducerName(""), m_OnnxProducerVersion(""),
-      m_OnnxDomain(""), m_OnnxModelVersion(0), m_OnnxDocString(""),
-      m_pOnnxGraph(nullptr), m_ComputeGraph() {
+  : m_pOnnxGraph(nullptr), m_OnnxInfo(), m_OnnxSetId(), m_OnnxMetaData(),
+    m_ComputeGraph() {
 }
 
 Module::~Module()
@@ -30,8 +29,21 @@ Module &Module::delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph)
   return *this;
 }
 
-void Module::setProducer(const std::string& pName, const std::string& pVersion)
+//===----------------------------------------------------------------------===//
+// Module::OnnxInfo
+//===----------------------------------------------------------------------===//
+Module::OnnxInfo::OnnxInfo()
+  : m_IRVersion(0),
+    m_ProducerName(),
+    m_ProducerVersion(),
+    m_Domain(),
+    m_ModelVersion(0),
+    m_DocString() {
+}
+
+void Module::OnnxInfo::setProducer(const std::string& pName,
+                                   const std::string& pVersion)
 {
-  m_OnnxProducerName = pName;
-  m_OnnxProducerVersion = pVersion;
+  m_ProducerName = pName;
+  m_ProducerVersion = pVersion;
 }
