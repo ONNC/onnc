@@ -11,6 +11,7 @@
 #include <memory>
 #include <onnc/IR/ComputeGraph.h>
 #include <onnx/common/ir.h>
+#include <ostream>
 
 namespace onnc {
 
@@ -56,6 +57,9 @@ public:
 
     void setDocString(const std::string& pDocString) { m_DocString = pDocString; }
 
+    /// print the information in @ref pOS
+    void print(std::ostream& pOS) const;
+
   private:
     int64_t m_IRVersion;
     std::string m_ProducerName;
@@ -65,14 +69,16 @@ public:
     std::string m_DocString;
   };
 
+  using GraphIR = ::onnx::Graph;
+
 public:
   Module();
 
   ~Module();
 
-  std::shared_ptr< ::onnx::Graph> getGraph() { return m_pOnnxGraph; }
+  std::shared_ptr< ::onnx::Graph> getGraphIR() { return m_pOnnxGraph; }
 
-  std::shared_ptr<const ::onnx::Graph> getGraph() const { return m_pOnnxGraph; }
+  std::shared_ptr<const ::onnx::Graph> getGraphIR() const { return m_pOnnxGraph; }
 
   // move @ref pGraph from outside.
   Module &delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph);
@@ -92,6 +98,9 @@ public:
   ComputeGraph& getComputeIR() { return m_ComputeGraph; }
 
   const ComputeGraph& getComputeIR() const { return m_ComputeGraph; }
+
+  // print the whole module to @ref pOS.
+  void print(std::ostream& pOS) const;
 
 private:
   // Graph IR field

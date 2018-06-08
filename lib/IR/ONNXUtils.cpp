@@ -21,7 +21,7 @@ void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
   pModelProto.set_model_version(pModule.getOnnxInfo().getModelVersion());
   pModelProto.set_doc_string(pModule.getOnnxInfo().getDocString());
   ::onnx::ExportModelProto(&pModelProto,
-                          const_cast<Module &>(pModule).getGraph());
+                          const_cast<Module &>(pModule).getGraphIR());
   for (const auto &setId : pModule.getSetId()) {
     auto *opset_imports = pModelProto.add_opset_import();
     opset_imports->set_domain(setId.first);

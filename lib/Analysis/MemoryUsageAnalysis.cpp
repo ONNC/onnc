@@ -20,7 +20,7 @@ MemoryUsageAnalysis::MemoryUsageAnalysis()
 Pass::ReturnType MemoryUsageAnalysis::runOnModule(Module& pModule)
 {
   clear();
-  calculateMemoryUsages(*pModule.getGraph());
+  calculateMemoryUsages(*pModule.getGraphIR());
   return kModuleNoChanged;
 }
 

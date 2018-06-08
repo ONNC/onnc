@@ -76,7 +76,7 @@ GraphLivenessAnalysis::GraphLivenessAnalysis()
 Pass::ReturnType GraphLivenessAnalysis::runOnModule(Module &pModule)
 {
   clear();
-  calculateLiveness(*pModule.getGraph());
+  calculateLiveness(*pModule.getGraphIR());
   return kModuleNoChanged;
 }
 

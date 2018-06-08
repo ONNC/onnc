@@ -155,9 +155,9 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
   GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
 
   ValMemSizeMap valMemSMap;
-  GetMemoryUsageForAllValues(*pModule.getGraph(), valMemSMap, m_DLATB);
+  GetMemoryUsageForAllValues(*pModule.getGraphIR(), valMemSMap, m_DLATB);
 
-  InsertLoadStoreNode(*pModule.getGraph());
+  InsertLoadStoreNode(*pModule.getGraphIR());
 
   // allocate memory considering liveness.
   auto &livesInfo = liveAnaly->getLiveIntervals();

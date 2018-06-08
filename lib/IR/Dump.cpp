@@ -193,7 +193,7 @@ void onnc::DumpGraph(::onnx::Graph &pGraph) { PrintGraph(errs(), pGraph); }
 
 void onnc::DumpGraph(Module &pModule)
 {
-  PrintGraph(errs(), *pModule.getGraph());
+  PrintGraph(errs(), *pModule.getGraphIR());
 }
 
 void onnc::DumpModule(Module &pModule)
