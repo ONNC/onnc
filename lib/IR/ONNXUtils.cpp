@@ -2,8 +2,7 @@
 #include <onnc/IR/ONNXUtils.h>
 #include <onnx/common/ir_pb_converter.h>
 
-namespace onnc {
-namespace onnx {
+using namespace onnc;
 
 void SerializeToString(std::string &output, const Module &pModule)
 {
@@ -82,6 +81,3 @@ const ::onnx::Tensor &getTensor(std::string name, const ::onnx::Graph &graph)
       initNames.begin(), std::find(initNames.begin(), initNames.end(), name));
   return const_cast< ::onnx::Graph &>(graph).initializers()[idx];
 }
-
-} // namespace onnx
-} // namespace onnc

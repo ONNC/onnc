@@ -201,12 +201,12 @@ static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
   // second input is a shape tensor
   const ::onnx::Value *input1 = pNode->inputs()[1];
   const ::onnx::Tensor shapeTensor =
-      ::onnc::onnx::getTensor(input1->uniqueName(), *pNode->owningGraph());
+      getTensor(input1->uniqueName(), *pNode->owningGraph());
   TensorSizes dims;
 
   // tensor is raw data
   if (0 == shapeTensor.int64s().size()) {
-    size_t size = ::onnc::onnx::getTotalCount(shapeTensor.sizes());
+    size_t size = getTotalCount(shapeTensor.sizes());
     std::vector<int64_t> int64Dims;
     int64Dims.reserve(size);
     int64Dims.resize(size);
