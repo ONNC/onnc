@@ -69,6 +69,14 @@ Module* onnc::CreateModule(const ::onnx::ModelProto &pModelProto)
   return module;
 }
 
+void onnc::DestroyModule(Module*& pModule)
+{
+  if (nullptr == pModule)
+    return;
+  delete pModule;
+  pModule = nullptr;
+}
+
 size_t getTotalCount(const std::vector<int64_t> &pDim)
 {
   size_t s = 1;

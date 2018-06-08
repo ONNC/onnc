@@ -12,6 +12,7 @@
 #include <onnc/Target/TargetBackend.h>
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/IRReader/ONNXReader.h>
+#include <onnc/IR/ONNXUtils.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
@@ -61,6 +62,6 @@ int ONNX2TG::compile()
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, m_Config.output());
   pm.run(*module);
-  delete module;
+  DestroyModule(module);
   return EXIT_SUCCESS;
 }

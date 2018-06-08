@@ -13,6 +13,7 @@
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/IRReader/ONNXReader.h>
 #include <onnc/IR/Module.h>
+#include <onnc/IR/ONNXUtils.h>
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
@@ -62,6 +63,6 @@ int ONNCApp::compile()
   backend->addCodeEmit(pm, options().output());
 
   pm.run(*module);
-  delete module;
+  DestroyModule(module);
   return EXIT_SUCCESS;
 }
