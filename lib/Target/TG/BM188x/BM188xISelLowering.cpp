@@ -9,66 +9,95 @@
 
 using namespace onnc;
 
-ComputeOperator2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
+ComputeOperator2 *BM188xISelLowering::LowerConv(
+    const ::onnx::Node &pNode, ComputeGraph &graph,
+    const tg::bm1880::LayerCalibrationParameter &layerCtable)
 {
-  uint32_t symbol = pNode.kind();
-  ::onnx::ArrayRef<const ::onnx::Value *> inputs = pNode.inputs();
-  ::onnx::ArrayRef<const ::onnx::Value *> outputs = pNode.outputs();
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
+  auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
+  auto *op = new BM188X::TGConv(pNode, layerCtable);
+  return op->addMemOperands(input, output, weight, bias);
+}
 
+ComputeOperator2 *BM188xISelLowering::LowerRelu(
+    const ::onnx::Node &pNode, ComputeGraph &graph,
+    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGRelu(pNode, layerCtable);
+  return op->addMemOperands(input, output);
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerMaxPool(
+    const ::onnx::Node &pNode, ComputeGraph &graph,
+    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGMaxPool(pNode, layerCtable);
+  return op->addMemOperands(input, output);
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerGemm(
+    const ::onnx::Node &pNode, ComputeGraph &graph,
+    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
+  auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
+  auto *op = new BM188X::TGGemm(pNode, layerCtable);
+  return op->addMemOperands(input, output, weight, bias);
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerReshape(const ::onnx::Node &pNode)
+{
+  // reshape is in-place layer
+  // create MemOperand by input value with output name
+  // reshape emit nop instruction
+  m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON,
+                            pNode.outputs()[0]->uniqueName());
+  return nullptr;
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
+                                                    ComputeGraph &graph)
+{
+  ::onnx::Node &node = const_cast< ::onnx::Node &>(pNode);
+  DEBUG(dbgs() << "lowering node: name=" << node.name()
+               << ", type=" << node.kind().toString() << "\n";);
+
+  uint32_t symbol = pNode.kind();
+  // Lowering without ctable
   if (symbol == ::onnx::Symbol("Undefined"))
     return nullptr;
   else if (symbol == ::onnx::Symbol("Reshape")) {
-    // reshape is in-place layer
-    // create MemOperand by input value with output name
-    // reshape emit nop instruction
-    m_pBackend->getMemOperand(inputs[0], MemType::NEURON);
-    m_pBackend->getMemOperand(inputs[0], MemType::NEURON,
-                              outputs[0]->uniqueName());
-    return nullptr;
+    return LowerReshape(pNode);
   }
 
+  // Lowering with ctable
   std::string layerName =
       const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
-  const tg::bm1880::LayerCalibrationParameter &layerCtable =
+  const ::tg::bm1880::LayerCalibrationParameter &layerCtable =
       m_p1880backend->getCtableLayerParam(layerName);
   DEBUG(dbgs() << "layerName:" << layerName << "\n";);
   DEBUG(dbgs() << "LayerCalibrationParameter:" << layerCtable.DebugString(););
-
-  auto *input = m_pBackend->getMemOperand(inputs[0], MemType::NEURON);
-  auto *output = m_pBackend->getMemOperand(outputs[0], MemType::NEURON);
   if (symbol == ::onnx::Symbol("Conv")) {
-    auto *weight = m_pBackend->getMemOperand(inputs[1], MemType::WEIGHT);
-    auto *bias = m_pBackend->getMemOperand(inputs[2], MemType::WEIGHT);
-    auto *op = new BM188X::TGConv(pNode, layerCtable);
-    return op->addMemOperands(input, output, weight, bias);
+    return LowerConv(pNode, graph, layerCtable);
   } else if (symbol == ::onnx::Symbol("Relu")) {
-    auto *op = new BM188X::TGRelu(pNode, layerCtable);
-    return op->addMemOperands(input, output);
+    return LowerRelu(pNode, graph, layerCtable);
   } else if (symbol == ::onnx::Symbol("MaxPool")) {
-    auto *op = new BM188X::TGMaxPool(pNode, layerCtable);
-    return op->addMemOperand(input)->addMemOperand(output);
+    return LowerMaxPool(pNode, graph, layerCtable);
   } else if (symbol == ::onnx::Symbol("Gemm")) {
-    auto *weight = m_pBackend->getMemOperand(inputs[1], MemType::WEIGHT);
-    auto *bias = m_pBackend->getMemOperand(inputs[2], MemType::WEIGHT);
-    auto *op = new BM188X::TGGemm(pNode, layerCtable);
-    return op->addMemOperands(input, output, weight, bias);
+    return LowerGemm(pNode, graph, layerCtable);
   }
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
   return nullptr;
-}
-
-void BM188xISelLowering::LowerOperation(
-    const ::onnx::Node &pNode,
-    std::vector<std::unique_ptr<ComputeOperator2> > &pInstList)
-{
-  std::unique_ptr<ComputeOperator2> oper(LowerHelper(pNode));
-  // FIXME ignore unsupported operation
-  if (nullptr == oper)
-    return;
-  DEBUG(dbgs() << "lowering type: " << oper->getTypeName()
-               << "\nlayer name:" << oper->getLayerName() << "\n";);
-  pInstList.push_back(std::move(oper));
 }
 
 void BM188xISelLowering::PrepareISelLowering(Module &pModule)

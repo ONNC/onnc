@@ -14,7 +14,7 @@ class BM168xTargetLowering : public TargetLowering
 public:
   BM168xTargetLowering(TGBackend *pBackend) : TargetLowering(pBackend) {}
 
-  void LowerOperation(
+  ComputeOperator2 *LowerOperation(
       const ::onnx::Node &node,
       std::vector<std::unique_ptr<ComputeOperator2> > &instList) override;
 

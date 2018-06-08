@@ -9,6 +9,8 @@ void TargetLowering::ISelLowering(const ::onnx::Graph *pOnnxGraph)
       m_pBackend->getInsts();
   instList.clear();
   for (const ::onnx::Node *node : pOnnxGraph->nodes()) {
-    LowerOperation(*node, instList);
+    std::unique_ptr<ComputeOperator2> oper(LowerOperation(*node, instList));
+    if (oper != nullptr)
+      instList.push_back(std::move(oper));
   }
 }

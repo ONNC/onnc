@@ -31,15 +31,15 @@ ComputeOperator2 *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
   return nullptr;
 }
 
-void BM168xTargetLowering::LowerOperation(
+ComputeOperator2 *BM168xTargetLowering::LowerOperation(
     const ::onnx::Node &pNode,
     std::vector<std::unique_ptr<ComputeOperator2> > &pInstList)
 {
-  std::unique_ptr<ComputeOperator2> oper(LowerHelper(pNode));
+  ComputeOperator2 *oper = LowerHelper(pNode);
   // FIXME ignore unsupported operation
   if (nullptr == oper)
-    return;
+    return nullptr;
   DEBUG(dbgs() << "lowering type: " << oper->getTypeName()
                << "\nlayer name:" << oper->getLayerName() << "\n";);
-  pInstList.push_back(std::move(oper));
+  return oper;
 }

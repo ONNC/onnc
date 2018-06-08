@@ -14,6 +14,9 @@ class TGBackend;
 class TargetLowering
 {
 public:
+  using ComputeGraph = std::vector<std::unique_ptr<ComputeOperator2> >;
+
+public:
   TargetLowering(TGBackend *pBackend) : m_pBackend(pBackend) {}
 
   virtual ~TargetLowering() = default;
@@ -24,9 +27,8 @@ public:
   // Lowering ONNX IR to Compute IR
   virtual void ISelLowering(const ::onnx::Graph *onnxGraph);
 
-  virtual void
-  LowerOperation(const ::onnx::Node &node,
-                 std::vector<std::unique_ptr<ComputeOperator2> > &instList) = 0;
+  virtual ComputeOperator2 *LowerOperation(const ::onnx::Node &node,
+                                          ComputeGraph &graph) = 0;
 
 protected:
   TGBackend *m_pBackend;
