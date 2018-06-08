@@ -4,7 +4,7 @@
 
 using namespace onnc;
 
-TGLRN::TGLRN(const ::onnx::Node &pNode) : Operator(pNode, "LRN"), m_k(1)
+TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperand2(pNode, "LRN"), m_k(1)
 {
 
   auto inputs = pNode.inputs();

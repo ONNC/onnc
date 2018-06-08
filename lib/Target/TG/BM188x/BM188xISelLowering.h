@@ -17,14 +17,14 @@ public:
     m_p1880backend = static_cast<BM1880Backend *>(pBackend);
   }
 
-  void
-  LowerOperation(const ::onnx::Node &node,
-                 std::vector<std::unique_ptr<Operator> > &instList) override;
+  void LowerOperation(
+      const ::onnx::Node &node,
+      std::vector<std::unique_ptr<ComputeOperand2> > &instList) override;
 
   void PrepareISelLowering(Module &pModule) override;
 
 private:
-  Operator *LowerHelper(const ::onnx::Node &node);
+  ComputeOperand2 *LowerHelper(const ::onnx::Node &node);
   BM1880Backend *m_p1880backend;
 };
 

@@ -11,7 +11,7 @@
 
 using namespace onnc;
 
-Operator *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
+ComputeOperand2 *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
 {
   uint32_t symbol = pNode.kind();
   if (symbol == ::onnx::Symbol("Conv"))
@@ -33,9 +33,9 @@ Operator *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
 
 void BM168xTargetLowering::LowerOperation(
     const ::onnx::Node &pNode,
-    std::vector<std::unique_ptr<Operator> > &pInstList)
+    std::vector<std::unique_ptr<ComputeOperand2> > &pInstList)
 {
-  std::unique_ptr<Operator> oper(LowerHelper(pNode));
+  std::unique_ptr<ComputeOperand2> oper(LowerHelper(pNode));
   // FIXME ignore unsupported operation
   if (nullptr == oper)
     return;

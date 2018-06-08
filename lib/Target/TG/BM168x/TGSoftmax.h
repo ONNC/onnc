@@ -1,13 +1,13 @@
 #ifndef ONNX_BM_TGSOFTMAX
 #define ONNX_BM_TGSOFTMAX
 
-#include "Operator.h"
+#include "ComputeOperand.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
 // m_MemOperands: input, output
-class TGSoftmax : public Operator
+class TGSoftmax : public ComputeOperand2
 {
 public:
   TGSoftmax(const ::onnx::Node &node);

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_TG_TG_BACKEND_H
 #define TARGET_TG_TG_BACKEND_H
-#include "Operator.h"
+#include "ComputeOperand.h"
 #include "TGCodeEmitter.h"
 #include "TargetLowering.h"
 #include <memory>
@@ -40,7 +40,10 @@ public:
 
   void addMemAlloc(PassManager &pPM) override;
 
-  std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
+  std::vector<std::unique_ptr<ComputeOperand2> > &getInsts()
+  {
+    return m_instructions;
+  }
 
   TargetLowering *getTargetLowering() { return m_pTLI; }
 
@@ -65,7 +68,7 @@ public:
   };
 
 private:
-  std::vector<std::unique_ptr<Operator> > m_instructions;
+  std::vector<std::unique_ptr<ComputeOperand2> > m_instructions;
   TargetLowering *m_pTLI;
   TGCodeEmitter *m_pCE;
   Path m_outputPath;

@@ -1,4 +1,3 @@
-#include "BM188xISelLowering.h"
 #include "BM188xBackend.h"
 #include "BM188xISelLowering.h"
 #include "TGConv.h"
@@ -14,7 +13,7 @@
 
 using namespace onnc;
 
-Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
+ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 {
   uint32_t symbol = pNode.kind();
   if (symbol == ::onnx::Symbol("Undefined"))
@@ -45,9 +44,9 @@ Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 
 void BM188xISelLowering::LowerOperation(
     const ::onnx::Node &pNode,
-    std::vector<std::unique_ptr<Operator> > &pInstList)
+    std::vector<std::unique_ptr<ComputeOperand2> > &pInstList)
 {
-  std::unique_ptr<Operator> oper(LowerHelper(pNode));
+  std::unique_ptr<ComputeOperand2> oper(LowerHelper(pNode));
   // FIXME ignore unsupported operation
   if (nullptr == oper)
     return;

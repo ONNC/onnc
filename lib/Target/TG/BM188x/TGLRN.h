@@ -1,13 +1,13 @@
 #ifndef ONNX_BM1880_TGLRN_H
 #define ONNX_BM1880_TGLRN_H
 
-#include "Operator.h"
+#include "ComputeOperand.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
 // m_MemOperands: input, output
-class TGLRN : public Operator
+class TGLRN : public ComputeOperand2
 {
 public:
   TGLRN(const ::onnx::Node &node);

@@ -12,16 +12,16 @@ struct MemOperand {
   uint64_t addr;
 };
 
-class Operator
+class ComputeOperand2
 {
 public:
-  Operator(const ::onnx::Node &pNode, const std::string &pTypeName)
+  ComputeOperand2(const ::onnx::Node &pNode, const std::string &pTypeName)
       : m_TypeName(pTypeName)
   {
     m_LayerName = const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
   }
 
-  virtual ~Operator() = default;
+  virtual ~ComputeOperand2() = default;
 
   // FIXME changed to use ENUM when compute ir finish
   const std::string &getTypeName() { return m_TypeName; }

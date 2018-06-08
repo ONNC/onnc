@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Operator.h"
+#include "ComputeOperand.h"
 #include "TGBackend.h"
 #include <memory>
 #include <onnc/IR/Module.h>
@@ -26,7 +26,7 @@ public:
 
   virtual void
   LowerOperation(const ::onnx::Node &node,
-                 std::vector<std::unique_ptr<Operator> > &instList) = 0;
+                 std::vector<std::unique_ptr<ComputeOperand2> > &instList) = 0;
 
 protected:
   TGBackend *m_pBackend;

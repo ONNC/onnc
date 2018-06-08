@@ -5,7 +5,7 @@
 using namespace onnc;
 
 TGRelu::TGRelu(const ::onnx::Node &pNode)
-    : Operator(pNode, "Relu"), m_inputAddr(0), m_outputAddr(0),
+    : ComputeOperand2(pNode, "Relu"), m_inputAddr(0), m_outputAddr(0),
       m_negativeSlope(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();

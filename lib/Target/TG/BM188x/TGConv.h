@@ -1,18 +1,18 @@
 #ifndef ONNX_BM1880_TGCONV_H
 #define ONNX_BM1880_TGCONV_H
 
-#include "Operator.h"
+#include "ComputeOperand.h"
 #include "common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 namespace BM188X {
 // m_MemOperands: ifmap, weight, ofmap, bias
-class TGConv : public Operator
+class TGConv : public ComputeOperand2
 {
 public:
   TGConv(const ::onnx::Node &pNode,
-              const LayerCalibrationParameter &pLayerCtable);
+         const LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
 

@@ -4,7 +4,8 @@
 
 using namespace onnc;
 
-TGSoftmax::TGSoftmax(const ::onnx::Node &pNode) : Operator(pNode, "Softmax")
+TGSoftmax::TGSoftmax(const ::onnx::Node &pNode)
+    : ComputeOperand2(pNode, "Softmax")
 {
 
   auto inputs = pNode.inputs();
