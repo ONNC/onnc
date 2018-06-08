@@ -115,5 +115,74 @@ void TGConv::emit() const
   );
 }
 
+//#define DEBUG_WEIGHT_BIN
+void TGConv::prepareWeight(std::vector<int8_t> &weight)
+{
+  weight.clear();
+  // m_MemOperands: ifmap, weight, ofmap, bias
+  // 8 bit weight
+  {
+    const ::onnx::Value *value = m_MemOperands[1]->value;
+    const ::onnx::Tensor &tensor =
+        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT8);
+    const std::string &raw = tensor.raw();
+    size_t count = ::onnc::getTotalCount(tensor.sizes());
+    weight.resize(count);
+    std::vector<int8_t> data;
+    std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+#ifdef DEBUG_WEIGHT_BIN
+    std::cout << value->uniqueName() << "\n";
+    for (auto i : data) {
+      std::cout << (int32_t)i << ",";
+    }
+    std::cout << "\n";
+#endif
+    assert((size_t)(m_outC * m_inC * m_kH * m_kW) == count);
+
+    // conv weight is arranged by (1, oc, kh*kw, ic)
+    // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+    for (int oc_i = 0; oc_i < m_outC; ++oc_i) {
+      for (int k_i = 0; k_i < m_kH * m_kW; ++k_i) {
+        for (int ic_i = 0; ic_i < m_inC; ++ic_i) {
+          weight[oc_i * (m_kH * m_kW * m_inC) + k_i * m_inC + ic_i] =
+              data[oc_i * (m_kH * m_kW * m_inC) + ic_i * (m_kH * m_kW) + k_i];
+        }
+      }
+    }
+#ifdef DEBUG_WEIGHT_BIN
+    std::cout << "after conv weight:\n";
+    for (size_t j = 0; j < count; ++j) {
+      std::cout << (int)weight[j] << ",";
+    }
+    std::cout << "\n";
+#endif
+  }
+
+  // 16bit bias
+  {
+    const ::onnx::Value *value = m_MemOperands[3]->value;
+    const ::onnx::Tensor &tensor =
+        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT16);
+    size_t count = ::onnc::getTotalCount(tensor.sizes());
+    std::vector<int16_t> int16_vector(count);
+    memcpy(int16_vector.data(), tensor.raw().data(), count * sizeof(int16_t));
+#ifdef DEBUG_WEIGHT_BIN
+    std::cout << value->uniqueName() << "\n";
+    for (auto i : int16_vector) {
+      std::cout << i << ",";
+    }
+    std::cout << "\n";
+#endif
+    size_t offset = weight.size();
+    weight.resize(offset + count * 2);
+    for (size_t i = 0; i < count; ++i) {
+      weight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
+      weight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
+    }
+  }
+}
+
 } // namespace BM188X
 } // namespace onnc

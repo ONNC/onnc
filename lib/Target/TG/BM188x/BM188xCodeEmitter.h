@@ -26,6 +26,8 @@ public:
 
   void encodeInstructions(const Path &pOutputPath) override;
 
+  void prepareWeight(std::vector<int8_t> &pWeight);
+
 private:
   void *m_bmkernelHandle;
   BM1880Backend *m_Backend;

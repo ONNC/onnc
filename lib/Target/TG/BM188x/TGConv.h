@@ -17,6 +17,7 @@ public:
          const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
+  void prepareWeight(std::vector<int8_t> &weight);
   void print(OStream &pOS) const override;
   TGConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
