@@ -10,9 +10,7 @@
 #include <map>
 #include <memory>
 #include <onnc/ADT/StringMap.h>
-#include <onnc/IR/SymbolTable.h>
 #include <onnc/IR/ComputeGraph.h>
-#include <onnc/IR/Dump.h>
 
 namespace onnx {
 class Graph;
@@ -107,8 +105,7 @@ public:
   const ComputeGraph& getComputeIR() const { return m_ComputeGraph; }
 
 private:
-  SymbolTable m_SymbolTable;
-
+  // Graph IR field
   std::shared_ptr< ::onnx::Graph> m_pOnnxGraph;
   OnnxInfo m_OnnxInfo;
   OpsetImportType m_OnnxSetId;
