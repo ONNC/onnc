@@ -11,6 +11,7 @@
 #include <memory>
 #include <onnc/ADT/StringMap.h>
 #include <onnc/IR/SymbolTable.h>
+#include <onnc/IR/ComputeGraph.h>
 #include <onnc/IR/Dump.h>
 
 namespace onnx {
@@ -55,6 +56,10 @@ public:
 
   const OpsetImportType &getSetId() const { return m_OnnxSetId; }
 
+  ComputeGraph& getComputeIR() { return m_ComputeGraph; }
+
+  const ComputeGraph& getComputeIR() const { return m_ComputeGraph; }
+
 private:
   // XXX: use accessors to explore private data member.
   friend void onnx::ExportModelProto(::onnx::ModelProto &pModelProto,
@@ -80,6 +85,9 @@ private:
   std::shared_ptr< ::onnx::Graph> m_pOnnxGraph;
   OpsetImportType m_OnnxSetId;
   MetaDataMapType m_OnnxMetaData;
+
+  // compute IR field
+  ComputeGraph m_ComputeGraph;
 };
 
 } // namespace onnc

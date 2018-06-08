@@ -16,8 +16,7 @@ using namespace onnc;
 Module::Module()
     : m_OnnxIRVersion(0), m_OnnxProducerName(""), m_OnnxProducerVersion(""),
       m_OnnxDomain(""), m_OnnxModelVersion(0), m_OnnxDocString(""),
-      m_pOnnxGraph(nullptr)
-{
+      m_pOnnxGraph(nullptr), m_ComputeGraph() {
 }
 
 Module::~Module()
