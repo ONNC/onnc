@@ -1,13 +1,13 @@
 #ifndef ONNX_BM_TGLRN_H
 #define ONNX_BM_TGLRN_H
 
-#include "ComputeOperand.h"
+#include "ComputeOperator.h"
 #include <onnx/common/ir.h>
 
 // m_MemOperands: input, output
 namespace onnc {
 
-class TGLRN : public ComputeOperand2
+class TGLRN : public ComputeOperator2
 {
 public:
   TGLRN(const ::onnx::Node &node);

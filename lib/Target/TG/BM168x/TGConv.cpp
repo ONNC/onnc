@@ -10,7 +10,7 @@ using namespace std;
 
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode)
-    : ComputeOperand2(pNode, "Conv"), m_groups(1), m_dilationH(1),
+    : ComputeOperator2(pNode, "Conv"), m_groups(1), m_dilationH(1),
       m_dilationW(1), m_padH(0), m_padW(0), m_strideH(1), m_strideW(1),
       m_doBias(0)
 {

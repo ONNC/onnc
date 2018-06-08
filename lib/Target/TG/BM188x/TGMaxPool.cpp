@@ -9,7 +9,7 @@ namespace BM188X {
 
 TGMaxPool::TGMaxPool(const ::onnx::Node &pNode,
                      const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperand2(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
+    : ComputeOperator2(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
       m_strideW(1), m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();

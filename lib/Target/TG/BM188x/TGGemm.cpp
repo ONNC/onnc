@@ -14,7 +14,7 @@ namespace BM188X {
 // X N), input tensor C and output tensor Y have dimension (M X N).
 TGGemm::TGGemm(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperand2(pNode, "Gemm"), m_inRowNum(0), m_inColNum(0),
+    : ComputeOperator2(pNode, "Gemm"), m_inRowNum(0), m_inColNum(0),
       m_outColNum(0), m_haveBias(0), m_weightTp(false),
       m_LayerCtable(pLayerCtable)
 {

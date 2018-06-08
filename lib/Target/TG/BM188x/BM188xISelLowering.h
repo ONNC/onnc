@@ -19,12 +19,12 @@ public:
 
   void LowerOperation(
       const ::onnx::Node &node,
-      std::vector<std::unique_ptr<ComputeOperand2> > &instList) override;
+      std::vector<std::unique_ptr<ComputeOperator2> > &instList) override;
 
   void PrepareISelLowering(Module &pModule) override;
 
 private:
-  ComputeOperand2 *LowerHelper(const ::onnx::Node &node);
+  ComputeOperator2 *LowerHelper(const ::onnx::Node &node);
   BM1880Backend *m_p1880backend;
 };
 

@@ -1,13 +1,13 @@
 #ifndef ONNX_BM_TGCONV_H
 #define ONNX_BM_TGCONV_H
 
-#include "ComputeOperand.h"
+#include "ComputeOperator.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
 // m_MemOperands: ifmap, weight, ofmap, bias
-class TGConv : public ComputeOperand2
+class TGConv : public ComputeOperator2
 {
 public:
   TGConv(const ::onnx::Node &node);

@@ -5,7 +5,7 @@ using namespace onnc;
 
 void TargetLowering::ISelLowering(const ::onnx::Graph *pOnnxGraph)
 {
-  std::vector<std::unique_ptr<ComputeOperand2> > &instList =
+  std::vector<std::unique_ptr<ComputeOperator2> > &instList =
       m_pBackend->getInsts();
   instList.clear();
   for (const ::onnx::Node *node : pOnnxGraph->nodes()) {

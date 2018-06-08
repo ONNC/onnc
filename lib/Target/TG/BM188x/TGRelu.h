@@ -1,7 +1,7 @@
 #ifndef ONNX_BM1880_TGRELU_H
 #define ONNX_BM1880_TGRELU_H
 
-#include "ComputeOperand.h"
+#include "ComputeOperator.h"
 #include "bm188x_common_calibration.pb.h"
 #include <onnx/common/ir.h>
 
@@ -9,7 +9,7 @@ namespace onnc {
 namespace BM188X {
 
 // m_MemOperands: input, output
-class TGRelu : public ComputeOperand2
+class TGRelu : public ComputeOperator2
 {
 public:
   TGRelu(const ::onnx::Node &node,

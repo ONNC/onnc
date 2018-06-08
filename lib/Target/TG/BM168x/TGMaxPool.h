@@ -1,13 +1,13 @@
 #ifndef ONNX_BM_TGMAXPOOL_H
 #define ONNX_BM_TGMAXPOOL_H
 
-#include "ComputeOperand.h"
+#include "ComputeOperator.h"
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
 // m_MemOperands: input, output
-class TGMaxPool : public ComputeOperand2
+class TGMaxPool : public ComputeOperator2
 {
 public:
   TGMaxPool(const ::onnx::Node &node);

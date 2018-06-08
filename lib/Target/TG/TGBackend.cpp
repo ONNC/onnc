@@ -49,7 +49,7 @@ void TGBackend::addTensorSel(PassManager &pPM)
 
 void TGBackend::addMemAlloc(PassManager &pPM)
 {
-  pPM.add(createTGMemAllocInfoPass(this));
+  pPM.add(createGlobalMemAllocPass(this));
 }
 
 void TGBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)

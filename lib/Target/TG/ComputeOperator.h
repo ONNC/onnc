@@ -1,4 +1,12 @@
-#pragma once
+//===- ComputeOperator.h---------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef COMPUTE_OPERATOR_H
+#define COMPUTE_OPERATOR_H
 
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
@@ -24,19 +32,19 @@ struct MemOperand {
 
 std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem);
 
-class ComputeOperand2
+class ComputeOperator2
 {
 public:
-  ComputeOperand2(const ::onnx::Node &pNode, const std::string &pTypeName);
+  ComputeOperator2(const ::onnx::Node &pNode, const std::string &pTypeName);
 
-  virtual ~ComputeOperand2() = default;
+  virtual ~ComputeOperator2() = default;
 
   // FIXME changed to use ENUM when compute ir finish
   const std::string &getTypeName() { return m_TypeName; }
 
   const std::string &getLayerName() { return m_LayerName; };
 
-  std::vector<MemOperand *> &getMemOprnds() { return m_MemOperands; };
+  std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; };
 
   virtual void emit(void) const = 0;
 
@@ -44,7 +52,7 @@ public:
 
   virtual void print(OStream &pOS) const;
 
-  ComputeOperand2 *addMemOperand(MemOperand *pMemOperand);
+  ComputeOperator2 *addMemOperand(MemOperand *pMemOperand);
 
 private:
   std::string m_TypeName;
@@ -55,3 +63,5 @@ protected:
 };
 
 } // namespace onnc
+
+#endif // COMPUTE_OPERATOR_H

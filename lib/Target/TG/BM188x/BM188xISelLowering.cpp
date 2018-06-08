@@ -9,7 +9,7 @@
 
 using namespace onnc;
 
-ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
+ComputeOperator2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 {
   uint32_t symbol = pNode.kind();
   ::onnx::ArrayRef<const ::onnx::Value *> inputs = pNode.inputs();
@@ -60,9 +60,9 @@ ComputeOperand2 *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 
 void BM188xISelLowering::LowerOperation(
     const ::onnx::Node &pNode,
-    std::vector<std::unique_ptr<ComputeOperand2> > &pInstList)
+    std::vector<std::unique_ptr<ComputeOperator2> > &pInstList)
 {
-  std::unique_ptr<ComputeOperand2> oper(LowerHelper(pNode));
+  std::unique_ptr<ComputeOperator2> oper(LowerHelper(pNode));
   // FIXME ignore unsupported operation
   if (nullptr == oper)
     return;

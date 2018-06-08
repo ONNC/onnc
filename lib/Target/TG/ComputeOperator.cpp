@@ -1,4 +1,4 @@
-#include "ComputeOperand.h"
+#include "ComputeOperator.h"
 #include <iomanip>
 
 namespace onnc {
@@ -23,14 +23,14 @@ MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
   }
 }
 
-ComputeOperand2::ComputeOperand2(const ::onnx::Node &pNode,
-                               const std::string &pTypeName)
+ComputeOperator2::ComputeOperator2(const ::onnx::Node &pNode,
+                                 const std::string &pTypeName)
     : m_TypeName(pTypeName)
 {
   m_LayerName = const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
 }
 
-void ComputeOperand2::memAlloc(MemTable &pPMemLayout)
+void ComputeOperator2::memAlloc(MemTable &pPMemLayout)
 {
   for (auto &i : m_MemOperands) {
     if (pPMemLayout.find(i->name) != pPMemLayout.end())
@@ -38,12 +38,12 @@ void ComputeOperand2::memAlloc(MemTable &pPMemLayout)
   }
 }
 
-void ComputeOperand2::print(OStream &pOS) const
+void ComputeOperator2::print(OStream &pOS) const
 {
   pOS << m_TypeName << " " << m_LayerName << "\n";
 }
 
-ComputeOperand2 *ComputeOperand2::addMemOperand(MemOperand *pMemOperand)
+ComputeOperator2 *ComputeOperator2::addMemOperand(MemOperand *pMemOperand)
 {
   m_MemOperands.push_back(pMemOperand);
   return this;

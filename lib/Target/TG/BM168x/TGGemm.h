@@ -1,12 +1,12 @@
 #ifndef ONNX_BM_TGGEMM_H
 #define ONNX_BM_TGGEMM_H
 
-#include "ComputeOperand.h"
+#include "ComputeOperator.h"
 #include <onnx/common/ir.h>
 namespace onnc {
 
 //  m_MemOperands: input, weight, bias, output
-class TGGemm : public ComputeOperand2
+class TGGemm : public ComputeOperator2
 {
 public:
   TGGemm(const ::onnx::Node &pNode);

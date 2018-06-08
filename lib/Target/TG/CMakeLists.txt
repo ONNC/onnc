@@ -13,8 +13,8 @@ add_libonnc_src(
     TargetLowering.cpp
     TGBackend.cpp
     TGCodeEmitPass.cpp
-    ComputeOperand.cpp
-    TGMemAllocInfoPass.cpp
+    ComputeOperator.cpp
+    GlobalMemAllocPass
     TargetLoweringPass.cpp)
 
 add_subdirectory(BM168x)

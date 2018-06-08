@@ -1,39 +1,38 @@
+#define DEBUG_TYPE "tg_mem_alloc"
 #include "TG.h"
 #include "TGBackend.h"
+#include <onnc/ADT/Color.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
-
-#define DEBUG_TYPE "tg_mem_alloc"
-#include <onnc/ADT/Color.h>
 #include <onnc/Support/Debug.h>
 #include <onnc/Support/IOStream.h>
+#include <onnx/common/ir.h>
 
 using namespace onnc;
 
 namespace {
 
-class TGMemAllocInfo : public ModulePass
+class GlobalMemAlloc : public ModulePass
 {
 
 private:
   TGBackend *m_pTarget;
-  void ddrAllocInfo();
+  void AllocGlobalMem();
 
 public:
   static char ID;
 
 public:
-  TGMemAllocInfo(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
+  GlobalMemAlloc(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
-    ddrAllocInfo();
+    AllocGlobalMem();
     return Pass::kModuleNoChanged;
   }
 };
 
-void TGMemAllocInfo::ddrAllocInfo()
+void GlobalMemAlloc::AllocGlobalMem()
 {
   unsigned int weight_offset = 0;
   unsigned int neuron_offset = 0;
@@ -41,7 +40,7 @@ void TGMemAllocInfo::ddrAllocInfo()
 
   DEBUG(dbgs() << __func__ << " dump global memory layout:"
                << "\n";);
-  std::unordered_map<const ::onnx::Value *, MemOperand*> allocatedValue;
+  std::unordered_map<const ::onnx::Value *, MemOperand *> allocatedValue;
   for (auto &mem : m_pTarget->getMemOperands()) {
     int tensor_size = 0;
     if (allocatedValue.count(mem->value)) {
@@ -66,9 +65,9 @@ void TGMemAllocInfo::ddrAllocInfo()
 
 } // anonymous namespace
 
-char TGMemAllocInfo::ID = 0;
+char GlobalMemAlloc::ID = 0;
 
-ModulePass *onnc::createTGMemAllocInfoPass(TGBackend *pTarget)
+ModulePass *onnc::createGlobalMemAllocPass(TGBackend *pTarget)
 {
-  return new TGMemAllocInfo(pTarget);
+  return new GlobalMemAlloc(pTarget);
 }
