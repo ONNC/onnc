@@ -31,7 +31,7 @@ bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
   }
 }
 
-void BM1880Backend::setCtable(const std::string &pTextString)
+void BM1880Backend::setCtableProto(const std::string &pTextString)
 {
   ::google::protobuf::TextFormat::ParseFromString(pTextString,
                                                   &m_NetCtableParam);

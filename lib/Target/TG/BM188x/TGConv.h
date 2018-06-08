@@ -9,12 +9,11 @@ namespace onnc {
 class TGConv : public Operator
 {
 public:
-  TGConv(const ::onnx::Node &node, MemTable &memTable);
+  TGConv(const ::onnx::Node &node);
 
   void emit() const override;
 
 private:
-  std::vector<uint64_t> m_weightOffset;
   uint64_t m_ifmapAddr, m_ofmapAddr, m_weightAddr, m_biasAddr;
   int m_inN, m_inC, m_inH, m_inW;
   int m_groups;

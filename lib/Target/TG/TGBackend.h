@@ -56,6 +56,9 @@ public:
   // load ctable from onx meta data
   const std::string &getCtable(const Module &pModule);
 
+  // parse textString to proto format and store in Backend
+  virtual void setCtableProto(const std::string &pTextString);
+
   // for debug usage
   virtual std::string getBackendName() {
     return "TGBackend";

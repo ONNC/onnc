@@ -9,7 +9,7 @@ namespace onnc {
 class TGSoftmax : public Operator
 {
 public:
-  TGSoftmax(const ::onnx::Node &node, MemTable &memTable);
+  TGSoftmax(const ::onnx::Node &node);
 
   void emit() const override;
 

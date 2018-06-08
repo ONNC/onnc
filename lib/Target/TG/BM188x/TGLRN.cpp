@@ -4,14 +4,12 @@
 
 using namespace onnc;
 
-TGLRN::TGLRN(const ::onnx::Node &pNode, MemTable &pMemTable)
-    : Operator(pNode, "LRN"), m_k(1)
+TGLRN::TGLRN(const ::onnx::Node &pNode)
+    : Operator(pNode, "LRN"), m_inputAddr(0), m_outputAddr(0), m_k(1)
 {
 
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
-  m_inputAddr = pMemTable[inputs[0]->uniqueName()];
-  m_outputAddr = pMemTable[outputs[0]->uniqueName()];
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;

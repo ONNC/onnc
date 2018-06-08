@@ -79,16 +79,14 @@ void dump_onnx_Conv(const ::onnx::Node &pNode)
 } // anonymous namespace
 
 // TGConv
-TGConv::TGConv(const ::onnx::Node &pNode, MemTable &pMemTable)
-    : Operator(pNode, "Conv"), m_groups(1), m_dilationH(1), m_dilationW(1),
-      m_padH(0), m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0)
+TGConv::TGConv(const ::onnx::Node &pNode)
+    : Operator(pNode, "Conv"), m_ifmapAddr(0), m_ofmapAddr(0), m_weightAddr(0),
+      m_biasAddr(0), m_groups(1), m_dilationH(1), m_dilationW(1), m_padH(0),
+      m_padW(0), m_strideH(1), m_strideW(1), m_doBias(0)
 {
   dump_onnx_Conv(pNode);
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
-  m_ifmapAddr = pMemTable[inputs[0]->uniqueName()];
-  m_weightAddr = pMemTable[inputs[1]->uniqueName()];
-  m_ofmapAddr = pMemTable[outputs[0]->uniqueName()];
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_inN = inDim[0].dim;
@@ -124,7 +122,6 @@ TGConv::TGConv(const ::onnx::Node &pNode, MemTable &pMemTable)
   }
   if (3 == pNode.inputs().size()) {
     m_doBias = 1;
-    m_biasAddr = pMemTable[inputs[2]->uniqueName()];
   } else {
     m_biasAddr = 0;
   }

@@ -86,6 +86,14 @@ const std::string &TGBackend::getCtable(const Module &pModule)
   return ctable;
 }
 
+void TGBackend::setCtableProto(const std::string &pTextString)
+{
+  if (getCtableName() != "") {
+    // implemnt this function when target has ctable
+    assert(0);
+  }
+}
+
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//

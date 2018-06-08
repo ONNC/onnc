@@ -8,12 +8,11 @@ namespace onnc {
 class TGGemm : public Operator
 {
 public:
-  TGGemm(const ::onnx::Node &pNode, MemTable &pMemTable);
+  TGGemm(const ::onnx::Node &pNode);
   void dumpOnnxGemm(const ::onnx::Node &pNode);
   void emit() const override;
 
 private:
-  std::vector<uint64_t> m_weightOffset;
   uint64_t m_inputAddr;
   uint64_t m_weightAddr;
   uint64_t m_biasAddr;

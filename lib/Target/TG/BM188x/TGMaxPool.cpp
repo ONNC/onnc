@@ -4,15 +4,13 @@
 
 using namespace onnc;
 
-TGMaxPool::TGMaxPool(const ::onnx::Node &pNode, MemTable &pMemTable)
-    : Operator(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
-      m_strideW(1)
+TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
+    : Operator(pNode, "MaxPool"), m_inputAddr(0), m_outputAddr(0), m_padH(0),
+      m_padW(0), m_strideH(1), m_strideW(1)
 {
 
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
-  m_inputAddr = pMemTable[inputs[0]->uniqueName()];
-  m_outputAddr = pMemTable[outputs[0]->uniqueName()];
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;

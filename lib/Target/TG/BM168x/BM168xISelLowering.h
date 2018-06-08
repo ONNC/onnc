@@ -19,7 +19,7 @@ public:
                  std::vector<std::unique_ptr<Operator> > &instList) override;
 
 private:
-  Operator *LowerHelper(const ::onnx::Node &node, MemTable &memTabl);
+  Operator *LowerHelper(const ::onnx::Node &node);
 };
 
 } // namespace onnc

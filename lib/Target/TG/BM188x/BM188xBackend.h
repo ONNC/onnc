@@ -25,7 +25,7 @@ public:
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
   std::string getBackendName() override { return "BM1880Backend"; };
   std::string getCtableName() override { return "bm1880_ctable"; }
-  void setCtable(const std::string &pTextString);
+  void setCtableProto(const std::string &pTextString) override;
   const LayerCalibrationParameter &getCtableLayerParam(std::string &pName);
 
 private:

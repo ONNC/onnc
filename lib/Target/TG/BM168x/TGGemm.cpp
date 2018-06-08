@@ -64,7 +64,7 @@ void TGGemm::dumpOnnxGemm(const ::onnx::Node &pNode)
 // Y = alpha * A * B + beta * C
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K
 // X N), input tensor C and output tensor Y have dimension (M X N).
-TGGemm::TGGemm(const ::onnx::Node &pNode, MemTable &pMemTable)
+TGGemm::TGGemm(const ::onnx::Node &pNode)
     : Operator(pNode, "Gemm"), m_inputAddr(0x0), m_weightAddr(0x0),
       m_biasAddr(0x0), m_outputAddr(0x0), m_inRowNum(0), m_inColNum(0),
       m_outColNum(0), m_haveBias(0), m_usingRelu(0), m_weightTp(false)
@@ -74,11 +74,6 @@ TGGemm::TGGemm(const ::onnx::Node &pNode, MemTable &pMemTable)
 
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
-  m_inputAddr = pMemTable[inputs[0]->uniqueName()];
-  m_weightAddr = pMemTable[inputs[1]->uniqueName()];
-  m_biasAddr = pMemTable[inputs[2]->uniqueName()];
-  m_outputAddr = pMemTable[outputs[0]->uniqueName()];
-
   const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
   const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();
   m_inRowNum = aDim[0].dim;

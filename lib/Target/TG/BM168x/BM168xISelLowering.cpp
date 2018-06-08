@@ -11,22 +11,21 @@
 
 using namespace onnc;
 
-Operator *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode,
-                                            MemTable &pMemTable)
+Operator *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
 {
   uint32_t symbol = pNode.kind();
   if (symbol == ::onnx::Symbol("Conv"))
-    return new TGConv(pNode, pMemTable);
+    return new TGConv(pNode);
   else if (symbol == ::onnx::Symbol("Relu"))
-    return new TGRelu(pNode, pMemTable);
+    return new TGRelu(pNode);
   else if (symbol == ::onnx::Symbol("LRN"))
-    return new TGLRN(pNode, pMemTable);
+    return new TGLRN(pNode);
   else if (symbol == ::onnx::Symbol("MaxPool"))
-    return new TGMaxPool(pNode, pMemTable);
+    return new TGMaxPool(pNode);
   else if (symbol == ::onnx::Symbol("Gemm"))
-    return new TGGemm(pNode, pMemTable);
+    return new TGGemm(pNode);
   else if (symbol == ::onnx::Symbol("Softmax"))
-    return new TGSoftmax(pNode, pMemTable);
+    return new TGSoftmax(pNode);
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
   return nullptr;
@@ -36,11 +35,11 @@ void BM168xTargetLowering::LowerOperation(
     const ::onnx::Node &pNode,
     std::vector<std::unique_ptr<Operator> > &pInstList)
 {
-  MemTable &globalMemLayout = m_pBackend->getMemLayout();
-  std::unique_ptr<Operator> oper(LowerHelper(pNode, globalMemLayout));
+  std::unique_ptr<Operator> oper(LowerHelper(pNode));
   // FIXME ignore unsupported operation
   if (nullptr == oper)
     return;
-  DEBUG(dbgs() << "lowering: " << oper->getName() << std::endl;);
+  DEBUG(dbgs() << "lowering type: " << oper->getTypeName()
+               << "\nlayer name:" << oper->getLayerName() << "\n";);
   pInstList.push_back(std::move(oper));
 }

@@ -4,15 +4,14 @@
 
 using namespace onnc;
 
-TGRelu::TGRelu(const ::onnx::Node &pNode, MemTable &pMemTable)
-    : Operator(pNode, "Relu"), m_negativeSlope(0)
+TGRelu::TGRelu(const ::onnx::Node &pNode)
+    : Operator(pNode, "Relu"), m_inputAddr(0), m_outputAddr(0),
+      m_negativeSlope(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
 
   auto inputs = pNode.inputs();
   auto outputs = pNode.outputs();
-  m_inputAddr = pMemTable[inputs[0]->uniqueName()];
-  m_outputAddr = pMemTable[outputs[0]->uniqueName()];
 
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;

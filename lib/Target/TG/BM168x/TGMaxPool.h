@@ -9,7 +9,7 @@ namespace onnc {
 class TGMaxPool : public Operator
 {
 public:
-  TGMaxPool(const ::onnx::Node &node, MemTable &memTable);
+  TGMaxPool(const ::onnx::Node &node);
 
   void emit() const override;
 

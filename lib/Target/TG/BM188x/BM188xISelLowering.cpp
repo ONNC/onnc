@@ -1,5 +1,6 @@
 #include "BM188xISelLowering.h"
 #include "BM188xBackend.h"
+#include "BM188xISelLowering.h"
 #include "TGConv.h"
 #include "TGGemm.h"
 #include "TGLRN.h"
@@ -13,32 +14,30 @@
 
 using namespace onnc;
 
-Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode,
-                                          MemTable &pMemTable)
+Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 {
-
   uint32_t symbol = pNode.kind();
-  if (symbol == ::onnx::Symbol("Undefined"))
-    return nullptr;
+#if 0
   std::string layerName =
       const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
   const LayerCalibrationParameter &layerCtable =
       m_p1880backend->getCtableLayerParam(layerName);
   DEBUG(dbgs() << "layerName:" << layerName << "\n";);
   DEBUG(dbgs() << "LayerCalibrationParameter:" << layerCtable.DebugString(););
+#endif
   if (symbol == ::onnx::Symbol("Conv"))
-    return new TGConv(pNode, pMemTable);
+    return new TGConv(pNode);
   else if (symbol == ::onnx::Symbol("Relu"))
-    return new TGRelu(pNode, pMemTable);
+    return new TGRelu(pNode);
   else if (symbol == ::onnx::Symbol("LRN"))
-    return new TGLRN(pNode, pMemTable);
+    return new TGLRN(pNode);
   else if (symbol == ::onnx::Symbol("MaxPool"))
-    return new TGMaxPool(pNode, pMemTable);
+    return new TGMaxPool(pNode);
   else if (symbol == ::onnx::Symbol("Gemm"))
-    return new TGGemm(pNode, pMemTable);
+    return new TGGemm(pNode);
   else if (symbol == ::onnx::Symbol("Softmax"))
-    return new TGSoftmax(pNode, pMemTable);
-  DEBUG(dbgs() << "unsupported pNode type: " << pNode.kind().toString()
+    return new TGSoftmax(pNode);
+  DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
   return nullptr;
 }
@@ -47,12 +46,12 @@ void BM188xISelLowering::LowerOperation(
     const ::onnx::Node &pNode,
     std::vector<std::unique_ptr<Operator> > &pInstList)
 {
-  MemTable &globalMemLayout = m_pBackend->getMemLayout();
-  std::unique_ptr<Operator> oper(LowerHelper(pNode, globalMemLayout));
+  std::unique_ptr<Operator> oper(LowerHelper(pNode));
   // FIXME ignore unsupported operation
   if (nullptr == oper)
     return;
-  DEBUG(dbgs() << "lowering: " << oper->getName() << std::endl;);
+  DEBUG(dbgs() << "lowering type: " << oper->getTypeName()
+               << "\nlayer name:" << oper->getLayerName() << "\n";);
   pInstList.push_back(std::move(oper));
 }
 
@@ -60,5 +59,5 @@ void BM188xISelLowering::PrepareCodeGenAndEmitInst(Module &pModule)
 {
   // prepare ctable
   auto &ctable = m_pBackend->getCtable(pModule);
-  m_p1880backend->setCtable(ctable);
+  m_pBackend->setCtableProto(ctable);
 }

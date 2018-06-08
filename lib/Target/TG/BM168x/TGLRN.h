@@ -9,7 +9,7 @@ namespace onnc {
 class TGLRN : public Operator
 {
 public:
-  TGLRN(const ::onnx::Node &node, MemTable &memTable);
+  TGLRN(const ::onnx::Node &node);
 
   void emit() const override;
 
