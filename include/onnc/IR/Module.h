@@ -56,24 +56,39 @@ public:
 
   const OpsetImportType &getSetId() const { return m_OnnxSetId; }
 
+  void setIRVersion(int64_t pVersion) { m_OnnxIRVersion = pVersion; }
+
+  int64_t getIRVersion() const { return m_OnnxIRVersion; }
+
+  void setProducer(const std::string& pName, const std::string& pVersion);
+
+  const std::string& getProducerName() const { return m_OnnxProducerName; }
+
+  void setProducerName(const std::string& pName) { m_OnnxProducerName = pName; }
+
+  const std::string& getProducerVersion() const { return m_OnnxProducerVersion; }
+
+  void setProducerVersion(const std::string& pVersion) { m_OnnxProducerVersion = pVersion; }
+
+  const std::string& getDomain() const { return m_OnnxDomain; }
+
+  void setDomain(const std::string& pDomain) { m_OnnxDomain = pDomain; }
+
+  int64_t getModelVersion() const { return m_OnnxModelVersion; }
+
+  void setModelVersion(int64_t pModelVersion) { m_OnnxModelVersion = pModelVersion; }
+
+  const std::string& getDocString() const { return m_OnnxDocString; }
+
+  void setDocString(const std::string& pDocString) { m_OnnxDocString = pDocString; }
+
   ComputeGraph& getComputeIR() { return m_ComputeGraph; }
 
   const ComputeGraph& getComputeIR() const { return m_ComputeGraph; }
 
 private:
-  // XXX: use accessors to explore private data member.
-  friend void onnx::ExportModelProto(::onnx::ModelProto &pModelProto,
-                                     const Module &pModule);
-
-  // XXX: use accessors to explore private data member.
-  friend void onnx::ImportModelProto(Module &pModule,
-                                     const ::onnx::ModelProto &pModelProto);
-
-  // XXX: use accessors to explore private data member.
-  friend void onnc::DumpModule(Module &pModule);
-
-private:
   SymbolTable m_SymbolTable;
+
   // onnc keeps all ModelProto info
   int64_t m_OnnxIRVersion;
   std::string m_OnnxProducerName;

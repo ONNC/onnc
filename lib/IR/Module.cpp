@@ -29,3 +29,9 @@ Module &Module::delegateGraph(std::unique_ptr< ::onnx::Graph> pGraph)
   m_pOnnxGraph = std::move(pGraph);
   return *this;
 }
+
+void Module::setProducer(const std::string& pName, const std::string& pVersion)
+{
+  m_OnnxProducerName = pName;
+  m_OnnxProducerVersion = pVersion;
+}
