@@ -4,6 +4,9 @@ ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
 	IR/ComputeOperator.cpp \
 	IR/ComputeGraph.cpp \
+	IR/Module.cpp \
+	IR/Dump.cpp \
+	IR/ONNXUtils.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
@@ -33,8 +36,6 @@ ONNC_SOURCES = \
 	ADT/Rope.cpp \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
-	IR/Module.cpp \
-	IR/Dump.cpp \
   Support/AsyncPipe.cpp \
   Support/CArgu.cpp \
   Support/CArguRef.cpp \
