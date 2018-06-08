@@ -15,3 +15,4 @@ add_libonnc_src(
     TGMaxPool.cpp 
     TGRelu.cpp
     TGSum.cpp)
+target_include_directories(libonnc SYSTEM INTERFACE PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
