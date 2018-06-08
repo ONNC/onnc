@@ -31,13 +31,14 @@ onnc::onnx::Reader::~Reader()
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
+Module* onnc::onnx::Reader::parse(const Path& pFileName, SystemError& pError)
 {
+  Module* result = nullptr;
   FileHandle file;
-  SystemError err = file.open(pFileName, FileHandle::kReadOnly);
-  if (!err.isGood()) {
+  pError = file.open(pFileName, FileHandle::kReadOnly);
+  if (!pError.isGood()) {
     // TODO: show the error message
-    return false;
+    return nullptr;
   }
 
 
@@ -49,31 +50,15 @@ bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
     coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
     if (!model.ParseFromCodedStream(&coded_input)) {
       error(onnx_cannot_parsed) << pFileName;
-      return false;
+      return nullptr;
     }
-    ImportModelProto(pModule, model);
+    result = CreateModule(model);;
   }
 
-  err = file.close();
-  return err.isGood();
-}
-
-bool onnc::onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
-{
-  {
-    ::google::protobuf::io::CodedInputStream
-        coded_input((const uint8_t *)pContent.raw(), pContent.size());
-
-    /**
-    onnx::ModelProto model;
-    coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
-    if (!model.ParseFromCodedStream(&coded_input)) {
-      // TODO: show the error message
-      return false;
-    }
-    **/
-  }
-  return true;
+  pError = file.close();
+  if (!pError.isGood())
+    return nullptr;
+  return result;
 }
 
 void onnc::onnx::Reader::setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold)

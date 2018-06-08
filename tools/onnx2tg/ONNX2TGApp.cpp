@@ -37,8 +37,10 @@ ONNX2TG::~ONNX2TG()
 int ONNX2TG::compile()
 {
   onnc::onnx::Reader reader;
-  Module module;
-  if (!reader.parse(m_Config.input(), module)) {
+  SystemError err;
+  Module* module = reader.parse(m_Config.input(), err);
+  if (nullptr == module) {
+    // TODO: show the error message
     return EXIT_FAILURE;
   }
 
@@ -58,6 +60,7 @@ int ONNX2TG::compile()
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, m_Config.output());
-  pm.run(module);
+  pm.run(*module);
+  delete module;
   return EXIT_SUCCESS;
 }

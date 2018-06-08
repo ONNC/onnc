@@ -33,37 +33,40 @@ void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
   }
 }
 
-void ImportModelProto(Module &pModule, const ::onnx::ModelProto &pModelProto)
+Module* onnc::CreateModule(const ::onnx::ModelProto &pModelProto)
 {
+  Module* module = new Module();
+  module->delegateGraph(::onnx::ImportModelProto(pModelProto));
+
   if (pModelProto.has_ir_version())
-    pModule.getOnnxInfo().setIRVersion(pModelProto.ir_version());
+    module->getOnnxInfo().setIRVersion(pModelProto.ir_version());
 
   if (pModelProto.has_producer_name())
-    pModule.getOnnxInfo().setProducerName(pModelProto.producer_name());
+    module->getOnnxInfo().setProducerName(pModelProto.producer_name());
 
   if (pModelProto.has_producer_version())
-    pModule.getOnnxInfo().setProducerVersion(pModelProto.producer_version());
+    module->getOnnxInfo().setProducerVersion(pModelProto.producer_version());
 
   if (pModelProto.has_domain())
-    pModule.getOnnxInfo().setDomain(pModelProto.domain());
+    module->getOnnxInfo().setDomain(pModelProto.domain());
 
   if (pModelProto.has_model_version())
-    pModule.getOnnxInfo().setModelVersion(pModelProto.model_version());
+    module->getOnnxInfo().setModelVersion(pModelProto.model_version());
 
   if (pModelProto.has_doc_string())
-    pModule.getOnnxInfo().setDocString(pModelProto.doc_string());
-
-  pModule.delegateGraph(::onnx::ImportModelProto(pModelProto));
+    module->getOnnxInfo().setDocString(pModelProto.doc_string());
 
   for (int i = 0; i < pModelProto.opset_import_size(); i++) {
     auto &opset = pModelProto.opset_import(i);
-    pModule.getSetId().insert({ opset.domain(), opset.version() });
+    module->getSetId().insert({ opset.domain(), opset.version() });
   }
 
   for (int i = 0; i < pModelProto.metadata_props_size(); i++) {
     auto &strStrEntry = pModelProto.metadata_props(i);
-    pModule.getMetaData().insert({ strStrEntry.key(), strStrEntry.value() });
+    module->getMetaData().insert({ strStrEntry.key(), strStrEntry.value() });
   }
+
+  return module;
 }
 
 size_t getTotalCount(const std::vector<int64_t> &pDim)

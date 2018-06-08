@@ -28,14 +28,8 @@ public:
   virtual ~Reader();
 
   /// parse ONNX file
-  /// @param[out] pModule The parsing result.
-  /// @retval false Error occurs
-  bool parse(const Path& pFileName, Module& pModule);
-
-  /// parse a buffer as ONNX file format
-  /// @param[out] pModule The parsing result.
-  /// @retval false Error occurs
-  bool parse(ConstBuffer pContent, Module& pModule);
+  /// @param[out] pError error occurred in the parsing.
+  Module* parse(const Path& pFileName, SystemError& pError);
 
   /// Set the total bytes limit.
   /// @param[in] pTotalBytesLimit
