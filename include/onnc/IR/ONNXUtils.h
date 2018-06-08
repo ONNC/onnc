@@ -9,8 +9,6 @@
 #ifndef ONNXUTILS_H
 #define ONNXUTILS_H
 
-#define ONNX_NAMESPACE onnx
-
 #include <onnc/IR/Module.h>
 #include <onnx/common/ir_pb_converter.h>
 
