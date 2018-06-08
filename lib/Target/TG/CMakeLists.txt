@@ -5,8 +5,7 @@ include_directories(
     ${BMTAP_BINARY_DIR}/bmnet/src
     ${BMTAP_INSTALL_DIR}/include
     ${BMTAP_SOURCE_DIR}/bmnet/include
-    ${BMTAP_SOURCE_DIR}/bmnet/include/targets
-    ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm168x/bmkernel)
+    ${BMTAP_SOURCE_DIR}/bmnet/include/targets)
 include_directories(${PYTORCH_INCLUDE_DIRS})
 
 add_libonnc_src(

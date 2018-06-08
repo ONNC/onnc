@@ -2,6 +2,7 @@
 #define BM188X_CODE_EMITTER_H
 #include "BM188xBackend.h"
 #include "TGCodeEmitter.h"
+#include "plat-bm188x/BM188xBackendContext.hpp"
 #include <memory>
 #include <onnc/Support/Path.h>
 #include <vector>
@@ -41,7 +42,7 @@ public:
   }
 
 public:
-  bmnet::BM1880BackendContext *m_Ctx;
+  bmnet::BM188xBackendContext *m_Ctx;
 
 private:
   bm1880_kernel(bm1880_kernel const &) = delete;

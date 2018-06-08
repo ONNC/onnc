@@ -17,16 +17,17 @@ using namespace onnc;
 Operator *BM188xISelLowering::LowerHelper(const ::onnx::Node &pNode)
 {
   uint32_t symbol = pNode.kind();
-#if 0
+  if (symbol == ::onnx::Symbol("Undefined"))
+    return nullptr;
+
   std::string layerName =
       const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
   const LayerCalibrationParameter &layerCtable =
       m_p1880backend->getCtableLayerParam(layerName);
   DEBUG(dbgs() << "layerName:" << layerName << "\n";);
   DEBUG(dbgs() << "LayerCalibrationParameter:" << layerCtable.DebugString(););
-#endif
   if (symbol == ::onnx::Symbol("Conv"))
-    return new TGConv(pNode);
+    return new BM188X::TGConv(pNode, layerCtable);
   else if (symbol == ::onnx::Symbol("Relu"))
     return new TGRelu(pNode);
   else if (symbol == ::onnx::Symbol("LRN"))

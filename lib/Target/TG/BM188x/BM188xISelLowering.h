@@ -12,7 +12,10 @@ class BM1880Backend;
 class BM188xISelLowering : public TargetLowering
 {
 public:
-  BM188xISelLowering(TGBackend *pBackend) : TargetLowering(pBackend) {}
+  BM188xISelLowering(TGBackend *pBackend) : TargetLowering(pBackend)
+  {
+    m_p1880backend = static_cast<BM1880Backend *>(pBackend);
+  }
 
   void
   LowerOperation(const ::onnx::Node &node,
@@ -22,6 +25,7 @@ public:
 
 private:
   Operator *LowerHelper(const ::onnx::Node &node);
+  BM1880Backend *m_p1880backend;
 };
 
 } // namespace onnc
