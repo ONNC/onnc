@@ -195,7 +195,7 @@ void UpdateOutputInfo::updateGemmInfo(::onnx::Node *const node) {
 
 Pass::ReturnType UpdateOutputInfo::runOnModule(Module &pModule) {
 
-  ::onnx::Graph *graph = pModule.getGraph().get();
+  ::onnx::Graph *graph = pModule.getGraphIR().get();
 
   // workaround code for update alexnet input dimension
   if (graph->has_name() && std::string::npos != graph->name().find("alexnet")) {
@@ -235,7 +235,7 @@ Pass::ReturnType UpdateOutputInfo::runOnModule(Module &pModule) {
 
   // TODO use IR printer pass, or add passes by option (ex. printf-after-all)
   std::cout << "==================after UpdateOutputInfoPass: =====================" << std::endl;
-  ONNXIRPrinter::dumpGraph(pModule.getGraph());
+  ONNXIRPrinter::dumpGraph(pModule.getGraphIR());
 
   return Pass::kModuleChanged;
 }

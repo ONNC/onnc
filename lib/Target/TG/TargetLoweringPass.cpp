@@ -17,7 +17,7 @@ public:
   TargetISel(TGBackend* pBackend) : ModulePass(ID), m_pTarget(pBackend) {}
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
-    ::onnx::Graph *graph = pModule.getGraph().get();
+    ::onnx::Graph *graph = pModule.getGraphIR().get();
     TargetLowering *TLI = m_pTarget->getTargetLowering();
     TLI->CodeGenAndEmitInst(graph, m_pTarget->getInsts());
     return Pass::kModuleNoChanged;

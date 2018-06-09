@@ -24,7 +24,7 @@ public:
   }
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override {
-    ::onnx::Graph *graph = pModule.getGraph().get();
+    ::onnx::Graph *graph = pModule.getGraphIR().get();
     ddrAllocInfo(*graph, m_pTarget->getMemLayout());
     return Pass::kModuleNoChanged;
   }
