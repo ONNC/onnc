@@ -4,14 +4,14 @@
 
 using namespace onnc;
 
-void SerializeToString(std::string &output, const Module &pModule)
+void onnc::SerializeToString(std::string &output, const Module &pModule)
 {
   ::onnx::ModelProto modelProto;
   ExportModelProto(modelProto, pModule);
   modelProto.SerializeToString(&output);
 }
 
-void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
+void onnc::ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
 {
   pModelProto.set_ir_version(pModule.getOnnxInfo().getIRVersion());
   pModelProto.set_producer_name(pModule.getOnnxInfo().getProducerName());
@@ -76,7 +76,7 @@ void onnc::DestroyModule(Module*& pModule)
   pModule = nullptr;
 }
 
-size_t getTotalCount(const std::vector<int64_t> &pDim)
+size_t onnc::getTotalCount(const std::vector<int64_t> &pDim)
 {
   size_t s = 1;
   for (auto &size : pDim)
