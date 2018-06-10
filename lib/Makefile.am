@@ -38,6 +38,7 @@ ONNC_SOURCES = \
 	ADT/Rope.cpp \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
+	Support/Debug.cpp \
   Support/AsyncPipe.cpp \
   Support/CArgu.cpp \
   Support/CArguRef.cpp \
