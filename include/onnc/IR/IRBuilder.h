@@ -23,6 +23,9 @@ class IRBuilder
 private:
   Module& m_Module; //< The target module.
 
+  /// current target compute graph
+  ComputeGraph* m_pTargetCG;
+
 public:
   /// set the target module @ref pModel
   IRBuilder(Module& pModule);
@@ -39,6 +42,16 @@ public:
 
   /// update the inserted module by @ref pProto
   void update(const ::onnx::ModelProto& pProto);
+
+  void setTargetComputeGraph(ComputeGraph* pCG) { m_pTargetCG = pCG; }
+
+  /// create a compute graph
+  /// @retval nullptr The graph already exists in module.
+  ComputeGraph* CreateComputeGraph(StringRef pName) {
+    ComputeGraph* cg = getModule().createComputeGraph(pName);
+    setTargetComputeGraph(cg);
+    return cg;
+  }
 };
 
 } // namespace onnc

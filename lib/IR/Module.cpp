@@ -20,7 +20,7 @@ Module::Module()
     m_OnnxInfo(),
     m_OnnxSetId(),
     m_OnnxMetaData(),
-    m_ComputeGraph() {
+    m_ComputeGraphs() {
 }
 
 Module::Module(std::unique_ptr< ::onnx::Graph> pGraph)
@@ -28,7 +28,7 @@ Module::Module(std::unique_ptr< ::onnx::Graph> pGraph)
     m_OnnxInfo(),
     m_OnnxSetId(),
     m_OnnxMetaData(),
-    m_ComputeGraph() {
+    m_ComputeGraphs() {
 }
 
 Module::~Module()
@@ -44,6 +44,37 @@ Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
 {
   m_pOnnxGraph = std::move(pGraph);
   return *this;
+}
+
+ComputeGraph* Module::getComputeGraph(StringRef pName)
+{
+  if (m_ComputeGraphs.empty())
+    return nullptr;
+  ComputeGraphList::iterator cg = m_ComputeGraphs.find(pName);
+  if (m_ComputeGraphs.end() == cg)
+    return nullptr;
+  return cg->value();
+}
+
+const ComputeGraph* Module::getComputeGraph(StringRef pName) const
+{
+  if (m_ComputeGraphs.empty())
+    return nullptr;
+  ComputeGraphList::const_iterator cg = m_ComputeGraphs.find(pName);
+  if (m_ComputeGraphs.end() == cg)
+    return nullptr;
+  return cg->value();
+}
+
+ComputeGraph* Module::createComputeGraph(StringRef pName)
+{
+  bool exist = false;
+  ComputeGraphList::entry_type* entry = m_ComputeGraphs.insert(pName, exist);
+  if (exist)
+    return nullptr;
+
+  entry->setValue(new ComputeGraph(*this));
+  return entry->value();
 }
 
 void Module::print(std::ostream& pOS) const

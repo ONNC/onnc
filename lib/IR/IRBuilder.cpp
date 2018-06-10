@@ -13,7 +13,7 @@ using namespace onnc;
 // IRBuilder
 //===----------------------------------------------------------------------===//
 IRBuilder::IRBuilder(Module& pModule)
-  : m_Module(pModule) {
+  : m_Module(pModule), m_pTargetCG(nullptr) {
 }
 
 IRBuilder::IRBuilder(Module& pModule, const ::onnx::ModelProto& pProto)

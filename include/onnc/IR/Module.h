@@ -10,7 +10,11 @@
 #include <map>
 #include <memory>
 #include <onnc/IR/ComputeGraph.h>
+#include <onnc/IR/ComputeDefine.h>
+#include <onnc/ADT/StringRef.h>
+#include <onnc/ADT/StringMap.h>
 #include <onnx/common/ir.h>
+#include <vector>
 #include <ostream>
 
 namespace onnc {
@@ -21,6 +25,13 @@ namespace onnc {
 class Module
 {
 public:
+  typedef StringMap<ComputeGraph*> ComputeGraphList;
+  typedef ComputeGraphList::iterator compute_iterator;
+  typedef ComputeGraphList::const_iterator const_compute_iterator;
+
+  typedef std::vector<ComputeOperand*> ComputeOperandList;
+  typedef std::vector<ComputeDefine*> ComputeDefineList;
+
   typedef std::map<std::string, int64_t> OpsetImport;
   typedef std::map<std::string, std::string> MetaDataMap;
 
@@ -106,9 +117,32 @@ public:
 
   const OnnxInfo& getOnnxInfo() const { return m_OnnxInfo; }
 
-  ComputeGraph& getComputeIR() { return m_ComputeGraph; }
+  /// get the graph named @ref pName
+  /// @retval nullptr not found
+  ComputeGraph* getComputeGraph(StringRef pName);
 
-  const ComputeGraph& getComputeIR() const { return m_ComputeGraph; }
+  /// get the graph named @ref pName
+  /// @retval nullptr not found
+  const ComputeGraph* getComputeGraph(StringRef pName) const;
+
+  compute_iterator begin() { return m_ComputeGraphs.begin(); }
+
+  compute_iterator end() { return m_ComputeGraphs.end(); }
+
+  const_compute_iterator begin() const { return m_ComputeGraphs.begin(); }
+
+  const_compute_iterator end() const { return m_ComputeGraphs.end(); }
+
+  /// return the number of compute graphs
+  unsigned getNumOfComputeGraphs() const { return m_ComputeGraphs.numOfEntries(); }
+
+  ComputeOperandList& getComputeOperands() { return m_ComputeOperands; }
+
+  const ComputeOperandList& getComputeOperands() const { return m_ComputeOperands; }
+
+  /// create a compute graph and put it in module.
+  /// @retval nullptr The graph already exists
+  ComputeGraph* createComputeGraph(StringRef pName);
 
   // print the whole module to @ref pOS.
   void print(std::ostream& pOS) const;
@@ -132,7 +166,9 @@ private:
   MetaDataMap m_OnnxMetaData;
 
   // compute IR field
-  ComputeGraph m_ComputeGraph;
+  ComputeGraphList m_ComputeGraphs;
+  ComputeOperandList m_ComputeOperands;
+  ComputeDefineList m_ComputeDefines;
 };
 
 template<> void Module::print<Module::OpsetImport>(std::ostream& pOS) const;
