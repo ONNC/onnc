@@ -6,4 +6,5 @@ add_libonnc_src(
     Module.cpp
     ONNCModulePrinter.cpp
     ONNXUtils.cpp
-    Quadruple.cpp)
+    Quadruple.cpp
+    IRBuilder.cpp)

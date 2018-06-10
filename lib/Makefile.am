@@ -7,6 +7,7 @@ ONNC_SOURCES = \
 	IR/Module.cpp \
 	IR/Dump.cpp \
 	IR/ONNXUtils.cpp \
+	IR/IRBuilder.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
