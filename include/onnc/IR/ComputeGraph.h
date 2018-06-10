@@ -53,9 +53,9 @@ public:
   template<typename OpndType, typename ... ArcCtorParams>
   OpndType* addOperand(Node& pU, Node& pV, ArcCtorParams&& ... pParams);
 
-  template<typename ... ArcCtorParams>
-  Arc* connect(Node& pU, Node& pV, ArcCtorParams&& ... pParams) {
-    return addArc(pU, pV, pParams...);
+  template<typename OpndType, typename ... ArcCtorParams>
+  OpndType* connect(Node& pU, Node& pV, ArcCtorParams&& ... pParams) {
+    return addOperand<OpndType>(pU, pV, pParams...);
   }
 
   void erase(Node& pNode);
