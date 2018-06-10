@@ -25,6 +25,13 @@ BFSIterator::BFSIterator(NodeBase* pNode)
   m_Visited.insert(pNode);
 }
 
+// XXX: use traits
+BFSIterator::BFSIterator(const NodeBase* pNode)
+  : NodeIteratorBase(const_cast<NodeBase*>(pNode)) {
+  m_Queue.push(const_cast<NodeBase*>(pNode));
+  m_Visited.insert(const_cast<NodeBase*>(pNode));
+}
+
 bool BFSIterator::isEnd() const
 {
   return m_Queue.empty();
@@ -78,6 +85,13 @@ DFSIterator::DFSIterator(NodeBase* pNode)
   : NodeIteratorBase(pNode) {
   m_Stack.push(pNode);
   m_Visited.insert(pNode);
+}
+
+// XXX: use traits
+DFSIterator::DFSIterator(const NodeBase* pNode)
+  : NodeIteratorBase(const_cast<NodeBase*>(pNode)) {
+  m_Stack.push(const_cast<NodeBase*>(pNode));
+  m_Visited.insert(const_cast<NodeBase*>(pNode));
 }
 
 bool DFSIterator::isEnd() const

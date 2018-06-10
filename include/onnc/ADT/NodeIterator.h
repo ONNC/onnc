@@ -19,7 +19,7 @@ public:
     : m_pNodePtr(nullptr) {
   }
 
-  explicit NodeIteratorBase(digraph::NodeBase* pPtr)
+  NodeIteratorBase(digraph::NodeBase* pPtr)
     : m_pNodePtr(pPtr) {
   }
 
