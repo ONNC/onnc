@@ -43,7 +43,12 @@ public:
   /// update the inserted module by @ref pProto
   void update(const ::onnx::ModelProto& pProto);
 
+  /// change the insertion point to @ref pCG
   void setTargetComputeGraph(ComputeGraph* pCG) { m_pTargetCG = pCG; }
+
+  /// get current insertion point of compute graph
+  /// @retval nullptr not set.
+  ComputeGraph* getTargetComputeGraph() { return m_pTargetCG; }
 
   /// create a compute graph
   /// @retval nullptr The graph already exists in module.
@@ -51,6 +56,14 @@ public:
     ComputeGraph* cg = getModule().createComputeGraph(pName);
     setTargetComputeGraph(cg);
     return cg;
+  }
+
+  template<typename OpType>
+  IRBuilder& RegisterComputeOperator(OpType* pOperator) {
+    // target compute graph shall add pOperator automatically in operator
+    // created.
+    getModule().getComputeDefines().push_back(pOperator);
+    return *this;
   }
 };
 

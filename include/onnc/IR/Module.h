@@ -140,6 +140,10 @@ public:
 
   const ComputeOperandList& getComputeOperands() const { return m_ComputeOperands; }
 
+  ComputeDefineList& getComputeDefines() { return m_ComputeDefines; }
+
+  const ComputeDefineList& getComputeDefines() const { return m_ComputeDefines; }
+
   /// create a compute graph and put it in module.
   /// @retval nullptr The graph already exists
   ComputeGraph* createComputeGraph(StringRef pName);
