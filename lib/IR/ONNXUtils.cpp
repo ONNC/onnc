@@ -84,7 +84,7 @@ size_t onnc::getTotalCount(const std::vector<int64_t> &pDim)
   return s;
 }
 
-const ::onnx::Tensor &getTensor(std::string name, const ::onnx::Graph &graph)
+const ::onnx::Tensor onnc::&getTensor(std::string name, const ::onnx::Graph &graph)
 {
   auto initNames = const_cast< ::onnx::Graph &>(graph).initializer_names();
   std::ptrdiff_t idx = std::distance(
