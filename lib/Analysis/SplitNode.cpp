@@ -11,6 +11,7 @@
 #include <limits>
 #include <iomanip> // for setw
 #include <tuple>
+#include <onnc/IR/Dump.h>
 
 using namespace onnc;
 
@@ -54,6 +55,134 @@ LongInts SplitNode::getNewOutputSize(unsigned pIdx) const
 static SplitNode* SplitNodeCreator(onnx::Node& pN);
 
 //===----------------------------------------------------------------------===//
+// Split Graph
+//===----------------------------------------------------------------------===//
+using NodeNodeMap = std::unordered_map<onnx::Node*, onnx::Node*>;
+
+static void cloneNodeAndSuccessors(onnx::Node *pNode,
+                                     onnx::Graph *pNewGraph,
+                                     NodeNodeMap &pOldNewMap)
+{
+  std::vector<onnx::Node *> worklist;
+
+  worklist.reserve(8);
+  worklist.push_back(pNode);
+
+  while (!worklist.empty()) {
+    onnx::Node *oldN = worklist.back();
+    worklist.pop_back();
+
+    onnx::Node *newN = pNewGraph->create(oldN->kind(), oldN->outputs().size());
+    newN->copyAttributes(*oldN);
+    pOldNewMap[oldN] = newN;
+
+    for (unsigned i = 0; i < oldN->outputs().size(); ++i) {
+      onnx::Value *outv = oldN->outputs()[i];
+      newN->outputs()[i]->copyMetadata(outv);
+
+      for (auto u : outv->uses())
+        worklist.push_back(u.user);
+    }
+  }
+}
+
+static void rebuildInputs(NodeNodeMap &pOldNewMap)
+{
+  // Rebuild inputs for newly created nodes from pOldNewMap.
+  for (auto &it : pOldNewMap) {
+    onnx::Node *oldN = it.first, *newN = it.second;
+    for (onnx::Value *oldv : oldN->inputs()) {
+      auto valIt = pOldNewMap.find(oldv->node());
+      if (valIt == pOldNewMap.end()) {
+        outs() << "[Warning] rebuildInputs: required input value = "
+               << oldv->uniqueName() << " is not found in new nodes map.\n";
+        continue;
+      }
+      // [FIXME] We should remember newN's input[i] maps to which output[j] of
+      //         newN's parent node.
+      newN->addInput(valIt->first->outputs()[0]);
+      if (valIt->first->outputs().size() > 1) {
+        outs() << "[Warning] rebuildInputs: parent node "
+               << valIt->first->outputs()[0]->uniqueName()
+               << " has more than one output value.\n";
+      }
+    }
+  }
+}
+
+static void createLoadStoreAtNode(onnx::Graph *pGraph, onnx::Node *pN)
+{
+  // Create new store and load pairs.
+  for (onnx::Value *outv : pN->outputs()) {
+    onnx::Node* first = nullptr;
+    for(auto u : outv->uses()) {
+      if (!first) {
+        first = u.user;
+        continue;
+      }
+
+      if (!first->isBefore(u.user))
+        first = u.user;
+    }
+
+    // Create load node and insert before the first use node.
+    // FIXME: the first using should be in the same group, should we need to
+    //        check this?
+    onnx::Node* loadN = pGraph->create(onnx::Symbol("Load"));
+    loadN->insertBefore(first);
+    loadN->output()->copyMetadata(outv);
+    outv->replaceAllUsesWith(loadN->output());
+
+    // create store after creating load (since replaceAllUseWith).
+    onnx::Node* storeN = pGraph->create(onnx::Symbol("Store"), {outv});
+    storeN->insertAfter(pN);
+  }
+}
+
+onnx::Graph *splitGraph(onnx::Graph *pGraph,
+                        std::vector<onnx::Node *> &pSplitPts)
+{
+  // Create new sub graph.
+  // Note: 1. new sub graph does not include split points.
+  //       2. new sub graph should be deleted by DeleteSubGraph pass.
+  // TODO: DeleteSubGraph
+  onnx::Graph *newGraph = new onnx::Graph();
+
+  // Create load/store to split graph.
+  for (onnx::Node *spNode : pSplitPts)
+    createLoadStoreAtNode(pGraph, spNode);
+
+  // <old node, new node>
+  NodeNodeMap OldNewMap;
+
+  // Clone predecessors of split nodes to new graph
+  for (onnx::Node *spNode : pSplitPts)
+    for (onnx::Value *outv : spNode->outputs())
+      for(auto u : outv->uses())
+        cloneNodeAndSuccessors(u.user, newGraph, OldNewMap);
+
+  rebuildInputs(OldNewMap);
+
+#if 0
+  for (onnx::Node *spNode : pSplitPts) {
+    // Create load/store IR on each output of the split point.
+    for (onnx::Value *outv : spNode->outputs()) {
+      onnx::Node *storeN = pGraph.create(onnx::Symbol("Store"), {outv}, 1);
+      storeN->output()->copyMetadata(outv);
+
+      onnx::Node *loadN = newGraph->create(onnx::Symbol("Load"));
+      loadN->output()->copyMetadata(outv);
+    }
+  }
+#endif
+
+  // Create a new node to contain the subgraph
+  onnx::Node *subg = pGraph->create(onnx::Symbol("SubGraph"));
+
+  return newGraph;
+}
+
+//===----------------------------------------------------------------------===//
 // SplitNodeManager
 //===----------------------------------------------------------------------===//
 void SplitGroup::resetToOrigSize()
@@ -80,6 +209,7 @@ void SplitGroup::resetToOrigSize()
   }
 }
 
+// TODO: getMemUsage: use a graph, and traverse graph
 void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
                              ValMemSizeMap &pVMSMap)
 {
@@ -107,6 +237,9 @@ void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
       pVMSMap[v] = pTTI->getOperatorOutputMemUsage(&n, i,
                                                    sn->calNewInputSize(i));
     }
+
+    //errs() << "get mem usage ";
+    //PrintNode(errs(), n);
 
     // add upper layer to worklist until load ir.
     for (onnx::Value *v : n.inputs()) {
@@ -172,6 +305,36 @@ SplitGroup *SplitGroup::splitNewGroup(const TargetTransformInfo *pTTI)
     m_SnMgr.createLoadStoreAtNode(halfpt, newgroup);
 
   return newgroup;
+}
+
+onnx::Node *findHalfSizePoints(onnx::Graph *pGraph,
+                               const TargetTransformInfo *pTTI)
+{
+  // <accumulated size, node>
+  using AccSizeNodePair = std::tuple<uint64_t, onnx::Node *>;
+  std::vector<AccSizeNodePair> accSizes;
+
+  uint64_t total = 0;
+  for (onnx::Node *n : pGraph->nodes()) {
+    // skip load and store since they are calculated by their user nodes.
+    if (n->kind() == g_LoadKind || n->kind() == g_StoreKind)
+      continue;
+
+    total = pTTI->getOperatorMemUsage(n).size;
+    if (!accSizes.empty())
+      total += std::get<0>(accSizes.back());
+
+    accSizes.emplace_back(total, n);
+  }
+
+  AccSizeNodePair target = std::make_tuple(total/2, nullptr);
+  const auto &halfPt =
+    std::upper_bound(accSizes.begin(), accSizes.end(),
+                     target,
+                     [] (const AccSizeNodePair &a, const AccSizeNodePair &b) {
+                       return std::get<0>(a) < std::get<0>(b);
+                     });
+  return std::get<1>(*halfPt);
 }
 
 onnx::Node *SplitGroup::findHalfSizePoints(const TargetTransformInfo *pTTI,
@@ -338,7 +501,7 @@ void SplitNodeManager::createLoadStoreAtNode(onnx::Node *pN, SplitGroup *pGroup)
     outv->replaceAllUsesWith(loadN->output());
 
     // create store after creating load (since replaceAllUseWith).
-    onnx::Node* storeN = m_Graph.create(onnx::Symbol("Store"), {outv}, 0);
+    onnx::Node* storeN = m_Graph.create(onnx::Symbol("Store"), {outv});
     storeN->insertAfter(pN);
 
     m_SplitInfos[loadN] = SplitNodeCreator(*loadN);
