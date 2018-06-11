@@ -5,8 +5,8 @@
 using namespace onnc;
 
 TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
-    : ComputeOperator2(pNode, "MaxPool"), m_padH(0), m_padW(0), m_strideH(1),
-      m_strideW(1)
+    : ComputeOperator2(pNode, "MaxPool"), m_PadH(0), m_PadW(0), m_StrideH(1),
+      m_StrideW(1)
 {
 
   // auto inputs = pNode.inputs();
@@ -27,39 +27,39 @@ TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
-  m_kH = pNode.is(::onnx::Symbol("kernel_shape"))[0];
-  m_kW = pNode.is(::onnx::Symbol("kernel_shape"))[1];
+  m_KH = pNode.is(::onnx::Symbol("kernel_shape"))[0];
+  m_KW = pNode.is(::onnx::Symbol("kernel_shape"))[1];
 
   // [leftPad, downPad, rightPad, upPad]
   if (pNode.hasAttribute(::onnx::Symbol("pads"))) {
     auto &i = pNode.is(::onnx::Symbol("pads"));
     // NOTE: It is for bmkernel padding on both ends
-    m_padH = i[0];
-    m_padW = i[1];
+    m_PadH = i[0];
+    m_PadW = i[1];
   }
   if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
     auto &i = pNode.is(::onnx::Symbol("strides"));
-    m_strideH = i[0];
-    m_strideW = i[1];
+    m_StrideH = i[0];
+    m_StrideW = i[1];
   }
 }
 
 void TGMaxPool::emit() const
 {
-  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0]->addr
-            << " m_outputAddr:" << m_MemOperands[1]->addr << " m_N:" << m_N
+  std::cout << "TGMaxPool::emit\tm_inputAddr:" << m_MemOperands[0]->m_Addr
+            << " m_OutputAddr:" << m_MemOperands[1]->m_Addr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
-            << " m_kH:" << m_kH << " m_kW:" << m_kW << " m_padH:" << m_padH
-            << " m_padW:" << m_padW << " m_srideH:" << m_strideH
-            << " m_strideW:" << m_strideW << std::endl;
+            << " m_KH:" << m_KH << " m_KW:" << m_KW << " m_PadH:" << m_PadH
+            << " m_PadW:" << m_PadW << " m_SrideH:" << m_StrideH
+            << " m_StrideW:" << m_StrideW << std::endl;
 
   // bmnet_pooling_forward_bmkernel
   bmnet::bmnet_pooling_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
-      m_MemOperands[1]->addr,
+      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
+      m_MemOperands[1]->m_Addr,
       GADDR_INVALID, // useless oindex_gaddr
       GADDR_INVALID, // useless relu_gaddr
-      m_N, m_C, m_H, m_W, m_kH, m_kW, m_padH, m_padW, m_strideH, m_strideW,
+      m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadH, m_PadW, m_StrideH, m_StrideW,
       false, // is_avg_pooling
       0.0f,  // always is 0.0f
       false  // disable actvation

@@ -21,7 +21,7 @@ class BM1680Backend : public TGBackend
 {
 public:
   BM1680Backend(const TargetOptions &pOptions);
-  virtual ~BM1680Backend();
+  ~BM1680Backend() override;
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
   std::string getBackendName() override { return "BM1680Backend"; };
 };
@@ -30,7 +30,7 @@ class BM1682Backend : public TGBackend
 {
 public:
   BM1682Backend(const TargetOptions &pOptions);
-  virtual ~BM1682Backend();
+  ~BM1682Backend() override;
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
   std::string getBackendName() override { return "BM1682Backend"; };
 };

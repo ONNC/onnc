@@ -29,7 +29,7 @@ TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
 
 TGBackend::~TGBackend()
 {
-  for (auto &memOp : m_memOperands) {
+  for (auto &memOp : m_MemOperands) {
     delete (memOp);
   }
   delete m_pTLI;
@@ -52,16 +52,13 @@ void TGBackend::addMemAlloc(PassManager &pPM)
   pPM.add(createGlobalMemAllocPass(this));
 }
 
-void TGBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
+void TGBackend::addCodeEmit(PassManager &pPM, const Path &pOutput)
 {
-  m_outputPath = pOutput;
+  m_OutputPath = pOutput;
   pPM.add(createTGCodeEmitPass(this));
 }
 
-void TGBackend::codeEmit()
-{
-  m_pCE->encodeInstructions(m_outputPath);
-}
+void TGBackend::codeEmit() { m_pCE->encodeInstructions(m_OutputPath); }
 
 bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 {
@@ -108,30 +105,31 @@ MemOperand *TGBackend::getMemOperand(const ::onnx::Value *pValue,
   std::string name = pName;
   if (pName.empty())
     name = pValue->uniqueName();
-  auto it = std::find_if(m_memOperands.begin(), m_memOperands.end(),
-                         [&](const auto &elem) { return elem->name == name; });
-  if (it != m_memOperands.end()) {
+  auto it =
+      std::find_if(m_MemOperands.begin(), m_MemOperands.end(),
+                   [&](const auto &pElem) { return pElem->m_Name == name; });
+  if (it != m_MemOperands.end()) {
     return *it;
   }
   MemOperand *memOp = new MemOperand(name, pValue, pMemType);
-  m_memOperands.push_back(memOp);
+  m_MemOperands.push_back(memOp);
   return memOp;
 }
 
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateTGBM1680Backend(const TargetOptions& pOptions)
+TargetBackend *CreateTGBM1680Backend(const TargetOptions &pOptions)
 {
   return new BM1680Backend(pOptions);
 }
 
-TargetBackend* CreateTGBM1682Backend(const TargetOptions& pOptions)
+TargetBackend *CreateTGBM1682Backend(const TargetOptions &pOptions)
 {
   return new BM1682Backend(pOptions);
 }
 
-TargetBackend* CreateTGBM1880Backend(const TargetOptions& pOptions)
+TargetBackend *CreateTGBM1880Backend(const TargetOptions &pOptions)
 {
   return new BM1880Backend(pOptions);
 }
@@ -139,9 +137,9 @@ TargetBackend* CreateTGBM1880Backend(const TargetOptions& pOptions)
 extern "C" void InitializeTGONNCBackend()
 {
   onnc::TargetRegistry::RegisterTargetBackend(getTheTGBM1680Target(),
-      CreateTGBM1680Backend);
+                                              CreateTGBM1680Backend);
   onnc::TargetRegistry::RegisterTargetBackend(getTheTGBM1682Target(),
-      CreateTGBM1682Backend);
+                                              CreateTGBM1682Backend);
   onnc::TargetRegistry::RegisterTargetBackend(getTheTGBM1880Target(),
-      CreateTGBM1880Backend);
+                                              CreateTGBM1880Backend);
 }

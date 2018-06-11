@@ -25,13 +25,13 @@ public:
   virtual void PrepareISelLowering(Module &pModule) { return; };
 
   // Lowering ONNX IR to Compute IR
-  virtual void ISelLowering(const ::onnx::Graph *onnxGraph);
+  virtual void ISelLowering(const ::onnx::Graph *pOnnxGraph);
 
-  virtual ComputeOperator2 *LowerOperation(const ::onnx::Node &node,
-                                          ComputeGraph &graph) = 0;
+  virtual ComputeOperator2 *LowerOperation(const ::onnx::Node &pNode,
+                                           ComputeGraph &pGraph) = 0;
 
 protected:
-  TGBackend *m_pBackend;
+  TGBackend *m_pBackend; // NOLINT
 };
 
 } // namespace onnc

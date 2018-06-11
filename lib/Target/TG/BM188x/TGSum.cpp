@@ -13,11 +13,11 @@ TGSum::TGSum(const ::onnx::Node &pNode,
     : ComputeOperator2(pNode, "Sum"), m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
-  m_inN = inDim[0].dim;
-  m_inC = inDim[1].dim;
-  m_inH = inDim[2].dim;
-  m_inW = inDim[3].dim;
-  m_inSize = m_inN * m_inC * m_inH * m_inW;
+  m_InN = inDim[0].dim;
+  m_InC = inDim[1].dim;
+  m_InH = inDim[2].dim;
+  m_InW = inDim[3].dim;
+  m_InSize = m_InN * m_InC * m_InH * m_InW;
 }
 
 TGSum *TGSum::addMemOperands(std::vector<MemOperand *> pInput,
@@ -34,8 +34,8 @@ void TGSum::print(OStream &pOS) const
 {
   pOS << *(m_MemOperands.back()) << " = Sum "
       << "< "
-      << "inN:" << m_inN << ", inC:" << m_inC
-      << ", inH:" << m_inH << ", inW:" << m_inW;
+      << "inN:" << m_InN << ", inC:" << m_InC
+      << ", inH:" << m_InH << ", inW:" << m_InW;
 
   int thx_size = m_LayerCtable.threshold_x_quantized_size();
   for (int i = 0; i < thx_size; ++i) {
@@ -62,21 +62,21 @@ void TGSum::emit() const
   int in_size = m_MemOperands.size() - 1;
   uint64_t *input = new uint64_t[in_size];
   for (int i = 0; i < in_size; ++i)
-    input[i] = m_MemOperands[i]->addr;
+    input[i] = m_MemOperands[i]->m_Addr;
 
   bmnet::bmnet_eltwise_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_Ctx,
-      input,                      // inputs
-      m_MemOperands.back()->addr, // ouput
-      m_inSize,
+      *bm1880_kernel::getInstance().m_CTX,
+      input,                        // inputs
+      m_MemOperands.back()->m_Addr, // ouput
+      m_InSize,
       1, // op: SUM
-      m_inN, m_inC, m_inH, m_inW,
+      m_InN, m_InC, m_InH, m_InW,
       false,       // do_relu
       0.0,         // relu_slope,
       rShiftWidth, // right_shift_width
       m_LayerCtable.threshold_x_quantized().data());
 
-  delete input;
+  delete[] input;
 }
 
 } // namespace BM188X

@@ -17,11 +17,11 @@ public:
 
   void emit() const override;
   void print(OStream &pOS) const override;
-  TGSum *addMemOperands(std::vector<MemOperand *> vInput, MemOperand *pOutput);
+  TGSum *addMemOperands(std::vector<MemOperand *> pVInput, MemOperand *pOutput);
 
 private:
-  int m_inN, m_inC, m_inH, m_inW;
-  int m_inSize;
+  int m_InN, m_InC, m_InH, m_InW;
+  int m_InSize;
   tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 

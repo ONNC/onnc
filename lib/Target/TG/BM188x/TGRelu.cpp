@@ -9,7 +9,7 @@ namespace BM188X {
 
 TGRelu::TGRelu(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "Relu"), m_negativeSlope(0),
+    : ComputeOperator2(pNode, "Relu"), m_NegativeSlope(0),
       m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
@@ -37,7 +37,7 @@ TGRelu *TGRelu::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
 
 void TGRelu::print(OStream &pOS) const
 {
-  pOS << *m_MemOperands[1] << " = ReLU <negativeSlope:" << m_negativeSlope
+  pOS << *m_MemOperands[1] << " = ReLU <negativeSlope:" << m_NegativeSlope
       << ", N:" << m_N << ", C:" << m_C << ", H:" << m_H << ", W:" << m_W
       << "> (" << *m_MemOperands[1] << ")\n";
 }
@@ -47,14 +47,14 @@ void TGRelu::emit() const
   DEBUG(print(dbgs()));
 
   bmnet::bmnet_relu_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_Ctx,
-      m_MemOperands[0]->addr, // input_gaddr
-      m_MemOperands[1]->addr, // output_gaddr
-      m_negativeSlope,        // negative_slope
-      m_N,                    // input_n
-      m_C,                    // input_c
-      m_H,                    // input_h
-      m_W                     // input_w
+      *bm1880_kernel::getInstance().m_CTX,
+      m_MemOperands[0]->m_Addr, // input_gaddr
+      m_MemOperands[1]->m_Addr, // output_gaddr
+      m_NegativeSlope,          // negative_slope
+      m_N,                      // input_n
+      m_C,                      // input_c
+      m_H,                      // input_h
+      m_W                       // input_w
   );
 }
 

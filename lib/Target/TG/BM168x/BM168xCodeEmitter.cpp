@@ -27,7 +27,7 @@ void BM168xCodeEmitter::encodeInstructions(const Path &pOutputPath)
     std::vector<float> weight_data;
     // ReadFloatDataFromBinaryFile(weight, weight_data);
     bmnet::BM168xBackendContext ctx(BM_CHIP_BM1680, 1, weight_data);
-    bm168x_kernel::getInstance().ctx = &ctx;
+    bm168x_kernel::getInstance().m_CTX = &ctx;
     // StartInst::encode()
     kernel_enter(ctx.get_bmkernel_handle());
 

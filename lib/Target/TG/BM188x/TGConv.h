@@ -9,7 +9,7 @@
 namespace onnc {
 namespace BM188X {
 
-// m_MemOperands: ifmap, weight, ofmap, bias
+// m_emOperands: ifmap, weight, ofmap, bias
 class TGConv : public ComputeOperator2
 {
 public:
@@ -17,20 +17,20 @@ public:
          const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
-  void prepareWeight(std::vector<int8_t> &weight);
+  void prepareWeight(std::vector<int8_t> &pWeight);
   void print(OStream &pOS) const override;
   TGConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
 
 private:
-  int m_inN, m_inC, m_inH, m_inW;
-  int m_groups;
-  int m_outC;
-  uint16_t m_kH, m_kW;
-  uint16_t m_dilationH, m_dilationW;
-  uint8_t m_padH, m_padW;
-  uint8_t m_strideH, m_strideW;
-  int m_doBias;
+  int m_InN, m_InC, m_InH, m_InW;
+  int m_Groups;
+  int m_OutC;
+  uint16_t m_KH, m_KW;
+  uint16_t m_DilationH, m_DilationW;
+  uint8_t m_PadH, m_PadW;
+  uint8_t m_StrideH, m_StrideW;
+  int m_DoBias;
   tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 

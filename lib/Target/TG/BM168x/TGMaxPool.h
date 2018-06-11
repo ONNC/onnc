@@ -6,11 +6,11 @@
 
 namespace onnc {
 
-// m_MemOperands: input, output
+// m_emOperands: input, output
 class TGMaxPool : public ComputeOperator2
 {
 public:
-  TGMaxPool(const ::onnx::Node &node);
+  TGMaxPool(const ::onnx::Node &pNode);
 
   void emit() const override;
 
@@ -19,12 +19,12 @@ private:
   int m_C;
   int m_H;
   int m_W;
-  int m_kH;
-  int m_kW;
-  int m_padH;
-  int m_padW;
-  int m_strideH;
-  int m_strideW;
+  int m_KH;
+  int m_KW;
+  int m_PadH;
+  int m_PadW;
+  int m_StrideH;
+  int m_StrideW;
 };
 
 } // namespace onnc

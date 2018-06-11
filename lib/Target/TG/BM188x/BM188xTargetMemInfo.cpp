@@ -46,7 +46,8 @@ size_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
   case onnx::TensorProto_DataType_UNDEFINED:
     break;
   }
-  errs() << "Unsupport element size: " << TensorProto_DataType_Name(pTy) << "\n";
+  errs() << "Unsupport element size: " << TensorProto_DataType_Name(pTy)
+         << "\n";
   assert(0 && "Unsupport element size.");
 }
 
@@ -63,5 +64,5 @@ MemSize BM188xTargetMemInfo::getValueMemorySize(onnx::Value *pValue)
   for (const onnx::Dimension &dim : pValue->sizes())
     s *= dim.dim;
 
-  return {a, s};
+  return { a, s };
 }

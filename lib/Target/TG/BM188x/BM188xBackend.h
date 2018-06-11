@@ -8,8 +8,8 @@
 #ifndef BM188X_BACKEND_H
 #define BM188X_BACKEND_H
 #include "TGBackend.h"
-#include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <memory>
+#include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
 #include <string>
 
@@ -21,12 +21,13 @@ class BM1880Backend : public TGBackend
 {
 public:
   BM1880Backend(const TargetOptions &pOptions);
-  virtual ~BM1880Backend() = default;
+  ~BM1880Backend() override = default;
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
   std::string getBackendName() override { return "BM1880Backend"; };
   std::string getCtableName() override { return "bm1880_ctable"; }
   void setCtableProto(const std::string &pTextString) override;
-  const tg::bm1880::LayerCalibrationParameter &getCtableLayerParam(std::string &pName);
+  const tg::bm1880::LayerCalibrationParameter &
+  getCtableLayerParam(std::string &pName);
 
 private:
   tg::bm1880::NetCalibrationParameter m_NetCtableParam;

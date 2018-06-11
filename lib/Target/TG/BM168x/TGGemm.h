@@ -5,7 +5,7 @@
 #include <onnx/common/ir.h>
 namespace onnc {
 
-//  m_MemOperands: input, weight, bias, output
+//  m_EmOperands: input, weight, bias, output
 class TGGemm : public ComputeOperator2
 {
 public:
@@ -13,12 +13,12 @@ public:
   void emit() const override;
 
 private:
-  int m_inRowNum;
-  int m_inColNum;
-  int m_outColNum;
-  int m_haveBias;
-  int m_usingRelu;
-  bool m_weightTp;
+  int m_InRowNum;
+  int m_InColNum;
+  int m_OutColNum;
+  int m_HaveBias;
+  int m_UsingRelu;
+  bool m_WeightTp;
 };
 
 } // namespace onnc

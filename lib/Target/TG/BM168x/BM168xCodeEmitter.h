@@ -21,13 +21,13 @@ class BM168xCodeEmitter : public TGCodeEmitter
 public:
   BM168xCodeEmitter(TGBackend *pBackend);
 
-  virtual ~BM168xCodeEmitter() = default;
+  ~BM168xCodeEmitter() override = default;
 
   void encodeInstructions(const Path &pOutputPath) override;
 
 private:
-  void *m_bmkernelHandle;
-  TGBackend *m_pBackend;
+  void *m_BmkernelHandle; // NOLINT
+  TGBackend *m_pBackend;  // NOLINT
 };
 
 class bm168x_kernel
@@ -41,7 +41,7 @@ public:
   }
 
 public:
-  bmnet::BM168xBackendContext *ctx;
+  bmnet::BM168xBackendContext *m_CTX;
 
 private:
   bm168x_kernel(bm168x_kernel const &) = delete;

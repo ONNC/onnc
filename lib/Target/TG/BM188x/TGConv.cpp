@@ -11,44 +11,44 @@ namespace BM188X {
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "Conv"), m_groups(1), m_dilationH(1),
-      m_dilationW(1), m_padH(0), m_padW(0), m_strideH(1), m_strideW(1),
-      m_doBias(0), m_LayerCtable(pLayerCtable)
+    : ComputeOperator2(pNode, "Conv"), m_Groups(1), m_DilationH(1),
+      m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1), m_StrideW(1),
+      m_DoBias(0), m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
-  m_inN = inDim[0].dim;
-  m_inC = inDim[1].dim;
-  m_inH = inDim[2].dim;
-  m_inW = inDim[3].dim;
+  m_InN = inDim[0].dim;
+  m_InC = inDim[1].dim;
+  m_InH = inDim[2].dim;
+  m_InW = inDim[3].dim;
   const std::vector< ::onnx::Dimension> weightDim = pNode.inputs()[1]->sizes();
-  m_outC = weightDim[0].dim;
+  m_OutC = weightDim[0].dim;
   if (pNode.hasAttribute(::onnx::Symbol("group"))) {
-    m_groups = pNode.i(::onnx::Symbol("group"));
+    m_Groups = pNode.i(::onnx::Symbol("group"));
   }
   if (pNode.hasAttribute(::onnx::Symbol("kernel_shape"))) {
     auto &i = pNode.is(::onnx::Symbol("kernel_shape"));
-    m_kH = i[0];
-    m_kW = i[1];
+    m_KH = i[0];
+    m_KW = i[1];
   }
   if (pNode.hasAttribute(::onnx::Symbol("dilations"))) {
     auto &i = pNode.is(::onnx::Symbol("dilations"));
-    m_dilationH = i[0];
-    m_dilationW = i[1];
+    m_DilationH = i[0];
+    m_DilationW = i[1];
   }
   // [leftPad, downPad, rightPad, upPad]
   if (pNode.hasAttribute(::onnx::Symbol("pads"))) {
     auto &i = pNode.is(::onnx::Symbol("pads"));
     // NOTE: It is for bmkernel only padding on both ends
-    m_padH = i[0];
-    m_padW = i[1];
+    m_PadH = i[0];
+    m_PadW = i[1];
   }
   if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
     auto &i = pNode.is(::onnx::Symbol("strides"));
-    m_strideH = i[0];
-    m_strideW = i[1];
+    m_StrideH = i[0];
+    m_StrideW = i[1];
   }
   if (3 == pNode.inputs().size()) {
-    m_doBias = 1;
+    m_DoBias = 1;
   }
 }
 
@@ -64,13 +64,13 @@ TGConv *TGConv::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
 
 void TGConv::print(OStream &pOS) const
 {
-  pOS << *m_MemOperands[2] << " = Conv <inN:" << m_inN << ", inC:" << m_inC
-      << ", inH:" << m_inH << ", inW:" << m_inW << ", outC:" << m_outC
-      << ", groups:" << m_groups << ", kH:" << m_kH << ", kW:" << m_kW
-      << ", dilationH:" << m_dilationH << ", dilationW:" << m_dilationW
-      << ", padH:" << (int)m_padH << ", padW:" << (int)m_padW
-      << ", strideH:" << (int)m_strideH << ", strideW:" << (int)m_strideW
-      << ", m_doBias:" << m_doBias
+  pOS << *m_MemOperands[2] << " = Conv <inN:" << m_InN << ", inC:" << m_InC
+      << ", inH:" << m_InH << ", inW:" << m_InW << ", outC:" << m_OutC
+      << ", groups:" << m_Groups << ", kH:" << m_KH << ", kW:" << m_KW
+      << ", dilationH:" << m_DilationH << ", dilationW:" << m_DilationW
+      << ", padH:" << (int)m_PadH << ", padW:" << (int)m_PadW
+      << ", strideH:" << (int)m_StrideH << ", strideW:" << (int)m_StrideW
+      << ", m_DoBias:" << m_DoBias
       << ", rShiftWidth:" << m_LayerCtable.right_shift_width() << "> ("
       << *m_MemOperands[0] << ", " << *m_MemOperands[1] << ", "
       << *m_MemOperands[3] << ")\n";
@@ -83,17 +83,17 @@ void TGConv::emit() const
   int rShiftWidth = m_LayerCtable.right_shift_width();
 
   bmnet::bmnet_conv_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_Ctx, m_MemOperands[0]->addr, // ifmap
-      m_MemOperands[2]->addr,                                      // ofmap
-      m_MemOperands[1]->addr,                                      // weight
-      m_MemOperands[3]->addr,                                      // bias
+      *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
+      m_MemOperands[2]->m_Addr,                                      // ofmap
+      m_MemOperands[1]->m_Addr,                                      // weight
+      m_MemOperands[3]->m_Addr,                                      // bias
       GADDR_INVALID, // ga_bn_mean,
       GADDR_INVALID, // ga_bn_variance,
       GADDR_INVALID, // ga_scale,
       GADDR_INVALID, // ga_scale_bias,
-      m_inN, m_inC, m_inH, m_inW, m_groups, m_outC, m_kH, m_kW, m_dilationH,
-      m_dilationW, m_padH, m_padW, m_strideH, m_strideW, false, // result_add
-      m_doBias,                                                 // do_bias,
+      m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
+      m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
+      m_DoBias,                                                 // do_bias,
       0,                                                        // do_bn,
       0,                                                        // do_scale,
       0,           // do_scale_bias,
@@ -116,19 +116,19 @@ void TGConv::emit() const
 }
 
 //#define DEBUG_WEIGHT_BIN
-void TGConv::prepareWeight(std::vector<int8_t> &weight)
+void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
 {
-  weight.clear();
+  pWeight.clear();
   // m_MemOperands: ifmap, weight, ofmap, bias
   // 8 bit weight
   {
-    const ::onnx::Value *value = m_MemOperands[1]->value;
+    const ::onnx::Value *value = m_MemOperands[1]->m_Value;
     const ::onnx::Tensor &tensor =
         ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
     assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT8);
     const std::string &raw = tensor.raw();
     size_t count = ::onnc::getTotalCount(tensor.sizes());
-    weight.resize(count);
+    pWeight.resize(count);
     std::vector<int8_t> data;
     std::copy(raw.begin(), raw.end(), std::back_inserter(data));
 #ifdef DEBUG_WEIGHT_BIN
@@ -138,15 +138,15 @@ void TGConv::prepareWeight(std::vector<int8_t> &weight)
     }
     std::cout << "\n";
 #endif
-    assert((size_t)(m_outC * m_inC * m_kH * m_kW) == count);
+    assert((size_t)(m_OutC * m_InC * m_KH * m_KW) == count);
 
     // conv weight is arranged by (1, oc, kh*kw, ic)
     // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
-    for (int oc_i = 0; oc_i < m_outC; ++oc_i) {
-      for (int k_i = 0; k_i < m_kH * m_kW; ++k_i) {
-        for (int ic_i = 0; ic_i < m_inC; ++ic_i) {
-          weight[oc_i * (m_kH * m_kW * m_inC) + k_i * m_inC + ic_i] =
-              data[oc_i * (m_kH * m_kW * m_inC) + ic_i * (m_kH * m_kW) + k_i];
+    for (int oc_i = 0; oc_i < m_OutC; ++oc_i) {
+      for (int k_i = 0; k_i < m_KH * m_KW; ++k_i) {
+        for (int ic_i = 0; ic_i < m_InC; ++ic_i) {
+          pWeight[oc_i * (m_KH * m_KW * m_InC) + k_i * m_InC + ic_i] =
+              data[oc_i * (m_KH * m_KW * m_InC) + ic_i * (m_KH * m_KW) + k_i];
         }
       }
     }
@@ -161,7 +161,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &weight)
 
   // 16bit bias
   {
-    const ::onnx::Value *value = m_MemOperands[3]->value;
+    const ::onnx::Value *value = m_MemOperands[3]->m_Value;
     const ::onnx::Tensor &tensor =
         ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
     assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT16);
@@ -175,11 +175,11 @@ void TGConv::prepareWeight(std::vector<int8_t> &weight)
     }
     std::cout << "\n";
 #endif
-    size_t offset = weight.size();
-    weight.resize(offset + count * 2);
+    size_t offset = pWeight.size();
+    pWeight.resize(offset + count * 2);
     for (size_t i = 0; i < count; ++i) {
-      weight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
-      weight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
+      pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
+      pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
     }
   }
 }

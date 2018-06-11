@@ -1,8 +1,8 @@
+#include "TG.h"
+#include "TGBackend.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
-#include "TGBackend.h"
-#include "TG.h"
 
 using namespace onnc;
 
@@ -14,7 +14,7 @@ public:
   static char ID;
 
 public:
-  TargetISel(TGBackend* pBackend) : ModulePass(ID), m_pTarget(pBackend) {}
+  TargetISel(TGBackend *pBackend) : ModulePass(ID), m_pTarget(pBackend) {}
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
@@ -26,13 +26,14 @@ public:
   }
 
 private:
-  TGBackend* m_pTarget;
+  TGBackend *m_pTarget; // NOLINT
 };
 
 } // anonymous namespace
 
 char TargetISel::ID = 0;
 
-ModulePass *onnc::createTargetLoweringPass(TGBackend *target) {
-  return new TargetISel(target);
+ModulePass *onnc::createTargetLoweringPass(TGBackend *pTarget)
+{
+  return new TargetISel(pTarget);
 }

@@ -19,16 +19,16 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 {
   // TODO use elegant method to get onnx::Graph
   const ::onnx::Graph *graph =
-      m_Backend->getMemOperands()[0]->value->owningGraph();
+      m_Backend->getMemOperands()[0]->m_Value->owningGraph();
   // check weight tensor is exist or not
   if (const_cast< ::onnx::Graph *>(graph)->initializers().empty())
     return;
 
   size_t weight_size = 0;
   for (auto *mem_op : m_Backend->getMemOperands()) {
-    if (mem_op->memType == MemType::NEURON)
+    if (mem_op->m_MemType == MemType::NEURON)
       continue;
-    weight_size += mem_op->size;
+    weight_size += mem_op->m_Size;
   }
   pWeight.reserve(weight_size);
 
@@ -44,31 +44,31 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
     }
 
     for (auto *mem_op : inst->getMemOperands()) {
-      if (mem_op->memType == MemType::NEURON)
+      if (mem_op->m_MemType == MemType::NEURON)
         continue;
 
       const ::onnx::Tensor &tensor = ::onnc::getTensor(
-          mem_op->value->uniqueName(), *mem_op->value->owningGraph());
-      if (mem_op->type == ::onnx::TensorProto_DataType_INT8) {
+          mem_op->m_Value->uniqueName(), *mem_op->m_Value->owningGraph());
+      if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
         const std::string &raw = tensor.raw();
         std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
 #ifdef DEBUG_WEIGHT_BIN
         std::vector<int8_t> data;
         std::copy(raw.begin(), raw.end(), std::back_inserter(data));
-        std::cout << mem_op->value->uniqueName() << "\n";
+        std::cout << mem_op->m_Value->uniqueName() << "\n";
         for (auto i : data) {
           std::cout << (int32_t)i << ",";
         }
         std::cout << "\n";
 #endif
       } else {
-        assert(mem_op->type == ::onnx::TensorProto_DataType_INT16);
+        assert(mem_op->m_Type == ::onnx::TensorProto_DataType_INT16);
         const std::string &raw = tensor.raw();
         size_t count = ::onnc::getTotalCount(tensor.sizes());
         std::vector<int16_t> int16_vector(count);
         memcpy(int16_vector.data(), raw.data(), count * sizeof(int16_t));
 #ifdef DEBUG_WEIGHT_BIN
-        std::cout << mem_op->value->uniqueName() << "\n";
+        std::cout << mem_op->m_Value->uniqueName() << "\n";
         for (auto i : int16_vector) {
           std::cout << i << ",";
         }
@@ -115,7 +115,7 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
 
   // ReadInt8DataFromBinaryFile(weight, weight_data);
   bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
-  bm1880_kernel::getInstance().m_Ctx = &ctx;
+  bm1880_kernel::getInstance().m_CTX = &ctx;
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());
 

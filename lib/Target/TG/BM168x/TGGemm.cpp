@@ -12,8 +12,8 @@ using namespace onnc;
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K
 // X N), input tensor C and output tensor Y have dimension (M X N).
 TGGemm::TGGemm(const ::onnx::Node &pNode)
-    : ComputeOperator2(pNode, "Gemm"), m_inRowNum(0), m_inColNum(0),
-      m_outColNum(0), m_haveBias(0), m_usingRelu(0), m_weightTp(false)
+    : ComputeOperator2(pNode, "Gemm"), m_InRowNum(0), m_InColNum(0),
+      m_OutColNum(0), m_HaveBias(0), m_UsingRelu(0), m_WeightTp(false)
 {
   // auto inputs = pNode.inputs();
   // auto outputs = pNode.outputs();
@@ -37,33 +37,34 @@ TGGemm::TGGemm(const ::onnx::Node &pNode)
 
   const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
   const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();
-  m_inRowNum = aDim[0].dim;
-  m_inColNum = aDim[1].dim;
+  m_InRowNum = aDim[0].dim;
+  m_InColNum = aDim[1].dim;
   if (aDim.size() == 4) {
-    m_inColNum *= aDim[2].dim * aDim[3].dim;
+    m_InColNum *= aDim[2].dim * aDim[3].dim;
   }
-  m_outColNum = bDim[1].dim;
-  m_haveBias = true;
-  m_usingRelu = false;
+  m_OutColNum = bDim[1].dim;
+  m_HaveBias = true;
+  m_UsingRelu = false;
 
   if (pNode.hasAttribute(::onnx::Symbol("transB"))) {
     auto transB = pNode.i(::onnx::Symbol("transB"));
     DEBUG(dbgs() << "transB:" << transB << std::endl;);
-    m_weightTp = true;
+    m_WeightTp = true;
   }
 }
 
 void TGGemm::emit() const
 {
-  DEBUG(dbgs() << "TGGemm::emit\tm_inputAddr:" << m_MemOperands[0]->addr
-               << " m_weightAddr:" << m_MemOperands[1]->addr
-               << " m_biasAddr:" << m_MemOperands[2]->addr << " m_outputAddr:"
-               << m_MemOperands[3]->addr << " m_inRowNum:" << m_inRowNum
-               << " m_inColNum:" << m_inColNum << " m_outColNum:" << m_outColNum
-               << " m_haveBias:" << m_haveBias << " m_usingRelu:" << m_usingRelu
-               << " m_weightTp:" << m_weightTp << std::endl;);
+  DEBUG(dbgs() << "TGGemm::emit\tm_inputAddr:" << m_MemOperands[0]->m_Addr
+               << " m_WeightAddr:" << m_MemOperands[1]->m_Addr
+               << " m_BiasAddr:" << m_MemOperands[2]->m_Addr << " m_OutputAddr:"
+               << m_MemOperands[3]->m_Addr << " m_InRowNum:" << m_InRowNum
+               << " m_InColNum:" << m_InColNum << " m_OutColNum:" << m_OutColNum
+               << " m_HaveBias:" << m_HaveBias << " m_UsingRelu:" << m_UsingRelu
+               << " m_WeightTp:" << m_WeightTp << std::endl;);
   bmnet::bmnet_fc_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
-      m_MemOperands[1]->addr, m_MemOperands[2]->addr, m_MemOperands[3]->addr,
-      m_inRowNum, m_inColNum, m_outColNum, m_haveBias, m_usingRelu, m_weightTp);
+      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
+      m_MemOperands[1]->m_Addr, m_MemOperands[2]->m_Addr,
+      m_MemOperands[3]->m_Addr, m_InRowNum, m_InColNum, m_OutColNum, m_HaveBias,
+      m_UsingRelu, m_WeightTp);
 }

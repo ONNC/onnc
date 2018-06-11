@@ -11,52 +11,52 @@
 using namespace onnc;
 
 ComputeOperator2 *BM188xISelLowering::LowerConv(
-    const ::onnx::Node &pNode, ComputeGraph &graph,
-    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+    const ::onnx::Node &pNode, ComputeGraph &pGraph,
+    const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
   auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
-  auto *op = new BM188X::TGConv(pNode, layerCtable);
+  auto *op = new BM188X::TGConv(pNode, pLayerCtable);
   return op->addMemOperands(input, output, weight, bias);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerRelu(
-    const ::onnx::Node &pNode, ComputeGraph &graph,
-    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+    const ::onnx::Node &pNode, ComputeGraph &pGraph,
+    const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGRelu(pNode, layerCtable);
+  auto *op = new BM188X::TGRelu(pNode, pLayerCtable);
   return op->addMemOperands(input, output);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerMaxPool(
-    const ::onnx::Node &pNode, ComputeGraph &graph,
-    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+    const ::onnx::Node &pNode, ComputeGraph &pGraph,
+    const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGMaxPool(pNode, layerCtable);
+  auto *op = new BM188X::TGMaxPool(pNode, pLayerCtable);
   return op->addMemOperands(input, output);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerGemm(
-    const ::onnx::Node &pNode, ComputeGraph &graph,
-    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+    const ::onnx::Node &pNode, ComputeGraph &pGraph,
+    const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
   auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
-  auto *op = new BM188X::TGGemm(pNode, layerCtable);
+  auto *op = new BM188X::TGGemm(pNode, pLayerCtable);
   return op->addMemOperands(input, output, weight, bias);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerSum(
-    const ::onnx::Node &pNode, ComputeGraph &graph,
-    const tg::bm1880::LayerCalibrationParameter &layerCtable)
+    const ::onnx::Node &pNode, ComputeGraph &pGraph,
+    const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
 {
   std::vector<MemOperand *> vInput;
   int input_size = pNode.inputs().size();
@@ -65,7 +65,7 @@ ComputeOperator2 *BM188xISelLowering::LowerSum(
     vInput.push_back(
         m_pBackend->getMemOperand(pNode.inputs()[i], MemType::NEURON));
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGSum(pNode, layerCtable);
+  auto *op = new BM188X::TGSum(pNode, pLayerCtable);
   return op->addMemOperands(vInput, output);
 }
 
@@ -81,7 +81,7 @@ ComputeOperator2 *BM188xISelLowering::LowerReshape(const ::onnx::Node &pNode)
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
-                                                    ComputeGraph &graph)
+                                                     ComputeGraph &pGraph)
 {
   ::onnx::Node &node = const_cast< ::onnx::Node &>(pNode);
   DEBUG(dbgs() << "lowering node: name=" << node.name()
@@ -103,15 +103,15 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
   DEBUG(dbgs() << "layerName:" << layerName << "\n";);
   DEBUG(dbgs() << "LayerCalibrationParameter:" << layerCtable.DebugString(););
   if (symbol == ::onnx::Symbol("Conv")) {
-    return LowerConv(pNode, graph, layerCtable);
+    return LowerConv(pNode, pGraph, layerCtable);
   } else if (symbol == ::onnx::Symbol("Relu")) {
-    return LowerRelu(pNode, graph, layerCtable);
+    return LowerRelu(pNode, pGraph, layerCtable);
   } else if (symbol == ::onnx::Symbol("MaxPool")) {
-    return LowerMaxPool(pNode, graph, layerCtable);
+    return LowerMaxPool(pNode, pGraph, layerCtable);
   } else if (symbol == ::onnx::Symbol("Gemm")) {
-    return LowerGemm(pNode, graph, layerCtable);
+    return LowerGemm(pNode, pGraph, layerCtable);
   } else if (symbol == ::onnx::Symbol("Sum")) {
-    return LowerSum(pNode, graph, layerCtable);
+    return LowerSum(pNode, pGraph, layerCtable);
   }
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);

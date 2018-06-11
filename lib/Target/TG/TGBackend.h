@@ -35,7 +35,7 @@ public:
   TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
             const TargetOptions &pOptions);
 
-  virtual ~TGBackend();
+  ~TGBackend() override;
 
   void codeEmit();
 
@@ -47,10 +47,10 @@ public:
 
   std::vector<std::unique_ptr<ComputeOperator2> > &getInsts()
   {
-    return m_instructions;
+    return m_Instructions;
   }
 
-  std::vector<MemOperand *> &getMemOperands() { return m_memOperands; }
+  std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; }
 
   // get or create a MemOperand by onnx::Value. user can specify name because
   // different ONNX value can map to the same MemOperand
@@ -80,11 +80,11 @@ public:
   virtual std::string getBackendName() { return "TGBackend"; };
 
 private:
-  std::vector<std::unique_ptr<ComputeOperator2> > m_instructions;
-  std::vector<MemOperand *> m_memOperands;
-  TargetLowering *m_pTLI;
-  TGCodeEmitter *m_pCE;
-  Path m_outputPath;
+  std::vector<std::unique_ptr<ComputeOperator2> > m_Instructions;
+  std::vector<MemOperand *> m_MemOperands;
+  TargetLowering *m_pTLI; // NOLINT
+  TGCodeEmitter *m_pCE;   // NOLINT
+  Path m_OutputPath;
   TargetOptions m_Options;
 };
 

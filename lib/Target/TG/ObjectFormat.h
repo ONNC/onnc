@@ -20,7 +20,7 @@ class ObjectFormat
 {
 };
 
-} // namespace of tg
-} // namespace of onnc
+} // namespace tg
+} // namespace onnc
 
-#endif  // TARGET_TG_TG_H
+#endif // TARGET_TG_TG_H

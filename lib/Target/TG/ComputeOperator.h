@@ -20,13 +20,13 @@ using MemTable = std::map<std::string, uint64_t>;
 enum class MemType { NEURON, WEIGHT };
 
 struct MemOperand {
-  std::string name;
-  uint64_t addr;
-  size_t count;
-  size_t size;
-  ::onnx::TensorProto_DataType type;
-  MemType memType;
-  const ::onnx::Value *value;
+  std::string m_Name;
+  uint64_t m_Addr;
+  size_t m_Count;
+  size_t m_Size;
+  ::onnx::TensorProto_DataType m_Type;
+  MemType m_MemType;
+  const ::onnx::Value *m_Value;
   MemOperand(std::string pName, const ::onnx::Value *pValue, MemType pMemType);
 };
 
@@ -46,9 +46,9 @@ public:
 
   std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; };
 
-  virtual void emit(void) const = 0;
+  virtual void emit() const = 0;
 
-  virtual void memAlloc(MemTable &p_MemLayout);
+  virtual void memAlloc(MemTable &pPMemLayout);
 
   virtual void print(OStream &pOS) const;
 

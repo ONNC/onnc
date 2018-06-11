@@ -10,7 +10,7 @@ namespace onnc {
 class TGSoftmax : public ComputeOperator2
 {
 public:
-  TGSoftmax(const ::onnx::Node &node);
+  TGSoftmax(const ::onnx::Node &pNode);
 
   void emit() const override;
 

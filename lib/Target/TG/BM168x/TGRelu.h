@@ -10,12 +10,12 @@ namespace onnc {
 class TGRelu : public ComputeOperator2
 {
 public:
-  TGRelu(const ::onnx::Node &node);
+  TGRelu(const ::onnx::Node &pNode);
 
   void emit() const override;
 
 private:
-  float m_negativeSlope;
+  float m_NegativeSlope;
   int m_N;
   int m_C;
   int m_H;

@@ -4,7 +4,7 @@
 
 using namespace onnc;
 
-TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperator2(pNode, "LRN"), m_k(1)
+TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperator2(pNode, "LRN"), m_K(1)
 {
 
   // auto inputs = pNode.inputs();
@@ -25,23 +25,23 @@ TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperator2(pNode, "LRN"), m_k(1)
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
 
-  m_alpha = pNode.f(::onnx::Symbol("alpha"));
-  m_beta = pNode.f(::onnx::Symbol("beta"));
+  m_Alpha = pNode.f(::onnx::Symbol("alpha"));
+  m_Beta = pNode.f(::onnx::Symbol("beta"));
   if (pNode.hasAttribute(::onnx::Symbol("bias"))) {
-    m_k = pNode.f(::onnx::Symbol("bias"));
+    m_K = pNode.f(::onnx::Symbol("bias"));
   }
-  m_localSize = pNode.i(::onnx::Symbol("size"));
+  m_LocalSize = pNode.i(::onnx::Symbol("size"));
 }
 
 void TGLRN::TGLRN::emit() const
 {
-  std::cout << "TGLRUN::emit\tm_outputAddr:" << m_MemOperands[0]->addr
-            << " m_inputAddr:" << m_MemOperands[1]->addr << " m_N:" << m_N
+  std::cout << "TGLRUN::emit\tm_outputAddr:" << m_MemOperands[0]->m_Addr
+            << " m_InputAddr:" << m_MemOperands[1]->m_Addr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
-            << " m_alpha:" << m_alpha << "m_localSize:" << m_localSize
-            << " m_beta:" << m_beta << "m_k:" << m_k << std::endl;
-  bmnet::bmnet_lrn_forward_bmkernel(*bm168x_kernel::getInstance().ctx,
-                                    m_MemOperands[0]->addr,
-                                    m_MemOperands[1]->addr, m_N, m_C, m_H, m_W,
-                                    m_alpha, m_localSize, m_beta, m_k);
+            << " m_Alpha:" << m_Alpha << "m_LocalSize:" << m_LocalSize
+            << " m_Beta:" << m_Beta << "m_K:" << m_K << std::endl;
+  bmnet::bmnet_lrn_forward_bmkernel(*bm168x_kernel::getInstance().m_CTX,
+                                    m_MemOperands[0]->m_Addr,
+                                    m_MemOperands[1]->m_Addr, m_N, m_C, m_H,
+                                    m_W, m_Alpha, m_LocalSize, m_Beta, m_K);
 }

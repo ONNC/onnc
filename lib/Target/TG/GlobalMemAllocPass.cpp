@@ -16,7 +16,7 @@ class GlobalMemAlloc : public ModulePass
 {
 
 private:
-  TGBackend *m_pTarget;
+  TGBackend *m_pTarget; // NOLINT
   void AllocGlobalMem();
 
 public:
@@ -43,22 +43,22 @@ void GlobalMemAlloc::AllocGlobalMem()
   std::unordered_map<const ::onnx::Value *, MemOperand *> allocatedValue;
   for (auto &mem : m_pTarget->getMemOperands()) {
     int tensor_size = 0;
-    if (allocatedValue.count(mem->value)) {
-      mem->addr = allocatedValue[mem->value]->addr;
-      mem->size = allocatedValue[mem->value]->size;
+    if (allocatedValue.count(mem->m_Value)) {
+      mem->m_Addr = allocatedValue[mem->m_Value]->m_Addr;
+      mem->m_Size = allocatedValue[mem->m_Value]->m_Size;
       continue;
     }
-    if (mem->memType == MemType::NEURON) {
-      mem->addr = neuron_offset;
-      tensor_size = m_pTarget->sizeOfTensorType(mem->type) * mem->count;
+    if (mem->m_MemType == MemType::NEURON) {
+      mem->m_Addr = neuron_offset;
+      tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
       neuron_offset += tensor_size;
-    } else if (mem->memType == MemType::WEIGHT) {
-      mem->addr = weight_offset;
-      tensor_size = m_pTarget->sizeOfTensorType(mem->type) * mem->count;
+    } else if (mem->m_MemType == MemType::WEIGHT) {
+      mem->m_Addr = weight_offset;
+      tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
       weight_offset += tensor_size;
     }
-    mem->size = tensor_size;
-    allocatedValue.insert({ mem->value, mem });
+    mem->m_Size = tensor_size;
+    allocatedValue.insert({ mem->m_Value, mem });
     DEBUG(dbgs() << tab << mem << "\n");
   }
 }

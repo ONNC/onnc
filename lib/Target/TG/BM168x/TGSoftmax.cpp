@@ -39,10 +39,10 @@ TGSoftmax::TGSoftmax(const ::onnx::Node &pNode)
 
 void TGSoftmax::emit() const
 {
-  std::cout << "TGSoftmax::emit\tm_inputAddr:" << m_MemOperands[0]->addr
-            << " m_outputAddr:" << m_MemOperands[1]->addr << " m_N:" << m_N
+  std::cout << "TGSoftmax::emit\tm_inputAddr:" << m_MemOperands[0]->m_Addr
+            << " m_OutputAddr:" << m_MemOperands[1]->m_Addr << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
   bmnet::bmnet_softmax_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
-      m_MemOperands[1]->addr, m_N, m_C, m_H, m_W);
+      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
+      m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W);
 }

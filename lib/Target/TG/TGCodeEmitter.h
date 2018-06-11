@@ -1,8 +1,8 @@
 #ifndef ONNC_TARGET_TG_CODE_EMITTER_H
 #define ONNC_TARGET_TG_CODE_EMITTER_H
+#include <memory>
 #include <onnc/Support/Path.h>
 #include <vector>
-#include <memory>
 
 namespace onnc {
 
@@ -18,8 +18,8 @@ public:
   virtual void encodeInstructions(const Path &pOutputPath) = 0;
 
 private:
-  void *m_bmkernelHandle;
-  TGBackend *m_pBackend;
+  void *m_BmkernelHandle;
+  TGBackend *m_pBackend; // NOLINT
 };
 
 } // namespace onnc

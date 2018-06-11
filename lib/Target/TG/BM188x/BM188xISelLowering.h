@@ -18,31 +18,31 @@ public:
   }
 
   ComputeOperator2 *LowerOperation(
-      const ::onnx::Node &node,
-      std::vector<std::unique_ptr<ComputeOperator2> > &instList) override;
+      const ::onnx::Node &pNode,
+      std::vector<std::unique_ptr<ComputeOperator2> > &pInstList) override;
 
   void PrepareISelLowering(Module &pModule) override;
 
 private:
   ComputeOperator2 *
-  LowerConv(const ::onnx::Node &pNode, ComputeGraph &graph,
-            const tg::bm1880::LayerCalibrationParameter &layerCtable);
+  LowerConv(const ::onnx::Node &pNode, ComputeGraph &pGraph,
+            const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
   ComputeOperator2 *
-  LowerRelu(const ::onnx::Node &pNode, ComputeGraph &graph,
-            const tg::bm1880::LayerCalibrationParameter &layerCtable);
+  LowerRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph,
+            const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
   ComputeOperator2 *
-  LowerMaxPool(const ::onnx::Node &pNode, ComputeGraph &graph,
-               const tg::bm1880::LayerCalibrationParameter &layerCtable);
+  LowerMaxPool(const ::onnx::Node &pNode, ComputeGraph &pGraph,
+               const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
   ComputeOperator2 *
-  LowerGemm(const ::onnx::Node &pNode, ComputeGraph &graph,
-            const tg::bm1880::LayerCalibrationParameter &layerCtable);
+  LowerGemm(const ::onnx::Node &pNode, ComputeGraph &pGraph,
+            const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
   ComputeOperator2 *LowerReshape(const ::onnx::Node &pNode);
   ComputeOperator2 *
-  LowerSum(const ::onnx::Node &pNode, ComputeGraph &graph,
-           const tg::bm1880::LayerCalibrationParameter &layerCtable);
+  LowerSum(const ::onnx::Node &pNode, ComputeGraph &pGraph,
+           const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
 private:
-  BM1880Backend *m_p1880backend;
+  BM1880Backend *m_p1880backend; // NOLINT
 };
 
 } // namespace onnc

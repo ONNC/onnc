@@ -12,7 +12,7 @@ namespace BM188X {
 class TGRelu : public ComputeOperator2
 {
 public:
-  TGRelu(const ::onnx::Node &node,
+  TGRelu(const ::onnx::Node &pNode,
          const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
 
   void emit() const override;
@@ -20,7 +20,7 @@ public:
   TGRelu *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
 
 private:
-  float m_negativeSlope;
+  float m_NegativeSlope;
   int m_N;
   int m_C;
   int m_H;

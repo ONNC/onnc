@@ -9,9 +9,9 @@ using namespace onnc;
 
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode)
-    : ComputeOperator2(pNode, "Conv"), m_groups(1), m_dilationH(1),
-      m_dilationW(1), m_padH(0), m_padW(0), m_strideH(1), m_strideW(1),
-      m_doBias(0)
+    : ComputeOperator2(pNode, "Conv"), m_Groups(1), m_DilationH(1),
+      m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1), m_StrideW(1),
+      m_DoBias(0)
 {
   // auto inputs = pNode.inputs();
   // auto outputs = pNode.outputs();
@@ -37,65 +37,67 @@ TGConv::TGConv(const ::onnx::Node &pNode)
   //               outputs[0]->elemType(), GLOBAL_NEURON_TAG));
 
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
-  m_inN = inDim[0].dim;
-  m_inC = inDim[1].dim;
-  m_inH = inDim[2].dim;
-  m_inW = inDim[3].dim;
+  m_InN = inDim[0].dim;
+  m_InC = inDim[1].dim;
+  m_InH = inDim[2].dim;
+  m_InW = inDim[3].dim;
   const std::vector< ::onnx::Dimension> weightDim = pNode.inputs()[1]->sizes();
-  m_outC = weightDim[0].dim;
+  m_OutC = weightDim[0].dim;
   if (pNode.hasAttribute(::onnx::Symbol("group"))) {
-    m_groups = pNode.i(::onnx::Symbol("group"));
+    m_Groups = pNode.i(::onnx::Symbol("group"));
   }
   if (pNode.hasAttribute(::onnx::Symbol("kernel_shape"))) {
     auto &i = pNode.is(::onnx::Symbol("kernel_shape"));
-    m_kH = i[0];
-    m_kW = i[1];
+    m_KH = i[0];
+    m_KW = i[1];
   }
   if (pNode.hasAttribute(::onnx::Symbol("dilations"))) {
     auto &i = pNode.is(::onnx::Symbol("dilations"));
-    m_dilationH = i[0];
-    m_dilationW = i[1];
+    m_DilationH = i[0];
+    m_DilationW = i[1];
   }
   // [leftPad, downPad, rightPad, upPad]
   if (pNode.hasAttribute(::onnx::Symbol("pads"))) {
     auto &i = pNode.is(::onnx::Symbol("pads"));
     // NOTE: It is for bmkernel only padding on both ends
-    m_padH = i[0];
-    m_padW = i[1];
+    m_PadH = i[0];
+    m_PadW = i[1];
   }
   if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
     auto &i = pNode.is(::onnx::Symbol("strides"));
-    m_strideH = i[0];
-    m_strideW = i[1];
+    m_StrideH = i[0];
+    m_StrideW = i[1];
   }
   if (3 == pNode.inputs().size()) {
-    m_doBias = 1;
+    m_DoBias = 1;
   }
 }
 
 void TGConv::emit() const
 {
-  DEBUG(dbgs() << "TGConv::emit\tm_ifmapAddr:" << m_MemOperands[0]->addr
-               << " m_ofmapAddr:" << m_MemOperands[2]->addr
-               << " m_weightAddr:" << m_MemOperands[1]->addr
-               << " m_biasAddr:" << m_MemOperands[3]->addr << " m_inN:" << m_inN
-               << " m_inC:" << m_inC << " m_inH:" << m_inH << " m_inW:" << m_inW
-               << " m_outC:" << m_outC << " m_groups:" << m_groups << " m_kH:"
-               << m_kH << " m_kW:" << m_kW << " m_dilationH:" << m_dilationH
-               << " m_dilationW:" << m_dilationW << " m_padH:" << (int)m_padH
-               << " m_padW:" << (int)m_padW << " m_strideH:" << (int)m_strideH
-               << " m_strideW:" << (int)m_strideW << " m_doBias:" << m_doBias
+  DEBUG(dbgs() << "TGConv::emit\tm_ifmapAddr:" << m_MemOperands[0]->m_Addr
+               << " m_OfmapAddr:" << m_MemOperands[2]->m_Addr
+               << " m_WeightAddr:" << m_MemOperands[1]->m_Addr
+               << " m_BiasAddr:" << m_MemOperands[3]->m_Addr
+               << " m_InN:" << m_InN << " m_InC:" << m_InC << " m_InH:" << m_InH
+               << " m_InW:" << m_InW << " m_OutC:" << m_OutC
+               << " m_Groups:" << m_Groups << " m_KH:" << m_KH
+               << " m_KW:" << m_KW << " m_DilationH:" << m_DilationH
+               << " m_DilationW:" << m_DilationW << " m_PadH:" << (int)m_PadH
+               << " m_PadW:" << (int)m_PadW << " m_StrideH:" << (int)m_StrideH
+               << " m_StrideW:" << (int)m_StrideW << " m_DoBias:" << m_DoBias
                << std::endl;);
   bmnet::bmnet_conv_forward_bmkernel(
-      *bm168x_kernel::getInstance().ctx, m_MemOperands[0]->addr,
-      m_MemOperands[2]->addr, m_MemOperands[1]->addr, m_MemOperands[3]->addr,
+      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
+      m_MemOperands[2]->m_Addr, m_MemOperands[1]->m_Addr,
+      m_MemOperands[3]->m_Addr,
       GADDR_INVALID, // ga_bn_mean,
       GADDR_INVALID, // ga_bn_variance,
       GADDR_INVALID, // ga_scale,
       GADDR_INVALID, // ga_scale_bias,
-      m_inN, m_inC, m_inH, m_inW, m_groups, m_outC, m_kH, m_kW, m_dilationH,
-      m_dilationW, m_padH, m_padW, m_strideH, m_strideW, false, // result_add
-      m_doBias,                                                 // do_bias,
+      m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
+      m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
+      m_DoBias,                                                 // do_bias,
       0,                                                        // do_bn,
       0,                                                        // do_scale,
       0,       // do_scale_bias,

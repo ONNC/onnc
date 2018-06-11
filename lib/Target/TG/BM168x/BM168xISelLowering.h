@@ -15,11 +15,11 @@ public:
   BM168xTargetLowering(TGBackend *pBackend) : TargetLowering(pBackend) {}
 
   ComputeOperator2 *LowerOperation(
-      const ::onnx::Node &node,
-      std::vector<std::unique_ptr<ComputeOperator2> > &instList) override;
+      const ::onnx::Node &pNode,
+      std::vector<std::unique_ptr<ComputeOperator2> > &pInstList) override;
 
 private:
-  ComputeOperator2 *LowerHelper(const ::onnx::Node &node);
+  ComputeOperator2 *LowerHelper(const ::onnx::Node &pNode);
 };
 
 } // namespace onnc

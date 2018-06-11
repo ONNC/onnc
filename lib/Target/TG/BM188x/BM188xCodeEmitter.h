@@ -22,14 +22,14 @@ class BM188xCodeEmitter : public TGCodeEmitter
 public:
   BM188xCodeEmitter(BM1880Backend *pBackend);
 
-  virtual ~BM188xCodeEmitter() = default;
+  ~BM188xCodeEmitter() override = default;
 
   void encodeInstructions(const Path &pOutputPath) override;
 
   void prepareWeight(std::vector<int8_t> &pWeight);
 
 private:
-  void *m_bmkernelHandle;
+  void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
 };
 
@@ -44,7 +44,7 @@ public:
   }
 
 public:
-  bmnet::BM188xBackendContext *m_Ctx;
+  bmnet::BM188xBackendContext *m_CTX;
 
 private:
   bm1880_kernel(bm1880_kernel const &) = delete;

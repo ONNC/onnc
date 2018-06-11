@@ -8,7 +8,7 @@
 namespace onnc {
 namespace BM188X {
 
-// m_MemOperands: input, weight, bias, output
+// m_emOperands: input, weight, bias, output
 class TGGemm : public ComputeOperator2
 {
 public:
@@ -20,11 +20,11 @@ public:
                          MemOperand *pWeight, MemOperand *pBias);
 
 private:
-  int m_inRowNum;
-  int m_inColNum;
-  int m_outColNum;
-  int m_haveBias;
-  bool m_weightTp;
+  int m_InRowNum;
+  int m_InColNum;
+  int m_OutColNum;
+  int m_HaveBias;
+  bool m_WeightTp;
   tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
