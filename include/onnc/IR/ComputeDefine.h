@@ -14,6 +14,20 @@ namespace onnc {
  */
 class ComputeDefine
 {
+public:
+  ComputeDefine(StringRef pName)
+    : m_Name(pName) {
+  }
+
+  virtual ~ComputeDefine() { }
+
+  StringRef name() const { return m_Name; }
+
+  /// print the operator
+  virtual void print(std::ostream& pOS) const = 0;
+
+private:
+  StringRef m_Name;
 };
 
 } // namespace of onnc
