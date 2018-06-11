@@ -5,13 +5,12 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TENSOR_DEFINE_H
-#define ONNC_TENSOR_DEFINE_H
+#ifndef ONNC_IR_COMPUTE_DEFINE_H
+#define ONNC_IR_COMPUTE_DEFINE_H
 #include <string>
 #include <onnc/ADT/StringRef.h>
 
 namespace onnc {
-namespace tensor {
 
 class Define
 {
@@ -24,7 +23,6 @@ private:
   std::string m_Name;
 };
 
-} // namespace of tensor
 } // namespace of onnc
 
 #endif
