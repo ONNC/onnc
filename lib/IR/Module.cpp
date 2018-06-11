@@ -185,12 +185,13 @@ void Module::print(std::ostream& pOS) const
   // dump graph input
   for (int i = 0; i < getGraphIR()->inputs().size(); ++i) {
     const ::onnx::Value* v = getGraphIR()->inputs()[i];
-    // The value resides in initializers, not print.
 
     // XXX: This is ONNX's failure. They forget to write a constant
     // version of ::onnx::Graph::initializer_names()
     const std::vector<std::string>& names =
       const_cast<::onnx::Graph*>(getGraphIR().get())->initializer_names();
+
+    // The value resides in initializers, not print.
     if (names.end() == std::find(names.begin(), names.end(), v->uniqueName()))
       continue;
 
@@ -245,7 +246,11 @@ void Module::print(std::ostream& pOS, const ::onnx::Value& pValue) const
 template<>
 void Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const
 {
-  pOS << "  ";
+  // print name
+  // XXX: This is ONNX's bug. They forget to write constant getters.
+  ::onnx::Node* node = const_cast<::onnx::Node*>(&pNode);
+  if (node->has_name())
+    pOS << "<" << node->name() << "> ";
 
   // print outputs.
   for (int i = 0; i < pNode.outputs().size(); ++i) {
