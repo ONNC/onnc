@@ -183,10 +183,6 @@ template<> void
 Module::print(std::ostream& pOS, const ::onnx::Value& pValue) const;
 
 template<> void
-Module::print(std::ostream& pOS,
-              const ::onnx::Attributes<::onnx::Node>& pAttr) const;
-
-template<> void
 Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const;
 
 } // namespace onnc

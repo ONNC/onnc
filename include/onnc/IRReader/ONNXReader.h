@@ -28,8 +28,8 @@ public:
   virtual ~Reader();
 
   /// parse ONNX file
-  /// @param[out] pError error occurred in the parsing.
-  Module* parse(const Path& pFileName, SystemError& pError);
+  /// @return error occurred in the parsing.
+  SystemError parse(const Path& pFileName, Module& pModule);
 
   Module* parse(ConstBuffer pContent, SystemError& pError);
 

@@ -12,6 +12,7 @@
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnx/common/ir_pb_converter.h>
 #include <onnc/IR/ONNXUtils.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -31,15 +32,12 @@ onnc::onnx::Reader::~Reader()
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-Module* onnc::onnx::Reader::parse(const Path& pFileName, SystemError& pError)
+SystemError onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
 {
-  Module* result = nullptr;
   FileHandle file;
-  pError = file.open(pFileName, FileHandle::kReadOnly);
-  if (!pError.isGood()) {
-    // TODO: show the error message
-    return nullptr;
-  }
+  SystemError err = file.open(pFileName, FileHandle::kReadOnly);
+  if (!err.isGood())
+    return err;
 
 
   { // protobuf should be destroyed before the file being closed.
@@ -50,15 +48,16 @@ Module* onnc::onnx::Reader::parse(const Path& pFileName, SystemError& pError)
     coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
     if (!model.ParseFromCodedStream(&coded_input)) {
       error(onnx_cannot_parsed) << pFileName;
-      return nullptr;
+      return SystemError::kUnknownError;
     }
-    result = CreateModule(model);;
+    IRBuilder builder(pModule);
+    builder.update(model);
   }
 
-  pError = file.close();
-  if (!pError.isGood())
-    return nullptr;
-  return result;
+  err = file.close();
+  if (!err.isGood())
+    return err;
+  return SystemError::kSuccess;
 }
 
 Module* onnc::onnx::Reader::parse(ConstBuffer pContent, SystemError& pError)

@@ -38,9 +38,9 @@ ONNCApp::~ONNCApp()
 int ONNCApp::compile()
 {
   onnc::onnx::Reader reader;
-  SystemError err;
-  Module* module = reader.parse(options().input(), err);
-  if (nullptr == module) {
+  Module module;
+  SystemError err = reader.parse(options().input(), module);
+  if (!err.isGood()) {
     // TODO: show error message
     return EXIT_FAILURE;
   }
@@ -62,7 +62,6 @@ int ONNCApp::compile()
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, options().output());
 
-  pm.run(*module);
-  DestroyModule(module);
+  pm.run(module);
   return EXIT_SUCCESS;
 }

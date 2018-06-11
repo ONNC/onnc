@@ -41,17 +41,17 @@ static ExitOnError ExitOnErr;
 
 int ONNX2TG::compile()
 {
-  std::unique_ptr<Module> module;
   // TODO Figure out why Reader need to be defined here. (potential bug)
   onnc::onnx::Reader reader;
+  Module module;
   {
     std::unique_ptr<MemoryBuffer> MB = ExitOnErr(
         errorOrToExpected(MemoryBuffer::getFileOrSTDIN(m_Config.input())));
     std::string data = MB.get()->getBuffer().str();
     onnc::ConstBuffer constBuffer(data);
-    SystemError err;
-    module = std::unique_ptr<Module>(reader.parse(constBuffer, err));
+    SystemError err = reader.parse(constBuffer, module);
     if (!err.isGood()) {
+      // TODO: show the error message
       return EXIT_FAILURE;
     }
   }
@@ -64,6 +64,7 @@ int ONNX2TG::compile()
   } else {
     ::onnc::errs() << Color::RED << "Error" << Color::RESET
                    << ": can not found march `" << m_Config.march() << "\n";
+    // TODO: show the error message
     return EXIT_FAILURE;
   }
 
@@ -82,6 +83,6 @@ int ONNX2TG::compile()
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, m_Config.output());
-  pm.run(*module);
+  pm.run(module);
   return EXIT_SUCCESS;
 }
