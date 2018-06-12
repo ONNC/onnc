@@ -190,7 +190,7 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
   clear();
 
   onnx::Graph &graph = *pModule.getGraph();
-  if (!HasInsertedLoadStoreNode(graph));
+  if (!HasInsertedLoadStoreNode(graph))
     InsertLoadStoreNode(graph);
 
   DegreeMap dmap = BuildDegreeMap(graph);
