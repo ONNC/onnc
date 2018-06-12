@@ -13,7 +13,6 @@
 #include <onnc/ADT/Bits/DigraphNode.h>
 #include <onnc/IR/ComputeDefine.h>
 #include <onnc/IR/ComputeOperand.h>
-#include <onnc/IR/ComputeAttrOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
 #include <onnc/Support/IOStream.h>
 #include <vector>

@@ -12,7 +12,6 @@
 #include <onnc/Support/MemoryPool.h>
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeOperand.h>
-#include <onnc/IR/ComputeAttrOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
 
 namespace onnc {
