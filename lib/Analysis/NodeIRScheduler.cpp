@@ -266,6 +266,25 @@ void NodeIRScheduler::print(OStream& pOS) const
   }
 }
 
+void NodeIRScheduler::inorderSingleIssueSchedule(Module& pModule)
+{
+  onnx::Graph &graph = *pModule.getGraph();
+  int i = 0;
+  uint64_t curCycle = 0;
+  m_SchedTimeLine.clear();
+  for (onnx::Node *n : graph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    uint64_t c = m_DLATB->getTTI()
+                        ->getOperatorCost(n, TargetTransformInfo::kCycleCount);
+
+    m_SchedTimeLine.emplace_back(n, curCycle, curCycle + c);
+    curCycle += c;
+    ++i;
+  }
+}
+
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//

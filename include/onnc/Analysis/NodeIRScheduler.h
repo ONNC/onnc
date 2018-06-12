@@ -65,6 +65,8 @@ public:
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
+  void inorderSingleIssueSchedule(Module& pModule);
+
   void print(OStream& pOS) const;
 
 private:
