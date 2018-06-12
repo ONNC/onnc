@@ -15,8 +15,12 @@
 
 using namespace onnc;
 
+typedef std::vector<onnx::Node *> Nodes;
+typedef std::unordered_set<onnx::Node *> NodeSet;
+
 static const onnx::NodeKind g_LoadKind = onnx::Symbol("Load");
 static const onnx::NodeKind g_StoreKind = onnx::Symbol("Store");
+static const onnx::NodeKind g_SubGraphKind = onnx::Symbol("SubGraph");
 
 static LongInts GetOutputValueSizes(const onnx::Node& pN)
 {
@@ -59,9 +63,8 @@ static SplitNode* SplitNodeCreator(onnx::Node& pN);
 //===----------------------------------------------------------------------===//
 using NodeNodeMap = std::unordered_map<onnx::Node*, onnx::Node*>;
 
-static void cloneNodeAndSuccessors(onnx::Node *pNode,
-                                     onnx::Graph *pNewGraph,
-                                     NodeNodeMap &pOldNewMap)
+static void cloneNodeAndSuccessors(onnx::Node *pNode, onnx::Graph *pNewGraph,
+                                   NodeNodeMap &pOldNewMap, NodeSet &pHasCloned)
 {
   std::vector<onnx::Node *> worklist;
 
@@ -71,9 +74,14 @@ static void cloneNodeAndSuccessors(onnx::Node *pNode,
   while (!worklist.empty()) {
     onnx::Node *oldN = worklist.back();
     worklist.pop_back();
+    if (pHasCloned.count(oldN))
+      continue;
+
+    pHasCloned.insert(oldN);
 
     onnx::Node *newN = pNewGraph->create(oldN->kind(), oldN->outputs().size());
     newN->copyAttributes(*oldN);
+    pNewGraph->appendNode(newN);
     pOldNewMap[oldN] = newN;
 
     for (unsigned i = 0; i < oldN->outputs().size(); ++i) {
@@ -110,10 +118,32 @@ static void rebuildInputs(NodeNodeMap &pOldNewMap)
   }
 }
 
-static void createLoadStoreAtNode(onnx::Graph *pGraph, onnx::Node *pN)
+static void removeNodeAndSuccessors(onnx::Node *pNode)
+{
+  std::vector<onnx::Node *> worklist;
+
+  worklist.reserve(8);
+  worklist.push_back(pNode);
+
+  while (!worklist.empty()) {
+    onnx::Node *oldN = worklist.back();
+    worklist.pop_back();
+
+    for (onnx::Value *outv : oldN->outputs())
+      for (auto u : outv->uses())
+        worklist.push_back(u.user);
+
+    oldN->destroy();
+  }
+}
+
+using LoadStorePair = std::pair<onnx::Node*, onnx::Node*>;
+
+static void createLoadStoreAtNode(onnx::Graph &pGraph, onnx::Node &pN,
+                                  std::vector<LoadStorePair> &pNewLoadStores)
 {
   // Create new store and load pairs.
-  for (onnx::Value *outv : pN->outputs()) {
+  for (onnx::Value *outv : pN.outputs()) {
     onnx::Node* first = nullptr;
     for(auto u : outv->uses()) {
       if (!first) {
@@ -128,19 +158,20 @@ static void createLoadStoreAtNode(onnx::Graph *pGraph, onnx::Node *pN)
     // Create load node and insert before the first use node.
     // FIXME: the first using should be in the same group, should we need to
     //        check this?
-    onnx::Node* loadN = pGraph->create(onnx::Symbol("Load"));
+    onnx::Node* loadN = pGraph.create(onnx::Symbol("Load"));
     loadN->insertBefore(first);
     loadN->output()->copyMetadata(outv);
     outv->replaceAllUsesWith(loadN->output());
 
     // create store after creating load (since replaceAllUseWith).
-    onnx::Node* storeN = pGraph->create(onnx::Symbol("Store"), {outv});
-    storeN->insertAfter(pN);
+    onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {outv});
+    storeN->insertAfter(&pN);
+
+    pNewLoadStores.emplace_back(loadN, storeN);
   }
 }
 
-onnx::Graph *splitGraph(onnx::Graph *pGraph,
-                        std::vector<onnx::Node *> &pSplitPts)
+static onnx::Graph *SplitGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 {
   // Create new sub graph.
   // Note: 1. new sub graph does not include split points.
@@ -148,36 +179,39 @@ onnx::Graph *splitGraph(onnx::Graph *pGraph,
   // TODO: DeleteSubGraph
   onnx::Graph *newGraph = new onnx::Graph();
 
+  std::vector<LoadStorePair> newLoadStores;
+
   // Create load/store to split graph.
-  for (onnx::Node *spNode : pSplitPts)
-    createLoadStoreAtNode(pGraph, spNode);
+  for (onnx::Node *spNode : pSplitPts) {
+    if (spNode->kind() == g_LoadKind)
+      newLoadStores.emplace_back(spNode, nullptr);
+    else
+      createLoadStoreAtNode(pGraph, *spNode, newLoadStores);
+  }
 
   // <old node, new node>
   NodeNodeMap OldNewMap;
 
-  // Clone predecessors of split nodes to new graph
-  for (onnx::Node *spNode : pSplitPts)
-    for (onnx::Value *outv : spNode->outputs())
-      for(auto u : outv->uses())
-        cloneNodeAndSuccessors(u.user, newGraph, OldNewMap);
+  // Now, clone loads and it's successors to new graph.
+  NodeSet hasClonedSet;
+  for (auto &ldst : newLoadStores)
+    cloneNodeAndSuccessors(ldst.first, newGraph, OldNewMap, hasClonedSet);
 
   rebuildInputs(OldNewMap);
 
-#if 0
-  for (onnx::Node *spNode : pSplitPts) {
-    // Create load/store IR on each output of the split point.
-    for (onnx::Value *outv : spNode->outputs()) {
-      onnx::Node *storeN = pGraph.create(onnx::Symbol("Store"), {outv}, 1);
-      storeN->output()->copyMetadata(outv);
-
-      onnx::Node *loadN = newGraph->create(onnx::Symbol("Load"));
-      loadN->output()->copyMetadata(outv);
-    }
-  }
-#endif
-
   // Create a new node to contain the subgraph
-  onnx::Node *subg = pGraph->create(onnx::Symbol("SubGraph"));
+  onnx::Node *subgN = pGraph.create(onnx::Symbol("SubGraph"));
+  subgN->g_(subgN->kind(), std::unique_ptr<onnx::Graph>(newGraph));
+
+  // remove load and it's successors from old graph, and connect store to the
+  // new subgraph node.
+  for (auto &ldst : newLoadStores) {
+    removeNodeAndSuccessors(ldst.first);
+    if (ldst.second)
+      subgN->addInput(ldst.second->output());
+  }
+
+  pGraph.appendNode(subgN);
 
   return newGraph;
 }
@@ -307,34 +341,124 @@ SplitGroup *SplitGroup::splitNewGroup(const TargetTransformInfo *pTTI)
   return newgroup;
 }
 
-onnx::Node *findHalfSizePoints(onnx::Graph *pGraph,
-                               const TargetTransformInfo *pTTI)
+// [TODO] BuildDegreeMap: Duplicate code, please merge with NodeIRScheduler
+using DegreeMap = std::unordered_map<onnx::Node *, unsigned>;
+static DegreeMap BuildDegreeMap(onnx::Graph &pGraph)
 {
-  // <accumulated size, node>
-  using AccSizeNodePair = std::tuple<uint64_t, onnx::Node *>;
-  std::vector<AccSizeNodePair> accSizes;
-
-  uint64_t total = 0;
-  for (onnx::Node *n : pGraph->nodes()) {
-    // skip load and store since they are calculated by their user nodes.
-    if (n->kind() == g_LoadKind || n->kind() == g_StoreKind)
+  DegreeMap dmap;
+  for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
       continue;
 
-    total = pTTI->getOperatorMemUsage(n).size;
-    if (!accSizes.empty())
-      total += std::get<0>(accSizes.back());
+    unsigned degcnt = n->inputs().size();
+    for (onnx::Value *v : n->inputs())
+      if (v->node() == nullptr) {
+        outs() << "Warning! " << n->kind().toString()
+               << " use a value = " << v->uniqueName()
+               << ", which doen't bind to a node";
+        --degcnt;
+      }
+    dmap[n] = degcnt;
+  }
+  return dmap;
+}
 
-    accSizes.emplace_back(total, n);
+Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
+                              const TargetTransformInfo &pTTI)
+{
+  // get total required size.
+  uint64_t total = 0;
+  std::unordered_map<onnx::Node *, uint64_t> nodeSize;
+
+  for (onnx::Node *n : pGraph.nodes()) {
+    // skip load and store since they are calculated by their user nodes.
+    if (n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
+        n->kind() == g_SubGraphKind)
+      continue;
+
+    nodeSize[n] = pTTI.getOperatorMemUsage(n).size;
+    total += nodeSize[n];
   }
 
-  AccSizeNodePair target = std::make_tuple(total/2, nullptr);
-  const auto &halfPt =
-    std::upper_bound(accSizes.begin(), accSizes.end(),
-                     target,
-                     [] (const AccSizeNodePair &a, const AccSizeNodePair &b) {
-                       return std::get<0>(a) < std::get<0>(b);
-                     });
-  return std::get<1>(*halfPt);
+  // Build degree map and do topological + dfs traversing.
+  DegreeMap dmap = BuildDegreeMap(pGraph);
+  Nodes worklist;
+
+  // Add degree = 0 to worklist in graph order.
+  for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    if (dmap[n] == 0)
+      worklist.push_back(n);
+  }
+
+  std::unordered_set<onnx::Node *> grpA, grpB;
+  uint64_t accumulateSize = 0;
+  uint64_t size_a = 0;
+
+  // topological + dfs traversing
+  while (!worklist.empty()) {
+    onnx::Node *n = worklist.back();
+    worklist.pop_back();
+    for (onnx::Value *v : n->outputs()) {
+      // Update degree map.
+      for(auto u : v->uses()) {
+        if (u.user->kind() == onnx::kReturn)
+          continue;
+        auto it = dmap.find(u.user);
+        assert(it != dmap.end() &&
+               "Node doesn't exist in dmap!?");
+        // --Degree
+        it->second -= 1;
+        if (it->second == 0)
+          worklist.push_back(it->first);
+      } // for each user of this value.
+    } // for each output value.
+
+    if (accumulateSize < total/2) {
+      grpA.insert(n);
+      size_a = accumulateSize;
+    }
+    else
+      grpB.insert(n);
+
+    if (n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
+        n->kind() == g_SubGraphKind)
+      continue;
+
+    accumulateSize += pTTI.getOperatorMemUsage(n).size;
+  }
+
+  errs() << "In group a: (size = )" << size_a << "\n";
+  for (auto * na : grpA) {
+    PrintNode(errs(), *na);
+  }
+
+  errs() << "In group b: (size = )" << accumulateSize - size_a << "\n";
+  for (auto * nb : grpB) {
+    PrintNode(errs(), *nb);
+  }
+
+
+  // find split points from group A.
+  Nodes splitPts;
+  for (onnx::Node *n : grpA) {
+    // If the node's user is not in grpA, add to split points.
+    for (onnx::Value *outv : n->outputs())
+      for (auto u : outv->uses())
+        if (!grpA.count(u.user)) {
+          splitPts.push_back(n);
+          assert(grpB.count(u.user) && "Node is not in both split group!?");
+        }
+  }
+
+  // Add all load of grpB to splitPts
+  for (onnx::Node *n : grpB)
+    if (n->kind() == g_LoadKind)
+      splitPts.push_back(n);
+
+  return splitPts;
 }
 
 onnx::Node *SplitGroup::findHalfSizePoints(const TargetTransformInfo *pTTI,
@@ -444,6 +568,12 @@ void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
 bool SplitNodeManager::hasSplitNode(onnx::Node *pN) const
 {
   return m_SplitInfos.find(pN) != m_SplitInfos.end();
+}
+
+onnx::Graph *SplitNodeManager::splitGraph(onnx::Graph &pGraph)
+{
+  Nodes splitPts = findHalfSizeSplitPoints(pGraph, *m_DLATB.getTTI());
+  return SplitGraph(pGraph, splitPts);
 }
 
 bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,

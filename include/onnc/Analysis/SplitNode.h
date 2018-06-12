@@ -118,6 +118,8 @@ public:
 
   bool hasSplitNode(onnx::Node *pN) const;
 
+  onnx::Graph *splitGraph(onnx::Graph &pGraph);
+
   /// Dump splitting result. Callable in GDB.
   void dump() const;
 
