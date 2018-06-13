@@ -21,7 +21,7 @@ using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
  */
 class SplitNode
 {
-friend class SplitNodeManager;
+friend class SplitGraphManager;
 
 public:
   SplitNode(onnx::Node& pN);
@@ -53,13 +53,13 @@ protected:
   onnx::Node& m_Node;
 };
 
-class SplitNodeManager;
-class SplitGroup
+class SplitGraphManager;
+class SplitGraph
 {
-friend class SplitNodeManager;
+friend class SplitGraphManager;
 public:
-  SplitGroup(SplitNodeManager &pSnMgr)
-    : m_SnMgr(pSnMgr) {}
+  SplitGraph(SplitGraphManager &pSgMgr)
+    : m_SgMgr(pSgMgr) {}
 
   void resetToOrigSize();
 
@@ -69,25 +69,25 @@ public:
   void shrinkSize();
 
 private:
-  SplitNodeManager &m_SnMgr;
+  SplitGraphManager &m_SgMgr;
 
   // split parameters.
   unsigned m_CurSplitAxis;
   unsigned m_CurSplitFactor;
 };
 
-/** \class SplitNodeManager
+/** \class SplitGraphManager
  *  Do splitting on SplitNode in backward direction, and provide splitting
  *  result which can be used in memory allocation.
  */
-class SplitNodeManager
+class SplitGraphManager
 {
 public:
-  typedef std::vector<SplitGroup*> SplitGroups;
+  typedef std::vector<SplitGraph*> SplitGraphs;
   typedef std::unordered_map<onnx::Node*, SplitNode*> SplitInfoHash;
 
-  SplitNodeManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
-  ~SplitNodeManager();
+  SplitGraphManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
+  ~SplitGraphManager();
 
   /// @param pN Split from node pN.
   /// @param pUpdateUpper Propagate new size to upper levels.
@@ -97,9 +97,9 @@ public:
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
 
-  SplitGroup *createNewGroup();
+  SplitGraph *createNewGroup();
 
-  SplitGroups &getGroups() { return m_Groups; }
+  SplitGraphs &getGroups() { return m_Groups; }
 
   SplitNode* getSplitNode(onnx::Node* pN);
 
@@ -107,7 +107,7 @@ public:
 
   bool hasSplitNode(onnx::Node *pN) const;
 
-  onnx::Graph *splitGraph(onnx::Graph &pGraph);
+  onnx::Graph *splitSubGraph(onnx::Graph &pGraph);
 
   /// Dump splitting result. Callable in GDB.
   void dump() const;
@@ -126,7 +126,7 @@ private:
   /// between groups (subgraph) is through load/store.
   ///
   /// Graph splitting and get memory usages are operating on a group.
-  SplitGroups m_Groups;
+  SplitGraphs m_Groups;
 };
 
 } // namespace of onnc

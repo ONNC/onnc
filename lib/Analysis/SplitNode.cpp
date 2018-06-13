@@ -249,7 +249,7 @@ static void TopologicalSort(onnx::Graph &pGraph)
   }
 }
 
-static onnx::Graph *SplitGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
+static onnx::Graph *SplitSubGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 {
   // Create new sub graph.
   // Note: 1. new sub graph does not include split points.
@@ -299,9 +299,9 @@ static onnx::Graph *SplitGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 }
 
 //===----------------------------------------------------------------------===//
-// SplitNodeManager
+// SplitGraphManager
 //===----------------------------------------------------------------------===//
-void SplitGroup::resetToOrigSize()
+void SplitGraph::resetToOrigSize()
 {
 #if 0
   for (unsigned i = 0; i < m_Stores.size(); ++i) {
@@ -318,24 +318,24 @@ void SplitGroup::resetToOrigSize()
     // reset upper layer.
     for (onnx::Value *v : sn->getNode().inputs()) {
       onnx::Node *n = v->node();
-      if (m_SnMgr.hasSplitNode(n))
+      if (m_SgMgr.hasSplitNode(n))
         continue;
 
-      worklist.push_back(m_SnMgr.getSplitNode(n));
+      worklist.push_back(m_SgMgr.getSplitNode(n));
     }
   }
 #endif
 }
 
 // TODO: getMemUsage: use a graph, and traverse graph
-void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
+void SplitGraph::getMemUsage(const TargetTransformInfo *pTTI,
                              ValMemSizeMap &pVMSMap)
 {
 #if 0
   std::vector<SplitNode *> worklist;
   for (SplitNode *store : m_Stores)
     for (onnx::Value *v : store->getNode().inputs())
-      worklist.push_back(m_SnMgr.getSplitNode(v->node()));
+      worklist.push_back(m_SgMgr.getSplitNode(v->node()));
 
   while (!worklist.empty()) {
     SplitNode *sn = worklist.back();
@@ -360,16 +360,16 @@ void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
     // add upper layer to worklist until load ir.
     for (onnx::Value *v : n.inputs()) {
       onnx::Node *upperN = v->node();
-      if (!m_SnMgr.hasSplitNode(upperN))
+      if (!m_SgMgr.hasSplitNode(upperN))
         continue;
 
-      worklist.push_back(m_SnMgr.getSplitNode(upperN));
+      worklist.push_back(m_SgMgr.getSplitNode(upperN));
     }
   }
 #endif
 }
 
-void SplitGroup::shrinkSize()
+void SplitGraph::shrinkSize()
 {
 #if 0
   // Shrink size, and propogate backward.
@@ -390,7 +390,7 @@ void SplitGroup::shrinkSize()
     if (origSizes.size() == splitAxis)
       continue;
 
-    m_SnMgr.splitNodeByFactor(&sn->getNode(), splitAxis, factor, true);
+    m_SgMgr.splitNodeByFactor(&sn->getNode(), splitAxis, factor, true);
   }
 #endif
 }
@@ -525,13 +525,13 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
 }
 
 //===----------------------------------------------------------------------===//
-// SplitNodeManager
+// SplitGraphManager
 //===----------------------------------------------------------------------===//
-SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
+SplitGraphManager::SplitGraphManager(onnx::Graph& pGraph,
                                    DLATargetBackend& pDLATB)
   : m_DLATB(pDLATB), m_Graph(pGraph)
 {
-  m_Groups.push_back(new SplitGroup(*this));
+  m_Groups.push_back(new SplitGraph(*this));
 
   for (onnx::Node *n : pGraph.nodes()) {
     if (n->kind() == onnx::kUndefined)
@@ -545,38 +545,38 @@ SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
   }
 }
 
-SplitNodeManager::~SplitNodeManager()
+SplitGraphManager::~SplitGraphManager()
 {
   clear();
 }
 
-void SplitNodeManager::clear()
+void SplitGraphManager::clear()
 {
   for (auto snIt : m_SplitInfos)
     delete snIt.second;
   m_SplitInfos.clear();
 
-  for (SplitGroup *sg : m_Groups)
+  for (SplitGraph *sg : m_Groups)
     delete sg;
   m_Groups.clear();
 }
 
-SplitNode* SplitNodeManager::getSplitNode(onnx::Node* pN)
+SplitNode* SplitGraphManager::getSplitNode(onnx::Node* pN)
 {
   assert(m_SplitInfos.find(pN) != m_SplitInfos.end() &&
-         "onnx::Node doesn't exist in SplitNodeManager.");
+         "onnx::Node doesn't exist in SplitGraphManager.");
   return m_SplitInfos[pN];
 }
 
-const SplitNode* SplitNodeManager::getSplitNode(onnx::Node* pN) const
+const SplitNode* SplitGraphManager::getSplitNode(onnx::Node* pN) const
 {
   auto it = m_SplitInfos.find(pN);
   assert(m_SplitInfos.find(pN) != m_SplitInfos.end() &&
-         "onnx::Node doesn't exist in SplitNodeManager.");
+         "onnx::Node doesn't exist in SplitGraphManager.");
   return it->second;
 }
 
-void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
+void SplitGraphManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
                                          unsigned pFactor, bool pUpdateUpper)
 {
   SplitNode* ns = getSplitNode(pN);
@@ -585,18 +585,18 @@ void SplitNodeManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
   splitNodeBySize(pN, newS, pUpdateUpper);
 }
 
-bool SplitNodeManager::hasSplitNode(onnx::Node *pN) const
+bool SplitGraphManager::hasSplitNode(onnx::Node *pN) const
 {
   return m_SplitInfos.find(pN) != m_SplitInfos.end();
 }
 
-onnx::Graph *SplitNodeManager::splitGraph(onnx::Graph &pGraph)
+onnx::Graph *SplitGraphManager::splitSubGraph(onnx::Graph &pGraph)
 {
   Nodes splitPts = findHalfSizeSplitPoints(pGraph, *m_DLATB.getTTI());
-  return SplitGraph(pGraph, splitPts);
+  return SplitSubGraph(pGraph, splitPts);
 }
 
-bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
+bool SplitGraphManager::splitNodeBySize(onnx::Node* pN,
                                        const LongInts& pNewOutSize,
                                        bool pUpdateUpper)
 {
@@ -620,14 +620,14 @@ bool SplitNodeManager::splitNodeBySize(onnx::Node* pN,
   return status;
 }
 
-SplitGroup *SplitNodeManager::createNewGroup()
+SplitGraph *SplitGraphManager::createNewGroup()
 {
-  SplitGroup *ngrp = new SplitGroup(*this);
+  SplitGraph *ngrp = new SplitGraph(*this);
   m_Groups.push_back(ngrp);
   return ngrp;
 }
 
-void SplitNodeManager::dump() const
+void SplitGraphManager::dump() const
 {
   print(outs());
 }
@@ -665,7 +665,7 @@ void PrintAttr(OStream &pOS, const onnx::Node &pN)
   }
 }
 
-void SplitNodeManager::print(OStream &pOS) const
+void SplitGraphManager::print(OStream &pOS) const
 {
   size_t graphOldS = 0, graphNewS = 0;
   for (const onnx::Node *n : m_Graph.nodes()) {
