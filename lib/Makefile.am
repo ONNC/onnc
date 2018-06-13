@@ -2,6 +2,7 @@ INCDIR=../include/onnc
 
 ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
+	IR/ComputeOperand.cpp \
 	IR/ComputeOperator.cpp \
 	IR/ComputeGraph.cpp \
 	IR/Module.cpp \
