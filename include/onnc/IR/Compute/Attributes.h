@@ -7,6 +7,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_COMPUTE_ATTRIBUTES_H
 #define ONNC_IR_COMPUTE_ATTRIBUTES_H
+#include <onnc/IR/Compute/Tensor.h>
+#include <onnc/IR/ComputeGraph.h>
+#include <string>
 
 namespace onnc {
 
@@ -43,6 +46,10 @@ template<typename ValueType, Attribute::Type Kind>
 class ScalarAttribute : public Attribute
 {
 public:
+  ScalarAttribute()
+    : Attribute(Kind), m_Value() {
+  }
+
   ScalarAttribute(const ValueType& pValue)
     : Attribute(Kind), m_Value(pValue) {
   }
@@ -94,6 +101,12 @@ typedef ScalarAttribute<int64_t, Attribute::kInteger>    IntAttr;
 typedef ScalarAttribute<std::string, Attribute::kString> StringAttr;
 typedef ScalarAttribute<Tensor, Attribute::kTensor>      TensorAttr;
 typedef ScalarAttribute<ComputeGraph, Attribute::kGraph> GraphAttr;
+
+typedef VectorAttribute<double, Attribute::kFloat>       FloatsAttr;
+typedef VectorAttribute<int64_t, Attribute::kInteger>    IntsAttr;
+typedef VectorAttribute<std::string, Attribute::kString> StringsAttr;
+typedef VectorAttribute<Tensor, Attribute::kTensor>      TensorsAttr;
+typedef VectorAttribute<ComputeGraph, Attribute::kGraph> GraphsAttr;
 
 } // namespace of onnc
 

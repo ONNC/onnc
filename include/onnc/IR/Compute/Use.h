@@ -5,12 +5,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_TENSOR_USE_H
-#define ONNC_IR_TENSOR_USE_H
+#ifndef ONNC_IR_COMPUTE_USE_H
+#define ONNC_IR_COMPUTE_USE_H
 #include <string>
 
 namespace onnc {
-namespace tensor {
 
 class Operator;
 class Value;
@@ -37,7 +36,6 @@ private:
   Value *m_Value;
 };
 
-} // namespace of tensor
 } // namespace of onnc
 
 #endif

@@ -10,7 +10,7 @@
 #include <map>
 #include <memory>
 #include <onnc/IR/ComputeGraph.h>
-#include <onnc/IR/ComputeDefine.h>
+#include <onnc/IR/Compute/Define.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/ADT/StringMap.h>
 #include <onnx/common/ir.h>
@@ -30,7 +30,7 @@ public:
   typedef ComputeGraphList::const_iterator const_compute_iterator;
 
   typedef std::vector<ComputeOperand*> ComputeOperandList;
-  typedef std::vector<ComputeDefine*> ComputeDefineList;
+  typedef std::vector<onnc::Define*> ComputeDefineList;
 
   typedef std::map<std::string, int64_t> OpsetImport;
   typedef std::map<std::string, std::string> MetaDataMap;

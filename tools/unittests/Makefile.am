@@ -10,7 +10,8 @@ TEST_SOURCES = DigraphTest.cpp \
 	StringSwitchTest.cpp \
 	StringMapTest.cpp \
 	JsonValueTest.cpp \
-	JsonObjectTest.cpp
+	JsonObjectTest.cpp \
+	ComputeIRTest.cpp
 endif
 
 if ENABLE_REGRESSION

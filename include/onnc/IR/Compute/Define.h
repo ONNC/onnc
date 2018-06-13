@@ -7,20 +7,28 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_COMPUTE_DEFINE_H
 #define ONNC_IR_COMPUTE_DEFINE_H
-#include <string>
 #include <onnc/ADT/StringRef.h>
 
 namespace onnc {
 
+/** \class Define
+ */
 class Define
 {
 public:
-  Define(StringRef p_name): m_Name(p_name) {}
+  Define(StringRef pName)
+    : m_Name(pName) {
+  }
 
-  StringRef getName();
+  virtual ~Define() { }
+
+  StringRef name() const { return m_Name; }
+
+  /// print the operator
+  virtual void print(std::ostream& pOS) const = 0;
 
 private:
-  std::string m_Name;
+  StringRef m_Name;
 };
 
 } // namespace of onnc

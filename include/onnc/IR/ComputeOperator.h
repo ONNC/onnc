@@ -11,9 +11,10 @@
 #include <onnx/common/ir.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/ADT/Bits/DigraphNode.h>
-#include <onnc/IR/ComputeDefine.h>
+#include <onnc/IR/Compute/Define.h>
 #include <onnc/IR/ComputeOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
+#include <onnc/IR/Compute/Value.h>
 #include <onnc/Support/IOStream.h>
 #include <vector>
 
@@ -25,7 +26,7 @@ class ComputeVisitor;
  *
  *  ComputeOperator connects ONNX and machine ABI.
  */
-class ComputeOperator : public ComputeDefine,
+class ComputeOperator : public onnc::Define,
                         public DigraphNode<ComputeOperator, ComputeOperand>
 {
 public:
@@ -35,7 +36,7 @@ public:
 
 public:
   ComputeOperator(StringRef pName)
-    : ComputeDefine(pName),
+    : onnc::Define(pName),
       m_OpCode(0), m_Inputs(), m_Outputs(), m_GraphOperators() {
   }
 
@@ -59,20 +60,36 @@ public:
   template<typename OpndType>
   void addOutputs(OpndType& pOperand) { m_Outputs.push_back(&pOperand); }
 
+  /// Use covariant return type to override this function
+  virtual onnc::Value* getInput(unsigned int pIdx) { return m_Inputs[pIdx]; }
+
+  /// Use covariant return type to override this function
+  virtual const onnc::Value* getInput(unsigned int pIdx) const { return m_Inputs[pIdx]; }
+
+  /// Use covariant return type to override this function
+  virtual onnc::Value* getOutput(unsigned int pIdx) { return m_Inputs[pIdx]; }
+
+  /// Use covariant return type to override this function
+  virtual const onnc::Value* getOutput(unsigned int pIdx) const { return m_Inputs[pIdx]; }
+
+  /// display the operator
+  void print(std::ostream& pOS) const = 0;
+
   /// redirect the printing to stderr
   void dump() const { return print(errs()); }
 
   /// entrance ramp for visitor
   virtual void accept(ComputeVisitor& pVisitor) = 0;
 
-private:
+protected:
   typedef std::vector<const GraphOperator*>  GraphOperatorList;
+  typedef std::vector<onnc::Value*> ValueList;
   typedef std::vector<ComputeOperand*> OperandList;
 
-private:
+protected:
   Opcode m_OpCode;
-  OperandList m_Inputs;
-  OperandList m_Outputs;
+  ValueList m_Inputs;
+  ValueList m_Outputs;
 
   /// one compute operator may point to multiple graph operator.
   GraphOperatorList m_GraphOperators;
