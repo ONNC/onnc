@@ -29,25 +29,42 @@ public:
     kUndefined = 0,
 
     // Basic types.
-    kFloat = 1,   // float
-    kUint8 = 2,   // uint8_t
-    kInt8 = 3,    // int8_t
-    kUint16 = 4,  // uint16_t
-    kInt16 = 5,   // int16_t
-    kInt32 = 6,   // int32_t
-    kInt64 = 7,   // int64_t
-    kString = 8,  // string
-    kBoolean = 9, // bool
+    kFloat,   // float
+    kUint8,   // uint8_t
+    kInt8,    // int8_t
+    kUint16,  // uint16_t
+    kInt16,   // int16_t
+    kInt32,   // int32_t
+    kInt64,   // int64_t
+    kString,  // string
+    kBoolean, // bool
 
     // Advanced types
-    kFloat16 = 10,
-    kDouble = 11,
-    kUint32 = 12,
-    kUint64 = 13,
-    kComplex64 = 14,  // complex with float32 real and imaginary components
-    kComplex128 = 15  // complex with float64 real and imaginary components
+    kFloat16,
+    kDouble,
+    kUint32,
+    kUint64,
+    kComplex64,  // complex with float32 real and imaginary components
+    kComplex128, // complex with float64 real and imaginary components
 
-    // Future extensions go here.
+    // Basic Tensor types.
+    kFloatTensor,   // float
+    kUint8Tensor,   // uint8_t
+    kInt8Tensor,    // int8_t
+    kUint16Tensor,  // uint16_t
+    kInt16Tensor,   // int16_t
+    kInt32Tensor,   // int32_t
+    kInt64Tensor,   // int64_t
+    kStringTensor,  // string
+    kBooleanTensor, // bool
+
+    // Advanced Tensor types
+    kFloat16Tensor,
+    kDoubleTensor,
+    kUint32Tensor,
+    kUint64Tensor,
+    kComplex64Tensor,  // complex with float32 real and imaginary components
+    kComplex128Tensor  // complex with float64 real and imaginary components
   };
 
 public:
