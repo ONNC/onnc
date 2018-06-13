@@ -1,12 +1,32 @@
 // NOTE: this disassembler is more convenient than proto's DebugString()
 // it will IGNORE init data in model for readability
 // output can be pass to onnx-as as a new  onnx.model binary without init data
+#include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <iostream>
 #include <onnx/common/ir_pb_converter.h>
 #include <string>
+using namespace llvm;
+
+static cl::opt<std::string> InputFilename(cl::Positional,
+                                          cl::desc("<input .onnx.s file>"),
+                                          cl::init("-"));
+
+static cl::opt<bool> DumpWeight("dump-weight", cl::desc("Dump wegiht"));
+
+template <class T> static void dumpRawTensor(const std::string &raw)
+{
+  std::vector<T> data(raw.size() / (sizeof(T) / sizeof(char)));
+  std::memcpy(data.data(), raw.data(), raw.size());
+  for (auto &i : data) {
+    if (!std::is_same<T, float>::value)
+      std::cout << (int)i << ", ";
+    else
+      std::cout << i << ", ";
+  }
+}
 
 static void dumpGraphProto(const ::onnx::GraphProto &pGraph)
 {
@@ -35,13 +55,10 @@ int main(int pArgc, char *pArgv[])
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  if (pArgc != 2) {
-    std::cerr << "usage:  " << pArgv[0] << " onnx_file\n";
-    return EXIT_FAILURE;
-  }
+  cl::ParseCommandLineOptions(pArgc, pArgv, ".onnx -> .onnx.s disassembler\n");
 
   ::onnx::ModelProto model;
-  std::string fileName(pArgv[1]);
+  std::string fileName(InputFilename);
   {
     std::ifstream input(fileName, std::ifstream::binary);
     ::google::protobuf::io::IstreamInputStream inputStream(&input);
@@ -52,13 +69,6 @@ int main(int pArgc, char *pArgv[])
       return -1;
     }
   }
-
-  // remove initializer to ignore init data
-  if (model.has_graph()) {
-    onnx::GraphProto *graph = model.mutable_graph();
-    graph->clear_initializer();
-  }
-
   if (model.has_ir_version())
     std::cout << "ir_version: " << model.ir_version() << "\n";
   if (model.has_producer_name())
@@ -80,5 +90,36 @@ int main(int pArgc, char *pArgv[])
     std::cout << "metadata_props { "
               << model.metadata_props(i).ShortDebugString() << " }\n";
   }
+
+  if (model.has_graph() && DumpWeight) {
+    onnx::GraphProto *graph = model.mutable_graph();
+    for (int i = 0; i < graph->initializer_size(); ++i) {
+      const auto &tp = graph->initializer(i);
+      if (!tp.has_raw_data()) {
+        tp.DebugString();
+        continue;
+      }
+      std::cout << "tensor_pros { ";
+      if (tp.has_name()) {
+        std::cout << "name: " << tp.name() << " data: ";
+      }
+      switch (tp.data_type()) {
+      case onnx::TensorProto_DataType_FLOAT:
+        dumpRawTensor<float>(tp.raw_data());
+        break;
+      case onnx::TensorProto_DataType_INT8:
+        dumpRawTensor<int8_t>(tp.raw_data());
+        break;
+      case onnx::TensorProto_DataType_INT16:
+        dumpRawTensor<int16_t>(tp.raw_data());
+        break;
+      default:
+        std::cout << "unsupported type!\n";
+        break;
+      }
+      std::cout << " }\n";
+    }
+  }
+
   google::protobuf::ShutdownProtobufLibrary();
 }
