@@ -68,21 +68,12 @@ public:
   /// Reduce size of all values in a group to meet memory size constraint.
   void shrinkSize();
 
-  /// Split a group for meeting memory size constraint.
-  SplitGroup *splitNewGroup(const TargetTransformInfo *pTTI);
-
-  onnx::Node *findHalfSizePoints(const TargetTransformInfo *pTTI,
-                                 onnx::Node *pStart) const;
-
 private:
-  void addStore(SplitNode *pStore);
-
   SplitNodeManager &m_SnMgr;
 
-  std::vector<SplitNode*> m_Stores;
-  // Each store has split parameters.
-  std::vector<unsigned> m_CurSplitAxis;
-  std::vector<unsigned> m_CurSplitFactor;
+  // split parameters.
+  unsigned m_CurSplitAxis;
+  unsigned m_CurSplitFactor;
 };
 
 /** \class SplitNodeManager
@@ -105,8 +96,6 @@ public:
 
   bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
-
-  void createLoadStoreAtNode(onnx::Node *pN, SplitGroup *pGroup);
 
   SplitGroup *createNewGroup();
 

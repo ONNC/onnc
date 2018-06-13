@@ -303,6 +303,7 @@ static onnx::Graph *SplitGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 //===----------------------------------------------------------------------===//
 void SplitGroup::resetToOrigSize()
 {
+#if 0
   for (unsigned i = 0; i < m_Stores.size(); ++i) {
     m_CurSplitAxis[i] = 0;
     m_CurSplitFactor[i] = 1;
@@ -323,12 +324,14 @@ void SplitGroup::resetToOrigSize()
       worklist.push_back(m_SnMgr.getSplitNode(n));
     }
   }
+#endif
 }
 
 // TODO: getMemUsage: use a graph, and traverse graph
 void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
                              ValMemSizeMap &pVMSMap)
 {
+#if 0
   std::vector<SplitNode *> worklist;
   for (SplitNode *store : m_Stores)
     for (onnx::Value *v : store->getNode().inputs())
@@ -363,10 +366,12 @@ void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
       worklist.push_back(m_SnMgr.getSplitNode(upperN));
     }
   }
+#endif
 }
 
 void SplitGroup::shrinkSize()
 {
+#if 0
   // Shrink size, and propogate backward.
   for (unsigned i = 0; i < m_Stores.size(); ++i) {
     SplitNode *sn = m_Stores[i];
@@ -387,37 +392,7 @@ void SplitGroup::shrinkSize()
 
     m_SnMgr.splitNodeByFactor(&sn->getNode(), splitAxis, factor, true);
   }
-}
-
-void SplitGroup::addStore(SplitNode *pStore)
-{
-  m_Stores.push_back(pStore);
-  m_CurSplitAxis.push_back(0);
-  m_CurSplitFactor.push_back(1);
-}
-
-SplitGroup *SplitGroup::splitNewGroup(const TargetTransformInfo *pTTI)
-{
-  // choose a split point. Currently choose a point that can split the group
-  // (roughly) evenly in terms of memory size.
-  std::vector<onnx::Node *> worklist;
-  for (SplitNode *store : m_Stores)
-    for (onnx::Value *v : store->getNode().inputs())
-      worklist.push_back(v->node());
-
-  std::vector<onnx::Node *> halfPtList;
-  while (!worklist.empty()) {
-    onnx::Node *n = worklist.back();
-    worklist.pop_back();
-    halfPtList.push_back(findHalfSizePoints(pTTI, n));
-  }
-
-  SplitGroup *newgroup = m_SnMgr.createNewGroup();
-
-  for (onnx::Node *halfpt : halfPtList)
-    m_SnMgr.createLoadStoreAtNode(halfpt, newgroup);
-
-  return newgroup;
+#endif
 }
 
 // [TODO] BuildDegreeMap: Duplicate code, please merge with NodeIRScheduler
@@ -549,49 +524,6 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
   return splitPts;
 }
 
-onnx::Node *SplitGroup::findHalfSizePoints(const TargetTransformInfo *pTTI,
-                                           onnx::Node *pStart) const
-{
-  // <accumulated size, node>
-  using AccSizeNodePair = std::tuple<uint64_t, onnx::Node *>;
-  std::vector<AccSizeNodePair> accSizes;
-  std::vector<onnx::Node *> worklist;
-  worklist.push_back(pStart);
-
-  uint64_t total = 0;
-  while (!worklist.empty()) {
-    onnx::Node *n = worklist.back();
-    worklist.pop_back();
-
-    if (n->kind() == g_LoadKind)
-      continue;
-
-    total = pTTI->getOperatorMemUsage(n).size;
-    if (!accSizes.empty())
-      total += std::get<0>(accSizes.back());
-
-    accSizes.emplace_back(total, n);
-
-    // add upper layer to worklist.
-    for (onnx::Value *v : n->inputs()) {
-      onnx::Node *upperN = v->node();
-      if (!m_SnMgr.hasSplitNode(upperN))
-        continue;
-
-      worklist.push_back(upperN);
-    }
-  }
-
-  AccSizeNodePair target = std::make_tuple(total/2, nullptr);
-  const auto &halfPt =
-    std::upper_bound(accSizes.begin(), accSizes.end(),
-                     target,
-                     [] (const AccSizeNodePair &a, const AccSizeNodePair &b) {
-                       return std::get<0>(a) < std::get<0>(b);
-                     });
-  return std::get<1>(*halfPt);
-}
-
 //===----------------------------------------------------------------------===//
 // SplitNodeManager
 //===----------------------------------------------------------------------===//
@@ -608,8 +540,8 @@ SplitNodeManager::SplitNodeManager(onnx::Graph& pGraph,
     SplitNode *sn = SplitNodeCreator(*n);
     m_SplitInfos[n] = sn;
 
-    if (n->kind() == g_StoreKind)
-      m_Groups[0]->addStore(sn);
+//    if (n->kind() == g_StoreKind)
+//      m_Groups[0]->addStore(sn);
   }
 }
 
@@ -693,39 +625,6 @@ SplitGroup *SplitNodeManager::createNewGroup()
   SplitGroup *ngrp = new SplitGroup(*this);
   m_Groups.push_back(ngrp);
   return ngrp;
-}
-
-void SplitNodeManager::createLoadStoreAtNode(onnx::Node *pN, SplitGroup *pGroup)
-{
-  // Create new store and load pairs.
-  for (onnx::Value *outv : pN->outputs()) {
-    onnx::Node* first = nullptr;
-    for(auto u : outv->uses()) {
-      if (!first) {
-        first = u.user;
-        continue;
-      }
-
-      if (!first->isBefore(u.user))
-        first = u.user;
-    }
-
-    // Create load node and insert before the first use node.
-    // FIXME: the first using should be in the same group, should we need to
-    //        check this?
-    onnx::Node* loadN = m_Graph.create(onnx::Symbol("Load"));
-    loadN->insertBefore(first);
-    loadN->output()->copyMetadata(outv);
-    outv->replaceAllUsesWith(loadN->output());
-
-    // create store after creating load (since replaceAllUseWith).
-    onnx::Node* storeN = m_Graph.create(onnx::Symbol("Store"), {outv});
-    storeN->insertAfter(pN);
-
-    m_SplitInfos[loadN] = SplitNodeCreator(*loadN);
-    m_SplitInfos[storeN] = SplitNodeCreator(*storeN);
-    pGroup->addStore(m_SplitInfos[storeN]);
-  }
 }
 
 void SplitNodeManager::dump() const
