@@ -149,6 +149,22 @@ void updatePoolOutputInfo(onnx::Node *const node) {
   _updateOutputInfo(node->outputs(), outDims, inputType);
 }
 
+void updateGlobalPoolOutputInfo(onnx::Node *const pNode)
+{
+  const std::vector<onnx::Dimension> inputDim = pNode->inputs()[0]->sizes();
+  // FIXME workaorund unimplemented type
+  if (0 == inputDim.size())
+    return;
+  const auto iN = inputDim[0].dim;
+  const auto iC = inputDim[1].dim;
+  std::vector<onnx::Dimension> outDims{ onnx::Dimension(iN),
+                                        onnx::Dimension(iC), onnx::Dimension(1),
+                                        onnx::Dimension(1) };
+
+  const onnx::TensorProto_DataType inputType = pNode->inputs()[0]->elemType();
+  updateInfo(pNode->outputs(), outDims, inputType);
+}
+
 void updateGemmOutputInfo(onnx::Node *const node) {
 
   const std::vector<onnx::Dimension> aDim = node->inputs()[0]->sizes();
@@ -187,6 +203,10 @@ void updateOutputInfo(onnx::Graph &graph) {
       updateOutputInfoByInput(node);
     } else if (symbol == onnx::Symbol("LRN")) {
       updateOutputInfoByInput(node);
+    } else if (symbol == onnx::Symbol("GlobalAveragePool")) {
+      updateGlobalPoolOutputInfo(node);
+    } else if (symbol == onnx::Symbol("AveragePool")) {
+      updatePoolOutputInfo(node);
     } else if (symbol == onnx::Symbol("MaxPool")) {
       updatePoolOutputInfo(node);
     } else if (symbol == onnx::Symbol("Dropout")) {
@@ -194,6 +214,16 @@ void updateOutputInfo(onnx::Graph &graph) {
     } else if (symbol == onnx::Symbol("Gemm")) {
       updateGemmOutputInfo(node);
     } else if (symbol == onnx::Symbol("Softmax")) {
+      updateOutputInfoByInput(node);
+    } else if (symbol == ::onnx::Symbol("PRelu")) {
+      updateOutputInfoByInput(node);
+    } else if (symbol == ::onnx::Symbol("BatchNormalization")) {
+      updateOutputInfoByInput(node);
+    } else if (symbol == ::onnx::Symbol("Mul")) {
+      updateOutputInfoByInput(node);
+    } else if (symbol == ::onnx::Symbol("Add")) {
+      updateOutputInfoByInput(node);
+    } else if (symbol == ::onnx::Symbol("Sum")) {
       updateOutputInfoByInput(node);
     } else {
       std::cerr << "unimplemented type: " << symbol.toString() << std::endl;
