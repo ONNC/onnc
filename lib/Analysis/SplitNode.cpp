@@ -299,84 +299,88 @@ static onnx::Graph *SplitSubGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 }
 
 //===----------------------------------------------------------------------===//
-// SplitGraphManager
+// SplitGraph
 //===----------------------------------------------------------------------===//
+SplitGraph::SplitGraph(SplitGraphManager &pSgMgr, onnx::Graph &pGraph)
+  : m_SgMgr(pSgMgr), m_Graph(pGraph)
+{
+  rebuildSplitNodes();
+}
+
+void SplitGraph::rebuildSplitNodes()
+{
+  clear();
+  for (onnx::Node *n : m_Graph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    SplitNode *sn = SplitNodeCreator(*n);
+    m_SplitNodes[n] = sn;
+
+    if (n->kind() == g_StoreKind) {
+      m_CurSplitAxis.push_back(0);
+      m_CurSplitFactor.push_back(1);
+      m_Stores.push_back(n);
+    }
+  }
+}
+
+SplitGraph::~SplitGraph()
+{
+  clear();
+}
+
+void SplitGraph::clear()
+{
+  m_Stores.clear();
+  m_CurSplitAxis.clear();
+  m_CurSplitFactor.clear();
+  for (auto snIt : m_SplitNodes)
+    delete snIt.second;
+  m_SplitNodes.clear();
+}
+
 void SplitGraph::resetToOrigSize()
 {
-#if 0
+  for (auto it : m_SplitNodes)
+    it.second->resetSize();
+
   for (unsigned i = 0; i < m_Stores.size(); ++i) {
     m_CurSplitAxis[i] = 0;
     m_CurSplitFactor[i] = 1;
   }
-
-  std::vector<SplitNode *> worklist(m_Stores);
-  while (!worklist.empty()) {
-    SplitNode *sn = worklist.back();
-    worklist.pop_back();
-
-    sn->resetSize();
-    // reset upper layer.
-    for (onnx::Value *v : sn->getNode().inputs()) {
-      onnx::Node *n = v->node();
-      if (m_SgMgr.hasSplitNode(n))
-        continue;
-
-      worklist.push_back(m_SgMgr.getSplitNode(n));
-    }
-  }
-#endif
 }
 
 // TODO: getMemUsage: use a graph, and traverse graph
-void SplitGraph::getMemUsage(const TargetTransformInfo *pTTI,
-                             ValMemSizeMap &pVMSMap)
+void SplitGraph::getMemUsage(ValMemSizeMap &pVMSMap) const
 {
-#if 0
-  std::vector<SplitNode *> worklist;
-  for (SplitNode *store : m_Stores)
-    for (onnx::Value *v : store->getNode().inputs())
-      worklist.push_back(m_SgMgr.getSplitNode(v->node()));
-
-  while (!worklist.empty()) {
-    SplitNode *sn = worklist.back();
-    worklist.pop_back();
-
-    onnx::Node &n = sn->getNode();
+  for (const auto &snIt: m_SplitNodes) {
+    const onnx::Node *n = snIt.first;
+    const SplitNode *sn = snIt.second;
 
     // get required memory size of each input.
-    for (unsigned i = 0; i < n.inputs().size(); ++i) {
-      onnx::Value *v = n.inputs()[i];
-      pVMSMap[v] = pTTI->getOperatorInputMemUsage(&n, i,
-                                                  sn->calNewInputSize(i));
+    for (unsigned i = 0; i < n->inputs().size(); ++i) {
+      const onnx::Value *v = n->inputs()[i];
+      pVMSMap[v] = m_SgMgr.getTTI().getOperatorInputMemUsage(n, i,
+                                                        sn->calNewInputSize(i));
     }
 
     // get required memory size of each output.
-    for (unsigned i = 0; i < n.outputs().size(); ++i) {
-      onnx::Value *v = n.outputs()[i];
-      pVMSMap[v] = pTTI->getOperatorOutputMemUsage(&n, i,
-                                                   sn->calNewInputSize(i));
-    }
-
-    // add upper layer to worklist until load ir.
-    for (onnx::Value *v : n.inputs()) {
-      onnx::Node *upperN = v->node();
-      if (!m_SgMgr.hasSplitNode(upperN))
-        continue;
-
-      worklist.push_back(m_SgMgr.getSplitNode(upperN));
+    for (unsigned i = 0; i < n->outputs().size(); ++i) {
+      const onnx::Value *v = n->outputs()[i];
+      pVMSMap[v] = m_SgMgr.getTTI().getOperatorOutputMemUsage(n, i,
+                                                        sn->calNewInputSize(i));
     }
   }
-#endif
 }
 
 void SplitGraph::shrinkSize()
 {
-#if 0
   // Shrink size, and propogate backward.
   for (unsigned i = 0; i < m_Stores.size(); ++i) {
-    SplitNode *sn = m_Stores[i];
+    onnx::Node *n = m_Stores[i];
 
-    const TensorSizes &origSizes = sn->getNode().inputs()[0]->sizes();
+    const TensorSizes &origSizes = n->inputs()[0]->sizes();
     unsigned &factor = m_CurSplitFactor[i],
              &splitAxis = m_CurSplitAxis[i];
     ++factor;
@@ -386,13 +390,66 @@ void SplitGraph::shrinkSize()
       factor = 1;
     }
 
-    // Unable divide further.
+    // Unable divide further, give up shrink this output value.
     if (origSizes.size() == splitAxis)
       continue;
 
-    m_SgMgr.splitNodeByFactor(&sn->getNode(), splitAxis, factor, true);
+    splitNodeByFactor(n, splitAxis, factor, true);
   }
-#endif
+}
+
+SplitNode* SplitGraph::getSplitNode(onnx::Node* pN)
+{
+  assert(m_SplitNodes.find(pN) != m_SplitNodes.end() &&
+         "onnx::Node doesn't exist in SplitGraph.");
+  return m_SplitNodes[pN];
+}
+
+const SplitNode* SplitGraph::getSplitNode(onnx::Node* pN) const
+{
+  auto it = m_SplitNodes.find(pN);
+  assert(m_SplitNodes.find(pN) != m_SplitNodes.end() &&
+         "onnx::Node doesn't exist in SplitGraph.");
+  return it->second;
+}
+
+void SplitGraph::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
+                                   unsigned pFactor, bool pUpdateUpper)
+{
+  SplitNode* ns = getSplitNode(pN);
+  // FIXME: If the node has multiple outputs?
+  LongInts newS = ns->getNewOutputSize(0);
+  newS[pAxis] = (newS[pAxis] + pFactor - 1)/ pFactor;
+  splitNodeBySize(pN, newS, pUpdateUpper);
+}
+
+bool SplitGraph::hasSplitNode(onnx::Node *pN) const
+{
+  return m_SplitNodes.find(pN) != m_SplitNodes.end();
+}
+
+bool SplitGraph::splitNodeBySize(onnx::Node* pN,
+                                       const LongInts& pNewOutSize,
+                                       bool pUpdateUpper)
+{
+  SplitNode* ns = getSplitNode(pN);
+  if (!ns->useNewOutSize(pNewOutSize))
+    return false;
+
+  // Load IR is a boundary, it is paired with Store IR and form a subgraph.
+  if (!pUpdateUpper)
+    return true;
+
+  bool status = true;
+  for (unsigned i = 0; i < ns->getNode().inputs().size(); ++i) {
+    if (onnx::Node* child = ns->getNode().inputs()[i]->node()) {
+      if (child->kind() == onnx::kParam)
+        continue;
+      LongInts newInS = ns->calNewInputSize(i);
+      status &= splitNodeBySize(child, newInS, true);
+    }
+  }
+  return status;
 }
 
 // [TODO] BuildDegreeMap: Duplicate code, please merge with NodeIRScheduler
@@ -529,20 +586,9 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
 //===----------------------------------------------------------------------===//
 SplitGraphManager::SplitGraphManager(onnx::Graph& pGraph,
                                    DLATargetBackend& pDLATB)
-  : m_DLATB(pDLATB), m_Graph(pGraph)
+  : m_DLATB(pDLATB)
 {
-  m_Groups.push_back(new SplitGraph(*this));
-
-  for (onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
-      continue;
-
-    SplitNode *sn = SplitNodeCreator(*n);
-    m_SplitInfos[n] = sn;
-
-//    if (n->kind() == g_StoreKind)
-//      m_Groups[0]->addStore(sn);
-  }
+  m_SubGraphs.push_back(new SplitGraph(*this, pGraph));
 }
 
 SplitGraphManager::~SplitGraphManager()
@@ -552,79 +598,22 @@ SplitGraphManager::~SplitGraphManager()
 
 void SplitGraphManager::clear()
 {
-  for (auto snIt : m_SplitInfos)
-    delete snIt.second;
-  m_SplitInfos.clear();
-
-  for (SplitGraph *sg : m_Groups)
+  for (SplitGraph *sg : m_SubGraphs)
     delete sg;
-  m_Groups.clear();
+  m_SubGraphs.clear();
 }
 
-SplitNode* SplitGraphManager::getSplitNode(onnx::Node* pN)
+SplitGraph *SplitGraphManager::splitNewSubGraph(SplitGraph &pSpGraph)
 {
-  assert(m_SplitInfos.find(pN) != m_SplitInfos.end() &&
-         "onnx::Node doesn't exist in SplitGraphManager.");
-  return m_SplitInfos[pN];
-}
+  Nodes splitPts = findHalfSizeSplitPoints(pSpGraph.getGraph(),
+                                           *m_DLATB.getTTI());
+  onnx::Graph *newGraph = SplitSubGraph(pSpGraph.getGraph(), splitPts);
 
-const SplitNode* SplitGraphManager::getSplitNode(onnx::Node* pN) const
-{
-  auto it = m_SplitInfos.find(pN);
-  assert(m_SplitInfos.find(pN) != m_SplitInfos.end() &&
-         "onnx::Node doesn't exist in SplitGraphManager.");
-  return it->second;
-}
+  // rebuild m_SplitNodes for original SplitGraph
+  pSpGraph.rebuildSplitNodes();
 
-void SplitGraphManager::splitNodeByFactor(onnx::Node* pN, unsigned pAxis,
-                                         unsigned pFactor, bool pUpdateUpper)
-{
-  SplitNode* ns = getSplitNode(pN);
-  LongInts newS = ns->m_NewOutSizes;
-  newS[pAxis] = (newS[pAxis] + pFactor - 1)/ pFactor;
-  splitNodeBySize(pN, newS, pUpdateUpper);
-}
-
-bool SplitGraphManager::hasSplitNode(onnx::Node *pN) const
-{
-  return m_SplitInfos.find(pN) != m_SplitInfos.end();
-}
-
-onnx::Graph *SplitGraphManager::splitSubGraph(onnx::Graph &pGraph)
-{
-  Nodes splitPts = findHalfSizeSplitPoints(pGraph, *m_DLATB.getTTI());
-  return SplitSubGraph(pGraph, splitPts);
-}
-
-bool SplitGraphManager::splitNodeBySize(onnx::Node* pN,
-                                       const LongInts& pNewOutSize,
-                                       bool pUpdateUpper)
-{
-  SplitNode* ns = getSplitNode(pN);
-  if (!ns->useNewOutSize(pNewOutSize))
-    return false;
-
-  // Load IR is a boundary, it is paired with Store IR and form a subgraph.
-  if (!pUpdateUpper)
-    return true;
-
-  bool status = true;
-  for (unsigned i = 0; i < ns->m_Node.inputs().size(); ++i) {
-    if (onnx::Node* child = ns->m_Node.inputs()[i]->node()) {
-      if (child->kind() == onnx::kParam)
-        continue;
-      LongInts newInS = ns->calNewInputSize(i);
-      status &= splitNodeBySize(child, newInS, true);
-    }
-  }
-  return status;
-}
-
-SplitGraph *SplitGraphManager::createNewGroup()
-{
-  SplitGraph *ngrp = new SplitGraph(*this);
-  m_Groups.push_back(ngrp);
-  return ngrp;
+  SplitGraph *newSpGraph = new SplitGraph(*this, *newGraph);
+  return newSpGraph;
 }
 
 void SplitGraphManager::dump() const
@@ -665,7 +654,7 @@ void PrintAttr(OStream &pOS, const onnx::Node &pN)
   }
 }
 
-void SplitGraphManager::print(OStream &pOS) const
+void SplitGraph::print(OStream &pOS) const
 {
   size_t graphOldS = 0, graphNewS = 0;
   for (const onnx::Node *n : m_Graph.nodes()) {
@@ -704,7 +693,7 @@ void SplitGraphManager::print(OStream &pOS) const
         pOS << std::setw(5) << std::right << s.dim;
 
       pOS << ") -> (";
-      for (int64_t s : sn->m_NewOutSizes)
+      for (int64_t s : sn->getNewOutputSize(i))
         pOS << std::setw(5) << std::right << s;
       pOS << ")\n";
     }
@@ -715,9 +704,9 @@ void SplitGraphManager::print(OStream &pOS) const
       continue;
 
     MemSize newS =
-      m_DLATB.getTTI()->getOperatorMemUsage(n, newInputSizes,
-                                            {sn->m_NewOutSizes});
-    MemSize oldS = m_DLATB.getTTI()->getOperatorMemUsage(n);
+      m_SgMgr.getTTI().getOperatorMemUsage(n, newInputSizes,
+                                           {sn->getNewOutputSize(0)});
+    MemSize oldS = m_SgMgr.getTTI().getOperatorMemUsage(n);
 
     graphOldS += oldS.size;
     graphNewS += newS.size;
@@ -726,6 +715,14 @@ void SplitGraphManager::print(OStream &pOS) const
   }
   pOS << "Graph total size: " << (float)graphOldS/1024.f << " kb -> "
       << (float)graphNewS/1024.f << " kb" << "\n";
+}
+
+void SplitGraphManager::print(OStream &pOS) const
+{
+  for (SplitGraph *spGraph : m_SubGraphs) {
+    pOS << "Print graph allocation info:\n";
+    spGraph->print(pOS);
+  }
 }
 
 //===----------------------------------------------------------------------===//

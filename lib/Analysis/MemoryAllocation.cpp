@@ -5,8 +5,9 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Analysis/MemoryAllocation.h>
 #include <onnc/Analysis/LivenessAnalysis.h>
+#include <onnc/Analysis/MemoryAllocation.h>
+#include <onnc/Analysis/NodeIRScheduler.h>
 #include <onnc/Analysis/SplitNode.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Core/InitializePasses.h>
@@ -85,6 +86,9 @@ size_t MemoryAllocation::allocByLiveness(ValMemSizeMap &pValMemSizeMap)
   auto &livesInfo = liveAnaly->getLiveIntervals();
   for (const LiveInterval* li : livesInfo) {
     auto v = &li->getValue();
+    if (!pValMemSizeMap.count(v))
+      continue;
+
     size_t required = pValMemSizeMap[v].size,
            startAddr = 0;
 
@@ -112,59 +116,72 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
     return kPassFailure;
   }
 
+  GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
+  NodeIRScheduler *scheduler = getAnalysis<NodeIRScheduler>();
+
+  scheduler->runOnModule(pModule);
+  liveAnaly->runOnModule(pModule);
+
   clear();
 
-  onnx::Graph& graph = *pModule.getGraph();
-
-  SplitNodeManager snMgr(graph, *m_DLATB);
+  SplitGraphManager sgMgr(*pModule.getGraph(), *m_DLATB);
 
   const uint64_t localMemSize = m_DLATB->getMemInfo()
                                        ->getLocalMemSize();
-  std::vector<SplitGroup*> worklist(snMgr.getGroups());
+  std::vector<SplitGraph*> worklist(sgMgr.getSplitGraphs());
   while (!worklist.empty()) {
-    SplitGroup *group = worklist.back();
+    SplitGraph *spGraph = worklist.back();
     worklist.pop_back();
 
-    // per group
-    ValMemSizeMap valMemSMap;
+    // per graph
     int64_t prevMinSize = 0;
     const float threshold = 0.9f; // 90% splitting threshold.
+    errs() << "allocate or shrink size: ";
     while (true) {
-      group->getMemUsage(m_DLATB->getTTI(), valMemSMap);
+      ValMemSizeMap valMemSMap;
+      spGraph->getMemUsage(valMemSMap);
 
       // get maximum requirements.
       uint64_t maxSize = 0;
       for (auto & req : valMemSMap)
         maxSize += req.second.size;
 
+      // Try to allocate.
       uint64_t minSize = allocByLiveness(valMemSMap);
       if (minSize < localMemSize)
         break;
 
       // If new allocation is not smaller enough than previous allocation, then
-      // create new sub group
+      // create new sub graph
       if (prevMinSize && (float)minSize / prevMinSize > threshold) {
         prevMinSize = 0;
-        group->resetToOrigSize();
-        SplitGroup *newgroup = group->splitNewGroup(m_DLATB->getTTI());
-        if (newgroup)
-          worklist.push_back(newgroup);
+        spGraph->resetToOrigSize();
+
+        SplitGraph *newSpGraph = sgMgr.splitNewSubGraph(*spGraph);
+
+        if (newSpGraph) {
+          worklist.push_back(newSpGraph);
+          continue;
+        }
         else {
           errs() << "[MemoryAllocation] Unable to allocate memory for group.\n";
           break;
         }
       }
       prevMinSize = minSize;
+      errs() << " -> " << (float)prevMinSize / 1024.f << " kb";
 
-      group->shrinkSize();
+      spGraph->shrinkSize();
     }
+    outs() << "\n";
   }
-  snMgr.dump();
+  sgMgr.dump();
   return kModuleNoChanged;
 }
 
 void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
+  pUsage.addRequiredID(NodeIRScheduler::ID);
   pUsage.addRequiredID(GraphLivenessAnalysis::ID);
   pUsage.addRequiredID(UpdateGraphOutputSize::ID);
 }

@@ -13,7 +13,7 @@
 
 namespace onnc {
 
-using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
+typedef std::unordered_map<const onnx::Value *, MemSize> ValMemSizeMap;
 
 /** \class SplitNode
  *  Represent a node, encapsulate the knowledge of inferring new input sizes
@@ -21,8 +21,6 @@ using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
  */
 class SplitNode
 {
-friend class SplitGraphManager;
-
 public:
   SplitNode(onnx::Node& pN);
 
@@ -56,24 +54,54 @@ protected:
 class SplitGraphManager;
 class SplitGraph
 {
-friend class SplitGraphManager;
 public:
-  SplitGraph(SplitGraphManager &pSgMgr)
-    : m_SgMgr(pSgMgr) {}
+  typedef std::unordered_map<onnx::Node*, SplitNode*> SplitNodeHash;
+
+  SplitGraph(SplitGraphManager &pSgMgr, onnx::Graph &pGraph);
+
+  ~SplitGraph();
 
   void resetToOrigSize();
 
-  void getMemUsage(const TargetTransformInfo *pTTI, ValMemSizeMap &pVMSMap);
+  void getMemUsage(ValMemSizeMap &pVMSMap) const;
 
   /// Reduce size of all values in a group to meet memory size constraint.
   void shrinkSize();
 
+  onnx::Graph & getGraph() { return m_Graph; }
+
+  SplitNode* getSplitNode(onnx::Node* pN);
+
+  const SplitNode* getSplitNode(onnx::Node* pN) const;
+
+  bool hasSplitNode(onnx::Node *pN) const;
+
+  void print(OStream &pOS) const;
+
+  void rebuildSplitNodes();
+
+private:
+  void clear();
+
+  /// @param pN Split from node pN.
+  /// @param pUpdateUpper Propagate new size to upper levels.
+  void splitNodeByFactor(onnx::Node* pN, unsigned pAxis, unsigned pFactor,
+                         bool pUpdateUpper = true);
+
+  bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
+                       bool pUpdateUpper = true);
+
 private:
   SplitGraphManager &m_SgMgr;
 
-  // split parameters.
-  unsigned m_CurSplitAxis;
-  unsigned m_CurSplitFactor;
+  onnx::Graph &m_Graph;
+
+  SplitNodeHash m_SplitNodes;
+
+  // split parameters for each output value.
+  std::vector<onnx::Node *> m_Stores;
+  std::vector<unsigned> m_CurSplitAxis;
+  std::vector<unsigned> m_CurSplitFactor;
 };
 
 /** \class SplitGraphManager
@@ -84,49 +112,28 @@ class SplitGraphManager
 {
 public:
   typedef std::vector<SplitGraph*> SplitGraphs;
-  typedef std::unordered_map<onnx::Node*, SplitNode*> SplitInfoHash;
 
   SplitGraphManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
   ~SplitGraphManager();
 
-  /// @param pN Split from node pN.
-  /// @param pUpdateUpper Propagate new size to upper levels.
-  void splitNodeByFactor(onnx::Node* pN, unsigned pAxis, unsigned pFactor,
-                         bool pUpdateUpper = true);
+  SplitGraphs &getSplitGraphs() { return m_SubGraphs; }
 
-  bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
-                       bool pUpdateUpper = true);
-
-  SplitGraph *createNewGroup();
-
-  SplitGraphs &getGroups() { return m_Groups; }
-
-  SplitNode* getSplitNode(onnx::Node* pN);
-
-  const SplitNode* getSplitNode(onnx::Node* pN) const;
-
-  bool hasSplitNode(onnx::Node *pN) const;
-
-  onnx::Graph *splitSubGraph(onnx::Graph &pGraph);
+  SplitGraph *splitNewSubGraph(SplitGraph &pSpGraph);
 
   /// Dump splitting result. Callable in GDB.
   void dump() const;
 
   void print(OStream &pOS) const;
 
+  const TargetTransformInfo &getTTI() const { return *m_DLATB.getTTI(); }
+
 private:
   void clear();
 
   DLATargetBackend& m_DLATB;
-  onnx::Graph& m_Graph;
-  SplitInfoHash m_SplitInfos;
 
-  /// Store means local memory spilling to global memory. Each group can have
-  /// n stores, and each group forms a subgraph. Communication (data exchange)
-  /// between groups (subgraph) is through load/store.
-  ///
-  /// Graph splitting and get memory usages are operating on a group.
-  SplitGraphs m_Groups;
+  /// Communication (data exchange) between subgraphs is through load/store.
+  SplitGraphs m_SubGraphs;
 };
 
 } // namespace of onnc
