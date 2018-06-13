@@ -17,6 +17,7 @@ using namespace onnc;
 
 typedef std::vector<onnx::Node *> Nodes;
 typedef std::unordered_set<onnx::Node *> NodeSet;
+typedef std::unordered_map<onnx::Node *, unsigned> DegreeMap;
 
 static const onnx::NodeKind g_LoadKind = onnx::Symbol("Load");
 static const onnx::NodeKind g_StoreKind = onnx::Symbol("Store");
@@ -97,6 +98,7 @@ static void cloneNodeAndSuccessors(onnx::Node *pNode, onnx::Graph *pNewGraph,
 static void rebuildInputs(NodeNodeMap &pOldNewMap)
 {
   // Rebuild inputs for newly created nodes from pOldNewMap.
+  onnx::Node *oldRetN = nullptr;
   for (auto &it : pOldNewMap) {
     onnx::Node *oldN = it.first, *newN = it.second;
     for (onnx::Value *oldv : oldN->inputs()) {
@@ -108,17 +110,32 @@ static void rebuildInputs(NodeNodeMap &pOldNewMap)
       }
       // [FIXME] We should remember newN's input[i] maps to which output[j] of
       //         newN's parent node.
-      newN->addInput(valIt->first->outputs()[0]);
       if (valIt->first->outputs().size() > 1) {
         outs() << "[Warning] rebuildInputs: parent node "
                << valIt->first->outputs()[0]->uniqueName()
                << " has more than one output value.\n";
       }
+
+      // A graph has only one return node.
+      if (newN->kind() == onnx::kReturn)
+        oldRetN = oldN;
+
+      newN->addInput(valIt->second->outputs()[0]);
     }
+  }
+
+  if (oldRetN) {
+    onnx::Node *newRetN = pOldNewMap[oldRetN];
+    onnx::Node *graphRetN = newRetN->owningGraph()->return_node();
+    for (onnx::Value *input : newRetN->inputs())
+      graphRetN->addInput(input);
+
+    newRetN->destroy();
+    pOldNewMap.erase(oldRetN);
   }
 }
 
-static void removeNodeAndSuccessors(onnx::Node *pNode)
+static void removeNodeAndSuccessors(onnx::Node *pNode, NodeSet &pHasRemoved)
 {
   std::vector<onnx::Node *> worklist;
 
@@ -128,12 +145,21 @@ static void removeNodeAndSuccessors(onnx::Node *pNode)
   while (!worklist.empty()) {
     onnx::Node *oldN = worklist.back();
     worklist.pop_back();
+    // Can't delete return node.
+    if (oldN->kind() == onnx::kReturn)
+      continue;
+
+    if (pHasRemoved.count(oldN))
+      continue;
 
     for (onnx::Value *outv : oldN->outputs())
-      for (auto u : outv->uses())
+      for (auto u : outv->uses()) {
+        u.user->removeAllInputs();
         worklist.push_back(u.user);
+      }
 
     oldN->destroy();
+    pHasRemoved.insert(oldN);
   }
 }
 
@@ -171,6 +197,58 @@ static void createLoadStoreAtNode(onnx::Graph &pGraph, onnx::Node &pN,
   }
 }
 
+static DegreeMap BuildDegreeMap(onnx::Graph &pGraph);
+
+static void TopologicalSort(onnx::Graph &pGraph)
+{
+  DegreeMap dmap = BuildDegreeMap(pGraph);
+  Nodes worklist;
+
+  // Add degree = 0 to worklist in graph order.
+  for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == onnx::kUndefined)
+      continue;
+
+    if (dmap[n] == 0)
+      worklist.push_back(n);
+  }
+
+  // topological sort.
+  Nodes orderedList;
+  while (!worklist.empty()) {
+    onnx::Node *n = worklist.back();
+    worklist.pop_back();
+    orderedList.push_back(n);
+    for (onnx::Value *v : n->outputs()) {
+      // Update degree map.
+      for(auto u : v->uses()) {
+        if (u.user->kind() == onnx::kReturn)
+          continue;
+        auto it = dmap.find(u.user);
+        assert(it != dmap.end() &&
+               "Node doesn't exist in dmap!?");
+        // --Degree
+        it->second -= 1;
+        if (it->second == 0)
+          worklist.push_back(it->first);
+      } // for each user of this value.
+    } // for each output value.
+  }
+
+  // Reorder the IR position based on topological sort.
+  auto it = pGraph.begin();
+  if (it->kind() == onnx::kUndefined)
+    ++it;
+
+  for (unsigned i = 0; i < orderedList.size(); ++i) {
+    onnx::Node *n = orderedList[i];
+    if (*it != n)
+      n->moveBefore(*it);
+    else
+      ++it;
+  }
+}
+
 static onnx::Graph *SplitGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 {
   // Create new sub graph.
@@ -205,13 +283,17 @@ static onnx::Graph *SplitGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 
   // remove load and it's successors from old graph, and connect store to the
   // new subgraph node.
+  NodeSet hasRemovedSet;
   for (auto &ldst : newLoadStores) {
-    removeNodeAndSuccessors(ldst.first);
+    removeNodeAndSuccessors(ldst.first, hasRemovedSet);
     if (ldst.second)
       subgN->addInput(ldst.second->output());
   }
 
-  pGraph.appendNode(subgN);
+  subgN->insertBefore(pGraph.return_node());
+  pGraph.return_node()->addInput(subgN->output());
+
+  TopologicalSort(*newGraph);
 
   return newGraph;
 }
@@ -271,9 +353,6 @@ void SplitGroup::getMemUsage(const TargetTransformInfo *pTTI,
       pVMSMap[v] = pTTI->getOperatorOutputMemUsage(&n, i,
                                                    sn->calNewInputSize(i));
     }
-
-    //errs() << "get mem usage ";
-    //PrintNode(errs(), n);
 
     // add upper layer to worklist until load ir.
     for (onnx::Value *v : n.inputs()) {
@@ -342,7 +421,6 @@ SplitGroup *SplitGroup::splitNewGroup(const TargetTransformInfo *pTTI)
 }
 
 // [TODO] BuildDegreeMap: Duplicate code, please merge with NodeIRScheduler
-using DegreeMap = std::unordered_map<onnx::Node *, unsigned>;
 static DegreeMap BuildDegreeMap(onnx::Graph &pGraph)
 {
   DegreeMap dmap;
@@ -416,30 +494,40 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
       } // for each user of this value.
     } // for each output value.
 
-    if (accumulateSize < total/2) {
-      grpA.insert(n);
-      size_a = accumulateSize;
-    }
-    else
-      grpB.insert(n);
-
     if (n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
         n->kind() == g_SubGraphKind)
       continue;
 
+    if (accumulateSize < total/2) {
+      grpA.insert(n);
+      size_a = accumulateSize;
+    } else {
+      grpB.insert(n);
+    }
+
     accumulateSize += pTTI.getOperatorMemUsage(n).size;
   }
 
-  errs() << "In group a: (size = )" << size_a << "\n";
-  for (auto * na : grpA) {
-    PrintNode(errs(), *na);
-  }
+  // put load/store to correct group.
+  for (onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == g_LoadKind) {
+      // Assume users of this value are in the same group.
+      onnx::Node *user = n->output()->uses()[0].user;
+      if (grpA.count(user))
+        grpA.insert(n);
+      else
+        grpB.insert(n);
 
-  errs() << "In group b: (size = )" << accumulateSize - size_a << "\n";
-  for (auto * nb : grpB) {
-    PrintNode(errs(), *nb);
-  }
+    } else if (n->kind() == g_StoreKind) {
+      if (grpA.count(n->input()->node()))
+        grpA.insert(n);
+      else
+        grpB.insert(n);
 
+    } else if (n->kind() == g_SubGraphKind) {
+      assert(false && "Please implement it.");
+    }
+  }
 
   // find split points from group A.
   Nodes splitPts;
