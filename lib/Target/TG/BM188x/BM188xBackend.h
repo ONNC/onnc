@@ -16,6 +16,7 @@
 namespace onnc {
 
 class TGCodeEmitter;
+class TargetTransformInfo;
 
 class BM1880Backend : public TGBackend
 {
@@ -28,9 +29,11 @@ public:
   void setCtableProto(const std::string &pTextString) override;
   const tg::bm1880::LayerCalibrationParameter &
   getCtableLayerParam(std::string &pName);
+  const TargetTransformInfo *getTTI() const override { return m_pTTI; }
 
 private:
   tg::bm1880::NetCalibrationParameter m_NetCtableParam;
+  TargetTransformInfo *m_pTTI; // NOLINT
 };
 
 } // namespace onnc

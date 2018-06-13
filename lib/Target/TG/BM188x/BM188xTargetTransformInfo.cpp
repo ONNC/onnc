@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "BM188xTargetTransformInfo.h"
+#include "TGBackend.h"
 #include <algorithm>
 #include <iostream>
 #include <onnc/Target/TargetMemInfo.h>
@@ -34,6 +35,8 @@ size_t getNumNeuron(const onnx::Value &pValue)
   return total;
 }
 
+#if 0
+// Currently not used by anyone
 size_t getNumElems(const onnx::Node &pNode)
 {
   size_t total = 1;
@@ -42,6 +45,7 @@ size_t getNumElems(const onnx::Node &pNode)
       total *= dim.dim;
   return total;
 }
+#endif
 
 int ZeroCost(TGBackend *pTGBackend, const onnx::Node *pNode) { return 0; }
 
@@ -225,8 +229,8 @@ CostModelMap g_NodeCostModels = {
 
 } // namespace
 
-int BM188xGraphTTI::getOperatorCost(const onnx::Node *pNode,
-                                    enum TargetCostKind pKind) const
+int BM188xTargetTransformInfo::getOperatorCost(const onnx::Node *pNode,
+                                               enum TargetCostKind pKind) const
 {
   auto it = g_NodeCostModels.find(pNode->kind());
   if (it != g_NodeCostModels.end()) {
@@ -237,8 +241,8 @@ int BM188xGraphTTI::getOperatorCost(const onnx::Node *pNode,
   return -1;
 }
 
-int BM188xGraphTTI::getWarpSize() const { return NPU_NUM; }
+int BM188xTargetTransformInfo::getWarpSize() const { return NPU_NUM; }
 
-int BM188xGraphTTI::getProcessingUnitCount() const { return EU_NUM; }
+int BM188xTargetTransformInfo::getProcessingUnitCount() const { return EU_NUM; }
 
-int BM188xGraphTTI::getBusBitWidth() const { return BUS_BITWIDTH; }
+int BM188xTargetTransformInfo::getBusBitWidth() const { return BUS_BITWIDTH; }

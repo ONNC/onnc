@@ -7,19 +7,20 @@
 //===----------------------------------------------------------------------===//
 #include "BM188xTargetMemInfo.h"
 #include <onnc/Support/IOStream.h>
+#include <onnc/Target/TargetTransformInfo.h>
 
 using namespace onnc;
 
 namespace {
-const size_t MB = 1024 * 1024;
-const size_t KB = 1024;
+const uint64_t MB = 1024 * 1024;
+const uint64_t KB = 1024;
 // TODO(arcbbb): Remove this once we have BM188xTTI
-const size_t EU_NUM = 32;
+const uint64_t EU_NUM = 32;
 } // namespace
 
 using TP_DataTy = onnx::TensorProto_DataType;
 
-size_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
+uint64_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
 {
   switch (pTy) {
   case onnx::TensorProto_DataType_BOOL:
@@ -51,18 +52,17 @@ size_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
   assert(0 && "Unsupport element size.");
 }
 
-size_t BM188xTargetMemInfo::getGlobalMemSize() const { return 1024 * MB; }
+uint64_t BM188xTargetMemInfo::getGlobalMemSize() const { return 1024 * MB; }
 
-size_t BM188xTargetMemInfo::getLocalMemSize() const { return 64 * KB; }
+uint64_t BM188xTargetMemInfo::getLocalMemSize() const { return 64 * KB; }
 
 MemSize BM188xTargetMemInfo::getValueMemorySize(onnx::Value *pValue)
 {
-  size_t s = getElemSize(pValue->elemType());
-  // TODO(arcbbb): Fix this once we have BM188xTTI
-  size_t a = EU_NUM;
+  uint64_t sum = getElemSize(pValue->elemType());
+  uint64_t eu_num = m_pTGBackend->getTTI()->getProcessingUnitCount();
 
   for (const onnx::Dimension &dim : pValue->sizes())
-    s *= dim.dim;
+    sum *= dim.dim;
 
-  return { a, s };
+  return { eu_num, sum };
 }

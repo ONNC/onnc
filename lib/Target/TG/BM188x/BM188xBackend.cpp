@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "BM188xBackend.h"
+#include "BM188x/BM188xTargetMemInfo.h"
+#include "BM188x/BM188xTargetTransformInfo.h"
 #include "BM188xCodeEmitter.h"
 #include "BM188xISelLowering.h"
 #include <google/protobuf/text_format.h>
@@ -18,6 +20,8 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
     : TGBackend(new BM188xISelLowering(this), new BM188xCodeEmitter(this),
                 pOptions)
 {
+  m_pMemInfo = new BM188xTargetMemInfo(this);
+  m_pTTI = new BM188xTargetTransformInfo(this);
 }
 
 bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
