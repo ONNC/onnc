@@ -1,12 +1,12 @@
-//===- Conv.h --------------------------------------------------===//
+//===- MaxRoiPool.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_CONV_H
-#define ONNC_IR_COMPUTE_OPERATOR_CONV_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_MAXROIPOOL_H
+#define ONNC_IR_COMPUTE_OPERATOR_MAXROIPOOL_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,39 +14,26 @@
 
 namespace onnc {
 
-class Conv : public ComputeOperator
+class MaxRoiPool : public ComputeOperator
 {
 public:
   enum IOConst {
     kX = 0,
-    kW = 1,
-    kB = 2,
+    kRois = 1,
     kY = 0
   };
 
 public:
-  Conv();
+  MaxRoiPool();
 
-  Conv(const StringAttr& pAutoPad,
-       const IntsAttr& pDilations,
-       const IntAttr& pGroup,
-       const IntsAttr& pKernelShape,
-       const IntsAttr& pPads,
-       const IntsAttr& pStrides);
+  MaxRoiPool(const IntsAttr& pPooledShape,
+             const FloatAttr& pSpatialScale);
 
-  ~Conv() { }
+  ~MaxRoiPool() { }
 
-  const StringAttr& getAutoPad() const { return m_AutoPad; }
+  const IntsAttr& getPooledShape() const { return m_PooledShape; }
 
-  const IntsAttr& getDilations() const { return m_Dilations; }
-
-  const IntAttr& getGroup() const { return m_Group; }
-
-  const IntsAttr& getKernelShape() const { return m_KernelShape; }
-
-  const IntsAttr& getPads() const { return m_Pads; }
-
-  const IntsAttr& getStrides() const { return m_Strides; }
+  const FloatAttr& getSpatialScale() const { return m_SpatialScale; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -58,17 +45,13 @@ public:
 
   Tensor* getX() { return getInput(kX); }
 
-  Tensor* getW() { return getInput(kW); }
-
-  Tensor* getB() { return getInput(kB); }
+  Tensor* getRois() { return getInput(kRois); }
 
   Tensor* getY() { return getOutput(kY); }
 
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
-  void setW(Tensor& pTensor) { m_Inputs[kW] = &pTensor; }
-
-  void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
+  void setRois(Tensor& pTensor) { m_Inputs[kRois] = &pTensor; }
 
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
 
@@ -79,12 +62,8 @@ public:
   void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
 
 private:
-  StringAttr m_AutoPad;
-  IntsAttr m_Dilations;
-  IntAttr m_Group;
-  IntsAttr m_KernelShape;
-  IntsAttr m_Pads;
-  IntsAttr m_Strides;
+  IntsAttr m_PooledShape;
+  FloatAttr m_SpatialScale;
 };
 
 } // namespace of onnc

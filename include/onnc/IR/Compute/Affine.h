@@ -1,12 +1,12 @@
-//===- Conv.h --------------------------------------------------===//
+//===- Affine.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_CONV_H
-#define ONNC_IR_COMPUTE_OPERATOR_CONV_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_AFFINE_H
+#define ONNC_IR_COMPUTE_OPERATOR_AFFINE_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,39 +14,25 @@
 
 namespace onnc {
 
-class Conv : public ComputeOperator
+class Affine : public ComputeOperator
 {
 public:
   enum IOConst {
     kX = 0,
-    kW = 1,
-    kB = 2,
     kY = 0
   };
 
 public:
-  Conv();
+  Affine();
 
-  Conv(const StringAttr& pAutoPad,
-       const IntsAttr& pDilations,
-       const IntAttr& pGroup,
-       const IntsAttr& pKernelShape,
-       const IntsAttr& pPads,
-       const IntsAttr& pStrides);
+  Affine(const FloatAttr& pAlpha,
+         const FloatAttr& pBeta);
 
-  ~Conv() { }
+  ~Affine() { }
 
-  const StringAttr& getAutoPad() const { return m_AutoPad; }
+  const FloatAttr& getAlpha() const { return m_Alpha; }
 
-  const IntsAttr& getDilations() const { return m_Dilations; }
-
-  const IntAttr& getGroup() const { return m_Group; }
-
-  const IntsAttr& getKernelShape() const { return m_KernelShape; }
-
-  const IntsAttr& getPads() const { return m_Pads; }
-
-  const IntsAttr& getStrides() const { return m_Strides; }
+  const FloatAttr& getBeta() const { return m_Beta; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -58,17 +44,9 @@ public:
 
   Tensor* getX() { return getInput(kX); }
 
-  Tensor* getW() { return getInput(kW); }
-
-  Tensor* getB() { return getInput(kB); }
-
   Tensor* getY() { return getOutput(kY); }
 
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
-
-  void setW(Tensor& pTensor) { m_Inputs[kW] = &pTensor; }
-
-  void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
 
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
 
@@ -79,12 +57,8 @@ public:
   void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
 
 private:
-  StringAttr m_AutoPad;
-  IntsAttr m_Dilations;
-  IntAttr m_Group;
-  IntsAttr m_KernelShape;
-  IntsAttr m_Pads;
-  IntsAttr m_Strides;
+  FloatAttr m_Alpha;
+  FloatAttr m_Beta;
 };
 
 } // namespace of onnc

@@ -1,12 +1,12 @@
-//===- Conv.h --------------------------------------------------===//
+//===- FC.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_CONV_H
-#define ONNC_IR_COMPUTE_OPERATOR_CONV_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_FC_H
+#define ONNC_IR_COMPUTE_OPERATOR_FC_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,7 +14,7 @@
 
 namespace onnc {
 
-class Conv : public ComputeOperator
+class FC : public ComputeOperator
 {
 public:
   enum IOConst {
@@ -25,28 +25,16 @@ public:
   };
 
 public:
-  Conv();
+  FC();
 
-  Conv(const StringAttr& pAutoPad,
-       const IntsAttr& pDilations,
-       const IntAttr& pGroup,
-       const IntsAttr& pKernelShape,
-       const IntsAttr& pPads,
-       const IntsAttr& pStrides);
+  FC(const IntAttr& pAxis,
+     const IntAttr& pAxisW);
 
-  ~Conv() { }
+  ~FC() { }
 
-  const StringAttr& getAutoPad() const { return m_AutoPad; }
+  const IntAttr& getAxis() const { return m_Axis; }
 
-  const IntsAttr& getDilations() const { return m_Dilations; }
-
-  const IntAttr& getGroup() const { return m_Group; }
-
-  const IntsAttr& getKernelShape() const { return m_KernelShape; }
-
-  const IntsAttr& getPads() const { return m_Pads; }
-
-  const IntsAttr& getStrides() const { return m_Strides; }
+  const IntAttr& getAxisW() const { return m_AxisW; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -79,12 +67,8 @@ public:
   void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
 
 private:
-  StringAttr m_AutoPad;
-  IntsAttr m_Dilations;
-  IntAttr m_Group;
-  IntsAttr m_KernelShape;
-  IntsAttr m_Pads;
-  IntsAttr m_Strides;
+  IntAttr m_Axis;
+  IntAttr m_AxisW;
 };
 
 } // namespace of onnc

@@ -1,12 +1,12 @@
-//===- Conv.h --------------------------------------------------===//
+//===- LpPool.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_CONV_H
-#define ONNC_IR_COMPUTE_OPERATOR_CONV_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_LPPOOL_H
+#define ONNC_IR_COMPUTE_OPERATOR_LPPOOL_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,35 +14,30 @@
 
 namespace onnc {
 
-class Conv : public ComputeOperator
+class LpPool : public ComputeOperator
 {
 public:
   enum IOConst {
     kX = 0,
-    kW = 1,
-    kB = 2,
     kY = 0
   };
 
 public:
-  Conv();
+  LpPool();
 
-  Conv(const StringAttr& pAutoPad,
-       const IntsAttr& pDilations,
-       const IntAttr& pGroup,
-       const IntsAttr& pKernelShape,
-       const IntsAttr& pPads,
-       const IntsAttr& pStrides);
+  LpPool(const StringAttr& pAutoPad,
+         const IntsAttr& pKernelShape,
+         const IntAttr& pP,
+         const IntsAttr& pPads,
+         const IntsAttr& pStrides);
 
-  ~Conv() { }
+  ~LpPool() { }
 
   const StringAttr& getAutoPad() const { return m_AutoPad; }
 
-  const IntsAttr& getDilations() const { return m_Dilations; }
-
-  const IntAttr& getGroup() const { return m_Group; }
-
   const IntsAttr& getKernelShape() const { return m_KernelShape; }
+
+  const IntAttr& getP() const { return m_P; }
 
   const IntsAttr& getPads() const { return m_Pads; }
 
@@ -58,17 +53,9 @@ public:
 
   Tensor* getX() { return getInput(kX); }
 
-  Tensor* getW() { return getInput(kW); }
-
-  Tensor* getB() { return getInput(kB); }
-
   Tensor* getY() { return getOutput(kY); }
 
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
-
-  void setW(Tensor& pTensor) { m_Inputs[kW] = &pTensor; }
-
-  void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
 
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
 
@@ -80,9 +67,8 @@ public:
 
 private:
   StringAttr m_AutoPad;
-  IntsAttr m_Dilations;
-  IntAttr m_Group;
   IntsAttr m_KernelShape;
+  IntAttr m_P;
   IntsAttr m_Pads;
   IntsAttr m_Strides;
 };

@@ -1,42 +1,39 @@
-//===- Conv.cpp ------------------------------------------------===//
+//===- LpPool.cpp ------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/Compute/LpPool.h>
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// Conv
+// LpPool
 //===----------------------------------------------------------------------===//
-Conv::Conv()
-  : ComputeOperator("Conv"),
+LpPool::LpPool()
+  : ComputeOperator("LpPool"),
     m_AutoPad(),
-    m_Dilations(),
-    m_Group(),
     m_KernelShape(),
+    m_P(),
     m_Pads(),
     m_Strides() {
 }
 
-Conv::Conv(const StringAttr& pAutoPad,
-           const IntsAttr& pDilations,
-           const IntAttr& pGroup,
-           const IntsAttr& pKernelShape,
-           const IntsAttr& pPads,
-           const IntsAttr& pStrides)
-  : ComputeOperator("Conv"),
+LpPool::LpPool(const StringAttr& pAutoPad,
+               const IntsAttr& pKernelShape,
+               const IntAttr& pP,
+               const IntsAttr& pPads,
+               const IntsAttr& pStrides)
+  : ComputeOperator("LpPool"),
     m_AutoPad(pAutoPad),
-    m_Dilations(pDilations),
-    m_Group(pGroup),
     m_KernelShape(pKernelShape),
+    m_P(pP),
     m_Pads(pPads),
     m_Strides(pStrides) {
 }
 
-void Conv::print(std::ostream& pOS) const
+void LpPool::print(std::ostream& pOS) const
 {
 }

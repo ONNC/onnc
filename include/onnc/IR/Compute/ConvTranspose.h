@@ -1,12 +1,12 @@
-//===- Conv.h --------------------------------------------------===//
+//===- ConvTranspose.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_CONV_H
-#define ONNC_IR_COMPUTE_OPERATOR_CONV_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_CONVTRANSPOSE_H
+#define ONNC_IR_COMPUTE_OPERATOR_CONVTRANSPOSE_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,7 +14,7 @@
 
 namespace onnc {
 
-class Conv : public ComputeOperator
+class ConvTranspose : public ComputeOperator
 {
 public:
   enum IOConst {
@@ -25,16 +25,18 @@ public:
   };
 
 public:
-  Conv();
+  ConvTranspose();
 
-  Conv(const StringAttr& pAutoPad,
-       const IntsAttr& pDilations,
-       const IntAttr& pGroup,
-       const IntsAttr& pKernelShape,
-       const IntsAttr& pPads,
-       const IntsAttr& pStrides);
+  ConvTranspose(const StringAttr& pAutoPad,
+                const IntsAttr& pDilations,
+                const IntAttr& pGroup,
+                const IntsAttr& pKernelShape,
+                const IntsAttr& pOutputPadding,
+                const IntsAttr& pOutputShape,
+                const IntsAttr& pPads,
+                const IntsAttr& pStrides);
 
-  ~Conv() { }
+  ~ConvTranspose() { }
 
   const StringAttr& getAutoPad() const { return m_AutoPad; }
 
@@ -43,6 +45,10 @@ public:
   const IntAttr& getGroup() const { return m_Group; }
 
   const IntsAttr& getKernelShape() const { return m_KernelShape; }
+
+  const IntsAttr& getOutputPadding() const { return m_OutputPadding; }
+
+  const IntsAttr& getOutputShape() const { return m_OutputShape; }
 
   const IntsAttr& getPads() const { return m_Pads; }
 
@@ -83,6 +89,8 @@ private:
   IntsAttr m_Dilations;
   IntAttr m_Group;
   IntsAttr m_KernelShape;
+  IntsAttr m_OutputPadding;
+  IntsAttr m_OutputShape;
   IntsAttr m_Pads;
   IntsAttr m_Strides;
 };
