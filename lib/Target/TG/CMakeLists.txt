@@ -13,6 +13,7 @@ add_libonnc_src(
     TGBackend.cpp
     TGCodeEmitPass.cpp
     ComputeOperator.cpp
+    ONNXFuseOptPass.cpp
     GlobalMemAllocPass
     TargetLoweringPass.cpp)
 
