@@ -24,6 +24,7 @@ graph {
   node { input: "ip1_1" output: "relu1_1" name: "" op_type: "Relu" }
   node { input: "relu1_1" input: "ip2_w_0" input: "ip2_b_0" output: "ip2_1" op_type: "Gemm" attribute { name: "transB" i: 1 type: INT } attribute { name: "broadcast" i: 1 type: INT } }
   node { input: "ip2_1" output: "prob_1" name: "" op_type: "Softmax" }
+  initializer { dims: 2 data_type: INT64 name: "OC2_DUMMY_1" raw_data: "\001\000\000\000\000\000\000\000 \003\000\000\000\000\000\000" }
   input { name: "data_0" type { tensor_type { elem_type: INT8 shape { dim { dim_value: 1 } dim { dim_value: 1 } dim { dim_value: 28 } dim { dim_value: 28 } } } } }
   input { name: "conv1_w_0" type { tensor_type { elem_type: INT8 shape { dim { dim_value: 20 } dim { dim_value: 1 } dim { dim_value: 5 } dim { dim_value: 5 } } } } }
   input { name: "conv1_b_0" type { tensor_type { elem_type: INT16 shape { dim { dim_value: 20 } } } } }

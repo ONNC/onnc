@@ -74,16 +74,18 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
   // TODO use elegant method to get onnx::Graph
   const ::onnx::Graph *graph =
       m_Backend->getMemOperands()[0]->m_Value->owningGraph();
-  // check weight tensor is exist or not
-  if (const_cast< ::onnx::Graph *>(graph)->initializers().empty())
-    return;
-
   size_t weight_size = 0;
+  size_t weight_count = 0;
   for (auto *mem_op : m_Backend->getMemOperands()) {
     if (mem_op->m_MemType == MemType::NEURON)
       continue;
     weight_size += mem_op->m_Size;
+    ++weight_count;
   }
+  // check all weight tensors exist or return
+  if (const_cast< ::onnx::Graph *>(graph)->initializers().size() < weight_count)
+    return;
+
   pWeight.reserve(weight_size);
 
   for (auto &inst : m_Backend->getInsts()) {
