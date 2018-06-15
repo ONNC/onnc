@@ -12,6 +12,7 @@ namespace BM188X {
 class TGGemm : public ComputeOperator2
 {
 public:
+  enum ActivationMethod { RELU = 0, SIGMOID, TANH, ELU, PRELU };
   TGGemm(const ::onnx::Node &pNode,
          const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
   void emit() const override;
@@ -26,6 +27,7 @@ private:
   int m_OutColNum;
   int m_HaveBias;
   bool m_WeightTp;
+  bool m_EnableRelu;
   tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 

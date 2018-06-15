@@ -15,7 +15,7 @@ namespace BM188X {
 TGGemm::TGGemm(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
     : ComputeOperator2(pNode, "Gemm"), m_InRowNum(0), m_InColNum(0),
-      m_OutColNum(0), m_HaveBias(0), m_WeightTp(false),
+      m_OutColNum(0), m_HaveBias(0), m_WeightTp(false), m_EnableRelu(false),
       m_LayerCtable(pLayerCtable)
 {
 
@@ -34,6 +34,10 @@ TGGemm::TGGemm(const ::onnx::Node &pNode,
     DEBUG(dbgs() << "transB:" << transB << std::endl;);
     m_WeightTp = true;
   }
+
+  if (pNode.hasAttribute(::onnx::Symbol("enableReLu"))) {
+    m_EnableRelu = true;
+  }
 }
 
 TGGemm *TGGemm::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
@@ -51,7 +55,8 @@ void TGGemm::print(OStream &pOS) const
   int rShiftWidth = m_LayerCtable.right_shift_width();
   pOS << *m_MemOperands[3] << " = Gemm <inRowNum:" << m_InRowNum
       << ", inColNum:" << m_InColNum << ", outColNum:" << m_OutColNum
-      << ", m_WeightTp:" << m_WeightTp << ", lShiftWidth:0"
+      << ", m_weightTp:" << m_WeightTp << ", do_activation" << m_EnableRelu
+      << ", activation_method:" << RELU << ", lShiftWidth:0"
       << ", rShiftWidth:" << rShiftWidth << "> (" << *m_MemOperands[0] << ", "
       << *m_MemOperands[1] << ", " << *m_MemOperands[2] << ")\n";
 }
@@ -60,6 +65,9 @@ void TGGemm::emit() const
 {
   DEBUG(print(dbgs()));
   int rShiftWidth = m_LayerCtable.right_shift_width();
+  int do_activation = m_EnableRelu;
+  int activation_method = RELU;
+
   bmnet::bmnet_fc_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // input_data_gaddr
@@ -70,8 +78,8 @@ void TGGemm::emit() const
       m_InColNum,               // input_col_num
       m_OutColNum,              // weight_col_num
       m_HaveBias,               // have_bias
-      0,                        // do_activation
-      0,                        // activation_method
+      do_activation,            // do_activation
+      activation_method,        // activation_method
       GADDR_INVALID,            // activation_ga_slope
       0,                        // activation_channel_shared
       0,                        // activation_gt_scale
