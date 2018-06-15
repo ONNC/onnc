@@ -28,8 +28,8 @@ public:
   void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
 
 private:
-  void *m_BmkernelHandle; // NOLINT
-  TGBackend *m_pBackend;  // NOLINT
+  // void *m_BmkernelHandle; // NOLINT
+  TGBackend *m_pBackend; // NOLINT
 };
 
 class bm168x_kernel
@@ -45,11 +45,11 @@ public:
 public:
   bmnet::BM168xBackendContext *m_CTX;
 
-private:
   bm168x_kernel(bm168x_kernel const &) = delete;
 
   void operator=(bm168x_kernel const &) = delete;
 
+private:
   bm168x_kernel() = default;
 
   ~bm168x_kernel() = default;

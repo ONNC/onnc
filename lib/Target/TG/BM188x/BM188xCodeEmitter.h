@@ -31,7 +31,7 @@ public:
   void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
 
 private:
-  void *m_BmkernelHandle;
+  // void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
 };
 
@@ -48,11 +48,11 @@ public:
 public:
   bmnet::BM188xBackendContext *m_CTX;
 
-private:
   bm1880_kernel(bm1880_kernel const &) = delete;
 
   void operator=(bm1880_kernel const &) = delete;
 
+private:
   bm1880_kernel() = default;
 
   ~bm1880_kernel() = default;

@@ -11,7 +11,10 @@ class TGBackend;
 class TGCodeEmitter
 {
 public:
-  TGCodeEmitter(TGBackend *pBackend) : m_pBackend(pBackend) {}
+  TGCodeEmitter(TGBackend *pBackend)
+  {
+    (void)pBackend; // WIP
+  }
 
   virtual ~TGCodeEmitter() = default;
 
@@ -20,8 +23,8 @@ public:
   virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) = 0;
 
 private:
-  void *m_BmkernelHandle;
-  TGBackend *m_pBackend; // NOLINT
+  // void *m_BmkernelHandle;
+  // TGBackend *m_pBackend; // NOLINT
 };
 
 } // namespace onnc

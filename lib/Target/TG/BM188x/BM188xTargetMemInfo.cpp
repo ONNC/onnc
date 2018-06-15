@@ -15,7 +15,7 @@ namespace {
 const uint64_t MB = 1024 * 1024;
 const uint64_t KB = 1024;
 // TODO(arcbbb): Remove this once we have BM188xTTI
-const uint64_t EU_NUM = 32;
+// const uint64_t EU_NUM = 32;
 } // namespace
 
 using TP_DataTy = onnx::TensorProto_DataType;
