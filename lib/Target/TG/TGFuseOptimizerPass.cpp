@@ -11,23 +11,26 @@ namespace {
 
 class ONNXFuseOpt : public ModulePass
 {
-
-private:
-  TGBackend *m_pTarget;
-
 public:
   static char ID;
 
 public:
   ONNXFuseOpt(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
+
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:
   bool fuseNodes(::onnx::Graph *pGraph);
+
+private:
+  TGBackend *m_pTarget; // NOLINT
 };
 
 Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
 {
+  TGFuseOptimizer *TFO = m_pTarget->getFuseOptimizr();
+  TFO->init(pModule);
+
   ::onnx::Graph *graph = pModule.getGraphIR().get();
   Pass::ReturnType is_changed = Pass::kModuleNoChanged;
   bool local_change;
@@ -36,7 +39,9 @@ Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
     if (local_change)
       is_changed = Pass::kModuleChanged;
   } while (local_change);
-  DumpGraph(*graph);
+  // TODO Module::print is unfinished
+  // plz uncomment below code for debugging..
+  // DumpGraph(*graph);
   return is_changed;
 }
 
@@ -49,14 +54,7 @@ bool ONNXFuseOpt::fuseNodes(::onnx::Graph *pGraph)
       if (node->output()->uses().size() == 1 &&
           node->output()->uses()[0].user->kind() == ::onnx::Symbol("Relu")) {
         ::onnx::Node *relu_node = node->output()->uses()[0].user;
-        ::onnx::Node *new_node =
-            pGraph->create(::onnx::Symbol("Gemm_ReLU"), node->inputs());
-        new_node->output()->copyMetadata(node->output());
-        new_node->copyAttributes(*node);
-        new_node->insertBefore(node);
-        relu_node->replaceAllUsesWith(new_node);
-        relu_node->destroy();
-        node->destroy();
+        m_pTarget->getFuseOptimizr()->FuseGemmRelu(pGraph, node, relu_node);
         return true;
       }
     }

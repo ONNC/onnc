@@ -23,7 +23,10 @@ public:
   BM1680Backend(const TargetOptions &pOptions);
   ~BM1680Backend() override;
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
-  std::string getBackendName() override { return "BM1680Backend"; };
+  std::string getBackendName() override
+  {
+    return std::string("BM1680Backend");
+  };
 };
 
 class BM1682Backend : public TGBackend
@@ -32,7 +35,10 @@ public:
   BM1682Backend(const TargetOptions &pOptions);
   ~BM1682Backend() override;
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
-  std::string getBackendName() override { return "BM1682Backend"; };
+  std::string getBackendName() override
+  {
+    return std::string("BM1682Backend");
+  };
 };
 
 } // namespace onnc

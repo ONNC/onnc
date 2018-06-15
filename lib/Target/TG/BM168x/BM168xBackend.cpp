@@ -7,13 +7,14 @@
 //===----------------------------------------------------------------------===//
 #include "BM168xBackend.h"
 #include "BM168xCodeEmitter.h"
+#include "BM168xFuseOptimizer.h"
 #include "BM168xISelLowering.h"
 using namespace onnc;
 
 // BM1680
 BM1680Backend::BM1680Backend(const TargetOptions &pOptions)
-    : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
-                pOptions)
+    : TGBackend(new BM168xFuseOptimizer(this), new BM168xTargetLowering(this),
+                new BM168xCodeEmitter(this), pOptions)
 {
 }
 
@@ -29,8 +30,8 @@ bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 
 // BM1682
 BM1682Backend::BM1682Backend(const TargetOptions &pOptions)
-    : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
-                pOptions)
+    : TGBackend(new BM168xFuseOptimizer(this), new BM168xTargetLowering(this),
+                new BM168xCodeEmitter(this), pOptions)
 {
 }
 

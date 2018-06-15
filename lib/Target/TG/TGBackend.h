@@ -9,6 +9,7 @@
 #define TARGET_TG_TG_BACKEND_H
 #include "ComputeOperator.h"
 #include "TGCodeEmitter.h"
+#include "TGFuseOptimizer.h"
 #include "TargetLowering.h"
 #include <memory>
 #include <onnc/Support/Path.h>
@@ -32,7 +33,7 @@ const int GLOBAL_WEIGHT_TAG = 0x2;
 class TGBackend : public DLATargetBackend
 {
 public:
-  TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
+  TGBackend(TGFuseOptimizer *pFO, TargetLowering *pTLI, TGCodeEmitter *pCE,
             const TargetOptions &pOptions);
 
   ~TGBackend() override;
@@ -61,6 +62,8 @@ public:
 
   TargetLowering *getTargetLowering() { return m_pTLI; }
 
+  TGFuseOptimizer *getFuseOptimizr() { return m_pFO; }
+
   // default sizeof function
   virtual size_t sizeOfTensorType(::onnx::TensorProto_DataType pType);
 
@@ -68,7 +71,7 @@ public:
   virtual bool isNativeTensorType(::onnx::TensorProto_DataType pType);
 
   // calibration table name
-  virtual std::string getCtableName() { return ""; }
+  virtual std::string getCtableName() { return std::string(); }
 
   // load ctable from onx meta data
   const std::string &getCtable(const Module &pModule);
@@ -77,11 +80,12 @@ public:
   virtual void setCtableProto(const std::string &pTextString);
 
   // for debug usage
-  virtual std::string getBackendName() { return "TGBackend"; };
+  virtual std::string getBackendName() { return std::string("TGBackend"); };
 
 private:
   std::vector<std::unique_ptr<ComputeOperator2> > m_Instructions;
   std::vector<MemOperand *> m_MemOperands;
+  TGFuseOptimizer *m_pFO; // NOLINT
   TargetLowering *m_pTLI; // NOLINT
   TGCodeEmitter *m_pCE;   // NOLINT
   Path m_OutputPath;

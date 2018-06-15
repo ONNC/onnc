@@ -13,9 +13,10 @@ add_libonnc_src(
     BM188xCodeEmitter.cpp
     BM188xTargetTransformInfo.cpp
     BM188xTargetMemInfo.cpp
+    BM188xFuseOptimizer.cpp
     TGConv.cpp
-    TGGemm.cpp 
-    TGLRN.cpp  
-    TGMaxPool.cpp 
+    TGGemm.cpp
+    TGLRN.cpp
+    TGMaxPool.cpp
     TGRelu.cpp
     TGSum.cpp)

@@ -24,8 +24,11 @@ public:
   BM1880Backend(const TargetOptions &pOptions);
   ~BM1880Backend() override = default;
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
-  std::string getBackendName() override { return "BM1880Backend"; };
-  std::string getCtableName() override { return "bm1880_ctable"; }
+  std::string getBackendName() override
+  {
+    return std::string("BM1880Backend");
+  };
+  std::string getCtableName() override { return std::string("bm1880_ctable"); }
   void setCtableProto(const std::string &pTextString) override;
   const tg::bm1880::LayerCalibrationParameter &
   getCtableLayerParam(std::string &pName);
