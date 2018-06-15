@@ -20,3 +20,6 @@ add_subdirectory(BM168x)
 add_subdirectory(BM188x)
 add_subdirectory(TargetInfo)
 add_subdirectory(test)
+
+install(DIRECTORY ${BMTAP_INSTALL_DIR}/lib/
+    DESTINATION lib)
