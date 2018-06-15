@@ -22,7 +22,7 @@ typedef std::unordered_map<const onnx::Value *, MemSize> ValMemSizeMap;
 class SplitNode
 {
 public:
-  SplitNode(onnx::Node& pN);
+  SplitNode(onnx::Node& pN, bool pSizeDecideByUser = false);
 
   virtual ~SplitNode() {}
 
@@ -44,10 +44,21 @@ public:
 
   onnx::Node &getNode() { return m_Node; }
 
+  /// Should SplitGraph skip this node when calculating memory usage?
+  /// For example:
+  //  If this is Load IR, SplitGraph should skip it since loading size of Load
+  /// IR is decided by user IR (e.g. Gemm).
+  ///
+  /// If this is Store IR, SplitGraph should skip it since store size has
+  /// calculated by parent node.
+  bool skipWhenCalMemSize() const { return m_SizeCalByOtherNode; }
+
 protected:
   LongInts m_NewOutSizes;
   const LongInts m_OutSizes;
 
+  /// The input and output size is calculated by other nodes.
+  bool m_SizeCalByOtherNode;
   onnx::Node& m_Node;
 };
 
@@ -76,9 +87,11 @@ public:
 
   bool hasSplitNode(onnx::Node *pN) const;
 
-  void print(OStream &pOS) const;
-
   void rebuildSplitNodes();
+
+  void setAllocStatus(bool success, uint64_t size);
+
+  void print(OStream &pOS) const;
 
 private:
   void clear();
@@ -98,10 +111,14 @@ private:
 
   SplitNodeHash m_SplitNodes;
 
-  // split parameters for each output value.
+  /// split parameters for each output value.
   std::vector<onnx::Node *> m_Stores;
   std::vector<unsigned> m_CurSplitAxis;
   std::vector<unsigned> m_CurSplitFactor;
+
+  /// Allocation status
+  bool m_AllocSuccess;
+  uint64_t m_AllocSize;
 };
 
 /** \class SplitGraphManager

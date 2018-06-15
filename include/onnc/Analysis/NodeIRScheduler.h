@@ -63,6 +63,8 @@ public:
 
   ReturnType runOnModule(Module& pModule) override;
 
+  ReturnType runOnGraph(onnx::Graph &pGraph);
+
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
   void inorderSingleIssueSchedule(Module& pModule);

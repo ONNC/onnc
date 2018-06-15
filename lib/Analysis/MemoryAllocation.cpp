@@ -16,6 +16,7 @@
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Target/TargetTransformInfo.h>
+#include <iomanip>
 
 using namespace onnc;
 
@@ -25,7 +26,7 @@ using TensorSizes = std::vector<onnx::Dimension>;
 // MemoryAllocation
 //===----------------------------------------------------------------------===//
 MemoryAllocation::MemoryAllocation(DLATargetBackend* pDLATB)
-  : ModulePass(ID), m_MemAllocList(), m_DLATB(pDLATB) {
+  : ModulePass(ID), m_GraphMemAllocList(), m_DLATB(pDLATB) {
 }
 
 MemoryAllocation::~MemoryAllocation()
@@ -47,7 +48,7 @@ static MemRegionList GetUsedMemRegions(const MemAllocList& pAllocs,
                                        const LiveInterval &pIntrvl)
 {
   MemRegionList regions;
-  for (auto entry : pAllocs) {
+  for (const MemAllocEntry *entry : pAllocs) {
     const LiveInterval& liveIntrvl = entry->liveIntrvl;
 
     if (!liveIntrvl.intersect(pIntrvl))
@@ -73,26 +74,26 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
   return !(endA <= pStartB || endB <= pStartA);
 }
 
-size_t MemoryAllocation::allocByLiveness(ValMemSizeMap &pValMemSizeMap)
+uint64_t MemoryAllocation::allocByLiveness(onnx::Graph &pGraph,
+                                           ValMemSizeMap &pValMemSizeMap,
+                                           GraphLivenessAnalysis &liveAnaly)
 {
-  clear();
-
-  GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
+  MemAllocList memAllocList;
 
   // by liverange analysis, we can get minimun requirement memory size.
   size_t minSize = 0;
 
   // allocate memory considering liveness.
-  auto &livesInfo = liveAnaly->getLiveIntervals();
+  auto &livesInfo = liveAnaly.getLiveIntervals();
   for (const LiveInterval* li : livesInfo) {
-    auto v = &li->getValue();
+    const onnx::Value *v = &li->getValue();
     if (!pValMemSizeMap.count(v))
       continue;
 
     size_t required = pValMemSizeMap[v].size,
            startAddr = 0;
 
-    MemRegionList conflicts = GetUsedMemRegions(m_MemAllocList, *li);
+    MemRegionList conflicts = GetUsedMemRegions(memAllocList, *li);
 
     // Note: conflicts has been sorted by starting address in GetUsedMemRegions.
     for (const MemRegion &reg : conflicts) {
@@ -102,10 +103,12 @@ size_t MemoryAllocation::allocByLiveness(ValMemSizeMap &pValMemSizeMap)
     }
 
     // Allocate new memory region.
-    m_MemAllocList.push_back(new MemAllocEntry(startAddr,
-                                               required, *li));
+    memAllocList.push_back(new MemAllocEntry(startAddr, required, *li));
     minSize = std::max(minSize, startAddr + required);
   }
+
+  clearGraphAlloc(&pGraph);
+  m_GraphMemAllocList[&pGraph] = std::move(memAllocList);
   return minSize;
 }
 
@@ -119,9 +122,6 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
   GraphLivenessAnalysis *liveAnaly = getAnalysis<GraphLivenessAnalysis>();
   NodeIRScheduler *scheduler = getAnalysis<NodeIRScheduler>();
 
-  scheduler->runOnModule(pModule);
-  liveAnaly->runOnModule(pModule);
-
   clear();
 
   SplitGraphManager sgMgr(*pModule.getGraph(), *m_DLATB);
@@ -133,50 +133,54 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
     SplitGraph *spGraph = worklist.back();
     worklist.pop_back();
 
+    scheduler->runOnGraph(spGraph->getGraph());
+    liveAnaly->runOnGraph(spGraph->getGraph());
+
     // per graph
     int64_t prevMinSize = 0;
     const float threshold = 0.9f; // 90% splitting threshold.
-    errs() << "allocate or shrink size: ";
+
+    outs() << "Allocate graph: " << spGraph->getGraph().name() << "\n";
     while (true) {
       ValMemSizeMap valMemSMap;
       spGraph->getMemUsage(valMemSMap);
 
-      // get maximum requirements.
-      uint64_t maxSize = 0;
-      for (auto & req : valMemSMap)
-        maxSize += req.second.size;
-
       // Try to allocate.
-      uint64_t minSize = allocByLiveness(valMemSMap);
-      if (minSize < localMemSize)
+      uint64_t minSize = allocByLiveness(spGraph->getGraph(),
+                                         valMemSMap, *liveAnaly);
+      outs() << " -> " << (float)minSize / 1024.f << " kb\n";
+      if (minSize < localMemSize) {
+        spGraph->setAllocStatus(true, minSize);
         break;
+      }
 
       // If new allocation is not smaller enough than previous allocation, then
       // create new sub graph
       if (prevMinSize && (float)minSize / prevMinSize > threshold) {
         prevMinSize = 0;
-        spGraph->resetToOrigSize();
 
         SplitGraph *newSpGraph = sgMgr.splitNewSubGraph(*spGraph);
 
         if (newSpGraph) {
           worklist.push_back(newSpGraph);
+
+          spGraph->resetToOrigSize();
+          scheduler->runOnGraph(spGraph->getGraph());
+          liveAnaly->runOnGraph(spGraph->getGraph());
           continue;
         }
         else {
-          errs() << "[MemoryAllocation] Unable to allocate memory for group.\n";
+          outs() << "[MemoryAllocation] Unable to allocate memory for graph.\n";
+          spGraph->setAllocStatus(false, minSize);
           break;
         }
       }
       prevMinSize = minSize;
-      errs() << " -> " << (float)prevMinSize / 1024.f << " kb";
 
       spGraph->shrinkSize();
     }
-    outs() << "\n";
   }
-  sgMgr.dump();
-  return kModuleNoChanged;
+  return kModuleChanged;
 }
 
 void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
@@ -186,24 +190,46 @@ void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
   pUsage.addRequiredID(UpdateGraphOutputSize::ID);
 }
 
-void MemoryAllocation::print(OStream& pOS) const
+void MemoryAllocation::printGraphAlloc(OStream &pOS,
+                                       const onnx::Graph *pGraph) const
 {
-  for (const MemAllocEntry *e : m_MemAllocList) {
+  const auto &it = m_GraphMemAllocList.find(const_cast<onnx::Graph*>(pGraph));
+  assert(it != m_GraphMemAllocList.end() &&
+         "No memory allocation info for Graph");
+
+  pOS << "Memory Allocation for " << pGraph->name() << " (" << pGraph << ")\n";
+  for (const MemAllocEntry *e : it->second) {
     const LiveInterval &li = e->liveIntrvl;
-    pOS << li.getValue().uniqueName() << ": \t"
-        << "[" << e->startAddr << ", " << e->startAddr + e->size << ")\t"
-        << "(total: " << e->size << ")\t"
-        << " [" << li.getStart() << ", " << li.getEnd() << "]"
+    pOS << std::setw(20) << std::left << li.getValue().uniqueName()
+        << " [" << std::setw(8) << std::right << e->startAddr << ", "
+        << std::setw(8) << std::right << e->startAddr + e->size << ")"
+        << " (total: " << std::setw(8) << std::right << e->size << ")"
+        << " [ " << std::setw(3) << std::right << li.getStart() << ", "
+        << std::setw(3) << std::right << li.getEnd() << "]"
         << "\n";
   }
+  pOS << "\n";
+}
+
+void MemoryAllocation::print(OStream& pOS) const
+{
+  for (const auto &it : m_GraphMemAllocList)
+    printGraphAlloc(pOS, it.first);
+}
+
+void MemoryAllocation::clearGraphAlloc(onnx::Graph *pGraph)
+{
+  for (MemAllocEntry* entry : m_GraphMemAllocList[pGraph])
+    delete entry;
+
+  m_GraphMemAllocList[pGraph].clear();
 }
 
 void MemoryAllocation::clear()
 {
-  for (MemAllocEntry* entry: m_MemAllocList) {
-    delete entry;
-  }
-  m_MemAllocList.clear();
+  for (auto & it : m_GraphMemAllocList)
+    clearGraphAlloc(it.first);
+  m_GraphMemAllocList.clear();
 }
 
 //===----------------------------------------------------------------------===//

@@ -27,16 +27,15 @@ static LongInts GetOutputValueSizes(const onnx::Node& pN)
 {
   if (pN.outputs().size())
     return GetValueSizes(*pN.outputs()[0]);
-  if (pN.kind() == g_StoreKind)
-    return GetValueSizes(*pN.inputs()[0]);
   return {};
 }
 
 //===----------------------------------------------------------------------===//
 // SplitNode
 //===----------------------------------------------------------------------===//
-SplitNode::SplitNode(onnx::Node& pN)
-  : m_OutSizes(GetOutputValueSizes(pN)), m_Node(pN) {
+SplitNode::SplitNode(onnx::Node& pN, bool pSizeDecideByOtherNode)
+  : m_OutSizes(GetOutputValueSizes(pN)),
+    m_SizeCalByOtherNode(pSizeDecideByOtherNode), m_Node(pN) {
   m_NewOutSizes = m_OutSizes;
 }
 
@@ -165,6 +164,7 @@ static void removeNodeAndSuccessors(onnx::Node *pNode, NodeSet &pHasRemoved)
 
 using LoadStorePair = std::pair<onnx::Node*, onnx::Node*>;
 
+// [TODO] Please merge with NodeIRScheduler.cpp::InsertLoadStoreNode
 static void createLoadStoreAtNode(onnx::Graph &pGraph, onnx::Node &pN,
                                   std::vector<LoadStorePair> &pNewLoadStores)
 {
@@ -190,7 +190,13 @@ static void createLoadStoreAtNode(onnx::Graph &pGraph, onnx::Node &pN,
     outv->replaceAllUsesWith(loadN->output());
 
     // create store after creating load (since replaceAllUseWith).
+    //
+    // Note StoreNode is created with an output, the main reason is we want be
+    // able to connect StoreNode to Subgraph node by setting StoreNode's output
+    // to Subgraph's input.
     onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {outv});
+    storeN->output()->copyMetadata(outv);
+    storeN->output()->setUniqueName(outv->uniqueName() + ".store");
     storeN->insertAfter(&pN);
 
     pNewLoadStores.emplace_back(loadN, storeN);
@@ -256,6 +262,7 @@ static onnx::Graph *SplitSubGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
   //       2. new sub graph should be deleted by DeleteSubGraph pass.
   // TODO: DeleteSubGraph
   onnx::Graph *newGraph = new onnx::Graph();
+  newGraph->setName(pGraph.name() + ".sub");
 
   std::vector<LoadStorePair> newLoadStores;
 
@@ -302,7 +309,7 @@ static onnx::Graph *SplitSubGraph(onnx::Graph &pGraph, Nodes &pSplitPts)
 // SplitGraph
 //===----------------------------------------------------------------------===//
 SplitGraph::SplitGraph(SplitGraphManager &pSgMgr, onnx::Graph &pGraph)
-  : m_SgMgr(pSgMgr), m_Graph(pGraph)
+  : m_SgMgr(pSgMgr), m_Graph(pGraph), m_AllocSuccess(false), m_AllocSize(0)
 {
   rebuildSplitNodes();
 }
@@ -311,7 +318,8 @@ void SplitGraph::rebuildSplitNodes()
 {
   clear();
   for (onnx::Node *n : m_Graph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
+    if (n->kind() == onnx::kUndefined ||
+        n->kind() == g_SubGraphKind)
       continue;
 
     SplitNode *sn = SplitNodeCreator(*n);
@@ -357,6 +365,10 @@ void SplitGraph::getMemUsage(ValMemSizeMap &pVMSMap) const
   for (const auto &snIt: m_SplitNodes) {
     const onnx::Node *n = snIt.first;
     const SplitNode *sn = snIt.second;
+
+    // user node will calculate its memory size.
+    if (sn->skipWhenCalMemSize())
+      continue;
 
     // get required memory size of each input.
     for (unsigned i = 0; i < n->inputs().size(); ++i) {
@@ -482,7 +494,8 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
 
   for (onnx::Node *n : pGraph.nodes()) {
     // skip load and store since they are calculated by their user nodes.
-    if (n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
+    if (n->kind() == onnx::kUndefined ||
+        n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
         n->kind() == g_SubGraphKind)
       continue;
 
@@ -508,6 +521,7 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
   uint64_t size_a = 0;
 
   // topological + dfs traversing
+  onnx::Node *lastNode = nullptr;
   while (!worklist.empty()) {
     onnx::Node *n = worklist.back();
     worklist.pop_back();
@@ -537,7 +551,16 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
       grpB.insert(n);
     }
 
+    lastNode = n;
     accumulateSize += pTTI.getOperatorMemUsage(n).size;
+  }
+
+  if (grpB.empty()) {
+    // Can not split further.
+    if (grpA.size() == 1)
+      return {};
+    grpB.insert(lastNode);
+    grpA.erase(lastNode);
   }
 
   // put load/store to correct group.
@@ -550,14 +573,12 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
       else
         grpB.insert(n);
 
-    } else if (n->kind() == g_StoreKind) {
+    } else if (n->kind() == g_StoreKind ||
+               n->kind() == g_SubGraphKind) {
       if (grpA.count(n->input()->node()))
         grpA.insert(n);
       else
         grpB.insert(n);
-
-    } else if (n->kind() == g_SubGraphKind) {
-      assert(false && "Please implement it.");
     }
   }
 
@@ -579,6 +600,12 @@ Nodes findHalfSizeSplitPoints(onnx::Graph &pGraph,
       splitPts.push_back(n);
 
   return splitPts;
+}
+
+void SplitGraph::setAllocStatus(bool success, uint64_t size)
+{
+  m_AllocSuccess = success;
+  m_AllocSize = size;
 }
 
 //===----------------------------------------------------------------------===//
@@ -607,13 +634,17 @@ SplitGraph *SplitGraphManager::splitNewSubGraph(SplitGraph &pSpGraph)
 {
   Nodes splitPts = findHalfSizeSplitPoints(pSpGraph.getGraph(),
                                            *m_DLATB.getTTI());
+  // Failed splitting.
+  if (splitPts.empty())
+    return nullptr;
+
   onnx::Graph *newGraph = SplitSubGraph(pSpGraph.getGraph(), splitPts);
 
   // rebuild m_SplitNodes for original SplitGraph
   pSpGraph.rebuildSplitNodes();
 
-  SplitGraph *newSpGraph = new SplitGraph(*this, *newGraph);
-  return newSpGraph;
+  m_SubGraphs.push_back(new SplitGraph(*this, *newGraph));
+  return m_SubGraphs.back();
 }
 
 void SplitGraphManager::dump() const
@@ -657,9 +688,17 @@ void PrintAttr(OStream &pOS, const onnx::Node &pN)
 void SplitGraph::print(OStream &pOS) const
 {
   size_t graphOldS = 0, graphNewS = 0;
+  pOS << "Graph = " << m_Graph.name() << " " << &m_Graph << "\n"
+      << "  allocation status = " << (m_AllocSuccess ? "success" : "failed")
+      << " with size " << m_AllocSize << "\n";
   for (const onnx::Node *n : m_Graph.nodes()) {
     if (n->kind() == onnx::kUndefined)
       continue;
+
+    if (n->kind() == g_SubGraphKind) {
+      PrintNode(pOS, *n);
+      continue;
+    }
 
     std::vector<LongInts> newInputSizes;
     const SplitNode *sn = getSplitNode((onnx::Node*)n);
@@ -699,8 +738,7 @@ void SplitGraph::print(OStream &pOS) const
     }
 
     // don't count store/load node since it's size has been added by upper node.
-    if (n->kind() == g_StoreKind ||
-        n->kind() == g_LoadKind)
+    if (sn->skipWhenCalMemSize())
       continue;
 
     MemSize newS =
@@ -933,10 +971,14 @@ public:
 
 static SplitNode* SplitNodeCreator(onnx::Node& pN)
 {
-  if (OutputSizeIsInputSize(pN) ||
-      pN.kind() == g_LoadKind ||
-      pN.kind() == g_StoreKind)
+  if (OutputSizeIsInputSize(pN))
     return new SplitNode(pN);
+
+  // load output size and store input size is calculated on its successor and
+  // predecessor node.
+  if (pN.kind() == g_LoadKind ||
+      pN.kind() == g_StoreKind)
+    return new SplitNode(pN, true);
 
   const auto kind = pN.kind();
   if (kind == onnx::kConv) {

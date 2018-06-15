@@ -21,16 +21,16 @@ class DLATargetBackend;
 struct MemAllocEntry
 {
 public:
-  MemAllocEntry(size_t pStartAddr, size_t pSize, const LiveInterval& pIntrvl)
+  MemAllocEntry(size_t pStartAddr, size_t pSize, const LiveInterval &pIntrvl)
     : startAddr(pStartAddr), size(pSize), liveIntrvl(pIntrvl) {
   }
 
   size_t startAddr, size;
-  const LiveInterval& liveIntrvl;
+  const LiveInterval liveIntrvl;
 };
 
-using MemAllocList = std::vector<MemAllocEntry*>;
-using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
+typedef std::vector<MemAllocEntry*> MemAllocList;
+typedef std::unordered_map<const onnx::Value *, MemSize> ValMemSizeMap;
 
 /** \class MemoryAllocation
  *  Perform memory allocation and generate allocation map.
@@ -38,6 +38,8 @@ using ValMemSizeMap = std::unordered_map<const onnx::Value *, MemSize>;
 class MemoryAllocation : public ModulePass
 {
 public:
+  typedef std::unordered_map<onnx::Graph *, MemAllocList> GraphMemAllocList;
+
   static char ID;
 
   virtual ~MemoryAllocation();
@@ -49,16 +51,23 @@ public:
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
+  void printGraphAlloc(OStream &pOS, const onnx::Graph *pGraph) const;
+
   void print(OStream& pOS) const;
 
 private:
-  size_t allocByLiveness(ValMemSizeMap &pValMemSizeMap);
+  /// Return total size of this allocation.
+  uint64_t allocByLiveness(onnx::Graph &pGraph,
+                           ValMemSizeMap &pValMemSizeMap,
+                           GraphLivenessAnalysis &liveAnaly);
 
-  /// delete MemAllocEntry in m_MemAllocList
+  /// delete MemAllocEntries of graph.
+  void clearGraphAlloc(onnx::Graph *pGraph);
+
   void clear();
 
 private:
-  MemAllocList m_MemAllocList;
+  GraphMemAllocList m_GraphMemAllocList;
   DLATargetBackend* m_DLATB = nullptr;
 };
 

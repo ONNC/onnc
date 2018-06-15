@@ -75,8 +75,13 @@ GraphLivenessAnalysis::GraphLivenessAnalysis()
 
 Pass::ReturnType GraphLivenessAnalysis::runOnModule(Module &pModule)
 {
-  clear();
   calculateLiveness(*pModule.getGraph());
+  return kModuleNoChanged;
+}
+
+Pass::ReturnType GraphLivenessAnalysis::runOnGraph(onnx::Graph &pGraph)
+{
+  calculateLiveness(pGraph);
   return kModuleNoChanged;
 }
 
@@ -91,6 +96,8 @@ void GraphLivenessAnalysis::print(std::ostream& pOS) const
 
 void GraphLivenessAnalysis::calculateLiveness(onnx::Graph &pGraph)
 {
+  clear();
+
   // Basically, node's virtual index value can be calculated from it's output
   // value (onnx::Value), but some of nodes may not have output, so use
   // nodeVirIdxMap to record each node's index.

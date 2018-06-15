@@ -22,9 +22,18 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 static bool HasInsertedLoadStoreNode(onnx::Graph &pGraph)
 {
-  return pGraph.nodes().rbegin()->kind() == onnx::Symbol("Store");
+  onnx::Node *lastN = *pGraph.nodes().rbegin();
+  if (lastN->kind() == onnx::Symbol("Store") ||
+      lastN->kind() == onnx::Symbol("SubGraph"))
+    return true;
+  return false;
 }
 
+// TODO: Allow node provide required size, e.g. Gemm, when loading weight,
+//       Gemm probably only load part of weight, so here need to ask the using
+//       Node required size.
+
+// [TODO] Please merge with SplitNode.cpp::createLoadStoreAtNode
 static void InsertLoadStoreNode(onnx::Graph &pGraph)
 {
   for (onnx::Value* v : pGraph.inputs()) {
@@ -59,8 +68,9 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create store node and insert before the last use node.
-    onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {v}, 0);
-    //storeN->output()->copyMetadata(v);
+    onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {v});
+    storeN->output()->copyMetadata(v);
+    storeN->output()->setUniqueName(v->uniqueName() + ".store");
     storeN->insertBefore(last);
   }
 }
@@ -182,6 +192,11 @@ bool NodeIRScheduler::isAllExeResEmpty() const
 
 Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
 {
+  return runOnGraph(*pModule.getGraph());
+}
+
+Pass::ReturnType NodeIRScheduler::runOnGraph(onnx::Graph &pGraph)
+{
   if (!m_DLATB) {
     errs() << "No backend infomation that is needed for memory allcation.\n";
     return kPassFailure;
@@ -189,7 +204,7 @@ Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
 
   clear();
 
-  onnx::Graph &graph = *pModule.getGraph();
+  onnx::Graph &graph = pGraph;
   if (!HasInsertedLoadStoreNode(graph))
     InsertLoadStoreNode(graph);
 
