@@ -11,7 +11,7 @@
 
 using namespace onnc;
 
-void onnc::PrintNode(OStream &pOS, onnx::Node& pNode)
+void onnc::PrintNode(OStream &pOS, const onnx::Node& pNode)
 {
   pOS << "  ";
 
@@ -19,23 +19,23 @@ void onnc::PrintNode(OStream &pOS, onnx::Node& pNode)
   for (int i = 0; i < pNode.outputs().size(); ++i) {
     if (i != 0) { pOS << ", "; }
 
-    onnx::Value* v = pNode.outputs()[i];
+    const onnx::Value* v = pNode.outputs()[i];
     pOS << '%' << v->uniqueName();
   }
   pOS << " = " << pNode.kind().toString();
   pOS << '(';
   for (int i = 0; i < pNode.inputs().size(); ++i) {
     if (i != 0) { pOS << ", "; }
-    onnx::Value* v = pNode.inputs()[i];
+    const onnx::Value* v = pNode.inputs()[i];
     pOS << '%' << v->uniqueName();
   }
   pOS << ")\n";
 }
 
-void onnc::PrintGraph(OStream &pOS, onnx::Graph& pGraph)
+void onnc::PrintGraph(OStream &pOS, const onnx::Graph& pGraph)
 {
   pOS << "graph " << pGraph.name() << " (..) {" << "\n";
-  for (onnx::Node *n : pGraph.nodes()) {
+  for (const onnx::Node *n : pGraph.nodes()) {
     if (n->kind() == onnx::kUndefined)
       continue;
 
@@ -46,14 +46,14 @@ void onnc::PrintGraph(OStream &pOS, onnx::Graph& pGraph)
   for (int i = 0; i < pGraph.outputs().size(); i++) {
     if (i != 0) { pOS << ", "; }
 
-    onnx::Value* v = pGraph.outputs()[i];
+    const onnx::Value* v = pGraph.outputs()[i];
     pOS << "%" << v->uniqueName();
   }
   pOS << "\n";
 
 }
 
-void onnc::DumpGraph(onnx::Graph& pGraph)
+void onnc::DumpGraph(const onnx::Graph& pGraph)
 {
   PrintGraph(errs(), pGraph);
 }

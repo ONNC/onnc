@@ -19,11 +19,11 @@ namespace onnc {
 class Module;
 
 /// DumpGraph. Callable in GDB.
-void DumpGraph(onnx::Graph& pGraph);
+void DumpGraph(const onnx::Graph& pGraph);
 void DumpGraph(Module &pModule);
 
-void PrintNode(OStream &pOS, onnx::Node& pNode);
-void PrintGraph(OStream &pOS, onnx::Graph& pGraph);
+void PrintNode(OStream &pOS, const onnx::Node& pNode);
+void PrintGraph(OStream &pOS, const onnx::Graph& pGraph);
 
 }
 
