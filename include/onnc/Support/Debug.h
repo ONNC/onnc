@@ -108,8 +108,8 @@ public:
   /// use the DEBUG macro below.
   static bool &getDebugFlag();
   static std::vector<std::string> *getCurrentDebugType();
+  static void setDebugOnlyOpt(const std::string &pVal);
 };
-
 } // end namespace onnc
 
 #endif // ONNC_SUPPORT_DEBUG_H

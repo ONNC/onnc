@@ -85,13 +85,7 @@ struct DebugOption {
 struct DebugOnlyOpt {
   void operator=(const std::string &Val) const
   {
-    if (Val.empty())
-      return;
-    DebugMsg::getDebugFlag() = true;
-    std::vector<StringRef> dbgTypes;
-    StringRef(Val).split(dbgTypes, ',', -1, false);
-    for (auto dbgType : dbgTypes)
-      DebugMsg::getCurrentDebugType()->push_back(dbgType);
+    DebugMsg::setDebugOnlyOpt(Val);
   }
 };
 
@@ -119,6 +113,16 @@ bool &DebugMsg::getDebugFlag()
 {
   static bool debug_flag = false;
   return debug_flag;
+}
+void DebugMsg::setDebugOnlyOpt(const std::string &pVal)
+{
+  if (pVal.empty())
+    return;
+  DebugMsg::getDebugFlag() = true;
+  std::vector<StringRef> dbgTypes;
+  StringRef(pVal).split(dbgTypes, ',', -1, false);
+  for (auto dbgType : dbgTypes)
+    DebugMsg::getCurrentDebugType()->push_back(dbgType);
 }
 } // namespace onnc
 
