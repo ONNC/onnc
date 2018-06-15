@@ -17,6 +17,8 @@ public:
 
   virtual void encodeInstructions(const Path &pOutputPath) = 0;
 
+  virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) = 0;
+
 private:
   void *m_BmkernelHandle;
   TGBackend *m_pBackend; // NOLINT

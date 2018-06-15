@@ -28,6 +28,8 @@ public:
 
   void prepareWeight(std::vector<int8_t> &pWeight);
 
+  void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
+
 private:
   void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
