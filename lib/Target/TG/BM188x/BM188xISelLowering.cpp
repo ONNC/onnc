@@ -102,10 +102,3 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
                << std::endl;);
   return nullptr;
 }
-
-void BM188xISelLowering::PrepareISelLowering(Module &pModule)
-{
-  // prepare ctable
-  auto &ctable = m_pBackend->getCtable(pModule);
-  m_pBackend->setCtableProto(ctable);
-}

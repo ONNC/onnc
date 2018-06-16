@@ -9,7 +9,8 @@ namespace onnc {
 class BM188xFuseOptimizer : public TGFuseOptimizer
 {
 public:
-  BM188xFuseOptimizer(TGBackend *pBackend) : TGFuseOptimizer(pBackend)
+  BM188xFuseOptimizer(TGBackend *pBackend)
+      : TGFuseOptimizer(pBackend), m_EnableCtable(true)
   {
     m_p1880backend = static_cast<BM1880Backend *>(pBackend);
   }
@@ -23,6 +24,7 @@ public:
 
 private:
   BM1880Backend *m_p1880backend; // NOLINT
+  bool m_EnableCtable;
 };
 
 } // namespace onnc

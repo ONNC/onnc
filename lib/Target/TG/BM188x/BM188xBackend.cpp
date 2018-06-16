@@ -28,7 +28,8 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
   TGBackend::addTensorSel(pPM);
-  pPM.add(createUpdateCtablePass(this));
+  if (!getOption().IgnoreCalibrationStep)
+    pPM.add(createUpdateCtablePass(this));
   return;
 }
 
