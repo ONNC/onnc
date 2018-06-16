@@ -7,10 +7,8 @@
 namespace onnc {
 namespace BM188X {
 
-TGRelu::TGRelu(const ::onnx::Node &pNode,
-               const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : BM188xComputeOperator(pNode, std::string("Relu")), m_NegativeSlope(0),
-      m_LayerCtable(pLayerCtable)
+TGRelu::TGRelu(const ::onnx::Node &pNode)
+    : BM188xComputeOperator(pNode, std::string("Relu")), m_NegativeSlope(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   if (inDim.size() == 4) {

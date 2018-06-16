@@ -12,11 +12,15 @@ namespace BM188X {
 class TGLRN : public BM188xComputeOperator
 {
 public:
-  TGLRN(const ::onnx::Node &pNode,
-        const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
+  TGLRN(const ::onnx::Node &pNode);
 
   void emit() const override;
   void toASM(tg::bm1880::Insn *pI) const override;
+  void
+  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override
+  {
+    // TODO
+  }
 
 private:
   int m_N;
@@ -28,7 +32,6 @@ private:
   // bias
   float m_K;
   int m_LocalSize;
-  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X

@@ -12,8 +12,7 @@ namespace BM188X {
 class TGRelu : public BM188xComputeOperator
 {
 public:
-  TGRelu(const ::onnx::Node &pNode,
-         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
+  TGRelu(const ::onnx::Node &pNode);
 
   void emit() const override;
   void print(OStream &pOS) const override;
@@ -26,7 +25,6 @@ private:
   int m_C;
   int m_H;
   int m_W;
-  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
 };
 
 } // namespace BM188X

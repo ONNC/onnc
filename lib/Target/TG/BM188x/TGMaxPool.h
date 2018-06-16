@@ -12,13 +12,14 @@ namespace BM188X {
 class TGMaxPool : public BM188xComputeOperator
 {
 public:
-  TGMaxPool(const ::onnx::Node &pNode,
-            const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
+  TGMaxPool(const ::onnx::Node &pNode);
 
   void emit() const override;
   void print(OStream &pOS) const override;
   TGMaxPool *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
   void toASM(tg::bm1880::Insn *pI) const override;
+  void
+  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
 
 private:
   int m_N;
@@ -31,7 +32,8 @@ private:
   int m_PadW;
   int m_StrideH;
   int m_StrideW;
-  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
+  int m_RShiftWidth;
+  int m_ThresholdXQuantized;
 };
 
 } // namespace BM188X

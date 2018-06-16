@@ -8,17 +8,16 @@
 namespace onnc {
 namespace BM188X {
 
-TGSum::TGSum(const ::onnx::Node &pNode,
-             const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : BM188xComputeOperator(pNode, std::string("Sum")),
-      m_LayerCtable(pLayerCtable)
+TGSum::TGSum(const ::onnx::Node &pNode)
+    : BM188xComputeOperator(pNode, std::string("Sum"))
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;
   m_InC = inDim[1].dim;
   m_InH = inDim[2].dim;
   m_InW = inDim[3].dim;
-  m_InSize = m_InN * m_InC * m_InH * m_InW;
+  m_InputNum = pNode.inputs().size();
+  m_ThresholdXQuantized.resize(m_InputNum);
 }
 
 TGSum *TGSum::addMemOperands(std::vector<MemOperand *> pInput,
@@ -38,13 +37,13 @@ void TGSum::print(OStream &pOS) const
       << "inN:" << m_InN << ", inC:" << m_InC
       << ", inH:" << m_InH << ", inW:" << m_InW;
 
-  int thx_size = m_LayerCtable.threshold_x_quantized_size();
+  int thx_size = m_InputNum;
   for (int i = 0; i < thx_size; ++i) {
     pOS << ", threshold_x_quantized[" << i << "] = "
-        << m_LayerCtable.threshold_x_quantized(i) << "\n";
+        << m_ThresholdXQuantized[i] << "\n";
   }
 
-  pOS << ", rShiftWidth:" << m_LayerCtable.right_shift_width() << "> ("
+  pOS << ", rShiftWidth:" << m_RShiftWidth << "> ("
       << " >";
 
   pOS << " (";
@@ -59,7 +58,6 @@ void TGSum::emit() const
 {
   DEBUG(print(dbgs()));
 
-  int rShiftWidth = m_LayerCtable.right_shift_width();
   int in_size = m_MemOperands.size() - 1;
   uint64_t *input = new uint64_t[in_size];
   for (int i = 0; i < in_size; ++i)
@@ -69,13 +67,13 @@ void TGSum::emit() const
       *bm1880_kernel::getInstance().m_CTX,
       input,                        // inputs
       m_MemOperands.back()->m_Addr, // ouput
-      m_InSize,
+      m_InputNum,
       1, // op: SUM
       m_InN, m_InC, m_InH, m_InW,
-      false,       // do_relu
-      0.0,         // relu_slope,
-      rShiftWidth, // right_shift_width
-      m_LayerCtable.threshold_x_quantized().data());
+      false,         // do_relu
+      0.0,           // relu_slope,
+      m_RShiftWidth, // right_shift_width
+      m_ThresholdXQuantized.data());
 
   delete[] input;
 }
@@ -95,6 +93,14 @@ void TGSum::toASM(tg::bm1880::Insn *pI) const
       auto *output = sum->mutable_output();
       bm_asm::setMem(output, m_MemOperands.back(), tg::bm1880::Operand::Int8);
     }
+  }
+}
+
+void TGSum::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
+{
+  m_RShiftWidth = pLayerCtable->right_shift_width();
+  for (size_t i = 0; i < m_InputNum; ++i) {
+    m_ThresholdXQuantized[i] = pLayerCtable->threshold_x_quantized(i);
   }
 }
 

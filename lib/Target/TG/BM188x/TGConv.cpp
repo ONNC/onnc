@@ -9,11 +9,10 @@ namespace onnc {
 namespace BM188X {
 
 // TGConv
-TGConv::TGConv(const ::onnx::Node &pNode,
-               const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
+TGConv::TGConv(const ::onnx::Node &pNode)
     : BM188xComputeOperator(pNode, std::string("Conv")), m_Groups(1),
       m_DilationH(1), m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1),
-      m_StrideW(1), m_DoBias(0), m_LayerCtable(pLayerCtable)
+      m_StrideW(1), m_DoBias(0), m_RShiftWidth(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;
@@ -70,8 +69,7 @@ void TGConv::print(OStream &pOS) const
       << ", dilationH:" << m_DilationH << ", dilationW:" << m_DilationW
       << ", padH:" << (int)m_PadH << ", padW:" << (int)m_PadW
       << ", strideH:" << (int)m_StrideH << ", strideW:" << (int)m_StrideW
-      << ", m_DoBias:" << m_DoBias
-      << ", rShiftWidth:" << m_LayerCtable.right_shift_width() << "> ("
+      << ", m_DoBias:" << m_DoBias << ", rShiftWidth:" << m_RShiftWidth << "> ("
       << *m_MemOperands[0] << ", " << *m_MemOperands[1] << ", "
       << *m_MemOperands[3] << ")\n";
 }
@@ -79,8 +77,6 @@ void TGConv::print(OStream &pOS) const
 void TGConv::emit() const
 {
   DEBUG(print(dbgs()));
-
-  int rShiftWidth = m_LayerCtable.right_shift_width();
 
   bmnet::bmnet_conv_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
@@ -96,22 +92,22 @@ void TGConv::emit() const
       m_DoBias,                                                 // do_bias,
       0,                                                        // do_bn,
       0,                                                        // do_scale,
-      0,           // do_scale_bias,
-      0,           // do_activation,
-      0,           // bn_scale,
-      0,           // bn_eps,
-      0,           // activation_method,
-      nullptr,     // activation_arg[],
-      0,           // activation_ga_slope,
-      0,           // activation_channel_shared
-      0,           // activation_gt_rshift
-      0,           // activation_gt_rshift
-      0,           // activation_le_scale
-      0,           // activation_le_rshift
-      rShiftWidth, // right_shift_width
-      0,           // bn_right_shift_width
-      0,           // scale_right_shift_width
-      0            // use_winograd
+      0,             // do_scale_bias,
+      0,             // do_activation,
+      0,             // bn_scale,
+      0,             // bn_eps,
+      0,             // activation_method,
+      nullptr,       // activation_arg[],
+      0,             // activation_ga_slope,
+      0,             // activation_channel_shared
+      0,             // activation_gt_rshift
+      0,             // activation_gt_rshift
+      0,             // activation_le_scale
+      0,             // activation_le_rshift
+      m_RShiftWidth, // right_shift_width
+      0,             // bn_right_shift_width
+      0,             // scale_right_shift_width
+      0              // use_winograd
   );
 }
 
@@ -217,9 +213,14 @@ void TGConv::toASM(tg::bm1880::Insn *pI) const
     bm_asm::setDim(conv->mutable_dilation(), m_DilationH, m_DilationW);
     {
       auto *cal = conv->mutable_ctable();
-      cal->set_right_shift_width(m_LayerCtable.right_shift_width());
+      cal->set_right_shift_width(m_RShiftWidth);
     }
   }
+}
+
+void TGConv::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
+{
+    m_RShiftWidth = pLayerCtable->right_shift_width();
 }
 
 } // namespace BM188X

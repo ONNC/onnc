@@ -33,7 +33,7 @@ public:
   virtual void toASM(tg::bm1880::Insn *pI) const { (void)pI; };
 
   // update instruction info by calibration table
-  virtual void update(tg::bm1880::LayerCalibrationParameter *pCtable)
+  virtual void update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
   {
     return;
   }

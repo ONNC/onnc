@@ -13,13 +13,15 @@ class TGGemm : public BM188xComputeOperator
 {
 public:
   enum ActivationMethod { RELU = 0, SIGMOID, TANH, ELU, PRELU };
-  TGGemm(const ::onnx::Node &pNode,
-         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
+  TGGemm(const ::onnx::Node &pNode);
   void emit() const override;
   void print(OStream &pOS) const override;
   TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
   void toASM(tg::bm1880::Insn *pI) const override;
+
+  void
+  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
 
 private:
   int m_InRowNum;
@@ -28,7 +30,7 @@ private:
   int m_HaveBias;
   bool m_WeightTp;
   bool m_EnableRelu;
-  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
+  int m_RShiftWidth;
 };
 
 } // namespace BM188X

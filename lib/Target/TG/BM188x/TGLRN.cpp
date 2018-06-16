@@ -5,8 +5,7 @@
 namespace onnc {
 namespace BM188X {
 
-TGLRN::TGLRN(const ::onnx::Node &pNode,
-             const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
+TGLRN::TGLRN(const ::onnx::Node &pNode)
     : BM188xComputeOperator(pNode, std::string("LRN")), m_K(1)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();

@@ -13,8 +13,7 @@ namespace BM188X {
 class TGConv : public BM188xComputeOperator
 {
 public:
-  TGConv(const ::onnx::Node &pNode,
-         const tg::bm1880::LayerCalibrationParameter &pLayerCtable);
+  TGConv(const ::onnx::Node &pNode);
 
   void emit() const override;
   void prepareWeight(std::vector<int8_t> &pWeight);
@@ -22,6 +21,8 @@ public:
   TGConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
   void toASM(tg::bm1880::Insn *pI) const override;
+  void
+  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
 
 private:
   int m_InN, m_InC, m_InH, m_InW;
@@ -32,7 +33,7 @@ private:
   uint8_t m_PadH, m_PadW;
   uint8_t m_StrideH, m_StrideW;
   int m_DoBias;
-  tg::bm1880::LayerCalibrationParameter m_LayerCtable;
+  int m_RShiftWidth;
 };
 
 } // namespace BM188X

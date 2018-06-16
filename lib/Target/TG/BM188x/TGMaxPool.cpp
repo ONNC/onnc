@@ -7,10 +7,10 @@
 namespace onnc {
 namespace BM188X {
 
-TGMaxPool::TGMaxPool(const ::onnx::Node &pNode,
-                     const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
+TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
     : BM188xComputeOperator(pNode, std::string("MaxPool")), m_PadH(0),
-      m_PadW(0), m_StrideH(1), m_StrideW(1), m_LayerCtable(pLayerCtable)
+      m_PadW(0), m_StrideH(1), m_StrideW(1), m_RShiftWidth(0),
+      m_ThresholdXQuantized(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
@@ -43,13 +43,11 @@ TGMaxPool *TGMaxPool::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
 
 void TGMaxPool::print(OStream &pOS) const
 {
-  int rShiftWidth = m_LayerCtable.right_shift_width();
-  const int *thresholdXQuantized = m_LayerCtable.threshold_x_quantized().data();
   pOS << *m_MemOperands[1] << " = MaxPool <N:" << m_N << ", C:" << m_C
       << ", H:" << m_H << ", W:" << m_W << ",  kH:" << m_KH << ", kW:" << m_KW
       << ", padH:" << m_PadH << ", padW:" << m_PadW << ", srideH:" << m_StrideH
-      << ", strideW:" << m_StrideW << ", rShiftWidth:" << rShiftWidth
-      << ", thresholdX:" << thresholdXQuantized[0] << "> (" << *m_MemOperands[0]
+      << ", strideW:" << m_StrideW << ", rShiftWidth:" << m_RShiftWidth
+      << ", thresholdX:" << m_ThresholdXQuantized << "> (" << *m_MemOperands[0]
       << ")\n";
 }
 
@@ -57,8 +55,6 @@ void TGMaxPool::emit() const
 {
   DEBUG(print(dbgs()));
 
-  int rShiftWidth = m_LayerCtable.right_shift_width();
-  const int *thresholdXQuantized = m_LayerCtable.threshold_x_quantized().data();
   bmnet::bmnet_pooling_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // ifmap_gaddr
@@ -66,11 +62,11 @@ void TGMaxPool::emit() const
       GADDR_INVALID,            // index_gaddr
       GADDR_INVALID,            // o_findex_gaddr
       m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadH, m_PadW, m_StrideH, m_StrideW,
-      0,                  // is_avg_pooling
-      0.0f,               // avg_const
-      0,                  // do_relu
-      rShiftWidth,        // right_shift_width
-      thresholdXQuantized // threshold_x_quantized
+      0,                     // is_avg_pooling
+      0.0f,                  // avg_const
+      0,                     // do_relu
+      m_RShiftWidth,         // right_shift_width
+      &m_ThresholdXQuantized // threshold_x_quantized
   );
 }
 
@@ -117,9 +113,16 @@ void TGMaxPool::toASM(tg::bm1880::Insn *pI) const
     }
     {
       auto *cal = max_pool->mutable_ctable();
-      cal->set_right_shift_width(m_LayerCtable.right_shift_width());
+      cal->set_right_shift_width(m_RShiftWidth);
     }
   }
+}
+
+void TGMaxPool::update(
+    const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
+{
+  m_RShiftWidth = pLayerCtable->right_shift_width();
+  m_ThresholdXQuantized = *pLayerCtable->threshold_x_quantized().data();
 }
 
 } // namespace BM188X

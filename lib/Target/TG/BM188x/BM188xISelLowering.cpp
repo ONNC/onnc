@@ -18,7 +18,8 @@ ComputeOperator2 *BM188xISelLowering::LowerConv(
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
   auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
-  auto *op = new BM188X::TGConv(pNode, pLayerCtable);
+  auto *op = new BM188X::TGConv(pNode);
+  op->update(&pLayerCtable);
   return op->addMemOperands(input, output, weight, bias);
 }
 
@@ -28,7 +29,8 @@ ComputeOperator2 *BM188xISelLowering::LowerRelu(
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGRelu(pNode, pLayerCtable);
+  auto *op = new BM188X::TGRelu(pNode);
+  op->update(&pLayerCtable);
   return op->addMemOperands(input, output);
 }
 
@@ -38,7 +40,8 @@ ComputeOperator2 *BM188xISelLowering::LowerMaxPool(
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGMaxPool(pNode, pLayerCtable);
+  auto *op = new BM188X::TGMaxPool(pNode);
+  op->update(&pLayerCtable);
   return op->addMemOperands(input, output);
 }
 
@@ -50,7 +53,8 @@ ComputeOperator2 *BM188xISelLowering::LowerGemm(
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
   auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
-  auto *op = new BM188X::TGGemm(pNode, pLayerCtable);
+  auto *op = new BM188X::TGGemm(pNode);
+  op->update(&pLayerCtable);
   return op->addMemOperands(input, output, weight, bias);
 }
 
@@ -65,7 +69,8 @@ ComputeOperator2 *BM188xISelLowering::LowerSum(
     vInput.push_back(
         m_pBackend->getMemOperand(pNode.inputs()[i], MemType::NEURON));
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGSum(pNode, pLayerCtable);
+  auto *op = new BM188X::TGSum(pNode);
+  op->update(&pLayerCtable);
   return op->addMemOperands(vInput, output);
 }
 

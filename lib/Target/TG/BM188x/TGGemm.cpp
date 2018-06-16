@@ -12,11 +12,10 @@ namespace BM188X {
 // Y = alpha * A * B + beta * C
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K
 // X N), input tensor C and output tensor Y have dimension (M X N).
-TGGemm::TGGemm(const ::onnx::Node &pNode,
-               const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
+TGGemm::TGGemm(const ::onnx::Node &pNode)
     : BM188xComputeOperator(pNode, std::string("Gemm")), m_InRowNum(0),
       m_InColNum(0), m_OutColNum(0), m_HaveBias(0), m_WeightTp(false),
-      m_EnableRelu(false), m_LayerCtable(pLayerCtable)
+      m_EnableRelu(false), m_RShiftWidth(0)
 {
 
   const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
@@ -52,19 +51,17 @@ TGGemm *TGGemm::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
 
 void TGGemm::print(OStream &pOS) const
 {
-  int rShiftWidth = m_LayerCtable.right_shift_width();
   pOS << *m_MemOperands[3] << " = Gemm <inRowNum:" << m_InRowNum
       << ", inColNum:" << m_InColNum << ", outColNum:" << m_OutColNum
       << ", m_weightTp:" << m_WeightTp << ", do_activation" << m_EnableRelu
       << ", activation_method:" << RELU << ", lShiftWidth:0"
-      << ", rShiftWidth:" << rShiftWidth << "> (" << *m_MemOperands[0] << ", "
+      << ", rShiftWidth:" << m_RShiftWidth << "> (" << *m_MemOperands[0] << ", "
       << *m_MemOperands[1] << ", " << *m_MemOperands[2] << ")\n";
 }
 
 void TGGemm::emit() const
 {
   DEBUG(print(dbgs()));
-  int rShiftWidth = m_LayerCtable.right_shift_width();
   int do_activation = m_EnableRelu;
   int activation_method = RELU;
 
@@ -88,7 +85,7 @@ void TGGemm::emit() const
       0,                        // activation_le_rshift
       m_WeightTp,               // weight_transpose
       0,                        // left_shift_width //TODO
-      rShiftWidth               // right_shift_width
+      m_RShiftWidth             // right_shift_width
   );
 }
 void TGGemm::toASM(tg::bm1880::Insn *pI) const
@@ -120,5 +117,11 @@ void TGGemm::toASM(tg::bm1880::Insn *pI) const
     bm_asm::setMem(output, m_MemOperands.at(3), tg::bm1880::Operand::Int8);
   }
 }
+
+void TGGemm::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
+{
+  m_RShiftWidth = pLayerCtable->right_shift_width();
+}
+
 } // namespace BM188X
 } // namespace onnc
