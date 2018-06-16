@@ -17,7 +17,11 @@ namespace onnc {
 class TargetOptions
 {
   public:
-    TargetOptions() : PrintMachineCode(false) {}
+    TargetOptions()
+        : PrintMachineCode(false), PrintModuleBeforeSel(false),
+          IgnoreCalibrationStep(false)
+    {
+    }
     ~TargetOptions() {};
 
     /// PrintMachineCode - This flag is enabled when the -print-machineinstrs
@@ -27,6 +31,9 @@ class TargetOptions
 
     // PrintModuleBeforeSel- print module before target lowering pass in backend
     unsigned PrintModuleBeforeSel : 1;
+
+    // IgnoreCalibrationStep
+    unsigned IgnoreCalibrationStep : 1;
 };
 
 } // namespace of onnc
