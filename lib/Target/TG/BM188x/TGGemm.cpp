@@ -14,9 +14,9 @@ namespace BM188X {
 // X N), input tensor C and output tensor Y have dimension (M X N).
 TGGemm::TGGemm(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "Gemm"), m_InRowNum(0), m_InColNum(0),
-      m_OutColNum(0), m_HaveBias(0), m_WeightTp(false), m_EnableRelu(false),
-      m_LayerCtable(pLayerCtable)
+    : BM188xComputeOperator(pNode, std::string("Gemm")), m_InRowNum(0),
+      m_InColNum(0), m_OutColNum(0), m_HaveBias(0), m_WeightTp(false),
+      m_EnableRelu(false), m_LayerCtable(pLayerCtable)
 {
 
   const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();

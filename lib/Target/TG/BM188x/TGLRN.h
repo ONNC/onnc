@@ -1,7 +1,7 @@
 #ifndef ONNX_BM1880_TGLRN_H
 #define ONNX_BM1880_TGLRN_H
 
-#include "ComputeOperator.h"
+#include "BM188xComputeOperator.h"
 #include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
 
@@ -9,7 +9,7 @@ namespace onnc {
 namespace BM188X {
 
 // m_MemOperands: input, output
-class TGLRN : public ComputeOperator2
+class TGLRN : public BM188xComputeOperator
 {
 public:
   TGLRN(const ::onnx::Node &pNode,

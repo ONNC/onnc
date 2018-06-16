@@ -1,7 +1,7 @@
 #ifndef ONNX_BM1880_TGCONV_H
 #define ONNX_BM1880_TGCONV_H
 
-#include "ComputeOperator.h"
+#include "BM188xComputeOperator.h"
 #include "TGBackend.h"
 #include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
@@ -10,7 +10,7 @@ namespace onnc {
 namespace BM188X {
 
 // m_emOperands: ifmap, weight, ofmap, bias
-class TGConv : public ComputeOperator2
+class TGConv : public BM188xComputeOperator
 {
 public:
   TGConv(const ::onnx::Node &pNode,

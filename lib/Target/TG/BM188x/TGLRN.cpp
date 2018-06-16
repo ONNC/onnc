@@ -7,7 +7,7 @@ namespace BM188X {
 
 TGLRN::TGLRN(const ::onnx::Node &pNode,
              const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "LRN"), m_K(1)
+    : BM188xComputeOperator(pNode, std::string("LRN")), m_K(1)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;

@@ -10,7 +10,8 @@ namespace BM188X {
 
 TGSum::TGSum(const ::onnx::Node &pNode,
              const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "Sum"), m_LayerCtable(pLayerCtable)
+    : BM188xComputeOperator(pNode, std::string("Sum")),
+      m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;

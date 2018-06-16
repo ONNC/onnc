@@ -1,7 +1,7 @@
 #ifndef ONNX_BM1880_TGGEMM_H
 #define ONNX_BM1880_TGGEMM_H
 
-#include "ComputeOperator.h"
+#include "BM188xComputeOperator.h"
 #include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
 
@@ -9,7 +9,7 @@ namespace onnc {
 namespace BM188X {
 
 // m_emOperands: input, weight, bias, output
-class TGGemm : public ComputeOperator2
+class TGGemm : public BM188xComputeOperator
 {
 public:
   enum ActivationMethod { RELU = 0, SIGMOID, TANH, ELU, PRELU };

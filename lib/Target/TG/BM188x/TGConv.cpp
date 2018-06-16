@@ -11,9 +11,9 @@ namespace BM188X {
 // TGConv
 TGConv::TGConv(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "Conv"), m_Groups(1), m_DilationH(1),
-      m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1), m_StrideW(1),
-      m_DoBias(0), m_LayerCtable(pLayerCtable)
+    : BM188xComputeOperator(pNode, std::string("Conv")), m_Groups(1),
+      m_DilationH(1), m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1),
+      m_StrideW(1), m_DoBias(0), m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;

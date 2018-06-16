@@ -9,7 +9,7 @@ namespace BM188X {
 
 TGRelu::TGRelu(const ::onnx::Node &pNode,
                const tg::bm1880::LayerCalibrationParameter &pLayerCtable)
-    : ComputeOperator2(pNode, "Relu"), m_NegativeSlope(0),
+    : BM188xComputeOperator(pNode, std::string("Relu")), m_NegativeSlope(0),
       m_LayerCtable(pLayerCtable)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();

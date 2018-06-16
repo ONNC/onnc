@@ -10,7 +10,6 @@
 
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
-#include <onnc/Target/TG/BM188x/asm.h>
 #include <onnx/common/ir.h>
 #include <string>
 
@@ -52,7 +51,6 @@ public:
   virtual void memAlloc(MemTable &pPMemLayout);
 
   virtual void print(OStream &pOS) const;
-  virtual void toASM(tg::bm1880::Insn *pI) const { (void)pI; };
 
   ComputeOperator2 *addMemOperand(MemOperand *pMemOperand);
 
