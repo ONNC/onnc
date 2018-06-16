@@ -83,6 +83,8 @@ int ONNX2TG::compile()
     options.PrintModuleBeforeSel = 1;
   if (m_Config.PrintMachineCode())
     options.PrintMachineCode = 1;
+  if (m_Config.IgnoreCalibrationStep())
+    options.IgnoreCalibrationStep = 1;
 
   TargetBackend *backend = target->createBackend(options);
   backend->addTensorSel(pm);
