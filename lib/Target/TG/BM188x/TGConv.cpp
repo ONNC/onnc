@@ -220,7 +220,7 @@ void TGConv::toASM(tg::bm1880::Insn *pI) const
 
 void TGConv::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
 {
-    m_RShiftWidth = pLayerCtable->right_shift_width();
+  m_RShiftWidth = pLayerCtable->right_shift_width();
 }
 
 } // namespace BM188X

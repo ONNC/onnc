@@ -220,7 +220,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   // Generate the threshold of data_layer for quantization.
   std::string dataLayerName = pOnnxGraph->inputs()[0]->uniqueName();
   const tg::bm1880::LayerCalibrationParameter &dataCtable =
-      m_Backend->getCtableLayerParam(dataLayerName);
+      *m_Backend->getLayerCtable(dataLayerName);
   float threshold = dataCtable.blob_param(0).threshold_y();
   DEBUG(dbgs() << "data layer name = " << dataLayerName
                << ", threshold = " << threshold << "\n");
@@ -247,7 +247,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
 
   // Generate the threshold of onnc out layer for de-quantization.
   const tg::bm1880::LayerCalibrationParameter &outCtable =
-      m_Backend->getCtableLayerParam(onncOutputLayerName);
+      *m_Backend->getLayerCtable(onncOutputLayerName);
   for (int i = 0; i < dataCtable.blob_param_size(); i++) {
     if (outCtable.blob_param(i).name() == onncOutputLayerName) {
       threshold = outCtable.blob_param(i).threshold_y();

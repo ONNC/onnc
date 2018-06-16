@@ -25,6 +25,13 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
   m_pTTI = new BM188xTargetTransformInfo(this);
 }
 
+void BM1880Backend::addTensorSel(PassManager &pPM)
+{
+  TGBackend::addTensorSel(pPM);
+  pPM.add(createUpdateCtablePass(this));
+  return;
+}
+
 bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
 {
   switch (pType) {
@@ -42,15 +49,28 @@ void BM1880Backend::setCtableProto(const std::string &pTextString)
                                                   &m_NetCtableParam);
 }
 
-const tg::bm1880::LayerCalibrationParameter &
-BM1880Backend::getCtableLayerParam(std::string &pName)
+tg::bm1880::LayerCalibrationParameter *
+BM1880Backend::getMutableLayerCtable(const std::string &pName)
+{
+  for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
+    tg::bm1880::LayerCalibrationParameter *layer =
+        m_NetCtableParam.mutable_layer(i);
+    if (layer->name() == pName) {
+      return layer;
+    }
+  }
+  return nullptr;
+}
+
+const tg::bm1880::LayerCalibrationParameter *
+BM1880Backend::getLayerCtable(const std::string &pName)
 {
   for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
     const tg::bm1880::LayerCalibrationParameter &layer =
         m_NetCtableParam.layer(i);
     if (layer.name() == pName) {
-      return layer;
+      return &layer;
     }
   }
-  assert(0);
+  return nullptr;
 }

@@ -14,6 +14,7 @@ add_libonnc_src(
     BM188xTargetTransformInfo.cpp
     BM188xTargetMemInfo.cpp
     BM188xFuseOptimizer.cpp
+    UpdateCtablePass.cpp
     TGConv.cpp
     TGGemm.cpp
     TGLRN.cpp

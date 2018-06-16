@@ -17,8 +17,9 @@ void BM188xFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
 {
   // TODO quantized and update ctable
   std::string layerName = pGemmNode->output()->uniqueName();
-  auto &layerCtable = m_p1880backend->getCtableLayerParam(layerName);
-  DEBUG(dbgs() << "get ctable:" << layerCtable.DebugString(););
+  tg::bm1880::LayerCalibrationParameter *layerCtable =
+      m_p1880backend->getMutableLayerCtable(layerName);
+  DEBUG(dbgs() << "get ctable:" << layerCtable->DebugString(););
   // do fuse
   TGFuseOptimizer::FuseGemmRelu(pGraph, pGemmNode, pReluNode);
 }
