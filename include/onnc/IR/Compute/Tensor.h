@@ -22,12 +22,16 @@ public:
     : onnc::Value() {
   }
 
-  Tensor(const std::string& pName)
-    : onnc::Value(pName, onnc::Value::kUndefined) {
+  Tensor(onnc::Value::Type pKind)
+    : onnc::Value(pKind) {
   }
 
-  Tensor(::onnx::Tensor& pAdaptee)
-    : onnc::Value(onnc::Value::kUndefined, pAdaptee) {
+  Tensor(const std::string& pName, onnc::Value::Type pKind)
+    : onnc::Value(pName, pKind) {
+  }
+
+  Tensor(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee)
+    : onnc::Value(pKind, pAdaptee) {
   }
 
   unsigned int getNumOfDimensions() const { return m_Dimensions.size(); }
