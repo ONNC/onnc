@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/IR/Initializer.h>
+#include <onnc/IR/Graph/Initializer.h>
 
 using namespace onnc;
 

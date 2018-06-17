@@ -44,4 +44,5 @@ nobase_nodist_include_HEADERS = \
 	IR/ComputeOperator.h \
   IR/ComputeOperand.h \
   IR/ComputeMemOperand.h \
-  IR/ComputeRegOperand.h
+  IR/ComputeRegOperand.h \
+	IR/Graph/Initializer.h

@@ -9,9 +9,9 @@ ONNC_SOURCES = \
 	IR/Dump.cpp \
 	IR/ONNXUtils.cpp \
 	IR/IRBuilder.cpp \
-	IR/Initializer.cpp \
 	IR/Compute/Value.cpp \
 	IR/Compute/Conv.cpp \
+	IR/Graph/Initializer.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
