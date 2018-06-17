@@ -8,6 +8,7 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/IR/IRBuilder.h>
+#include <onnc/IR/ONNCOptions.h>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnx/checker.h>
@@ -27,12 +28,11 @@ static void UpdateOutputInfo(::onnx::Node *pNode, const TensorSizes &pSize,
 {
   for (::onnx::Value* out : pNode->outputs()) {
     out->setElemType(pTy);
-    if (out->sizes().empty())
-      out->setSizes(pSize);
+    out->setSizes(pSize);
   }
 }
 
-static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
+void UpdateGraphOutputSize::updateReshapeOutputInfo(::onnx::Node *pNode)
 {
   // second input is a shape tensor
   const ::onnx::Value *input1 = pNode->inputs()[1];
@@ -55,6 +55,9 @@ static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
       dims.push_back(::onnx::Dimension(i));
     }
   }
+  // user specific batch_size
+  if (m_BatchSize > 0)
+    dims[0] = m_BatchSize;
   // First input is the data tensor
   const ::onnx::Value *in = pNode->inputs()[0];
   UpdateOutputInfo(pNode, dims, in->elemType());
@@ -65,14 +68,62 @@ static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
 //===----------------------------------------------------------------------===//
 UpdateGraphOutputSize::UpdateGraphOutputSize()
   : ModulePass(ID) {
+  m_BatchSize = ONNCOptions::getBatchSize();
 }
 
-Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
+void UpdateGraphOutputSize::updateInputBatchSize(onnx::Graph *pGraph)
 {
-  for (::onnx::Node *n : pModule.getGraphIR()->nodes()) {
+  // update input batch size
+  std::unordered_set<std::string> initializer_names(
+      pGraph->initializer_names().begin(), pGraph->initializer_names().end());
+  for (int i = 0; i < pGraph->inputs().size(); ++i) {
+    onnx::Value *v = pGraph->inputs()[i];
+    // ignore weight
+    if (0 != initializer_names.count(v->uniqueName()))
+      continue;
+    // update valueInfo
+    auto sizes = v->sizes();
+    sizes[0] = m_BatchSize;
+    v->setSizes(sizes);
+  }
+}
+
+void UpdateGraphOutputSize::resetOutputValueInfo(onnx::Graph *pGraph)
+{
+  // reset output valueInfo
+  for (onnx::Node *n : pGraph->nodes()) {
+    // handle special case
+    if (n->kind() == onnx::Symbol("Softmax")) {
+      onnx::Value *out = n->outputs()[0];
+      auto sizes = out->sizes();
+      sizes[0] = m_BatchSize;
+      // reset batch size
+      out->setSizes(sizes);
+      continue;
+    }
+    // reset dimension and elemType
+    onnx::Value *out = n->outputs()[0];
+    std::vector<onnx::Dimension> sizes;
+    out->setSizes(sizes);
+    out->setElemType(onnx::TensorProto_DataType_UNDEFINED);
+  }
+}
+
+Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
+{
+  onnx::Graph *graph = pModule.getGraphIR().get();
+
+  // update input batch size and reset old output valueInfo
+  if (m_BatchSize > 0) {
+    updateInputBatchSize(graph);
+    resetOutputValueInfo(graph);
+  }
+
+  // onnc only update reshape's output valueInfo
+  for (::onnx::Node *n : graph->nodes()) {
     const auto kind = n->kind();
     if (kind == ::onnx::kReshape) {
-      UpdateReshapeOutputInfo(n);
+      updateReshapeOutputInfo(n);
     }
   }
 
