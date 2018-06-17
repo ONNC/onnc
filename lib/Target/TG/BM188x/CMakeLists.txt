@@ -16,6 +16,7 @@ add_libonnc_src(
     BM188xFuseOptimizer.cpp
     PrepareCtablePass.cpp
     UpdateCtablePass.cpp
+    QuantizePass.cpp
     TGConv.cpp
     TGGemm.cpp
     TGLRN.cpp

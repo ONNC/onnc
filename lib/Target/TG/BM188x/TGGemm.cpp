@@ -53,7 +53,7 @@ void TGGemm::print(OStream &pOS) const
 {
   pOS << *m_MemOperands[3] << " = Gemm <inRowNum:" << m_InRowNum
       << ", inColNum:" << m_InColNum << ", outColNum:" << m_OutColNum
-      << ", m_weightTp:" << m_WeightTp << ", do_activation" << m_EnableRelu
+      << ", m_weightTp:" << m_WeightTp << ", do_activation:" << m_EnableRelu
       << ", activation_method:" << RELU << ", lShiftWidth:0"
       << ", rShiftWidth:" << m_RShiftWidth << "> (" << *m_MemOperands[0] << ", "
       << *m_MemOperands[1] << ", " << *m_MemOperands[2] << ")\n";
