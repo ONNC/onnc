@@ -38,8 +38,6 @@ public:
 
   ~TGBackend() override;
 
-  void codeEmit(const ::onnx::Graph *pOnnxGraph);
-
   void addTensorSel(PassManager &pPM) override;
 
   void addCodeEmit(PassManager &pPM, const Path &pOutputFile) override;
@@ -61,6 +59,8 @@ public:
   const TargetOptions &getOption() { return m_Options; }
 
   TargetLowering *getTargetLowering() { return m_pTLI; }
+
+  TGCodeEmitter *getTargetCodeEmitter() { return m_pCE; }
 
   TGFuseOptimizer *getFuseOptimizr() { return m_pFO; }
 
