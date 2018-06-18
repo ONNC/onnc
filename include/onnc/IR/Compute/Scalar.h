@@ -18,121 +18,84 @@ namespace onnc {
 class Scalar : public onnc::Value
 {
 public:
-  Scalar()
-    : onnc::Value(onnc::Value::kUndefined) {
-  }
+  Scalar();
 
-  Scalar(onnc::Value::Type pKind)
-    : onnc::Value(pKind) {
-  }
+  Scalar(onnc::Value::Type pKind);
 
-  Scalar(const std::string& pName, onnc::Value::Type pKind)
-    : onnc::Value(pName, pKind) {
-  }
+  Scalar(const std::string& pName, onnc::Value::Type pKind);
 
-  Scalar(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee)
-    : onnc::Value(pKind, pAdaptee) {
-  }
+  Scalar(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee);
 };
 
+template<typename ValueType, Value::Type Kind, bool IsClass>
+class ScalarT { };
+
 template<typename ValueType, Value::Type Kind>
-class ScalarT : public onnc::Scalar
+class ScalarT<ValueType, Kind, false> : public onnc::Scalar
 {
 public:
   ScalarT()
-    : onnc::Scalar(Kind) {
+    : onnc::Scalar(Kind), m_Value(0) {
   }
 
   ScalarT(const std::string& pName)
-    : onnc::Scalar(pName, Kind) {
+    : onnc::Scalar(pName, Kind), m_Value(0) {
   }
 
   ScalarT(::onnx::Tensor& pAdaptee)
-    : onnc::Scalar(Kind, pAdaptee) {
+    : onnc::Scalar(Kind, pAdaptee), m_Value(0) {
   }
 
   virtual ~ScalarT() { }
 
-  ValueType getValue() const { assert(false && "Not partial specified!"); }
+  ValueType getValue() const { return m_Value; }
 
-  ScalarT& setValue(const ValueType& pValue) {
-    assert(false && "Not partial specified!");
-    return *this;
-  }
+  void setValue(const ValueType& pValue) { m_Value = pValue; }
+
+  void print(std::ostream& pOS) const { pOS << m_Value; }
+
+private:
+  ValueType m_Value;
 };
 
-#define DEFINE_SCALAR_ACCESSORS(ValueType, NativeType, Element) \
-template<> NativeType ScalarT<NativeType, ValueType>::getValue() const { \
-  return m_pAdaptee->Element().operator[](0); \
-} \
-template<> ScalarT<NativeType, ValueType>& \
-ScalarT<NativeType, ValueType>::setValue(const NativeType& pValue) { \
-  if (m_pAdaptee->Element().empty()) \
-    m_pAdaptee->Element().push_back(pValue); \
-  else \
-    m_pAdaptee->Element().operator[](0) = pValue; \
-  return *this; \
-}
-
-/// Define accessors - see onnx/common/ir_pb_converter.cc
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kFloat,   float,       floats)
-// XXX: casting int32 to float? That ONNX does
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kFloat16, float,       int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kBoolean, bool,        int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kInt8,    int8_t,      int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kInt16,   int16_t,     int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kInt32,   int32_t,     int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kUint8,   uint8_t,     int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kUint16,  uint16_t,    int32s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kInt64,   int64_t,     int64s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kUint32,  uint32_t,    int64s)
-DEFINE_SCALAR_ACCESSORS(onnc::Value::kDouble,  double,      doubles)
-
-typedef ScalarT<float,       onnc::Value::kFloat>   FloatScalar;
-typedef ScalarT<float,       onnc::Value::kFloat16> Float16Scalar;
-typedef ScalarT<bool,        onnc::Value::kBoolean> BooleanScalar;
-typedef ScalarT<int8_t,      onnc::Value::kInt8>    Int8Scalar;
-typedef ScalarT<int16_t,     onnc::Value::kInt16>   Int16Scalar;
-typedef ScalarT<int32_t,     onnc::Value::kInt32>   Int32Scalar;
-typedef ScalarT<uint8_t,     onnc::Value::kUint8>   Uint8Scalar;
-typedef ScalarT<uint16_t,    onnc::Value::kUint16>  Uint16Scalar;
-typedef ScalarT<int64_t,     onnc::Value::kInt64>   Int64Scalar;
-typedef ScalarT<uint32_t,    onnc::Value::kUint32>  Uint32Scalar;
-typedef ScalarT<double,      onnc::Value::kDouble>  DoubleScalar;
-
-class StringScalar : public onnc::Scalar
+template<typename ValueType, Value::Type Kind>
+class ScalarT<ValueType, Kind, true> : public onnc::Scalar, public ValueType
 {
 public:
-  StringScalar()
-    : onnc::Scalar(onnc::Value::kString) {
+  ScalarT()
+    : onnc::Scalar(Kind), ValueType() {
   }
 
-  StringScalar(const std::string& pName)
-    : onnc::Scalar(pName, onnc::Value::kString) {
+  ScalarT(const std::string& pName)
+    : onnc::Scalar(pName, Kind), ValueType() {
   }
 
-  StringScalar(::onnx::Tensor& pAdaptee)
-    : onnc::Scalar(onnc::Value::kString, pAdaptee) {
+  ScalarT(::onnx::Tensor& pAdaptee)
+    : onnc::Scalar(Kind, pAdaptee), ValueType() {
   }
 
-  virtual ~StringScalar() { }
+  virtual ~ScalarT() { }
 
-  const std::string& getValue() const {
-    return m_pAdaptee->strings().operator[](0);
-  }
+  const ValueType& getValue() const { return *this; }
 
-  StringScalar& setValue(const std::string& pValue) {
-    if (m_pAdaptee->strings().empty())
-      m_pAdaptee->strings().push_back(pValue);
-    else
-      m_pAdaptee->strings().operator[](0) = pValue;
-    return *this;
-  }
+  void setValue(const ValueType& pValue) { ValueType::operator=(pValue); }
 
-  void print(std::ostream& pOS) const {
-    pOS << getName() << ": " << getValue();
-  }
+  void print(std::ostream& pOS) const { pOS << getValue(); }
 };
+
+typedef ScalarT<float,       onnc::Value::kFloat,   false> FloatScalar;
+typedef ScalarT<float,       onnc::Value::kFloat16, false> Float16Scalar;
+typedef ScalarT<bool,        onnc::Value::kBoolean, false> BooleanScalar;
+typedef ScalarT<int8_t,      onnc::Value::kInt8,    false> Int8Scalar;
+typedef ScalarT<int16_t,     onnc::Value::kInt16,   false> Int16Scalar;
+typedef ScalarT<int32_t,     onnc::Value::kInt32,   false> Int32Scalar;
+typedef ScalarT<uint8_t,     onnc::Value::kUint8,   false> Uint8Scalar;
+typedef ScalarT<uint16_t,    onnc::Value::kUint16,  false> Uint16Scalar;
+typedef ScalarT<int64_t,     onnc::Value::kInt64,   false> Int64Scalar;
+typedef ScalarT<uint32_t,    onnc::Value::kUint32,  false> Uint32Scalar;
+typedef ScalarT<double,      onnc::Value::kDouble,  false> DoubleScalar;
+typedef ScalarT<std::string, onnc::Value::kString,  true>  StringScalar;
+
 } // namespace of onnc
 
 #endif

@@ -19,17 +19,22 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Any Test
 //===----------------------------------------------------------------------===//
-SKYPAT_F(ComputeIRTest, value_test)
+SKYPAT_F(ComputeIRTest, attr_test)
 {
   FloatAttr alpha;
-  errs() << alpha.kind() << std::endl;
+  ASSERT_EQ(alpha.kind(), Attribute::kFloat);
+}
 
+SKYPAT_F(ComputeIRTest, scalar_test)
+{
   Scalar a;
 
   ASSERT_EQ(a.kind(), Value::kUndefined);
 
-  ::onnx::Tensor tensor;
-  Int64Scalar b(tensor);
+  Int32Scalar b;
+
+  ASSERT_EQ(b.kind(), Value::kInt32);
+  ASSERT_EQ(b.getValue(), 0);
 
   b.setValue(10);
   ASSERT_EQ(b.getValue(), 10);
@@ -37,6 +42,15 @@ SKYPAT_F(ComputeIRTest, value_test)
   Int64Scalar c;
   ASSERT_EQ(c.kind(), Value::kInt64);
 
-  Scalar d;
-  ASSERT_EQ(d.kind(), Value::kUndefined);
+  // string
+  ::onnx::Tensor tensor2;
+  StringScalar e(tensor2);
+  ASSERT_TRUE(e.empty());
+  ASSERT_EQ(e.kind(), Value::kString);
+  e.setValue("test");
+  ASSERT_TRUE(e.getValue() == "test");
+}
+
+SKYPAT_F(ComputeIRTest, tensor_test)
+{
 }
