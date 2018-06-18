@@ -45,26 +45,7 @@ public:
     kUint32,
     kUint64,
     kComplex64,  // complex with float32 real and imaginary components
-    kComplex128, // complex with float64 real and imaginary components
-
-    // Basic Tensor types.
-    kFloatTensor,   // float
-    kUint8Tensor,   // uint8_t
-    kInt8Tensor,    // int8_t
-    kUint16Tensor,  // uint16_t
-    kInt16Tensor,   // int16_t
-    kInt32Tensor,   // int32_t
-    kInt64Tensor,   // int64_t
-    kStringTensor,  // string
-    kBooleanTensor, // bool
-
-    // Advanced Tensor types
-    kFloat16Tensor,
-    kDoubleTensor,
-    kUint32Tensor,
-    kUint64Tensor,
-    kComplex64Tensor,  // complex with float32 real and imaginary components
-    kComplex128Tensor  // complex with float64 real and imaginary components
+    kComplex128  // complex with float64 real and imaginary components
   };
 
 public:

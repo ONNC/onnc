@@ -18,21 +18,13 @@ public:
   typedef std::vector<int64_t> Dimensions;
 
 public:
-  Tensor()
-    : onnc::Value() {
-  }
+  Tensor();
 
-  Tensor(onnc::Value::Type pKind)
-    : onnc::Value(pKind) {
-  }
+  Tensor(onnc::Value::Type pKind);
 
-  Tensor(const std::string& pName, onnc::Value::Type pKind)
-    : onnc::Value(pName, pKind) {
-  }
+  Tensor(const std::string& pName, onnc::Value::Type pKind);
 
-  Tensor(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee)
-    : onnc::Value(pKind, pAdaptee) {
-  }
+  Tensor(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee);
 
   unsigned int getNumOfDimensions() const { return m_Dimensions.size(); }
 
@@ -57,60 +49,39 @@ public:
 
 public:
   TensorT()
-    : onnc::Tensor(Kind) {
+    : onnc::Tensor(Kind), m_Values() {
   }
 
   TensorT(const std::string& pName)
-    : onnc::Tensor(pName, Kind) {
+    : onnc::Tensor(pName, Kind), m_Values() {
   }
 
   TensorT(::onnx::Tensor& pAdaptee)
-    : onnc::Tensor(Kind, pAdaptee) {
+    : onnc::Tensor(Kind, pAdaptee), m_Values() {
   }
 
   virtual ~TensorT() { }
 
-  ValueList& getValues() { assert(false && "Not partial specified!"); }
+  ValueList& getValues() { return m_Values; }
 
-  const ValueList& getValues() const { assert(false && "Not partial specified!"); }
+  const ValueList& getValues() const { return m_Values; }
+
+private:
+  ValueList m_Values;
 };
 
-#define DEFINE_TENSOR_ACCESSORS(ValueType, NativeType, Element) \
-template<> TensorT<NativeType, ValueType>::ValueList& \
-TensorT<NativeType, ValueType>::getValues() { \
-  return m_pAdaptee->Element(); \
-} \
-template<> const TensorT<NativeType, ValueType>::ValueList& \
-TensorT<NativeType, ValueType>::getValues() const { \
-  return m_pAdaptee->Element(); \
-}
-
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kFloatTensor,   float,      floats)
-// XXX: casting int32 to float? That ONNX does
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kFloat16Tensor, int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kBooleanTensor, int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kInt8Tensor,    int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kInt16Tensor,   int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kInt32Tensor,   int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kUint8Tensor,   int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kUint16Tensor,  int,        int32s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kInt64Tensor,   int64_t,    int64s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kUint32Tensor,  int64_t,    int64s)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kDoubleTensor,  double,     doubles)
-DEFINE_TENSOR_ACCESSORS(onnc::Value::kStringTensor, std::string, strings)
-
-typedef TensorT<float,       onnc::Value::kFloatTensor>   FloatTensor;
-typedef TensorT<float,       onnc::Value::kFloat16Tensor> Float16Tensor;
-typedef TensorT<bool,        onnc::Value::kBooleanTensor> BooleanTensor;
-typedef TensorT<int8_t,      onnc::Value::kInt8Tensor>    Int8Tensor;
-typedef TensorT<int16_t,     onnc::Value::kInt16Tensor>   Int16Tensor;
-typedef TensorT<int32_t,     onnc::Value::kInt32Tensor>   Int32Tensor;
-typedef TensorT<uint8_t,     onnc::Value::kUint8Tensor>   Uint8Tensor;
-typedef TensorT<uint16_t,    onnc::Value::kUint16Tensor>  Uint16Tensor;
-typedef TensorT<int64_t,     onnc::Value::kInt64Tensor>   Int64Tensor;
-typedef TensorT<uint32_t,    onnc::Value::kUint32Tensor>  Uint32Tensor;
-typedef TensorT<double,      onnc::Value::kDoubleTensor>  DoubleTensor;
-typedef TensorT<std::string, onnc::Value::kStringTensor>  StringTensor;
+typedef TensorT<float,       onnc::Value::kFloat>   FloatTensor;
+typedef TensorT<float,       onnc::Value::kFloat16> Float16Tensor;
+typedef TensorT<bool,        onnc::Value::kBoolean> BooleanTensor;
+typedef TensorT<int8_t,      onnc::Value::kInt8>    Int8Tensor;
+typedef TensorT<int16_t,     onnc::Value::kInt16>   Int16Tensor;
+typedef TensorT<int32_t,     onnc::Value::kInt32>   Int32Tensor;
+typedef TensorT<uint8_t,     onnc::Value::kUint8>   Uint8Tensor;
+typedef TensorT<uint16_t,    onnc::Value::kUint16>  Uint16Tensor;
+typedef TensorT<int64_t,     onnc::Value::kInt64>   Int64Tensor;
+typedef TensorT<uint32_t,    onnc::Value::kUint32>  Uint32Tensor;
+typedef TensorT<double,      onnc::Value::kDouble>  DoubleTensor;
+typedef TensorT<std::string, onnc::Value::kString>  StringTensor;
 
 } // namespace of onnc
 
