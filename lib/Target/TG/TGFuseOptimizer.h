@@ -16,10 +16,15 @@ public:
 
   virtual ~TGFuseOptimizer() = default;
 
-  virtual void init(Module &pModule) { return; };
+  virtual void PrepareFuseOptimizer(Module &pModule) { return; };
+
+  bool FuseOptimization(onnx::Graph *pGraph);
 
   virtual void FuseGemmRelu(::onnx::Graph *pGraph, ::onnx::Node *pGemmNode,
                             ::onnx::Node *pReluNode);
+
+private:
+  bool FuseNodes(::onnx::Graph *pGraph);
 
 protected:
   TGBackend *m_pBackend; // NOLINT

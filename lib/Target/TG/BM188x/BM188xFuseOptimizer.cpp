@@ -5,7 +5,7 @@
 
 namespace onnc {
 
-void BM188xFuseOptimizer::init(Module &pModule)
+void BM188xFuseOptimizer::PrepareFuseOptimizer(Module &pModule)
 {
   auto &ctable = m_p1880backend->getCtable(pModule);
   m_p1880backend->setCtableProto(ctable);
