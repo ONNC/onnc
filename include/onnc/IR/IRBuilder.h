@@ -69,26 +69,6 @@ public:
 
   bool hasTensorGraph() const { return (nullptr != m_pTargetTG); }
 
-  /// get current insertion point of compute graph
-  /// @retval nullptr not set.
-  ComputeGraph* getComputeGraph() { return m_pTargetCG; }
-
-  /// create a compute graph
-  /// @retval nullptr The graph already exists in module.
-  ComputeGraph* CreateComputeGraph(StringRef pName) {
-    ComputeGraph* cg = getModule().createComputeGraph(pName);
-    setComputeGraph(cg);
-    return cg;
-  }
-
-  template<typename OpType>
-  IRBuilder& RegisterComputeOperator(OpType* pOperator) {
-    // target compute graph shall add pOperator automatically in operator
-    // created.
-    getModule().getComputeDefines().push_back(pOperator);
-    return *this;
-  }
-
   /// Add an input in tensor graph.
   /// @param[in] pSizes a list of onnx::Dimension
   /// @param[in] pKind  hide onnx::TensorProto_DataType
@@ -106,6 +86,11 @@ public:
   /// Add a node in tensor graph
   /// @param[in] pInputs a list of input names for this node
   ::onnx::Node* AddNode(const std::string& pName, const StringList& pInputNames);
+
+  ::onnx::Node*
+  AddTensorOp(const std::string& pName, const StringList& pInputNames) {
+    return AddNode(pName, pInputNames);
+  }
 
   /// Add an initializer
   /// @return The appended Initializer. If it fails, the function return an
@@ -129,6 +114,38 @@ public:
 
   /// Finalize tensor graph
   bool FinalizeTensorGraph(const StringList& pOutputList);
+
+  /// get current insertion point of compute graph
+  /// @retval nullptr not set.
+  ComputeGraph* getComputeGraph() { return m_pTargetCG; }
+
+  bool hasComputeGraph() const { return (nullptr != m_pTargetCG); }
+
+  /// create a compute graph
+  /// @retval nullptr The graph already exists in module.
+  ComputeGraph* CreateComputeGraph(StringRef pName) {
+    ComputeGraph* cg = getModule().createComputeGraph(pName);
+    setComputeGraph(cg);
+    return cg;
+  }
+
+  template<typename OpType>
+  IRBuilder& RegisterComputeOperator(OpType* pOperator) {
+    // target compute graph shall add pOperator automatically in operator
+    // created.
+    getModule().getComputeDefines().push_back(pOperator);
+    return *this;
+  }
+
+  template<typename OpType, typename ... CtorParams>
+  OpType* AddComputeOp(CtorParams&& ... pParams) {
+    if (!hasComputeGraph())
+      return nullptr;
+
+    OpType* op = getComputeGraph()->addOperator(pParams...);
+    RegisterComputeOperator(op);
+    return op;
+  }
 };
 
 } // namespace onnc
