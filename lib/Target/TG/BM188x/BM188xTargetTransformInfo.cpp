@@ -229,8 +229,8 @@ CostModelMap g_NodeCostModels = {
 
 } // namespace
 
-int BM188xTargetTransformInfo::getOperatorCost(const onnx::Node *pNode,
-                                               enum TargetCostKind pKind) const
+uint64_t BM188xTargetTransformInfo::getOperatorCost(const onnx::Node *pNode,
+                                                    unsigned pKind) const
 {
   auto it = g_NodeCostModels.find(pNode->kind());
   if (it != g_NodeCostModels.end()) {

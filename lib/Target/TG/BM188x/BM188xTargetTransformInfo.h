@@ -15,9 +15,16 @@ class TGBackend;
 class BM188xTargetTransformInfo : public TargetTransformInfo
 {
 public:
+  enum TargetCostKind : unsigned {
+    BUILTIN_COST_KIND_END = TargetTransformInfo::BUILTIN_COST_KIND_END,
+    kCycleCount, ///< Get graph (or compute) IR cycle count.
+    kOptOpCount, /// Optimal Operation number
+    kOpCount,    /// Operation number
+  };
+
   BM188xTargetTransformInfo(TGBackend *pTGBackend) : m_pTGBackend(pTGBackend){};
-  int getOperatorCost(const onnx::Node *pNode,
-                      enum TargetCostKind pKind) const override;
+  uint64_t getOperatorCost(const onnx::Node *pNode,
+                           unsigned pKind) const override;
 
   int getWarpSize() const override;
 
