@@ -70,7 +70,7 @@ void TGMaxPool::emit() const
   );
 }
 
-void TGMaxPool::toASM(tg::bm1880::Insn *pI) const
+void TGMaxPool::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
   pI->set_type("bmnet_pooling_fixed_forward_bmkernel");

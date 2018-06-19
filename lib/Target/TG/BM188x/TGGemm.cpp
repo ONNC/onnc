@@ -88,7 +88,7 @@ void TGGemm::emit() const
       m_RShiftWidth             // right_shift_width
   );
 }
-void TGGemm::toASM(tg::bm1880::Insn *pI) const
+void TGGemm::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
   pI->set_type("bmnet_fc_fixed_forward_bmkernel");

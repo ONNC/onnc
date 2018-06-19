@@ -77,7 +77,7 @@ void TGSum::emit() const
 
   delete[] input;
 }
-void TGSum::toASM(tg::bm1880::Insn *pI) const
+void TGSum::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
   pI->set_type("bmnet_eltwise_fixed_forward_bmkernel");

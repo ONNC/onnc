@@ -180,7 +180,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
   }
 }
 
-void TGConv::toASM(tg::bm1880::Insn *pI) const
+void TGConv::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
   pI->set_type("bmnet_conv_fixed_forward_bmkernel");

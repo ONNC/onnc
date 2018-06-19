@@ -171,7 +171,7 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (m_Backend->getOption().PrintMachineCode) {
     tg::bm1880::CommandBuffer buf;
     for (auto &inst : instList)
-      static_cast<BM188xComputeOperator *>(inst.get())->toASM(buf.add_insn());
+      static_cast<BM188xComputeOperator *>(inst.get())->toASM(buf.add_inst());
     onnc::outs() << buf.DebugString() << std::endl;
   }
 

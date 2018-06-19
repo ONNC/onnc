@@ -30,7 +30,7 @@ public:
 
   void emit() const override { return; }
 
-  virtual void toASM(tg::bm1880::Insn *pI) const { (void)pI; };
+  virtual void toASM(tg::bm1880::Inst *pI) const = 0;
 
   // update instruction info by calibration table
   virtual void update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)

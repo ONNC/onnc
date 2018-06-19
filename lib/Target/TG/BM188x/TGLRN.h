@@ -15,7 +15,7 @@ public:
   TGLRN(const ::onnx::Node &pNode);
 
   void emit() const override;
-  void toASM(tg::bm1880::Insn *pI) const override;
+  void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override
   {
