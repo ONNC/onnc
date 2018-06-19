@@ -24,6 +24,9 @@ class TargetOptions
     ///// option is specified on the command line, and should enable debugging
     ///// output from the code generator.
     unsigned PrintMachineCode : 1;
+
+    // PrintModuleBeforeSel- print module before target lowering pass in backend
+    unsigned PrintModuleBeforeSel : 1;
 };
 
 } // namespace of onnc

@@ -20,11 +20,11 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-static bool HasInsertedLoadStoreNode(onnx::Graph &pGraph)
+static bool HasInsertedLoadStoreNode(::onnx::Graph &pGraph)
 {
-  onnx::Node *lastN = *pGraph.nodes().rbegin();
-  if (lastN->kind() == onnx::Symbol("Store") ||
-      lastN->kind() == onnx::Symbol("SubGraph"))
+  ::onnx::Node *lastN = *pGraph.nodes().rbegin();
+  if (lastN->kind() == ::onnx::Symbol("Store") ||
+      lastN->kind() == ::onnx::Symbol("SubGraph"))
     return true;
   return false;
 }
@@ -34,10 +34,10 @@ static bool HasInsertedLoadStoreNode(onnx::Graph &pGraph)
 //       Node required size.
 
 // [TODO] Please merge with SplitNode.cpp::createLoadStoreAtNode
-static void InsertLoadStoreNode(onnx::Graph &pGraph)
+static void InsertLoadStoreNode(::onnx::Graph &pGraph)
 {
-  for (onnx::Value* v : pGraph.inputs()) {
-    onnx::Node* first = nullptr;
+  for (::onnx::Value* v : pGraph.inputs()) {
+    ::onnx::Node* first = nullptr;
     for(auto u : v->uses()) {
       if (!first) {
         first = u.user;
@@ -49,14 +49,14 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create load node and insert before the first use node.
-    onnx::Node* loadN = pGraph.create(onnx::Symbol("Load"));
+    ::onnx::Node* loadN = pGraph.create(::onnx::Symbol("Load"));
     loadN->insertBefore(first);
     loadN->output()->copyMetadata(v);
     v->replaceAllUsesWith(loadN->output());
   }
 
-  for (onnx::Value* v : pGraph.outputs()) {
-    onnx::Node* last = nullptr;
+  for (::onnx::Value* v : pGraph.outputs()) {
+    ::onnx::Node* last = nullptr;
     for(auto u : v->uses()) {
       if (!last) {
         last = u.user;
@@ -68,7 +68,7 @@ static void InsertLoadStoreNode(onnx::Graph &pGraph)
     }
 
     // Create store node and insert before the last use node.
-    onnx::Node* storeN = pGraph.create(onnx::Symbol("Store"), {v});
+    ::onnx::Node* storeN = pGraph.create(::onnx::Symbol("Store"), {v});
     storeN->output()->copyMetadata(v);
     storeN->output()->setUniqueName(v->uniqueName() + ".store");
     storeN->insertBefore(last);
@@ -86,17 +86,17 @@ NodeIRScheduler::~NodeIRScheduler()
 {
 }
 
-using DegreeMap = std::unordered_map<onnx::Node *, unsigned>;
+using DegreeMap = std::unordered_map<::onnx::Node *, unsigned>;
 
-static DegreeMap BuildDegreeMap(onnx::Graph &pGraph)
+static DegreeMap BuildDegreeMap(::onnx::Graph &pGraph)
 {
   DegreeMap dmap;
-  for (onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
+  for (::onnx::Node *n : pGraph.nodes()) {
+    if (n->kind() == ::onnx::kUndefined)
       continue;
 
     unsigned degcnt = n->inputs().size();
-    for (onnx::Value *v : n->inputs())
+    for (::onnx::Value *v : n->inputs())
       if (v->node() == nullptr) {
         outs() << "Warning! " << n->kind().toString()
                << " use a value = " << v->uniqueName()
@@ -114,7 +114,7 @@ bool NodeIRScheduler::isExeResAvailable(const ExeResource *pExeRes) const
 }
 
 void NodeIRScheduler::addExeResUser(const ExeResource *pExeRes,
-                                    onnx::Node *pUser)
+                                    ::onnx::Node *pUser)
 {
   uint64_t c = m_DLATB->getTTI()
                      ->getOperatorCost(pUser, TargetTransformInfo::kCycleCount);
@@ -156,11 +156,11 @@ Nodes NodeIRScheduler::issue()
 Nodes NodeIRScheduler::greedyPickNextNodes(Nodes &pCands)
 {
   Nodes next;
-  Ints rmList;
+  std::vector<int> rmList;
 
   // Greedy pick from beginning of the list.
   for (unsigned i = 0; i < pCands.size(); ++i) {
-    onnx::Node *n = pCands[i];
+    ::onnx::Node *n = pCands[i];
     const ExeResource *res = m_DLATB->getTTI()->queryExeResType(n);
     // initialize entry with empty user.
     if (m_ExeResUsers.find(res) == m_ExeResUsers.end())
@@ -192,10 +192,10 @@ bool NodeIRScheduler::isAllExeResEmpty() const
 
 Pass::ReturnType NodeIRScheduler::runOnModule(Module& pModule)
 {
-  return runOnGraph(*pModule.getGraph());
+  return runOnGraph(*pModule.getGraphIR());
 }
 
-Pass::ReturnType NodeIRScheduler::runOnGraph(onnx::Graph &pGraph)
+Pass::ReturnType NodeIRScheduler::runOnGraph(::onnx::Graph &pGraph)
 {
   if (!m_DLATB) {
     errs() << "No backend infomation that is needed for memory allcation.\n";
@@ -204,7 +204,7 @@ Pass::ReturnType NodeIRScheduler::runOnGraph(onnx::Graph &pGraph)
 
   clear();
 
-  onnx::Graph &graph = pGraph;
+  ::onnx::Graph &graph = pGraph;
   if (!HasInsertedLoadStoreNode(graph))
     InsertLoadStoreNode(graph);
 
@@ -212,8 +212,8 @@ Pass::ReturnType NodeIRScheduler::runOnGraph(onnx::Graph &pGraph)
   Nodes worklist;
 
   // add degree = 0 to worklist in graph order.
-  for (onnx::Node *n : graph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
+  for (::onnx::Node *n : graph.nodes()) {
+    if (n->kind() == ::onnx::kUndefined)
       continue;
 
     if (dmap[n] == 0)
@@ -225,11 +225,11 @@ Pass::ReturnType NodeIRScheduler::runOnGraph(onnx::Graph &pGraph)
     greedyPickNextNodes(worklist);
     Nodes completes = issue();
 
-    for (onnx::Node *n : completes) {
-      for (onnx::Value *v : n->outputs()) {
+    for (::onnx::Node *n : completes) {
+      for (::onnx::Value *v : n->outputs()) {
         // Update degree map.
         for(auto u : v->uses()) {
-          if (u.user->kind() == onnx::kReturn)
+          if (u.user->kind() == ::onnx::kReturn)
             continue;
           auto it = dmap.find(u.user);
           assert(it != dmap.end() &&
@@ -245,11 +245,11 @@ Pass::ReturnType NodeIRScheduler::runOnGraph(onnx::Graph &pGraph)
 
   // Reorder the IR position based on scheduling result.
   auto it = graph.begin();
-  if (it->kind() == onnx::kUndefined)
+  if (it->kind() == ::onnx::kUndefined)
     ++it;
 
   for (unsigned i = 0; i < m_SchedTimeLine.size(); ++i) {
-    onnx::Node *n = m_SchedTimeLine[i].node;
+    ::onnx::Node *n = m_SchedTimeLine[i].node;
     if (*it != n)
       n->moveBefore(*it);
     else
@@ -283,12 +283,12 @@ void NodeIRScheduler::print(OStream& pOS) const
 
 void NodeIRScheduler::inorderSingleIssueSchedule(Module& pModule)
 {
-  onnx::Graph &graph = *pModule.getGraph();
+  ::onnx::Graph &graph = *pModule.getGraphIR();
   int i = 0;
   uint64_t curCycle = 0;
   m_SchedTimeLine.clear();
-  for (onnx::Node *n : graph.nodes()) {
-    if (n->kind() == onnx::kUndefined)
+  for (::onnx::Node *n : graph.nodes()) {
+    if (n->kind() == ::onnx::kUndefined)
       continue;
 
     uint64_t c = m_DLATB->getTTI()

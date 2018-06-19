@@ -24,13 +24,13 @@ public:
   typedef unsigned SlotIndex;
 
 public:
-  LiveInterval(SlotIndex pStart, SlotIndex pEnd, const onnx::Value& pValue);
+  LiveInterval(SlotIndex pStart, SlotIndex pEnd, const ::onnx::Value& pValue);
 
   SlotIndex getStart() const { return m_Start; }
 
   SlotIndex getEnd() const { return m_End; }
 
-  const onnx::Value& getValue() const { return m_Value; }
+  const ::onnx::Value& getValue() const { return m_Value; }
 
   /// return true if two live intervals have intersection
   bool intersect(const LiveInterval& pLive) const;
@@ -39,7 +39,7 @@ protected:
   // Live interval = [start, end]
   SlotIndex m_Start;
   SlotIndex m_End;
-  const onnx::Value& m_Value;
+  const ::onnx::Value& m_Value;
 };
 
 /** \class GraphLivenessAnalysis
@@ -63,7 +63,7 @@ public:
   void print(std::ostream& pOS) const;
 
 private:
-  void calculateLiveness(onnx::Graph &pGraph);
+  void calculateLiveness(::onnx::Graph &pGraph);
 
   /// delete LiveIntervals in m_LiveIntervals
   void clear();

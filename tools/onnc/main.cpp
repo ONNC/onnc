@@ -10,43 +10,59 @@
 #include <onnc/Support/Host.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Option/CommandLine.h>
+#include <onnc/Config/AboutData.h>
 
 using namespace onnc;
 
-static const char* HelpManual =
-  "Usage:\n"
-  "\tonnc [input] -o [output]\n"
-  "\n"
-  "General Options:\n"
-  "\t-o     <path>        the output file path\n"
-  "\t-mquadruple=<quad>   target a specific backend\n"
-  "\t-march=<arch>        target a specific architecture\n"
-  "\t-mcpu=<cpu>          target a specific CPU type\n"
-  "\n"
-  "\t-h | -? | --help Show this manual\n"
-  "onnc version 0.1.0\n";
+static AboutData g_About("onnc",
+                         "onnc",
+                         "0.1.0",
+                         AboutLicense::kPrivate,
+                         "ONNC is the compiler driver");
 
-static cl::opt<Path> OptInput("input", cl::kPositional, cl::kRequired,
-                              cl::kValueRequired,
-                              cl::desc("The input file"), cl::help(HelpManual));
+static cl::opt<Path> OptInput("input", cl::kPositional, cl::kOptional,
+    cl::kValueRequired,
+    cl::desc("The input file"), cl::about(g_About));
 
 static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
-                                      cl::kValueRequired,
-                                      cl::desc("The output file"),
-                                      cl::help(HelpManual));
+    cl::kValueRequired,
+    cl::desc("The output file"),
+    cl::about(g_About));
 
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
-                             cl::kValueDisallowed, cl::init(false),
-                             cl::desc("Show this manual."));
+    cl::kValueDisallowed, cl::init(false),
+    cl::desc("Show this manual."),
+    cl::about(g_About));
 
 static cl::alias HelpAliasH("h", cl::kShort, cl::trueopt(OptHelp));
 static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
 
+static cl::opt<unsigned int>
+OptVerbose("verbose",
+    cl::kLong,
+    cl::kZeroOrMore,
+    cl::kValueRequired,
+    cl::kEqualSeparated,
+    cl::desc("Set verbose level to <number> (default is 1)."),
+    cl::init(1),
+    cl::about(g_About));
+
+static cl::opt<bool>
+OptV("v", cl::kShort, cl::kZeroOrMore, cl::kValueDisallowed, cl::init(false),
+    cl::desc("One -v increases one verbose level."),
+    cl::about(g_About));
+
+static cl::opt<bool>
+OptQuiet("quiet", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Set verbose level to 0."),
+    cl::about(g_About));
+
 static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort, cl::kOptional,
-    cl::kValueRequired, cl::desc("target quadruple"), cl::help(HelpManual));
+    cl::kValueRequired, cl::desc("target quadruple"), cl::about(g_About));
     
 static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
-    cl::kValueRequired, cl::desc("target architecture"), cl::help(HelpManual));
+    cl::kValueRequired, cl::desc("target architecture"), cl::about(g_About));
 
 //===----------------------------------------------------------------------===//
 // Main Procedure
@@ -54,6 +70,24 @@ static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
 int main(int pArgc, char* pArgv[])
 {
   ONNCApp onnc(pArgc, pArgv);
+
+  // -verbose=level
+  if (OptVerbose.hasOccurrence())
+    onnc.options().setVerbose(OptVerbose);
+
+  // -v
+  if (OptV.hasOccurrence())
+    onnc.options().setVerbose(OptV.getNumOccurrence());
+
+  // --quiet
+  if (OptQuiet)
+    onnc.options().setVerbose(0);
+
+  // --help
+  if (OptHelp) {
+    g_About.print(outs(), ONNCConfig::kNormal < onnc.options().verbose());
+    return EXIT_SUCCESS;
+  }
 
   // check inputs
   if (!exists(OptInput)) {

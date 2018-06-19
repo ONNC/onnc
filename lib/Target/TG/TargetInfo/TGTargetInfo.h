@@ -11,10 +11,12 @@
 
 namespace onnc {
 
-onnc::Target& getTheTGBM1680Target();
+onnc::Target &getTheTGBM1680Target();
 
-onnc::Target& getTheTGBM1682Target();
+onnc::Target &getTheTGBM1682Target();
 
-} // namespace of onnc
+onnc::Target &getTheTGBM1880Target();
+
+} // namespace onnc
 
 #endif

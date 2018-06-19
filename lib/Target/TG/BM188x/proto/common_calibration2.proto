@@ -1,0 +1,49 @@
+syntax = "proto2";
+package onnc.tg.bm1880;
+
+message ConvolutionCalibrationCalibrationParameter {
+  optional int32 bn_right_shift_width = 1;
+  optional int32 scale_right_shift_width = 2;
+  optional PReLUCalibrationParameter prelu_param = 3;
+}
+
+message InnerProductCalibrationParameter {
+}
+
+message PoolingCalibrationParameter {
+}
+
+message ReLUCalibrationParameter {
+}
+
+message PReLUCalibrationParameter {
+  required int32 gt_scale = 1;
+  required int32 gt_right_shift_width = 2;
+  required int32 le_right_shift_width = 3;
+}
+
+message LayerCalibrationParameter {
+  required string name = 1; // the layer name
+
+  optional int32 right_shift_width = 3;
+  repeated int32 threshold_x_quantized = 4; // reference calibration_caffe
+  repeated BlobParameter blob_param = 5;
+  optional int32 fusion_skipped = 6;
+
+  optional ConvolutionCalibrationCalibrationParameter convolution_param = 106;
+  optional InnerProductCalibrationParameter inner_product_param = 117;
+  optional PoolingCalibrationParameter pooling_param = 121;
+  optional ReLUCalibrationParameter relu_param = 123;
+  optional PReLUCalibrationParameter prelu_param = 124;
+}
+
+message BlobParameter {
+  required string name = 1;
+  required float threshold_y = 2;
+}
+
+message NetCalibrationParameter {
+  optional string name = 1; // consider giving the network a name
+
+  repeated LayerCalibrationParameter layer = 100;  // ID 100 so layers are printed last.
+}

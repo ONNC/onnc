@@ -20,7 +20,7 @@
 
 using namespace onnc;
 
-using TensorSizes = std::vector<onnx::Dimension>;
+using TensorSizes = std::vector<::onnx::Dimension>;
 
 //===----------------------------------------------------------------------===//
 // MemoryAllocation
@@ -74,7 +74,7 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
   return !(endA <= pStartB || endB <= pStartA);
 }
 
-uint64_t MemoryAllocation::allocByLiveness(onnx::Graph &pGraph,
+uint64_t MemoryAllocation::allocByLiveness(::onnx::Graph &pGraph,
                                            ValMemSizeMap &pValMemSizeMap,
                                            GraphLivenessAnalysis &liveAnaly)
 {
@@ -86,7 +86,7 @@ uint64_t MemoryAllocation::allocByLiveness(onnx::Graph &pGraph,
   // allocate memory considering liveness.
   auto &livesInfo = liveAnaly.getLiveIntervals();
   for (const LiveInterval* li : livesInfo) {
-    const onnx::Value *v = &li->getValue();
+    const ::onnx::Value *v = &li->getValue();
     if (!pValMemSizeMap.count(v))
       continue;
 
@@ -124,7 +124,7 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
 
   clear();
 
-  SplitGraphManager sgMgr(*pModule.getGraph(), *m_DLATB);
+  SplitGraphManager sgMgr(*pModule.getGraphIR(), *m_DLATB);
 
   const uint64_t localMemSize = m_DLATB->getMemInfo()
                                        ->getLocalMemSize();
@@ -191,9 +191,9 @@ void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
 }
 
 void MemoryAllocation::printGraphAlloc(OStream &pOS,
-                                       const onnx::Graph *pGraph) const
+                                       const ::onnx::Graph *pGraph) const
 {
-  const auto &it = m_GraphMemAllocList.find(const_cast<onnx::Graph*>(pGraph));
+  const auto &it = m_GraphMemAllocList.find(const_cast<::onnx::Graph*>(pGraph));
   assert(it != m_GraphMemAllocList.end() &&
          "No memory allocation info for Graph");
 
@@ -217,7 +217,7 @@ void MemoryAllocation::print(OStream& pOS) const
     printGraphAlloc(pOS, it.first);
 }
 
-void MemoryAllocation::clearGraphAlloc(onnx::Graph *pGraph)
+void MemoryAllocation::clearGraphAlloc(::onnx::Graph *pGraph)
 {
   for (MemAllocEntry* entry : m_GraphMemAllocList[pGraph])
     delete entry;

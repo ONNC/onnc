@@ -59,19 +59,18 @@ onnc::TargetRegistry::Lookup(const std::string& pQuadruple, std::string& pError)
   }
 
   Quadruple input(pQuadruple);
-  auto match = [&](const Target* pTarget) { return pTarget->matchArch(input); };
-  iterator candidate = std::find_if(Begin(), End(), match);
+  unsigned int candidateScore = 0;
+  onnc::TargetRegistry::iterator candidate = End();
+  for (auto cb = Begin(), ce = End(); cb != ce; ++cb) {
+    auto curScore = (*cb)->matchArch(input);
+    if (0 != curScore && curScore > candidateScore) {
+      candidate = cb;
+      candidateScore = curScore;
+    }
+  }
 
   if (End() == candidate) {
     pError = "No available targets are compatible with this quadruple.";
-    return nullptr;
-  }
-
-  iterator next = std::find_if(std::next(candidate), End(), match);
-  if (End() != next) {
-    pError = (Rope("Cannot choose between targets \"") +
-             Rope((*candidate)->name()) + "\" and \"" +
-             Rope((*next)->name()) + "\"").str();
     return nullptr;
   }
 

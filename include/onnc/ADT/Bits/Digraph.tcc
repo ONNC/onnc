@@ -285,7 +285,7 @@ Digraph<NodeType, ArcType>::bfs_end() const
 }
 
 template<typename NodeType, typename ArcType>
-bool Digraph<NodeType, ArcType>::exists(const NodeType& pNode) const
+bool Digraph<NodeType, ArcType>::exists(const Node& pNode) const
 {
   iterator node, nEnd = end();
   for (node = begin(); node != nEnd; ++node) {

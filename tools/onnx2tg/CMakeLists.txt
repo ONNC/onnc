@@ -6,13 +6,20 @@ include_directories(${SKYPAT_INCLUDE_DIRS})
 add_definitions(-DTOPDIR="${ONNC_SOURCE_DIR}")
 add_definitions(-DBUILDDIR="${ONNC_BINARY_DIR}")
 
+find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+llvm_map_components_to_libnames(llvm_libs option)
+
 add_executable(onnx2tg
     main.cpp
     ONNX2TGApp.cpp
     Config.cpp)
 target_link_libraries(onnx2tg
     libonnc
-    ${SKYPAT_LIBRARIES})
+    ${llvm_libs})
 
 install(TARGETS onnx2tg
     RUNTIME DESTINATION bin)
+
+add_test(NAME onnx2tg COMMAND onnx2tg dummy_input -h)

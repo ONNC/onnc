@@ -4,6 +4,7 @@ add_libonnc_src(
     CArgu.cpp 
     CArguRef.cpp 
     CEnv.cpp 
+    Debug.cpp
     Directory.cpp 
     DirIterator.cpp 
     ErrorCode.cpp 

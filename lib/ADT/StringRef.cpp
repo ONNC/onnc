@@ -557,6 +557,60 @@ std::pair<StringRef, StringRef> StringRef::split(StringRef pSeparator) const
   return std::make_pair(slice(0, idx), slice(idx + pSeparator.size(), npos));
 }
 
+void StringRef::split(std::vector<StringRef> &pA, StringRef pSeparator,
+                      int pMaxSplit, bool pKeepEmpty) const
+{
+  StringRef S = *this;
+
+  // Count down from pMaxSplit. When pMaxSplit is -1, this will just split
+  // "forever". This doesn't support splitting more than 2^31 times
+  // intentionally; if we ever want that we can make pMaxSplit a 64-bit integer
+  // but that seems unlikely to be useful.
+  while (pMaxSplit-- != 0) {
+    size_t Idx = S.find(pSeparator);
+    if (Idx == npos)
+      break;
+
+    // Push this split.
+    if (pKeepEmpty || Idx > 0)
+      pA.push_back(S.slice(0, Idx));
+
+    // Jump forward.
+    S = S.slice(Idx + pSeparator.size(), npos);
+  }
+
+  // Push the tail.
+  if (pKeepEmpty || !S.empty())
+    pA.push_back(S);
+}
+
+void StringRef::split(std::vector<StringRef> &pA, char pSeparator,
+                      int pMaxSplit, bool pKeepEmpty) const
+{
+  StringRef S = *this;
+
+  // Count down from pMaxSplit. When pMaxSplit is -1, this will just split
+  // "forever". This doesn't support splitting more than 2^31 times
+  // intentionally; if we ever want that we can make pMaxSplit a 64-bit integer
+  // but that seems unlikely to be useful.
+  while (pMaxSplit-- != 0) {
+    size_t Idx = S.find(pSeparator);
+    if (Idx == npos)
+      break;
+
+    // Push this split.
+    if (pKeepEmpty || Idx > 0)
+      pA.push_back(S.slice(0, Idx));
+
+    // Jump forward.
+    S = S.slice(Idx + 1, npos);
+  }
+
+  // Push the tail.
+  if (pKeepEmpty || !S.empty())
+    pA.push_back(S);
+}
+
 template<> onnc::TypeTag onnc::type_tag<StringRef>()
 {
   static bool instance;

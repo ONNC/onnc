@@ -9,7 +9,6 @@
 #define ONNC_CORE_PASS_ANALYSIS_SUPPORT_H
 #include <onnc/Core/Pass.h>
 
-using namespace onnc;
 
 //===----------------------------------------------------------------------===//
 // Implementation of Pass's template member functions

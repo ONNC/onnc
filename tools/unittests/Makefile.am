@@ -7,7 +7,10 @@ TEST_SOURCES = DigraphTest.cpp \
 	StringRefTest.cpp \
 	AnyTest.cpp \
 	BinaryTreeTest.cpp \
-	StringSwitchTest.cpp
+	StringSwitchTest.cpp \
+	StringMapTest.cpp \
+	JsonValueTest.cpp \
+	JsonObjectTest.cpp
 endif
 
 if ENABLE_REGRESSION

@@ -9,8 +9,6 @@
 #define ONNC_COMPILER_ONNX_TO_TG_CONFIG_H
 #include <onnc/Support/Path.h>
 
-using namespace onnc;
-
 /** \class Config
  *  \brief Config stores all application configurations.
  */
@@ -21,17 +19,32 @@ public:
 
   ~Config() {}
 
-  const Path& input() const { return m_Input; }
+  const std::string &input() const { return m_Input; }
 
-  void setInput(const Path& pFileName) { m_Input = pFileName; }
+  void setInput(const std::string &pFileName) { m_Input = pFileName; }
 
-  const Path& output() const { return m_Output; }
+  const onnc::Path &output() const { return m_Output; }
 
-  void setOutput(const Path& pFileName) { m_Output = pFileName; }
+  void setOutput(const onnc::Path &pFileName) { m_Output = pFileName; }
+
+  const std::string march() const { return m_Arch; }
+
+  void setMarch(const std::string &pArch) { m_Arch = pArch; }
+
+  bool PrintModuleBeforeISel() const { return m_PrintModuleBeforeISel; }
+
+  void setPrintModuleBeforeISel(bool pSet) { m_PrintModuleBeforeISel = pSet; }
+
+  bool PrintMachineCode() const { return m_PrintMachineCode; }
+
+  void setPrintMachineCode(bool pSet) { m_PrintMachineCode = pSet; }
 
 private:
-  Path m_Input;
-  Path m_Output;
+  std::string m_Input;
+  onnc::Path m_Output;
+  std::string m_Arch;
+  bool m_PrintModuleBeforeISel;
+  bool m_PrintMachineCode;
 };
 
 #endif

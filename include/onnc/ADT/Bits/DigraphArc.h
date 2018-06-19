@@ -12,7 +12,7 @@
 namespace onnc {
 namespace digraph {
 
-class NodeBase;
+struct NodeBase;
 class ArcBase;
 
 /** \class DigraphArc

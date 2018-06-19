@@ -1,0 +1,96 @@
+syntax = "proto2";
+package onnc.tg.bm1880;
+
+message CommandBuffer {
+    repeated Insn insn = 100;
+}
+
+message Insn {
+    enum Type {
+        Unknown = 0;
+        Convolution = 1;
+        GEMM = 2;
+        LRN = 3;
+        MaxPool = 4;
+        ReLU = 5;
+        SUM = 6;
+    }
+    optional string name = 1;
+    optional Type type = 2 [default = Unknown];
+
+    // Layer type-specific parameters.
+    optional InsnConvolution convolution_param = 101;
+    optional InsnGemm gemm_param = 102;
+    optional InsnLRN lrn_param = 103;
+    optional InsnMaxPool max_pool_param = 104;
+    optional InsnRelu relu_param = 105;
+    optional InsnSum sum_param = 106;
+}
+message Dim2 {
+    optional uint32 h = 9 [default = 0];
+    optional uint32 w = 10 [default = 0];
+}
+message Operand {
+    enum Type {
+        Unknown = 1;
+        Float32 = 2;
+        Int8 = 3;
+        Int16 = 4;
+    }
+    optional uint32 n = 1;
+    optional uint32 c = 2;
+    optional uint32 h = 3;
+    optional uint32 w = 4;
+    optional uint32 addr = 5;
+    optional Type type = 6;
+    optional uint32 count = 7;
+    optional bool transpose = 8;
+}
+message Calibration {
+    optional uint32 right_shift_width = 2;
+}
+message InsnMaxPool {
+    optional Operand input = 1;
+    optional Operand output = 2;
+    optional Dim2 kernel = 10;
+    optional Dim2 pad = 11;
+    optional Dim2 stride = 12;
+    optional Calibration ctable = 13;
+}
+message InsnLRN {
+    optional Operand input = 1;
+    optional Operand output = 2;
+    optional float alpha = 10;
+    optional float beta = 11;
+    optional Calibration ctable = 12;
+}
+message InsnConvolution {
+    optional Operand input = 1;
+    optional Operand output = 2;
+    optional Operand weight= 3;
+    optional Operand bias = 4;
+    optional Dim2 kernel = 10;
+    optional Dim2 pad = 11;
+    optional Dim2 stride = 12;
+    optional Dim2 dilation = 13;
+    optional uint32 group = 14 [default = 1];
+    optional Calibration ctable = 15;
+    optional bool do_bias = 16;
+}
+message InsnRelu{
+    optional Operand input = 1;
+    optional Operand output = 2;
+    optional float negative_slope = 10;
+}
+message InsnSum{
+    repeated Operand input = 1;
+    optional Operand output = 2;
+    optional float negative_slope = 10;
+}
+message InsnGemm{
+    optional Operand input = 1;
+    optional Operand output = 2;
+    optional Operand weight = 3;
+    optional Operand bias = 4;
+}
+

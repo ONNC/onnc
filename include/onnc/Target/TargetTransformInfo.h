@@ -31,13 +31,14 @@ struct ExeResource
  */
 class TargetTransformInfo {
 public:
-  enum TargetCostKind {
-    kCycleCount,  ///< Get graph (or compute) IR cycle count.
+  enum TargetCostKind : unsigned {
+    kCycleCount, ///< Get graph (or compute) IR cycle count.
+    BUILTIN_COST_KIND_END
   };
 
   /// Get coarse-grained (approximately) cost of onnx node.
-  virtual int getOperatorCost(const onnx::Node *pNode,
-                              enum TargetCostKind kind) const
+  virtual uint64_t getOperatorCost(const ::onnx::Node *pNode,
+                                   unsigned kind) const
   {
     return 0;
   }

@@ -13,6 +13,7 @@
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/IRReader/ONNXReader.h>
 #include <onnc/IR/Module.h>
+#include <onnc/IR/ONNXUtils.h>
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
@@ -37,8 +38,10 @@ ONNCApp::~ONNCApp()
 int ONNCApp::compile()
 {
   onnc::onnx::Reader reader;
-  Module module;
-  if (!reader.parse(options().input(), module)) {
+  SystemError err;
+  Module* module = reader.parse(options().input(), err);
+  if (nullptr == module) {
+    // TODO: show error message
     return EXIT_FAILURE;
   }
 
@@ -59,7 +62,7 @@ int ONNCApp::compile()
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, options().output());
 
-  pm.run(module);
-
+  pm.run(*module);
+  DestroyModule(module);
   return EXIT_SUCCESS;
 }

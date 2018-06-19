@@ -11,6 +11,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnx/common/ir_pb_converter.h>
+#include <onnc/IR/ONNXUtils.h>
 
 using namespace onnc;
 
@@ -30,13 +31,14 @@ onnc::onnx::Reader::~Reader()
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
+Module* onnc::onnx::Reader::parse(const Path& pFileName, SystemError& pError)
 {
+  Module* result = nullptr;
   FileHandle file;
-  SystemError err = file.open(pFileName, FileHandle::kReadOnly);
-  if (!err.isGood()) {
+  pError = file.open(pFileName, FileHandle::kReadOnly);
+  if (!pError.isGood()) {
     // TODO: show the error message
-    return false;
+    return nullptr;
   }
 
 
@@ -48,31 +50,36 @@ bool onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
     coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
     if (!model.ParseFromCodedStream(&coded_input)) {
       error(onnx_cannot_parsed) << pFileName;
-      return false;
+      return nullptr;
     }
-    pModule.delegateGraph(::onnx::ImportModelProto(model));
+    result = CreateModule(model);;
   }
 
-  err = file.close();
-  return err.isGood();
+  pError = file.close();
+  if (!pError.isGood())
+    return nullptr;
+  return result;
 }
 
-bool onnc::onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
+Module* onnc::onnx::Reader::parse(ConstBuffer pContent, SystemError& pError)
 {
+  pError = SystemError::kSuccess;
+  Module *result = nullptr;
   {
-    ::google::protobuf::io::CodedInputStream
-        coded_input((const uint8_t *)pContent.raw(), pContent.size());
+    ::google::protobuf::io::ArrayInputStream input(
+        (const uint8_t *)pContent.raw(), pContent.size());
+    ::google::protobuf::io::CodedInputStream coded_input(&input);
 
-    /**
-    onnx::ModelProto model;
     coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
+    ::onnx::ModelProto model;
     if (!model.ParseFromCodedStream(&coded_input)) {
-      // TODO: show the error message
-      return false;
+      error(onnx_cannot_parsed);
+      pError = SystemError::kUnknownError;
+      return nullptr;
     }
-    **/
+    result = CreateModule(model);
   }
-  return true;
+  return result;
 }
 
 void onnc::onnx::Reader::setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold)

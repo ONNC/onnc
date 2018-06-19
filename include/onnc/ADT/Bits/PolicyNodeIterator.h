@@ -22,6 +22,8 @@ public:
 
   BFSIterator(NodeBase* pNode);
 
+  BFSIterator(const NodeBase* pNode);
+
   bool isEnd() const;
 
   void advance();
@@ -41,6 +43,8 @@ public:
   DFSIterator();
 
   DFSIterator(NodeBase* pNode);
+
+  DFSIterator(const NodeBase* pNode);
 
   bool isEnd() const;
 
@@ -71,7 +75,7 @@ public:
   PolicyNodeIterator()
     : IteratorType() { }
 
-  PolicyNodeIterator(value_type* pNode)
+  PolicyNodeIterator(pointer pNode)
     : IteratorType(pNode) {
   }
 

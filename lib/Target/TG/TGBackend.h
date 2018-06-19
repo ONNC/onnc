@@ -7,66 +7,91 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_TG_TG_BACKEND_H
 #define TARGET_TG_TG_BACKEND_H
-#include <string>
-#include <onnc/Target/DLATargetBackend.h>
-#include <onnc/Support/Path.h>
-#include <memory>
-#include <onnx/common/ir.h>
-#include <vector>
-#include "Operator.h"
-#include "TGISelLowering.h"
-#include "TargetLowering.h"
+#include "ComputeOperator.h"
 #include "TGCodeEmitter.h"
+#include "TGFuseOptimizer.h"
+#include "TargetLowering.h"
+#include <memory>
+#include <onnc/Support/Path.h>
+#include <onnc/Target/DLATargetBackend.h>
+#include <onnc/Target/TargetOptions.h>
+#include <onnx/common/ir.h>
+#include <string>
+#include <vector>
 
 namespace onnc {
 
+class TargetLowering;
 class TGCodeEmitter;
 
 using MemTable = std::map<std::string, uint64_t>;
 
+// FIXME: Move to an appropriate file.
+const int GLOBAL_NEURON_TAG = 0x1;
+const int GLOBAL_WEIGHT_TAG = 0x2;
+
 class TGBackend : public DLATargetBackend
 {
 public:
-  TGBackend(const TargetOptions &pOptions);
+  TGBackend(TGFuseOptimizer *pFO, TargetLowering *pTLI, TGCodeEmitter *pCE,
+            const TargetOptions &pOptions);
 
-  virtual ~TGBackend();
+  ~TGBackend() override;
 
-  void codeEmit();
+  void addTensorSel(PassManager &pPM) override;
 
-  void addTensorSel(PassManager &pPM);
+  void addCodeEmit(PassManager &pPM, const Path &pOutputFile) override;
 
-  void addCodeEmit(PassManager& pPM, const Path& pOutputFile);
+  void addMemAlloc(PassManager &pPM) override;
 
-  MemTable &getMemLayout() { return m_globalMemLayout; }
+  std::vector<std::unique_ptr<ComputeOperator2> > &getInsts()
+  {
+    return m_Instructions;
+  }
 
-  std::vector<std::unique_ptr<Operator> > &getInsts() { return m_instructions; }
+  std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; }
+
+  // get or create a MemOperand by onnx::Value. user can specify name because
+  // different ONNX value can map to the same MemOperand
+  MemOperand *getMemOperand(const ::onnx::Value *pValue, MemType pMemType,
+                            const std::string &pName = std::string());
+
+  const TargetOptions &getOption() { return m_Options; }
 
   TargetLowering *getTargetLowering() { return m_pTLI; }
 
+  TGCodeEmitter *getTargetCodeEmitter() { return m_pCE; }
+
+  TGFuseOptimizer *getFuseOptimizr() { return m_pFO; }
+
+  // default sizeof function
+  virtual size_t sizeOfTensorType(::onnx::TensorProto_DataType pType);
+
+  // backend can descript which tensor types are supported
+  virtual bool isNativeTensorType(::onnx::TensorProto_DataType pType);
+
+  // calibration table name
+  virtual std::string getCtableName() { return std::string(); }
+
+  // load ctable from onx meta data
+  const std::string &getCtable(const Module &pModule);
+
+  // parse textString to proto format and store in Backend
+  virtual void setCtableProto(const std::string &pTextString);
+
+  // for debug usage
+  virtual std::string getBackendName() { return std::string("TGBackend"); };
+
 private:
-  std::vector<std::unique_ptr<Operator> > m_instructions;
-  MemTable m_globalMemLayout;
-  TargetLowering *m_pTLI;
-  TGCodeEmitter *m_pCE;
-  Path m_outputPath;
+  std::vector<std::unique_ptr<ComputeOperator2> > m_Instructions;
+  std::vector<MemOperand *> m_MemOperands;
+  TGFuseOptimizer *m_pFO; // NOLINT
+  TargetLowering *m_pTLI; // NOLINT
+  TGCodeEmitter *m_pCE;   // NOLINT
+  Path m_OutputPath;
+  TargetOptions m_Options;
 };
 
-class BM1680Backend : public TGBackend
-{
-public:
-  BM1680Backend(const TargetOptions& pOptions);
+} // namespace onnc
 
-  virtual ~BM1680Backend();
-};
-
-class BM1682Backend : public TGBackend
-{
-public:
-  BM1682Backend(const TargetOptions& pOptions);
-
-  virtual ~BM1682Backend();
-};
-
-}  // namespace onnc
-
-#endif  // TARGET_TG_TG_BACKEND_H
+#endif // TARGET_TG_TG_BACKEND_H

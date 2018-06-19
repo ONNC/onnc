@@ -2,10 +2,17 @@ INCDIR=../include/onnc
 
 ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
+	IR/ComputeOperator.cpp \
+	IR/ComputeGraph.cpp \
+	IR/Module.cpp \
+	IR/Dump.cpp \
+	IR/ONNXUtils.cpp \
+	IR/IRBuilder.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp \
+	Transforms/removeUnusedNodes.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
@@ -32,8 +39,7 @@ ONNC_SOURCES = \
 	ADT/Rope.cpp \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
-	IR/Module.cpp \
-	IR/Dump.cpp \
+	Support/Debug.cpp \
   Support/AsyncPipe.cpp \
   Support/CArgu.cpp \
   Support/CArguRef.cpp \
@@ -75,6 +81,13 @@ ONNC_SOURCES = \
   Support/Windows/FileSystem.inc \
   Support/Dragon/Path.inc \
   Support/Dragon/FileSystem.inc \
+	JSON/Array.cpp \
+  JSON/Object.cpp \
+  JSON/Value.cpp \
+  JSON/JsonParser.ypp \
+  JSON/JsonScanner.lpp \
+  JSON/String.cpp \
+  JSON/Notation.cpp \
 	IR/Quadruple.cpp \
   Diagnostic/Diagnostic.cpp \
   Diagnostic/DiagnosticInfoMap.cpp \
@@ -142,7 +155,7 @@ ONNC_TARGET_SOURCES = \
 
 ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
-ONNC_CPPFLAGS =
+ONNC_CPPFLAGS = -DONNX_NAMESPACE=onnx
 
 if ENABLE_DEBUG
 ONNC_CPPFLAGS += -O0 -g3

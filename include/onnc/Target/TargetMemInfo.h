@@ -12,18 +12,19 @@
 
 namespace onnc {
 
-using TP_DataTy = onnx::TensorProto_DataType;
+typedef ::onnx::TensorProto_DataType TP_DataTy;
 
 /** \struct MemSize
  *
  */
 struct MemSize
 {
-  unsigned alignment;
-  unsigned size;
+  uint64_t alignment;
+  uint64_t size;
 
-  MemSize(unsigned alignment = 0, unsigned size = 0)
-    : alignment(alignment), size(size) {}
+  MemSize(uint64_t alignment = 0, uint64_t size = 0)
+    : alignment(alignment), size(size) {
+  }
 };
 
 /** \class TargetMemInfo
@@ -33,21 +34,24 @@ struct MemSize
 class TargetMemInfo
 {
 public:
-  virtual unsigned getGlobalMemSize() const { return 0; }
+  virtual uint64_t getGlobalMemSize() const { return 0; }
 
-  virtual unsigned getLocalMemSize() const { return 0; }
+  virtual uint64_t getLocalMemSize() const { return 0; }
 
-  virtual unsigned getElemSize(TP_DataTy pTy) const { return 0; }
+  virtual uint64_t getElemSize(::onnx::TensorProto_DataType pTy) const
+  {
+    return 0;
+  }
 
-  virtual unsigned getAlignment(TP_DataTy pTy) const { return 0; }
+  virtual uint64_t getAlignment(TP_DataTy pTy) const { return 0; }
 
   /// Return actual memory size and alignment requirement of onnx::Value.
-  virtual MemSize getValueMemorySize(onnx::Value *pValue)
+  virtual MemSize getValueMemorySize(::onnx::Value *pValue)
   {
-    return MemSize(0, 0);
+    return MemSize();
   }
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

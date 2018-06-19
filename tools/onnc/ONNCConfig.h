@@ -21,6 +21,14 @@ class ONNCConfig
 public:
   static constexpr const char* DefaultOutputName = "a.out";
 
+  enum VerboseLevel : int {
+    kQuiet = 0,
+    kNotice = 1,
+    kNormal = 2,
+    kNoisy  = 3,
+    kDebugging = 7
+  };
+
 public:
   ONNCConfig();
 
@@ -47,12 +55,17 @@ public:
 
   const onnc::TargetOptions& target() const { return m_TargetOptions; }
 
+  void setVerbose(unsigned int pLevel) { m_Verbose = pLevel; }
+
+  unsigned int verbose() const { return m_Verbose; }
+
 private:
   onnc::Path m_Input;
   onnc::Path m_Output;
   onnc::Quadruple m_Quadruple;
   std::string m_Arch;
   onnc::TargetOptions m_TargetOptions;
+  unsigned int m_Verbose;
 };
 
 #endif

@@ -6,7 +6,8 @@ ANDROID_CPPFLAGS=-fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat 
 ONNC_CPPFLAGS = -O0 -g3 \
 	-DUNITTEST=1 \
 	-DTOPDIR=\"${abs_top_srcdir}\" \
-	-DBUILDDIR=\"${abs_top_builddir}\"
+	-DBUILDDIR=\"${abs_top_builddir}\" \
+	-DONNX_NAMESPACE=onnx
 
 if ENABLE_WERROR
 ONNC_CPPFLAGS += -Werror
