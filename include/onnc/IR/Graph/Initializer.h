@@ -9,6 +9,7 @@
 #define ONNC_IR_INITIALIZER_H
 #include <ostream>
 #include <onnx/common/ir.h>
+#include <string>
 #include <vector>
 
 namespace onnc {
@@ -21,19 +22,25 @@ namespace onnc {
 class Initializer
 {
 public:
-  Initializer(std::string& pName, ::onnx::Tensor& pTensor);
+  Initializer();
+
+  Initializer(const std::string& pName, const ::onnx::Tensor& pTensor);
 
   ~Initializer() { }
 
-  const std::string& name() const { return m_Name; }
+  void setName(const std::string& pName) { m_pName = &pName; }
 
-  ::onnx::Tensor& tensor() { return m_Tensor; }
+  const std::string& name() const { return *m_pName; }
 
-  const ::onnx::Tensor& tensor() const { return m_Tensor; }
+  void setTensor(const ::onnx::Tensor& pTensor) { m_pTensor = &pTensor; }
+
+  const ::onnx::Tensor* tensor() const { return m_pTensor; }
+
+  bool isValid() const { return (nullptr == m_pName || nullptr == m_pTensor); }
 
 private:
-  std::string& m_Name;
-  ::onnx::Tensor& m_Tensor;
+  const std::string* m_pName;
+  const ::onnx::Tensor* m_pTensor;
 };
 
 } // namespace of onnc

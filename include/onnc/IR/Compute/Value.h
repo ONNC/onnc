@@ -26,26 +26,29 @@ public:
   typedef std::vector<onnc::Use> UseList;
 
   enum Type {
-    kUndefined = 0,
+    kUndefined = onnx::TensorProto_DataType_UNDEFINED,
 
     // Basic types.
-    kFloat,   // float
-    kUint8,   // uint8_t
-    kInt8,    // int8_t
-    kUint16,  // uint16_t
-    kInt16,   // int16_t
-    kInt32,   // int32_t
-    kInt64,   // int64_t
-    kString,  // string
-    kBoolean, // bool
+    kFloat     = onnx::TensorProto_DataType_FLOAT,   // float
+    kUint8     = onnx::TensorProto_DataType_UINT8,   // uint8_t
+    kInt8      = onnx::TensorProto_DataType_INT8,    // int8_t
+    kUint16    = onnx::TensorProto_DataType_UINT16,  // uint16_t
+    kInt16     = onnx::TensorProto_DataType_INT16,   // int16_t
+    kInt32     = onnx::TensorProto_DataType_INT32,   // int32_t
+    kInt64     = onnx::TensorProto_DataType_INT64,   // int64_t
+    kString    = onnx::TensorProto_DataType_STRING,  // string
+    kBoolean   = onnx::TensorProto_DataType_BOOL,    // bool
 
     // Advanced types
-    kFloat16,
-    kDouble,
-    kUint32,
-    kUint64,
-    kComplex64,  // complex with float32 real and imaginary components
-    kComplex128  // complex with float64 real and imaginary components
+    kFloat16   = onnx::TensorProto_DataType_FLOAT16,
+    kDouble    = onnx::TensorProto_DataType_DOUBLE,
+    kUint32    = onnx::TensorProto_DataType_UINT32,
+    kUint64    = onnx::TensorProto_DataType_UINT64,
+
+    // complex with float32 real and imaginary components
+    kComplex64  = onnx::TensorProto_DataType_COMPLEX64,
+    // complex with float64 real and imaginary components
+    kComplex128 = onnx::TensorProto_DataType_COMPLEX128
   };
 
 public:
