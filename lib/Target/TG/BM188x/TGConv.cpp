@@ -183,38 +183,42 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
 void TGConv::toASM(tg::bm1880::Insn *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type(tg::bm1880::Insn::Convolution);
+  pI->set_type("bmnet_conv_fixed_forward_bmkernel");
   {
-    auto *conv = pI->mutable_convolution_param();
-    conv->set_group(m_Groups);
-    conv->set_do_bias(m_DoBias);
-    {
-      auto *input = conv->mutable_input();
-      bm_asm::setDim(input, m_InN, m_InC, m_InH, m_InW);
-      bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
-    }
-    {
-      auto *output = conv->mutable_output();
-      bm_asm::setMem(output, m_MemOperands.at(2), tg::bm1880::Operand::Int8);
-    }
-    {
-      auto *weight = conv->mutable_weight();
-      weight->set_c(m_OutC);
-      bm_asm::setMem(weight, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
-    }
-    {
-      auto *bias = conv->mutable_bias();
-      bias->set_c(m_OutC);
-      bm_asm::setMem(bias, m_MemOperands.at(3), tg::bm1880::Operand::Int16);
-    }
-    bm_asm::setDim(conv->mutable_kernel(), m_KH, m_KW);
-    bm_asm::setDim(conv->mutable_pad(), m_PadH, m_PadW);
-    bm_asm::setDim(conv->mutable_stride(), m_StrideH, m_StrideW);
-    bm_asm::setDim(conv->mutable_dilation(), m_DilationH, m_DilationW);
-    {
-      auto *cal = conv->mutable_ctable();
-      cal->set_right_shift_width(m_RShiftWidth);
-    }
+    auto *conv = pI->mutable_conv();
+    conv->set_ga_ifmap(m_MemOperands[0]->m_Addr);
+    conv->set_ga_ofmap(m_MemOperands[1]->m_Addr);
+    conv->set_ga_weight(m_MemOperands[2]->m_Addr);
+    conv->set_ga_bias(m_MemOperands[3]->m_Addr);
+    conv->set_input_n(m_InN);
+    conv->set_input_c(m_InC);
+    conv->set_input_h(m_InH);
+    conv->set_input_w(m_InW);
+    conv->set_groups(m_Groups);
+    conv->set_output_c(m_OutC);
+    conv->set_kh(m_KH);
+    conv->set_kw(m_KW);
+    conv->set_dilation_h(m_DilationH);
+    conv->set_dilation_w(m_DilationW);
+    conv->set_pad_h(m_PadH);
+    conv->set_pad_w(m_PadW);
+    conv->set_stride_h(m_StrideH);
+    conv->set_stride_w(m_StrideW);
+    conv->set_result_add(false);
+    conv->set_do_bn(m_DoBias);
+    conv->set_do_scale(0);
+    conv->set_do_scale_bias(0);
+    conv->set_do_activation(0);
+    conv->set_bn_scale(0);
+    conv->set_bn_eps(0);
+    conv->set_activation_method(0);
+    conv->set_activation_ga_slope(0);
+    conv->set_activation_channel_shared(0);
+    conv->set_activation_gt_scale(0);
+    conv->set_activation_gt_rshift(0);
+    conv->set_activation_le_scale(0);
+    conv->set_activation_le_rshift(0);
+    conv->set_right_shift_width(m_RShiftWidth);
   }
 }
 

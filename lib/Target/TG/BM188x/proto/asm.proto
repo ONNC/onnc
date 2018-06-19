@@ -6,91 +6,270 @@ message CommandBuffer {
 }
 
 message Insn {
-    enum Type {
-        Unknown = 0;
-        Convolution = 1;
-        GEMM = 2;
-        LRN = 3;
-        MaxPool = 4;
-        ReLU = 5;
-        SUM = 6;
-    }
     optional string name = 1;
-    optional Type type = 2 [default = Unknown];
+    optional string type = 2;
 
     // Layer type-specific parameters.
-    optional InsnConvolution convolution_param = 101;
-    optional InsnGemm gemm_param = 102;
-    optional InsnLRN lrn_param = 103;
-    optional InsnMaxPool max_pool_param = 104;
-    optional InsnRelu relu_param = 105;
-    optional InsnSum sum_param = 106;
+    optional bmnet_pooling_fixed_forward_bmkernel             pooling      = 4;
+    optional bmnet_conv_fixed_forward_bmkernel                conv         = 5;
+    optional bmnet_fc_fixed_forward_bmkernel                  fc           = 6;
+    optional bmnet_relu_fixed_forward_compact_bmkernel        relu_compact = 7;
+    optional bmnet_relu_fixed_forward_bmkernel                relu         = 8;
+    optional bmnet_prelu_fixed_forward_bmkernel               prelu        = 9;
+    optional bmnet_batchnorm_fixed_forward_inference_bmkernel batchnorm    = 10;
+    optional bmnet_scale_fixed_forward_bmkernel               scale        = 11;
+    optional bmnet_reshape_fixed_forward_bmkernel             reshape      = 12;
+    optional bmnet_split_fixed_forward_bmkernel               split        = 13;
+    optional bmnet_concat_fixed_forward_bmkernel              concat       = 14;
+    optional bmnet_eltwise_fixed_forward_bmkernel             eltwise      = 15;
+    optional bmnet_permute_fixed_forward_bmkernel             permute      = 16;
+    optional bmnet_priorbox_fixed_forward_bmkernel            priorbox     = 17;
+    optional bmnet_lrn_fixed_forward_bmkernel                 lrn          = 18;
 }
-message Dim2 {
-    optional uint32 h = 9 [default = 0];
-    optional uint32 w = 10 [default = 0];
+
+message bmnet_pooling_fixed_forward_bmkernel {
+    optional uint64 ifmap_gaddr           = 1  [default = 0x000000ffffffffff];
+    optional uint64 ofmap_gaddr           = 2  [default = 0x000000ffffffffff];
+    optional uint64 index_gaddr           = 3  [default = 0x000000ffffffffff];
+    optional uint64 o_findex_gaddr        = 4  [default = 0x000000ffffffffff];
+    optional int32  n                     = 5  [default = 0];
+    optional int32  c                     = 6  [default = 0];
+    optional int32  h                     = 7  [default = 0];
+    optional int32  w                     = 8  [default = 0];
+    optional int32  kh                    = 9  [default = 0];
+    optional int32  kw                    = 10 [default = 0];
+    optional int32  pad_h                 = 11 [default = 0];
+    optional int32  pad_w                 = 12 [default = 0];
+    optional int32  stride_h              = 13 [default = 0];
+    optional int32  stride_w              = 14 [default = 0];
+    optional bool   is_avg_pooling        = 15 [default = false];
+    optional float  avg_const             = 16 [default = 0];
+    optional bool   do_relu               = 17 [default = false];
+    optional int32  right_shift_width     = 18 [default = 0];
+    optional int32  threshold_x_quantized = 19 [default = 0];
 }
-message Operand {
-    enum Type {
-        Unknown = 1;
-        Float32 = 2;
-        Int8 = 3;
-        Int16 = 4;
-    }
-    optional uint32 n = 1;
-    optional uint32 c = 2;
-    optional uint32 h = 3;
-    optional uint32 w = 4;
-    optional uint32 addr = 5;
-    optional Type type = 6;
-    optional uint32 count = 7;
-    optional bool transpose = 8;
+
+message bmnet_conv_fixed_forward_bmkernel {
+    optional uint64 ga_ifmap                  = 1  [default = 0x000000ffffffffff];
+    optional uint64 ga_ofmap                  = 2  [default = 0x000000ffffffffff];
+    optional uint64 ga_weight                 = 3  [default = 0x000000ffffffffff];
+    optional uint64 ga_bias                   = 4  [default = 0x000000ffffffffff];
+    optional uint64 ga_bn_mean                = 5  [default = 0x000000ffffffffff];
+    optional uint64 ga_bn_variance            = 6  [default = 0x000000ffffffffff];
+    optional uint64 ga_scale                  = 7  [default = 0x000000ffffffffff];
+    optional uint64 ga_scale_bias             = 8  [default = 0x000000ffffffffff];
+    optional int32  input_n                   = 9  [default = 0];
+    optional int32  input_c                   = 10 [default = 0];
+    optional int32  input_h                   = 11 [default = 0];
+    optional int32  input_w                   = 12 [default = 0];
+    optional int32  groups                    = 13 [default = 1];
+    optional int32  output_c                  = 14 [default = 0];
+    optional uint32 kh                        = 15 [default = 0];
+    optional uint32 kw                        = 16 [default = 0];
+    optional uint32 dilation_h                = 17 [default = 0];
+    optional uint32 dilation_w                = 18 [default = 0];
+    optional uint32 pad_h                     = 19 [default = 0];
+    optional uint32 pad_w                     = 20 [default = 0];
+    optional uint32 stride_h                  = 21 [default = 0];
+    optional uint32 stride_w                  = 22 [default = 0];
+    optional int32  result_add                = 23 [default = 0];
+    optional int32  do_bias                   = 24 [default = 0];
+    optional int32  do_bn                     = 25 [default = 0];
+    optional int32  do_scale                  = 26 [default = 0];
+    optional int32  do_scale_bias             = 27 [default = 0];
+    optional int32  do_activation             = 28 [default = 0];
+    optional float  bn_scale                  = 29 [default = 0];
+    optional float  bn_eps                    = 30 [default = 1e-6];
+    optional int32  activation_method         = 31 [default = 0];
+    repeated float  activation_arg            = 32;
+    optional uint64 activation_ga_slope       = 33 [default = 0x000000ffffffffff];
+    optional bool   activation_channel_shared = 34;
+    optional int32  activation_gt_scale       = 35 [default = 0];
+    optional int32  activation_gt_rshift      = 36 [default = 0];
+    optional int32  activation_le_scale       = 37 [default = 0];
+    optional int32  activation_le_rshift      = 38 [default = 0];
+    optional int32  right_shift_width         = 39 [default = 0];
+    optional int32  bn_right_shift_width      = 40 [default = 0];
+    optional int32  scalar_right_shift_width  = 41 [default = 0];
+    optional bool   use_winograd              = 42 [default = false];
+
 }
-message Calibration {
-    optional uint32 right_shift_width = 2;
+
+message bmnet_fc_fixed_forward_bmkernel {
+    optional uint64 bottom_data_gaddr          = 1  [default = 0x000000ffffffffff];
+    optional uint64 weight_data_gaddr          = 2  [default = 0x000000ffffffffff];
+    optional uint64 bias_data_gaddr            = 3  [default = 0x000000ffffffffff];
+    optional uint64 top_data_gaddr             = 4  [default = 0x000000ffffffffff];
+    optional int32  input_row_num              = 5  [default = 0];
+    optional int32  input_col_num              = 6  [default = 0];
+    optional int32  weight_col_num             = 7  [default = 0];
+    optional bool have_bias                    = 8  [default = true];
+    optional int32  do_activation              = 9  [default = 0];
+    optional int32  activation_method          = 10 [default = 0];
+    optional uint64 activation_ga_slope        = 11 [default = 0x000000ffffffffff];
+    optional int32  activation_chann1el_shared = 12 [default = 0];
+    optional int32  activation_gt_scale        = 13 [default = 0];
+    optional int32  activation_gt_rshift       = 14 [default = 0];
+    optional int32  activation_le_scale        = 15 [default = 0];
+    optional int32  activation_le_rshift       = 16 [default = 0];
+    optional bool   weight_transpose           = 17 [default = true];
+    optional int32  left_shift_width           = 18 [default = 0];
+    optional int32  right_shift_width          = 19 [default = 0];
 }
-message InsnMaxPool {
-    optional Operand input = 1;
-    optional Operand output = 2;
-    optional Dim2 kernel = 10;
-    optional Dim2 pad = 11;
-    optional Dim2 stride = 12;
-    optional Calibration ctable = 13;
+
+message bmnet_relu_fixed_forward_compact_bmkernel {
+    optional uint64 bottom_gaddr   = 1 [default = 0x000000ffffffffff];
+    optional uint64 top_gaddr      = 2 [default = 0x000000ffffffffff];
+    optional uint64 relu_gaddr     = 3 [default = 0x000000ffffffffff];
+    optional float  negative_slope = 4 [default = 0];
+    optional int32  input_n        = 5 [default = 0];
+    optional int32  input_c        = 6 [default = 0];
+    optional int32  input_h        = 7 [default = 0];
+    optional int32  input_w        = 8 [default = 0];
 }
-message InsnLRN {
-    optional Operand input = 1;
-    optional Operand output = 2;
-    optional float alpha = 10;
-    optional float beta = 11;
-    optional Calibration ctable = 12;
+
+message bmnet_relu_fixed_forward_bmkernel {
+    optional uint64 bottom_gaddr   = 1 [default = 0x000000ffffffffff];
+    optional uint64 top_gaddr      = 2 [default = 0x000000ffffffffff];
+    optional float  negative_slope = 3 [default = 0];
+    optional int32  input_n        = 4 [default = 0];
+    optional int32  input_c        = 5 [default = 0];
+    optional int32  input_h        = 6 [default = 0];
+    optional int32  input_w        = 7 [default = 0];
 }
-message InsnConvolution {
-    optional Operand input = 1;
-    optional Operand output = 2;
-    optional Operand weight= 3;
-    optional Operand bias = 4;
-    optional Dim2 kernel = 10;
-    optional Dim2 pad = 11;
-    optional Dim2 stride = 12;
-    optional Dim2 dilation = 13;
-    optional uint32 group = 14 [default = 1];
-    optional Calibration ctable = 15;
-    optional bool do_bias = 16;
+
+message bmnet_prelu_fixed_forward_bmkernel {
+    optional uint64 input_gaddr          = 1  [default = 0x000000ffffffffff];
+    optional uint64 slope_gaddr          = 2  [default = 0x000000ffffffffff];
+    optional uint64 output_gaddr         = 3  [default = 0x000000ffffffffff];
+    optional int32  chann1el_shared      = 4  [default = 0];
+    optional int32  slope                = 5  [default = 0];
+    optional int32  input_n              = 6  [default = 0];
+    optional int32  input_c              = 7  [default = 0];
+    optional int32  input_h              = 8  [default = 0];
+    optional int32  input_w              = 9  [default = 0];
+    optional int32  GT_scale             = 10 [default = 0];
+    optional int32  GT_right_shift_width = 11 [default = 0];
+    optional int32  LE_right_shift_width = 12 [default = 0];
 }
-message InsnRelu{
-    optional Operand input = 1;
-    optional Operand output = 2;
-    optional float negative_slope = 10;
+
+message bmnet_batchnorm_fixed_forward_inference_bmkernel{
+    optional uint64 bottom_gaddr      = 1 [default = 0x000000ffffffffff];
+    optional uint64 mean_ma_gaddr     = 2 [default = 0x000000ffffffffff];
+    optional uint64 variance_ma_gaddr = 3 [default = 0x000000ffffffffff];
+    optional uint64 top_gaddr         = 4 [default = 0x000000ffffffffff];
+    optional int32  input_n           = 5 [default = 0];
+    optional int32  input_c           = 6 [default = 0];
+    optional int32  input_h           = 7 [default = 0];
+    optional int32  input_w           = 8 [default = 0];
+    optional int32  right_shift_width = 9 [default = 0];
 }
-message InsnSum{
-    repeated Operand input = 1;
-    optional Operand output = 2;
-    optional float negative_slope = 10;
+
+message bmnet_scale_fixed_forward_bmkernel {
+    optional uint64 input_gaddr       = 1  [default = 0x000000ffffffffff];
+    optional uint64 scale_gaddr       = 2  [default = 0x000000ffffffffff];
+    optional uint64 bias_gaddr        = 3  [default = 0x000000ffffffffff];
+    optional uint64 output_gaddr      = 4  [default = 0x000000ffffffffff];
+    optional int32  input_n           = 5  [default = 0];
+    optional int32  input_c           = 6  [default = 0];
+    optional int32  input_h           = 7  [default = 0];
+    optional int32  input_w           = 8  [default = 0];
+    optional int32  scale_dim         = 9  [default = 0];
+    optional int32  inn1er_dim        = 10 [default = 0];
+    optional int32  right_shift_width = 11 [default = 0];
 }
-message InsnGemm{
-    optional Operand input = 1;
-    optional Operand output = 2;
-    optional Operand weight = 3;
-    optional Operand bias = 4;
+
+message bmnet_reshape_fixed_forward_bmkernel {
+    optional uint64 input_gaddr  = 1  [default = 0x000000ffffffffff];
+    optional uint64 output_gaddr = 2  [default = 0x000000ffffffffff];
+    optional int32  input_n      = 3  [default = 0];
+    optional int32  input_c      = 4  [default = 0];
+    optional int32  input_h      = 5  [default = 0];
+    optional int32  input_w      = 6  [default = 0];
+    optional int32  output_n     = 7  [default = 0];
+    optional int32  output_c     = 8  [default = 0];
+    optional int32  output_h     = 9  [default = 0];
+    optional int32  output_w     = 10 [default = 0];
+}
+
+message bmnet_split_fixed_forward_bmkernel {
+    optional uint64 bottom_gaddr = 1 [default = 0x000000ffffffffff];
+    repeated uint64 top_gaddr    = 2;
+    optional int32  top_size     = 3 [default = 0];
+    optional int32  input_n      = 4 [default = 0];
+    optional int32  input_c      = 5 [default = 0];
+    optional int32  input_h      = 6 [default = 0];
+    optional int32  input_w      = 7 [default = 0];
+}
+
+message bmnet_concat_fixed_forward_bmkernel{
+    repeated uint64 input_gaddrs = 1;
+    optional uint64 output_gaddr = 2 [default = 0x000000ffffffffff];
+    repeated int32  input_dims   = 3;
+    optional int32  input_num    = 4 [default = 0];
+    optional int32  concat_axis  = 5 [default = 0];
+    optional int32  output_n     = 6 [default = 0];
+    optional int32  output_c     = 7 [default = 0];
+    optional int32  output_h     = 8 [default = 0];
+    optional int32  output_w     = 9 [default = 0];
+}
+
+
+message bmnet_eltwise_fixed_forward_bmkernel{
+    repeated uint64 ga_input              = 1;
+    optional uint64 ga_output             = 2  [default = 0x000000ffffffffff];
+    optional int32  input_size            = 3  [default = 0];
+    optional int32  op                    = 4  [default = 0];
+    optional int32  input_n               = 5  [default = 0];
+    optional int32  input_c               = 6  [default = 0];
+    optional int32  input_h               = 7  [default = 0];
+    optional int32  input_w               = 8  [default = 0];
+    optional bool   do_relu               = 9  [default = false];
+    optional float  relu_slope            = 10 [default = 0];
+    optional int32  right_shift_width     = 11 [default = 0];
+    repeated int32  threshold_x_quantized = 12;
+}
+
+message bmnet_permute_fixed_forward_bmkernel{
+    optional uint64 input_gaddr  = 1  [default = 0x000000ffffffffff];
+    optional uint64 output_gaddr = 2  [default = 0x000000ffffffffff];
+    optional int32  input_n      = 3  [default = 0];
+    optional int32  input_c      = 4  [default = 0];
+    optional int32  input_h      = 5  [default = 0];
+    optional int32  input_w      = 6  [default = 0];
+    optional int32  output_n     = 7  [default = 0];
+    optional int32  output_c     = 8  [default = 0];
+    optional int32  output_h     = 9  [default = 0];
+    optional int32  output_w     = 10 [default = 0];
+    optional int32  order_n      = 11 [default = 0];
+    optional int32  order_c      = 12 [default = 0];
+    optional int32  order_h      = 13 [default = 0];
+    optional int32  order_w      = 14 [default = 0];
+    optional bool   need_permute = 15 [default = false];
+}
+
+message bmnet_priorbox_fixed_forward_bmkernel{
+    optional uint64 weight_data_gaddr = 1 [default = 0x000000ffffffffff];
+    optional uint64 output_gaddr      = 2 [default = 0x000000ffffffffff];
+    optional int32  output_c          = 3 [default = 0];
+    optional int32  output_h          = 4 [default = 0];
+    optional int32  output_w          = 5 [default = 0];
+}
+
+message bmnet_lrn_fixed_forward_bmkernel{
+    optional uint64 bottom_gaddr          = 1  [default = 0x000000ffffffffff];
+    optional uint64 top_gaddr             = 2  [default = 0x000000ffffffffff];
+    optional uint64 sqr_lut_gaddr         = 3  [default = 0x000000ffffffffff];
+    optional uint64 power_lut_gaddr       = 4  [default = 0x000000ffffffffff];
+    optional int32  input_n               = 5  [default = 0];
+    optional int32  input_c               = 6  [default = 0];
+    optional int32  input_h               = 7  [default = 0];
+    optional int32  input_w               = 8  [default = 0];
+    optional int32  size                  = 9  [default = 5];
+    optional int32  sum_right_shift_width = 10 [default = 0];
+    optional int32  lrn_right_shift_width = 11 [default = 0];
+    repeated int32  threshold_x_quantized = 12;
+    repeated int32  sqr_lut               = 13;
+    repeated int32  power_lut             = 14;
 }
 

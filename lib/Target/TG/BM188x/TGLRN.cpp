@@ -40,20 +40,15 @@ void TGLRN::TGLRN::emit() const
 void TGLRN::toASM(tg::bm1880::Insn *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type(tg::bm1880::Insn::LRN);
+  pI->set_type("bmnet_lrn_fixed_forward_bmkernel");
   {
-    auto *lrn = pI->mutable_lrn_param();
-    lrn->set_alpha(m_Alpha);
-    lrn->set_beta(m_Beta);
-    {
-      auto *input = lrn->mutable_input();
-      bm_asm::setDim(input, m_N, m_C, m_H, m_W);
-      bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
-    }
-    {
-      auto *output = lrn->mutable_output();
-      bm_asm::setMem(output, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
-    }
+    auto *lrn = pI->mutable_lrn();
+    lrn->set_bottom_gaddr(m_MemOperands[0]->m_Addr);
+    lrn->set_top_gaddr(m_MemOperands[1]->m_Addr);
+    lrn->set_input_n(m_N);
+    lrn->set_input_c(m_C);
+    lrn->set_input_h(m_H);
+    lrn->set_input_w(m_W);
   }
 }
 

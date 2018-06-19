@@ -58,19 +58,16 @@ void TGRelu::emit() const
 void TGRelu::toASM(tg::bm1880::Insn *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type(tg::bm1880::Insn::ReLU);
+  pI->set_type("bmnet_relu_fixed_forward_bmkernel");
   {
-    auto *relu = pI->mutable_relu_param();
+    auto *relu = pI->mutable_relu();
+    relu->set_bottom_gaddr(m_MemOperands[0]->m_Addr);
+    relu->set_top_gaddr(m_MemOperands[1]->m_Addr);
     relu->set_negative_slope(m_NegativeSlope);
-    {
-      auto *input = relu->mutable_input();
-      bm_asm::setDim(input, m_N, m_C, m_H, m_W);
-      bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
-    }
-    {
-      auto *output = relu->mutable_output();
-      bm_asm::setMem(output, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
-    }
+    relu->set_input_n(m_N);
+    relu->set_input_c(m_C);
+    relu->set_input_h(m_H);
+    relu->set_input_w(m_W);
   }
 }
 

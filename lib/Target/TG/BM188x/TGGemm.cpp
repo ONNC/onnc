@@ -90,31 +90,20 @@ void TGGemm::emit() const
 }
 void TGGemm::toASM(tg::bm1880::Insn *pI) const
 {
-  // bool m_WeightTp;
   pI->set_name(getLayerName());
-  pI->set_type(tg::bm1880::Insn::GEMM);
-  auto *gemm = pI->mutable_gemm_param();
-  assert(m_MemOperands.size() == 4);
+  pI->set_type("bmnet_fc_fixed_forward_bmkernel");
   {
-    auto *input = gemm->mutable_input();
-    bm_asm::setDim(input, m_InRowNum, m_InColNum);
-    bm_asm::setMem(input, m_MemOperands.at(0), tg::bm1880::Operand::Int8);
-  }
-  {
-    auto *weight = gemm->mutable_weight();
-    bm_asm::setDim(weight, m_InColNum, m_OutColNum);
-    bm_asm::setMem(weight, m_MemOperands.at(1), tg::bm1880::Operand::Int8);
-    weight->set_transpose(m_WeightTp);
-  }
-  if (m_HaveBias) {
-    auto *bias = gemm->mutable_bias();
-    bm_asm::setDim(bias, m_InRowNum, m_OutColNum);
-    bm_asm::setMem(bias, m_MemOperands.at(2), tg::bm1880::Operand::Int16);
-  }
-  {
-    auto *output = gemm->mutable_output();
-    bm_asm::setDim(output, m_InRowNum, m_OutColNum);
-    bm_asm::setMem(output, m_MemOperands.at(3), tg::bm1880::Operand::Int8);
+    auto *gemm = pI->mutable_fc();
+    gemm->set_bottom_data_gaddr(m_MemOperands[0]->m_Addr);
+    gemm->set_weight_data_gaddr(m_MemOperands[1]->m_Addr);
+    gemm->set_bias_data_gaddr(m_MemOperands[2]->m_Addr);
+    gemm->set_top_data_gaddr(m_MemOperands[3]->m_Addr);
+    gemm->set_input_row_num(m_InRowNum);
+    gemm->set_input_col_num(m_InColNum);
+    gemm->set_weight_col_num(m_OutColNum);
+    gemm->set_have_bias(m_HaveBias);
+    gemm->set_weight_transpose(m_WeightTp);
+    gemm->set_right_shift_width(m_RShiftWidth);
   }
 }
 

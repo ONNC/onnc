@@ -73,48 +73,26 @@ void TGMaxPool::emit() const
 void TGMaxPool::toASM(tg::bm1880::Insn *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type(tg::bm1880::Insn::MaxPool);
+  pI->set_type("bmnet_pooling_fixed_forward_bmkernel");
   {
-    auto *max_pool = pI->mutable_max_pool_param();
-    {
-      auto *input = max_pool->mutable_input();
-      input->set_n(m_N);
-      input->set_c(m_C);
-      input->set_h(m_H);
-      input->set_w(m_W);
-      auto *m = m_MemOperands.at(0);
-      input->set_addr(m->m_Addr);
-      input->set_type(tg::bm1880::Operand::Int8);
-      assert(m->m_Size == m->m_Count * 1);
-      input->set_count(m->m_Count);
-    }
-    {
-      auto *output = max_pool->mutable_output();
-      auto *m = m_MemOperands.at(1);
-      output->set_addr(m->m_Addr);
-      output->set_type(tg::bm1880::Operand::Int8);
-      assert(m->m_Size == m->m_Count * 1);
-      output->set_count(m->m_Count);
-    }
-    {
-      auto *k = max_pool->mutable_kernel();
-      k->set_h(m_KH);
-      k->set_w(m_KW);
-    }
-    {
-      auto *p = max_pool->mutable_pad();
-      p->set_h(m_PadH);
-      p->set_w(m_PadW);
-    }
-    {
-      auto *s = max_pool->mutable_stride();
-      s->set_h(m_StrideH);
-      s->set_w(m_StrideW);
-    }
-    {
-      auto *cal = max_pool->mutable_ctable();
-      cal->set_right_shift_width(m_RShiftWidth);
-    }
+    auto *pool = pI->mutable_pooling();
+    pool->set_ifmap_gaddr(m_MemOperands[0]->m_Addr);
+    pool->set_ofmap_gaddr(m_MemOperands[1]->m_Addr);
+    pool->set_n(m_N);
+    pool->set_c(m_C);
+    pool->set_h(m_H);
+    pool->set_w(m_W);
+    pool->set_kh(m_KH);
+    pool->set_kw(m_KW);
+    pool->set_pad_h(m_PadH);
+    pool->set_pad_w(m_PadW);
+    pool->set_stride_h(m_StrideH);
+    pool->set_stride_w(m_StrideW);
+    pool->set_is_avg_pooling(0);
+    pool->set_avg_const(0.0f);
+    pool->set_do_relu(0);
+    pool->set_right_shift_width(m_RShiftWidth);
+    pool->set_threshold_x_quantized(m_ThresholdXQuantized);
   }
 }
 
