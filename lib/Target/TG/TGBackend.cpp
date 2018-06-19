@@ -85,10 +85,12 @@ size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType pType)
   return 0;
 }
 
-const std::string &TGBackend::getCtable(const Module &pModule)
+std::string TGBackend::getCtable(const Module &pModule)
 {
-  auto &ctable = pModule.getMetaData().at(getCtableName());
-  return ctable;
+  auto &meta_data = pModule.getMetaData();
+  if (meta_data.find(getCtableName()) == meta_data.end())
+    return std::string();
+  return meta_data.at(getCtableName());
 }
 
 void TGBackend::setCtableProto(const std::string &pTextString)

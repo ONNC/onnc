@@ -44,6 +44,7 @@ private:
   TargetTransformInfo *m_pTTI; // NOLINT
 };
 
+ModulePass *createPrepareCtablePass(BM1880Backend *pBackend);
 ModulePass *createUpdateCtablePass(BM1880Backend *pBackend);
 
 } // namespace onnc

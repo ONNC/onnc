@@ -5,28 +5,15 @@
 
 namespace onnc {
 
-void BM188xFuseOptimizer::PrepareFuseOptimizer(Module &pModule)
-{
-  if (m_p1880backend->getOption().IgnoreCalibrationStep) {
-    m_EnableCtable = false;
-  }
-  if (m_EnableCtable) {
-    auto &ctable = m_p1880backend->getCtable(pModule);
-    m_p1880backend->setCtableProto(ctable);
-  }
-}
-
 void BM188xFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
                                        ::onnx::Node *pGemmNode,
                                        ::onnx::Node *pReluNode)
 {
   // TODO quantized and update ctable
-  if (m_EnableCtable) {
-    std::string layerName = pGemmNode->output()->uniqueName();
-    tg::bm1880::LayerCalibrationParameter *layerCtable =
-        m_p1880backend->getMutableLayerCtable(layerName);
-    DEBUG(dbgs() << "get ctable:" << layerCtable->DebugString(););
-  }
+  std::string layerName = pGemmNode->output()->uniqueName();
+  tg::bm1880::LayerCalibrationParameter *layerCtable =
+      m_p1880backend->getMutableLayerCtable(layerName);
+  DEBUG(dbgs() << "get ctable:" << layerCtable->DebugString(););
   // do fuse
   TGFuseOptimizer::FuseGemmRelu(pGraph, pGemmNode, pReluNode);
 }
