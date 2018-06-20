@@ -13,8 +13,8 @@ using namespace onnc;
 
 // BM1680
 BM1680Backend::BM1680Backend(const TargetOptions &pOptions)
-    : TGBackend(new BM168xFuseOptimizer(this), new BM168xTargetLowering(this),
-                new BM168xCodeEmitter(this), pOptions)
+    : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
+                pOptions)
 {
 }
 
@@ -27,11 +27,15 @@ bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
   }
   return false;
 }
+std::unique_ptr<TGFuseOptimizer> BM1680Backend::getFuseOptimizr()
+{
+  return std::make_unique<BM168xFuseOptimizer>(this);
+}
 
 // BM1682
 BM1682Backend::BM1682Backend(const TargetOptions &pOptions)
-    : TGBackend(new BM168xFuseOptimizer(this), new BM168xTargetLowering(this),
-                new BM168xCodeEmitter(this), pOptions)
+    : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
+                pOptions)
 {
 }
 
@@ -43,4 +47,8 @@ bool BM1682Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
     return true;
   }
   return false;
+}
+std::unique_ptr<TGFuseOptimizer> BM1682Backend::getFuseOptimizr()
+{
+  return std::make_unique<BM168xFuseOptimizer>(this);
 }

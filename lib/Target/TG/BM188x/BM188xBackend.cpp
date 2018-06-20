@@ -18,8 +18,8 @@ using namespace onnc;
 
 // BM1880
 BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
-    : TGBackend(new BM188xFuseOptimizer(this), new BM188xISelLowering(this),
-                new BM188xCodeEmitter(this), pOptions)
+    : TGBackend(new BM188xISelLowering(this), new BM188xCodeEmitter(this),
+                pOptions)
 {
   m_pMemInfo = new BM188xTargetMemInfo(this);
   m_pTTI = new BM188xTargetTransformInfo(this);
@@ -75,4 +75,8 @@ BM1880Backend::getLayerCtable(const std::string &pName)
     }
   }
   return nullptr;
+}
+std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
+{
+  return std::make_unique<BM188xFuseOptimizer>(this);
 }

@@ -33,7 +33,7 @@ const int GLOBAL_WEIGHT_TAG = 0x2;
 class TGBackend : public DLATargetBackend
 {
 public:
-  TGBackend(TGFuseOptimizer *pFO, TargetLowering *pTLI, TGCodeEmitter *pCE,
+  TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
             const TargetOptions &pOptions);
 
   ~TGBackend() override;
@@ -62,7 +62,7 @@ public:
 
   TGCodeEmitter *getTargetCodeEmitter() { return m_pCE; }
 
-  TGFuseOptimizer *getFuseOptimizr() { return m_pFO; }
+  virtual std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() = 0;
 
   // default sizeof function
   virtual size_t sizeOfTensorType(::onnx::TensorProto_DataType pType);
@@ -85,7 +85,6 @@ public:
 private:
   std::vector<std::unique_ptr<ComputeOperator2> > m_Instructions;
   std::vector<MemOperand *> m_MemOperands;
-  TGFuseOptimizer *m_pFO; // NOLINT
   TargetLowering *m_pTLI; // NOLINT
   TGCodeEmitter *m_pCE;   // NOLINT
   Path m_OutputPath;

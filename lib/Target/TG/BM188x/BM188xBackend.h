@@ -38,6 +38,7 @@ public:
   const tg::bm1880::LayerCalibrationParameter *
   getLayerCtable(const std::string &pName);
   const TargetTransformInfo *getTTI() const override { return m_pTTI; }
+  std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
 
 private:
   tg::bm1880::NetCalibrationParameter m_NetCtableParam;

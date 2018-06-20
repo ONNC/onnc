@@ -21,10 +21,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // TGBackend
 //===----------------------------------------------------------------------===//
-TGBackend::TGBackend(TGFuseOptimizer *pFO, TargetLowering *pTLI,
-                     TGCodeEmitter *pCE, const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_pFO(pFO), m_pTLI(pTLI), m_pCE(pCE),
-      m_Options(pOptions)
+TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
+                     const TargetOptions &pOptions)
+    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE), m_Options(pOptions)
 {
 }
 
@@ -33,7 +32,6 @@ TGBackend::~TGBackend()
   for (auto &memOp : m_MemOperands) {
     delete (memOp);
   }
-  delete m_pFO;
   delete m_pTLI;
   delete m_pCE;
 }

@@ -27,6 +27,7 @@ public:
   {
     return std::string("BM1680Backend");
   };
+  std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
 };
 
 class BM1682Backend : public TGBackend
@@ -39,6 +40,7 @@ public:
   {
     return std::string("BM1682Backend");
   };
+  std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
 };
 
 } // namespace onnc

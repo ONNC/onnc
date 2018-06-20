@@ -25,7 +25,7 @@ private:
 
 Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
 {
-  TGFuseOptimizer *TFO = m_pTarget->getFuseOptimizr();
+  auto TFO = m_pTarget->getFuseOptimizr();
   TFO->PrepareFuseOptimizer(pModule);
   onnx::Graph *graph = pModule.getGraphIR().get();
   bool changed = TFO->FuseOptimization(graph);
