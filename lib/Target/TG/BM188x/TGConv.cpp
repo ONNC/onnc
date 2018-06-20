@@ -208,10 +208,8 @@ void TGConv::toASM(tg::bm1880::Inst *pI) const
     conv->set_do_bn(m_DoBias);
     conv->set_do_scale(0);
     conv->set_do_scale_bias(0);
-    conv->set_do_activation(0);
     conv->set_bn_scale(0);
     conv->set_bn_eps(0);
-    conv->set_activation_method(0);
     conv->set_activation_ga_slope(0);
     conv->set_activation_channel_shared(0);
     conv->set_activation_gt_scale(0);

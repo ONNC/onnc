@@ -104,6 +104,8 @@ void TGGemm::toASM(tg::bm1880::Inst *pI) const
     gemm->set_have_bias(m_HaveBias);
     gemm->set_weight_transpose(m_WeightTp);
     gemm->set_right_shift_width(m_RShiftWidth);
+    gemm->set_do_activation(m_EnableRelu);
+    gemm->set_activation_method(tg::bm1880::Inst::RELU);
   }
 }
 
