@@ -20,6 +20,12 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseChannelWiseMulAdd(pGraph, node, next(node));
       return true;
     }
+    if (match(node, mSymbol("BatchNormalization")) and
+        match(next(node), mSymbol("Scale"), mAttr("axis", 1),
+              mTrueAttr("broadcast"))) {
+      FuseBNScale(pGraph, node, next(node));
+      return true;
+    }
   }
   return false;
 }
@@ -40,6 +46,7 @@ onnx::Node *TGFuseOptimizer::Fuse(::onnx::Node *pA, ::onnx::Node *pB)
   pB->destroy();
   return pA;
 }
+
 void TGFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
                                    ::onnx::Node *pGemmNode,
                                    ::onnx::Node *pReluNode)
@@ -60,4 +67,25 @@ void TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
   pAddNode->replaceAllUsesWith(scale_node);
   pAddNode->destroy();
   pMulNode->destroy();
+}
+
+void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
+                                  onnx::Node *pScaleNode)
+{
+  onnx::Node *scale_node = pGraph->create(onnx::Symbol("Scale"));
+  // TODO recalculate weight by bn + scale -> scale
+  scale_node->addInput(pBNNode->inputs()[0]);
+  scale_node->addInput(pBNNode->inputs()[1]);
+  scale_node->addInput(pBNNode->inputs()[2]);
+  scale_node->output()->copyMetadata(pBNNode->output());
+  scale_node->copyAttributes(*pScaleNode);
+  scale_node->insertBefore(pBNNode);
+  pScaleNode->replaceAllUsesWith(scale_node);
+  // remove unused initializer
+  pGraph->eraseInitializer(pBNNode->inputs()[2]->uniqueName());
+  pGraph->eraseInitializer(pBNNode->inputs()[3]->uniqueName());
+  pGraph->eraseInitializer(pScaleNode->inputs()[0]->uniqueName());
+  pGraph->eraseInitializer(pScaleNode->inputs()[1]->uniqueName());
+  pScaleNode->destroy();
+  pBNNode->destroy();
 }
