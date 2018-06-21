@@ -14,6 +14,13 @@ template <typename Val, typename Pattern> bool match(Val *pV, const Pattern &pP)
     return false;
   return const_cast<Pattern &>(pP).match(pV);
 }
+
+template <typename Val, typename Pattern, typename... Patterns>
+bool match(Val *pV, const Pattern &pP, const Patterns &... pPs)
+{
+  return match(pV, pP) and match(pV, pPs...);
+}
+
 struct matchSymbol {
   onnx::Symbol m_Symbol;
   matchSymbol(const std::string &pSym) : m_Symbol(pSym) {}
