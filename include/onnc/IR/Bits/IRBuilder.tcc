@@ -16,6 +16,14 @@ OpType* IRBuilder::AddComputeOp(CtorParams&& ... pParams)
   return op;
 }
 
+template<typename OpType, typename ... CtorParams>
+OpType* IRBuilder::AddComputeOp(const ::onnx::Node& pNode, CtorParams&& ... pParams)
+{
+  OpType* op = AddComputeOp<OpType>(pParams...);
+  op->connect(pNode);
+  return op;
+}
+
 template<typename OpndType, typename OpType, typename ... CtorParams> OpndType*
 IRBuilder::AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams)
 {

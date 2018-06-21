@@ -82,7 +82,8 @@ public:
 
   UseList& getUses() { return m_UseList; }
 
-  void replaceAllUsesWith(Value *v);
+  /// replace all uses of this value to @ref pValue 
+  void replaceAllUsesWith(Value& pValue);
 
   void adapt(::onnx::Tensor& pAdaptee);
 

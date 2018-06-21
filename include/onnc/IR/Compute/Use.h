@@ -11,29 +11,46 @@
 
 namespace onnc {
 
-class Operator;
+class ComputeOperator;
 class Value;
 
 /** \class Use
  *  \brief Use represents an edge between its users and definition.
  *
- *  Unlike conventional compiler, inneural network, an operator may have
+ *  Unlike conventional compiler, in neural network, an operator may have
  *  multiple operands, thus, we need two fields - getUser() and getOperandNo()
- *  to locate one operand.
+ *  to locate one operand. An use represents certain input Value object of
+ *  a ComputeOperator.
  */
 class Use
 {
 public:
-  Value *get();
+  /// create a use pointing to number @ref pIdx input value of operator @ref pOp
+  /// If @ref pIdx is out of range of @ref pOperator's input value, than an fatal
+  /// error occurs.
+  Use(ComputeOperator& pOperator, unsigned int pIdx);
 
-  Operator *getUser();
+  ~Use() { }
 
-  unsigned getOperandNo() const;
+  /// get the concert value.
+  onnc::Value* get() { return m_pValue; }
+
+  /// get the concert value.
+  const onnc::Value* get() const { return m_pValue; }
+
+  /// The user operator.
+  ComputeOperator* getUser() { return m_pUser; }
+
+  /// The user operator.
+  const ComputeOperator* getUser() const { return m_pUser; }
+
+  /// The index of input values of the user operator.
+  unsigned int getOperandNo() const { return m_OperandNo; }
 
 private:
-  Operator *m_User;
+  ComputeOperator* m_pUser;
   unsigned int m_OperandNo;
-  Value *m_Value;
+  onnc::Value *m_pValue;
 };
 
 } // namespace of onnc
