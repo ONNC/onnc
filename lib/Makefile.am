@@ -100,6 +100,7 @@ ONNC_SOURCES = \
   Diagnostic/StreamLog.cpp \
 	Config/AboutLicense.cpp \
 	Config/AboutData.cpp \
+  ONNXWrapper/ONNXWrapper.cpp \
   Option/Alias.cpp \
   Option/CommandLine.cpp \
   Option/OptDefs.cpp \
