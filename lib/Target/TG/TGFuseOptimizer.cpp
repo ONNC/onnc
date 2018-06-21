@@ -61,7 +61,7 @@ void TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
   onnx::Node *scale_node =
       pGraph->create(onnx::Symbol("Scale"), pMulNode->inputs());
   scale_node->addInput(pAddNode->inputs()[1]);
-  scale_node->output()->copyMetadata(pMulNode->output());
+  scale_node->output()->copyMetadata(pAddNode->output());
   scale_node->copyAttributes(*pMulNode);
   scale_node->insertBefore(pMulNode);
   pAddNode->replaceAllUsesWith(scale_node);
@@ -77,7 +77,7 @@ void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
   scale_node->addInput(pBNNode->inputs()[0]);
   scale_node->addInput(pBNNode->inputs()[1]);
   scale_node->addInput(pBNNode->inputs()[2]);
-  scale_node->output()->copyMetadata(pBNNode->output());
+  scale_node->output()->copyMetadata(pScaleNode->output());
   scale_node->copyAttributes(*pScaleNode);
   scale_node->insertBefore(pBNNode);
   pScaleNode->replaceAllUsesWith(scale_node);

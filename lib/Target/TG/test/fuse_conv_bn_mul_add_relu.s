@@ -1,5 +1,5 @@
 #; RUN : onnx-as fuse_conv_bn_mul_add_relu.s | onnx2tg -march bm1880 -ignore-calibration-step -print-module-before-isel | FileCheck fuse_conv_bn_mul_add_relu.s
-#; CHECK: FLOAT tensor <4, 64, 112, 112> %bn_conv1_1 = Scale <axis:INT 1, broadcast:INT 1> (FLOAT tensor <4, 64, 112, 112> %conv1_1, FLOAT tensor <64> %bn_conv1_scale_0, FLOAT tensor <64> %bn_conv1_bias_0)
+#; CHECK: FLOAT tensor <4, 64, 112, 112> %scale_conv1_1 = Scale <axis:INT 1, broadcast:INT 1> (FLOAT tensor <4, 64, 112, 112> %conv1_1, FLOAT tensor <64> %bn_conv1_scale_0, FLOAT tensor <64> %bn_conv1_bias_0)
 
 ir_version: 3
 producer_name: "onnx-caffe2"
