@@ -59,9 +59,10 @@ ComputeOperator2 *BM188xISelLowering::LowerSum(const ::onnx::Node &pNode,
   std::vector<MemOperand *> vInput;
   int input_size = pNode.inputs().size();
 
-  for (int i = 0; i < input_size - 1; ++i)
+  for (int i = 0; i < input_size; ++i) {
     vInput.push_back(
         m_pBackend->getMemOperand(pNode.inputs()[i], MemType::NEURON));
+  }
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGSum(pNode);
   return op->addMemOperands(vInput, output);
