@@ -25,6 +25,8 @@ public:
 protected:
   virtual void FuseGemmRelu(::onnx::Graph *pGraph, ::onnx::Node *pGemmNode,
                             ::onnx::Node *pReluNode);
+  virtual void FuseChannelWiseMulAdd(onnx::Graph *pGraph, onnx::Node *pMulNode,
+                                     onnx::Node *pAddNode);
 
 private:
   bool FuseNodes(::onnx::Graph *pGraph);

@@ -9,8 +9,17 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
   for (auto it = pGraph->begin(); it != pGraph->end(); ++it) {
     auto *node = *it;
     if (match(node, mSymbol("Gemm"), mFalseAttr("enableReLu")) and
-        match(next(node), mSymbol("Relu")))
+        match(next(node), mSymbol("Relu"))) {
       FuseGemmRelu(pGraph, node, next(node));
+      return true;
+    }
+    if (match(node, mSymbol("Mul"), mAttr("axis", 1),
+              mTrueAttr("broadcast")) and
+        match(next(node), mSymbol("Add"), mAttr("axis", 1),
+              mTrueAttr("broadcast"))) {
+      FuseChannelWiseMulAdd(pGraph, node, next(node));
+      return true;
+    }
   }
   return false;
 }
@@ -36,4 +45,19 @@ void TGFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
                                    ::onnx::Node *pReluNode)
 {
   Fuse(pGemmNode, pReluNode)->i_(::onnx::Symbol("enableReLu"), 1);
+}
+
+void TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
+                                            onnx::Node *pMulNode,
+                                            onnx::Node *pAddNode)
+{
+  onnx::Node *scale_node =
+      pGraph->create(onnx::Symbol("Scale"), pMulNode->inputs());
+  scale_node->addInput(pAddNode->inputs()[1]);
+  scale_node->output()->copyMetadata(pMulNode->output());
+  scale_node->copyAttributes(*pMulNode);
+  scale_node->insertBefore(pMulNode);
+  pAddNode->replaceAllUsesWith(scale_node);
+  pAddNode->destroy();
+  pMulNode->destroy();
 }
