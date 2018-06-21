@@ -1,4 +1,4 @@
-//===- Relu.cpp ------------------------------------------------===//
+//===- Relu.cpp -----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -15,8 +15,6 @@ using namespace onnc;
 Relu::Relu()
   : ComputeOperator("Relu") {
 }
-
-
 
 void Relu::print(std::ostream& pOS) const
 {
