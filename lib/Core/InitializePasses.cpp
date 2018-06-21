@@ -18,3 +18,8 @@ void onnc::InitializeAnalysis(PassRegistry& pRegistry)
   InitializeMemoryAllocationPass(pRegistry);
   InitializeUpdateGraphOutputSizePass(pRegistry);
 }
+
+void onnc::InitializeAnalysisPassOptions()
+{
+  InitializeUpdateGraphOutputSizePassOptions();
+}

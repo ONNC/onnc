@@ -8,7 +8,7 @@
 #include "ONNX2TGApp.h"
 #include <iostream>
 #include <onnc/ADT/Color.h>
-#include <onnc/IR/ONNCOptions.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Support/Debug.h>
 #include <onnc/Support/IOStream.h>
@@ -68,7 +68,7 @@ static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
 int main(int pArgc, char *pArgv[])
 {
   ENABLE_DEBUG();
-  ENABLE_ONNC_OPTIONS();
+  InitializeAnalysisPassOptions();
   ONNX2TG onnx2tg(pArgc, pArgv);
   if (OptHelp) {
     std::cout << HelpManual;

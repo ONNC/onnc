@@ -7,22 +7,19 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Core/ModulePass.h>
-#include <onnc/IR/IRBuilder.h>
-#include <onnc/IR/ONNCOptions.h>
 #include <onnc/IR/ONNXUtils.h>
+#include <onnc/ONNXWrapper/ONNXWrapper.h>
+#include <onnc/Option/CommandLine.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/checker.h>
-#include <onnx/shape_inference/implementation.h>
 
-using TensorSizes = std::vector<::onnx::Dimension>;
-using TP_DataTy = ::onnx::TensorProto_DataType;
+typedef std::vector<::onnx::Dimension> TensorSizes;
+typedef ::onnx::TensorProto_DataType TP_DataTy;
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-
 static void UpdateOutputInfo(::onnx::Node *pNode, const TensorSizes &pSize,
                              TP_DataTy pTy)
 {
@@ -32,6 +29,20 @@ static void UpdateOutputInfo(::onnx::Node *pNode, const TensorSizes &pSize,
   }
 }
 
+//===----------------------------------------------------------------------===//
+// Options
+//===----------------------------------------------------------------------===//
+static unsigned int getBatchSize()
+{
+  static cl::opt<unsigned int> batch_size(
+      "batch-size", cl::kShort, cl::kOptional, cl::kValueRequired, cl::init(0),
+      cl::desc("specific input batch size"));
+  return batch_size;
+}
+
+//===----------------------------------------------------------------------===//
+// UpdateGraphOutputSize
+//===----------------------------------------------------------------------===//
 void UpdateGraphOutputSize::updateReshapeOutputInfo(::onnx::Node *pNode)
 {
   // second input is a shape tensor
@@ -68,7 +79,7 @@ void UpdateGraphOutputSize::updateReshapeOutputInfo(::onnx::Node *pNode)
 //===----------------------------------------------------------------------===//
 UpdateGraphOutputSize::UpdateGraphOutputSize()
   : ModulePass(ID) {
-  m_BatchSize = ONNCOptions::getBatchSize();
+  m_BatchSize = getBatchSize();
 }
 
 void UpdateGraphOutputSize::updateInputBatchSize(onnx::Graph *pGraph)
@@ -127,19 +138,7 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
     }
   }
 
-  // use onnx official shape inference implementation
-  ::onnx::ModelProto modelProto;
-  ::onnc::ExportModelProto(modelProto, pModule);
-  try {
-    ::onnx::checker::check_model(modelProto);
-  } catch (::onnx::checker::ValidationError &e) {
-    std::cerr << e.what() << std::endl
-              << "ONNXShapeInference pass is not workable!!" << std::endl;
-    return Pass::kModuleNoChanged;
-  }
-  ::onnx::shape_inference::InferShapes(modelProto);
-  ::onnc::IRBuilder ir_b(pModule);
-  ir_b.update(modelProto);
+  onnxInferShape(pModule);
 
   return Pass::kModuleChanged;
 }
@@ -152,6 +151,13 @@ char UpdateGraphOutputSize::ID = 0;
 namespace onnc
 {
   INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
+  void InitializeUpdateGraphOutputSizePassOptions();
+}
+
+void onnc::InitializeUpdateGraphOutputSizePassOptions()
+{
+  // initialisze all options of UpdateGraphOutputSize pass.
+  getBatchSize();
 }
 
 UpdateGraphOutputSize *onnc::CreateUpdateGraphOutputSizePass()
