@@ -86,11 +86,11 @@ inline match_combine_and<LTy, RTy> m_CombineAnd(const LTy &pL, const RTy &pR)
 template <typename T> struct matchAttr {
   static_assert(sizeof(T) == -1, "error: unsupported type");
 };
-#define CREATE_ACCESSOR(Kind, method)                                          \
-  template <> struct matchAttr<onnx::Kind##Attr::ValueType> {                  \
+#define CREATE_ACCESSOR_BASE(Kind, method, Kind_T)                             \
+  template <> struct matchAttr<Kind_T> {                                       \
     std::string m_Name;                                                        \
     onnx::Kind##Attr::ValueType m_Value;                                       \
-    matchAttr(const std::string &pName, onnx::Kind##Attr::ValueType pV)        \
+    matchAttr(const std::string &pName, Kind_T pV)                             \
         : m_Name(pName), m_Value(pV)                                           \
     {                                                                          \
     }                                                                          \
@@ -104,6 +104,8 @@ template <typename T> struct matchAttr {
       return true;                                                             \
     }                                                                          \
   };
+#define CREATE_ACCESSOR(Kind, method)                                          \
+  CREATE_ACCESSOR_BASE(Kind, method, onnx::Kind##Attr::ValueType)
 CREATE_ACCESSOR(Float, f)
 CREATE_ACCESSOR(Floats, fs)
 CREATE_ACCESSOR(String, s)
@@ -113,6 +115,11 @@ CREATE_ACCESSOR(Ints, is)
 CREATE_ACCESSOR(Graph, g)
 CREATE_ACCESSOR(Graphs, gs)
 
+CREATE_ACCESSOR_BASE(Float, f, float)
+CREATE_ACCESSOR_BASE(String, s, const char *)
+CREATE_ACCESSOR_BASE(Int, i, int32_t)
+
+#undef CREATE_ACCESSOR_BASE
 #undef CREATE_ACCESSOR
 template <typename T> matchAttr<T> mAttr(const std::string &pName, T pV)
 {
