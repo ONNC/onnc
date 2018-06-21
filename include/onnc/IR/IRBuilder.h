@@ -142,7 +142,7 @@ public:
     if (!hasComputeGraph())
       return nullptr;
 
-    OpType* op = getComputeGraph()->addOperator(pParams...);
+    OpType* op = getComputeGraph()->addOperator<OpType>(pParams...);
     RegisterComputeOperator(op);
     return op;
   }
