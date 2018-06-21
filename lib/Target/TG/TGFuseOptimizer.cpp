@@ -8,7 +8,9 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
 
   for (auto it = pGraph->begin(); it != pGraph->end(); ++it) {
     auto *node = *it;
-    if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu")))
+    if (match(node, mSymbol("Gemm")) and
+        match(node, mFalseAttr("enableReLu")) and
+        match(next(node), mSymbol("Relu")))
       FuseGemmRelu(pGraph, node, next(node));
   }
   return false;
