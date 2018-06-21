@@ -16,7 +16,10 @@ ComputeOperator2 *BM188xISelLowering::LowerConv(const ::onnx::Node &pNode,
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
-  auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
+  auto *bias =
+      (pNode.inputs().size() == 3)
+          ? m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT)
+          : nullptr;
   auto *op = new BM188X::TGConv(pNode);
   return op->addMemOperands(input, output, weight, bias);
 }

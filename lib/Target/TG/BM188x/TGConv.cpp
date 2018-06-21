@@ -57,7 +57,9 @@ TGConv *TGConv::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
   m_MemOperands.push_back(pInput);
   m_MemOperands.push_back(pWeight);
   m_MemOperands.push_back(pOutput);
-  m_MemOperands.push_back(pBias);
+  if (pBias != nullptr) {
+    m_MemOperands.push_back(pBias);
+  }
   return this;
 }
 
