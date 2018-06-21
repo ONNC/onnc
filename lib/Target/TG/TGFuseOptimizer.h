@@ -31,6 +31,9 @@ protected:
   virtual void FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
                            onnx::Node *pScaleNode);
 
+  virtual void FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
+                             onnx::Node *pScaleNode);
+
 private:
   bool FuseNodes(::onnx::Graph *pGraph);
 

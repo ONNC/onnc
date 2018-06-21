@@ -26,6 +26,12 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseBNScale(pGraph, node, next(node));
       return true;
     }
+    if (match(node, mSymbol("Conv")) and
+        match(next(node), mSymbol("Scale"), mAttr("axis", 1),
+              mTrueAttr("broadcast"))) {
+      FuseConvScale(pGraph, node, next(node));
+      return true;
+    }
   }
   return false;
 }
@@ -88,4 +94,16 @@ void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
   pGraph->eraseInitializer(pScaleNode->inputs()[1]->uniqueName());
   pScaleNode->destroy();
   pBNNode->destroy();
+}
+
+void TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
+                                    onnx::Node *pScaleNode)
+{
+  pConvNode->addInput(pScaleNode->inputs()[1]);
+  pConvNode->addInput(pScaleNode->inputs()[2]);
+  pConvNode->i_(onnx::Symbol("do_scale"), 1)
+      ->i_(onnx::Symbol("do_scale_bias"), 1);
+  pConvNode->output()->copyMetadata(pScaleNode->output());
+  pScaleNode->replaceAllUsesWith(pConvNode);
+  pScaleNode->destroy();
 }
