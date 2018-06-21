@@ -20,6 +20,9 @@ public:
 
   bool FuseOptimization(onnx::Graph *pGraph);
 
+  static onnx::Node *Fuse(::onnx::Node *pA, ::onnx::Node *pB);
+
+protected:
   virtual void FuseGemmRelu(::onnx::Graph *pGraph, ::onnx::Node *pGemmNode,
                             ::onnx::Node *pReluNode);
 
