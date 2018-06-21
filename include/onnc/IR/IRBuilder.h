@@ -146,6 +146,15 @@ public:
     RegisterComputeOperator(op);
     return op;
   }
+
+  template<typename OpndType, typename OpType, typename ... CtorParams>
+  OpndType* AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams) {
+    if (!hasComputeGraph())
+      return nullptr;
+
+    OpndType* opnd = getComputeGraph()->addOperand<OpndType>(pFrom, pTo, pParams...);
+    return opnd;
+  }
 };
 
 } // namespace onnc

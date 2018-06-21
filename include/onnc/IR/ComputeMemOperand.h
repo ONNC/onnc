@@ -27,7 +27,11 @@ public:
     : m_Start(pStart), m_Length(pLength) {
   }
 
+  void setStart(uint32_t pStart) { m_Start = pStart; }
+
   uint32_t start() const { return m_Start; }
+
+  void setLength(uint32_t pLen) { m_Length = pLen; }
 
   uint32_t length() const { return m_Length; }
 

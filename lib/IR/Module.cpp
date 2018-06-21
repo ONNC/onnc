@@ -164,12 +164,14 @@ const ComputeGraph* Module::getComputeGraph(StringRef pName) const
 
 ComputeGraph* Module::createComputeGraph(StringRef pName)
 {
+  // Note: there are two instances of the graph name.
+  // One is in m_ComputeGraphs, another is in ComputeGraph object
   bool exist = false;
   ComputeGraphList::entry_type* entry = m_ComputeGraphs.insert(pName, exist);
   if (exist)
     return nullptr;
 
-  entry->setValue(new ComputeGraph(*this, m_ComputeOperands));
+  entry->setValue(new ComputeGraph(pName, *this, m_ComputeOperands));
   return entry->value();
 }
 

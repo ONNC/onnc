@@ -14,6 +14,7 @@
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/Compute/ATen.h>
 #include <ostream>
 #include <string>
 
@@ -68,6 +69,7 @@ SKYPAT_F(ComputeIRTest, add_compute_op)
 {
   onnc::Module module;
   IRBuilder builder(module);
+
   builder.CreateComputeGraph("top-level");
   ComputeOperator* op1 = builder.AddComputeOp<Conv>();
   ASSERT_TRUE(op1->name().equals("Conv"));
@@ -77,4 +79,45 @@ SKYPAT_F(ComputeIRTest, add_compute_op)
   ComputeOperator* op2 = builder.AddComputeOp<Relu>();
   ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
   ASSERT_TRUE(op2->name().equals("Relu"));
+
+  ATen* op3 = builder.AddComputeOp<ATen>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 3);
+  ASSERT_TRUE(op3->name().equals("ATen"));
+  
+  module.getComputeGraph("top-level")->erase(*op1);
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
+
+  module.getComputeGraph("top-level")->clear();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
+}
+
+SKYPAT_F(ComputeIRTest, add_compute_opnd)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+
+  builder.CreateComputeGraph("top-level");
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+  ASSERT_TRUE(op1->name().equals("Conv"));
+
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 1);
+
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
+  ASSERT_TRUE(op2->name().equals("Relu"));
+
+  ATen* op3 = builder.AddComputeOp<ATen>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 3);
+  ASSERT_TRUE(op3->name().equals("ATen"));
+  
+  ComputeMemOperand* opnd1
+      = builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op2, 0x11, 20);
+
+  EXPECT_TRUE(builder.getComputeGraph()->name() == "top-level");
+  ASSERT_EQ(opnd1->start(), 0x11);
+  ASSERT_EQ(opnd1->length(), 20);
+  ASSERT_EQ(builder.getComputeGraph()->getArcSize(), 1);
+
+  module.getComputeGraph("top-level")->clear();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
 }

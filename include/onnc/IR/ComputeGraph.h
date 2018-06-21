@@ -46,9 +46,11 @@ public:
                                       ConstTraits<Node> > const_bfs_iterator;
 
 public:
-  ComputeGraph(Module& pModule, ArcList& pArcList);
+  ComputeGraph(const std::string& pName, Module& pModule, ArcList& pArcList);
 
   virtual ~ComputeGraph();
+
+  const std::string& name() const { return m_Name; }
 
   template<typename OpType, typename ... NodeCtorParams>
   OpType* addOperator(NodeCtorParams&& ... pParams);
@@ -79,6 +81,8 @@ public:
 
   unsigned int getNodeSize() const { return m_NodeList.size(); }
 
+  unsigned int getArcSize() const { return m_ArcList.size(); }
+
   iterator begin();
 
   iterator end();
@@ -108,6 +112,7 @@ private:
 
 private:
   Module& m_Module;
+  std::string m_Name;
   Node* m_pNodeHead;
   Node* m_pNodeRear;
   NodeList m_NodeList;

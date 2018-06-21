@@ -12,8 +12,11 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // ComputeGraph
 //===----------------------------------------------------------------------===//
-ComputeGraph::ComputeGraph(Module& pModule, ArcList& pArcList)
+ComputeGraph::ComputeGraph(const std::string& pName,
+                           Module& pModule,
+                           ArcList& pArcList)
   : m_Module(pModule),
+    m_Name(pName),
     m_pNodeHead(nullptr),
     m_pNodeRear(nullptr),
     m_NodeList(),
@@ -60,6 +63,9 @@ void ComputeGraph::erase(ComputeOperator& pNode)
 
   // 4. remove pNode from the node list
   m_NodeList.erase(&pNode);
+
+  // 5. remove the memory space since it's delegated.
+  delete &pNode;
 }
 
 void ComputeGraph::erase(ComputeOperand& pArc)
@@ -90,6 +96,9 @@ void ComputeGraph::erase(ComputeOperand& pArc)
 
   // 3. remove from the arc list
   m_ArcList.erase(&pArc);
+
+  // 4. remove the memory space since it is delegated.
+  delete &pArc;
 }
 
 void ComputeGraph::clear()
