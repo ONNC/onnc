@@ -13,6 +13,7 @@ ONNC_SOURCES = \
 	IR/Compute/Scalar.cpp \
 	IR/Compute/Tensor.cpp \
 	IR/Compute/Conv.cpp \
+	IR/Compute/Relu.cpp \
 	IR/Graph/Initializer.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \

@@ -11,6 +11,9 @@
 #include <onnc/IR/Compute/Attributes.h>
 #include <onnc/IR/Compute/Scalar.h>
 #include <onnx/common/tensor.h>
+#include <onnc/IR/IRBuilder.h>
+#include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/Compute/Relu.h>
 #include <ostream>
 #include <string>
 
@@ -53,4 +56,25 @@ SKYPAT_F(ComputeIRTest, scalar_test)
 
 SKYPAT_F(ComputeIRTest, tensor_test)
 {
+  Tensor a;
+  ASSERT_EQ(a.kind(), Value::kUndefined);
+
+  Int32Tensor b;
+  ASSERT_EQ(b.kind(), Value::kInt32);
+  ASSERT_EQ(b.getValues().size(), 0);
+}
+
+SKYPAT_F(ComputeIRTest, add_compute_op)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+  builder.CreateComputeGraph("top-level");
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+  ASSERT_TRUE(op1->name().equals("Conv"));
+
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 1);
+
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
+  ASSERT_TRUE(op2->name().equals("Relu"));
 }
