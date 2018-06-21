@@ -39,4 +39,5 @@ Conv::Conv(const StringAttr& pAutoPad,
 
 void Conv::print(std::ostream& pOS) const
 {
+  pOS << name();
 }

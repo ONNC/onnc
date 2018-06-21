@@ -15,6 +15,8 @@
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Relu.h>
 #include <onnc/IR/Compute/ATen.h>
+#include <onnc/IR/Compute/Abs.h>
+#include <onnc/Support/IOStream.h>
 #include <ostream>
 #include <string>
 
@@ -120,4 +122,81 @@ SKYPAT_F(ComputeIRTest, add_compute_opnd)
 
   module.getComputeGraph("top-level")->clear();
   ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
+}
+
+SKYPAT_F(ComputeIRTest, bfs_search)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+  builder.CreateComputeGraph("top-level");
+
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ComputeOperator* op3 = builder.AddComputeOp<ATen>();
+  ComputeOperator* op4 = builder.AddComputeOp<Abs>();
+  ComputeOperator* op5 = builder.AddComputeOp<Conv>();
+
+  //    op1       BFS: op1 - op2 - op3 - op4 - op5
+  //   /   \      DFS: op1 - op2 - op3 - op5 - op4
+  //  op2->op3
+  //  |     |
+  //  op4  op5
+  builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op2);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op3);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op2, *op3);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op2, *op4);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op3, *op5);
+
+  ComputeGraph::bfs_iterator i;
+  i = builder.getComputeGraph()->bfs_begin();
+  ASSERT_TRUE(i->name() == op1->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op2->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op3->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op4->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op5->name());
+  i.next();
+  ASSERT_TRUE(i == builder.getComputeGraph()->bfs_end());
+}
+
+SKYPAT_F(ComputeIRTest, dfs_search)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+  builder.CreateComputeGraph("top-level");
+
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ComputeOperator* op3 = builder.AddComputeOp<ATen>();
+  ComputeOperator* op4 = builder.AddComputeOp<Abs>();
+  ComputeOperator* op5 = builder.AddComputeOp<Conv>();
+
+  //    op1       BFS: op1 - op2 - op3 - op4 - op5
+  //   /   \      DFS: op1 - op2 - op3 - op5 - op4
+  //  op2->op3
+  //  |     |
+  //  op4  op5
+  builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op2);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op3);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op2, *op3);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op2, *op4);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op3, *op5);
+
+
+  ComputeGraph::dfs_iterator i;
+  i = builder.getComputeGraph()->dfs_begin();
+  ASSERT_TRUE(i->name() == op1->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op2->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op3->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op5->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op4->name());
+  i.next();
+  ASSERT_TRUE(i == builder.getComputeGraph()->dfs_end());
 }

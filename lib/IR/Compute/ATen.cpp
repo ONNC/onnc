@@ -18,5 +18,5 @@ ATen::ATen()
 
 void ATen::print(std::ostream& pOS) const
 {
-  // TODO
+  pOS << name();
 }

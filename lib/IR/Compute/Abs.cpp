@@ -1,4 +1,4 @@
-//===- Abs.cpp ------------------------------------------------===//
+//===- Abs.cpp ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -16,8 +16,7 @@ Abs::Abs()
   : ComputeOperator("Abs") {
 }
 
-
-
 void Abs::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
