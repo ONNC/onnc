@@ -1,20 +1,15 @@
 #include "TGFuseOptimizer.h"
+#include "PatternMatch.h"
 
 using namespace onnc;
-
+using namespace PatternMatch;
 bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
 {
-  for (auto it = pGraph->begin(), ie = pGraph->end(); it != ie; ++it) {
+
+  for (auto it = pGraph->begin(); it != pGraph->end(); ++it) {
     auto *node = *it;
-    auto symbol = node->kind();
-    if (symbol == ::onnx::Symbol("Gemm")) {
-      if (node->output()->uses().size() == 1 &&
-          node->output()->uses()[0].user->kind() == ::onnx::Symbol("Relu")) {
-        ::onnx::Node *relu_node = node->output()->uses()[0].user;
-        FuseGemmRelu(pGraph, node, relu_node);
-        return true;
-      }
-    }
+    if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu")))
+      FuseGemmRelu(pGraph, node, next(node));
   }
   return false;
 }
