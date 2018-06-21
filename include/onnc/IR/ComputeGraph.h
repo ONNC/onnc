@@ -13,6 +13,7 @@
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
+#include <set>
 
 namespace onnc {
 
@@ -22,6 +23,9 @@ class Module;
  */
 class ComputeGraph
 {
+public:
+  typedef std::unordered_set<ComputeOperand*> ArcList;
+
 public:
   typedef ComputeOperator Node;
   typedef ComputeOperand  Arc;
@@ -42,7 +46,7 @@ public:
                                       ConstTraits<Node> > const_bfs_iterator;
 
 public:
-  ComputeGraph(Module& pModule);
+  ComputeGraph(Module& pModule, ArcList& pArcList);
 
   virtual ~ComputeGraph();
 
@@ -100,15 +104,17 @@ public:
   const_bfs_iterator bfs_end() const;
 
 private:
-  typedef std::vector<Node*> NodeList;
+  typedef std::unordered_set<Node*> NodeList;
 
 private:
   Module& m_Module;
   Node* m_pNodeHead;
   Node* m_pNodeRear;
-  Node* m_pFreeNodeHead; //< list of free nodes
   NodeList m_NodeList;
+  ArcList& m_ArcList;
 };
+
+#include "Bits/ComputeGraph.tcc"
 
 } // namespace of onnc
 

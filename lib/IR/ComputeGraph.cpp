@@ -12,12 +12,12 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // ComputeGraph
 //===----------------------------------------------------------------------===//
-ComputeGraph::ComputeGraph(Module& pModule)
+ComputeGraph::ComputeGraph(Module& pModule, ArcList& pArcList)
   : m_Module(pModule),
     m_pNodeHead(nullptr),
     m_pNodeRear(nullptr),
-    m_pFreeNodeHead(nullptr),
-    m_NodeList() {
+    m_NodeList(),
+    m_ArcList(pArcList) {
 }
 
 ComputeGraph::~ComputeGraph()
@@ -58,12 +58,8 @@ void ComputeGraph::erase(ComputeOperator& pNode)
     fan_out = next_out;
   }
 
-  // 4. put pNode in the free node list
-  pNode.next = m_pFreeNodeHead;
-  pNode.prev = nullptr;
-  if (nullptr != m_pFreeNodeHead)
-    m_pFreeNodeHead->prev = &pNode;
-  m_pFreeNodeHead = &pNode;
+  // 4. remove pNode from the node list
+  m_NodeList.erase(&pNode);
 }
 
 void ComputeGraph::erase(ComputeOperand& pArc)
@@ -91,20 +87,27 @@ void ComputeGraph::erase(ComputeOperand& pArc)
   if (nullptr != pArc.next_in) {
     pArc.next_in->prev_in = pArc.prev_in;
   }
+
+  // 3. remove from the arc list
+  m_ArcList.erase(&pArc);
 }
 
 void ComputeGraph::clear()
 {
   m_pNodeHead = nullptr;
   m_pNodeRear = nullptr;
-  m_pFreeNodeHead = nullptr;
 
   // delete nodes only because operands are deleted in module.
-  typename NodeList::iterator node, nEnd = m_NodeList.end();
+  NodeList::iterator node, nEnd = m_NodeList.end();
   for (node = m_NodeList.begin(); node != nEnd; ++node)
     delete *node;
 
   m_NodeList.clear();
+
+  ArcList::iterator arc, aEnd = m_ArcList.end();
+  for (arc = m_ArcList.begin(); arc != aEnd; ++arc)
+    delete *arc;
+  m_ArcList.clear();
 }
 
 ComputeGraph::iterator ComputeGraph::begin()

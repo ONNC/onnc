@@ -169,7 +169,7 @@ ComputeGraph* Module::createComputeGraph(StringRef pName)
   if (exist)
     return nullptr;
 
-  entry->setValue(new ComputeGraph(*this));
+  entry->setValue(new ComputeGraph(*this, m_ComputeOperands));
   return entry->value();
 }
 

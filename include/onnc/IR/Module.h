@@ -29,7 +29,7 @@ public:
   typedef ComputeGraphList::iterator compute_iterator;
   typedef ComputeGraphList::const_iterator const_compute_iterator;
 
-  typedef std::vector<ComputeOperand*> ComputeOperandList;
+  typedef ComputeGraph::ArcList ComputeOperandList;
   typedef std::vector<onnc::Define*> ComputeDefineList;
 
   typedef std::map<std::string, int64_t> OpsetImport;
