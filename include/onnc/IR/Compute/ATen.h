@@ -1,4 +1,4 @@
-//===- ATen.h --------------------------------------------------===//
+//===- ATen.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -24,10 +24,8 @@ public:
 
 public:
   ATen();
-
   
   ~ATen() { }
-
   
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -45,14 +43,9 @@ public:
 
   void setOutput(size_t pIdx, Tensor& pTensor) { m_Outputs[kOutput + pIdx] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
-  void dump() const { print(errs()); }
-
-  void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
-
-private:
-  
+  void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 };
 
 } // namespace of onnc
