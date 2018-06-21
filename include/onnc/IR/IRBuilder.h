@@ -137,25 +137,17 @@ public:
     return *this;
   }
 
+  /// Create and add an compute operator in the compute graph.
   template<typename OpType, typename ... CtorParams>
-  OpType* AddComputeOp(CtorParams&& ... pParams) {
-    if (!hasComputeGraph())
-      return nullptr;
+  OpType* AddComputeOp(CtorParams&& ... pParams);
 
-    OpType* op = getComputeGraph()->addOperator<OpType>(pParams...);
-    RegisterComputeOperator(op);
-    return op;
-  }
-
+  /// Create and add an comute operand in the compute graph.
+  /// Two operators are connected as well.
   template<typename OpndType, typename OpType, typename ... CtorParams>
-  OpndType* AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams) {
-    if (!hasComputeGraph())
-      return nullptr;
-
-    OpndType* opnd = getComputeGraph()->addOperand<OpndType>(pFrom, pTo, pParams...);
-    return opnd;
-  }
+  OpndType* AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams);
 };
+
+#include "Bits/IRBuilder.tcc"
 
 } // namespace onnc
 
