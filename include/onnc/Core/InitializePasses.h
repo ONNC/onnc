@@ -24,6 +24,7 @@ void InitializeAnalysisPassOptions();
 void* InitializeGraphLivenessAnalysisPass(PassRegistry&);
 void* InitializeMemoryAllocationPass(PassRegistry&);
 void* InitializeUpdateGraphOutputSizePass(PassRegistry&);
+void* InitializeNodeIRSchedulerPass(PassRegistry&);
 
 void InitializeUpdateGraphOutputSizePassOptions();
 

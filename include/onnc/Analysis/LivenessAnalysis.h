@@ -56,6 +56,8 @@ public:
 
   ReturnType runOnModule(Module& pModule) override;
 
+  ReturnType runOnGraph(onnx::Graph &pGraph);
+
   const LiveIntervalList& getLiveIntervals() const { return m_LiveIntervals; }
 
   void print(std::ostream& pOS) const;

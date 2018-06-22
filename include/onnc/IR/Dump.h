@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ONNX_DUMP_H
 #define ONNC_ONNX_DUMP_H
+#include <onnc/Support/IOStream.h>
 #include <onnx/common/ir.h>
 
 namespace onnc {
@@ -18,10 +19,12 @@ namespace onnc {
 class Module;
 
 /// DumpGraph. Callable in GDB.
-void DumpGraph(::onnx::Graph& pGraph);
+void DumpGraph(::onnx::Graph &pGraph);
 void DumpGraph(Module &pModule);
 void DumpModule(Module &pModule);
 
+void PrintNode(OStream &pOS, ::onnx::Node &pNode);
+void PrintGraph(OStream &pOS, ::onnx::Graph &pGraph);
 }
 
 #endif

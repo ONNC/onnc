@@ -2,5 +2,6 @@
 add_libonnc_src(
     LivenessAnalysis.cpp
     MemoryAllocation.cpp
-    MemoryUsageAnalysis.cpp
+    NodeIRScheduler.cpp
+    SplitNode.cpp
     UpdateGraphOutputSize.cpp)

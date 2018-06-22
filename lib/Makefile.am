@@ -23,8 +23,8 @@ ONNC_SOURCES = \
 	Core/Application.cpp \
 	Core/InitializePasses.cpp \
   Analysis/LivenessAnalysis.cpp \
-  Analysis/MemoryUsageAnalysis.cpp \
   Analysis/MemoryAllocation.cpp \
+  Analysis/SplitNode.cpp \
   Analysis/UpdateGraphOutputSize.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \

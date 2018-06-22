@@ -122,7 +122,7 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
     pOS << "> ";
 }
 
-static void PrintNode(OStream &pOS, ::onnx::Node &pNode)
+void onnc::PrintNode(OStream &pOS, ::onnx::Node &pNode)
 {
   pOS << "  ";
 
@@ -151,7 +151,7 @@ static void PrintNode(OStream &pOS, ::onnx::Node &pNode)
   pOS << ")\n";
 }
 
-static void PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
+void onnc::PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
 {
   pOS << "graph " << pGraph.name() << " (";
   std::unordered_set<std::string> initializerNames(
