@@ -68,7 +68,7 @@ private:
 
 private:
   GraphMemAllocList m_GraphMemAllocList;
-  DLATargetBackend* m_DLATB = nullptr;
+  DLATargetBackend* m_DLATB;
 };
 
 MemoryAllocation* CreateMemoryAllocationPass(DLATargetBackend* pDLATB);

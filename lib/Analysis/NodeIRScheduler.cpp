@@ -68,6 +68,8 @@ static void InsertLoadStoreNode(::onnx::Graph &pGraph)
     }
 
     // Create store node and insert before the last use node.
+    // [FIXME] Actually, the last must be return Node, so we can just get
+    //         return node and insert store before it.
     ::onnx::Node* storeN = pGraph.create(::onnx::Symbol("Store"), {v});
     storeN->output()->copyMetadata(v);
     storeN->output()->setUniqueName(v->uniqueName() + ".store");

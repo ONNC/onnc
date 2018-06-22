@@ -19,9 +19,16 @@ typedef std::vector<::onnx::Node *> Nodes;
 typedef std::unordered_set<::onnx::Node *> NodeSet;
 typedef std::unordered_map<::onnx::Node *, unsigned> DegreeMap;
 
-static const ::onnx::NodeKind g_LoadKind = ::onnx::Symbol("Load");
-static const ::onnx::NodeKind g_StoreKind = ::onnx::Symbol("Store");
-static const ::onnx::NodeKind g_SubGraphKind = ::onnx::Symbol("SubGraph");
+static bool IsType(const char *pKind, const ::onnx::Node *pNode)
+{
+  return pNode->kind() == ::onnx::Symbol(pKind);
+}
+
+static bool SkipWhenCalMemSize(const ::onnx::Node *pNode)
+{
+  return IsType("Load", pNode) || IsType("Store", pNode) ||
+         IsType("SubGraph", pNode);
+}
 
 static LongInts GetOutputValueSizes(const ::onnx::Node& pN)
 {
@@ -268,7 +275,7 @@ static ::onnx::Graph *SplitSubGraph(::onnx::Graph &pGraph, Nodes &pSplitPts)
 
   // Create load/store to split graph.
   for (::onnx::Node *spNode : pSplitPts) {
-    if (spNode->kind() == g_LoadKind)
+    if (IsType("Load", spNode))
       newLoadStores.emplace_back(spNode, nullptr);
     else
       createLoadStoreAtNode(pGraph, *spNode, newLoadStores);
@@ -319,13 +326,13 @@ void SplitGraph::rebuildSplitNodes()
   clear();
   for (::onnx::Node *n : m_Graph.nodes()) {
     if (n->kind() == ::onnx::kUndefined ||
-        n->kind() == g_SubGraphKind)
+        IsType("SubGraphKind", n))
       continue;
 
     SplitNode *sn = SplitNodeCreator(*n);
     m_SplitNodes[n] = sn;
 
-    if (n->kind() == g_StoreKind) {
+    if (IsType("Store", n)) {
       m_CurSplitAxis.push_back(0);
       m_CurSplitFactor.push_back(1);
       m_Stores.push_back(n);
@@ -495,8 +502,7 @@ Nodes findHalfSizeSplitPoints(::onnx::Graph &pGraph,
   for (::onnx::Node *n : pGraph.nodes()) {
     // skip load and store since they are calculated by their user nodes.
     if (n->kind() == ::onnx::kUndefined ||
-        n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
-        n->kind() == g_SubGraphKind)
+        SkipWhenCalMemSize(n))
       continue;
 
     nodeSize[n] = pTTI.getOperatorMemUsage(n).size;
@@ -540,8 +546,7 @@ Nodes findHalfSizeSplitPoints(::onnx::Graph &pGraph,
       } // for each user of this value.
     } // for each output value.
 
-    if (n->kind() == g_LoadKind || n->kind() == g_StoreKind ||
-        n->kind() == g_SubGraphKind)
+    if (SkipWhenCalMemSize(n))
       continue;
 
     if (accumulateSize < total/2) {
@@ -565,7 +570,7 @@ Nodes findHalfSizeSplitPoints(::onnx::Graph &pGraph,
 
   // put load/store to correct group.
   for (::onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == g_LoadKind) {
+    if (IsType("Load", n)) {
       // Assume users of this value are in the same group.
       ::onnx::Node *user = n->output()->uses()[0].user;
       if (grpA.count(user))
@@ -573,8 +578,8 @@ Nodes findHalfSizeSplitPoints(::onnx::Graph &pGraph,
       else
         grpB.insert(n);
 
-    } else if (n->kind() == g_StoreKind ||
-               n->kind() == g_SubGraphKind) {
+    } else if (IsType("Store", n) ||
+               IsType("SubGraph", n)) {
       if (grpA.count(n->input()->node()))
         grpA.insert(n);
       else
@@ -596,7 +601,7 @@ Nodes findHalfSizeSplitPoints(::onnx::Graph &pGraph,
 
   // Add all load of grpB to splitPts
   for (::onnx::Node *n : grpB)
-    if (n->kind() == g_LoadKind)
+    if (IsType("Load", n))
       splitPts.push_back(n);
 
   return splitPts;
@@ -695,7 +700,7 @@ void SplitGraph::print(OStream &pOS) const
     if (n->kind() == ::onnx::kUndefined)
       continue;
 
-    if (n->kind() == g_SubGraphKind) {
+    if (IsType("SubGraph", n)) {
       PrintNode(pOS, *const_cast<::onnx::Node *>(n));
       continue;
     }
@@ -976,8 +981,8 @@ static SplitNode* SplitNodeCreator(::onnx::Node& pN)
 
   // load output size and store input size is calculated on its successor and
   // predecessor node.
-  if (pN.kind() == g_LoadKind ||
-      pN.kind() == g_StoreKind)
+  if (IsType("Load", &pN) ||
+      IsType("Store", &pN))
     return new SplitNode(pN, true);
 
   const auto kind = pN.kind();
