@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/IR/Compute/Value.h>
+#include <onnc/IR/ComputeOperator.h>
 
 using namespace onnc;
 
@@ -22,5 +23,7 @@ void Value::replaceAllUsesWith(Value& pValue)
 {
   UseList::iterator use, uEnd = m_UseList.end();
   for (use = m_UseList.begin(); use != uEnd; ++use) {
+    // replace the definition's input value by pValue
+    use->getUser()->replaceInput(use->getOperandNo(), pValue);
   }
 }

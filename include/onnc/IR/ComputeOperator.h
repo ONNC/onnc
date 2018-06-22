@@ -66,6 +66,9 @@ public:
   /// Use covariant return type to override this function
   virtual const onnc::Value* getInput(unsigned int pIdx) const { return m_Inputs[pIdx]; }
 
+  /// replace input value @ref pIdx by @ref pValue
+  void replaceInput(unsigned int pIdx, onnc::Value& pValue);
+
   /// Use covariant return type to override this function
   virtual onnc::Value* getOutput(unsigned int pIdx) { return m_Inputs[pIdx]; }
 

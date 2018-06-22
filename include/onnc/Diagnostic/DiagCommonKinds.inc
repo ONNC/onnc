@@ -83,3 +83,4 @@ DIAG(pass_not_registered,         Error,   "Pass %0 is not registered in global 
 DIAG(onnx_cannot_parsed,          Error,   "Cannot parse onnx input file `%0`")
 DIAG(onnx_graph_alive,            Error,   "onnx::Graph still alive after Module dead.")
 DIAG(use_out_of_range,            Fatal,   "`use` out of range (%0): operator %1 contains only %2 input values")
+DIAG(input_out_of_range,          Fatal,   "`input` out of range (%0): operator %1 contains only %2 input values")
