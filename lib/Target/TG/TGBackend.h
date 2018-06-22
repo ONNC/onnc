@@ -73,8 +73,8 @@ public:
   // calibration table name
   virtual std::string getCtableName() { return std::string(); }
 
-  // load ctable from onx meta data
-  const std::string &getCtable(const Module &pModule);
+  // load ctable from onnx meta data
+  std::string getCtable(const Module &pModule);
 
   // parse textString to proto format and store in Backend
   virtual void setCtableProto(const std::string &pTextString);

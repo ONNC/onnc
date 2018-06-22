@@ -21,8 +21,6 @@ public:
       const ::onnx::Node &pNode,
       std::vector<std::unique_ptr<ComputeOperator2> > &pInstList) override;
 
-  void PrepareISelLowering(Module &pModule) override;
-
 private:
   ComputeOperator2 *LowerConv(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph);

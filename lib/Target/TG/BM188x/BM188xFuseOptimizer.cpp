@@ -5,12 +5,6 @@
 
 namespace onnc {
 
-void BM188xFuseOptimizer::PrepareFuseOptimizer(Module &pModule)
-{
-  auto &ctable = m_p1880backend->getCtable(pModule);
-  m_p1880backend->setCtableProto(ctable);
-}
-
 void BM188xFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
                                        ::onnx::Node *pGemmNode,
                                        ::onnx::Node *pReluNode)

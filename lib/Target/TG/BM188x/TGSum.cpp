@@ -77,22 +77,26 @@ void TGSum::emit() const
 
   delete[] input;
 }
-void TGSum::toASM(tg::bm1880::Insn *pI) const
+void TGSum::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type(tg::bm1880::Insn::ReLU);
+  pI->set_type("bmnet_eltwise_fixed_forward_bmkernel");
   {
-    auto *sum = pI->mutable_sum_param();
-    for (size_t i = 0; i < m_MemOperands.size() - 1; i++) {
-      auto *input = sum->add_input();
-      if (i == 0)
-        bm_asm::setDim(input, m_InN, m_InC, m_InH, m_InW);
-      bm_asm::setMem(input, m_MemOperands.at(i), tg::bm1880::Operand::Int8);
-    }
-    {
-      auto *output = sum->mutable_output();
-      bm_asm::setMem(output, m_MemOperands.back(), tg::bm1880::Operand::Int8);
-    }
+    auto *eltwise = pI->mutable_eltwise();
+    for (auto &m : m_MemOperands)
+      eltwise->add_ga_input(m->m_Addr);
+    eltwise->set_ga_output(m_MemOperands.back()->m_Addr);
+    eltwise->set_input_size(m_InputNum);
+    eltwise->set_op(1);
+    eltwise->set_input_n(m_InN);
+    eltwise->set_input_c(m_InC);
+    eltwise->set_input_h(m_InH);
+    eltwise->set_input_w(m_InW);
+    eltwise->set_do_relu(false);
+    eltwise->set_relu_slope(0.0);
+    eltwise->set_right_shift_width(m_RShiftWidth);
+    for (auto v : m_ThresholdXQuantized)
+      eltwise->add_threshold_x_quantized(v);
   }
 }
 

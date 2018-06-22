@@ -39,12 +39,17 @@ public:
 
   void setPrintMachineCode(bool pSet) { m_PrintMachineCode = pSet; }
 
+  bool IgnoreCalibrationStep() const { return m_IgnoreCalibrationStep; }
+
+  void setIgnoreCalibrationStep(bool pSet) { m_IgnoreCalibrationStep = pSet; }
+
 private:
   std::string m_Input;
   onnc::Path m_Output;
   std::string m_Arch;
   bool m_PrintModuleBeforeISel;
   bool m_PrintMachineCode;
+  bool m_IgnoreCalibrationStep;
 };
 
 #endif
