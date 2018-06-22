@@ -72,19 +72,24 @@ void TGConv::print(OStream &pOS) const
       << ", padH:" << (int)m_PadH << ", padW:" << (int)m_PadW
       << ", strideH:" << (int)m_StrideH << ", strideW:" << (int)m_StrideW
       << ", m_DoBias:" << m_DoBias << ", rShiftWidth:" << m_RShiftWidth << "> ("
-      << *m_MemOperands[0] << ", " << *m_MemOperands[1] << ", "
-      << *m_MemOperands[3] << ")\n";
+      << *m_MemOperands[0] << ", " << *m_MemOperands[1];
+  if (m_DoBias) {
+    pOS << ", " << *m_MemOperands[3] << ")\n";
+  } else {
+    pOS << ")\n";
+  }
 }
 
 void TGConv::emit() const
 {
   DEBUG(print(dbgs()));
 
+  uint64_t biasAddr = m_DoBias ? m_MemOperands[3]->m_Addr : GADDR_INVALID;
   bmnet::bmnet_conv_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
       m_MemOperands[2]->m_Addr,                                      // ofmap
       m_MemOperands[1]->m_Addr,                                      // weight
-      m_MemOperands[3]->m_Addr,                                      // bias
+      biasAddr,                                                      // bias
       GADDR_INVALID, // ga_bn_mean,
       GADDR_INVALID, // ga_bn_variance,
       GADDR_INVALID, // ga_scale,
@@ -158,7 +163,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
   }
 
   // 16bit bias
-  {
+  if (m_DoBias == 1) {
     const ::onnx::Value *value = m_MemOperands[3]->m_Value;
     const ::onnx::Tensor &tensor =
         ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
@@ -186,12 +191,13 @@ void TGConv::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
   pI->set_type("bmnet_conv_fixed_forward_bmkernel");
+  uint64_t biasAddr = m_DoBias ? m_MemOperands[3]->m_Addr : GADDR_INVALID;
   {
     auto *conv = pI->mutable_conv();
     conv->set_ga_ifmap(m_MemOperands[0]->m_Addr);
     conv->set_ga_ofmap(m_MemOperands[1]->m_Addr);
     conv->set_ga_weight(m_MemOperands[2]->m_Addr);
-    conv->set_ga_bias(m_MemOperands[3]->m_Addr);
+    conv->set_ga_bias(biasAddr);
     conv->set_input_n(m_InN);
     conv->set_input_c(m_InC);
     conv->set_input_h(m_InH);
