@@ -37,6 +37,7 @@ static bool HasInsertedLoadStoreNode(::onnx::Graph &pGraph)
 static void InsertLoadStoreNode(::onnx::Graph &pGraph)
 {
   for (::onnx::Value* v : pGraph.inputs()) {
+    // [FIXME] Unused input? I.e. v has no user so first == nullptr?!
     ::onnx::Node* first = nullptr;
     for(auto u : v->uses()) {
       if (!first) {

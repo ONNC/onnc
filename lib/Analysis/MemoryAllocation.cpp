@@ -74,7 +74,7 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
 
 uint64_t MemoryAllocation::allocByLiveness(::onnx::Graph &pGraph,
                                            ValMemSizeMap &pValMemSizeMap,
-                                           GraphLivenessAnalysis &liveAnaly)
+                                           GraphLivenessAnalysis &pLiveAnaly)
 {
   MemAllocList memAllocList;
 
@@ -82,7 +82,7 @@ uint64_t MemoryAllocation::allocByLiveness(::onnx::Graph &pGraph,
   size_t minSize = 0;
 
   // allocate memory considering liveness.
-  auto &livesInfo = liveAnaly.getLiveIntervals();
+  auto &livesInfo = pLiveAnaly.getLiveIntervals();
   for (const LiveInterval* li : livesInfo) {
     const ::onnx::Value *v = &li->getValue();
     if (!pValMemSizeMap.count(v))

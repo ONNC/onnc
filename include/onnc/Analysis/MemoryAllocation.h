@@ -59,7 +59,7 @@ private:
   /// Return total size of this allocation.
   uint64_t allocByLiveness(::onnx::Graph &pGraph,
                            ValMemSizeMap &pValMemSizeMap,
-                           GraphLivenessAnalysis &liveAnaly);
+                           GraphLivenessAnalysis &pLiveAnaly);
 
   /// delete MemAllocEntries of graph.
   void clearGraphAlloc(::onnx::Graph *pGraph);
