@@ -32,6 +32,10 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseConvScale(pGraph, node, next(node));
       return true;
     }
+    if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Relu"))) {
+      FuseConvRelu(pGraph, node, next(node));
+      return true;
+    }
   }
   return false;
 }
@@ -106,4 +110,10 @@ void TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
   pConvNode->output()->copyMetadata(pScaleNode->output());
   pScaleNode->replaceAllUsesWith(pConvNode);
   pScaleNode->destroy();
+}
+
+void TGFuseOptimizer::FuseConvRelu(onnx::Graph *pGraph, onnx::Node *pConvNode,
+                                   onnx::Node *pReluNode)
+{
+  Fuse(pConvNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
 }
