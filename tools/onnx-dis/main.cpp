@@ -8,47 +8,118 @@
 #include <iostream>
 #include <onnx/common/ir_pb_converter.h>
 #include <string>
+
 using namespace llvm;
+using namespace std;
 
 static cl::opt<std::string> InputFilename(cl::Positional,
                                           cl::desc("<input .onnx.s file>"),
                                           cl::init("-"));
 
 static cl::opt<bool> DumpWeight("dump-weight", cl::desc("Dump wegiht"));
+static cl::opt<bool> help("h", cl::desc("help"));
 
-template <class T> static void dumpRawTensor(const std::string &raw)
+template <class T> static void dumpRawTensor(const std::string &pRaw)
 {
-  std::vector<T> data(raw.size() / (sizeof(T) / sizeof(char)));
-  std::memcpy(data.data(), raw.data(), raw.size());
+  vector<T> data(pRaw.size() / (sizeof(T) / sizeof(char)));
+  memcpy(data.data(), pRaw.data(), pRaw.size());
   for (auto &i : data) {
     if (!std::is_same<T, float>::value)
-      std::cout << (int)i << ", ";
+      cout << (int)i << ", ";
     else
-      std::cout << i << ", ";
+      cout << i << ", ";
+  }
+}
+
+static void dumpNodeProto(
+    const ::google::protobuf::RepeatedPtrField< ::onnx::NodeProto> &pNodes,
+    set<string> &pReshapeInputs)
+{
+  int i;
+  ::google::protobuf::RepeatedPtrField<const ::onnx::NodeProto>::iterator it;
+
+  for (it = pNodes.begin(); it != pNodes.end(); it++) {
+    cout << "  node { ";
+
+    if (it->op_type() == "Reshape") {
+      for (i = 0; i < it->input_size(); i++)
+        pReshapeInputs.insert(it->input(i));
+    }
+
+    cout << it->ShortDebugString();
+    cout << " }\n";
+  }
+}
+
+static void dumpTensorProto(
+    const ::google::protobuf::RepeatedPtrField< ::onnx::TensorProto> &pTensors,
+    set<string> &pReshapeInputs)
+
+{
+  ::google::protobuf::RepeatedPtrField<const ::onnx::TensorProto>::iterator it;
+  set<string>::iterator itReshape;
+
+  for (it = pTensors.begin(); it != pTensors.end(); it++) {
+    if (!DumpWeight) {
+      itReshape = pReshapeInputs.find(it->name());
+      if (itReshape == pReshapeInputs.end())
+        continue;
+    }
+
+    cout << "  initializer { \n";
+    cout << it->DebugString();
+    cout << " }\n";
   }
 }
 
 static void dumpGraphProto(const ::onnx::GraphProto &pGraph)
 {
-  std::cout << "graph {\n";
-  if (pGraph.has_name())
-    std::cout << "  name: \"" << pGraph.name() << "\"\n";
-  if (pGraph.has_doc_string())
-    std::cout << "  doc_string: \"" << pGraph.doc_string() << "\"\n";
-  for (int i = 0; i < pGraph.node_size(); ++i) {
-    std::cout << "  node { " << pGraph.node(i).ShortDebugString() << " }\n";
+  int i;
+  set<string> reshapeInputs;
+
+  cout << "graph {\n";
+  cout << "  name: \"" << pGraph.name() << "\"\n";
+  cout << "  doc_string: \"" << pGraph.doc_string() << "\"\n";
+
+  dumpNodeProto(pGraph.node(), reshapeInputs);
+
+  for (i = 0; i < pGraph.input_size(); i++)
+    cout << "  input { " << pGraph.input(i).ShortDebugString() << " }\n";
+
+  for (i = 0; i < pGraph.output_size(); i++)
+    cout << "  output { " << pGraph.output(i).ShortDebugString() << " }\n";
+
+  for (i = 0; i < pGraph.value_info_size(); i++)
+    cout << "  value_info { " << pGraph.value_info(i).ShortDebugString()
+         << " }\n";
+
+  dumpTensorProto(pGraph.initializer(), reshapeInputs);
+
+  cout << "}\n";
+}
+
+static void dumpModelProto(const ::onnx::ModelProto &pModel)
+{
+  int i;
+
+  cout << "ir_version: " << pModel.ir_version() << "\n";
+  cout << "producer_name: \"" << pModel.producer_name() << "\"\n";
+  cout << "producer_version: \"" << pModel.producer_version() << "\"\n";
+  cout << "domain: \"" << pModel.domain() << "\"\n";
+  cout << "model_version: " << pModel.model_version() << "\n";
+  cout << "doc_string: \"" << pModel.doc_string() << "\"\n";
+
+  if (pModel.has_graph())
+    dumpGraphProto(pModel.graph());
+
+  for (i = 0; i < pModel.opset_import_size(); ++i) {
+    cout << "opset_import { " << pModel.opset_import(i).ShortDebugString()
+         << " }\n";
   }
-  for (int i = 0; i < pGraph.input_size(); ++i) {
-    std::cout << "  input { " << pGraph.input(i).ShortDebugString() << " }\n";
+  for (i = 0; i < pModel.metadata_props_size(); ++i) {
+    cout << "metadata_props { " << pModel.metadata_props(i).ShortDebugString()
+         << " }\n";
   }
-  for (int i = 0; i < pGraph.output_size(); ++i) {
-    std::cout << "  output { " << pGraph.output(i).ShortDebugString() << " }\n";
-  }
-  for (int i = 0; i < pGraph.value_info_size(); ++i) {
-    std::cout << "  value_info { " << pGraph.value_info(i).ShortDebugString()
-              << " }\n";
-  }
-  std::cout << "}\n";
 }
 
 int main(int pArgc, char *pArgv[])
@@ -56,9 +127,14 @@ int main(int pArgc, char *pArgv[])
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   cl::ParseCommandLineOptions(pArgc, pArgv, ".onnx -> .onnx.s disassembler\n");
+  if (help) {
+    cl::PrintHelpMessage();
+    return 0;
+  }
 
-  ::onnx::ModelProto model;
-  std::string fileName(InputFilename);
+  onnx::ModelProto model;
+  string fileName(InputFilename);
+
   {
     std::ifstream input(fileName, std::ifstream::binary);
     ::google::protobuf::io::IstreamInputStream inputStream(&input);
@@ -69,57 +145,10 @@ int main(int pArgc, char *pArgv[])
       return -1;
     }
   }
-  if (model.has_ir_version())
-    std::cout << "ir_version: " << model.ir_version() << "\n";
-  if (model.has_producer_name())
-    std::cout << "producer_name: \"" << model.producer_name() << "\"\n";
-  if (model.has_producer_version())
-    std::cout << "producer_version: \"" << model.producer_version() << "\"\n";
-  if (model.has_domain())
-    std::cout << "domain: \"" << model.domain() << "\"\n";
-  if (model.has_model_version())
-    std::cout << "model_version: " << model.model_version() << "\n";
-  if (model.has_doc_string())
-    std::cout << "doc_string: \"" << model.doc_string() << "\"\n";
-  dumpGraphProto(model.graph());
-  for (int i = 0; i < model.opset_import_size(); ++i) {
-    std::cout << "opset_import { " << model.opset_import(i).ShortDebugString()
-              << " }\n";
-  }
-  for (int i = 0; i < model.metadata_props_size(); ++i) {
-    std::cout << "metadata_props { "
-              << model.metadata_props(i).ShortDebugString() << " }\n";
-  }
 
-  if (model.has_graph() && DumpWeight) {
-    onnx::GraphProto *graph = model.mutable_graph();
-    for (int i = 0; i < graph->initializer_size(); ++i) {
-      const auto &tp = graph->initializer(i);
-      if (!tp.has_raw_data()) {
-        tp.DebugString();
-        continue;
-      }
-      std::cout << "tensor_pros { ";
-      if (tp.has_name()) {
-        std::cout << "name: " << tp.name() << " data: ";
-      }
-      switch (tp.data_type()) {
-      case onnx::TensorProto_DataType_FLOAT:
-        dumpRawTensor<float>(tp.raw_data());
-        break;
-      case onnx::TensorProto_DataType_INT8:
-        dumpRawTensor<int8_t>(tp.raw_data());
-        break;
-      case onnx::TensorProto_DataType_INT16:
-        dumpRawTensor<int16_t>(tp.raw_data());
-        break;
-      default:
-        std::cout << "unsupported type!\n";
-        break;
-      }
-      std::cout << " }\n";
-    }
-  }
+  dumpModelProto(model);
 
   google::protobuf::ShutdownProtobufLibrary();
+
+  return 0;
 }
