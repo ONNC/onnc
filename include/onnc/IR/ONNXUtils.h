@@ -14,6 +14,9 @@
 
 namespace onnc {
 
+typedef std::vector<::onnx::Dimension> TensorSizes;
+typedef std::vector<int64_t> LongInts;
+
 void SerializeToString(std::string &output, const Module &pModule);
 
 void ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule);
@@ -28,6 +31,19 @@ void DestroyModule(Module*& pModule);
 size_t getTotalCount(const std::vector<int64_t> &pDim);
 
 const ::onnx::Tensor &getTensor(std::string name, const ::onnx::Graph &graph);
+
+bool OutputSizeIsInputSize(::onnx::Node& pNode);
+
+void GetAttrVals(::onnx::Node& pNode, ::onnx::BuiltinSymbol pAttr,
+                 LongInts& pVal);
+
+void GetPads(::onnx::Node& pNode, LongInts& pPadsB, LongInts& pPadsE);
+
+void GetConvKernelShape(::onnx::Node& pNode, LongInts& pKShape);
+
+bool IsTranspose(const ::onnx::Node& pNode, const ::onnx::BuiltinSymbol pAttr);
+
+LongInts GetValueSizes(const ::onnx::Value& pVal);
 
 } // namespace onnc
 
