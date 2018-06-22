@@ -27,6 +27,12 @@ target_include_directories(libonnc PUBLIC ${LIB_ONNC_BINARY_DIR}/include) # for 
 target_compile_definitions(libonnc PUBLIC -DONNX_NAMESPACE=onnx)
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR
+   "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR
+   "${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
+  add_compile_options(-fno-exceptions)
+endif()
+
 add_subdirectory(ADT)
 add_subdirectory(Analysis)
 add_subdirectory(Config)
@@ -35,6 +41,7 @@ add_subdirectory(Diagnostic)
 add_subdirectory(IR)
 add_subdirectory(IRReader)
 add_subdirectory(JSON)
+add_subdirectory(ONNXWrapper)
 add_subdirectory(Option)
 add_subdirectory(Support)
 add_subdirectory(Target)

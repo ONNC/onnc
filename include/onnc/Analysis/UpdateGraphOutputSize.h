@@ -25,7 +25,17 @@ public:
 public:
   UpdateGraphOutputSize();
 
-  ReturnType runOnModule(Module& pModule) override;
+  ReturnType runOnModule(Module &pModule) override;
+
+  void setBatchSize(unsigned pBatchSize) { m_BatchSize = pBatchSize; }
+
+private:
+  void updateInputBatchSize(onnx::Graph *pGraph);
+  void resetOutputValueInfo(onnx::Graph *pGraph);
+  void updateReshapeOutputInfo(::onnx::Node *pNode);
+
+private:
+  unsigned m_BatchSize;
 };
 
 UpdateGraphOutputSize* CreateUpdateGraphOutputSizePass();

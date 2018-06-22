@@ -7,32 +7,43 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Core/ModulePass.h>
-#include <onnc/IR/IRBuilder.h>
 #include <onnc/IR/ONNXUtils.h>
+#include <onnc/ONNXWrapper/ONNXWrapper.h>
+#include <onnc/Option/CommandLine.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/checker.h>
-#include <onnx/shape_inference/implementation.h>
 
-using TensorSizes = std::vector<::onnx::Dimension>;
-using TP_DataTy = ::onnx::TensorProto_DataType;
+typedef std::vector<::onnx::Dimension> TensorSizes;
+typedef ::onnx::TensorProto_DataType TP_DataTy;
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-
 static void UpdateOutputInfo(::onnx::Node *pNode, const TensorSizes &pSize,
                              TP_DataTy pTy)
 {
   for (::onnx::Value* out : pNode->outputs()) {
     out->setElemType(pTy);
-    if (out->sizes().empty())
-      out->setSizes(pSize);
+    out->setSizes(pSize);
   }
 }
 
-static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
+//===----------------------------------------------------------------------===//
+// Options
+//===----------------------------------------------------------------------===//
+static unsigned int getBatchSize()
+{
+  static cl::opt<unsigned int> batch_size(
+      "batch-size", cl::kShort, cl::kOptional, cl::kValueRequired, cl::init(0),
+      cl::desc("specific input batch size"));
+  return batch_size;
+}
+
+//===----------------------------------------------------------------------===//
+// UpdateGraphOutputSize
+//===----------------------------------------------------------------------===//
+void UpdateGraphOutputSize::updateReshapeOutputInfo(::onnx::Node *pNode)
 {
   // second input is a shape tensor
   const ::onnx::Value *input1 = pNode->inputs()[1];
@@ -55,6 +66,9 @@ static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
       dims.push_back(::onnx::Dimension(i));
     }
   }
+  // user specific batch_size
+  if (m_BatchSize > 0)
+    dims[0] = m_BatchSize;
   // First input is the data tensor
   const ::onnx::Value *in = pNode->inputs()[0];
   UpdateOutputInfo(pNode, dims, in->elemType());
@@ -65,30 +79,67 @@ static void UpdateReshapeOutputInfo(::onnx::Node *pNode)
 //===----------------------------------------------------------------------===//
 UpdateGraphOutputSize::UpdateGraphOutputSize()
   : ModulePass(ID) {
+  m_BatchSize = getBatchSize();
 }
 
-Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module& pModule)
+void UpdateGraphOutputSize::updateInputBatchSize(onnx::Graph *pGraph)
 {
-  for (::onnx::Node *n : pModule.getGraphIR()->nodes()) {
+  // update input batch size
+  std::unordered_set<std::string> initializer_names(
+      pGraph->initializer_names().begin(), pGraph->initializer_names().end());
+  for (int i = 0; i < pGraph->inputs().size(); ++i) {
+    onnx::Value *v = pGraph->inputs()[i];
+    // ignore weight
+    if (0 != initializer_names.count(v->uniqueName()))
+      continue;
+    // update valueInfo
+    auto sizes = v->sizes();
+    sizes[0] = m_BatchSize;
+    v->setSizes(sizes);
+  }
+}
+
+void UpdateGraphOutputSize::resetOutputValueInfo(onnx::Graph *pGraph)
+{
+  // reset output valueInfo
+  for (onnx::Node *n : pGraph->nodes()) {
+    // handle special case
+    if (n->kind() == onnx::Symbol("Softmax")) {
+      onnx::Value *out = n->outputs()[0];
+      auto sizes = out->sizes();
+      for (::onnx::Dimension &d : sizes)
+        d = m_BatchSize;
+      // reset batch size
+      out->setSizes(sizes);
+      continue;
+    }
+    // reset dimension and elemType
+    onnx::Value *out = n->outputs()[0];
+    std::vector<onnx::Dimension> sizes;
+    out->setSizes(sizes);
+    out->setElemType(onnx::TensorProto_DataType_UNDEFINED);
+  }
+}
+
+Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
+{
+  onnx::Graph *graph = pModule.getGraphIR().get();
+
+  // update input batch size and reset old output valueInfo
+  if (m_BatchSize > 0) {
+    updateInputBatchSize(graph);
+    resetOutputValueInfo(graph);
+  }
+
+  // onnc only update reshape's output valueInfo
+  for (::onnx::Node *n : graph->nodes()) {
     const auto kind = n->kind();
     if (kind == ::onnx::kReshape) {
-      UpdateReshapeOutputInfo(n);
+      updateReshapeOutputInfo(n);
     }
   }
 
-  // use onnx official shape inference implementation
-  ::onnx::ModelProto modelProto;
-  ::onnc::ExportModelProto(modelProto, pModule);
-  try {
-    ::onnx::checker::check_model(modelProto);
-  } catch (::onnx::checker::ValidationError &e) {
-    std::cerr << e.what() << std::endl
-              << "ONNXShapeInference pass is not workable!!" << std::endl;
-    return Pass::kModuleNoChanged;
-  }
-  ::onnx::shape_inference::InferShapes(modelProto);
-  ::onnc::IRBuilder ir_b(pModule);
-  ir_b.update(modelProto);
+  onnxInferShape(pModule);
 
   return Pass::kModuleChanged;
 }
@@ -101,6 +152,13 @@ char UpdateGraphOutputSize::ID = 0;
 namespace onnc
 {
   INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")
+  void InitializeUpdateGraphOutputSizePassOptions();
+}
+
+void onnc::InitializeUpdateGraphOutputSizePassOptions()
+{
+  // initialisze all options of UpdateGraphOutputSize pass.
+  getBatchSize();
 }
 
 UpdateGraphOutputSize *onnc::CreateUpdateGraphOutputSizePass()
