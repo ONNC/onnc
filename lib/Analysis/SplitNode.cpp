@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/SplitNode.h>
-#include <onnc/IR/OnnxUtils.h>
+#include <onnc/IR/ONNXUtils2.h>
 #include <onnc/Support/IOStream.h>
 #include <limits>
 #include <iomanip> // for setw
