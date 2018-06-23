@@ -153,6 +153,10 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 
 void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
 {
+  auto &instList = m_Backend->getInsts();
+  if (instList.empty())
+    return;
+
   Path output_path("cmdbuf.bin");
   if (!pOutputPath.empty())
     output_path = pOutputPath;
@@ -163,7 +167,6 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (!weight_data.empty())
     bmnet::WriteInt8DataToBinaryFile(&weight_data, "cmdbuf.weight.bin");
 
-  auto &instList = m_Backend->getInsts();
   if (m_Backend->getOption().PrintMachineCode) {
     for (auto const &i : instList)
       i->print(onnc::outs());
@@ -205,6 +208,8 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   onnc::json::Object jFallback;
   // Generate memory layout.
   auto &instList = m_Backend->getInsts();
+  if (instList.empty())
+    return;
   for (auto const &inst : instList) {
     onnc::json::Object jLayer;
     for (auto &mem : inst->getMemOperands()) {
