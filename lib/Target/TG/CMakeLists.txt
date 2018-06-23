@@ -18,12 +18,6 @@ add_libonnc_src(
     GlobalMemAllocPass
     TargetLoweringPass.cpp)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR
-   "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR
-   "${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
-  add_compile_options(-fexceptions)
-endif()
-
 add_subdirectory(BM168x)
 add_subdirectory(BM188x)
 add_subdirectory(TargetInfo)
