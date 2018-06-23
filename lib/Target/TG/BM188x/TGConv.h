@@ -23,6 +23,7 @@ public:
   void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
+  bool isDoBias() { return (m_DoBias == 1) ? true : false; }
 
 private:
   int m_InN, m_InC, m_InH, m_InW;
