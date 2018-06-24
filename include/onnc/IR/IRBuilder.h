@@ -63,6 +63,12 @@ public:
   /// change the insertion point to @ref pCG
   void setComputeGraph(ComputeGraph* pCG) { m_pTargetCG = pCG; }
 
+  /// create a tensor graph
+  ::onnx::Graph* CreateTensorGraph();
+
+  /// create a tensor graph whose name is @ref pName
+  ::onnx::Graph* CreateTensorGraph(StringRef pName);
+
   /// get current insertion point of tensor graph.
   /// @retval nullptr not set
   ::onnx::Graph* getTensorGraph() { return m_pTargetTG; }
@@ -74,14 +80,7 @@ public:
   /// @param[in] pKind  hide onnx::TensorProto_DataType
   ::onnx::Value* AddInput(const std::string& pName,
                           const std::vector<::onnx::Dimension>& pSizes,
-                          onnc::Value::Type pKind);
-
-  /// Add an input in tensor graph.
-  /// @param[in] pSizes a list of integer in NCHW format.
-  /// @param[in] pKind  hide onnx::TensorProto_DataType
-  ::onnx::Value* AddInput(const std::string& pName,
-                          const std::vector<int>& pSizes,
-                          onnc::Value::Type pKind);
+                          onnc::Value::Type pKind = onnc::Value::kFloat);
 
   /// Add a node in tensor graph
   /// @param[in] pInputs a list of input names for this node
@@ -92,11 +91,30 @@ public:
     return AddNode(pName, pInputNames);
   }
 
-  /// Add an initializer
+  /// Create a new node who has identical things to @ref pNode:
+  /// - kind
+  /// - graph
+  /// - doc_strings
+  /// - attributes
+  /// - input value, who points to previous node. Use @ref pNode's inputs.
+  ///   The new node is added into the use-list of input value
+  /// - copy of output value, who points to new node and be added into inputs
+  ///   of the next node. The output value's name gets new postfix 'x'.
+  /// The new node doesn't copy:
+  /// - stage
+  ///
+  /// This function also set target node to the cloned node.
+  /// @param[in] pName The name of the new node
+  ::onnx::Node*
+  DeepClone(::onnx::Node& pNode, const std::string& pName = std::string());
+
+  /// Add an initializer. If @ref pSizes is empty, find dimensions in inputs.
   /// @return The appended Initializer. If it fails, the function return an
   /// invalid Initializer
   onnc::Initializer
-  AddInitializer(const std::string& pName, onnc::Value::Type pKind);
+  AddInitializer(const std::string& pName,
+                 const std::vector<::onnx::Dimension>& pSizes = { },
+                 onnc::Value::Type pKind = onnc::Value::kFloat);
 
   ::onnx::Node* getTensorNode() { return m_pTargetTNode; }
 
@@ -105,12 +123,7 @@ public:
   /// Add an output in the target node.
   ::onnx::Value* AddOutput(const std::string& pName,
                            const std::vector<::onnx::Dimension>& pSizes,
-                           onnc::Value::Type pKind);
-
-  /// Add an output in the target node.
-  ::onnx::Value* AddOutput(const std::string& pName,
-                           const std::vector<int>& pSizes,
-                           onnc::Value::Type pKind);
+                           onnc::Value::Type pKind = onnc::Value::kFloat);
 
   /// Finalize tensor graph
   bool FinalizeTensorGraph(const StringList& pOutputList);

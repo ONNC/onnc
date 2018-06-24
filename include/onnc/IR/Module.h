@@ -99,6 +99,9 @@ public:
   // move @ref pGraph from outside.
   Module& delegate(std::unique_ptr< ::onnx::Graph> pGraph);
 
+  // move @ref pGraph from outside.
+  Module& delegate(::onnx::Graph& pGraph);
+
   std::shared_ptr< ::onnx::Graph> getGraphIR() { return m_pOnnxGraph; }
 
   std::shared_ptr<const ::onnx::Graph> getGraphIR() const { return m_pOnnxGraph; }

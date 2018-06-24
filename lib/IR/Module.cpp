@@ -138,7 +138,15 @@ Module::~Module()
 
 Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
 {
-  m_pOnnxGraph = std::move(pGraph);
+  if (!m_pOnnxGraph)
+    m_pOnnxGraph = std::move(pGraph);
+  return *this;
+}
+
+Module& Module::delegate(::onnx::Graph& pGraph)
+{
+  if (!m_pOnnxGraph)
+    m_pOnnxGraph.reset(&pGraph);
   return *this;
 }
 
@@ -182,27 +190,45 @@ void Module::print(std::ostream& pOS) const
     return;
   }
 
-  pOS << "graph " << getGraphIR()->name() << " (";
+  pOS << "graph " << getGraphIR()->name() << "{\n";
 
-  // dump graph input
-  for (int i = 0; i < getGraphIR()->inputs().size(); ++i) {
-    const ::onnx::Value* v = getGraphIR()->inputs()[i];
+  // XXX: This is ONNX's failure. They forget to write a constant
+  // version of ::onnx::Graph::initializer_names()
+  ::onnx::Graph* graph = const_cast<::onnx::Graph*>(getGraphIR().get());
 
-    // XXX: This is ONNX's failure. They forget to write a constant
-    // version of ::onnx::Graph::initializer_names()
-    const std::vector<std::string>& names =
-      const_cast<::onnx::Graph*>(getGraphIR().get())->initializer_names();
+  // dump graph initializers
+  pOS << "  initializers: {\n";
 
-    // The value resides in initializers, not print.
-    if (names.end() == std::find(names.begin(), names.end(), v->uniqueName()))
-      continue;
-
-    if (i != 0)
-      pOS << ", ";
-
-    print(pOS, *v);
+  int i = 0;
+  while (i < graph->initializers().size()) {
+    pOS << "    tensor <";
+    for (int64_t size : graph->initializers()[i].sizes()) {
+      pOS << size << " ";
+    }
+    pOS << "> %" << graph->initializer_names()[i];
+    ++i;
+    if (i < graph->initializers().size())
+      pOS << ",\n";
+    else
+      pOS << "\n";
   }
-  pOS << ")\n";
+  pOS << "  },\n";
+
+  // dump graph inputs
+  pOS << "  inputs : {\n";
+  i = 0;
+  while (i < getGraphIR()->inputs().size()) {
+    const ::onnx::Value* v = getGraphIR()->inputs()[i];
+    pOS << "    ";
+    print(pOS, *v);
+    ++i;
+    if (i < getGraphIR()->inputs().size())
+      pOS << ",\n";
+    else
+      pOS << "\n";
+  }
+  pOS << "  }\n";
+  pOS << "}\n";
 
   // dump graph nodes
   for (const ::onnx::Node *n : getGraphIR()->nodes()) {
@@ -252,7 +278,7 @@ void Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const
   // XXX: This is ONNX's bug. They forget to write constant getters.
   ::onnx::Node* node = const_cast<::onnx::Node*>(&pNode);
   if (node->has_name())
-    pOS << "<" << node->name() << "> ";
+    pOS << "[" << node->name() << "] ";
 
   // print outputs.
   for (int i = 0; i < pNode.outputs().size(); ++i) {

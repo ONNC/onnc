@@ -11,17 +11,6 @@
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// Non-member functions
-//===----------------------------------------------------------------------===//
-static std::vector<::onnx::Dimension> IntsToDim(const std::vector<int>& pSizes)
-{
-  std::vector<::onnx::Dimension> dims;
-  for (int d : pSizes)
-    dims.push_back(::onnx::Dimension(d));
-  return dims;
-}
-
-//===----------------------------------------------------------------------===//
 // IRBuilder
 //===----------------------------------------------------------------------===//
 IRBuilder::IRBuilder(Module& pModule)
@@ -68,6 +57,23 @@ void IRBuilder::update(const ::onnx::ModelProto& pProto)
   m_pTargetTG = getModule().getGraphIR().get();
 }
 
+/// create a tensor graph
+::onnx::Graph* IRBuilder::CreateTensorGraph()
+{
+  m_pTargetTG = new ::onnx::Graph();
+  getModule().delegate(*m_pTargetTG);
+  return m_pTargetTG;
+}
+
+/// create a tensor graph whose name is @ref pName
+::onnx::Graph* IRBuilder::CreateTensorGraph(StringRef pName)
+{
+  m_pTargetTG = new ::onnx::Graph();
+  getModule().delegate(*m_pTargetTG);
+  m_pTargetTG->setName(pName);
+  return m_pTargetTG;
+}
+
 ::onnx::Value* IRBuilder::AddInput(const std::string& pName,
                                    const std::vector<::onnx::Dimension>& pSizes,
                                    onnc::Value::Type pKind)
@@ -89,13 +95,6 @@ void IRBuilder::update(const ::onnx::ModelProto& pProto)
 
   entry->setValue(result);
   return result;
-}
-
-::onnx::Value* IRBuilder::AddInput(const std::string& pName,
-                                   const std::vector<int>& pSizes,
-                                   onnc::Value::Type pKind)
-{
-  return AddInput(pName, IntsToDim(pSizes), pKind);
 }
 
 ::onnx::Node*
@@ -121,8 +120,55 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   return node;
 }
 
+::onnx::Node* IRBuilder::DeepClone(::onnx::Node& pNode, const std::string& pName)
+{
+  ::onnx::Graph* graph = pNode.owningGraph();
+
+  // kind and graph
+  ::onnx::Node *node = graph->create(pNode.kind());
+
+  // name
+  if (!pName.empty())
+    node->setName(pName);
+
+  // copy doc_strings
+  std::string doc_string(pNode.docString());
+  node->setDocString(doc_string);
+
+  // attributes
+  node->copyAttributes(pNode);
+
+  // inputs
+  for (::onnx::Value* input : pNode.inputs()) {
+    // node is added into input's use list as well
+    node->addInput(input);
+  }
+
+  // outputs
+  for (::onnx::Value* output : pNode.outputs()) {
+    // create an empty output
+    ::onnx::Value* value = nullptr;
+    if (1 < pNode.outputs().size())
+      value = node->addOutput();
+    else
+      value = node->output();
+
+    value->copyMetadata(output);
+
+    // add value to the next node's input
+    for (const onnx::Use& use : output->uses())
+      use.user->addInput(value);
+  }
+
+  // appending on graph
+  graph->appendNode(node);
+  return node;
+}
+
 onnc::Initializer
-IRBuilder::AddInitializer(const std::string& pName, onnc::Value::Type pKind)
+IRBuilder::AddInitializer(const std::string& pName,
+                          const std::vector<::onnx::Dimension>& pSizes,
+                          onnc::Value::Type pKind)
 {
   if (!hasTensorGraph())
     return Initializer();
@@ -132,6 +178,22 @@ IRBuilder::AddInitializer(const std::string& pName, onnc::Value::Type pKind)
   ::onnx::Tensor t;
   t.elem_type() = (::onnx::TensorProto_DataType)pKind;
   t.setName(pName);
+
+  if (pSizes.empty()) { // find from created values
+    bool exist = false;
+    CreateValues::entry_type* entry = m_CreatedValues.insert(pName, exist);
+    if (exist) {
+      t.sizes().reserve(entry->value()->sizes().size());
+      for (::onnx::Dimension d : entry->value()->sizes())
+        t.sizes().push_back(d.dim);
+    }
+  }
+  else {
+    t.sizes().reserve(pSizes.size());
+    for (::onnx::Dimension d : pSizes)
+      t.sizes().push_back(d.dim);
+  }
+
   getTensorGraph()->addInitializer(t, pName);
 
   // XXX: using back() because ::onnx::Graph::addInitializer is an appending.

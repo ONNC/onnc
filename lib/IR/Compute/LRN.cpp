@@ -1,4 +1,4 @@
-//===- LRN.cpp ------------------------------------------------===//
+//===- LRN.cpp ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,4 +33,5 @@ LRN::LRN(const FloatAttr& pAlpha,
 
 void LRN::print(std::ostream& pOS) const
 {
+  // TODO
 }
