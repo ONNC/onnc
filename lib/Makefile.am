@@ -8,6 +8,7 @@ ONNC_SOURCES = \
 	IR/Module.cpp \
 	IR/Dump.cpp \
 	IR/Define.cpp \
+	IR/ONNXNodeVisitor.cpp \
 	IR/ONNXUtils.cpp \
 	IR/Quadruple.cpp \
 	IR/IRBuilder.cpp \
