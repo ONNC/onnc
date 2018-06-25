@@ -17,7 +17,7 @@ class Config
 public:
   Config();
 
-  ~Config() {}
+  ~Config() = default;
 
   const std::string &input() const { return m_Input; }
 
@@ -47,9 +47,9 @@ private:
   std::string m_Input;
   onnc::Path m_Output;
   std::string m_Arch;
-  bool m_PrintModuleBeforeISel;
-  bool m_PrintMachineCode;
-  bool m_IgnoreCalibrationStep;
+  bool m_PrintModuleBeforeISel{ false };
+  bool m_PrintMachineCode{ false };
+  bool m_IgnoreCalibrationStep{ false };
 };
 
 #endif

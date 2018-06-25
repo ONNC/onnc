@@ -36,7 +36,7 @@ ONNX2TG::ONNX2TG(int pArgc, char *pArgv[])
   InitializeAllBackends();
 }
 
-ONNX2TG::~ONNX2TG() {}
+ONNX2TG::~ONNX2TG() = default;
 
 static ExitOnError ExitOnErr;
 

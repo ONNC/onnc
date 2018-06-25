@@ -26,7 +26,7 @@ struct matchSymbol {
   matchSymbol(const std::string &pSym) : m_Symbol(pSym) {}
   bool match(onnx::Node *pN) { return pN->kind() == m_Symbol; }
 };
-matchSymbol mSymbol(const std::string &pSym) { return matchSymbol(pSym); }
+matchSymbol mSymbol(const std::string &pSym) { return pSym; }
 
 onnx::Node *next(onnx::Node *pN)
 {
