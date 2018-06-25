@@ -36,10 +36,10 @@ static cl::opt<std::string> march("march", cl::kShort, cl::kOptional,
                                   cl::init("bm1880"), cl::about(g_About));
 
 static cl::opt<bool>
-    PrintMachineCode("print-machineinstrs", cl::kShort, cl::kOptional,
-                     cl::kValueDisallowed, cl::init(false),
-                     cl::desc("Print generated machine code for debugging"),
-                     cl::about(g_About));
+    dumpASM("S", cl::kShort, cl::kOptional, cl::kValueDisallowed,
+            cl::init(false),
+            cl::desc("Print ASM(generated machine code) for debugging"),
+            cl::about(g_About));
 
 static cl::opt<bool> printModuleBeforeISel("print-module-before-isel",
                                            cl::kShort, cl::kOptional,
@@ -81,7 +81,7 @@ int main(int pArgc, char *pArgv[])
 
   onnx2tg.options().setMarch(march);
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
-  onnx2tg.options().setPrintMachineCode(PrintMachineCode);
+  onnx2tg.options().setDumpASM(dumpASM);
   onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
 
   return onnx2tg.compile();

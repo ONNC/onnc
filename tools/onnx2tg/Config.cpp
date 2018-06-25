@@ -21,12 +21,9 @@ void Config::setPrintModuleBeforeISel(bool pSet)
   m_Options.PrintModuleBeforeSel = pSet;
 }
 
-bool Config::PrintMachineCode() const { return m_Options.PrintMachineCode; }
+bool Config::DumpASM() const { return m_Options.DumpASM; }
 
-void Config::setPrintMachineCode(bool pSet)
-{
-  m_Options.PrintMachineCode = pSet;
-}
+void Config::setDumpASM(bool pSet) { m_Options.DumpASM = pSet; }
 
 bool Config::IgnoreCalibrationStep() const
 {

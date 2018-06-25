@@ -36,9 +36,9 @@ public:
 
   void setPrintModuleBeforeISel(bool pSet);
 
-  bool PrintMachineCode() const;
+  bool DumpASM() const;
 
-  void setPrintMachineCode(bool pSet);
+  void setDumpASM(bool pSet);
 
   bool IgnoreCalibrationStep() const;
 
