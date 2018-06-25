@@ -120,7 +120,7 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   return node;
 }
 
-::onnx::Node* IRBuilder::DeepClone(::onnx::Node& pNode, const std::string& pName)
+::onnx::Node* IRBuilder::CloneNode(::onnx::Node& pNode, const std::string& pName)
 {
   ::onnx::Graph* graph = pNode.owningGraph();
 
@@ -138,30 +138,7 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   // attributes
   node->copyAttributes(pNode);
 
-  // inputs
-  for (::onnx::Value* input : pNode.inputs()) {
-    // node is added into input's use list as well
-    node->addInput(input);
-  }
-
-  // outputs
-  for (::onnx::Value* output : pNode.outputs()) {
-    // create an empty output
-    ::onnx::Value* value = nullptr;
-    if (1 < pNode.outputs().size())
-      value = node->addOutput();
-    else
-      value = node->output();
-
-    value->copyMetadata(output);
-
-    // add value to the next node's input
-    for (const onnx::Use& use : output->uses())
-      use.user->addInput(value);
-  }
-
-  // appending on graph
-  graph->appendNode(node);
+  m_pTargetTNode = node;
   return node;
 }
 

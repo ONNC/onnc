@@ -91,22 +91,22 @@ public:
     return AddNode(pName, pInputNames);
   }
 
-  /// Create a new node who has identical things to @ref pNode:
-  /// - kind
-  /// - graph
-  /// - doc_strings
-  /// - attributes
-  /// - input value, who points to previous node. Use @ref pNode's inputs.
-  ///   The new node is added into the use-list of input value
-  /// - copy of output value, who points to new node and be added into inputs
-  ///   of the next node. The output value's name gets new postfix 'x'.
-  /// The new node doesn't copy:
-  /// - stage
-  ///
+  /// Return a copy of the specified node, but without embedding it into the
+  /// graph.
+  /// - kind,
+  /// - graph,
+  /// - doc_strings, and
+  /// - attributes.
+  /// This function doesn't copy:
+  /// - stage,
+  /// - inputs, and
+  /// - outputs.
+  /// This function doesn't insert the node into the graph. Use Graph::appendNode,
+  /// Graph::prependNode functions to insert the node.
   /// This function also set target node to the cloned node.
   /// @param[in] pName The name of the new node
   ::onnx::Node*
-  DeepClone(::onnx::Node& pNode, const std::string& pName = std::string());
+  CloneNode(::onnx::Node& pNode, const std::string& pName = std::string());
 
   /// Add an initializer. If @ref pSizes is empty, find dimensions in inputs.
   /// @return The appended Initializer. If it fails, the function return an

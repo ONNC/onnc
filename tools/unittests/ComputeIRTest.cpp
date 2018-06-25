@@ -316,21 +316,7 @@ SKYPAT_F(ComputeIRTest, deep_clone)
   builder.AddNode("Softmax", {"fc8_1"});
   builder.AddOutput("prob_1", {1});
 
-  ::onnx::Node* copy = builder.DeepClone(*conv);
   builder.FinalizeTensorGraph({"prob_1"});
-
-  // instance is a copy
-  ASSERT_FALSE(copy == conv);
-
-  // all inputs should be identical
-  ASSERT_EQ(copy->inputs().size(), conv->inputs().size());
-  ASSERT_TRUE(copy->inputs()[0] == conv->inputs()[0]);
-  ASSERT_TRUE(copy->inputs()[1] == conv->inputs()[1]);
-  ASSERT_TRUE(copy->inputs()[2] == conv->inputs()[2]);
-
-  // all outputs should be copies
-  ASSERT_TRUE(copy->outputs().size() == conv->outputs().size());
-  ASSERT_TRUE(copy->outputs()[0] != conv->outputs()[0]);
 
   module.dump();
 }
