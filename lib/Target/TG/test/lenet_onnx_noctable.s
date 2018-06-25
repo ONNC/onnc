@@ -1,10 +1,170 @@
 #; RUN : onnx-as lenet.onnx.s | onnx2tg -march bm1880 -print-machineinstrs | FileCheck lenet.onnx.noctable.s
-#; CHECK: <11520 x INT8>({{.*}}) %conv1_1 = Conv <inN:1, inC:1, inH:1c, inW:1c, outC:14, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_DoBias:1, rShiftWidth:0> (<784 x INT8>({{.*}}) %data_0, <500 x INT8>({{.*}}) %conv1_w_0, <20 x INT16>({{.*}}) %conv1_b_0)
-#; CHECK: <2880 x INT8>({{.*}}) %pool1_1 = MaxPool <N:1, C:14, H:18, W:18,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2, rShiftWidth:0, thresholdX:0> (<11520 x INT8>({{.*}}) %conv1_1)
-#; CHECK: <3200 x INT8>({{.*}}) %conv2_1 = Conv <inN:1, inC:14, inH:c, inW:c, outC:32, groups:1, kH:5, kW:5, dilationH:1, dilationW:1, padH:0, padW:0, strideH:1, strideW:1, m_DoBias:1, rShiftWidth:0> (<2880 x INT8>({{.*}}) %pool1_1, <25000 x INT8>({{.*}}) %conv2_w_0, <50 x INT16>({{.*}}) %conv2_b_0)
-#; CHECK: <800 x INT8>({{.*}}) %pool2_1 = MaxPool <N:1, C:32, H:8, W:8,  kH:2, kW:2, padH:0, padW:0, srideH:2, strideW:2, rShiftWidth:0, thresholdX:0> (<3200 x INT8>({{.*}}) %conv2_1)
-#; CHECK: <500 x INT8>({{.*}}) %ip1_1 = Gemm <inRowNum:1, inColNum:320, outColNum:1f4, m_weightTp:1, do_activation:1, activation_method:0, lShiftWidth:0, rShiftWidth:0> (<800 x INT8>({{.*}}) %OC2_DUMMY_0, <400000 x INT8>({{.*}}) %ip1_w_0, <500 x INT16>({{.*}}) %ip1_b_0)
-#; CHECK: <10 x INT8>({{.*}}) %ip2_1 = Gemm <inRowNum:1, inColNum:1f4, outColNum:a, m_weightTp:1, do_activation:0, activation_method:0, lShiftWidth:0, rShiftWidth:0> (<500 x INT8>({{.*}}) %ip1_1, <5000 x INT8>({{.*}}) %ip2_w_0, <10 x INT16>({{.*}}) %ip2_b_0)
+
+# CHECK: inst {
+# CHECK-NEXT:   name: "conv1_1"
+# CHECK-NEXT:   type: "bmnet_conv_fixed_forward_bmkernel"
+# CHECK-NEXT:   conv {
+# CHECK-NEXT:     ga_ifmap: 0
+# CHECK-NEXT:     ga_ofmap: 0
+# CHECK-NEXT:     ga_weight: 784
+# CHECK-NEXT:     ga_bias: 500
+# CHECK-NEXT:     input_n: 1
+# CHECK-NEXT:     input_c: 1
+# CHECK-NEXT:     input_h: 28
+# CHECK-NEXT:     input_w: 28
+# CHECK-NEXT:     groups: 1
+# CHECK-NEXT:     output_c: 20
+# CHECK-NEXT:     kh: 5
+# CHECK-NEXT:     kw: 5
+# CHECK-NEXT:     dilation_h: 1
+# CHECK-NEXT:     dilation_w: 1
+# CHECK-NEXT:     pad_h: 0
+# CHECK-NEXT:     pad_w: 0
+# CHECK-NEXT:     stride_h: 1
+# CHECK-NEXT:     stride_w: 1
+# CHECK-NEXT:     result_add: 0
+# CHECK-NEXT:     do_bn: 1
+# CHECK-NEXT:     do_scale: 0
+# CHECK-NEXT:     do_scale_bias: 0
+# CHECK-NEXT:     bn_scale: 0
+# CHECK-NEXT:     bn_eps: 0
+# CHECK-NEXT:     activation_ga_slope: 0
+# CHECK-NEXT:     activation_channel_shared: false
+# CHECK-NEXT:     activation_gt_scale: 0
+# CHECK-NEXT:     activation_gt_rshift: 0
+# CHECK-NEXT:     activation_le_scale: 0
+# CHECK-NEXT:     activation_le_rshift: 0
+# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+# CHECK-NEXT: inst {
+# CHECK-NEXT:   name: "pool1_1"
+# CHECK-NEXT:   type: "bmnet_pooling_fixed_forward_bmkernel"
+# CHECK-NEXT:   pooling {
+# CHECK-NEXT:     ifmap_gaddr: 784
+# CHECK-NEXT:     ofmap_gaddr: 12304
+# CHECK-NEXT:     n: 1
+# CHECK-NEXT:     c: 20
+# CHECK-NEXT:     h: 24
+# CHECK-NEXT:     w: 24
+# CHECK-NEXT:     kh: 2
+# CHECK-NEXT:     kw: 2
+# CHECK-NEXT:     pad_h: 0
+# CHECK-NEXT:     pad_w: 0
+# CHECK-NEXT:     stride_h: 2
+# CHECK-NEXT:     stride_w: 2
+# CHECK-NEXT:     is_avg_pooling: false
+# CHECK-NEXT:     avg_const: 0
+# CHECK-NEXT:     do_relu: false
+# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:     threshold_x_quantized: 0
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+# CHECK-NEXT: inst {
+# CHECK-NEXT:   name: "conv2_1"
+# CHECK-NEXT:   type: "bmnet_conv_fixed_forward_bmkernel"
+# CHECK-NEXT:   conv {
+# CHECK-NEXT:     ga_ifmap: 12304
+# CHECK-NEXT:     ga_ofmap: 540
+# CHECK-NEXT:     ga_weight: 15184
+# CHECK-NEXT:     ga_bias: 25540
+# CHECK-NEXT:     input_n: 1
+# CHECK-NEXT:     input_c: 20
+# CHECK-NEXT:     input_h: 12
+# CHECK-NEXT:     input_w: 12
+# CHECK-NEXT:     groups: 1
+# CHECK-NEXT:     output_c: 50
+# CHECK-NEXT:     kh: 5
+# CHECK-NEXT:     kw: 5
+# CHECK-NEXT:     dilation_h: 1
+# CHECK-NEXT:     dilation_w: 1
+# CHECK-NEXT:     pad_h: 0
+# CHECK-NEXT:     pad_w: 0
+# CHECK-NEXT:     stride_h: 1
+# CHECK-NEXT:     stride_w: 1
+# CHECK-NEXT:     result_add: 0
+# CHECK-NEXT:     do_bn: 1
+# CHECK-NEXT:     do_scale: 0
+# CHECK-NEXT:     do_scale_bias: 0
+# CHECK-NEXT:     bn_scale: 0
+# CHECK-NEXT:     bn_eps: 0
+# CHECK-NEXT:     activation_ga_slope: 0
+# CHECK-NEXT:     activation_channel_shared: false
+# CHECK-NEXT:     activation_gt_scale: 0
+# CHECK-NEXT:     activation_gt_rshift: 0
+# CHECK-NEXT:     activation_le_scale: 0
+# CHECK-NEXT:     activation_le_rshift: 0
+# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+# CHECK-NEXT: inst {
+# CHECK-NEXT:   name: "pool2_1"
+# CHECK-NEXT:   type: "bmnet_pooling_fixed_forward_bmkernel"
+# CHECK-NEXT:   pooling {
+# CHECK-NEXT:     ifmap_gaddr: 15184
+# CHECK-NEXT:     ofmap_gaddr: 18384
+# CHECK-NEXT:     n: 1
+# CHECK-NEXT:     c: 50
+# CHECK-NEXT:     h: 8
+# CHECK-NEXT:     w: 8
+# CHECK-NEXT:     kh: 2
+# CHECK-NEXT:     kw: 2
+# CHECK-NEXT:     pad_h: 0
+# CHECK-NEXT:     pad_w: 0
+# CHECK-NEXT:     stride_h: 2
+# CHECK-NEXT:     stride_w: 2
+# CHECK-NEXT:     is_avg_pooling: false
+# CHECK-NEXT:     avg_const: 0
+# CHECK-NEXT:     do_relu: false
+# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:     threshold_x_quantized: 0
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+# CHECK-NEXT: inst {
+# CHECK-NEXT:   name: "ip1_1"
+# CHECK-NEXT:   type: "bmnet_fc_fixed_forward_bmkernel"
+# CHECK-NEXT:   fc {
+# CHECK-NEXT:     bottom_data_gaddr: 18384
+# CHECK-NEXT:     weight_data_gaddr: 25640
+# CHECK-NEXT:     bias_data_gaddr: 425640
+# CHECK-NEXT:     top_data_gaddr: 19184
+# CHECK-NEXT:     input_row_num: 1
+# CHECK-NEXT:     input_col_num: 800
+# CHECK-NEXT:     weight_col_num: 500
+# CHECK-NEXT:     have_bias: true
+# CHECK-NEXT:     do_activation: 1
+# CHECK-NEXT:     activation_method: RELU
+# CHECK-NEXT:     weight_transpose: true
+# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+# CHECK-NEXT: inst {
+# CHECK-NEXT:   name: "ip2_1"
+# CHECK-NEXT:   type: "bmnet_fc_fixed_forward_bmkernel"
+# CHECK-NEXT:   fc {
+# CHECK-NEXT:     bottom_data_gaddr: 19184
+# CHECK-NEXT:     weight_data_gaddr: 426640
+# CHECK-NEXT:     bias_data_gaddr: 431640
+# CHECK-NEXT:     top_data_gaddr: 19684
+# CHECK-NEXT:     input_row_num: 1
+# CHECK-NEXT:     input_col_num: 500
+# CHECK-NEXT:     weight_col_num: 10
+# CHECK-NEXT:     have_bias: true
+# CHECK-NEXT:     do_activation: 0
+# CHECK-NEXT:     activation_method: RELU
+# CHECK-NEXT:     weight_transpose: true
+# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+
+# CHECK: INT8 tensor <1, 20, 24, 24> %conv1_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (INT8 tensor <1, 1, 28, 28> %data_0, INT8 tensor <20, 1, 5, 5> %conv1_w_0, INT16 tensor <20> %conv1_b_0)
+# CHECK: INT8 tensor <1, 20, 12, 12> %pool1_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (INT8 tensor <1, 20, 24, 24> %conv1_1)
+# CHECK: INT8 tensor <1, 50, 8, 8> %conv2_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (INT8 tensor <1, 20, 12, 12> %pool1_1, INT8 tensor <50, 20, 5, 5> %conv2_w_0, INT16 tensor <50> %conv2_b_0)
+# CHECK: INT8 tensor <1, 50, 4, 4> %pool2_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (INT8 tensor <1, 50, 8, 8> %conv2_1)
+# CHECK: INT8 tensor <1, 800> %OC2_DUMMY_0 = Reshape(INT8 tensor <1, 50, 4, 4> %pool2_1, INT64 tensor <2> %OC2_DUMMY_1)
+# CHECK: INT8 tensor <1, 500> %ip1_1 = Gemm <transB:INT 1, broadcast:INT 1, enableReLu:INT 1> (INT8 tensor <1, 800> %OC2_DUMMY_0, INT8 tensor <500, 800> %ip1_w_0, INT16 tensor <500> %ip1_b_0)
+# CHECK: INT8 tensor <1, 10> %ip2_1 = Gemm <transB:INT 1, broadcast:INT 1> (INT8 tensor <1, 500> %ip1_1, INT8 tensor <10, 500> %ip2_w_0, INT16 tensor <10> %ip2_b_0)
+# CHECK: INT8 tensor <1, 10> %prob_1 = Softmax(INT8 tensor <1, 10> %ip2_1)
 
 ir_version: 3
 producer_name: "onnx-caffe2"
