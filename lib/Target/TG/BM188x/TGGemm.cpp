@@ -2,8 +2,11 @@
 
 #include "TGGemm.h"
 #include "BM188xCodeEmitter.h"
+#include "PatternMatch.h"
 #include <bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+
+namespace pm = onnc::PatternMatch;
 
 namespace onnc {
 namespace BM188X {
@@ -34,9 +37,7 @@ TGGemm::TGGemm(const ::onnx::Node &pNode)
     m_WeightTp = true;
   }
 
-  if (pNode.hasAttribute(::onnx::Symbol("enableReLu"))) {
-    m_EnableRelu = true;
-  }
+  m_EnableRelu = pm::match(&pNode, pm::mTrueAttr("enableReLu"));
 }
 
 TGGemm *TGGemm::addMemOperands(MemOperand *pInput, MemOperand *pOutput,

@@ -1,9 +1,12 @@
 #include "TGConv.h"
 #include "BM188xCodeEmitter.h"
+#include "PatternMatch.h"
 #include <bmkernel_api.h>
+#include <onnc/Support/Debug.h>
 
 #define DEBUG_TYPE "tg_conv"
-#include <onnc/Support/Debug.h>
+
+namespace pm = onnc::PatternMatch;
 
 namespace onnc {
 namespace BM188X {
@@ -98,9 +101,9 @@ void TGConv::emit() const
       m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
       m_DoBias,                                                 // do_bias,
       0,                                                        // do_bn,
-      0,                                                        // do_scale,
-      0,             // do_scale_bias,
-      0,             // do_activation,
+      pm::match(m_pNode, pm::mTrueAttr("do_scale")),
+      pm::match(m_pNode, pm::mTrueAttr("do_scale_bias")),
+      pm::match(m_pNode, pm::mTrueAttr("do_relu")),
       0,             // bn_scale,
       0,             // bn_eps,
       0,             // activation_method,
@@ -214,8 +217,8 @@ void TGConv::toASM(tg::bm1880::Inst *pI) const
     conv->set_stride_w(m_StrideW);
     conv->set_result_add(false);
     conv->set_do_bn(m_DoBias);
-    conv->set_do_scale(0);
-    conv->set_do_scale_bias(0);
+    conv->set_do_scale(pm::match(m_pNode, pm::mTrueAttr("do_scale")));
+    conv->set_do_scale_bias(pm::match(m_pNode, pm::mTrueAttr("do_scale_bias")));
     conv->set_bn_scale(0);
     conv->set_bn_eps(0);
     conv->set_activation_ga_slope(0);
@@ -225,6 +228,11 @@ void TGConv::toASM(tg::bm1880::Inst *pI) const
     conv->set_activation_le_scale(0);
     conv->set_activation_le_rshift(0);
     conv->set_right_shift_width(m_RShiftWidth);
+    auto do_activation = pm::match(m_pNode, pm::mTrueAttr("do_relu"));
+    if (do_activation) {
+      conv->set_do_activation(true);
+      conv->set_activation_method(tg::bm1880::Inst::RELU);
+    }
   }
 }
 
