@@ -8,7 +8,8 @@
 namespace onnc {
 namespace PatternMatch {
 
-template <typename Val, typename Pattern> bool match(Val *pV, const Pattern &pP)
+template <typename Val, typename Pattern>
+bool match(const Val *pV, const Pattern &pP)
 {
   if (pV == nullptr)
     return false;
@@ -16,7 +17,7 @@ template <typename Val, typename Pattern> bool match(Val *pV, const Pattern &pP)
 }
 
 template <typename Val, typename Pattern, typename... Patterns>
-bool match(Val *pV, const Pattern &pP, const Patterns &... pPs)
+bool match(const Val *pV, const Pattern &pP, const Patterns &... pPs)
 {
   return match(pV, pP) and match(pV, pPs...);
 }
@@ -24,11 +25,11 @@ bool match(Val *pV, const Pattern &pP, const Patterns &... pPs)
 struct matchSymbol {
   onnx::Symbol m_Symbol;
   matchSymbol(const std::string &pSym) : m_Symbol(pSym) {}
-  bool match(onnx::Node *pN) { return pN->kind() == m_Symbol; }
+  bool match(const onnx::Node *pN) { return pN->kind() == m_Symbol; }
 };
-matchSymbol mSymbol(const std::string &pSym) { return pSym; }
+inline matchSymbol mSymbol(const std::string &pSym) { return pSym; }
 
-onnx::Node *next(onnx::Node *pN)
+inline onnx::Node *next(onnx::Node *pN)
 {
   if (pN->outputs().size() != 1)
     return nullptr;
@@ -47,7 +48,7 @@ template <typename LTy, typename RTy> struct match_combine_or {
   {
   }
 
-  template <typename ITy> bool match(ITy *pV)
+  template <typename ITy> bool match(const ITy *pV)
   {
     return m_L.match(pV) or m_R.match(pV);
   }
@@ -62,7 +63,7 @@ template <typename LTy, typename RTy> struct match_combine_and {
   {
   }
 
-  template <typename ITy> bool match(ITy *pV)
+  template <typename ITy> bool match(const ITy *pV)
   {
     return m_L.match(pV) and m_R.match(pV);
   }
@@ -94,7 +95,7 @@ template <typename T> struct matchAttr {
         : m_Name(pName), m_Value(pV)                                           \
     {                                                                          \
     }                                                                          \
-    bool match(onnx::Node *pN) const                                           \
+    bool match(const onnx::Node *pN) const                                     \
     {                                                                          \
       auto s = onnx::Symbol(m_Name);                                           \
       if (not pN->hasAttribute(s))                                             \
@@ -128,19 +129,22 @@ template <typename T> matchAttr<T> mAttr(const std::string &pName, T pV)
 struct matchNoAttr {
   std::string m_Name;
   matchNoAttr(const std::string &pName) : m_Name(pName) {}
-  bool match(onnx::Node *pN) const
+  bool match(const onnx::Node *pN) const
   {
     return not pN->hasAttribute(onnx::Symbol(m_Name));
   }
 };
-matchNoAttr mNoAttr(const std::string &pName) { return matchNoAttr(pName); }
+inline matchNoAttr mNoAttr(const std::string &pName)
+{
+  return matchNoAttr(pName);
+}
 
-match_combine_or<matchNoAttr, matchAttr<onnx::IntAttr::ValueType> >
+inline match_combine_or<matchNoAttr, matchAttr<onnx::IntAttr::ValueType> >
 mFalseAttr(const std::string &pName)
 {
   return m_CombineOr(mNoAttr(pName), mAttr<onnx::IntAttr::ValueType>(pName, 0));
 }
-matchAttr<onnx::IntAttr::ValueType> mTrueAttr(const std::string &pName)
+inline matchAttr<onnx::IntAttr::ValueType> mTrueAttr(const std::string &pName)
 {
   return mAttr<onnx::IntAttr::ValueType>(pName, 1);
 }
