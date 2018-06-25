@@ -107,8 +107,7 @@ void UpdateGraphOutputSize::resetOutputValueInfo(onnx::Graph *pGraph)
     if (n->kind() == onnx::Symbol("Softmax")) {
       onnx::Value *out = n->outputs()[0];
       auto sizes = out->sizes();
-      for (::onnx::Dimension &d : sizes)
-        d = m_BatchSize;
+      sizes[0] = m_BatchSize;
       // reset batch size
       out->setSizes(sizes);
       continue;
