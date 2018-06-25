@@ -17,7 +17,6 @@
 #include <onnc/IRReader/ONNXReader.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Target/TargetBackend.h>
-#include <onnc/Target/TargetOptions.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetSelect.h>
 #include <string>
@@ -78,15 +77,8 @@ int ONNX2TG::compile()
   }
 
   PassManager pm;
-  TargetOptions options;
-  if (m_Config.PrintModuleBeforeISel())
-    options.PrintModuleBeforeSel = 1;
-  if (m_Config.PrintMachineCode())
-    options.PrintMachineCode = 1;
-  if (m_Config.IgnoreCalibrationStep())
-    options.IgnoreCalibrationStep = 1;
 
-  TargetBackend *backend = target->createBackend(options);
+  TargetBackend *backend = target->createBackend(m_Config.getOptions());
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, m_Config.output());

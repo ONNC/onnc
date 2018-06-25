@@ -8,6 +8,7 @@
 #ifndef ONNC_COMPILER_ONNX_TO_TG_CONFIG_H
 #define ONNC_COMPILER_ONNX_TO_TG_CONFIG_H
 #include <onnc/Support/Path.h>
+#include <onnc/Target/TargetOptions.h>
 
 /** \class Config
  *  \brief Config stores all application configurations.
@@ -31,25 +32,25 @@ public:
 
   void setMarch(const std::string &pArch) { m_Arch = pArch; }
 
-  bool PrintModuleBeforeISel() const { return m_PrintModuleBeforeISel; }
+  bool PrintModuleBeforeISel() const;
 
-  void setPrintModuleBeforeISel(bool pSet) { m_PrintModuleBeforeISel = pSet; }
+  void setPrintModuleBeforeISel(bool pSet);
 
-  bool PrintMachineCode() const { return m_PrintMachineCode; }
+  bool PrintMachineCode() const;
 
-  void setPrintMachineCode(bool pSet) { m_PrintMachineCode = pSet; }
+  void setPrintMachineCode(bool pSet);
 
-  bool IgnoreCalibrationStep() const { return m_IgnoreCalibrationStep; }
+  bool IgnoreCalibrationStep() const;
 
-  void setIgnoreCalibrationStep(bool pSet) { m_IgnoreCalibrationStep = pSet; }
+  void setIgnoreCalibrationStep(bool pSet);
+
+  onnc::TargetOptions &getOptions();
 
 private:
   std::string m_Input;
   onnc::Path m_Output;
   std::string m_Arch;
-  bool m_PrintModuleBeforeISel{ false };
-  bool m_PrintMachineCode{ false };
-  bool m_IgnoreCalibrationStep{ false };
+  onnc::TargetOptions m_Options;
 };
 
 #endif

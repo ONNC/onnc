@@ -11,3 +11,30 @@
 // Config
 //===----------------------------------------------------------------------===//
 Config::Config() : m_Input(), m_Output() {}
+bool Config::PrintModuleBeforeISel() const
+{
+  return m_Options.PrintModuleBeforeSel;
+}
+
+void Config::setPrintModuleBeforeISel(bool pSet)
+{
+  m_Options.PrintModuleBeforeSel = pSet;
+}
+
+bool Config::PrintMachineCode() const { return m_Options.PrintMachineCode; }
+
+void Config::setPrintMachineCode(bool pSet)
+{
+  m_Options.PrintMachineCode = pSet;
+}
+
+bool Config::IgnoreCalibrationStep() const
+{
+  return m_Options.IgnoreCalibrationStep;
+}
+
+void Config::setIgnoreCalibrationStep(bool pSet)
+{
+  m_Options.IgnoreCalibrationStep = pSet;
+}
+onnc::TargetOptions &Config::getOptions() { return m_Options; }
