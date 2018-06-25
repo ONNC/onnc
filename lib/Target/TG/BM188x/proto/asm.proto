@@ -33,6 +33,7 @@ message Inst {
         bmnet_permute_fixed_forward_bmkernel             permute      = 16;
         bmnet_priorbox_fixed_forward_bmkernel            priorbox     = 17;
         bmnet_lrn_fixed_forward_bmkernel                 lrn          = 18;
+        bmnet_upsample_fixed_bmkernel                    upsample     = 19;
     }
 
     message bmnet_pooling_fixed_forward_bmkernel {
@@ -281,4 +282,13 @@ message Inst {
         repeated int32  power_lut             = 14;
     }
 
+    message bmnet_upsample_fixed_bmkernel{
+        optional uint64 bottom_gaddr = 1 [default = 0x000000ffffffffff];
+        optional uint64 top_gaddr    = 2 [default = 0x000000ffffffffff];
+        optional int32  n            = 3 [default = 0];
+        optional int32  c            = 4 [default = 0];
+        optional int32  h            = 5 [default = 0];
+        optional int32  w            = 6 [default = 0];
+        optional int32  scale        = 7 [default = 0];
+    }
 }

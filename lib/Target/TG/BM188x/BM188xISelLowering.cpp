@@ -7,6 +7,7 @@
 #include "TGMaxPool.h"
 #include "TGRelu.h"
 #include "TGSum.h"
+#include "TGUpsample.h"
 #include <onnc/Support/Debug.h>
 
 using namespace onnc;
@@ -79,6 +80,15 @@ ComputeOperator2 *BM188xISelLowering::LowerSum(const ::onnx::Node &pNode,
   return op->addMemOperands(vInput, output);
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerUpsample(const ::onnx::Node &pNode,
+                                                    ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGUpsample(pNode);
+  return op->addMemOperands(input, output);
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerReshape(const ::onnx::Node &pNode)
 {
   // reshape is in-place layer
@@ -114,6 +124,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerGemm(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Sum")) {
     return LowerSum(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("Upsample")) {
+    return LowerUpsample(pNode, pGraph);
   }
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
