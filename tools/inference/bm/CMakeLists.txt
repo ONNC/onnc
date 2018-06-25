@@ -1,6 +1,7 @@
 
 include_directories(SYSTEM ${ONNC_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(SYSTEM ${BMTAP_INSTALL_DIR}/include)
 include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/libbmruntime/include/)
 include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/bmkernel/common/include/)
 include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/libbmutils/include/)
