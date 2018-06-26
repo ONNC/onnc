@@ -9,6 +9,7 @@
 #define ONNC_IR_COMPUTE_ATTRIBUTES_H
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/ComputeGraph.h>
+#include <onnc/ADT/ConstSwitch.h>
 #include <string>
 
 namespace onnc {
@@ -21,12 +22,7 @@ public:
     kInteger,
     kString,
     kTensor,
-    kGraph,
-    kFloatVec,
-    kIntegerVec,
-    kStringVec,
-    kTensorVec,
-    kGraphVec
+    kGraph
   };
 
 public:
@@ -46,6 +42,16 @@ public:
   }
 
   Type kind() const { return m_Kind; }
+
+  void print(std::ostream& pOS) const {
+    pOS << ConstSwitch<std::string>(kind())
+           .Case<kFloat>("float")
+           .Case<kInteger>("int")
+           .Case<kString>("string")
+           .Case<kTensor>("tensor")
+           .Case<kGraph>("graph")
+           .Default("undefined");
+  }
 
 private:
   Type m_Kind;
@@ -136,6 +142,20 @@ typedef VectorAttribute<int64_t, Attribute::kInteger>    IntsAttr;
 typedef VectorAttribute<std::string, Attribute::kString> StringsAttr;
 typedef VectorAttribute<Tensor, Attribute::kTensor>      TensorsAttr;
 typedef VectorAttribute<ComputeGraph, Attribute::kGraph> GraphsAttr;
+
+template<typename ValueType, Attribute::Type Kind> std::ostream&
+operator<<(std::ostream& pOS, const ScalarAttribute<ValueType, Kind>& pV) {
+  pV.Attribute::print(pOS);
+  pOS << " (" << pV.value() << ")";
+  return pOS;
+}
+
+template<typename ValueType, Attribute::Type Kind> std::ostream&
+operator<<(std::ostream& pOS, const VectorAttribute<ValueType, Kind>& pV) {
+  pV.Attribute::print(pOS);
+  pOS << " [" << pV.vector().size() << "]";
+  return pOS;
+}
 
 } // namespace of onnc
 
