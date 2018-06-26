@@ -59,8 +59,6 @@ public:
 
   void print(std::ostream& pOS) const override;
 
-  void dump() const { print(errs()); }
-
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 private:
   GraphAttr m_Body;
