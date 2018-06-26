@@ -302,9 +302,6 @@ onnc::ArchToName(Quadruple::ArchType pType, Quadruple::SubArchType pSubType)
         case Quadruple::ARMSubArch_v5:   return "armv5";
         case Quadruple::ARMSubArch_v5te: return "armv5te";
         case Quadruple::ARMSubArch_v4t:  return "armv4t";
-        case Quadruple::SophonSubArch_vBM1680: return "sophonv1680";
-        case Quadruple::SophonSubArch_vBM1682: return "sophonv1682";
-        case Quadruple::SophonSubArch_vBM1880: return "sophonv1880";
         case Quadruple::NoSubArch:
         default: return "arm";
       }
@@ -335,8 +332,14 @@ onnc::ArchToName(Quadruple::ArchType pType, Quadruple::SubArchType pSubType)
     case Quadruple::amdil:       return "amdil";
     case Quadruple::spir:        return "spir";
     case Quadruple::spir64:      return "spir64";
-    case Quadruple::sophon:      return "sophon";
-
+    case Quadruple::sophon: {
+        switch (pSubType) {
+        case Quadruple::SophonSubArch_vBM1680: return "sophonv1680";
+        case Quadruple::SophonSubArch_vBM1682: return "sophonv1682";
+        case Quadruple::SophonSubArch_vBM1880: return "sophonv1880";
+        default: return "sophon";
+      }
+    }
     case Quadruple::UnknownArch:
     default: return "unknown";
   }
@@ -781,7 +784,7 @@ void Quadruple::setRaw(const std::string& pRaw)
 
 void Quadruple::canonical(std::string& pResult) const
 {
-  pResult = (ArchToName(getArch()) + Rope('-') +
+  pResult = (ArchToName(getArch(), getSubArch()) + Rope('-') +
              ArchVendorToName(getArchVendor()) + Rope('-') +
              OSToName(getOS()) + Rope('-') +
              EnvironmentToName(getEnvironment()) + Rope('-') +
