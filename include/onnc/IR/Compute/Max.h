@@ -45,7 +45,7 @@ public:
 
   void setMax(Tensor& pTensor) { m_Outputs[kMax] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

@@ -45,7 +45,7 @@ public:
 
   void setShape(Tensor& pTensor) { m_Outputs[kShape] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

@@ -45,7 +45,7 @@ public:
 
   void setMean(Tensor& pTensor) { m_Outputs[kMean] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

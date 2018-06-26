@@ -113,7 +113,7 @@ public:
 
   void setYC(Tensor& pTensor) { m_Outputs[kYC] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

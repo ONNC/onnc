@@ -57,7 +57,7 @@ public:
 
   void setVFinalAndScanOutputs(size_t pIdx, Tensor& pTensor) { m_Outputs[kVFinalAndScanOutputs + pIdx] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

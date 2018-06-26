@@ -55,7 +55,7 @@ public:
 
   void setIndices(Tensor& pTensor) { m_Outputs[kIndices] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

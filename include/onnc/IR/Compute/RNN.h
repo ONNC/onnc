@@ -95,7 +95,7 @@ public:
 
   void setYH(Tensor& pTensor) { m_Outputs[kYH] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 

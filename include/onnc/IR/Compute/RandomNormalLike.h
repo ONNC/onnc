@@ -56,7 +56,7 @@ public:
 
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
 
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
   void dump() const { print(errs()); }
 
