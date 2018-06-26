@@ -34,7 +34,16 @@ public:
     : m_Kind(pKind) {
   }
 
+  Attribute(const Attribute& pCopy)
+    : m_Kind(pCopy.kind()) {
+  }
+
   virtual ~Attribute() { }
+
+  Attribute& operator=(const Attribute& pCopy) {
+    m_Kind = pCopy.kind();
+    return *this;
+  }
 
   Type kind() const { return m_Kind; }
 
@@ -54,7 +63,17 @@ public:
     : Attribute(Kind), m_Value(pValue) {
   }
 
+  ScalarAttribute(const ScalarAttribute& pCopy)
+    : Attribute(pCopy), m_Value(pCopy.value()) {
+  }
+
   virtual ~ScalarAttribute() { }
+
+  ScalarAttribute& operator=(const ScalarAttribute& pCopy) {
+    Attribute::operator=(pCopy);
+    m_Value = pCopy.value();
+    return *this;
+  }
 
   /// return a copy
   ValueType value() { return m_Value; }
@@ -86,7 +105,17 @@ public:
     : Attribute(Kind), m_Vector(pVector) {
   }
 
+  VectorAttribute(const VectorAttribute& pCopy)
+    : Attribute(pCopy), m_Vector(pCopy.vector()) {
+  }
+
   virtual ~VectorAttribute() { }
+
+  VectorAttribute& operator=(const VectorAttribute& pCopy) {
+    Attribute::operator=(pCopy);
+    m_Vector = pCopy.vector();
+    return *this;
+  }
 
   VectorType& vector() { return m_Vector; }
 

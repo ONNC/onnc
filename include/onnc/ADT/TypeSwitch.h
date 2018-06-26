@@ -77,7 +77,7 @@ private:
 
   /// The pointer to the result of this switch statement, once known,
   /// null before that.
-  const T* m_pResult;
+  const R* m_pResult;
 };
 
 } // namespace of onnc
