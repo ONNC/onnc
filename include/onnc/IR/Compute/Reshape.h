@@ -54,10 +54,7 @@ public:
 
   void dump() const { print(errs()); }
 
-  void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
-
-private:
-  
+  void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 };
 
 } // namespace of onnc

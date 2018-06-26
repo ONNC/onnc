@@ -57,8 +57,7 @@ public:
 
   void dump() const { print(errs()); }
 
-  void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
-
+  void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 private:
   StringAttr m_Mode;
   IntsAttr m_Pads;
