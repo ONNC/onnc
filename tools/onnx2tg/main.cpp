@@ -14,6 +14,10 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Path.h>
 
+#ifdef BMNETC_EXIST
+#include <bmnetc/foo.h>
+#endif
+
 using namespace onnc;
 
 static AboutData g_About("onnx2tg", "onnc2tg", "0.1.0", AboutLicense::kPrivate,
@@ -83,6 +87,10 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
   onnx2tg.options().setDumpASM(dumpASM);
   onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
+
+#ifdef BMNETC_EXIST
+  foo();
+#endif
 
   return onnx2tg.compile();
 }
