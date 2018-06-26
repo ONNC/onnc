@@ -1,5 +1,6 @@
 #define DEBUG_TYPE "bm188x_lowering"
 #include "BM188xISelLowering.h"
+#include "TGAveragePool.h"
 #include "TGConv.h"
 #include "TGGemm.h"
 #include "TGLRN.h"
@@ -39,6 +40,16 @@ ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const ::onnx::Node &pNode,
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGMaxPool(pNode);
+  return op->addMemOperands(input, output);
+}
+
+ComputeOperator2 *
+BM188xISelLowering::LowerAveragePool(const ::onnx::Node &pNode,
+                                     ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGAveragePool(pNode);
   return op->addMemOperands(input, output);
 }
 
@@ -97,6 +108,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerRelu(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("MaxPool")) {
     return LowerMaxPool(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("AveragePool")) {
+    return LowerAveragePool(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Gemm")) {
     return LowerGemm(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Sum")) {
