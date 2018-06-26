@@ -10,6 +10,15 @@ OpType* ComputeGraph::addOperator(NodeCtorParams&& ... pParams)
 {
   // 1. find an available free node
   OpType* result = new OpType(pParams...);
+  this->addOperator(*result);
+  return result;
+}
+
+template<typename OpType>
+ComputeGraph& ComputeGraph::addOperator(OpType& pOperator)
+{
+  // 1. find an available free node
+  OpType* result = &pOperator;
   m_NodeList.insert(result);
 
   // 2. set up linkages
@@ -29,7 +38,7 @@ OpType* ComputeGraph::addOperator(NodeCtorParams&& ... pParams)
   if (nullptr == m_pNodeHead)
     m_pNodeHead = result;
 
-  return result;
+  return *this;
 }
 
 template<typename OpndType, typename ... ArcCtorParams>

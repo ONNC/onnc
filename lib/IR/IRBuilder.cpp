@@ -14,7 +14,8 @@ using namespace onnc;
 // IRBuilder
 //===----------------------------------------------------------------------===//
 IRBuilder::IRBuilder(Module& pModule)
-  : m_Module(pModule), m_pTargetTG(nullptr), m_pTargetCG(nullptr) {
+  : m_Module(pModule), m_pTargetTG(nullptr), m_pTargetCG(nullptr),
+    m_pTargetCNode(nullptr) {
 }
 
 IRBuilder::IRBuilder(Module& pModule, const ::onnx::ModelProto& pProto)

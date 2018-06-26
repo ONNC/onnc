@@ -43,6 +43,9 @@ private:
   /// all ::onnx::Value created
   CreateValues m_CreatedValues;
 
+  /// current target compute operator
+  ComputeOperator* m_pTargetCNode;
+
 public:
   /// set the target module @ref pModel
   IRBuilder(Module& pModule);
@@ -162,6 +165,12 @@ public:
   /// Two operators are connected as well.
   template<typename OpndType, typename OpType, typename ... CtorParams>
   OpndType* AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams);
+
+  /// Return a copy of a specified operator, but without embedding it into the
+  /// compute graph.
+  /// TODO: use unique_ptr.
+  template<typename OpType>
+  OpType* CloneComputeOp(const OpType& pOp);
 };
 
 #include "Bits/IRBuilder.tcc"

@@ -7,6 +7,7 @@ ONNC_SOURCES = \
 	IR/ComputeGraph.cpp \
 	IR/Module.cpp \
 	IR/Dump.cpp \
+	IR/Define.cpp \
 	IR/ONNXUtils.cpp \
 	IR/IRBuilder.cpp \
 	IR/Compute/Value.cpp \

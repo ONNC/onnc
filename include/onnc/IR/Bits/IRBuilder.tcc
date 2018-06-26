@@ -13,6 +13,7 @@ OpType* IRBuilder::AddComputeOp(CtorParams&& ... pParams)
 
   OpType* op = getComputeGraph()->addOperator<OpType>(pParams...);
   RegisterComputeOperator(op);
+  m_pTargetCNode = op;
   return op;
 }
 
@@ -32,4 +33,13 @@ IRBuilder::AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams)
 
   OpndType* opnd = getComputeGraph()->addOperand<OpndType>(pFrom, pTo, pParams...);
   return opnd;
+}
+
+template<typename OpType>
+OpType* IRBuilder::CloneComputeOp(const OpType& pOp)
+{
+  OpType* result = new OpType(pOp);
+  RegisterComputeOperator(result);
+  m_pTargetCNode = result;
+  return result;
 }

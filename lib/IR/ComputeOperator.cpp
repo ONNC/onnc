@@ -13,6 +13,20 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // ComputeOperator
 //===----------------------------------------------------------------------===//
+ComputeOperator::ComputeOperator(StringRef pName)
+  : onnc::Define(pName),
+    m_OpCode(0), m_Inputs(), m_Outputs(), m_GraphOperators() {
+}
+
+ComputeOperator::ComputeOperator(const ComputeOperator& pCopy)
+  : onnc::Define(pCopy),
+    onnc::DigraphNode<ComputeOperator, ComputeOperand>(), // no linkages
+    m_OpCode(pCopy.getOpCode()),
+    m_Inputs(pCopy.m_Inputs),
+    m_Outputs(pCopy.m_Outputs),
+    m_GraphOperators(pCopy.m_GraphOperators) {
+}
+
 void ComputeOperator::connect(const GraphOperator& pGraphOperator)
 {
   m_GraphOperators.push_back(&pGraphOperator);

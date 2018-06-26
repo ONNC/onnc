@@ -16,9 +16,10 @@ namespace onnc {
 class Define
 {
 public:
-  Define(StringRef pName)
-    : m_Name(pName) {
-  }
+  /// define a Define object with name @ref pName
+  Define(StringRef pName);
+
+  Define(const Define& pCopy);
 
   virtual ~Define() { }
 

@@ -55,6 +55,12 @@ public:
   template<typename OpType, typename ... NodeCtorParams>
   OpType* addOperator(NodeCtorParams&& ... pParams);
 
+  /// Add an operator in the graph. The added node's life cycle is delegated
+  /// to the graph. ComputeGraph is responsible for destruction of the added
+  /// node.
+  template<typename OpType>
+  ComputeGraph& addOperator(OpType& pOperator);
+
   template<typename OpndType, typename ... ArcCtorParams>
   OpndType* addOperand(Node& pU, Node& pV, ArcCtorParams&& ... pParams);
 

@@ -25,6 +25,10 @@ class ComputeVisitor;
 /** \class ComputeOperator
  *
  *  ComputeOperator connects ONNX and machine ABI.
+ *  We put multiple concepts in ComputeOperator. First, a ComputeOperator
+ *  object represents a node in ComputeGraph. ComputeGraph::addOperator
+ *  inserts a new node into the graph. ComputeOperator objects also represent
+ *  a `define` in the use-define chain.
  */
 class ComputeOperator : public onnc::Define,
                         public DigraphNode<ComputeOperator, ComputeOperand>
@@ -35,10 +39,18 @@ public:
   typedef int64_t Opcode;
 
 public:
-  ComputeOperator(StringRef pName)
-    : onnc::Define(pName),
-      m_OpCode(0), m_Inputs(), m_Outputs(), m_GraphOperators() {
-  }
+  ComputeOperator(StringRef pName);
+
+  /// Shallow copy constructor (without copy of arcs of graph).
+  /// Copy things:
+  /// - the opcode,
+  /// - list of pointers to input values,
+  /// - list of pointers to output values, and
+  /// - list of pointers to graph operators.
+  /// Not making copies of input value instances and output value instances.
+  ///
+  /// @note This doesn't copy linkages to previous and next operators.
+  ComputeOperator(const ComputeOperator& pCopy);
 
   void setOpcode(Opcode pOP) { m_OpCode = pOP; }
 

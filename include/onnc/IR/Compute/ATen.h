@@ -24,6 +24,9 @@ public:
 
 public:
   ATen();
+
+  // shallow copy constructor.
+  ATen(const ATen& pCopy);
   
   ~ATen() { }
   

@@ -16,6 +16,10 @@ ATen::ATen()
   : ComputeOperator("ATen") {
 }
 
+ATen::ATen(const ATen& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void ATen::print(std::ostream& pOS) const
 {
   pOS << name();

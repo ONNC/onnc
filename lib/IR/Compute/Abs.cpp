@@ -16,6 +16,10 @@ Abs::Abs()
   : ComputeOperator("Abs") {
 }
 
+Abs::Abs(const Abs& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Abs::print(std::ostream& pOS) const
 {
   pOS << name();
