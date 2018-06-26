@@ -138,14 +138,6 @@ if (TARGET_TG)
         ${BMTAP_INSTALL_DIR}/lib/libbmkernel-static.a)
 endif()
 
-set(PYTORCH_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
-set(PYTORCH_INCLUDE_DIRS
-    ${PYTORCH_INSTALL_DIR}/include)
-set(PYTORCH_LIBRARIES
-    ${PYTORCH_INSTALL_DIR}/lib/libonnx.a
-    ${PYTORCH_INSTALL_DIR}/lib/libonnx_proto.a
-    ${PYTORCH_INSTALL_DIR}/lib/libcaffe2.so)
-
 ####################
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)

@@ -5,8 +5,7 @@ include_directories(
     ${BMTAP_BINARY_DIR}/bmnet/src
     ${BMTAP_INSTALL_DIR}/include
     ${BMTAP_SOURCE_DIR}/bmnet/include
-    ${BMTAP_SOURCE_DIR}/bmnet/include/targets
-    ${PYTORCH_INCLUDE_DIRS})
+    ${BMTAP_SOURCE_DIR}/bmnet/include/targets)
 
 add_libonnc_src(
     TargetLowering.cpp
