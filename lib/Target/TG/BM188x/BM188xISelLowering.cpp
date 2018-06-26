@@ -100,6 +100,17 @@ ComputeOperator2 *BM188xISelLowering::LowerReshape(const ::onnx::Node &pNode)
   return nullptr;
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerFlatten(const ::onnx::Node &pNode)
+{
+  // flatten is in-place layer
+  // create MemOperand by input value with output name
+  // reshape emit nop instruction
+  m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON,
+                            pNode.outputs()[0]->uniqueName());
+  return nullptr;
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
                                                      ComputeGraph &pGraph)
 {
@@ -112,6 +123,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return nullptr;
   else if (symbol == ::onnx::Symbol("Reshape")) {
     return LowerReshape(pNode);
+  } else if (symbol == ::onnx::Symbol("Flatten")) {
+    return LowerFlatten(pNode);
   } else if (symbol == ::onnx::Symbol("Conv")) {
     return LowerConv(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Relu")) {
