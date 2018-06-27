@@ -138,7 +138,7 @@ Module::~Module()
 
 Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
 {
-  if (!m_pOnnxGraph)
+  if (m_pOnnxGraph)
     m_pOnnxGraph.reset();
   m_pOnnxGraph = std::move(pGraph);
   return *this;
@@ -146,8 +146,7 @@ Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
 
 Module& Module::delegate(::onnx::Graph& pGraph)
 {
-  if (!m_pOnnxGraph)
-    m_pOnnxGraph.reset(&pGraph);
+  m_pOnnxGraph.reset(&pGraph);
   return *this;
 }
 
