@@ -46,7 +46,7 @@ Lower* LowerRegistry::LookUp(const ::onnx::Node& pNode)
 {
   int max = 0;
   Lower* target = nullptr;
-  for (Lower* lower : s_LowerList) {
+  for (Lower* lower : *s_LowerList) {
     int score = lower->isMe(pNode);
     if (score > max)
       target = lower;
