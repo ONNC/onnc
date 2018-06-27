@@ -31,7 +31,7 @@ public:
   /// @return error occurred in the parsing.
   SystemError parse(const Path& pFileName, Module& pModule);
 
-  Module* parse(ConstBuffer pContent, SystemError& pError);
+  SystemError parse(ConstBuffer pContent, Module& pModule);
 
   /// Set the total bytes limit.
   /// @param[in] pTotalBytesLimit

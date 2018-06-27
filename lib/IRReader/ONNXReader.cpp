@@ -60,10 +60,8 @@ SystemError onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
   return SystemError::kSuccess;
 }
 
-Module* onnc::onnx::Reader::parse(ConstBuffer pContent, SystemError& pError)
+SystemError onnc::onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
 {
-  pError = SystemError::kSuccess;
-  Module *result = nullptr;
   {
     ::google::protobuf::io::ArrayInputStream input(
         (const uint8_t *)pContent.raw(), pContent.size());
@@ -73,12 +71,12 @@ Module* onnc::onnx::Reader::parse(ConstBuffer pContent, SystemError& pError)
     ::onnx::ModelProto model;
     if (!model.ParseFromCodedStream(&coded_input)) {
       error(onnx_cannot_parsed);
-      pError = SystemError::kUnknownError;
-      return nullptr;
+      return SystemError::kUnknownError;
     }
-    result = CreateModule(model);
+    IRBuilder builder(pModule);
+    builder.update(model);
   }
-  return result;
+  return SystemError::kSuccess;
 }
 
 void onnc::onnx::Reader::setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold)
