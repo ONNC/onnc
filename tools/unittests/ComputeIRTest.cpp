@@ -28,6 +28,7 @@ using namespace onnc;
 SKYPAT_F(ComputeIRTest, attr_test)
 {
   FloatAttr alpha;
+  errs() << alpha << std::endl;
   ASSERT_EQ(alpha.kind(), Attribute::kFloat);
 }
 

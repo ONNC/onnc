@@ -1,4 +1,6 @@
 
 add_libonnc_src(
-    removeUnusedNodes.cpp)
+    removeUnusedNodes.cpp
+    TensorSel/Lower.cpp
+    TensorSel/LowerRegistry.cpp)
 

@@ -1,11 +1,24 @@
 
 add_libonnc_src(
-    ComputeGraph.cpp
+    ComputeOperand.cpp
     ComputeOperator.cpp
-    Dump.cpp
+    ComputeGraph.cpp
     Module.cpp
     ONNCModulePrinter.cpp
     ONNCNodeNameGen.cpp
+    Dump.cpp
+    Define.cpp
     ONNXUtils.cpp
+    IRBuilder.cpp
     Quadruple.cpp
-    IRBuilder.cpp)
+    Compute/Value.cpp
+    Compute/Scalar.cpp
+    Compute/Tensor.cpp
+    Compute/ATen.cpp
+    Compute/Abs.cpp
+    Compute/Add.cpp
+    Compute/Affine.cpp
+    Compute/Conv.cpp
+    Compute/Relu.cpp
+    Compute/LRN.cpp
+    Graph/Initializer.cpp)

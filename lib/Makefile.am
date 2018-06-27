@@ -9,7 +9,9 @@ ONNC_SOURCES = \
 	IR/Dump.cpp \
 	IR/Define.cpp \
 	IR/ONNXUtils.cpp \
+	IR/Quadruple.cpp \
 	IR/IRBuilder.cpp \
+	IR/ONNCModulePrinter.cpp \
 	IR/Compute/Value.cpp \
 	IR/Compute/Scalar.cpp \
 	IR/Compute/Tensor.cpp \
@@ -27,6 +29,7 @@ ONNC_SOURCES = \
 	Target/NPUTargetBackend.cpp \
 	Transforms/removeUnusedNodes.cpp \
 	Transforms/TensorSel/Lower.cpp \
+	Transforms/TensorSel/LowerRegistry.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
