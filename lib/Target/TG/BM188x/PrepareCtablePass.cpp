@@ -22,7 +22,7 @@ public:
 
 private:
   // insert ctable into backend
-  void insertDummyCtable(onnx::Graph *pGraph);
+  std::string getDummyCtable(onnx::Graph *pGraph);
 
 private:
   BM1880Backend *m_pBackend; // NOLINT
@@ -33,13 +33,13 @@ Pass::ReturnType PrepareCtable::runOnModule(Module &pModule)
   auto ctable = m_pBackend->getCtable(pModule);
   if (ctable.empty() || m_pBackend->getOption().m_IgnoreCalibrationStep) {
     onnx::Graph *graph = pModule.getGraphIR().get();
-    insertDummyCtable(graph);
-  } else
-    m_pBackend->setCtableProto(ctable);
+    ctable = getDummyCtable(graph);
+  }
+  m_pBackend->setCtableProto(ctable);
   return Pass::kModuleNoChanged;
 }
 
-void PrepareCtable::insertDummyCtable(onnx::Graph *pGraph)
+std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
 {
   tg::bm1880::NetCalibrationParameter net_ctable_param;
   net_ctable_param.set_name(pGraph->name());
@@ -116,7 +116,7 @@ void PrepareCtable::insertDummyCtable(onnx::Graph *pGraph)
     }
   }
 
-  m_pBackend->setCtableProto(net_ctable_param.DebugString());
+  return net_ctable_param.DebugString();
 }
 
 } // namespace
