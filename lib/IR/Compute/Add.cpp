@@ -14,8 +14,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Add::Add()
   : ComputeOperator("Add"),
-    m_Axis(),
-    m_Broadcast() {
+    m_Axis(0),
+    m_Broadcast(0) {
 }
 
 Add::Add(const IntAttr& pAxis,
@@ -25,6 +25,13 @@ Add::Add(const IntAttr& pAxis,
     m_Broadcast(pBroadcast) {
 }
 
+Add::Add(const Add& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()),
+    m_Broadcast(pCopy.getBroadcast()) {
+}
+
 void Add::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ", " << getBroadcast() << ">";
 }

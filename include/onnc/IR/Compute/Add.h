@@ -29,6 +29,8 @@ public:
   Add(const IntAttr& pAxis,
       const IntAttr& pBroadcast);
 
+  Add(const Add& pCopy);
+
   ~Add() { }
 
   const IntAttr& getAxis() const { return m_Axis; }

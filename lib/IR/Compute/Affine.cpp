@@ -25,6 +25,12 @@ Affine::Affine(const FloatAttr& pAlpha,
     m_Beta(pBeta) {
 }
 
+Affine::Affine(const Affine& pCopy)
+  : ComputeOperator(pCopy),
+    m_Alpha(pCopy.getAlpha()),
+    m_Beta(pCopy.getBeta()) {
+}
 void Affine::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
 }

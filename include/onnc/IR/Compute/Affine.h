@@ -28,6 +28,8 @@ public:
   Affine(const FloatAttr& pAlpha,
          const FloatAttr& pBeta);
 
+  Affine(const Affine& pCopy);
+
   ~Affine() { }
 
   const FloatAttr& getAlpha() const { return m_Alpha; }
@@ -53,6 +55,7 @@ public:
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
 private:
   FloatAttr m_Alpha;
   FloatAttr m_Beta;

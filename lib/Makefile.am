@@ -15,6 +15,8 @@ ONNC_SOURCES = \
 	IR/Compute/Tensor.cpp \
 	IR/Compute/ATen.cpp \
 	IR/Compute/Abs.cpp \
+	IR/Compute/Add.cpp \
+	IR/Compute/Affine.cpp \
 	IR/Compute/Conv.cpp \
 	IR/Compute/Relu.cpp \
 	IR/Compute/LRN.cpp \
@@ -24,6 +26,7 @@ ONNC_SOURCES = \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp \
 	Transforms/removeUnusedNodes.cpp \
+	Transforms/TensorSel/Lower.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \

@@ -16,8 +16,11 @@ Acos::Acos()
   : ComputeOperator("Acos") {
 }
 
-
+Acos::Acos(const Acos& pCopy)
+  : ComputeOperator(pCopy) {
+}
 
 void Acos::print(std::ostream& pOS) const
 {
+  pOS << name();
 }

@@ -25,9 +25,10 @@ public:
 public:
   Acos();
 
-  
-  ~Acos() { }
+  /// shallow constructor  
+  Acos(const Acos& pCopy);
 
+  ~Acos() { }
   
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
