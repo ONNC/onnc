@@ -47,7 +47,7 @@ void TGUpsample::emit() const
 void TGUpsample::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type("bmnet_pooling_fixed_forward_bmkernel");
+  pI->set_type("bmnet_upsample_fixed_bmkernel");
   {
     auto *pool = pI->mutable_upsample();
     pool->set_bottom_gaddr(m_MemOperands[0]->m_Addr);

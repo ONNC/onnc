@@ -16,6 +16,8 @@ message Inst {
         PRELU   = 4;
     }
 
+    message Shape { repeated int32 dim = 1 [ packed = true ]; }
+
     // Layer type-specific parameters.
     oneof param {
         bmnet_pooling_fixed_forward_bmkernel             pooling      = 4;
@@ -211,19 +213,6 @@ message Inst {
         optional int32  input_w      = 7 [default = 0];
     }
 
-    message bmnet_concat_fixed_forward_bmkernel{
-        repeated uint64 input_gaddrs = 1;
-        optional uint64 output_gaddr = 2 [default = 0x000000ffffffffff];
-        repeated int32  input_dims   = 3;
-        optional int32  input_num    = 4 [default = 0];
-        optional int32  concat_axis  = 5 [default = 0];
-        optional int32  output_n     = 6 [default = 0];
-        optional int32  output_c     = 7 [default = 0];
-        optional int32  output_h     = 8 [default = 0];
-        optional int32  output_w     = 9 [default = 0];
-    }
-
-
     message bmnet_eltwise_fixed_forward_bmkernel{
         repeated uint64 ga_input              = 1;
         optional uint64 ga_output             = 2  [default = 0x000000ffffffffff];
@@ -290,5 +279,14 @@ message Inst {
         optional int32  h            = 5 [default = 0];
         optional int32  w            = 6 [default = 0];
         optional int32  scale        = 7 [default = 0];
+    }
+
+    message bmnet_concat_fixed_forward_bmkernel
+    {
+      repeated uint64 bottom_gaddr = 1;
+      optional uint64 top_gaddr    = 2 [ default = 0x000000ffffffffff ];
+      optional Shape input_dims    = 3;
+      optional Shape output_dim    = 4;
+      optional int32 axis          = 5;
     }
 }

@@ -1,6 +1,7 @@
 #define DEBUG_TYPE "bm188x_lowering"
 #include "BM188xISelLowering.h"
 #include "TGAveragePool.h"
+#include "TGConcat.h"
 #include "TGConv.h"
 #include "TGGemm.h"
 #include "TGLRN.h"
@@ -111,6 +112,19 @@ ComputeOperator2 *BM188xISelLowering::LowerFlatten(const ::onnx::Node &pNode)
   return nullptr;
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerConcat(const ::onnx::Node &pNode,
+                                                  ComputeGraph &pGraph)
+{
+  std::vector<MemOperand *> input;
+  for (size_t i = 0; i < pNode.inputs().size(); i++) {
+    input.push_back(
+        m_pBackend->getMemOperand(pNode.inputs()[i], MemType::NEURON));
+  }
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGConcat(pNode);
+  return op->addMemOperands(input, output);
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
                                                      ComputeGraph &pGraph)
 {
@@ -125,6 +139,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerReshape(pNode);
   } else if (symbol == ::onnx::Symbol("Flatten")) {
     return LowerFlatten(pNode);
+  } else if (symbol == ::onnx::Symbol("Concat")) {
+    return LowerConcat(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Conv")) {
     return LowerConv(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Relu")) {
