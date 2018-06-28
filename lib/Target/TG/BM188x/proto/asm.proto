@@ -1,3 +1,4 @@
+// clang-format off
 syntax = "proto2";
 package onnc.tg.bm1880;
 
@@ -290,3 +291,4 @@ message Inst {
       optional int32 axis          = 5;
     }
 }
+// clang-format on
