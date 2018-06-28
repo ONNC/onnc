@@ -167,7 +167,7 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (!weight_data.empty())
     bmnet::WriteInt8DataToBinaryFile(&weight_data, "cmdbuf.weight.bin");
 
-  if (m_Backend->getOption().DumpASM) {
+  if (m_Backend->getOption().m_DumpASM) {
     tg::bm1880::CommandBuffer buf;
     for (auto &inst : instList)
       static_cast<BM188xComputeOperator *>(inst.get())->toASM(buf.add_inst());

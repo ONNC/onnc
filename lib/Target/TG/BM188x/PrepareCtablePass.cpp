@@ -31,7 +31,7 @@ private:
 Pass::ReturnType PrepareCtable::runOnModule(Module &pModule)
 {
   auto ctable = m_pBackend->getCtable(pModule);
-  if (ctable.empty() || m_pBackend->getOption().IgnoreCalibrationStep) {
+  if (ctable.empty() || m_pBackend->getOption().m_IgnoreCalibrationStep) {
     onnx::Graph *graph = pModule.getGraphIR().get();
     insertDummyCtable(graph);
   } else

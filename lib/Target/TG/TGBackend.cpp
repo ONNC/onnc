@@ -42,7 +42,7 @@ void TGBackend::addTensorSel(PassManager &pPM)
   pPM.add(createRemoveUnusedNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(createONNXFuseOptPass(this));
-  if (m_Options.PrintModuleBeforeSel)
+  if (m_Options.m_PrintModuleBeforeSel)
     pPM.add(createONNCModulePrinterPass());
   pPM.add(createTargetLoweringPass(this));
   return;

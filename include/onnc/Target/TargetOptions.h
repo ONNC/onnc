@@ -17,20 +17,13 @@ namespace onnc {
 class TargetOptions
 {
 public:
-  TargetOptions()
-      : DumpASM(false), PrintModuleBeforeSel(false),
-        IgnoreCalibrationStep(false)
-  {
-  }
-  ~TargetOptions(){};
-
-  unsigned DumpASM : 1;
+  bool m_DumpASM{ false };
 
   // PrintModuleBeforeSel- print module before target lowering pass in backend
-  unsigned PrintModuleBeforeSel : 1;
+  bool m_PrintModuleBeforeSel{ false };
 
   // IgnoreCalibrationStep
-  unsigned IgnoreCalibrationStep : 1;
+  bool m_IgnoreCalibrationStep{ false };
 };
 
 } // namespace onnc
