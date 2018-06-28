@@ -107,7 +107,8 @@ void PrepareCtable::insertDummyCtable(onnx::Graph *pGraph)
     } else if (symbol == onnx::Symbol("Relu") ||
                symbol == onnx::Symbol("Flatten") ||
                symbol == onnx::Symbol("Concat") ||
-               symbol == onnx::Symbol("Reshape")) {
+               symbol == onnx::Symbol("Reshape") ||
+               symbol == onnx::Symbol("Transpose")) {
       // Do nothing.
     } else if (symbol == onnx::Symbol("SpatialBN")) {
       layer_cal_param->set_right_shift_width(0);

@@ -8,6 +8,7 @@
 #include "TGMaxPool.h"
 #include "TGRelu.h"
 #include "TGSum.h"
+#include "TGTranspose.h"
 #include "TGUpsample.h"
 #include <onnc/Support/Debug.h>
 
@@ -125,6 +126,15 @@ ComputeOperator2 *BM188xISelLowering::LowerConcat(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerTranspose(const ::onnx::Node &pNode,
+                                                     ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGTranspose(pNode);
+  return op->addMemOperands(input, output);
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
                                                      ComputeGraph &pGraph)
 {
@@ -155,6 +165,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerSum(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Upsample")) {
     return LowerUpsample(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("Transpose")) {
+    return LowerTranspose(pNode, pGraph);
   }
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);

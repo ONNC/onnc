@@ -25,4 +25,5 @@ add_libonnc_src(
     TGRelu.cpp
     TGUpsample.cpp
     TGConcat.cpp
+    TGTranspose.cpp
     TGSum.cpp)
