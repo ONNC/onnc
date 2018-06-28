@@ -48,6 +48,10 @@ public:
 
   void setAddDummyCTable(bool pSet);
 
+  bool AddDummyWeight() const;
+
+  void setAddDummyWeight(bool pSet);
+
   onnc::TargetOptions &getOptions();
 
 private:

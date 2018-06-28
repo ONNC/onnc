@@ -26,6 +26,8 @@ public:
   bool m_IgnoreCalibrationStep{ false };
 
   bool m_AddDummyCTable{ false };
+
+  bool m_AddDummyWeight{ false };
 };
 
 } // namespace onnc

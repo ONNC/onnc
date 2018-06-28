@@ -64,6 +64,8 @@ static bool isConstantInput(const onnx::Node *pNode, size_t pIndex)
 
 Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 {
+  if (not m_pBackend->getOption().m_AddDummyWeight)
+    return Pass::kModuleNoChanged;
   onnx::Graph *graph = pModule.getGraphIR().get();
   for (const auto *node : graph->nodes()) {
     for (size_t i = 0; i < node->inputs().size(); i++)

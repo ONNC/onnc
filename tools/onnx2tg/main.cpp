@@ -60,6 +60,11 @@ static cl::opt<bool> AddDummyCTable("add-dummy-ctable", cl::kShort,
                                     cl::init(false),
                                     cl::desc("add dummy ctable if not found"),
                                     cl::about(g_About));
+static cl::opt<bool> AddDummyWeight("add-dummy-weight", cl::kShort,
+                                    cl::kOptional, cl::kValueDisallowed,
+                                    cl::init(false),
+                                    cl::desc("add dummy weight if not found"),
+                                    cl::about(g_About));
 
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
                              cl::kValueDisallowed, cl::init(false),
@@ -94,6 +99,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().setDumpASM(dumpASM);
   onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
   onnx2tg.options().setAddDummyCTable(AddDummyCTable);
+  onnx2tg.options().setAddDummyWeight(AddDummyWeight);
 
 #ifdef BMNETC_EXIST
   foo();

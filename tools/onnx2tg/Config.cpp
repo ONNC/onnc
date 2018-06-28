@@ -37,4 +37,8 @@ void Config::setIgnoreCalibrationStep(bool pSet)
 
 bool Config::AddDummyCTable() const { return m_Options.m_AddDummyCTable; }
 void Config::setAddDummyCTable(bool pSet) { m_Options.m_AddDummyCTable = pSet; }
+
+bool Config::AddDummyWeight() const { return m_Options.m_AddDummyWeight; }
+void Config::setAddDummyWeight(bool pSet) { m_Options.m_AddDummyWeight = pSet; }
+
 onnc::TargetOptions &Config::getOptions() { return m_Options; }

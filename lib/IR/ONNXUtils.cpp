@@ -84,12 +84,18 @@ size_t onnc::getTotalCount(const std::vector<int64_t> &pDim)
   return s;
 }
 
-const ::onnx::Tensor& onnc::getTensor(std::string name, const ::onnx::Graph &graph)
+const ::onnx::Tensor &onnc::getTensor(std::string name,
+                                      const ::onnx::Graph &pGraph)
 {
-  auto initNames = const_cast< ::onnx::Graph &>(graph).initializer_names();
+  auto &graph = const_cast< ::onnx::Graph &>(pGraph);
+  auto initNames = graph.initializer_names();
   std::ptrdiff_t idx = std::distance(
       initNames.begin(), std::find(initNames.begin(), initNames.end(), name));
-  return const_cast< ::onnx::Graph &>(graph).initializers()[idx];
+  if (idx >= graph.initializers().size()) {
+    std::cerr << "error: can't find weight " << name << "!" << std::endl;
+    exit(1);
+  }
+  return graph.initializers()[idx];
 }
 
 bool onnc::OutputSizeIsInputSize(::onnx::Node& pNode)
