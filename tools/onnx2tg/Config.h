@@ -44,6 +44,10 @@ public:
 
   void setIgnoreCalibrationStep(bool pSet);
 
+  bool AddDummyCTable() const;
+
+  void setAddDummyCTable(bool pSet);
+
   onnc::TargetOptions &getOptions();
 
 private:

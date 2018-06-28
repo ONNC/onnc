@@ -55,6 +55,12 @@ static cl::opt<bool>
                           cl::kValueDisallowed, cl::init(false),
                           cl::desc("ignore ctable"), cl::about(g_About));
 
+static cl::opt<bool> AddDummyCTable("add-dummy-ctable", cl::kShort,
+                                    cl::kOptional, cl::kValueDisallowed,
+                                    cl::init(false),
+                                    cl::desc("add dummy ctable if not found"),
+                                    cl::about(g_About));
+
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
                              cl::kValueDisallowed, cl::init(false),
                              cl::desc("Show this manual."), cl::about(g_About));
@@ -87,6 +93,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
   onnx2tg.options().setDumpASM(dumpASM);
   onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
+  onnx2tg.options().setAddDummyCTable(AddDummyCTable);
 
 #ifdef BMNETC_EXIST
   foo();

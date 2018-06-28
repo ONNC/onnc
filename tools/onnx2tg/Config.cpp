@@ -34,4 +34,7 @@ void Config::setIgnoreCalibrationStep(bool pSet)
 {
   m_Options.m_IgnoreCalibrationStep = pSet;
 }
+
+bool Config::AddDummyCTable() const { return m_Options.m_AddDummyCTable; }
+void Config::setAddDummyCTable(bool pSet) { m_Options.m_AddDummyCTable = pSet; }
 onnc::TargetOptions &Config::getOptions() { return m_Options; }

@@ -31,9 +31,18 @@ private:
 Pass::ReturnType PrepareCtable::runOnModule(Module &pModule)
 {
   auto ctable = m_pBackend->getCtable(pModule);
-  if (ctable.empty() || m_pBackend->getOption().m_IgnoreCalibrationStep) {
+  if (m_pBackend->getOption().m_AddDummyCTable) {
+    if (not ctable.empty()) {
+      std::cerr << "error: ctable exist!" << std::endl;
+      exit(1);
+    }
     onnx::Graph *graph = pModule.getGraphIR().get();
     ctable = getDummyCtable(graph);
+  } else {
+    if (ctable.empty()) {
+      std::cerr << "error: ctable not found!" << std::endl;
+      exit(1);
+    }
   }
   m_pBackend->setCtableProto(ctable);
   return Pass::kModuleNoChanged;

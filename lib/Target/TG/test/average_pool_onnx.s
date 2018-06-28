@@ -108,7 +108,3 @@ opset_import {
   domain: ""
   version: 6
 }
-metadata_props {
-  key: "bm1880_ctable"
-  value: "layer {\n  name: \"data_0\"\n  blob_param {\n    name: \"data_0\"\n    threshold_y: 0.99658036\n  }\n}\nlayer {\n  name: \"conv1_1\"\n  blob_param {\n    name: \"conv1_1\"\n    threshold_y: 1.835129\n  }\n}\nlayer {\n  name: \"pool1_1\"\n  blob_param {\n    name: \"pool1_1\"\n    threshold_y: 1.835129\n  }\n}\nlayer {\n  name: \"conv2_1\"\n  blob_param {\n    name: \"conv2_1\"\n    threshold_y: 5.0528378\n  }\n}\nlayer {\n  name: \"pool2_1\"\n  blob_param {\n    name: \"pool2_1\"\n    threshold_y: 4.4557886\n  }\n}\nlayer {\n  name: \"OC2_DUMMY_0\"\n  blob_param {\n    name: \"OC2_DUMMY_0\"\n    threshold_y: 4.4557886\n  }\n  blob_param {\n    name: \"OC2_DUMMY_2\"\n    threshold_y: 0\n  }\n}\nlayer {\n  name: \"ip1_1\"\n  blob_param {\n    name: \"ip1_1\"\n    threshold_y: 4.9610548\n  }\n}\nlayer {\n  name: \"relu1_1\"\n  blob_param {\n    name: \"relu1_1\"\n    threshold_y: 4.9610548\n  }\n}\nlayer {\n  name: \"ip2_1\"\n  blob_param {\n    name: \"ip2_1\"\n    threshold_y: 13.257649\n  }\n}\nlayer {\n  name: \"prob_1\"\n  blob_param {\n    name: \"prob_1\"\n    threshold_y: 1.0004244\n  }\n}\n"
-}
