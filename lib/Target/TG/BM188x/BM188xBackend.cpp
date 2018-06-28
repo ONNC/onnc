@@ -31,6 +31,7 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
+  pPM.add(createAddDummyWeightPass(this));
   pPM.add(createPrepareCtablePass(this));
 
   // Same as TGBackend Pass

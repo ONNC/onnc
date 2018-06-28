@@ -8,7 +8,7 @@
 # CHECK-NEXT:   conv {
 # CHECK-NEXT:     ga_ifmap: 0
 # CHECK-NEXT:     ga_ofmap: 0
-# CHECK-NEXT:     ga_weight: 0
+# CHECK-NEXT:     ga_weight: 602112
 # CHECK-NEXT:     ga_bias: 1099511627775
 # CHECK-NEXT:     input_n: 4
 # CHECK-NEXT:     input_c: 3
@@ -36,7 +36,7 @@
 # CHECK-NEXT:     activation_gt_rshift: 0
 # CHECK-NEXT:     activation_le_scale: 0
 # CHECK-NEXT:     activation_le_rshift: 0
-# CHECK-NEXT:     right_shift_width: 0
+# CHECK-NEXT:     right_shift_width: 6
 # CHECK-NEXT:   }
 # CHECK-NEXT: }
 
