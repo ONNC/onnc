@@ -1,5 +1,14 @@
 #; RUN : onnx-as lenet.onnx.s | onnx2tg -march bm1880 -print-machineinstrs | FileCheck lenet.onnx.noctable.s
 
+# CHECK: INT8 tensor <1, 20, 24, 24> %conv1_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (INT8 tensor <1, 1, 28, 28> %data_0, INT8 tensor <20, 1, 5, 5> %conv1_w_0, INT16 tensor <20> %conv1_b_0)
+# CHECK: INT8 tensor <1, 20, 12, 12> %pool1_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (INT8 tensor <1, 20, 24, 24> %conv1_1)
+# CHECK: INT8 tensor <1, 50, 8, 8> %conv2_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (INT8 tensor <1, 20, 12, 12> %pool1_1, INT8 tensor <50, 20, 5, 5> %conv2_w_0, INT16 tensor <50> %conv2_b_0)
+# CHECK: INT8 tensor <1, 50, 4, 4> %pool2_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (INT8 tensor <1, 50, 8, 8> %conv2_1)
+# CHECK: INT8 tensor <1, 800> %OC2_DUMMY_0 = Reshape(INT8 tensor <1, 50, 4, 4> %pool2_1, INT64 tensor <2> %OC2_DUMMY_1)
+# CHECK: INT8 tensor <1, 500> %ip1_1 = Gemm <transB:INT 1, broadcast:INT 1, enableReLu:INT 1> (INT8 tensor <1, 800> %OC2_DUMMY_0, INT8 tensor <500, 800> %ip1_w_0, INT16 tensor <500> %ip1_b_0)
+# CHECK: INT8 tensor <1, 10> %ip2_1 = Gemm <transB:INT 1, broadcast:INT 1> (INT8 tensor <1, 500> %ip1_1, INT8 tensor <10, 500> %ip2_w_0, INT16 tensor <10> %ip2_b_0)
+# CHECK: INT8 tensor <1, 10> %prob_1 = Softmax(INT8 tensor <1, 10> %ip2_1)
+
 # CHECK: inst {
 # CHECK-NEXT:   name: "conv1_1"
 # CHECK-NEXT:   type: "bmnet_conv_fixed_forward_bmkernel"
@@ -156,15 +165,6 @@
 # CHECK-NEXT:     right_shift_width: 0
 # CHECK-NEXT:   }
 # CHECK-NEXT: }
-
-# CHECK: INT8 tensor <1, 20, 24, 24> %conv1_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (INT8 tensor <1, 1, 28, 28> %data_0, INT8 tensor <20, 1, 5, 5> %conv1_w_0, INT16 tensor <20> %conv1_b_0)
-# CHECK: INT8 tensor <1, 20, 12, 12> %pool1_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (INT8 tensor <1, 20, 24, 24> %conv1_1)
-# CHECK: INT8 tensor <1, 50, 8, 8> %conv2_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (INT8 tensor <1, 20, 12, 12> %pool1_1, INT8 tensor <50, 20, 5, 5> %conv2_w_0, INT16 tensor <50> %conv2_b_0)
-# CHECK: INT8 tensor <1, 50, 4, 4> %pool2_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (INT8 tensor <1, 50, 8, 8> %conv2_1)
-# CHECK: INT8 tensor <1, 800> %OC2_DUMMY_0 = Reshape(INT8 tensor <1, 50, 4, 4> %pool2_1, INT64 tensor <2> %OC2_DUMMY_1)
-# CHECK: INT8 tensor <1, 500> %ip1_1 = Gemm <transB:INT 1, broadcast:INT 1, enableReLu:INT 1> (INT8 tensor <1, 800> %OC2_DUMMY_0, INT8 tensor <500, 800> %ip1_w_0, INT16 tensor <500> %ip1_b_0)
-# CHECK: INT8 tensor <1, 10> %ip2_1 = Gemm <transB:INT 1, broadcast:INT 1> (INT8 tensor <1, 500> %ip1_1, INT8 tensor <10, 500> %ip2_w_0, INT16 tensor <10> %ip2_b_0)
-# CHECK: INT8 tensor <1, 10> %prob_1 = Softmax(INT8 tensor <1, 10> %ip2_1)
 
 ir_version: 3
 producer_name: "onnx-caffe2"
