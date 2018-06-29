@@ -37,6 +37,9 @@ protected:
   virtual void FuseConvRelu(onnx::Graph *pGraph, onnx::Node *pConvNode,
                             onnx::Node *pReluNode);
 
+  virtual void FuseSumRelu(onnx::Graph *pGraph, onnx::Node *pSumNode,
+                           onnx::Node *pReluNode);
+
 private:
   bool FuseNodes(::onnx::Graph *pGraph);
 

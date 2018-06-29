@@ -34,6 +34,7 @@ private:
   uint8_t m_PadH, m_PadW;
   uint8_t m_StrideH, m_StrideW;
   int m_DoBias;
+  int m_DoRelu;
   int m_RShiftWidth;
 };
 

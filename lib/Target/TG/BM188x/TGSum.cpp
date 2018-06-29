@@ -1,9 +1,11 @@
+#define DEBUG_TYPE "tg_sum"
 #include "TGSum.h"
 #include "BM188xCodeEmitter.h"
+#include "PatternMatch.h"
 #include <bmkernel_api.h>
-
-#define DEBUG_TYPE "tg_sum"
 #include <onnc/Support/Debug.h>
+
+namespace pm = onnc::PatternMatch;
 
 namespace onnc {
 namespace BM188X {
@@ -18,6 +20,7 @@ TGSum::TGSum(const ::onnx::Node &pNode)
   m_InW = inDim[3].dim;
   m_InputNum = pNode.inputs().size();
   m_ThresholdXQuantized.resize(m_InputNum);
+  m_DoRelu = pm::match(m_pNode, pm::mTrueAttr("do_relu"));
 }
 
 TGSum *TGSum::addMemOperands(std::vector<MemOperand *> pInput,
@@ -70,13 +73,14 @@ void TGSum::emit() const
       m_InputNum,
       1, // op: SUM
       m_InN, m_InC, m_InH, m_InW,
-      false,         // do_relu
+      m_DoRelu,      // do_relu
       0.0,           // relu_slope,
       m_RShiftWidth, // right_shift_width
       m_ThresholdXQuantized.data());
 
   delete[] input;
 }
+
 void TGSum::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
@@ -92,7 +96,7 @@ void TGSum::toASM(tg::bm1880::Inst *pI) const
     eltwise->set_input_c(m_InC);
     eltwise->set_input_h(m_InH);
     eltwise->set_input_w(m_InW);
-    eltwise->set_do_relu(false);
+    eltwise->set_do_relu(m_DoRelu);
     eltwise->set_relu_slope(0.0);
     eltwise->set_right_shift_width(m_RShiftWidth);
     for (auto v : m_ThresholdXQuantized)

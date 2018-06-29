@@ -25,6 +25,7 @@ private:
   int m_InN, m_InC, m_InH, m_InW;
   size_t m_InputNum;
   int m_RShiftWidth;
+  int m_DoRelu;
   std::vector<int> m_ThresholdXQuantized;
 };
 

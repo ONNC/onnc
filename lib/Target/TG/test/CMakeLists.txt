@@ -8,4 +8,5 @@ tg_test(ASM_NAME fuse_bn_mul_add.s           MARCH bm1880 ONNX2TG_ARGS ${common_
 tg_test(ASM_NAME fuse_conv_bn_mul_add.s      MARCH bm1880 ONNX2TG_ARGS ${common_option} -ignore-calibration-step)
 tg_test(ASM_NAME average_pool_onnx.s         MARCH bm1880 ONNX2TG_ARGS ${common_option} -ignore-calibration-step)
 tg_test(ASM_NAME concat_onnx.s               MARCH bm1880 ONNX2TG_ARGS ${common_option} -ignore-calibration-step)
-tg_test(ASM_NAME transpose_onnx.s         MARCH bm1880 ONNX2TG_ARGS ${common_option} -ignore-calibration-step)
+tg_test(ASM_NAME transpose_onnx.s            MARCH bm1880 ONNX2TG_ARGS ${common_option} -ignore-calibration-step)
+tg_test(ASM_NAME fuse_sum_relu.s             MARCH bm1880 ONNX2TG_ARGS ${common_option} -ignore-calibration-step)

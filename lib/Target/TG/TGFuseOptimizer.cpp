@@ -36,6 +36,10 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseConvRelu(pGraph, node, next(node));
       return true;
     }
+    if (match(node, mSymbol("Sum")) and match(next(node), mSymbol("Relu"))) {
+      FuseSumRelu(pGraph, node, next(node));
+      return true;
+    }
   }
   return false;
 }
@@ -116,4 +120,10 @@ void TGFuseOptimizer::FuseConvRelu(onnx::Graph *pGraph, onnx::Node *pConvNode,
                                    onnx::Node *pReluNode)
 {
   Fuse(pConvNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
+}
+
+void TGFuseOptimizer::FuseSumRelu(onnx::Graph *pGraph, onnx::Node *pSumNode,
+                                  onnx::Node *pReluNode)
+{
+  Fuse(pSumNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
 }
