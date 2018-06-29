@@ -31,7 +31,7 @@ public:
 
 private:
   void updateInputBatchSize(onnx::Graph *pGraph);
-  void resetOutputValueInfo(onnx::Graph *pGraph);
+  void updateOutputValueInfo(onnx::Graph *pGraph);
   void updateReshapeOutputInfo(::onnx::Node *pNode);
 
 private:

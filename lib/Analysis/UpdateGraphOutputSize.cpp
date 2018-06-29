@@ -99,24 +99,27 @@ void UpdateGraphOutputSize::updateInputBatchSize(onnx::Graph *pGraph)
   }
 }
 
-void UpdateGraphOutputSize::resetOutputValueInfo(onnx::Graph *pGraph)
+void UpdateGraphOutputSize::updateOutputValueInfo(onnx::Graph *pGraph)
 {
+  auto outputs = pGraph->outputs();
+  std::unordered_set<onnx::Value *> output_set(outputs.begin(), outputs.end());
   // reset output valueInfo
   for (onnx::Node *n : pGraph->nodes()) {
-    // handle special case
-    if (n->kind() == onnx::Symbol("Softmax")) {
-      onnx::Value *out = n->outputs()[0];
-      auto sizes = out->sizes();
-      sizes[0] = m_BatchSize;
-      // reset batch size
-      out->setSizes(sizes);
-      continue;
-    }
-    // reset dimension and elemType
     onnx::Value *out = n->outputs()[0];
+    // do not reset graph's outputs valueInfo
+    if (output_set.count(out))
+      continue;
+    // reset dimension and elemType
     std::vector<onnx::Dimension> sizes;
     out->setSizes(sizes);
     out->setElemType(onnx::TensorProto_DataType_UNDEFINED);
+  }
+
+  // update graph's outputs valueInfo
+  for (onnx::Value *out : outputs) {
+    auto sizes = out->sizes();
+    sizes[0] = m_BatchSize;
+    out->setSizes(sizes);
   }
 }
 
@@ -127,7 +130,7 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
   // update input batch size and reset old output valueInfo
   if (m_BatchSize > 0) {
     updateInputBatchSize(graph);
-    resetOutputValueInfo(graph);
+    updateOutputValueInfo(graph);
   }
 
   // onnc only update reshape's output valueInfo
