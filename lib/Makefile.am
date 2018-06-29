@@ -104,7 +104,6 @@ ONNC_SOURCES = \
   JSON/JsonScanner.lpp \
   JSON/String.cpp \
   JSON/Notation.cpp \
-	IR/Quadruple.cpp \
   Diagnostic/Diagnostic.cpp \
   Diagnostic/DiagnosticInfoMap.cpp \
   Diagnostic/Engine.cpp \
