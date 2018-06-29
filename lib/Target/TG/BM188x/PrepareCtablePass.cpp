@@ -89,14 +89,11 @@ void PrepareCtable::insertDummyCtable(onnx::Graph *pGraph)
     } else if (symbol == onnx::Symbol("Sum") || symbol == onnx::Symbol("Max") ||
                symbol == onnx::Symbol("Mul")) {
       layer_cal_param->set_right_shift_width(0);
-      if (symbol == onnx::Symbol("Mul"))
-        for (auto *v : node->inputs()) {
-          if (0 != initializer_names.count(v->uniqueName()))
-            continue;
-          layer_cal_param->add_threshold_x_quantized(0);
-        }
-      else
+      for (auto *v : node->inputs()) {
+        if (0 != initializer_names.count(v->uniqueName()))
+          continue;
         layer_cal_param->add_threshold_x_quantized(0);
+      }
     } else if (symbol == onnx::Symbol("PRelu")) {
       layer_cal_param->set_right_shift_width(0);
       tg::bm1880::PReLUCalibrationParameter *prelu_cal_param =
