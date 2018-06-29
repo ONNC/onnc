@@ -23,6 +23,8 @@ using TP_DataTy = onnx::TensorProto_DataType;
 uint64_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
 {
   switch (pTy) {
+  case onnx::TensorProto_DataType_FLOAT:
+    // After Quantization, assume FLOAT should be transformed to INT8
   case onnx::TensorProto_DataType_BOOL:
   case onnx::TensorProto_DataType_INT8:
   case onnx::TensorProto_DataType_UINT8:
@@ -34,7 +36,6 @@ uint64_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
     return 2;
     break;
 
-  case onnx::TensorProto_DataType_FLOAT:
   case onnx::TensorProto_DataType_COMPLEX64:
   case onnx::TensorProto_DataType_FLOAT16:
   case onnx::TensorProto_DataType_INT32:
