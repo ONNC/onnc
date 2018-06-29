@@ -82,6 +82,15 @@ public:
   // for debug usage
   virtual std::string getBackendName() { return std::string("TGBackend"); };
 
+  using LowerPass_t = Pass *(*)(TGBackend *);
+  void replaceTargetLower(LowerPass_t pFunc)
+  {
+    m_ReplaceTargetLower = pFunc;
+    return;
+  }
+
+  LowerPass_t getTargetLower() const { return m_ReplaceTargetLower; }
+
 private:
   std::vector<std::unique_ptr<ComputeOperator2> > m_Instructions;
   std::vector<MemOperand *> m_MemOperands;
@@ -89,6 +98,7 @@ private:
   TGCodeEmitter *m_pCE;   // NOLINT
   Path m_OutputPath;
   TargetOptions m_Options;
+  LowerPass_t m_ReplaceTargetLower;
 };
 
 } // namespace onnc

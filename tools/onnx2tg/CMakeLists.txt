@@ -26,6 +26,7 @@ target_link_libraries(onnx2tg
 
 if (BMNETC_EXIST)
     target_link_libraries(onnx2tg foo)
+    target_link_libraries(onnx2tg bmnetc)
 endif()
 
 install(TARGETS onnx2tg

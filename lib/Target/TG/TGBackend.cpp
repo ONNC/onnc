@@ -25,6 +25,7 @@ TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
                      const TargetOptions &pOptions)
     : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE), m_Options(pOptions)
 {
+  m_ReplaceTargetLower = nullptr;
 }
 
 TGBackend::~TGBackend()

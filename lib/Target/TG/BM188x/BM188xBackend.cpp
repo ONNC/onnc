@@ -12,7 +12,11 @@
 #include "BM188xCodeEmitter.h"
 #include "BM188xFuseOptimizer.h"
 #include "BM188xISelLowering.h"
+#include "TG.h"
 #include <google/protobuf/text_format.h>
+#include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/IR/ONNCModulePrinter.h>
+#include <onnc/Transforms/removeUnusedNodes.h>
 
 using namespace onnc;
 
@@ -28,9 +32,24 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
   pPM.add(createPrepareCtablePass(this));
-  TGBackend::addTensorSel(pPM);
+
+  // Same as TGBackend Pass
+  pPM.add(createRemoveUnusedNodesPass());
+  pPM.add(CreateUpdateGraphOutputSizePass());
+  pPM.add(createONNXFuseOptPass(this));
+  if (getOption().m_PrintModuleBeforeSel)
+    pPM.add(createONNCModulePrinterPass());
+
+  if (getTargetLower() == nullptr) {
+    pPM.add(createTargetLoweringPass(this));
+  } else {
+    pPM.add(getTargetLower()(this));
+  }
+
+  // BM1880 customized Pass
   pPM.add(createQuantizePass(this));
   pPM.add(createUpdateCtablePass(this));
+
   return;
 }
 
