@@ -1,6 +1,30 @@
 #; RUN : onnx-as average_pool_onnx.s | onnx2tg -march bm1880 -print-machineinstrs | FileCheck average_pool_onnx.s
 #; CHECK: FLOAT tensor <1, 20, 12, 12> %pool1_1 = AveragePool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (FLOAT tensor <1, 20, 24, 24> %data_0)
 
+# CHECK: inst {
+# CHECK-NEXT:   name: "pool1_1"
+# CHECK-NEXT:   type: "bmnet_pooling_fixed_forward_bmkernel"
+# CHECK-NEXT:   pooling {
+# CHECK-NEXT:     ifmap_gaddr: 0
+# CHECK-NEXT:     ofmap_gaddr: 0
+# CHECK-NEXT:     n: 1
+# CHECK-NEXT:     c: 20
+# CHECK-NEXT:     h: 24
+# CHECK-NEXT:     w: 24
+# CHECK-NEXT:     kh: 2
+# CHECK-NEXT:     kw: 2
+# CHECK-NEXT:     pad_h: 0
+# CHECK-NEXT:     pad_w: 0
+# CHECK-NEXT:     stride_h: 2
+# CHECK-NEXT:     stride_w: 2
+# CHECK-NEXT:     is_avg_pooling: true
+# CHECK-NEXT:     avg_const: 0
+# CHECK-NEXT:     do_relu: false
+# CHECK-NEXT:     right_shift_width: {{.*}}
+# CHECK-NEXT:     threshold_x_quantized: {{.*}}
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+
 ir_version: 3
 producer_name: "onnx-caffe2"
 producer_version: ""

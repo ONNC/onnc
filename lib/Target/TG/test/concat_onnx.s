@@ -1,6 +1,31 @@
 #; RUN : onnx-as concat.s | onnx2tg -march bm1880 -ignore-calibration-step -print-module-before-isel | FileCheck concat.s
 #; CHECK: INT8 tensor <1, 256, 28, 28> %inception_3a/output_1 = Concat <axis:INT 1> (INT8 tensor <1, 64, 28, 28> %inception_3a/relu_1x1_1, INT8 tensor <1, 128, 28, 28> %inception_3a/relu_3x3_1, INT8 tensor <1, 32, 28, 28> %inception_3a/relu_5x5_1, INT8 tensor <1, 32, 28, 28> %inception_3a/relu_pool_proj_1)
 
+# CHECK: inst {
+# CHECK-NEXT:   name: "inception_3a/output_1"
+# CHECK-NEXT:   type: "bmnet_concat_fixed_forward_bmkernel"
+# CHECK-NEXT:   concat {
+# CHECK-NEXT:     bottom_gaddr: 0
+# CHECK-NEXT:     bottom_gaddr: 50176
+# CHECK-NEXT:     bottom_gaddr: 150528
+# CHECK-NEXT:     bottom_gaddr: 175616
+# CHECK-NEXT:     top_gaddr: 50176
+# CHECK-NEXT:     input_dims {
+# CHECK-NEXT:       dim: 64
+# CHECK-NEXT:       dim: 128
+# CHECK-NEXT:       dim: 32
+# CHECK-NEXT:       dim: 32
+# CHECK-NEXT:     }
+# CHECK-NEXT:     output_dim {
+# CHECK-NEXT:       dim: 1
+# CHECK-NEXT:       dim: 256
+# CHECK-NEXT:       dim: 28
+# CHECK-NEXT:       dim: 28
+# CHECK-NEXT:     }
+# CHECK-NEXT:     axis: 1
+# CHECK-NEXT:   }
+# CHECK-NEXT: }
+
 ir_version: 3
 producer_name: "onnx-caffe2"
 producer_version: ""
