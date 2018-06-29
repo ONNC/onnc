@@ -189,34 +189,34 @@ void onnc::PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
   pOS << "\n";
 }
 
-void onnc::DumpGraph(::onnx::Graph &pGraph) { PrintGraph(errs(), pGraph); }
+void onnc::DumpGraph(::onnx::Graph &pGraph) { PrintGraph(outs(), pGraph); }
 
 void onnc::DumpGraph(Module &pModule)
 {
-  PrintGraph(errs(), *pModule.getGraphIR());
+  PrintGraph(outs(), *pModule.getGraphIR());
 }
 
 void onnc::DumpModule(Module &pModule)
 {
   // dump model info
-  errs() << "ir_version:" << pModule.getOnnxInfo().getIRVersion() << "\n";
-  errs() << "producer_name:" << pModule.getOnnxInfo().getProducerName() << "\n";
-  errs() << "producer_version:" << pModule.getOnnxInfo().getProducerVersion() << "\n";
-  errs() << "domain:" << pModule.getOnnxInfo().getDomain() << "\n";
-  errs() << "model_version:" << pModule.getOnnxInfo().getModelVersion() << "\n";
-  errs() << "doc_string:" << pModule.getOnnxInfo().getDocString() << "\n";
+  outs() << "ir_version:" << pModule.getOnnxInfo().getIRVersion() << "\n";
+  outs() << "producer_name:" << pModule.getOnnxInfo().getProducerName() << "\n";
+  outs() << "producer_version:" << pModule.getOnnxInfo().getProducerVersion() << "\n";
+  outs() << "domain:" << pModule.getOnnxInfo().getDomain() << "\n";
+  outs() << "model_version:" << pModule.getOnnxInfo().getModelVersion() << "\n";
+  outs() << "doc_string:" << pModule.getOnnxInfo().getDocString() << "\n";
 
   DumpGraph(pModule);
 
   // dump opset_imports
   for (auto setId : pModule.getSetId()) {
-    errs() << "opset_import.domain:" << setId.first << "\n";
-    errs() << "opset_import.version:" << setId.second << "\n";
+    outs() << "opset_import.domain:" << setId.first << "\n";
+    outs() << "opset_import.version:" << setId.second << "\n";
   }
 
   // dump metadata_props
   for (auto metaData : pModule.getMetaData()) {
-    errs() << "metadata_props.key:" << metaData.first << "\n";
-    errs() << "metadata_props.value:" << metaData.second << "\n";
+    outs() << "metadata_props.key:" << metaData.first << "\n";
+    outs() << "metadata_props.value:" << metaData.second << "\n";
   }
 }
