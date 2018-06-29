@@ -44,10 +44,6 @@ public:
 
   void setIgnoreCalibrationStep(bool pSet);
 
-  bool NoFuse() const;
-
-  void setNoFuse(bool pSet);
-
   onnc::TargetOptions &getOptions();
 
 private:
