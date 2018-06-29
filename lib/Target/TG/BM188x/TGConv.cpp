@@ -131,7 +131,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
     const ::onnx::Value *value = m_MemOperands[1]->m_Value;
     const ::onnx::Tensor &tensor =
         ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT8);
+    assert(m_MemOperands[1]->m_Type == ::onnx::TensorProto_DataType_INT8);
     const std::string &raw = tensor.raw();
     size_t count = ::onnc::getTotalCount(tensor.sizes());
     pWeight.resize(count);
@@ -170,7 +170,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
     const ::onnx::Value *value = m_MemOperands[3]->m_Value;
     const ::onnx::Tensor &tensor =
         ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT16);
+    assert(m_MemOperands[3]->m_Type == ::onnx::TensorProto_DataType_INT16);
     size_t count = ::onnc::getTotalCount(tensor.sizes());
     std::vector<int16_t> int16_vector(count);
     memcpy(int16_vector.data(), tensor.raw().data(), count * sizeof(int16_t));
