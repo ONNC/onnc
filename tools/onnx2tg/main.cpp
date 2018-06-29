@@ -50,6 +50,10 @@ static cl::opt<bool>
     IgnoreCalibrationStep("ignore-calibration-step", cl::kShort, cl::kOptional,
                           cl::kValueDisallowed, cl::init(false),
                           cl::desc("ignore ctable"), cl::about(g_About));
+static cl::opt<bool> NoFuse("no-fuse", cl::kShort, cl::kOptional,
+                            cl::kValueDisallowed, cl::init(false),
+                            cl::desc("do not fuse operators"),
+                            cl::about(g_About));
 
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
                              cl::kValueDisallowed, cl::init(false),
@@ -83,6 +87,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
   onnx2tg.options().setDumpASM(dumpASM);
   onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
+  onnx2tg.options().setNoFuse(NoFuse);
 
   return onnx2tg.compile();
 }

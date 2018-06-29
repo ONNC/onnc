@@ -35,3 +35,6 @@ void Config::setIgnoreCalibrationStep(bool pSet)
   m_Options.m_IgnoreCalibrationStep = pSet;
 }
 onnc::TargetOptions &Config::getOptions() { return m_Options; }
+
+bool Config::NoFuse() const { return m_Options.m_NoFuse; }
+void Config::setNoFuse(bool pSet) { m_Options.m_NoFuse = pSet; }

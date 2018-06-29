@@ -24,6 +24,8 @@ public:
 
   // IgnoreCalibrationStep
   bool m_IgnoreCalibrationStep{ false };
+
+  bool m_NoFuse{ false };
 };
 
 } // namespace onnc

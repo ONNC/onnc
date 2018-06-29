@@ -41,7 +41,8 @@ void TGBackend::addTensorSel(PassManager &pPM)
   // IR level pass
   pPM.add(createRemoveUnusedNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
-  pPM.add(createONNXFuseOptPass(this));
+  if (not m_Options.m_NoFuse)
+    pPM.add(createONNXFuseOptPass(this));
   if (m_Options.m_PrintModuleBeforeSel)
     pPM.add(createONNCModulePrinterPass());
   pPM.add(createTargetLoweringPass(this));
