@@ -1,0 +1,4 @@
+# Let the main config do the real work.
+config.toolBinDir = "@ONNC_TOOL_BIN_DIR@"
+config.onnc_test_root = "@CMAKE_CURRENT_BINARY_DIR@"
+lit_config.load_config(config, "@ONNC_TEST_DIR@/lit.cfg.py")
