@@ -41,6 +41,7 @@ ONNC_SOURCES = \
 	Core/InitializePasses.cpp \
   Analysis/LivenessAnalysis.cpp \
   Analysis/MemoryAllocation.cpp \
+	Analysis/NodeIRScheduler.cpp \
   Analysis/SplitNode.cpp \
   Analysis/UpdateGraphOutputSize.cpp \
 	ADT/PolicyNodeIterator.cpp \
