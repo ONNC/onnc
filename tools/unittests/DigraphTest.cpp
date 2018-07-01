@@ -11,6 +11,7 @@
 #include <onnc/ADT/ArcIterator.h>
 #include <onnc/ADT/TypeTraits.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/ADT/TopologyIterator.h>
 
 using namespace skypat;
 using namespace onnc;
@@ -282,4 +283,62 @@ SKYPAT_F(DigraphTest, default_graph)
   ASSERT_TRUE(&*iter == n5);
   iter.next();
   ASSERT_TRUE(g.dfs_end() == iter);
+}
+
+SKYPAT_F(DigraphTest, topology_iterator_test_1)
+{
+  Digraph<> g;
+  digraph::NodeBase* n1 = g.addNode();
+  digraph::NodeBase* n2 = g.addNode();
+  digraph::NodeBase* n3 = g.addNode();
+  digraph::NodeBase* n4 = g.addNode();
+  digraph::NodeBase* n5 = g.addNode();
+  g.connect(*n1, *n2);
+  g.connect(*n1, *n3);
+  g.connect(*n2, *n3);
+  g.connect(*n2, *n4);
+  g.connect(*n3, *n5);
+
+  TopologyIterator<digraph::NodeBase, NonConstTraits> iter(n1);
+
+  ASSERT_TRUE(&*iter == n1);
+  iter.next();
+  ASSERT_TRUE(&*iter == n2);
+  iter.next();
+  ASSERT_TRUE(&*iter == n4);
+  iter.next();
+  ASSERT_TRUE(&*iter == n3);
+  iter.next();
+  ASSERT_TRUE(&*iter == n5);
+  iter.next();
+  ASSERT_TRUE(iter.isEnd());
+}
+
+SKYPAT_F(DigraphTest, topology_iterator_test_2)
+{
+  Digraph<> g;
+  digraph::NodeBase* n1 = g.addNode();
+  digraph::NodeBase* n2 = g.addNode();
+  digraph::NodeBase* n3 = g.addNode();
+  digraph::NodeBase* n4 = g.addNode();
+  digraph::NodeBase* n5 = g.addNode();
+  g.connect(*n1, *n2);
+  g.connect(*n1, *n3);
+  g.connect(*n3, *n2);
+  g.connect(*n2, *n4);
+  g.connect(*n3, *n5);
+
+  TopologyIterator<digraph::NodeBase, NonConstTraits> iter(n1);
+
+  ASSERT_TRUE(&*iter == n1);
+  iter.next();
+  ASSERT_TRUE(&*iter == n3);
+  iter.next();
+  ASSERT_TRUE(&*iter == n2);
+  iter.next();
+  ASSERT_TRUE(&*iter == n4);
+  iter.next();
+  ASSERT_TRUE(&*iter == n5);
+  iter.next();
+  ASSERT_TRUE(iter.isEnd());
 }
