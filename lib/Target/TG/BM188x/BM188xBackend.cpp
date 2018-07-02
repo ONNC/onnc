@@ -31,12 +31,13 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
-  pPM.add(createAddDummyWeightPass(this));
-  pPM.add(createPrepareCtablePass(this));
-
-  // Same as TGBackend Pass
+  // target independent pass
   pPM.add(createRemoveUnusedNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
+
+  // BM1880 customized Pass
+  pPM.add(createAddDummyWeightPass(this));
+  pPM.add(createPrepareCtablePass(this));
   pPM.add(createONNXFuseOptPass(this));
   if (getOption().m_PrintModuleBeforeSel)
     pPM.add(createONNCModulePrinterPass());
