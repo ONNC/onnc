@@ -11,7 +11,7 @@
 
 # CHECK: inst {
 # CHECK-NEXT:   name: "conv1_1"
-# CHECK-NEXT:   type: "bmnet_conv_fixed_forward_bmkernel"
+# CHECK-NEXT:   type: "bmnet_conv_parallel_fixed_forward_bmkernel"
 # CHECK-NEXT:   conv {
 # CHECK-NEXT:     ga_ifmap: 0
 # CHECK-NEXT:     ga_ofmap: 0
@@ -71,7 +71,7 @@
 # CHECK-NEXT: }
 # CHECK-NEXT: inst {
 # CHECK-NEXT:   name: "conv2_1"
-# CHECK-NEXT:   type: "bmnet_conv_fixed_forward_bmkernel"
+# CHECK-NEXT:   type: "bmnet_conv_parallel_fixed_forward_bmkernel"
 # CHECK-NEXT:   conv {
 # CHECK-NEXT:     ga_ifmap: 12304
 # CHECK-NEXT:     ga_ofmap: 540

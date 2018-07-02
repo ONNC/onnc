@@ -86,9 +86,10 @@ void TGConv::print(OStream &pOS) const
 void TGConv::emit() const
 {
   DEBUG(print(dbgs()));
+  float activation_arg[1] = { 0.0f };
 
   uint64_t biasAddr = m_DoBias ? m_MemOperands[3]->m_Addr : GADDR_INVALID;
-  bmnet::bmnet_conv_fixed_forward_bmkernel(
+  bmnet::bmnet_conv_parallel_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
       m_MemOperands[2]->m_Addr,                                      // ofmap
       m_MemOperands[1]->m_Addr,                                      // weight
@@ -104,20 +105,20 @@ void TGConv::emit() const
       pm::match(m_pNode, pm::mTrueAttr("do_scale")),
       pm::match(m_pNode, pm::mTrueAttr("do_scale_bias")),
       pm::match(m_pNode, pm::mTrueAttr("do_relu")),
-      0,             // bn_scale,
-      0,             // bn_eps,
-      0,             // activation_method,
-      nullptr,       // activation_arg[],
-      0,             // activation_ga_slope,
-      0,             // activation_channel_shared
-      0,             // activation_gt_rshift
-      0,             // activation_gt_rshift
-      0,             // activation_le_scale
-      0,             // activation_le_rshift
-      m_RShiftWidth, // right_shift_width
-      0,             // bn_right_shift_width
-      0,             // scale_right_shift_width
-      0              // use_winograd
+      0,              // bn_scale,
+      0,              // bn_eps,
+      0,              // activation_method,
+      activation_arg, // activation_arg[],
+      0,              // activation_ga_slope,
+      0,              // activation_channel_shared
+      0,              // activation_gt_rshift
+      0,              // activation_gt_rshift
+      0,              // activation_le_scale
+      0,              // activation_le_rshift
+      m_RShiftWidth,  // right_shift_width
+      0,              // bn_right_shift_width
+      0,              // scale_right_shift_width
+      0               // use_winograd
   );
 }
 
@@ -193,7 +194,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
 void TGConv::toASM(tg::bm1880::Inst *pI) const
 {
   pI->set_name(getLayerName());
-  pI->set_type("bmnet_conv_fixed_forward_bmkernel");
+  pI->set_type("bmnet_conv_parallel_fixed_forward_bmkernel");
   uint64_t biasAddr = m_DoBias ? m_MemOperands[3]->m_Addr : GADDR_INVALID;
   {
     auto *conv = pI->mutable_conv();

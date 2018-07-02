@@ -22,7 +22,7 @@ message Inst {
     // Layer type-specific parameters.
     oneof param {
         bmnet_pooling_fixed_forward_bmkernel             pooling      = 4;
-        bmnet_conv_fixed_forward_bmkernel                conv         = 5;
+        bmnet_conv_parallel_fixed_forward_bmkernel       conv         = 5;
         bmnet_fc_fixed_forward_bmkernel                  fc           = 6;
         bmnet_relu_fixed_forward_compact_bmkernel        relu_compact = 7;
         bmnet_relu_fixed_forward_bmkernel                relu         = 8;
@@ -61,7 +61,7 @@ message Inst {
         optional int32  threshold_x_quantized = 19 [default = 0];
     }
 
-    message bmnet_conv_fixed_forward_bmkernel {
+    message bmnet_conv_parallel_fixed_forward_bmkernel {
         optional uint64 ga_ifmap                         = 1  [default = 0x000000ffffffffff];
         optional uint64 ga_ofmap                         = 2  [default = 0x000000ffffffffff];
         optional uint64 ga_weight                        = 3  [default = 0x000000ffffffffff];

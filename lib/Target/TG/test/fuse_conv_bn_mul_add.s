@@ -4,7 +4,7 @@
 
 # CHECK: inst {
 # CHECK-NEXT:   name: "scale_conv1_1"
-# CHECK-NEXT:   type: "bmnet_conv_fixed_forward_bmkernel"
+# CHECK-NEXT:   type: "bmnet_conv_parallel_fixed_forward_bmkernel"
 # CHECK-NEXT:   conv {
 # CHECK-NEXT:     ga_ifmap: 0
 # CHECK-NEXT:     ga_ofmap: 0
