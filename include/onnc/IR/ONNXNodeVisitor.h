@@ -12,20 +12,26 @@
 
 namespace onnc {
 
-class ONNXNodeVisitor {
+class ONNXNodeVisitor
+{
 protected:
- ONNXNodeVisitor();
+  ONNXNodeVisitor();
+
 public:
-  virtual ~ONNXNodeVisitor() {};
-  void visit(::onnx::Graph *pGraph) {
+  virtual ~ONNXNodeVisitor(){};
+  void visit(::onnx::Graph *pGraph)
+  {
     for (::onnx::Node *n : pGraph->nodes()) {
       visit(n);
     }
   }
-  void visit(::onnx::Node *pNode) {
+  void visit(::onnx::Node *pNode)
+  {
     // Call to the corresponding virtual member function.
     (this->*(m_JumpTable[static_cast<uint32_t>(pNode->kind())]))(pNode);
   }
+
+  // clang-format off
 private:
   void visitUndefined(::onnx::Node *pNode) {};
   virtual void visitNode(::onnx::Node *pNode) {};
@@ -144,11 +150,13 @@ private:
   virtual void visitScale(::onnx::Node *pNode) { visitNode(pNode); };
   virtual void visitScaledTanh(::onnx::Node *pNode) { visitNode(pNode); };
   virtual void visitThresholdedRelu(::onnx::Node *pNode) { visitNode(pNode); };
+  // clang-format on
 
 private:
   typedef void (ONNXNodeVisitor::*VisitorFn)(::onnx::Node *);
   typedef std::vector<VisitorFn> VisitorFnTable;
   const VisitorFnTable &m_JumpTable;
+
 protected:
   static const ONNXNodeVisitor::VisitorFnTable &getCachedJumpTable();
 };
