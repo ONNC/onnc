@@ -15,42 +15,26 @@ using namespace onnc;
 using namespace onnc::digraph;
 
 //===----------------------------------------------------------------------===//
-// TopologyIterator
+// TopoIteratorBase
 //===----------------------------------------------------------------------===//
-TopoIterator::TopoIterator()
+TopoIteratorBase::TopoIteratorBase()
   : m_Idx(0), m_OrderList() {
 }
 
-TopoIterator::TopoIterator(NodeBase* pNode)
-  : m_Idx(0), m_OrderList() {
-  InitOrderList(pNode);
-  setNode(m_OrderList[m_Idx]);
-}
-
-TopoIterator::TopoIterator(const NodeBase* pNode)
-  : m_Idx(0), m_OrderList() {
-  InitOrderList(const_cast<NodeBase*>(pNode));
-  setNode(m_OrderList[m_Idx]);
-}
-
-bool TopoIterator::isEnd() const
+bool TopoIteratorBase::isEnd() const
 {
   return (m_Idx == m_OrderList.size());
 }
 
-void TopoIterator::advance()
+void TopoIteratorBase::advance()
 {
   ++m_Idx;
   setNode(m_OrderList[m_Idx]);
 }
 
-void TopoIterator::InitOrderList(NodeBase* pNode)
+void TopoIteratorBase::InitOrderList(NodeBase* pNode)
 {
-  typedef std::deque<std::pair<bool, NodeBase*> > Stack;
-  typedef std::vector<NodeBase*> PostOrder;
-
-  std::unordered_set<NodeBase*> visited;
-  // true: parent, false: child
+  Visited visited;
   Stack stack;
   PostOrder post_order;
 
@@ -72,18 +56,74 @@ void TopoIterator::InitOrderList(NodeBase* pNode)
       stack.push_back(std::make_pair(true, node.second));
 
       // push all children
-      ArcBase* iter = node.second->first_out;
-      while (nullptr != iter) {
-        // if not visited
-        if (visited.end() == visited.find(iter->target)) {
-          stack.push_back(std::make_pair(false, iter->target));
-        }
-        iter = iter->next_out;
-      }
+      doPushAllChildren(*node.second, visited, stack);
+
     }
   }
 
   PostOrder::reverse_iterator ele, eEnd = post_order.rend();
   for (ele = post_order.rbegin(); ele != eEnd; ++ele)
     m_OrderList.push_back(*ele);
+}
+
+//===----------------------------------------------------------------------===//
+// TopoIterator
+//===----------------------------------------------------------------------===//
+TopoIterator::TopoIterator()
+  : TopoIteratorBase() {
+}
+
+TopoIterator::TopoIterator(NodeBase* pNode)
+  : TopoIteratorBase() {
+  InitOrderList(pNode);
+  setNode(m_OrderList[m_Idx]);
+}
+
+TopoIterator::TopoIterator(const NodeBase* pNode)
+  : TopoIteratorBase() {
+  InitOrderList(const_cast<NodeBase*>(pNode));
+  setNode(m_OrderList[m_Idx]);
+}
+
+void TopoIterator::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
+{
+  ArcBase* iter = pRoot.first_out;
+  while (nullptr != iter) {
+    // if not visited
+    if (pV.end() == pV.find(iter->target)) {
+      pS.push_back(std::make_pair(false, iter->target));
+    }
+    iter = iter->next_out;
+  }
+}
+
+//===----------------------------------------------------------------------===//
+// RevTopoIterator
+//===----------------------------------------------------------------------===//
+RevTopoIterator::RevTopoIterator()
+  : TopoIteratorBase() {
+}
+
+RevTopoIterator::RevTopoIterator(NodeBase* pNode)
+  : TopoIteratorBase() {
+  InitOrderList(pNode);
+  setNode(m_OrderList[m_Idx]);
+}
+
+RevTopoIterator::RevTopoIterator(const NodeBase* pNode)
+  : TopoIteratorBase() {
+  InitOrderList(const_cast<NodeBase*>(pNode));
+  setNode(m_OrderList[m_Idx]);
+}
+
+void RevTopoIterator::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
+{
+  ArcBase* iter = pRoot.first_in;
+  while (nullptr != iter) {
+    // if not visited
+    if (pV.end() == pV.find(iter->source)) {
+      pS.push_back(std::make_pair(false, iter->source));
+    }
+    iter = iter->next_in;
+  }
 }

@@ -342,3 +342,61 @@ SKYPAT_F(DigraphTest, topology_iterator_test_2)
   iter.next();
   ASSERT_TRUE(iter.isEnd());
 }
+
+SKYPAT_F(DigraphTest, topology_iterator_test_3)
+{
+  Digraph<> g;
+  digraph::NodeBase* n1 = g.addNode();
+  digraph::NodeBase* n2 = g.addNode();
+  digraph::NodeBase* n3 = g.addNode();
+  digraph::NodeBase* n4 = g.addNode();
+  digraph::NodeBase* n5 = g.addNode();
+  digraph::NodeBase* n6 = g.addNode();
+  digraph::NodeBase* n7 = g.addNode();
+  digraph::NodeBase* n8 = g.addNode();
+
+  g.connect(*n1, *n2);
+  g.connect(*n1, *n3);
+  g.connect(*n1, *n4);
+  g.connect(*n2, *n5);
+  g.connect(*n3, *n5);
+  g.connect(*n3, *n6);
+  g.connect(*n4, *n6);
+  g.connect(*n5, *n7);
+  g.connect(*n6, *n7);
+  g.connect(*n6, *n8);
+
+  errs() << std::hex << (void*)n1 << " ";
+  errs() << std::hex << (void*)n2 << " ";
+  errs() << std::hex << (void*)n3 << " ";
+  errs() << std::hex << (void*)n4 << " ";
+  errs() << std::hex << (void*)n5 << " ";
+  errs() << std::hex << (void*)n6 << " ";
+  errs() << std::hex << (void*)n7 << " ";
+  errs() << std::hex << (void*)n8 << std::endl;
+
+  RevTopologyIterator<digraph::NodeBase, NonConstTraits> iter(n7);
+
+  while (!iter.isEnd()) {
+    errs() << std::hex << (void*)&*iter << " ";
+    iter.next();
+  }
+  errs() << std::endl;
+/**
+  ASSERT_TRUE(&*iter == n7);
+  iter.next();
+  ASSERT_TRUE(&*iter == n6);
+  iter.next();
+  ASSERT_TRUE(&*iter == n5);
+  iter.next();
+  ASSERT_TRUE(&*iter == n2);
+  iter.next();
+  ASSERT_TRUE(&*iter == n3);
+  iter.next();
+  ASSERT_TRUE(&*iter == n4);
+  iter.next();
+  ASSERT_TRUE(&*iter == n1);
+  iter.next();
+  ASSERT_TRUE(iter.isEnd());
+*/
+}
