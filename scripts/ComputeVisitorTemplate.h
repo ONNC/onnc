@@ -13,6 +13,7 @@ namespace onnc {
 ${forward_declaration}
 
 /** \class ComputeVisitor
+ *  \brief ComptueVisitor provides interface to visit operators.
  */
 class ComputeVisitor
 {

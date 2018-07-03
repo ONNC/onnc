@@ -18,6 +18,11 @@ ${OperatorName}::${OperatorName}()
 
 ${ConstructorByAttributesImplementation}
 
+${OperatorName}::${OperatorName}(const ${OperatorName}& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */${CallAttributesCopyConstructor} {
+}
+
 void ${OperatorName}::print(std::ostream& pOS) const
 {
+  pOS << name()${PrintAttributes};
 }

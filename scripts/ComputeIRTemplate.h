@@ -25,6 +25,9 @@ public:
   ${OperatorName}();
 
   ${ConstructorByAttributes}
+  // shallow copy constructor.
+  ${OperatorName}(const ${OperatorName}& pCopy);
+
   ~${OperatorName}() { }
 
   ${AttributesGetters}
@@ -40,12 +43,9 @@ public:
   ${OutputsGetters}
   ${InputsSetters}
   ${OutputsSetters}
-  void print(std::ostream& pOS) const;
+  void print(std::ostream& pOS) const override;
 
-  void dump() const { print(errs()); }
-
-  void accept(ComputeVisitor& pVisitor) { pVisitor.visit(*this); }
-
+  void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 private:
   ${AttributesMemberVariables}
 };

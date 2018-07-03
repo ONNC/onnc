@@ -119,27 +119,29 @@ def gen_compute_ir_substitution_hash(schema):
 
     # ${CallAttributesDefaultConstructor}
     hash['CallAttributesDefaultConstructor'] = ',\n    ' + (',\n    ').join(for_attr(lambda attr: 'm_{attr_name}()'.format(**attr)))
+
+    # ${CallAttributesCopyConstructor}
+    hash['CallAttributesCopyConstructor'] = ',\n    ' + (',\n    ').join(for_attr(lambda attr: 'm_{attr_name}(pCopy.get{attr_name}())'.format(**attr)))
+
+    # ${PrintAttributes}
+    hash['PrintAttributes'] = ' << "< "' + (' << ", "').join(for_attr(lambda attr: ' << get{attr_name}()'.format(**attr))) + ' << ">"'
   else:
     hash['AttributesGetters'] = ''
     hash['AttributesMemberVariables'] = ''
     hash['ConstructorByAttributes'] = ''
     hash['ConstructorByAttributesImplementation'] = ''
     hash['CallAttributesDefaultConstructor'] = ''
+    hash['CallAttributesCopyConstructor'] = ''
+    hash['PrintAttributes'] = ''
   # ========== end of Attributes ==============
 
   return hash
 
-def gen_compute_ir(index, template_filename, dist):
+def gen_compute_ir(operator_schemas, template_filename, dist):
   # TODO: Refactor to simple data structure and simple for loop
-  for domain, supportmap in sorted(index.items()):
-    if not should_render_domain(domain):
-      continue
-
-    for _support, namemap in sorted(supportmap.items()):
-      for op_type, unsorted_versions in sorted(namemap.items()):
-        versions = sorted(unsorted_versions, key=lambda s: s.since_version)
-        schema = versions[-1]
-
+  for domain, supportmap in operator_schemas:
+    for _, namemap in supportmap:
+      for op_type, schema, versions in namemap:
         substitution_hash = gen_compute_ir_substitution_hash(schema)
 
         template_file = open(template_filename)
@@ -150,24 +152,18 @@ def gen_compute_ir(index, template_filename, dist):
         template_file.close()
 
 
-def gen_compute_ir_visitor(index, template_filename, dist):
+def gen_compute_ir_visitor(operator_schemas, template_filename, dist):
   forward_declaration = []
   visitor_member_functions = []
   # TODO: Refactor to simple data structure and simple for loop
-  for domain, supportmap in sorted(index.items()):
-    if not should_render_domain(domain):
-      continue
-
-    for _support, namemap in sorted(supportmap.items()):
-      for op_type, unsorted_versions in sorted(namemap.items()):
-        versions = sorted(unsorted_versions, key=lambda s: s.since_version)
-        schema = versions[-1]
-
+  for domain, supportmap in operator_schemas:
+    for _, namemap in supportmap:
+      for op_type, schema, versions in namemap:
         substitution_hash = gen_compute_ir_substitution_hash(schema)
         # ${forward_declaration}
         forward_declaration.append('class {OperatorName};'.format(**substitution_hash))
         # ${visitor_member_functions}
-        visitor_member_functions.append('virtual void visit({OperatorName}& p{OperatorName}) = 0;'.format(**substitution_hash))
+        visitor_member_functions.append('virtual void visit({OperatorName}& p{OperatorName}) {{ }}'.format(**substitution_hash))
 
   visitor_substitution_hash = {
     'forward_declaration': '\n'.join(forward_declaration),
@@ -184,16 +180,37 @@ def gen_compute_ir_visitor(index, template_filename, dist):
 
 if __name__ == '__main__':
   # domain -> support level -> name -> [schema]
-  index = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+  index = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))  # type: Dict[Text, Dict[int, Dict[Text, List[OpSchema]]]]
   for schema in defs.get_all_schemas_with_history():
     index[schema.domain][int(schema.support_level)][schema.name].append(schema)
+
+  # Preprocess the Operator Schemas
+  # [(domain, [(support_level, [(schema name, current schema, all versions schemas)])])]
+  operator_schemas = list()  # type: List[Tuple[Text, List[Tuple[int, List[Tuple[Text, OpSchema, List[OpSchema]]]]]]]
+  exsting_ops = set()  # type: Set[Text]
+  for domain, _supportmap in sorted(index.items()):
+    if not should_render_domain(domain):
+      continue
+
+    processed_supportmap = list()
+    for _support, _namemap in sorted(_supportmap.items()):
+      processed_namemap = list()
+      for n, unsorted_versions in sorted(_namemap.items()):
+        versions = sorted(unsorted_versions, key=lambda s: s.since_version)
+        schema = versions[-1]
+        if schema.name in exsting_ops:
+          continue
+        exsting_ops.add(schema.name)
+        processed_namemap.append((n, schema, versions))
+      processed_supportmap.append((_support, processed_namemap))
+    operator_schemas.append((domain, processed_supportmap))
 
   # FIXME: Path
   if not os.path.exists("ComputeIR.h"):
     os.makedirs("ComputeIR.h")
-  gen_compute_ir(index, 'ComputeIRTemplate.h', 'ComputeIR.h/${OperatorName}.h')
+  gen_compute_ir(operator_schemas, 'ComputeIRTemplate.h', 'ComputeIR.h/${OperatorName}.h')
   if not os.path.exists("ComputeIR.cpp"):
     os.makedirs("ComputeIR.cpp")
-  gen_compute_ir(index, 'ComputeIRTemplate.cpp', 'ComputeIR.cpp/${OperatorName}.cpp')
+  gen_compute_ir(operator_schemas, 'ComputeIRTemplate.cpp', 'ComputeIR.cpp/${OperatorName}.cpp')
   # TODO: better template engine
-  gen_compute_ir_visitor(index, 'ComputeVisitorTemplate.h', 'ComputeVisitor.h')
+  gen_compute_ir_visitor(operator_schemas, 'ComputeVisitorTemplate.h', 'ComputeVisitor.h')
