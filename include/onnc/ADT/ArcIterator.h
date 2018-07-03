@@ -119,33 +119,33 @@ InArcIterator<NodeType, ArcType>::InArcIterator()
 
 template<typename NodeType, typename ArcType>
 InArcIterator<NodeType, ArcType>::InArcIterator(NodeType& pNode)
-  : ArcIteratorBase<ArcType>(pNode.getFirstInArc()) {
+  : ArcIteratorBase<ArcType>(pNode.first_in) {
 }
 
 template<typename NodeType, typename ArcType>
 InArcIterator<NodeType, ArcType>& InArcIterator<NodeType, ArcType>::operator++()
 {
-  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->getNextIn();
+  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->next_in;
   return *this;
 }
 
 template<typename NodeType, typename ArcType>
 InArcIterator<NodeType, ArcType>& InArcIterator<NodeType, ArcType>::operator--()
 {
-  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->getPrevIn();
+  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->prev_in;
   return *this;
 }
 
 template<typename NodeType, typename ArcType>
 InArcIterator<NodeType, ArcType> InArcIterator<NodeType, ArcType>::operator++(int)
 {
-  return InArcIterator(ArcIteratorBase<ArcType>::arc()->getNextIn());
+  return InArcIterator(ArcIteratorBase<ArcType>::arc()->next_in);
 }
 
 template<typename NodeType, typename ArcType>
 InArcIterator<NodeType, ArcType> InArcIterator<NodeType, ArcType>::operator--(int)
 {
-  return InArcIterator(ArcIteratorBase<ArcType>::arc()->getPrevIn());
+  return InArcIterator(ArcIteratorBase<ArcType>::arc()->prev_in);
 }
 
 //===----------------------------------------------------------------------===//
@@ -158,33 +158,33 @@ OutArcIterator<NodeType, ArcType>::OutArcIterator()
 
 template<typename NodeType, typename ArcType>
 OutArcIterator<NodeType, ArcType>::OutArcIterator(NodeType& pNode)
-  : ArcIteratorBase<ArcType>(pNode.getFirstOutArc()) {
+  : ArcIteratorBase<ArcType>(pNode.first_out) {
 }
 
 template<typename NodeType, typename ArcType>
 OutArcIterator<NodeType, ArcType>& OutArcIterator<NodeType, ArcType>::operator++()
 {
-  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->getNextOut();
+  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->next_out;
   return *this;
 }
 
 template<typename NodeType, typename ArcType>
 OutArcIterator<NodeType, ArcType>& OutArcIterator<NodeType, ArcType>::operator--()
 {
-  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->getPrevOut();
+  ArcIteratorBase<ArcType>::m_pArcPtr = ArcIteratorBase<ArcType>::arc()->prev_out;
   return *this;
 }
 
 template<typename NodeType, typename ArcType>
 OutArcIterator<NodeType, ArcType> OutArcIterator<NodeType, ArcType>::operator++(int)
 {
-  return OutArcIterator(ArcIteratorBase<ArcType>::arc()->getNextOut());
+  return OutArcIterator(ArcIteratorBase<ArcType>::arc()->next_out);
 }
 
 template<typename NodeType, typename ArcType>
 OutArcIterator<NodeType, ArcType> OutArcIterator<NodeType, ArcType>::operator--(int)
 {
-  return OutArcIterator(ArcIteratorBase<ArcType>::arc()->getPrevOut());
+  return OutArcIterator(ArcIteratorBase<ArcType>::arc()->prev_out);
 }
 
 } // namespace of onnc
