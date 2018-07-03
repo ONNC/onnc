@@ -11,4 +11,5 @@ add_libonnc_src(
     IListIterator.cpp 
     Rope.cpp 
     StringList.cpp 
-    StringRef.cpp)
+    StringRef.cpp
+    TopologyIterator.cpp)

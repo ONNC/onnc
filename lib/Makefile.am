@@ -56,6 +56,7 @@ ONNC_SOURCES = \
 	ADT/Any.cpp \
 	ADT/Color.cpp \
 	ADT/TypeTag.cpp \
+	ADT/TopologyIterator.cpp \
 	ADT/IList.cpp \
 	ADT/IListIterator.cpp \
 	ADT/Rope.cpp \
