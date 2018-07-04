@@ -96,7 +96,7 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
       layer_cal_param->set_right_shift_width(0);
       layer_cal_param->add_threshold_x_quantized(0);
     } else if (symbol == onnx::Symbol("Sum") || symbol == onnx::Symbol("Max") ||
-               symbol == onnx::Symbol("Mul")) {
+               symbol == onnx::Symbol("Mul") || symbol == onnx::Symbol("Add")) {
       layer_cal_param->set_right_shift_width(0);
       for (auto *v : node->inputs()) {
         if (0 != initializer_names.count(v->uniqueName()))
@@ -116,7 +116,7 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
                symbol == onnx::Symbol("Reshape") ||
                symbol == onnx::Symbol("Transpose")) {
       // Do nothing.
-    } else if (symbol == onnx::Symbol("SpatialBN")) {
+    } else if (symbol == onnx::Symbol("BatchNormalization")) {
       layer_cal_param->set_right_shift_width(0);
     } else {
       // FIXME: Add assert in the future.

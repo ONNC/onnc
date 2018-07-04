@@ -53,6 +53,10 @@ static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
 static bool isConstantInput(const onnx::Node *pNode, size_t pIndex)
 {
   std::map<std::string, std::vector<size_t> > table = { { "Conv", { 1, 2 } },
+                                                        { "BatchNormalization",
+                                                          { 1, 2, 3, 4 } },
+                                                        { "Mul", { 1 } },
+                                                        { "Add", { 1 } },
                                                         { "Gemm", { 1, 2 } } };
   for (auto &t : table)
     if (match(pNode, mSymbol(t.first))) {
