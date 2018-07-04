@@ -57,6 +57,7 @@ bool TGFuseOptimizer::FuseOptimization(onnx::Graph *pGraph)
 onnx::Node *TGFuseOptimizer::Fuse(::onnx::Node *pA, ::onnx::Node *pB)
 {
   pB->replaceAllUsesWith(pA);
+  pA->output()->copyMetadata(pB->output());
   pB->destroy();
   return pA;
 }

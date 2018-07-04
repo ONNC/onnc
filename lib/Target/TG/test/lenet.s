@@ -5,8 +5,8 @@
 # CHECK: FLOAT tensor <1, 50, 8, 8> %conv2_1 = Conv <pads:INTS [0,0,0,0], strides:INTS [1,1], kernel_shape:INTS [5,5]> (FLOAT tensor <1, 20, 12, 12> %pool1_1, FLOAT tensor <50, 20, 5, 5> %conv2_w_0, FLOAT tensor <50> %conv2_b_0)
 # CHECK: FLOAT tensor <1, 50, 4, 4> %pool2_1 = MaxPool <pads:INTS [0,0,1,1], kernel_shape:INTS [2,2], strides:INTS [2,2]> (FLOAT tensor <1, 50, 8, 8> %conv2_1)
 # CHECK: FLOAT tensor <1, 800> %OC2_DUMMY_0 = Reshape(FLOAT tensor <1, 50, 4, 4> %pool2_1, INT64 tensor <2> %OC2_DUMMY_1)
-# CHECK: FLOAT tensor <1, 500> %ip1_1 = Gemm <transB:INT 1, broadcast:INT 1, enableReLu:INT 1> (FLOAT tensor <1, 800> %OC2_DUMMY_0, FLOAT tensor <500, 800> %ip1_w_0, FLOAT tensor <500> %ip1_b_0)
-# CHECK: FLOAT tensor <1, 10> %ip2_1 = Gemm <transB:INT 1, broadcast:INT 1> (FLOAT tensor <1, 500> %ip1_1, FLOAT tensor <10, 500> %ip2_w_0, FLOAT tensor <10> %ip2_b_0)
+# CHECK: FLOAT tensor <1, 500> %relu1_1 = Gemm <transB:INT 1, broadcast:INT 1, enableReLu:INT 1> (FLOAT tensor <1, 800> %OC2_DUMMY_0, FLOAT tensor <500, 800> %ip1_w_0, FLOAT tensor <500> %ip1_b_0)
+# CHECK: FLOAT tensor <1, 10> %ip2_1 = Gemm <transB:INT 1, broadcast:INT 1> (FLOAT tensor <1, 500> %relu1_1, FLOAT tensor <10, 500> %ip2_w_0, FLOAT tensor <10> %ip2_b_0)
 # CHECK: FLOAT tensor <1, 10> %prob_1 = Softmax(FLOAT tensor <1, 10> %ip2_1)
 
 # CHECK: inst {
@@ -130,7 +130,7 @@
 # CHECK-NEXT:   }
 # CHECK-NEXT: }
 # CHECK-NEXT: inst {
-# CHECK-NEXT:   name: "ip1_1"
+# CHECK-NEXT:   name: "relu1_1"
 # CHECK-NEXT:   type: "bmnet_fc_fixed_forward_bmkernel"
 # CHECK-NEXT:   fc {
 # CHECK-NEXT:     bottom_data_gaddr: 18384

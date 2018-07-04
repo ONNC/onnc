@@ -1,12 +1,12 @@
 #; RUN : onnx-as fuse_sum_relu.s | onnx2tg -march bm1880 -ignore-calibration-step -print-module-before-isel -S | FileCheck fuse_sum_relu.s
 
-# CHECK:  name: "res2a_1"
+# CHECK:  name: "res2a_relu_1"
 # CHECK-NEXT:  type: "bmnet_eltwise_fixed_forward_bmkernel"
 # CHECK-NEXT:  eltwise {
-# CHECK-NEXT:    ga_input: 200704
-# CHECK-NEXT:    ga_input: 602112
-# CHECK-NEXT:    ga_input: 802816
-# CHECK-NEXT:    ga_output: 802816
+# CHECK-NEXT:    ga_input: {{.*}}
+# CHECK-NEXT:    ga_input: {{.*}}
+# CHECK-NEXT:    ga_input: {{.*}}
+# CHECK-NEXT:    ga_output: {{.*}}
 # CHECK-NEXT:    input_size: 2
 # CHECK-NEXT:    op: 1
 # CHECK-NEXT:    input_n: 1
@@ -15,9 +15,9 @@
 # CHECK-NEXT:    input_w: 56
 # CHECK-NEXT:    do_relu: true
 # CHECK-NEXT:    relu_slope: 0
-# CHECK-NEXT:    right_shift_width: 6
-# CHECK-NEXT:    threshold_x_quantized: 0
-# CHECK-NEXT:    threshold_x_quantized: 0
+# CHECK-NEXT:    right_shift_width: {{.*}}
+# CHECK-NEXT:    threshold_x_quantized: {{.*}}
+# CHECK-NEXT:    threshold_x_quantized: {{.*}}
 # CHECK-NEXT:  }
 # CHECK-NEXT:}
 
