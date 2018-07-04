@@ -18,7 +18,6 @@ public:
   // m_MemOperands: input, slope, output
   TGPRelu *addMemOperands(MemOperand *pInput, MemOperand *pSlope,
                           MemOperand *pOutput);
-  void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
 

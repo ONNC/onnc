@@ -1,4 +1,3 @@
 #pragma once
+#include <bmnet/src/targets/plat-bm188x/bmkernel/asm.pb.h>
 #include <cassert>
-#include <onnc/Target/TG/BM188x/asm.pb.h>
-

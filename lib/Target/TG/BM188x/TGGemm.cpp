@@ -66,7 +66,7 @@ void TGGemm::emit() const
   int do_activation = m_EnableRelu;
   int activation_method = RELU;
 
-  bmnet::bmnet_fc_fixed_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_fc_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // input_data_gaddr
       m_MemOperands[1]->m_Addr, // weight_data_gaddr
@@ -88,26 +88,6 @@ void TGGemm::emit() const
       0,                        // left_shift_width //TODO
       m_RShiftWidth             // right_shift_width
   );
-}
-void TGGemm::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_fc_fixed_forward_bmkernel");
-  {
-    auto *gemm = pI->mutable_fc();
-    gemm->set_bottom_data_gaddr(m_MemOperands[0]->m_Addr);
-    gemm->set_weight_data_gaddr(m_MemOperands[1]->m_Addr);
-    gemm->set_bias_data_gaddr(m_MemOperands[2]->m_Addr);
-    gemm->set_top_data_gaddr(m_MemOperands[3]->m_Addr);
-    gemm->set_input_row_num(m_InRowNum);
-    gemm->set_input_col_num(m_InColNum);
-    gemm->set_weight_col_num(m_OutColNum);
-    gemm->set_have_bias(m_HaveBias);
-    gemm->set_weight_transpose(m_WeightTp);
-    gemm->set_right_shift_width(m_RShiftWidth);
-    gemm->set_do_activation(m_EnableRelu);
-    gemm->set_activation_method(tg::bm1880::Inst::RELU);
-  }
 }
 
 void TGGemm::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)

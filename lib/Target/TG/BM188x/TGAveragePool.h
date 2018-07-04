@@ -17,7 +17,6 @@ public:
   void emit() const override;
   void print(OStream &pOS) const override;
   TGAveragePool *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
-  void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
 

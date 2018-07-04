@@ -18,7 +18,6 @@ public:
   void print(OStream &pOS) const override;
   TGConcat *addMemOperands(std::vector<MemOperand *> &pInput,
                            MemOperand *pOutput);
-  void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override
   {

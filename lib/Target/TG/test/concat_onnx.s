@@ -5,25 +5,23 @@
 # CHECK-NEXT:   name: "inception_3a/output_1"
 # CHECK-NEXT:   type: "bmnet_concat_fixed_forward_bmkernel"
 # CHECK-NEXT:   concat {
-# CHECK-NEXT:     bottom_gaddr: 0
-# CHECK-NEXT:     bottom_gaddr: 50176
-# CHECK-NEXT:     bottom_gaddr: 150528
-# CHECK-NEXT:     bottom_gaddr: 175616
-# CHECK-NEXT:     top_gaddr: 50176
-# CHECK-NEXT:     input_dims {
-# CHECK-NEXT:       dim: 64
-# CHECK-NEXT:       dim: 128
-# CHECK-NEXT:       dim: 32
-# CHECK-NEXT:       dim: 32
+# CHECK-NEXT:     input_gaddrs: 0
+# CHECK-NEXT:     input_gaddrs: 50176
+# CHECK-NEXT:     input_gaddrs: 150528
+# CHECK-NEXT:     input_gaddrs: 175616
+# CHECK-NEXT:     output_gaddr: 50176
+# CHECK-NEXT:     input_dims: 64
+# CHECK-NEXT:     input_dims: 128
+# CHECK-NEXT:     input_dims: 32
+# CHECK-NEXT:     input_dims: 32
+# CHECK-NEXT:     input_num: 4
+# CHECK-NEXT:     concat_axis: 1
+# CHECK-NEXT:     output_dim_len: 4
+# CHECK-NEXT:     output_dim: 1
+# CHECK-NEXT:     output_dim: 256
+# CHECK-NEXT:     output_dim: 28
+# CHECK-NEXT:     output_dim: 28
 # CHECK-NEXT:     }
-# CHECK-NEXT:     output_dim {
-# CHECK-NEXT:       dim: 1
-# CHECK-NEXT:       dim: 256
-# CHECK-NEXT:       dim: 28
-# CHECK-NEXT:       dim: 28
-# CHECK-NEXT:     }
-# CHECK-NEXT:     axis: 1
-# CHECK-NEXT:   }
 # CHECK-NEXT: }
 
 ir_version: 3

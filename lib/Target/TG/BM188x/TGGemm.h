@@ -18,7 +18,6 @@ public:
   void print(OStream &pOS) const override;
   TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
-  void toASM(tg::bm1880::Inst *pI) const override;
 
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;

@@ -55,7 +55,7 @@ void TGMaxPool::emit() const
 {
   DEBUG(print(dbgs()));
 
-  bmnet::bmnet_pooling_fixed_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // ifmap_gaddr
       m_MemOperands[1]->m_Addr, // ofmap_gaddr
@@ -68,32 +68,6 @@ void TGMaxPool::emit() const
       m_RShiftWidth,         // right_shift_width
       &m_ThresholdXQuantized // threshold_x_quantized
   );
-}
-
-void TGMaxPool::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_pooling_fixed_forward_bmkernel");
-  {
-    auto *pool = pI->mutable_pooling();
-    pool->set_ifmap_gaddr(m_MemOperands[0]->m_Addr);
-    pool->set_ofmap_gaddr(m_MemOperands[1]->m_Addr);
-    pool->set_n(m_N);
-    pool->set_c(m_C);
-    pool->set_h(m_H);
-    pool->set_w(m_W);
-    pool->set_kh(m_KH);
-    pool->set_kw(m_KW);
-    pool->set_pad_h(m_PadH);
-    pool->set_pad_w(m_PadW);
-    pool->set_stride_h(m_StrideH);
-    pool->set_stride_w(m_StrideW);
-    pool->set_is_avg_pooling(0);
-    pool->set_avg_const(0.0f);
-    pool->set_do_relu(0);
-    pool->set_right_shift_width(m_RShiftWidth);
-    pool->set_threshold_x_quantized(m_ThresholdXQuantized);
-  }
 }
 
 void TGMaxPool::update(

@@ -38,26 +38,11 @@ void TGUpsample::print(OStream &pOS) const
 void TGUpsample::emit() const
 {
   DEBUG(print(dbgs()));
-  bmnet_upsample_fixed_bmkernel(*bm1880_kernel::getInstance().m_CTX,
-                                m_MemOperands[0]->m_Addr, // ifmap_gaddr
-                                m_MemOperands[1]->m_Addr, // ofmap_gaddr
-                                m_N, m_C, m_H, m_W, m_Scale);
-}
-
-void TGUpsample::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_upsample_fixed_bmkernel");
-  {
-    auto *pool = pI->mutable_upsample();
-    pool->set_bottom_gaddr(m_MemOperands[0]->m_Addr);
-    pool->set_top_gaddr(m_MemOperands[1]->m_Addr);
-    pool->set_n(m_N);
-    pool->set_c(m_C);
-    pool->set_h(m_H);
-    pool->set_w(m_W);
-    pool->set_scale(m_Scale);
-  }
+  bmnet::bmnet_asm::bmnet_upsample_fixed_bmkernel(
+      *bm1880_kernel::getInstance().m_CTX,
+      m_MemOperands[0]->m_Addr, // ifmap_gaddr
+      m_MemOperands[1]->m_Addr, // ofmap_gaddr
+      m_N, m_C, m_H, m_W, m_Scale);
 }
 
 } // namespace BM188X

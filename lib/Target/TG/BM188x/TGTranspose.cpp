@@ -65,35 +65,12 @@ void TGTranspose::print(OStream &pOS) const
 void TGTranspose::emit() const
 {
   DEBUG(print(dbgs()));
-  bmnet::bmnet_permute_fixed_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_permute_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
       m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W, m_OutputShape[0],
       m_OutputShape[1], m_OutputShape[2], m_OutputShape[3], m_Order[0],
       m_Order[1], m_Order[2], m_Order[3], m_NeedPermute);
 }
 
-void TGTranspose::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_permute_fixed_forward_bmkernel");
-  {
-    auto *permute = pI->mutable_permute();
-    permute->set_input_gaddr(m_MemOperands[0]->m_Addr);
-    permute->set_output_gaddr(m_MemOperands[1]->m_Addr);
-    permute->set_input_n(m_N);
-    permute->set_input_c(m_C);
-    permute->set_input_h(m_H);
-    permute->set_input_w(m_W);
-    permute->set_output_n(m_OutputShape[0]);
-    permute->set_output_c(m_OutputShape[1]);
-    permute->set_output_h(m_OutputShape[2]);
-    permute->set_output_w(m_OutputShape[3]);
-    permute->set_order_n(m_Order[0]);
-    permute->set_order_c(m_Order[1]);
-    permute->set_order_h(m_Order[2]);
-    permute->set_order_w(m_Order[3]);
-    permute->set_need_permute(m_NeedPermute);
-  }
-}
 } // namespace BM188X
 } // namespace onnc

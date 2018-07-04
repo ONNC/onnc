@@ -44,7 +44,7 @@ void TGRelu::emit() const
 {
   DEBUG(print(dbgs()));
 
-  bmnet::bmnet_relu_fixed_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_relu_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // input_gaddr
       m_MemOperands[1]->m_Addr, // output_gaddr
@@ -54,21 +54,6 @@ void TGRelu::emit() const
       m_H,                      // input_h
       m_W                       // input_w
   );
-}
-void TGRelu::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_relu_fixed_forward_bmkernel");
-  {
-    auto *relu = pI->mutable_relu();
-    relu->set_bottom_gaddr(m_MemOperands[0]->m_Addr);
-    relu->set_top_gaddr(m_MemOperands[1]->m_Addr);
-    relu->set_negative_slope(m_NegativeSlope);
-    relu->set_input_n(m_N);
-    relu->set_input_c(m_C);
-    relu->set_input_h(m_H);
-    relu->set_input_w(m_W);
-  }
 }
 
 } // namespace BM188X

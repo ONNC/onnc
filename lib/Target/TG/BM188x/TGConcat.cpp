@@ -47,35 +47,15 @@ void TGConcat::emit() const
 {
   DEBUG(print(dbgs()));
   // Need to modify the api to use const.
-  bmnet_concat_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX,
-      const_cast<unsigned long int *>(m_InputAddr.data()),
+  std::vector<uint64_t> input_addr;
+  for (size_t i = 0; i < m_InputDims.size(); i++)
+    input_addr.push_back(m_MemOperands[i]->m_Addr);
+
+  bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
+      *bm1880_kernel::getInstance().m_CTX, input_addr.data(),
       m_MemOperands[1]->m_Addr, const_cast<int *>(m_InputDims.data()),
       m_InputDims.size(), m_ConcatAxis, m_OutputDim.size(),
       const_cast<int *>(m_OutputDim.data()));
-}
-
-void TGConcat::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_concat_fixed_forward_bmkernel");
-  {
-    auto *pool = pI->mutable_concat();
-    ::onnc::tg::bm1880::Inst_Shape *input_dims = pool->mutable_input_dims();
-    ::onnc::tg::bm1880::Inst_Shape *output_dim = pool->mutable_output_dim();
-
-    for (size_t i = 0; i < m_InputDims.size(); i++) {
-      pool->add_bottom_gaddr(m_MemOperands[i]->m_Addr);
-    }
-    pool->set_top_gaddr(m_MemOperands[1]->m_Addr);
-    for (size_t i = 0; i < m_InputDims.size(); i++) {
-      input_dims->add_dim(m_InputDims[i]);
-    }
-    for (size_t i = 0; i < m_OutputDim.size(); i++) {
-      output_dim->add_dim(m_OutputDim[i]);
-    }
-    pool->set_axis(m_ConcatAxis);
-  }
 }
 
 } // namespace BM188X

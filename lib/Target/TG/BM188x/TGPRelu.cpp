@@ -47,7 +47,7 @@ void TGPRelu::emit() const
 {
   DEBUG(print(dbgs()));
 
-  bmnet::bmnet_prelu_fixed_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_prelu_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, // bmnet context
       m_MemOperands[0]->m_Addr,            // input_gaddr
       m_MemOperands[1]->m_Addr,            // slope_gaddr
@@ -61,27 +61,6 @@ void TGPRelu::emit() const
       m_GTScale,                           // GT_scale
       m_GTRShiftWidth,                     // GT_right_shift_width
       m_LERShiftWidth);                    // LE_right_shift_width
-}
-void TGPRelu::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_prelu_fixed_forward_bmkernel");
-  {
-    auto *prelu = pI->mutable_prelu();
-
-    prelu->set_input_gaddr(m_MemOperands[0]->m_Addr);
-    prelu->set_slope_gaddr(m_MemOperands[1]->m_Addr);
-    prelu->set_output_gaddr(m_MemOperands[2]->m_Addr);
-    prelu->set_chann1el_shared(m_ChannelShared);
-    prelu->set_slope(m_Slope);
-    prelu->set_input_n(m_N);
-    prelu->set_input_c(m_C);
-    prelu->set_input_h(m_H);
-    prelu->set_input_w(m_W);
-    prelu->set_gt_scale(m_GTScale);
-    prelu->set_gt_right_shift_width(m_GTRShiftWidth);
-    prelu->set_le_right_shift_width(m_LERShiftWidth);
-  }
 }
 
 void TGPRelu::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)

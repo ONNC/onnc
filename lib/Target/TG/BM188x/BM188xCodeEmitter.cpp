@@ -3,6 +3,7 @@
 #include "TGConv.h"
 #include "utils/io.hpp"
 #include <bm_kernel.h>
+#include <bmkernel_api.h>
 #include <cstdint>
 #include <fstream>
 #include <onnc/IR/ONNXUtils.h>
@@ -167,21 +168,18 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (!weight_data.empty())
     bmnet::WriteInt8DataToBinaryFile(&weight_data, "cmdbuf.weight.bin");
 
-  if (m_Backend->getOption().m_DumpASM) {
-    tg::bm1880::CommandBuffer buf;
-    for (auto &inst : instList)
-      static_cast<BM188xComputeOperator *>(inst.get())->toASM(buf.add_inst());
-    onnc::outs() << buf.DebugString() << std::endl;
-  }
-
   // ReadInt8DataFromBinaryFile(weight, weight_data);
   bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
   bm1880_kernel::getInstance().m_CTX = &ctx;
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());
 
-  for (auto const &i : instList)
+  if (m_Backend->getOption().m_DumpASM)
+    ::bmnet::bmnet_asm::asm_context::get_context().set_fp(onnc::outs());
+  for (auto const &i : instList) {
+    ::bmnet::bmnet_asm::asm_context::get_context().name = i->getLayerName();
     i->emit();
+  }
   instList.clear();
   // EndInst::encode()
   kernel_submit();

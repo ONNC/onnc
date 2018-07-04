@@ -122,7 +122,7 @@ void TGConv::emit() const
       m_DoScale ? m_MemOperands[m_ScaleIdx]->m_Addr : GADDR_INVALID;
   uint64_t scale_bias_addr =
       m_DoScaleBias ? m_MemOperands[m_ScaleBiasIdx]->m_Addr : GADDR_INVALID;
-  bmnet::bmnet_conv_parallel_fixed_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_conv_parallel_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
       m_MemOperands[2]->m_Addr,                                      // ofmap
       m_MemOperands[1]->m_Addr,                                      // weight
@@ -266,52 +266,6 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
     for (size_t i = 0; i < count; ++i) {
       pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
       pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
-    }
-  }
-}
-
-void TGConv::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_conv_parallel_fixed_forward_bmkernel");
-  uint64_t biasAddr = m_DoBias ? m_MemOperands[3]->m_Addr : GADDR_INVALID;
-  {
-    auto *conv = pI->mutable_conv();
-    conv->set_ga_ifmap(m_MemOperands[0]->m_Addr);
-    conv->set_ga_ofmap(m_MemOperands[1]->m_Addr);
-    conv->set_ga_weight(m_MemOperands[2]->m_Addr);
-    conv->set_ga_bias(biasAddr);
-    conv->set_input_n(m_InN);
-    conv->set_input_c(m_InC);
-    conv->set_input_h(m_InH);
-    conv->set_input_w(m_InW);
-    conv->set_groups(m_Groups);
-    conv->set_output_c(m_OutC);
-    conv->set_kh(m_KH);
-    conv->set_kw(m_KW);
-    conv->set_dilation_h(m_DilationH);
-    conv->set_dilation_w(m_DilationW);
-    conv->set_pad_h(m_PadH);
-    conv->set_pad_w(m_PadW);
-    conv->set_stride_h(m_StrideH);
-    conv->set_stride_w(m_StrideW);
-    conv->set_result_add(false);
-    conv->set_do_bn(m_DoBias);
-    conv->set_do_scale(pm::match(m_pNode, pm::mTrueAttr("do_scale")));
-    conv->set_do_scale_bias(pm::match(m_pNode, pm::mTrueAttr("do_scale_bias")));
-    conv->set_bn_scale(0);
-    conv->set_bn_eps(0);
-    conv->set_activation_ga_slope(0);
-    conv->set_activation_channel_shared(0);
-    conv->set_activation_gt_scale(0);
-    conv->set_activation_gt_rshift(0);
-    conv->set_activation_le_scale(0);
-    conv->set_activation_le_rshift(0);
-    conv->set_right_shift_width(m_RShiftWidth);
-    auto do_activation = pm::match(m_pNode, pm::mTrueAttr("do_relu"));
-    if (do_activation) {
-      conv->set_do_activation(true);
-      conv->set_activation_method(tg::bm1880::Inst::RELU);
     }
   }
 }

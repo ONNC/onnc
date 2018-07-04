@@ -21,7 +21,6 @@ public:
   TGConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias,
                          MemOperand *pScale, MemOperand *pScaleBias);
-  void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
   bool isDoBias() { return (m_DoBias == 1) ? true : false; }

@@ -30,26 +30,11 @@ void TGLRN::TGLRN::emit() const
             << " m_Alpha:" << m_Alpha << "m_LocalSize:" << m_LocalSize
             << " m_Beta:" << m_Beta << "m_K:" << m_K << std::endl;
 #if 0
-  bmnet::bmnet_lrn_forward_bmkernel(
+  bmnet::bmnet_asm::bmnet_lrn_forward_bmkernel(
                              *bm1880_kernel::getInstance().m_CTX,
                              m_InputAddr, m_OutputAddr, m_N, m_C, m_H, m_W,
                              m_Alpha, m_LocalSize, m_Beta, m_K);
 #endif
-}
-
-void TGLRN::toASM(tg::bm1880::Inst *pI) const
-{
-  pI->set_name(getLayerName());
-  pI->set_type("bmnet_lrn_fixed_forward_bmkernel");
-  {
-    auto *lrn = pI->mutable_lrn();
-    lrn->set_bottom_gaddr(m_MemOperands[0]->m_Addr);
-    lrn->set_top_gaddr(m_MemOperands[1]->m_Addr);
-    lrn->set_input_n(m_N);
-    lrn->set_input_c(m_C);
-    lrn->set_input_h(m_H);
-    lrn->set_input_w(m_W);
-  }
 }
 
 } // namespace BM188X

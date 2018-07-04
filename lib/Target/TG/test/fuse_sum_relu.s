@@ -5,7 +5,6 @@
 # CHECK-NEXT:  eltwise {
 # CHECK-NEXT:    ga_input: {{.*}}
 # CHECK-NEXT:    ga_input: {{.*}}
-# CHECK-NEXT:    ga_input: {{.*}}
 # CHECK-NEXT:    ga_output: {{.*}}
 # CHECK-NEXT:    input_size: 2
 # CHECK-NEXT:    op: 1
