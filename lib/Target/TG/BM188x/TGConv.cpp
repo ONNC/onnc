@@ -145,15 +145,16 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
     }
     std::cout << "\n";
 #endif
-    assert((size_t)(m_OutC * m_InC * m_KH * m_KW) == count);
+    assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
 
     // conv weight is arranged by (1, oc, kh*kw, ic)
     // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+    int ic = m_InC / m_Groups;
     for (int oc_i = 0; oc_i < m_OutC; ++oc_i) {
       for (int k_i = 0; k_i < m_KH * m_KW; ++k_i) {
-        for (int ic_i = 0; ic_i < m_InC; ++ic_i) {
-          pWeight[oc_i * (m_KH * m_KW * m_InC) + k_i * m_InC + ic_i] =
-              data[oc_i * (m_KH * m_KW * m_InC) + ic_i * (m_KH * m_KW) + k_i];
+        for (int ic_i = 0; ic_i < ic; ++ic_i) {
+          pWeight[oc_i * (m_KH * m_KW * ic) + k_i * ic + ic_i] =
+              data[oc_i * (m_KH * m_KW * ic) + ic_i * (m_KH * m_KW) + k_i];
         }
       }
     }
