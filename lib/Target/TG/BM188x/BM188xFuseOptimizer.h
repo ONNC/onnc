@@ -19,6 +19,9 @@ public:
   void FuseGemmRelu(::onnx::Graph *pGraph, ::onnx::Node *pGemmNode,
                     ::onnx::Node *pReluNode) override;
 
+  onnx::Node *FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
+                            onnx::Node *pScaleNode) override;
+
 private:
   BM1880Backend *m_p1880backend; // NOLINT
 };

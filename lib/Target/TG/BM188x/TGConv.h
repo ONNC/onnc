@@ -19,11 +19,18 @@ public:
   void prepareWeight(std::vector<int8_t> &pWeight);
   void print(OStream &pOS) const override;
   TGConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
-                         MemOperand *pWeight, MemOperand *pBias);
+                         MemOperand *pWeight, MemOperand *pBias,
+                         MemOperand *pScale, MemOperand *pScaleBias);
   void toASM(tg::bm1880::Inst *pI) const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
   bool isDoBias() { return (m_DoBias == 1) ? true : false; }
+  bool isDoScale() { return m_DoScale ? true : false; }
+  bool isDoScaleBias() { return m_DoScaleBias ? true : false; }
+  int getBiasIdx() { return m_BiasIdx; }
+  int getScaleIdx() { return m_ScaleIdx; }
+  int getScaleBiasIdx() { return m_ScaleBiasIdx; }
+  float getConvOuputThreshold() { return m_ConvOutputThreshold; }
 
 private:
   int m_InN, m_InC, m_InH, m_InW;
@@ -35,7 +42,13 @@ private:
   uint8_t m_StrideH, m_StrideW;
   int m_DoBias;
   int m_DoRelu;
+  int m_DoScale;
+  int m_DoScaleBias;
   int m_RShiftWidth;
+  int m_ScaleRShiftWidth;
+  int m_BiasIdx, m_ScaleIdx, m_ScaleBiasIdx;
+  float m_ConvOutputThreshold;
+  // TODO add prelu_param
 };
 
 } // namespace BM188X

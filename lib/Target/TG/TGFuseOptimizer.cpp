@@ -102,8 +102,13 @@ void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
                                   onnx::Node *pScaleNode)
 {
   auto bn_inputs = pBNNode->inputs();
-  const std::string &scale_name = bn_inputs[1]->uniqueName();
-  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  auto scale_inputs = pScaleNode->inputs();
+  // FIXME assume model is translated from caffe. so bn's scale is 1, bm's bias
+  // is 0
+  std::cout << "Warning: FuseBNScale has issue if model is not translated"
+               "from caffe\n";
+  const std::string &scale_name = scale_inputs[1]->uniqueName();
+  const std::string &bias_name = scale_inputs[2]->uniqueName();
   const std::string &mean_name = bn_inputs[3]->uniqueName();
   const std::string &variance_name = bn_inputs[4]->uniqueName();
 
@@ -174,8 +179,9 @@ void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
   pBNNode->destroy();
 }
 
-void TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
-                                    onnx::Node *pScaleNode)
+onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
+                                           onnx::Node *pConvNode,
+                                           onnx::Node *pScaleNode)
 {
   pConvNode->addInput(pScaleNode->inputs()[1]);
   pConvNode->addInput(pScaleNode->inputs()[2]);
@@ -184,6 +190,7 @@ void TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
   pConvNode->output()->copyMetadata(pScaleNode->output());
   pScaleNode->replaceAllUsesWith(pConvNode);
   pScaleNode->destroy();
+  return pConvNode;
 }
 
 void TGFuseOptimizer::FuseConvRelu(onnx::Graph *pGraph, onnx::Node *pConvNode,

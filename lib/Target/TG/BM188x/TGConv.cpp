@@ -15,7 +15,8 @@ namespace BM188X {
 TGConv::TGConv(const ::onnx::Node &pNode)
     : BM188xComputeOperator(pNode, std::string("Conv")), m_Groups(1),
       m_DilationH(1), m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1),
-      m_StrideW(1), m_DoBias(0), m_RShiftWidth(0)
+      m_StrideW(1), m_DoBias(0), m_DoRelu(0), m_DoScale(0), m_DoScaleBias(0),
+      m_RShiftWidth(0), m_ScaleRShiftWidth(0), m_ConvOutputThreshold(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;
@@ -49,19 +50,46 @@ TGConv::TGConv(const ::onnx::Node &pNode)
     m_StrideH = i[0];
     m_StrideW = i[1];
   }
-  if (3 == pNode.inputs().size()) {
-    m_DoBias = 1;
+
+  if (pm::match(m_pNode, pm::mTrueAttr("do_scale"))) {
+    m_DoScale = 1;
   }
+
+  if (pm::match(m_pNode, pm::mTrueAttr("do_scale_bias"))) {
+    m_DoScaleBias = 1;
+  }
+
+  int idx = 3;
+  if (pNode.inputs().size() - m_DoScale - m_DoScaleBias == 3) {
+    m_DoBias = 1;
+    m_BiasIdx = idx++;
+  }
+  if (m_DoScale) {
+    m_ScaleIdx = idx++;
+    m_ConvOutputThreshold = pNode.f(onnx::Symbol("conv_output_threshold"));
+  }
+  if (m_DoScaleBias)
+    m_ScaleBiasIdx = idx++;
 }
 
 TGConv *TGConv::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
-                               MemOperand *pWeight, MemOperand *pBias)
+                               MemOperand *pWeight, MemOperand *pBias,
+                               MemOperand *pScale, MemOperand *pScaleBias)
 {
   m_MemOperands.push_back(pInput);
   m_MemOperands.push_back(pWeight);
   m_MemOperands.push_back(pOutput);
   if (pBias != nullptr) {
+    assert(m_DoBias);
     m_MemOperands.push_back(pBias);
+  }
+  if (pScale != nullptr) {
+    assert(m_DoScale);
+    m_MemOperands.push_back(pScale);
+  }
+  if (pScaleBias != nullptr) {
+    assert(m_DoScaleBias);
+    m_MemOperands.push_back(pScaleBias);
   }
   return this;
 }
@@ -88,45 +116,49 @@ void TGConv::emit() const
   DEBUG(print(dbgs()));
   float activation_arg[1] = { 0.0f };
 
-  uint64_t biasAddr = m_DoBias ? m_MemOperands[3]->m_Addr : GADDR_INVALID;
+  uint64_t biasAddr =
+      m_DoBias ? m_MemOperands[m_BiasIdx]->m_Addr : GADDR_INVALID;
+  uint64_t scale_addr =
+      m_DoScale ? m_MemOperands[m_ScaleIdx]->m_Addr : GADDR_INVALID;
+  uint64_t scale_bias_addr =
+      m_DoScaleBias ? m_MemOperands[m_ScaleBiasIdx]->m_Addr : GADDR_INVALID;
   bmnet::bmnet_conv_parallel_fixed_forward_bmkernel(
       *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
       m_MemOperands[2]->m_Addr,                                      // ofmap
       m_MemOperands[1]->m_Addr,                                      // weight
       biasAddr,                                                      // bias
-      GADDR_INVALID, // ga_bn_mean,
-      GADDR_INVALID, // ga_bn_variance,
-      GADDR_INVALID, // ga_scale,
-      GADDR_INVALID, // ga_scale_bias,
+      GADDR_INVALID,   // ga_bn_mean,
+      GADDR_INVALID,   // ga_bn_variance,
+      scale_addr,      // ga_scale,
+      scale_bias_addr, // ga_scale_bias,
       m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
       m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
       m_DoBias,                                                 // do_bias,
       0,                                                        // do_bn,
-      pm::match(m_pNode, pm::mTrueAttr("do_scale")),
-      pm::match(m_pNode, pm::mTrueAttr("do_scale_bias")),
-      pm::match(m_pNode, pm::mTrueAttr("do_relu")),
-      0,              // bn_scale,
-      0,              // bn_eps,
-      0,              // activation_method,
-      activation_arg, // activation_arg[],
-      0,              // activation_ga_slope,
-      0,              // activation_channel_shared
-      0,              // activation_gt_rshift
-      0,              // activation_gt_rshift
-      0,              // activation_le_scale
-      0,              // activation_le_rshift
-      m_RShiftWidth,  // right_shift_width
-      0,              // bn_right_shift_width
-      0,              // scale_right_shift_width
-      0               // use_winograd
+      m_DoScale, m_DoScaleBias, pm::match(m_pNode, pm::mTrueAttr("do_relu")),
+      0,                  // bn_scale,
+      0,                  // bn_eps,
+      0,                  // activation_method,
+      activation_arg,     // activation_arg[],
+      0,                  // activation_ga_slope,
+      0,                  // activation_channel_shared
+      0,                  // activation_gt_rshift
+      0,                  // activation_gt_rshift
+      0,                  // activation_le_scale
+      0,                  // activation_le_rshift
+      m_RShiftWidth,      // right_shift_width
+      0,                  // bn_right_shift_width
+      m_ScaleRShiftWidth, // scale_right_shift_width
+      0                   // use_winograd
   );
 }
 
 //#define DEBUG_WEIGHT_BIN
+// TODO refactoring
 void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
 {
   pWeight.clear();
-  // m_MemOperands: ifmap, weight, ofmap, bias
+  // m_MemOperands: ifmap, weight, ofmap, bias, scale, scale_bias
   // 8 bit weight
   {
     const ::onnx::Value *value = m_MemOperands[1]->m_Value;
@@ -169,10 +201,56 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
 
   // 16bit bias
   if (m_DoBias == 1) {
-    const ::onnx::Value *value = m_MemOperands[3]->m_Value;
+    const ::onnx::Value *value = m_MemOperands[m_BiasIdx]->m_Value;
     const ::onnx::Tensor &tensor =
         ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(m_MemOperands[3]->m_Type == ::onnx::TensorProto_DataType_INT16);
+    assert(m_MemOperands[m_BiasIdx]->m_Type ==
+           ::onnx::TensorProto_DataType_INT16);
+    size_t count = ::onnc::getTotalCount(tensor.sizes());
+    std::vector<int16_t> int16_vector(count);
+    memcpy(int16_vector.data(), tensor.raw().data(), count * sizeof(int16_t));
+#ifdef DEBUG_WEIGHT_BIN
+    std::cout << value->uniqueName() << "\n";
+    for (auto i : int16_vector) {
+      std::cout << i << ",";
+    }
+    std::cout << "\n";
+#endif
+    size_t offset = pWeight.size();
+    pWeight.resize(offset + count * 2);
+    for (size_t i = 0; i < count; ++i) {
+      pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
+      pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
+    }
+  }
+
+  // 8bit scale bias
+  if (m_DoScale == 1) {
+    const ::onnx::Value *value = m_MemOperands[m_ScaleIdx]->m_Value;
+    const ::onnx::Tensor &tensor =
+        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(m_MemOperands[m_ScaleIdx]->m_Type ==
+           ::onnx::TensorProto_DataType_INT8);
+    const std::string &raw = tensor.raw();
+    std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
+#ifdef DEBUG_WEIGHT_BIN
+    std::vector<int8_t> data;
+    std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+    std::cout << mem_op->m_Value->uniqueName() << "\n";
+    for (auto i : data) {
+      std::cout << (int32_t)i << ",";
+    }
+    std::cout << "\n";
+#endif
+  }
+
+  // 16bit scale bias
+  if (m_DoScaleBias == 1) {
+    const ::onnx::Value *value = m_MemOperands[m_ScaleBiasIdx]->m_Value;
+    const ::onnx::Tensor &tensor =
+        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(m_MemOperands[m_ScaleBiasIdx]->m_Type ==
+           ::onnx::TensorProto_DataType_INT16);
     size_t count = ::onnc::getTotalCount(tensor.sizes());
     std::vector<int16_t> int16_vector(count);
     memcpy(int16_vector.data(), tensor.raw().data(), count * sizeof(int16_t));
@@ -241,6 +319,9 @@ void TGConv::toASM(tg::bm1880::Inst *pI) const
 void TGConv::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
 {
   m_RShiftWidth = pLayerCtable->right_shift_width();
+  m_ScaleRShiftWidth =
+      pLayerCtable->convolution_param().scale_right_shift_width();
+  // TODO add prelu_param
 }
 
 } // namespace BM188X

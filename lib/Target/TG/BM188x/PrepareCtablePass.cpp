@@ -88,8 +88,14 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
     // add differnet layer param into ctable
     uint32_t symbol = node->kind();
     // sync to LayerImpl.h
-    if (symbol == onnx::Symbol("Conv") || symbol == onnx::Symbol("Gemm") ||
-        symbol == onnx::Symbol("Scale")) {
+    if (symbol == onnx::Symbol("Conv")) {
+      layer_cal_param->set_right_shift_width(0);
+      tg::bm1880::ConvolutionCalibrationCalibrationParameter *conv_cal_param =
+          layer_cal_param->mutable_convolution_param();
+      conv_cal_param->set_scale_right_shift_width(0);
+      // TODO add prelu_param
+    } else if (symbol == onnx::Symbol("Gemm") ||
+               symbol == onnx::Symbol("Scale")) {
       layer_cal_param->set_right_shift_width(0);
     } else if (symbol == onnx::Symbol("MaxPool") ||
                symbol == onnx::Symbol("AveragePool")) {

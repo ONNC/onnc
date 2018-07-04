@@ -18,15 +18,32 @@ using namespace onnc;
 ComputeOperator2 *BM188xISelLowering::LowerConv(const ::onnx::Node &pNode,
                                                 ComputeGraph &pGraph)
 {
-  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *weight = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
-  auto *bias =
-      (pNode.inputs().size() == 3)
-          ? m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT)
-          : nullptr;
   auto *op = new BM188X::TGConv(pNode);
-  return op->addMemOperands(input, output, weight, bias);
+  auto *input_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output_memop =
+      m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *weight_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
+  MemOperand *bias_memop = nullptr;
+  MemOperand *scale_memop = nullptr;
+  MemOperand *scale_bias_memop = nullptr;
+  bool do_bias = op->isDoBias();
+  bool do_scale = op->isDoScale();
+  bool do_scale_bias = op->isDoScaleBias();
+
+  int idx = 2;
+  if (do_bias)
+    bias_memop =
+        m_pBackend->getMemOperand(pNode.inputs()[idx++], MemType::WEIGHT);
+  if (do_scale)
+    scale_memop =
+        m_pBackend->getMemOperand(pNode.inputs()[idx++], MemType::WEIGHT);
+  if (do_scale_bias)
+    scale_bias_memop =
+        m_pBackend->getMemOperand(pNode.inputs()[idx++], MemType::WEIGHT);
+  return op->addMemOperands(input_memop, output_memop, weight_memop, bias_memop,
+                            scale_memop, scale_bias_memop);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerRelu(const ::onnx::Node &pNode,
