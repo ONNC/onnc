@@ -377,19 +377,13 @@ SKYPAT_F(DigraphTest, topology_iterator_test_3)
 
   RevTopologyIterator<digraph::NodeBase, NonConstTraits> iter(n7);
 
-  while (!iter.isEnd()) {
-    errs() << std::hex << (void*)&*iter << " ";
-    iter.next();
-  }
-  errs() << std::endl;
-/**
   ASSERT_TRUE(&*iter == n7);
-  iter.next();
-  ASSERT_TRUE(&*iter == n6);
   iter.next();
   ASSERT_TRUE(&*iter == n5);
   iter.next();
   ASSERT_TRUE(&*iter == n2);
+  iter.next();
+  ASSERT_TRUE(&*iter == n6);
   iter.next();
   ASSERT_TRUE(&*iter == n3);
   iter.next();
@@ -398,5 +392,4 @@ SKYPAT_F(DigraphTest, topology_iterator_test_3)
   ASSERT_TRUE(&*iter == n1);
   iter.next();
   ASSERT_TRUE(iter.isEnd());
-*/
 }
