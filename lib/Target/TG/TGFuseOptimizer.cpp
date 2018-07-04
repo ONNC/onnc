@@ -1,8 +1,22 @@
 #include "TGFuseOptimizer.h"
 #include "PatternMatch.h"
+#include <onnc/IR/ONNXUtils.h>
 
 using namespace onnc;
 using namespace PatternMatch;
+
+static std::vector<float> getTensorData(onnx::Graph *pGraph,
+                                        const std::string &pName)
+{
+  const onnx::Tensor &tensor = *pGraph->getInitializer(pName);
+  size_t count = onnc::getTotalCount(tensor.sizes());
+  assert(tensor.is_raw_data());
+  const std::string &raw = tensor.raw();
+  std::vector<float> data(count);
+  std::memcpy(data.data(), raw.data(), count * sizeof(float));
+  return data;
+}
+
 bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
 {
 
@@ -87,20 +101,75 @@ void TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
 void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
                                   onnx::Node *pScaleNode)
 {
+  auto bn_inputs = pBNNode->inputs();
+  const std::string &scale_name = bn_inputs[1]->uniqueName();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  const std::string &mean_name = bn_inputs[3]->uniqueName();
+  const std::string &variance_name = bn_inputs[4]->uniqueName();
+
+  std::vector<float> variance = getTensorData(pGraph, variance_name);
+  std::vector<float> inv_var;
+  const float epsilon = 1e-5f;
+  float variance_average =
+      std::accumulate(variance.begin(), variance.end(), 0) / variance.size();
+  std::vector<bool> disable_channel(variance.size(), false);
+  float threshold_zero = variance_average / 256;
+  for (size_t i = 0; i < variance.size(); ++i) {
+    inv_var.push_back(1.0 / sqrt(variance[i] + epsilon));
+    if (variance[i] < threshold_zero) {
+      disable_channel[i] = true;
+    }
+  }
+
+  // calculate new scale and bias
+  std::vector<float> new_scale;
+  std::vector<float> new_bias;
+  std::vector<float> scale_var = getTensorData(pGraph, scale_name);
+  std::vector<float> bias_var = getTensorData(pGraph, bias_name);
+  std::vector<float> mean_var = getTensorData(pGraph, mean_name);
+  for (size_t i = 0; i < inv_var.size(); ++i) {
+    if (!disable_channel[i]) {
+      new_scale.push_back(inv_var[i] * scale_var[i]);
+      new_bias.push_back(bias_var[i] -
+                         (mean_var[i] * scale_var[i]) * inv_var[i]);
+    } else {
+      new_scale.push_back(0);
+      new_bias.push_back(0);
+    }
+  }
+  onnx::Tensor new_scale_tensor = *pGraph->getInitializer(scale_name);
+  onnx::Tensor new_bias_tensor = *pGraph->getInitializer(bias_name);
+  new_scale_tensor.set_raw_data((const char *)new_scale.data());
+  new_bias_tensor.set_raw_data((const char *)new_bias.data());
+
+  onnx::Value *new_scalar_value =
+      pGraph->addInitializerAndInput(new_scale_tensor);
+  onnx::Value *new_bias_value = pGraph->addInitializerAndInput(new_bias_tensor);
+
+  // create Scale node
   onnx::Node *scale_node = pGraph->create(onnx::Symbol("Scale"));
-  // TODO recalculate weight by bn + scale -> scale
   scale_node->addInput(pBNNode->inputs()[0]);
-  scale_node->addInput(pBNNode->inputs()[1]);
-  scale_node->addInput(pBNNode->inputs()[2]);
+  scale_node->addInput(new_scalar_value);
+  scale_node->addInput(new_bias_value);
   scale_node->output()->copyMetadata(pScaleNode->output());
   scale_node->copyAttributes(*pScaleNode);
   scale_node->insertBefore(pBNNode);
   pScaleNode->replaceAllUsesWith(scale_node);
   // remove unused initializer
-  pGraph->eraseInitializer(pBNNode->inputs()[2]->uniqueName());
-  pGraph->eraseInitializer(pBNNode->inputs()[3]->uniqueName());
-  pGraph->eraseInitializer(pScaleNode->inputs()[0]->uniqueName());
-  pGraph->eraseInitializer(pScaleNode->inputs()[1]->uniqueName());
+  for (int i = 4; i >= 1; --i) {
+    if (pBNNode->inputs()[i]->uses().size() == 1) {
+      auto input = pBNNode->inputs()[i];
+      pBNNode->removeInput(i);
+      pGraph->eraseInitializerAndInput(input);
+    }
+  }
+  for (int i = 2; i >= 1; --i) {
+    if (pScaleNode->inputs()[i]->uses().size() == 1) {
+      auto input = pScaleNode->inputs()[i];
+      pScaleNode->removeInput(i);
+      pGraph->eraseInitializerAndInput(input);
+    }
+  }
   pScaleNode->destroy();
   pBNNode->destroy();
 }
