@@ -23,6 +23,8 @@ private:
   TGBackend *m_pTarget; // NOLINT
 };
 
+} // namespace
+
 Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
 {
   auto TFO = m_pTarget->getFuseOptimizr();
@@ -35,7 +37,6 @@ Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
   return changed ? Pass::kModuleChanged : Pass::kModuleNoChanged;
 }
 
-} // namespace
 char ONNXFuseOpt::ID = 0;
 
 ModulePass *onnc::createONNXFuseOptPass(TGBackend *pTarget)

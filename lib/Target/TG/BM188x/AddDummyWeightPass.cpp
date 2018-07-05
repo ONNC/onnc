@@ -27,6 +27,8 @@ private:
   BM1880Backend *m_pBackend; // NOLINT
 };
 
+} // namespace
+
 static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
 {
   std::string name = pValue->uniqueName();
@@ -78,8 +80,6 @@ Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
   }
   return Pass::kModuleNoChanged;
 }
-
-} // namespace
 
 char AddDummyWeight::ID = 0;
 

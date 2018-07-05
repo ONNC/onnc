@@ -32,6 +32,8 @@ public:
   }
 };
 
+} // anonymous namespace
+
 void GlobalMemAlloc::AllocGlobalMem()
 {
   unsigned int weight_offset = 0;
@@ -62,8 +64,6 @@ void GlobalMemAlloc::AllocGlobalMem()
     DEBUG(dbgs() << tab << mem << "\n");
   }
 }
-
-} // anonymous namespace
 
 char GlobalMemAlloc::ID = 0;
 

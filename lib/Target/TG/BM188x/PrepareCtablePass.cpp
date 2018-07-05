@@ -28,6 +28,8 @@ private:
   BM1880Backend *m_pBackend; // NOLINT
 };
 
+} // namespace
+
 Pass::ReturnType PrepareCtable::runOnModule(Module &pModule)
 {
   auto ctable = m_pBackend->getCtable(pModule);
@@ -133,8 +135,6 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
 
   return net_ctable_param.DebugString();
 }
-
-} // namespace
 
 char PrepareCtable::ID = 0;
 

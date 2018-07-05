@@ -22,9 +22,10 @@ public:
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:
-private:
   BM1880Backend *m_pBackend; // NOLINT
 };
+
+} // namespace
 
 Pass::ReturnType UpdateCtablePass::runOnModule(Module &pModule)
 {
@@ -37,7 +38,6 @@ Pass::ReturnType UpdateCtablePass::runOnModule(Module &pModule)
   return Pass::kModuleChanged;
 }
 
-} // namespace
 char UpdateCtablePass::ID = 0;
 
 ModulePass *onnc::createUpdateCtablePass(BM1880Backend *pBackend)
