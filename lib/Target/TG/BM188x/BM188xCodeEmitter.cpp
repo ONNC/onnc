@@ -70,6 +70,52 @@ BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
 }
 
 //#define DEBUG_WEIGHT_BIN
+
+void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
+                                          std::vector<int8_t> &pWeight)
+{
+  const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
+                                               *pMemOp->m_Value->owningGraph());
+
+  const std::string &raw = tensor.raw();
+  std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
+#ifdef DEBUG_WEIGHT_BIN
+  std::vector<int8_t> data;
+  std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+  std::cout << pMemOp->m_Value->uniqueName() << "\n";
+  for (auto i : data) {
+    std::cout << (int32_t)i << ",";
+  }
+  std::cout << "\n";
+#endif
+}
+
+void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
+                                           std::vector<int8_t> &pWeight)
+{
+  assert(pMemOp->m_Type == onnx::TensorProto_DataType_INT16);
+  const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
+                                               *pMemOp->m_Value->owningGraph());
+
+  const std::string &raw = tensor.raw();
+  size_t count = onnc::getTotalCount(tensor.sizes());
+  std::vector<int16_t> int16_vector(count);
+  memcpy(int16_vector.data(), raw.data(), count * sizeof(int16_t));
+#ifdef DEBUG_WEIGHT_BIN
+  std::cout << pMemOp->m_Value->uniqueName() << "\n";
+  for (auto i : int16_vector) {
+    std::cout << i << ",";
+  }
+  std::cout << "\n";
+#endif
+  size_t offset = pWeight.size();
+  pWeight.resize(offset + count * 2);
+  for (size_t i = 0; i < count; ++i) {
+    pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
+    pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
+  }
+}
+
 void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 {
   // TODO use elegant method to get onnx::Graph
@@ -104,39 +150,10 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
       if (mem_op->m_MemType == MemType::NEURON)
         continue;
 
-      const ::onnx::Tensor &tensor = ::onnc::getTensor(
-          mem_op->m_Value->uniqueName(), *mem_op->m_Value->owningGraph());
       if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
-        const std::string &raw = tensor.raw();
-        std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
-#ifdef DEBUG_WEIGHT_BIN
-        std::vector<int8_t> data;
-        std::copy(raw.begin(), raw.end(), std::back_inserter(data));
-        std::cout << mem_op->m_Value->uniqueName() << "\n";
-        for (auto i : data) {
-          std::cout << (int32_t)i << ",";
-        }
-        std::cout << "\n";
-#endif
+        prepare8bitWeight(mem_op, pWeight);
       } else {
-        assert(mem_op->m_Type == ::onnx::TensorProto_DataType_INT16);
-        const std::string &raw = tensor.raw();
-        size_t count = ::onnc::getTotalCount(tensor.sizes());
-        std::vector<int16_t> int16_vector(count);
-        memcpy(int16_vector.data(), raw.data(), count * sizeof(int16_t));
-#ifdef DEBUG_WEIGHT_BIN
-        std::cout << mem_op->m_Value->uniqueName() << "\n";
-        for (auto i : int16_vector) {
-          std::cout << i << ",";
-        }
-        std::cout << "\n";
-#endif
-        size_t offset = pWeight.size();
-        pWeight.resize(offset + count * 2);
-        for (size_t i = 0; i < count; ++i) {
-          pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
-          pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
-        }
+        prepare16bitWeight(mem_op, pWeight);
       }
     }
   }

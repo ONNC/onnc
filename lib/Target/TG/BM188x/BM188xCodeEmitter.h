@@ -20,6 +20,10 @@ class BM1880Backend;
 class BM188xCodeEmitter : public TGCodeEmitter
 {
 public:
+  static void prepare8bitWeight(const MemOperand *pMemOp,
+                                std::vector<int8_t> &pWeight);
+  static void prepare16bitWeight(const MemOperand *pMemOp,
+                                 std::vector<int8_t> &pWeight);
   BM188xCodeEmitter(BM1880Backend *pBackend);
 
   ~BM188xCodeEmitter() override = default;

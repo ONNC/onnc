@@ -161,12 +161,12 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
   // m_MemOperands: ifmap, weight, ofmap, bias, scale, scale_bias
   // 8 bit weight
   {
-    const ::onnx::Value *value = m_MemOperands[1]->m_Value;
-    const ::onnx::Tensor &tensor =
-        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(m_MemOperands[1]->m_Type == ::onnx::TensorProto_DataType_INT8);
+    const onnx::Value *value = m_MemOperands[1]->m_Value;
+    const onnx::Tensor &tensor =
+        onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(m_MemOperands[1]->m_Type == onnx::TensorProto_DataType_INT8);
     const std::string &raw = tensor.raw();
-    size_t count = ::onnc::getTotalCount(tensor.sizes());
+    size_t count = onnc::getTotalCount(tensor.sizes());
     pWeight.resize(count);
     std::vector<int8_t> data;
     std::copy(raw.begin(), raw.end(), std::back_inserter(data));
@@ -201,72 +201,20 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
 
   // 16bit bias
   if (m_DoBias == 1) {
-    const ::onnx::Value *value = m_MemOperands[m_BiasIdx]->m_Value;
-    const ::onnx::Tensor &tensor =
-        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(m_MemOperands[m_BiasIdx]->m_Type ==
-           ::onnx::TensorProto_DataType_INT16);
-    size_t count = ::onnc::getTotalCount(tensor.sizes());
-    std::vector<int16_t> int16_vector(count);
-    memcpy(int16_vector.data(), tensor.raw().data(), count * sizeof(int16_t));
-#ifdef DEBUG_WEIGHT_BIN
-    std::cout << value->uniqueName() << "\n";
-    for (auto i : int16_vector) {
-      std::cout << i << ",";
-    }
-    std::cout << "\n";
-#endif
-    size_t offset = pWeight.size();
-    pWeight.resize(offset + count * 2);
-    for (size_t i = 0; i < count; ++i) {
-      pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
-      pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
-    }
+    auto *mem_op = m_MemOperands[m_BiasIdx];
+    BM188xCodeEmitter::prepare16bitWeight(mem_op, pWeight);
   }
 
   // 8bit scale bias
   if (m_DoScale == 1) {
-    const ::onnx::Value *value = m_MemOperands[m_ScaleIdx]->m_Value;
-    const ::onnx::Tensor &tensor =
-        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(m_MemOperands[m_ScaleIdx]->m_Type ==
-           ::onnx::TensorProto_DataType_INT8);
-    const std::string &raw = tensor.raw();
-    std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
-#ifdef DEBUG_WEIGHT_BIN
-    std::vector<int8_t> data;
-    std::copy(raw.begin(), raw.end(), std::back_inserter(data));
-    std::cout << mem_op->m_Value->uniqueName() << "\n";
-    for (auto i : data) {
-      std::cout << (int32_t)i << ",";
-    }
-    std::cout << "\n";
-#endif
+    auto *mem_op = m_MemOperands[m_ScaleIdx];
+    BM188xCodeEmitter::prepare8bitWeight(mem_op, pWeight);
   }
 
   // 16bit scale bias
   if (m_DoScaleBias == 1) {
-    const ::onnx::Value *value = m_MemOperands[m_ScaleBiasIdx]->m_Value;
-    const ::onnx::Tensor &tensor =
-        ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(m_MemOperands[m_ScaleBiasIdx]->m_Type ==
-           ::onnx::TensorProto_DataType_INT16);
-    size_t count = ::onnc::getTotalCount(tensor.sizes());
-    std::vector<int16_t> int16_vector(count);
-    memcpy(int16_vector.data(), tensor.raw().data(), count * sizeof(int16_t));
-#ifdef DEBUG_WEIGHT_BIN
-    std::cout << value->uniqueName() << "\n";
-    for (auto i : int16_vector) {
-      std::cout << i << ",";
-    }
-    std::cout << "\n";
-#endif
-    size_t offset = pWeight.size();
-    pWeight.resize(offset + count * 2);
-    for (size_t i = 0; i < count; ++i) {
-      pWeight[offset + i] = (int8_t)(int16_vector[i] & 0xff);
-      pWeight[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
-    }
+    auto *mem_op = m_MemOperands[m_ScaleBiasIdx];
+    BM188xCodeEmitter::prepare16bitWeight(mem_op, pWeight);
   }
 }
 
