@@ -22,24 +22,12 @@ getTensorThreshold(const tg::bm1880::LayerCalibrationParameter *pLayerCtable,
   return is_find_thres;
 }
 
-void BM188xFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
-                                       ::onnx::Node *pGemmNode,
-                                       ::onnx::Node *pReluNode)
-{
-  // TODO quantized and update ctable
-  std::string layerName = pGemmNode->output()->uniqueName();
-  tg::bm1880::LayerCalibrationParameter *layerCtable =
-      m_p1880backend->getMutableLayerCtable(layerName);
-  DEBUG(dbgs() << "get ctable:" << layerCtable->DebugString(););
-  // do fuse
-  TGFuseOptimizer::FuseGemmRelu(pGraph, pGemmNode, pReluNode);
-}
-
 onnx::Node *BM188xFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
                                                onnx::Node *pConvNode,
                                                onnx::Node *pScaleNode)
 {
-  // keep conv layer's output threshold
+  // keep conv layer's output threshold because FuseConvScale will change output
+  // name
   const std::string conv_output_name = pConvNode->output()->uniqueName();
   const auto *conv_output_ctable =
       m_p1880backend->getLayerCtable(conv_output_name);

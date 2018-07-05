@@ -19,12 +19,10 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
 
 bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
 {
-
   for (auto it = pGraph->begin(); it != pGraph->end(); ++it) {
     auto *node = *it;
-    if (match(node, mSymbol("Gemm"), mFalseAttr("enableReLu")) and
-        match(next(node), mSymbol("Relu"))) {
-      FuseGemmRelu(pGraph, node, next(node));
+    if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu"))) {
+      FuseRelu(pGraph, node, next(node));
       return true;
     }
     if (match(node, mSymbol("Mul"), mAttr("axis", 1),
@@ -47,11 +45,11 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       return true;
     }
     if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Relu"))) {
-      FuseConvRelu(pGraph, node, next(node));
+      FuseRelu(pGraph, node, next(node));
       return true;
     }
     if (match(node, mSymbol("Sum")) and match(next(node), mSymbol("Relu"))) {
-      FuseSumRelu(pGraph, node, next(node));
+      FuseRelu(pGraph, node, next(node));
       return true;
     }
   }
@@ -76,16 +74,9 @@ onnx::Node *TGFuseOptimizer::Fuse(::onnx::Node *pA, ::onnx::Node *pB)
   return pA;
 }
 
-void TGFuseOptimizer::FuseGemmRelu(::onnx::Graph *pGraph,
-                                   ::onnx::Node *pGemmNode,
-                                   ::onnx::Node *pReluNode)
-{
-  Fuse(pGemmNode, pReluNode)->i_(::onnx::Symbol("enableReLu"), 1);
-}
-
-void TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
-                                            onnx::Node *pMulNode,
-                                            onnx::Node *pAddNode)
+onnx::Node *TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
+                                                   onnx::Node *pMulNode,
+                                                   onnx::Node *pAddNode)
 {
   onnx::Node *scale_node =
       pGraph->create(onnx::Symbol("Scale"), pMulNode->inputs());
@@ -96,10 +87,12 @@ void TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
   pAddNode->replaceAllUsesWith(scale_node);
   pAddNode->destroy();
   pMulNode->destroy();
+  return scale_node;
 }
 
-void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
-                                  onnx::Node *pScaleNode)
+onnx::Node *TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph,
+                                         onnx::Node *pBNNode,
+                                         onnx::Node *pScaleNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto scale_inputs = pScaleNode->inputs();
@@ -177,6 +170,7 @@ void TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
   }
   pScaleNode->destroy();
   pBNNode->destroy();
+  return scale_node;
 }
 
 onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
@@ -193,14 +187,9 @@ onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
   return pConvNode;
 }
 
-void TGFuseOptimizer::FuseConvRelu(onnx::Graph *pGraph, onnx::Node *pConvNode,
-                                   onnx::Node *pReluNode)
+onnx::Node *TGFuseOptimizer::FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
+                                      onnx::Node *pReluNode)
 {
-  Fuse(pConvNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
-}
-
-void TGFuseOptimizer::FuseSumRelu(onnx::Graph *pGraph, onnx::Node *pSumNode,
-                                  onnx::Node *pReluNode)
-{
-  Fuse(pSumNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
+  Fuse(pNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
+  return pNode;
 }

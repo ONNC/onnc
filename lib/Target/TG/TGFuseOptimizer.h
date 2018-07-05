@@ -23,22 +23,18 @@ public:
   static onnx::Node *Fuse(::onnx::Node *pA, ::onnx::Node *pB);
 
 protected:
-  virtual void FuseGemmRelu(::onnx::Graph *pGraph, ::onnx::Node *pGemmNode,
-                            ::onnx::Node *pReluNode);
-  virtual void FuseChannelWiseMulAdd(onnx::Graph *pGraph, onnx::Node *pMulNode,
-                                     onnx::Node *pAddNode);
+  virtual onnx::Node *FuseChannelWiseMulAdd(onnx::Graph *pGraph,
+                                            onnx::Node *pMulNode,
+                                            onnx::Node *pAddNode);
 
-  virtual void FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
-                           onnx::Node *pScaleNode);
+  virtual onnx::Node *FuseBNScale(onnx::Graph *pGraph, onnx::Node *pBNNode,
+                                  onnx::Node *pScaleNode);
 
   virtual onnx::Node *FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
                                     onnx::Node *pScaleNode);
 
-  virtual void FuseConvRelu(onnx::Graph *pGraph, onnx::Node *pConvNode,
-                            onnx::Node *pReluNode);
-
-  virtual void FuseSumRelu(onnx::Graph *pGraph, onnx::Node *pSumNode,
-                           onnx::Node *pReluNode);
+  virtual onnx::Node *FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
+                               onnx::Node *pReluNode);
 
 private:
   bool FuseNodes(::onnx::Graph *pGraph);

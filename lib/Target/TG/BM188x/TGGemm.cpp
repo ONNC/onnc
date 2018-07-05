@@ -37,7 +37,7 @@ TGGemm::TGGemm(const ::onnx::Node &pNode)
     m_WeightTp = true;
   }
 
-  m_EnableRelu = pm::match(&pNode, pm::mTrueAttr("enableReLu"));
+  m_EnableRelu = pm::match(&pNode, pm::mTrueAttr("do_relu"));
 }
 
 TGGemm *TGGemm::addMemOperands(MemOperand *pInput, MemOperand *pOutput,

@@ -16,9 +16,6 @@ public:
 
   ~BM188xFuseOptimizer() override = default;
 
-  void FuseGemmRelu(::onnx::Graph *pGraph, ::onnx::Node *pGemmNode,
-                    ::onnx::Node *pReluNode) override;
-
   onnx::Node *FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
                             onnx::Node *pScaleNode) override;
 
