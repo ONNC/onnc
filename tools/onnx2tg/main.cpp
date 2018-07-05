@@ -44,6 +44,10 @@ static cl::opt<bool>
             cl::init(false),
             cl::desc("Print ASM(generated machine code) for debugging"),
             cl::about(g_About));
+static cl::opt<std::string> asm_output("so", cl::kShort, cl::kOptional,
+                                       cl::kValueRequired,
+                                       cl::desc("asm output file name"),
+                                       cl::about(g_About));
 
 static cl::opt<bool> printModuleBeforeISel("print-module-before-isel",
                                            cl::kShort, cl::kOptional,
@@ -97,6 +101,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().setMarch(march);
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
   onnx2tg.options().setDumpASM(dumpASM);
+  onnx2tg.options().setASMOutput(asm_output);
   onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
   onnx2tg.options().setAddDummyCTable(AddDummyCTable);
   onnx2tg.options().setAddDummyWeight(AddDummyWeight);

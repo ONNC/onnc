@@ -40,6 +40,10 @@ public:
 
   void setDumpASM(bool pSet);
 
+  const std::string &ASMOutput() const;
+
+  void setASMOutput(const std::string &pASMOutput);
+
   bool IgnoreCalibrationStep() const;
 
   void setIgnoreCalibrationStep(bool pSet);

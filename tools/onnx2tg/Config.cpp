@@ -25,6 +25,12 @@ bool Config::DumpASM() const { return m_Options.m_DumpASM; }
 
 void Config::setDumpASM(bool pSet) { m_Options.m_DumpASM = pSet; }
 
+const std::string &Config::ASMOutput() const { return m_Options.m_ASMOutput; }
+void Config::setASMOutput(const std::string &pASMOutput)
+{
+  m_Options.m_ASMOutput = pASMOutput;
+}
+
 bool Config::IgnoreCalibrationStep() const
 {
   return m_Options.m_IgnoreCalibrationStep;

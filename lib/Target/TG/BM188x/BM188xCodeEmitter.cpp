@@ -187,8 +187,15 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());
 
-  if (m_Backend->getOption().m_DumpASM)
-    ::bmnet::bmnet_asm::asm_context::get_context().set_fp(onnc::outs());
+  std::fstream fp;
+  if (m_Backend->getOption().m_DumpASM) {
+    if (m_Backend->getOption().m_ASMOutput.empty())
+      ::bmnet::bmnet_asm::asm_context::get_context().set_fp(onnc::outs());
+    else {
+      fp.open(m_Backend->getOption().m_ASMOutput, std::ios::out);
+      ::bmnet::bmnet_asm::asm_context::get_context().set_fp(fp);
+    }
+  }
   for (auto const &i : instList) {
     ::bmnet::bmnet_asm::asm_context::get_context().name = i->getLayerName();
     i->emit();
