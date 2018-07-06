@@ -1,6 +1,6 @@
 #; RUN : onnx-as fuse_conv_bn_mul_add_relu.s | onnx2tg -march bm1880 -ignore-calibration-step -print-module-before-isel | FileCheck fuse_conv_bn_mul_add_relu.s
 
-# CHECK:  FLOAT tensor <4, 64, 112, 112> %scale_conv1_1 = Conv <pads:INTS [3,3,3,3], strides:INTS [2,2], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 1> (FLOAT tensor <4, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_w_0, FLOAT tensor <64> %14, FLOAT tensor <64> %16)
+# CHECK:  FLOAT tensor <4, 64, 112, 112> %scale_conv1_1 = Conv <pads:INTS [3,3,3,3], strides:INTS [2,2], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 1> (FLOAT tensor <4, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_w_0, FLOAT tensor <64> %18, FLOAT tensor <64> %20)
 
 # CHECK: inst {
 # CHECK-NEXT:   name: "scale_conv1_1"

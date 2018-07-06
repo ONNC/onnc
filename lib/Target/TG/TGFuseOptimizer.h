@@ -36,6 +36,8 @@ protected:
   virtual onnx::Node *FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
                                onnx::Node *pReluNode);
 
+  virtual onnx::Node *FuseBN(onnx::Graph *pGraph, onnx::Node *pNode);
+
 private:
   bool FuseNodes(::onnx::Graph *pGraph);
 

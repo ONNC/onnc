@@ -19,7 +19,7 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
 
 bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
 {
-  for (auto it = pGraph->begin(); it != pGraph->end(); ++it) {
+  for (auto it = pGraph->rbegin(); it != pGraph->rend(); ++it) {
     auto *node = *it;
     if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu"))) {
       FuseRelu(pGraph, node, next(node));
@@ -50,6 +50,10 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
     }
     if (match(node, mSymbol("Sum")) and match(next(node), mSymbol("Relu"))) {
       FuseRelu(pGraph, node, next(node));
+      return true;
+    }
+    if (match(node, mSymbol("BatchNormalization"))) {
+      FuseBN(pGraph, node);
       return true;
     }
   }
@@ -90,18 +94,92 @@ onnx::Node *TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
   return scale_node;
 }
 
+static void replaceInput(onnx::Tensor &pTensor, size_t pIndex,
+                         onnx::Node *pNode, onnx::Graph *pGraph)
+{
+  assert(pIndex < pNode->inputs().size());
+  onnx::Value *new_value = pGraph->addInitializerAndInput(pTensor);
+  onnx::Value *old_value = pNode->inputs()[pIndex];
+  pNode->replaceInput(pIndex, new_value);
+  if (old_value->uses().size() == 0) {
+    pGraph->eraseInitializerAndInput(old_value);
+  }
+}
+
 onnx::Node *TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph,
                                          onnx::Node *pBNNode,
                                          onnx::Node *pScaleNode)
 {
+  // We can fuse Scale into BN as follows:
+  // Y = BN (X, scale, bias, mean, var)
+  // Z = Scale (Y, mul, add)
+  // into
+  // Y = BN (X, new_scale, new_bias, mean, var)
+  // with new scale = scale * mul,  new bias = bias * mul + add
   auto bn_inputs = pBNNode->inputs();
   auto scale_inputs = pScaleNode->inputs();
-  // FIXME assume model is translated from caffe. so bn's scale is 1, bm's bias
-  // is 0
-  std::cout << "Warning: FuseBNScale has issue if model is not translated"
-               "from caffe\n";
-  const std::string &scale_name = scale_inputs[1]->uniqueName();
-  const std::string &bias_name = scale_inputs[2]->uniqueName();
+  const std::string &scale_name = bn_inputs[1]->uniqueName();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  const std::string &mul_name = scale_inputs[1]->uniqueName();
+  const std::string &add_name = scale_inputs[2]->uniqueName();
+
+  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
+  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
+  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
+  onnx::Tensor add = *pGraph->getInitializer(add_name);
+
+  scale.multiply(mul);
+  bias.multiply(mul);
+  bias.add(add);
+
+  replaceInput(scale, 1, pBNNode, pGraph);
+  replaceInput(bias, 2, pBNNode, pGraph);
+
+  for (int i = 2; i >= 1; --i) {
+    if (scale_inputs[i]->uses().size() == 1) {
+      auto input = scale_inputs[i];
+      pScaleNode->removeInput(i);
+      pGraph->eraseInitializerAndInput(input);
+    }
+  }
+  pBNNode->output()->copyMetadata(pScaleNode->output());
+  pScaleNode->replaceAllUsesWith(pBNNode);
+  pScaleNode->destroy();
+  return pBNNode;
+}
+
+onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
+                                           onnx::Node *pConvNode,
+                                           onnx::Node *pScaleNode)
+{
+  pConvNode->addInput(pScaleNode->inputs()[1]);
+  pConvNode->addInput(pScaleNode->inputs()[2]);
+  pConvNode->i_(onnx::Symbol("do_scale"), 1)
+      ->i_(onnx::Symbol("do_scale_bias"), 1);
+  pConvNode->output()->copyMetadata(pScaleNode->output());
+  pScaleNode->replaceAllUsesWith(pConvNode);
+  pScaleNode->destroy();
+  return pConvNode;
+}
+
+onnx::Node *TGFuseOptimizer::FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
+                                      onnx::Node *pReluNode)
+{
+  Fuse(pNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
+  return pNode;
+}
+
+onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
+{
+  // We can fuse the output computation as follows:
+  //   ((x - mean) * (inv_var) * scale + bias
+  // to
+  //   (x * inv_var * scale) + (bias - mean * inv_var * scale)
+  // as new Scale layer
+
+  auto bn_inputs = pBNNode->inputs();
+  const std::string &scale_name = bn_inputs[1]->uniqueName();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &mean_name = bn_inputs[3]->uniqueName();
   const std::string &variance_name = bn_inputs[4]->uniqueName();
 
@@ -149,10 +227,12 @@ onnx::Node *TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph,
   scale_node->addInput(pBNNode->inputs()[0]);
   scale_node->addInput(new_scalar_value);
   scale_node->addInput(new_bias_value);
-  scale_node->output()->copyMetadata(pScaleNode->output());
-  scale_node->copyAttributes(*pScaleNode);
+  scale_node->i_(::onnx::Symbol("axis"), 1);
+  scale_node->i_(::onnx::Symbol("broadcast"), 1);
+  scale_node->output()->copyMetadata(pBNNode->output());
   scale_node->insertBefore(pBNNode);
-  pScaleNode->replaceAllUsesWith(scale_node);
+
+  pBNNode->replaceAllUsesWith(scale_node);
   // remove unused initializer
   for (int i = 4; i >= 1; --i) {
     if (pBNNode->inputs()[i]->uses().size() == 1) {
@@ -161,35 +241,6 @@ onnx::Node *TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph,
       pGraph->eraseInitializerAndInput(input);
     }
   }
-  for (int i = 2; i >= 1; --i) {
-    if (pScaleNode->inputs()[i]->uses().size() == 1) {
-      auto input = pScaleNode->inputs()[i];
-      pScaleNode->removeInput(i);
-      pGraph->eraseInitializerAndInput(input);
-    }
-  }
-  pScaleNode->destroy();
   pBNNode->destroy();
   return scale_node;
-}
-
-onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
-                                           onnx::Node *pConvNode,
-                                           onnx::Node *pScaleNode)
-{
-  pConvNode->addInput(pScaleNode->inputs()[1]);
-  pConvNode->addInput(pScaleNode->inputs()[2]);
-  pConvNode->i_(onnx::Symbol("do_scale"), 1)
-      ->i_(onnx::Symbol("do_scale_bias"), 1);
-  pConvNode->output()->copyMetadata(pScaleNode->output());
-  pScaleNode->replaceAllUsesWith(pConvNode);
-  pScaleNode->destroy();
-  return pConvNode;
-}
-
-onnx::Node *TGFuseOptimizer::FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
-                                      onnx::Node *pReluNode)
-{
-  Fuse(pNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
-  return pNode;
 }
