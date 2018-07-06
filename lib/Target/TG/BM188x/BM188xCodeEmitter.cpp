@@ -233,8 +233,22 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
     jMemLayout.insert(inst->getLayerName(), jLayer);
   }
 
+  // Find the input of network.
+  // The input of network should be in input list but not in initializers.
+  const onnx::Value *input;
+  auto *pGraph = const_cast< ::onnx::Graph *>(pOnnxGraph);
+  for (const onnx::Value *in : pOnnxGraph->inputs()) {
+    const auto &initNames = pGraph->initializer_names();
+    auto found =
+        std::find(initNames.begin(), initNames.end(), in->uniqueName());
+    if (found == initNames.end()) {
+      input = in;
+      break;
+    }
+  }
+
   // Generate the threshold of data_layer for quantization.
-  std::string dataLayerName = pOnnxGraph->inputs()[0]->uniqueName();
+  std::string dataLayerName = input->uniqueName();
   const tg::bm1880::LayerCalibrationParameter &dataCtable =
       *m_Backend->getLayerCtable(dataLayerName);
   float threshold = dataCtable.blob_param(0).threshold_y();
@@ -243,7 +257,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   jInputThres.insert("threshold", threshold);
 
   // Generate batch size of the input.
-  auto sizes = pOnnxGraph->inputs()[0]->sizes();
+  auto sizes = input->sizes();
   auto batchSize = sizes[0].dim;
   jBatch.insert("size", batchSize);
 
