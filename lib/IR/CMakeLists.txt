@@ -8,6 +8,7 @@ add_libonnc_src(
     ONNCNodeNameGen.cpp
     Dump.cpp
     Define.cpp
+    ONNXNodeVisitor.cpp
     ONNXUtils.cpp
     IRBuilder.cpp
     Quadruple.cpp
