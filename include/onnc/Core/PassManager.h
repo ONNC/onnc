@@ -82,6 +82,8 @@ private:
 
   DepNode* findNode(Pass::AnalysisID pID);
 
+  DepNode* addNode(Pass& pPass);
+
   /// @retval true If the pass @ref pID has been added.
   bool hasAdded(Pass::AnalysisID pID) const;
 

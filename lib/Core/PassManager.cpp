@@ -54,10 +54,8 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
   if (hasAdded(pPass->getPassID()))
     return;
 
-  DepNode* cur_node = m_Dependencies.addNode(pPass);
-  m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;
-
   std::stack<DepNode*> stack;
+  DepNode* cur_node = addNode(*pPass);
   stack.push(cur_node);
 
   // process pass dependency.
@@ -100,8 +98,7 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
       Pass* new_pass = info->makePass(pBackend);
 
       // Register the newly created pass
-      DepNode* new_node = m_Dependencies.addNode(new_pass);
-      m_AvailableAnalysis[new_node->pass->getPassID()] = new_node;
+      DepNode* new_node = addNode(*new_pass);
 
       // add dependency for cur_node.
       m_Dependencies.connect(*new_node, *cur_node);
@@ -136,13 +133,17 @@ bool PassManager::run(Module& pModule)
 
 PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
 {
-  PassDependencyLattice::iterator node, nEnd = m_Dependencies.end();
-  for (node = m_Dependencies.begin(); node != nEnd; ++node) {
-    if (pID == node->pass->getPassID()) { // existed
-      return &*node;
-    }
-  }
-  return nullptr;
+  AvailableAnalysisMap::iterator entry = m_AvailableAnalysis.find(pID);
+  if (m_AvailableAnalysis.end() == entry)
+    return nullptr;
+  return entry->second;
+}
+
+PassManager::DepNode* PassManager::addNode(Pass& pPass)
+{
+  DepNode* cur_node = m_Dependencies.addNode(&pPass);
+  m_AvailableAnalysis[cur_node->pass->getPassID()] = cur_node;
+  return cur_node;
 }
 
 unsigned int PassManager::size() const
