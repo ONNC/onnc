@@ -23,12 +23,14 @@ char PassManager::StartPass::ID = 0;
 PassManager::PassManager()
   : m_pPassRegistry(onnc::GetPassRegistry()),
     m_Dependencies(), m_AvailableAnalysis(),
+    m_ExecutionOrder(),
     m_pStart(m_Dependencies.addNode(new StartPass())) {
 }
 
 PassManager::PassManager(PassRegistry& pRegistry)
   : m_pPassRegistry(&pRegistry),
     m_Dependencies(), m_AvailableAnalysis(),
+    m_ExecutionOrder(),
     m_pStart(m_Dependencies.addNode(new StartPass())) {
 }
 
@@ -51,6 +53,10 @@ void PassManager::add(Pass* pPass, TargetBackend* pBackend)
 /// Add a pass by DSF order
 void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
 {
+  m_ExecutionOrder.push_back(pPass->getPassID());
+
+  // If the pass is already in the dependency graph, then we don't
+  // need to add it into the graph.
   if (hasAdded(pPass->getPassID()))
     return;
 

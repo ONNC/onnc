@@ -77,13 +77,18 @@ private:
 
   typedef std::map<Pass::AnalysisID, DepNode*> AvailableAnalysisMap;
 
+  typedef std::vector<Pass::AnalysisID> ExecutionOrder;
+
 private:
   PassRegistry* getPassRegistry() { return m_pPassRegistry; }
 
+  /// Dependency graph operator: find a node
   DepNode* findNode(Pass::AnalysisID pID);
 
+  /// Dependency graph operator: add a node
   DepNode* addNode(Pass& pPass);
 
+  /// Dependency graph operator
   /// @retval true If the pass @ref pID has been added.
   bool hasAdded(Pass::AnalysisID pID) const;
 
@@ -97,6 +102,9 @@ private:
 
   // A map from ID to node in dependency graph.
   AvailableAnalysisMap m_AvailableAnalysis;
+
+  // User-defined execution order of passes
+  ExecutionOrder m_ExecutionOrder;
 
   DepNode *m_pStart;
 };
