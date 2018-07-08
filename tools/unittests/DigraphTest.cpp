@@ -393,3 +393,41 @@ SKYPAT_F(DigraphTest, topology_iterator_test_3)
   iter.next();
   ASSERT_TRUE(iter.isEnd());
 }
+
+SKYPAT_F(DigraphTest, topology_iterator_test_4)
+{
+  Digraph<MyNode> g;
+  MyNode* n1 = g.addNode(0);
+  MyNode* n2 = g.addNode(1);
+  MyNode* n3 = g.addNode(2);
+  MyNode* n4 = g.addNode(3);
+  MyNode* n5 = g.addNode(4);
+  MyNode* n6 = g.addNode(5);
+  MyNode* n7 = g.addNode(6);
+  MyNode* n8 = g.addNode(7);
+
+  g.connect(*n1, *n2);
+  g.connect(*n1, *n3);
+  g.connect(*n1, *n4);
+  g.connect(*n2, *n5);
+  g.connect(*n3, *n5);
+  g.connect(*n3, *n6);
+  g.connect(*n4, *n6);
+  g.connect(*n5, *n7);
+  g.connect(*n6, *n7);
+  g.connect(*n6, *n8);
+
+  RevTopologyIterator<MyNode, NonConstTraits> iter(n7);
+  while (!iter.isEnd()) {
+    errs() << iter->data << " ";
+    iter.next();
+  }
+  errs() << std::endl;
+
+  RevTopologyIterator<MyNode, NonConstTraits> iter2(n6);
+  while (!iter2.isEnd()) {
+    errs() << iter2->data << " ";
+    iter2.next();
+  }
+  errs() << std::endl;
+}
