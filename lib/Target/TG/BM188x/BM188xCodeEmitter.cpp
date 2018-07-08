@@ -209,6 +209,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   onnc::json::Object jRoot;
   onnc::json::Object jMemLayout;
   onnc::json::Object jInputThres;
+  onnc::json::Object jInputDim;
   onnc::json::Object jOutputThres;
   onnc::json::Object jOutputLayer;
   onnc::json::Object jBatch;
@@ -252,8 +253,15 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
                << ", threshold = " << threshold << "\n");
   jInputThres.insert("threshold", threshold);
 
+  // Generate data_layer dimension.
+  auto sizes = pOnnxGraph->inputs()[0]->sizes();
+  onnc::json::Array jDimArr;
+  for (size_t i = 0; i < sizes.size(); ++i) {
+    jDimArr.push_back(onnc::json::Value(sizes[i].dim));
+  }
+  jInputDim.insert("dim", jDimArr);
+
   // Generate batch size of the input.
-  auto sizes = input->sizes();
   auto batchSize = sizes[0].dim;
   jBatch.insert("size", batchSize);
 
@@ -288,6 +296,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   jRoot.insert("output layer", jOutputLayer);
   jRoot.insert("batch", jBatch);
   jRoot.insert("onnc out layer threshold", jOutputThres);
+  jRoot.insert("data layer dim", jInputDim);
 
   std::string sOutPath = pOnnxGraph->has_name()
                              ? (pOnnxGraph->name() + "_runtime.json")
