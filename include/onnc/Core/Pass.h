@@ -27,15 +27,18 @@ public:
     kPT_Tensor
   };
 
-  enum ReturnType {
-    kModuleNoChanged,
-    kModuleChanged,
-    kPassRetry,
-    kPassFailure
+  enum PassResult : uint32_t {
+    kModuleNoChanged = 0x0,
+    kModuleChanged   = 0x1,
+    kPassRetry       = 0x2,
+    kPassFailure     = 0x4
   };
 
   /// Identity of a pass
   typedef const void* AnalysisID;
+
+  /// ReturnType is an union of PassResult
+  typedef uint32_t ReturnType;
 
 public:
   explicit Pass(Kind pKind, char& pPassID)
