@@ -20,6 +20,8 @@ public:
 
   virtual void encodeInstructions(const Path &pOutputPath) = 0;
 
+  virtual void genWeightBin(const Path &pOutputPath) { return; }
+
   virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) = 0;
 
 private:

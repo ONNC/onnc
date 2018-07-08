@@ -118,9 +118,6 @@ void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
 
 void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 {
-  // TODO use elegant method to get onnx::Graph
-  const ::onnx::Graph *graph =
-      m_Backend->getMemOperands()[0]->m_Value->owningGraph();
   size_t weight_size = 0;
   size_t weight_count = 0;
   for (auto *mem_op : m_Backend->getMemOperands()) {
@@ -129,9 +126,6 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
     weight_size += mem_op->m_Size;
     ++weight_count;
   }
-  // check all weight tensors exist or return
-  if (const_cast< ::onnx::Graph *>(graph)->initializers().size() < weight_count)
-    return;
 
   pWeight.reserve(weight_size);
 
@@ -169,6 +163,14 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 #endif
 }
 
+void BM188xCodeEmitter::genWeightBin(const Path &pOutputPath)
+{
+  prepareWeight(m_WeightData);
+  if (!m_WeightData.empty())
+    bmnet::WriteInt8DataToBinaryFile(&m_WeightData,
+                                     pOutputPath.native().c_str());
+}
+
 void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
 {
   auto &instList = m_Backend->getInsts();
@@ -179,14 +181,8 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (!pOutputPath.empty())
     output_path = pOutputPath;
 
-  // emit weight file
-  std::vector<int8_t> weight_data;
-  prepareWeight(weight_data);
-  if (!weight_data.empty())
-    bmnet::WriteInt8DataToBinaryFile(&weight_data, "cmdbuf.weight.bin");
-
   // ReadInt8DataFromBinaryFile(weight, weight_data);
-  bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, weight_data);
+  bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, m_WeightData);
   bm1880_kernel::getInstance().m_CTX = &ctx;
   // StartInst::encode()
   kernel_enter(ctx.get_bmkernel_handle());

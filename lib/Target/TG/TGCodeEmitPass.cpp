@@ -23,7 +23,11 @@ public:
   {
     const ::onnx::Graph *graph = pModule.getGraphIR().get();
     TGCodeEmitter *CE = m_Target->getTargetCodeEmitter();
+    // FIXME output path
     CE->genRuntimeInfo(graph);
+    // FIXME output path
+    CE->genWeightBin("cmdbuf.weight.bin");
+    // FIXME assume BackendContxt require weight
     CE->encodeInstructions(m_OutputPath);
     return Pass::kModuleNoChanged;
   }

@@ -32,11 +32,14 @@ public:
 
   void prepareWeight(std::vector<int8_t> &pWeight);
 
+  void genWeightBin(const Path &pOutputPath) override;
+
   void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
 
 private:
   // void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
+  std::vector<int8_t> m_WeightData;
 };
 
 class bm1880_kernel
