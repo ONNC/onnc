@@ -23,6 +23,8 @@ public:
 
 private:
   ComputeOperator2 *LowerConv(const ::onnx::Node &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLConv(const ::onnx::Node &pNode,
+                                ComputeGraph &pGraph);
   ComputeOperator2 *LowerRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerPRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerMaxPool(const ::onnx::Node &pNode,

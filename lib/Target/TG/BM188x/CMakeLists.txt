@@ -17,6 +17,7 @@ add_libonnc_src(
     UpdateCtablePass.cpp
     QuantizePass.cpp
     TGConv.cpp
+    TLConv.cpp
     TGGemm.cpp
     TGLRN.cpp
     TGMaxPool.cpp

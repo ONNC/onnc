@@ -11,6 +11,7 @@
 #include "TGSum.h"
 #include "TGTranspose.h"
 #include "TGUpsample.h"
+#include "TLConv.h"
 #include <onnc/Support/Debug.h>
 
 using namespace onnc;
@@ -18,6 +19,12 @@ using namespace onnc;
 ComputeOperator2 *BM188xISelLowering::LowerConv(const ::onnx::Node &pNode,
                                                 ComputeGraph &pGraph)
 {
+  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
+    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+    if (is_sliced)
+      return LowerTLConv(pNode, pGraph);
+  }
+
   auto *op = new BM188X::TGConv(pNode);
   auto *input_memop =
       m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -44,6 +51,13 @@ ComputeOperator2 *BM188xISelLowering::LowerConv(const ::onnx::Node &pNode,
         m_pBackend->getMemOperand(pNode.inputs()[idx++], MemType::WEIGHT);
   return op->addMemOperands(input_memop, output_memop, weight_memop, bias_memop,
                             scale_memop, scale_bias_memop);
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerTLConv(const ::onnx::Node &pNode,
+                                                  ComputeGraph &pGraph)
+{
+  auto *op = new BM188X::TLConv(pNode);
+  return op;
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerRelu(const ::onnx::Node &pNode,
