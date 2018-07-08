@@ -170,3 +170,182 @@ SKYPAT_F(PassManagerTest, add_dependent_passes)
   pm.add(new C());
   EXPECT_EQ(pm.size(), 3);
 }
+
+class X : public ModulePass
+{
+public:
+  static char ID;
+
+  X() : ModulePass(ID) { }
+
+  ReturnType runOnModule(Module &pModule) override { return kModuleChanged; }
+
+  StringRef getPassName() const override { return "X"; }
+};
+
+char X::ID = 0;
+INITIALIZE_PASS(X, "X")
+
+class Y : public ModulePass
+{
+public:
+  static char ID;
+
+  Y() : ModulePass(ID) { }
+
+  ReturnType runOnModule(Module &pModule) override { return kModuleNoChanged; }
+
+  StringRef getPassName() const override { return "Y"; }
+
+  void getAnalysisUsage(AnalysisUsage& pUsage) const override {
+    pUsage.addRequiredID(X::ID);
+  }
+};
+
+char Y::ID = 0;
+INITIALIZE_PASS(Y, "Y")
+
+class Z : public ModulePass
+{
+public:
+  static char ID;
+
+  Z() : ModulePass(ID) { }
+
+  ReturnType runOnModule(Module &pModule) override {
+    static int c = 0;
+    ++c;
+    if (0 == c % 3)
+      return kModuleChanged;
+
+    // retry till c is 3
+    return (kPassRetry | kModuleChanged);
+  }
+
+  void getAnalysisUsage(AnalysisUsage& pUsage) const override {
+    pUsage.addRequiredID(Y::ID);
+  }
+
+  StringRef getPassName() const override { return "Z"; }
+};
+
+char Z::ID = 0;
+INITIALIZE_PASS(Z, "Z")
+
+SKYPAT_F(PassManagerTest, run_test_1)
+{
+  PassRegistry registry;
+
+  InitializeXPass(registry);
+  InitializeYPass(registry);
+  InitializeZPass(registry);
+  
+  ASSERT_EQ(registry.numOfPasses(), 3);
+  ASSERT_FALSE(registry.isEmpty());
+
+  PassManager::State state;
+  PassManager pm(registry);
+  pm.add(new Z(), state);
+  pm.add(new Y(), state);
+  pm.add(new Z(), state);
+
+  ASSERT_EQ(state.execution.size(), 3); // ZYZ
+  ASSERT_FALSE(state.changed);
+
+  Module module;
+
+  std::string process;
+  // run Z(1): retry
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 5); // XYZYZ
+  ASSERT_FALSE(state.changed);
+
+  // run X: changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 4); // YZYZ
+  ASSERT_TRUE(state.changed);
+
+  // run Y: no changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 3); // ZYZ
+  ASSERT_TRUE(state.changed);
+
+  // run Z(2): retry
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 5); // XYZYZ
+  ASSERT_FALSE(state.changed);
+
+  // run X: changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 4); // YZYZ
+  ASSERT_TRUE(state.changed);
+
+  // run Y: no changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 3); // ZYZ
+  ASSERT_TRUE(state.changed);
+
+  // run Z(3): changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 2); // YZ
+  ASSERT_TRUE(state.changed);
+
+  // run Y: no changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 1); // Z
+  ASSERT_TRUE(state.changed);
+
+  // run Z(4): changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 3); // XYZ
+  ASSERT_FALSE(state.changed);
+
+  // run X: changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 2); // YZ
+  ASSERT_TRUE(state.changed);
+
+  // run Y: no changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 1); // Z
+  ASSERT_TRUE(state.changed);
+
+  // run Z(5): retry
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 3); // XYZ
+  ASSERT_FALSE(state.changed);
+
+  // run X: changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 2); // YZ
+  ASSERT_TRUE(state.changed);
+
+  // run Y: no changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 1); // Z
+  ASSERT_TRUE(state.changed);
+
+  // run Z(6): changed
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 0);
+  ASSERT_TRUE(state.changed);
+
+  errs() << process << std::endl;
+  ASSERT_TRUE(process == "ZXYZXYZYZXYZXYZ");
+  ASSERT_TRUE(pm.run(module, state));
+}

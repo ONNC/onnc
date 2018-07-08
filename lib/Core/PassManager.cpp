@@ -10,7 +10,7 @@
 #include <onnc/Core/AnalysisUsage.h>
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Diagnostic/MsgHandling.h>
-#include <onnc/Support/IOStream.h>
+#include <onnc/ADT/Bits/DigraphArc.h>
 #include <stack>
 #include <set>
 
@@ -23,14 +23,14 @@ char PassManager::StartPass::ID = 0;
 PassManager::PassManager()
   : m_pPassRegistry(onnc::GetPassRegistry()),
     m_Dependencies(), m_AvailableAnalysis(),
-    m_ExecutionOrder(),
+    m_RunState(),
     m_pStart(m_Dependencies.addNode(new StartPass())) {
 }
 
 PassManager::PassManager(PassRegistry& pRegistry)
   : m_pPassRegistry(&pRegistry),
     m_Dependencies(), m_AvailableAnalysis(),
-    m_ExecutionOrder(),
+    m_RunState(),
     m_pStart(m_Dependencies.addNode(new StartPass())) {
 }
 
@@ -40,20 +40,31 @@ PassManager::~PassManager()
 }
 
 // Use depth search first to build up a sub-graph of dependenciess.
+void PassManager::add(Pass* pPass, State& pState)
+{
+  doAdd(pPass, nullptr, pState);
+}
+
+void PassManager::add(Pass* pPass, TargetBackend* pBackend, State& pState)
+{
+  doAdd(pPass, pBackend, pState);
+}
+
+// Use depth search first to build up a sub-graph of dependenciess.
 void PassManager::add(Pass* pPass)
 {
-  doAdd(pPass, nullptr);
+  add(pPass, m_RunState);
 }
 
 void PassManager::add(Pass* pPass, TargetBackend* pBackend)
 {
-  doAdd(pPass, pBackend);
+  add(pPass, pBackend, m_RunState);
 }
 
 /// Add a pass by DSF order
-void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
+void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
 {
-  m_ExecutionOrder.push_back(pPass->getPassID());
+  pState.execution.push_back(pPass->getPassID());
 
   // If the pass is already in the dependency graph, then we don't
   // need to add it into the graph.
@@ -116,25 +127,68 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend)
   } // leave stacking
 }
 
+bool PassManager::run(Module& pModule, State& pState)
+{
+  while (!pState.execution.empty()) {
+    if (!step(pModule, pState))
+      return false;
+  } // end of while
+  return true;
+}
+
 bool PassManager::run(Module& pModule)
 {
-  /// TODO: If a pass return kPassRetry, run all dependent passes again until success.
-  bool changed = false;
-  PassDependencyLattice::bfs_iterator node, pEnd = m_Dependencies.bfs_end();
-  for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {
-    changed |= node->pass->doInitialization(pModule);
+  return run(pModule, m_RunState);
+}
+
+bool PassManager::step(Module& pModule, State& pState)
+{
+  DepNode* node = findNode(pState.execution.front());
+  if (nullptr == node)
+    return Pass::kPassFailure;
+  pState.pass = node->pass;
+
+  Pass::ReturnType result = doRun(*pState.pass, pModule);
+  if (Pass::IsFailed(result))
+    return false;
+
+  if (Pass::IsRetry(result)) {
+    if (Pass::IsRevised(result)) {
+      UpdateExecutionOrder(pState.execution);
+      pState.changed = false;
+    }
+  }
+  else { //< not retry
+    if (Pass::IsRevised(result))
+      pState.changed = true;
+    pState.execution.pop_front();
   }
 
-  // run the body
-  for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {
-    changed |= node->pass->run(pModule);
-  }
+  return true;
+}
 
-  // finalization
-  for (node = m_Dependencies.bfs_begin(); node != pEnd; node.next()) {
-    changed |= node->pass->doFinalization(pModule);
-  }
-  return changed;
+bool PassManager::step(Module& pModule)
+{
+  return step(pModule, m_RunState);
+}
+
+Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)
+{
+  // initialize the pass
+  Pass::ReturnType result = pPass.doInitialization(pModule);
+
+  if (Pass::IsRetry(result) || Pass::IsFailed(result))
+    return result;
+
+  // run the pass
+  result |= pPass.run(pModule);
+
+  if (Pass::IsRetry(result) || Pass::IsFailed(result))
+    return result;
+
+  // finalize the pass
+  result |= pPass.doFinalization(pModule);
+  return result;
 }
 
 PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
@@ -160,4 +214,51 @@ unsigned int PassManager::size() const
 bool PassManager::hasAdded(Pass::AnalysisID pID) const
 {
   return (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pID));
+}
+
+void PassManager::UpdateExecutionOrder(ExecutionOrder& pOrder)
+{
+  std::unordered_set<DepNode*> visited;
+  std::deque<std::pair<bool, DepNode*> > stack;
+  std::vector<DepNode*> post_order;
+
+  stack.push_back(std::make_pair(false, findNode(pOrder.front())));
+
+  while (!stack.empty()) {
+    std::pair<bool, DepNode*> node = stack.back();
+    stack.pop_back();
+
+    if (node.first) { // get a parent
+      if (post_order.end() == std::find(post_order.begin(), post_order.end(), node.second)) {
+        post_order.push_back(node.second);
+      }
+    }
+    else { // get a child
+
+      // turn the child to parent
+      visited.insert(node.second);
+      stack.push_back(std::make_pair(true, node.second));
+
+      // push all children
+      digraph::ArcBase* iter = node.second->first_in;
+      while (nullptr != iter) {
+        // if not visited
+        DepNode* target = static_cast<DepNode*>(iter->source);
+        if (visited.end() == visited.find(target)) {
+          stack.push_back(std::make_pair(false, target));
+        }
+        iter = iter->next_in;
+      }
+    }
+  } // end of while
+
+  std::vector<DepNode*>::reverse_iterator ele = post_order.rbegin();
+  std::vector<DepNode*>::reverse_iterator eEnd = post_order.rend();
+  ++ele;
+  while (eEnd != ele) {
+    if (eEnd != (ele + 1)) {
+      pOrder.push_front((*ele)->pass->getPassID());
+    }
+    ++ele;
+  }
 }

@@ -86,6 +86,15 @@ public:
 
   template<class AnalysisType> AnalysisType* getAnalysis() const;
 
+  /// the 1st bit is set
+  static bool IsRevised(ReturnType pR) { return (0x0 != (pR & kModuleChanged)); }
+
+  /// the 2nd bit is set
+  static bool IsRetry(ReturnType pR) { return (0x0 != (pR & kPassRetry)); }
+
+  /// the 3rd bit is set
+  static bool IsFailed(ReturnType pR) { return (0x0 != (pR & kPassFailure)); }
+
 private:
   Kind m_Kind;
   AnalysisID m_PassID;

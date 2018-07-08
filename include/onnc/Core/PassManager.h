@@ -25,6 +25,18 @@ class TargetBackend;
 class PassManager
 {
 public:
+  typedef std::deque<Pass::AnalysisID> ExecutionOrder;
+
+  /// run state
+  struct State {
+    ExecutionOrder execution;
+    bool changed; // module changed or not
+    Pass* pass; // current pass
+
+    State() : execution(), changed(false), pass(nullptr) { }
+  };
+
+public:
   /// Use global-wise GetPassRegistry().
   /// @see PassRegistry
   PassManager();
@@ -40,11 +52,29 @@ public:
 
   void add(Pass* pPass, TargetBackend* pBackend);
 
-  /// @retval true The module was modified.
+  void add(Pass* pPass, State& pState);
+
+  void add(Pass* pPass, TargetBackend* pBackend, State& pState);
+
+  /// run all passes
+  /// @retval false A pass return failure.
   bool run(Module& pModule);
+
+  /// run one pass
+  /// @return The pass run
+  bool step(Module& pModule);
+
+  /// continue to run all passes
+  bool run(Module& pModule, State& pState);
+
+  /// run one pass
+  /// @return The pass run
+  bool step(Module& pModule, State& pState);
 
   /// @return The number of registered passes.
   unsigned int size() const;
+
+  const State& state() const { return m_RunState; }
 
 private:
   struct DepNode : public DigraphNode<DepNode>
@@ -68,7 +98,7 @@ private:
   public:
     StartPass() : ModulePass(ID) { }
 
-    ReturnType runOnModule(Module &pModule) { return kModuleNoChanged; }
+    Pass::ReturnType runOnModule(Module &pModule) { return kModuleNoChanged; }
 
     StringRef getPassName() const { return "start"; }
   };
@@ -76,8 +106,6 @@ private:
   typedef Digraph<DepNode> PassDependencyLattice;
 
   typedef std::map<Pass::AnalysisID, DepNode*> AvailableAnalysisMap;
-
-  typedef std::vector<Pass::AnalysisID> ExecutionOrder;
 
 private:
   PassRegistry* getPassRegistry() { return m_pPassRegistry; }
@@ -92,7 +120,12 @@ private:
   /// @retval true If the pass @ref pID has been added.
   bool hasAdded(Pass::AnalysisID pID) const;
 
-  void doAdd(Pass* pPass, TargetBackend* pBackend);
+  void doAdd(Pass* pPass, TargetBackend* pBackend, State& pState);
+
+  /// Run the pass
+  Pass::ReturnType doRun(Pass& pPass, Module& pModule);
+
+  void UpdateExecutionOrder(ExecutionOrder& pOrder);
 
 private:
   PassRegistry* m_pPassRegistry;
@@ -103,8 +136,7 @@ private:
   // A map from ID to node in dependency graph.
   AvailableAnalysisMap m_AvailableAnalysis;
 
-  // User-defined execution order of passes
-  ExecutionOrder m_ExecutionOrder;
+  State m_RunState;
 
   DepNode *m_pStart;
 };
