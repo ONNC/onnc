@@ -8,9 +8,9 @@ namespace onnc {
 namespace BM188X {
 
 TGAveragePool::TGAveragePool(const ::onnx::Node &pNode)
-    : BM188xComputeOperator(pNode, std::string("AveragePool")), m_PadH(0),
-      m_PadW(0), m_StrideH(1), m_StrideW(1), m_EnableRelu(0), m_RShiftWidth(0),
-      m_ThresholdXQuantized(0)
+    : BM188xComputeOperator(pNode, std::string("AveragePool")), m_PadT(0),
+      m_PadB(0), m_PadL(0), m_PadR(0), m_StrideH(1), m_StrideW(1),
+      m_EnableRelu(0), m_RShiftWidth(0), m_ThresholdXQuantized(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
@@ -24,8 +24,10 @@ TGAveragePool::TGAveragePool(const ::onnx::Node &pNode)
   if (pNode.hasAttribute(::onnx::Symbol("pads"))) {
     auto &i = pNode.is(::onnx::Symbol("pads"));
     // NOTE: It is for bmkernel padding on both ends
-    m_PadH = i[0];
-    m_PadW = i[1];
+    m_PadT = i[0];
+    m_PadL = i[1];
+    m_PadB = i[2];
+    m_PadR = i[3];
   }
   if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
     auto &i = pNode.is(::onnx::Symbol("strides"));
@@ -49,7 +51,8 @@ void TGAveragePool::print(OStream &pOS) const
 {
   pOS << *m_MemOperands[1] << " = AveragePool <N:" << m_N << ", C:" << m_C
       << ", H:" << m_H << ", W:" << m_W << ",  kH:" << m_KH << ", kW:" << m_KW
-      << ", padH:" << m_PadH << ", padW:" << m_PadW << ", srideH:" << m_StrideH
+      << ", padT:" << m_PadT << ", padB:" << m_PadB << ", padL:" << m_PadL
+      << ", padR:" << m_PadR << ", srideH:" << m_StrideH
       << ", strideW:" << m_StrideW << ", rShiftWidth:" << m_RShiftWidth
       << ", thresholdX:" << m_ThresholdXQuantized << "> (" << *m_MemOperands[0]
       << ")\n";
@@ -65,7 +68,8 @@ void TGAveragePool::emit() const
       m_MemOperands[1]->m_Addr, // ofmap_gaddr
       GADDR_INVALID,            // index_gaddr
       GADDR_INVALID,            // o_findex_gaddr
-      m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadH, m_PadW, m_StrideH, m_StrideW,
+      m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadT, m_PadB, m_PadL, m_PadR, m_StrideH,
+      m_StrideW,
       1,                     // is_avg_pooling
       0.0f,                  // avg_const
       m_EnableRelu,          // do_relu
