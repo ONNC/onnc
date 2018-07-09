@@ -30,10 +30,7 @@ Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
   auto TFO = m_pTarget->getFuseOptimizr();
   TFO->PrepareFuseOptimizer(pModule);
   onnx::Graph *graph = pModule.getGraphIR().get();
-  bool changed = TFO->FuseOptimization(graph);
-  // TODO Module::print is unfinished
-  // plz uncomment below code for debugging..
-  // DumpGraph(*graph);
+  bool changed = TFO->FuseOptimization(graph, pModule.getSetId()[""]);
   return changed ? Pass::kModuleChanged : Pass::kModuleNoChanged;
 }
 

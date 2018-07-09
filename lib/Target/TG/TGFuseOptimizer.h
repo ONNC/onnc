@@ -18,11 +18,12 @@ public:
 
   virtual void PrepareFuseOptimizer(Module &pModule) { return; };
 
-  bool FuseOptimization(onnx::Graph *pGraph);
+  bool FuseOptimization(onnx::Graph *pGraph, const int64_t &pOpsetVersion);
 
   static onnx::Node *Fuse(::onnx::Node *pA, ::onnx::Node *pB);
 
 protected:
+  bool FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode);
   virtual onnx::Node *FuseChannelWiseMulAdd(onnx::Graph *pGraph,
                                             onnx::Node *pMulNode,
                                             onnx::Node *pAddNode);
@@ -39,7 +40,7 @@ protected:
   virtual onnx::Node *FuseBN(onnx::Graph *pGraph, onnx::Node *pNode);
 
 private:
-  bool FuseNodes(::onnx::Graph *pGraph);
+  bool FuseNodes(::onnx::Graph *pGraph, const int64_t &pOpsetVersion);
 
 protected:
   TGBackend *m_pBackend; // NOLINT

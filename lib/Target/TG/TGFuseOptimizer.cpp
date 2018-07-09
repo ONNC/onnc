@@ -17,34 +17,41 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
   return data;
 }
 
-bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
+bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node* pNode)
+{
+  if (match(pNode, mSymbol("Mul"), mAttr("axis", 1), mTrueAttr("broadcast")) and
+      match(next(pNode), mSymbol("Add"), mAttr("axis", 1),
+            mTrueAttr("broadcast"))) {
+    FuseChannelWiseMulAdd(pGraph, pNode, next(pNode));
+    return true;
+  }
+  if (match(pNode, mSymbol("BatchNormalization")) and
+      match(next(pNode), mSymbol("Scale"), mAttr("axis", 1),
+            mTrueAttr("broadcast"))) {
+    FuseBNScale(pGraph, pNode, next(pNode));
+    return true;
+  }
+  if (match(pNode, mSymbol("Conv")) and
+      match(next(pNode), mSymbol("Scale"), mAttr("axis", 1),
+            mTrueAttr("broadcast"))) {
+    FuseConvScale(pGraph, pNode, next(pNode));
+    return true;
+  }
+  return false;
+}
+
+bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph, const int64_t &pOpsetVersion)
 {
   for (auto it = pGraph->rbegin(); it != pGraph->rend(); ++it) {
     auto *node = *it;
-    if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu"))) {
-      FuseRelu(pGraph, node, next(node));
-      return true;
-    }
-    if (match(node, mSymbol("Mul"), mAttr("axis", 1),
-              mTrueAttr("broadcast")) and
-        match(next(node), mSymbol("Add"), mAttr("axis", 1),
-              mTrueAttr("broadcast"))) {
-      FuseChannelWiseMulAdd(pGraph, node, next(node));
-      return true;
-    }
-    if (match(node, mSymbol("BatchNormalization")) and
-        match(next(node), mSymbol("Scale"), mAttr("axis", 1),
-              mTrueAttr("broadcast"))) {
-      FuseBNScale(pGraph, node, next(node));
-      return true;
-    }
-    if (match(node, mSymbol("Conv")) and
-        match(next(node), mSymbol("Scale"), mAttr("axis", 1),
-              mTrueAttr("broadcast"))) {
-      FuseConvScale(pGraph, node, next(node));
+    if (6 == pOpsetVersion && FuseOpset6Nodes(pGraph, node)) {
       return true;
     }
     if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Relu"))) {
+      FuseRelu(pGraph, node, next(node));
+      return true;
+    }
+    if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu"))) {
       FuseRelu(pGraph, node, next(node));
       return true;
     }
@@ -60,11 +67,12 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
   return false;
 }
 
-bool TGFuseOptimizer::FuseOptimization(onnx::Graph *pGraph)
+bool TGFuseOptimizer::FuseOptimization(onnx::Graph *pGraph,
+                                       const int64_t &pOpsetVersion)
 {
   bool is_changed = false, local_changed;
   do {
-    local_changed = FuseNodes(pGraph);
+    local_changed = FuseNodes(pGraph, pOpsetVersion);
     is_changed |= local_changed;
   } while (local_changed);
   return is_changed;
