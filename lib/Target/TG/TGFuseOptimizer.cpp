@@ -19,16 +19,16 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
 
 bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
 {
-  if (match(pNode, mSymbol("Mul"), mAttr("axis", 1), mTrueAttr("broadcast")) and
-      match(next(pNode), mSymbol("Add"), mAttr("axis", 1),
+  if (match(pNode, mSymbol("BatchNormalization")) and
+      match(next(pNode), mSymbol("Mul"), mAttr("axis", 1),
             mTrueAttr("broadcast"))) {
-    FuseChannelWiseMulAdd(pGraph, pNode, next(pNode));
+    FuseBNMulV6(pGraph, pNode, next(pNode));
     return true;
   }
   if (match(pNode, mSymbol("BatchNormalization")) and
-      match(next(pNode), mSymbol("Scale"), mAttr("axis", 1),
+      match(next(pNode), mSymbol("Add"), mAttr("axis", 1),
             mTrueAttr("broadcast"))) {
-    FuseBNScale(pGraph, pNode, next(pNode));
+    FuseBNAddV6(pGraph, pNode, next(pNode));
     return true;
   }
   if (match(pNode, mSymbol("Conv")) and
@@ -50,6 +50,76 @@ static void replaceInput(onnx::Tensor &pTensor, size_t pIndex,
   if (old_value->uses().size() == 0) {
     pGraph->eraseInitializerAndInput(old_value);
   }
+}
+
+// We can fuse Mul into BN as follows:
+// Y = BN (X, scale, bias, mean, var)
+// Z = Mul (Y, mul)
+// into
+// Y = BN (X, new_scale, new_bias, mean, var)
+// with new scale = scale * mul, new bias = bias * mul
+onnx::Node *TGFuseOptimizer::FuseBNMulV6(onnx::Graph *pGraph,
+                                         onnx::Node *pBNNode,
+                                         onnx::Node *pMulNode)
+{
+  auto bn_inputs = pBNNode->inputs();
+  auto mul_inputs = pMulNode->inputs();
+  const std::string &scale_name = bn_inputs[1]->uniqueName();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  const std::string &mul_name = mul_inputs[1]->uniqueName();
+
+  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
+  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
+  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
+
+  scale.multiply(mul);
+  bias.multiply(mul);
+  replaceInput(scale, 1, pBNNode, pGraph);
+  replaceInput(bias, 2, pBNNode, pGraph);
+
+  if (mul_inputs[1]->uses().size() == 1) {
+    auto input = mul_inputs[1];
+    pMulNode->removeInput(1);
+    pGraph->eraseInitializerAndInput(input);
+  }
+
+  pBNNode->output()->copyMetadata(pMulNode->output());
+  pMulNode->replaceAllUsesWith(pBNNode);
+  pMulNode->destroy();
+  return pBNNode;
+}
+
+// We can fuse Add into BN as follows:
+// Y = BN (X, scale, bias, mean, var)
+// Z = Add (Y, add)
+// into
+// Y = BN (X, scale, new_bias, mean, var)
+// with new bias = bias + add
+onnx::Node *TGFuseOptimizer::FuseBNAddV6(onnx::Graph *pGraph,
+                                         onnx::Node *pBNNode,
+                                         onnx::Node *pAddNode)
+{
+  auto bn_inputs = pBNNode->inputs();
+  auto add_inputs = pAddNode->inputs();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  const std::string &add_name = add_inputs[1]->uniqueName();
+
+  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
+  onnx::Tensor add = *pGraph->getInitializer(add_name);
+
+  bias.add(add);
+  replaceInput(bias, 2, pBNNode, pGraph);
+
+  if (add_inputs[1]->uses().size() == 1) {
+    auto input = add_inputs[1];
+    pAddNode->removeInput(1);
+    pGraph->eraseInitializerAndInput(input);
+  }
+
+  pBNNode->output()->copyMetadata(pAddNode->output());
+  pAddNode->replaceAllUsesWith(pBNNode);
+  pAddNode->destroy();
+  return pBNNode;
 }
 
 // We can fuse Mul into BN as follows:
@@ -124,6 +194,7 @@ onnx::Node *TGFuseOptimizer::FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
     unsque_node->removeInput(0);
     pGraph->eraseInitializerAndInput(input);
   }
+
   pBNNode->output()->copyMetadata(pAddNode->output());
   pAddNode->replaceAllUsesWith(pBNNode);
   pAddNode->destroy();
@@ -210,64 +281,6 @@ onnx::Node *TGFuseOptimizer::Fuse(::onnx::Node *pA, ::onnx::Node *pB)
   pA->output()->copyMetadata(pB->output());
   pB->destroy();
   return pA;
-}
-
-onnx::Node *TGFuseOptimizer::FuseChannelWiseMulAdd(onnx::Graph *pGraph,
-                                                   onnx::Node *pMulNode,
-                                                   onnx::Node *pAddNode)
-{
-  onnx::Node *scale_node =
-      pGraph->create(onnx::Symbol("Scale"), pMulNode->inputs());
-  scale_node->addInput(pAddNode->inputs()[1]);
-  scale_node->output()->copyMetadata(pAddNode->output());
-  scale_node->copyAttributes(*pMulNode);
-  scale_node->insertAfter(pAddNode);
-  pAddNode->replaceAllUsesWith(scale_node);
-  pAddNode->destroy();
-  pMulNode->destroy();
-  return scale_node;
-}
-
-onnx::Node *TGFuseOptimizer::FuseBNScale(onnx::Graph *pGraph,
-                                         onnx::Node *pBNNode,
-                                         onnx::Node *pScaleNode)
-{
-  // We can fuse Scale into BN as follows:
-  // Y = BN (X, scale, bias, mean, var)
-  // Z = Scale (Y, mul, add)
-  // into
-  // Y = BN (X, new_scale, new_bias, mean, var)
-  // with new scale = scale * mul,  new bias = bias * mul + add
-  auto bn_inputs = pBNNode->inputs();
-  auto scale_inputs = pScaleNode->inputs();
-  const std::string &scale_name = bn_inputs[1]->uniqueName();
-  const std::string &bias_name = bn_inputs[2]->uniqueName();
-  const std::string &mul_name = scale_inputs[1]->uniqueName();
-  const std::string &add_name = scale_inputs[2]->uniqueName();
-
-  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
-  onnx::Tensor add = *pGraph->getInitializer(add_name);
-
-  scale.multiply(mul);
-  bias.multiply(mul);
-  bias.add(add);
-
-  replaceInput(scale, 1, pBNNode, pGraph);
-  replaceInput(bias, 2, pBNNode, pGraph);
-
-  for (int i = 2; i >= 1; --i) {
-    if (scale_inputs[i]->uses().size() == 1) {
-      auto input = scale_inputs[i];
-      pScaleNode->removeInput(i);
-      pGraph->eraseInitializerAndInput(input);
-    }
-  }
-  pBNNode->output()->copyMetadata(pScaleNode->output());
-  pScaleNode->replaceAllUsesWith(pBNNode);
-  pScaleNode->destroy();
-  return pBNNode;
 }
 
 onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,

@@ -1,5 +1,5 @@
 #; RUN : onnx-as partial_resnet18_with_weight.s | onnx2tg -march bm1880 -S -print-module-before-isel | FileCheck partial_resnet18_with_weight.s
-#; CHECK: FLOAT tensor <4, 64, 112, 112> %conv1_relu_1 = Conv <pads:INTS [3,3,3,3], strides:INTS [2,2], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 415.961, do_relu:INT 1> (FLOAT tensor <4, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_w_0, FLOAT tensor <64> %20, FLOAT tensor <64> %22)
+#; CHECK: FLOAT tensor <4, 64, 112, 112> %conv1_relu_1 = Conv <pads:INTS [3,3,3,3], strides:INTS [2,2], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 415.961, do_relu:INT 1> (FLOAT tensor <4, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_w_0, FLOAT tensor <64> %21, FLOAT tensor <64> %23)
 #; CHECK: FLOAT tensor <4, 64, 56, 56> %pool1_1 = MaxPool <pads:INTS [0,0,2,2], kernel_shape:INTS [3,3], strides:INTS [2,2]> (FLOAT tensor <4, 64, 112, 112> %conv1_relu_1)
 
 #; CHECK: inst {
