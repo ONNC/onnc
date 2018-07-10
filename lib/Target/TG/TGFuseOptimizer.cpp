@@ -31,12 +31,6 @@ bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
     FuseBNAddV6(pGraph, pNode, next(pNode));
     return true;
   }
-  if (match(pNode, mSymbol("Conv")) and
-      match(next(pNode), mSymbol("Scale"), mAttr("axis", 1),
-            mTrueAttr("broadcast"))) {
-    FuseConvScale(pGraph, pNode, next(pNode));
-    return true;
-  }
   return false;
 }
 
@@ -260,6 +254,10 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph,
       FuseBN(pGraph, node);
       return true;
     }
+    if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Scale"))) {
+      FuseConvScale(pGraph, node, next(node));
+      return true;
+    }
   }
   return false;
 }
@@ -362,8 +360,6 @@ onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
   scale_node->addInput(pBNNode->inputs()[0]);
   scale_node->addInput(new_scalar_value);
   scale_node->addInput(new_bias_value);
-  scale_node->i_(::onnx::Symbol("axis"), 1);
-  scale_node->i_(::onnx::Symbol("broadcast"), 1);
   scale_node->output()->copyMetadata(pBNNode->output());
   scale_node->insertBefore(pBNNode);
 

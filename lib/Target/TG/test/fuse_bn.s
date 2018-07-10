@@ -1,5 +1,5 @@
 #; RUN : onnx-as fuse_bn.s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight | FileCheck fuse_bn.s
-#; CHECK: FLOAT tensor <4, 64, 112, 112> %bn_conv1_1 = Scale <axis:INT 1, broadcast:INT 1> (FLOAT tensor <4, 64, 112, 112> %data_0, FLOAT tensor <64> %7, FLOAT tensor <64> %9)
+#; CHECK: FLOAT tensor <4, 64, 112, 112> %bn_conv1_1 = Scale(FLOAT tensor <4, 64, 112, 112> %data_0, FLOAT tensor <64> %7, FLOAT tensor <64> %9)
 
 ir_version: 3
 producer_name: "onnx-caffe2"
