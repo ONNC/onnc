@@ -320,7 +320,7 @@ onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
   std::vector<float> inv_var;
   const float epsilon = 1e-5f;
   float variance_average =
-      std::accumulate(variance.begin(), variance.end(), 0) / variance.size();
+      std::accumulate(variance.begin(), variance.end(), 0.0) / variance.size();
   std::vector<bool> disable_channel(variance.size(), false);
   float threshold_zero = variance_average / 256;
   for (size_t i = 0; i < variance.size(); ++i) {

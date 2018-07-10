@@ -19,18 +19,26 @@ TGTranspose::TGTranspose(const ::onnx::Node &pNode)
   m_OutputShape.resize(inDim.size());
 
   auto &orders = pNode.is(::onnx::Symbol("perm"));
-  assert(orders.size() == 4);
+  assert((orders.size() == 4) || (orders.size() == 5));
   m_Order.resize(orders.size());
   assert(((orders[0] == 0) && (orders[1] == 2) && (orders[2] == 3) &&
           (orders[3] == 1)) ||
          ((orders[0] == 2) && (orders[1] == 3) && (orders[2] == 0) &&
           (orders[3] == 1)) ||
          ((orders[0] == 1) && (orders[1] == 0) && (orders[2] == 2) &&
-          (orders[3] == 3)));
+          (orders[3] == 3)) ||
+         ((orders[0] == 0) && (orders[1] == 2) && (orders[2] == 1) &&
+          (orders[3] == 3) && (orders[4] == 4)));
 
   for (u32 i = 0; i < orders.size(); ++i) {
     m_Order[i] = orders[i];
     m_OutputShape[i] = inDim[orders[i]].dim;
+  }
+
+  if (orders.size() == 5) { // shufflenet
+    assert((orders[3] == 3) && (orders[4] == 4));
+    m_W = inDim[3].dim * inDim[4].dim;
+    m_OutputShape[3] = m_OutputShape[3] * m_OutputShape[4];
   }
 
   // Check if we need to reorder the data or keep it.
