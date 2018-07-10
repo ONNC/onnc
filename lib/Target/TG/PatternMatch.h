@@ -38,6 +38,14 @@ inline onnx::Node *next(onnx::Node *pN)
   return pN->output()->uses()[0].user;
 }
 
+inline onnx::Node *input(onnx::Node *pN, size_t pIndex)
+{
+  if (pN->inputs()[pIndex]->uses().size() != 1)
+    return nullptr;
+
+  return pN->inputs()[pIndex]->node();
+}
+
 /// Matching combinators
 template <typename LTy, typename RTy> struct match_combine_or {
   LTy m_L;

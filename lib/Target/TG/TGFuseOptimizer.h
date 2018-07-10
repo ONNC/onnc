@@ -24,6 +24,8 @@ public:
 
 protected:
   bool FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode);
+  bool FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode);
+
   virtual onnx::Node *FuseChannelWiseMulAdd(onnx::Graph *pGraph,
                                             onnx::Node *pMulNode,
                                             onnx::Node *pAddNode);
@@ -36,6 +38,12 @@ protected:
 
   virtual onnx::Node *FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
                                onnx::Node *pReluNode);
+
+  virtual onnx::Node *FuseBNMul(onnx::Graph *pGraph, onnx::Node *pBNNode,
+                                onnx::Node *pMul);
+
+  virtual onnx::Node *FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
+                                onnx::Node *pAddNode);
 
   virtual onnx::Node *FuseBN(onnx::Graph *pGraph, onnx::Node *pNode);
 

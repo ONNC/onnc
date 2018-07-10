@@ -122,6 +122,7 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
                symbol == onnx::Symbol("Flatten") ||
                symbol == onnx::Symbol("Concat") ||
                symbol == onnx::Symbol("Reshape") ||
+               symbol == onnx::Symbol("Unsqueeze") ||
                symbol == onnx::Symbol("Transpose")) {
       // Do nothing.
     } else if (symbol == onnx::Symbol("BatchNormalization")) {
