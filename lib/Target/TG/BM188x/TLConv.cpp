@@ -1,7 +1,7 @@
 #include "TLConv.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"
-#include <bmkernel_api.h>
+#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
 
 #define DEBUG_TYPE "tl_conv"

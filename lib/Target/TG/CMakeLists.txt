@@ -2,10 +2,11 @@
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${BMTAP_BINARY_DIR}/bmnet/src
-    ${BMTAP_INSTALL_DIR}/include
-    ${BMTAP_SOURCE_DIR}/bmnet/include
-    ${BMTAP_SOURCE_DIR}/bmnet/include/targets)
+    ${BMTAP_BINARY_DIR}/Build/bmnet/src
+    ${BMTAP_BINARY_DIR}/Build/bmnet
+    ${BMTAP_INSTALL_DIR}/include)
+include_directories(SYSTEM
+    ${BMTAP_SOURCE_DIR}/bmnet/include)
 
 add_libonnc_src(
     TargetLowering.cpp

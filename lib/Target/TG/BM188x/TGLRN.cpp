@@ -1,6 +1,6 @@
 #include "TGLRN.h"
 #include "BM188xCodeEmitter.h"
-#include <bmkernel_api.h>
+#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {

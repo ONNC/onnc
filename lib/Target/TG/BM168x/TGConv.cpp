@@ -1,6 +1,6 @@
 #include "TGConv.h"
 #include "BM168xCodeEmitter.h"
-#include <bmkernel_api.h>
+#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
 
 #define DEBUG_TYPE "tg_conv"
 #include <onnc/Support/Debug.h>

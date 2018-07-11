@@ -1,9 +1,9 @@
 #define DEBUG_TYPE "bm188x_code_emitter"
 #include "BM188xCodeEmitter.h"
 #include "TGConv.h"
-#include "utils/io.hpp"
 #include <bm_kernel.h>
-#include <bmkernel_api.h>
+#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
+#include <bmnet/utils/io.hpp>
 #include <cstdint>
 #include <fstream>
 #include <onnc/IR/ONNXUtils.h>

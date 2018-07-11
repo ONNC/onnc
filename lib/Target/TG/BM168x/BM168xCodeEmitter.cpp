@@ -1,7 +1,7 @@
 #include "BM168xCodeEmitter.h"
-#include "plat-bm168x/BM168xBackendContext.hpp"
-#include "utils/io.hpp"
 #include <bm_kernel.h>
+#include <bmnet/targets/plat-bm168x/BM168xBackendContext.hpp>
+#include <bmnet/utils/io.hpp>
 #include <cstdint>
 #include <fstream>
 

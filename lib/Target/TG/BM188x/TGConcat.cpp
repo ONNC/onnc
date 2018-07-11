@@ -1,7 +1,7 @@
 #define DEBUG_TYPE "tg_concat"
 #include "TGConcat.h"
 #include "BM188xCodeEmitter.h"
-#include <bmkernel_api.h>
+#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
 
 namespace onnc {

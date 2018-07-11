@@ -1,6 +1,6 @@
 #include "TGSoftmax.h"
 #include "BM168xCodeEmitter.h"
-#include <bmkernel_api.h>
+#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
 
 using namespace onnc;
 
