@@ -11,6 +11,7 @@ ONNC_SOURCES = \
 	IR/ONNXNodeVisitor.cpp \
 	IR/ONNXUtils.cpp \
 	IR/Quadruple.cpp \
+	IR/InsertionPoint.cpp \
 	IR/IRBuilder.cpp \
 	IR/ONNCModulePrinter.cpp \
 	IR/Compute/Value.cpp \
@@ -126,7 +127,7 @@ ONNC_SOURCES = \
   Option/OptionPool.cpp \
   Option/OptParser.cpp
 
-ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@
+ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ -I${srcdir}/Target
 
 ONNC_LIBS = -lz @ONNX_LIBS@
 
@@ -141,21 +142,12 @@ ONNC_TG_TARGET_SOURCES = \
 	Target/TG/TGBackend.cpp \
 	Target/TG/TargetInfo/TGTargetInfo.cpp \
 	Target/TG/TGCodeEmitPass.cpp \
-	Target/TG/TGMemAllocInfoPass.cpp \
-	Target/TG/TGCodeEmitter.cpp \
-	Target/TG/TGConv.cpp \
-	Target/TG/TGGemm.cpp \
-	Target/TG/TGISelLowering.cpp \
-	Target/TG/TGLRN.cpp  \
-	Target/TG/TGMaxPool.cpp \
-	Target/TG/TGRelu.cpp \
-	Target/TG/TGSoftmax.cpp \
 	Target/TG/TargetLowering.cpp \
 	Target/TG/TargetLoweringPass.cpp \
-	Target/TG/RemoveUnusedNodePass.cpp \
-	Target/TG/UpdateOutputInfoPass.cpp
+	Target/TG/BM188x/asm.pb.cc \
+	Target/TG/BM188x/common_calibration2.pb.cc
 
-ONNC_INCLUDES += @BMKERNEL_INCLUDES@ @BMAPI_INCLUDES@
+ONNC_INCLUDES += @BMKERNEL_INCLUDES@ @BMAPI_INCLUDES@ -I${srcdir}/Target/TG
 ONNC_LIBS += ${BMKERNEL_LIBS} ${BMAPI_LIBS}
 
 endif

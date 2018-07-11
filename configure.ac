@@ -81,6 +81,7 @@ CHECK_ENABLE_OPTION([regression], [no], [ENABLE_REGRESSION])
 CHECK_ENABLE_OPTION([optimize], [no], [ENABLE_OPTIMIZE])
 CHECK_ENABLE_OPTION([clock_gettime], [no], [ENABLE_CLOCK_GETTIME])
 CHECK_ENABLE_OPTION([gettimeofday], [yes], [ENABLE_GETTIMEOFDAY])
+CHECK_BMKERNEL
 
 ####################
 # Check for variables and targets
@@ -101,5 +102,7 @@ AC_CONFIG_FILES([tools/onnc/Makefile])
 AC_CONFIG_FILES([tools/readonnx/Makefile])
 AC_CONFIG_FILES([tools/onnx2tg/Makefile])
 AC_CONFIG_FILES([tools/onnc-jit/Makefile])
+
+PROTO_CONFIG_FILES([lib/Target/TG/BM188x/proto/common_calibration2.proto],[lib/Target/TG/BM188x])
 
 AC_OUTPUT

@@ -14,13 +14,19 @@ using namespace onnc;
 // IRBuilder
 //===----------------------------------------------------------------------===//
 IRBuilder::IRBuilder(Module& pModule)
-  : m_Module(pModule), m_pTargetTG(nullptr), m_pTargetCG(nullptr),
-    m_pTargetCNode(nullptr) {
+  : m_InsertionPoint() {
+  m_InsertionPoint.setModule(pModule);
 }
 
 IRBuilder::IRBuilder(Module& pModule, const ::onnx::ModelProto& pProto)
-  : IRBuilder(pModule) {
+  : m_InsertionPoint() {
+  m_InsertionPoint.setModule(pModule);
   update(pProto);
+}
+
+void IRBuilder::setInsertionPoint(const InsertionPoint& pISP)
+{
+  m_InsertionPoint = pISP;
 }
 
 void IRBuilder::update(const ::onnx::ModelProto& pProto)
@@ -55,24 +61,31 @@ void IRBuilder::update(const ::onnx::ModelProto& pProto)
     getModule().getMetaData().insert({ strStrEntry.key(), strStrEntry.value() });
   }
 
-  m_pTargetTG = getModule().getGraphIR().get();
+  getInsertionPoint().setTensorGraph(*getModule().getGraphIR().get());
+}
+
+void IRBuilder::setComputeGraph(ComputeGraph* pCG)
+{
+  getInsertionPoint().setComputeGraph(pCG);
 }
 
 /// create a tensor graph
 ::onnx::Graph* IRBuilder::CreateTensorGraph()
 {
-  m_pTargetTG = new ::onnx::Graph();
-  getModule().delegate(*m_pTargetTG);
-  return m_pTargetTG;
+  ::onnx::Graph* result = new ::onnx::Graph();
+  getInsertionPoint().setTensorGraph(*result);
+  getModule().delegate(*getTensorGraph());
+  return getTensorGraph();
 }
 
 /// create a tensor graph whose name is @ref pName
 ::onnx::Graph* IRBuilder::CreateTensorGraph(StringRef pName)
 {
-  m_pTargetTG = new ::onnx::Graph();
-  getModule().delegate(*m_pTargetTG);
-  m_pTargetTG->setName(pName);
-  return m_pTargetTG;
+  ::onnx::Graph* result = new ::onnx::Graph();
+  getInsertionPoint().setTensorGraph(*result);
+  getModule().delegate(*getTensorGraph());
+  getTensorGraph()->setName(pName);
+  return getTensorGraph();
 }
 
 ::onnx::Value* IRBuilder::AddInput(const std::string& pName,
@@ -83,7 +96,8 @@ void IRBuilder::update(const ::onnx::ModelProto& pProto)
     return nullptr;
 
   bool exist = false;
-  CreateValues::entry_type* entry = m_CreatedValues.insert(pName, exist);
+  InsertionPoint::CreatedValues::entry_type* entry =
+      getInsertionPoint().getCreatedValues().insert(pName, exist);
 
   /// the created input should be unique
   if (exist)
@@ -107,17 +121,18 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   ::onnx::Node *node = getTensorGraph()->create(::onnx::Symbol(pName));
   // make sure every input name exists
   for (auto & input : pInputNames) {
-    if (m_CreatedValues.end() == m_CreatedValues.find(input))
+    if (getInsertionPoint().getCreatedValues().end() ==
+        getInsertionPoint().getCreatedValues().find(input))
       return nullptr;
   }
 
   // complete the node's inputs
   for (auto & input : pInputNames) {
-    node->addInput(m_CreatedValues.find(input)->value());
+    node->addInput(getInsertionPoint().getCreatedValues().find(input)->value());
   }
 
   getTensorGraph()->appendNode(node);
-  m_pTargetTNode = node;
+  getInsertionPoint().setTensorNode(*node);
   return node;
 }
 
@@ -139,7 +154,7 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   // attributes
   node->copyAttributes(pNode);
 
-  m_pTargetTNode = node;
+  getInsertionPoint().setTensorNode(*node);
   return node;
 }
 
@@ -159,7 +174,8 @@ IRBuilder::AddInitializer(const std::string& pName,
 
   if (pSizes.empty()) { // find from created values
     bool exist = false;
-    CreateValues::entry_type* entry = m_CreatedValues.insert(pName, exist);
+    InsertionPoint::CreatedValues::entry_type* entry =
+        getInsertionPoint().getCreatedValues().insert(pName, exist);
     if (exist) {
       t.sizes().reserve(entry->value()->sizes().size());
       for (::onnx::Dimension d : entry->value()->sizes())
@@ -189,7 +205,8 @@ IRBuilder::AddOutput(const std::string& pName,
     return nullptr;
 
   bool exist = false;
-  CreateValues::entry_type* entry = m_CreatedValues.insert(pName, exist);
+  InsertionPoint::CreatedValues::entry_type* entry =
+      getInsertionPoint().getCreatedValues().insert(pName, exist);
 
   /// the created output value should be unique
   if (exist)
@@ -216,13 +233,15 @@ IRBuilder::AddOutput(const std::string& pName,
 bool IRBuilder::FinalizeTensorGraph(const StringList& pOutputs)
 {
   for (auto & output : pOutputs) {
-    if (m_CreatedValues.end() == m_CreatedValues.find(output))
+    if (getInsertionPoint().getCreatedValues().end() ==
+        getInsertionPoint().getCreatedValues().find(output))
       return false;
   }
 
   for (auto & output : pOutputs) {
     // register graph output
-    getTensorGraph()->registerOutput(m_CreatedValues.find(output)->value());
+    getTensorGraph()->registerOutput(
+        getInsertionPoint().getCreatedValues().find(output)->value());
   }
   return true;
 }

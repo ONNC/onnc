@@ -9,6 +9,7 @@
 #define ONNC_TRANSFORM_LOWER_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Module.h>
+#include <onnc/IR/InsertionPoint.h>
 #include <onnx/common/ir.h>
 #include <string>
 
@@ -29,7 +30,7 @@ public:
 
   void setQualityMatchFn(QualityMatchFnTy pFn) { m_MatchFn = pFn; }
 
-  virtual ComputeOperator* act(Module& pModule, ::onnx::Node& pNode) const = 0;
+  virtual ComputeOperator* lower(InsertionPoint& pISP, ::onnx::Node& pNode) const = 0;
 
 protected:
   std::string m_Name;

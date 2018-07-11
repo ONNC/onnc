@@ -13,7 +13,7 @@ OpType* IRBuilder::AddComputeOp(CtorParams&& ... pParams)
 
   OpType* op = getComputeGraph()->addOperator<OpType>(pParams...);
   RegisterComputeOperator(op);
-  m_pTargetCNode = op;
+  getInsertionPoint().setComputeOperator(*op);
   return op;
 }
 
@@ -40,6 +40,6 @@ OpType* IRBuilder::CloneComputeOp(const OpType& pOp)
 {
   OpType* result = new OpType(pOp);
   RegisterComputeOperator(result);
-  m_pTargetCNode = result;
+  getInsertionPoint().setComputeOperator(*result);
   return result;
 }

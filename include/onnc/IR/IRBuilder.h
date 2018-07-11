@@ -8,6 +8,7 @@
 #ifndef ONNC_IR_IR_BUILDER_H
 #define ONNC_IR_IR_BUILDER_H
 #include <onnc/IR/Module.h>
+#include <onnc/IR/InsertionPoint.h>
 #include <onnc/IR/Graph/Initializer.h>
 #include <onnx/common/ir_pb_converter.h>
 #include <onnx/common/ir.h>
@@ -25,27 +26,6 @@ namespace onnc {
  */
 class IRBuilder
 {
-private:
-  using CreateValues = StringMap<::onnx::Value*>;
-
-private:
-  Module& m_Module; //< The target module.
-
-  /// current target tensor graph
-  ::onnx::Graph* m_pTargetTG;
-
-  /// current target tensor graph node
-  ::onnx::Node* m_pTargetTNode;
-
-  /// current target compute graph
-  ComputeGraph* m_pTargetCG;
-
-  /// all ::onnx::Value created
-  CreateValues m_CreatedValues;
-
-  /// current target compute operator
-  ComputeOperator* m_pTargetCNode;
-
 public:
   /// set the target module @ref pModel
   IRBuilder(Module& pModule);
@@ -54,17 +34,23 @@ public:
   /// This constructor calls update.
   IRBuilder(Module& pModule, const ::onnx::ModelProto& pProto);
 
-  /// Get the target module
-  Module& getModule() { return m_Module; }
+  InsertionPoint& getInsertionPoint() { return m_InsertionPoint; }
+
+  const InsertionPoint& getInsertionPoint() const { return m_InsertionPoint; }
+
+  void setInsertionPoint(const InsertionPoint& pIP);
 
   /// Get the target module
-  const Module& getModule() const { return m_Module; }
+  Module& getModule() { return *getInsertionPoint().getModule(); }
+
+  /// Get the target module
+  const Module& getModule() const { return *getInsertionPoint().getModule(); }
 
   /// update the inserted module by @ref pProto
   void update(const ::onnx::ModelProto& pProto);
 
   /// change the insertion point to @ref pCG
-  void setComputeGraph(ComputeGraph* pCG) { m_pTargetCG = pCG; }
+  void setComputeGraph(ComputeGraph* pCG);
 
   /// create a tensor graph
   ::onnx::Graph* CreateTensorGraph();
@@ -74,9 +60,9 @@ public:
 
   /// get current insertion point of tensor graph.
   /// @retval nullptr not set
-  ::onnx::Graph* getTensorGraph() { return m_pTargetTG; }
+  ::onnx::Graph* getTensorGraph() { return getInsertionPoint().getTensorGraph(); }
 
-  bool hasTensorGraph() const { return (nullptr != m_pTargetTG); }
+  bool hasTensorGraph() const { return getInsertionPoint().hasTensorGraph(); }
 
   /// Add an input in tensor graph.
   /// @param[in] pSizes a list of onnx::Dimension
@@ -119,9 +105,9 @@ public:
                  const std::vector<::onnx::Dimension>& pSizes = { },
                  onnc::Value::Type pKind = onnc::Value::kFloat);
 
-  ::onnx::Node* getTensorNode() { return m_pTargetTNode; }
+  ::onnx::Node* getTensorNode() { return getInsertionPoint().getTensorNode(); }
 
-  bool hasTensorNode() const { return (nullptr != m_pTargetTNode); }
+  bool hasTensorNode() const { return getInsertionPoint().hasTensorNode(); }
 
   /// Add an output in the target node.
   ::onnx::Value* AddOutput(const std::string& pName,
@@ -133,9 +119,9 @@ public:
 
   /// get current insertion point of compute graph
   /// @retval nullptr not set.
-  ComputeGraph* getComputeGraph() { return m_pTargetCG; }
+  ComputeGraph* getComputeGraph() { return getInsertionPoint().getComputeGraph(); }
 
-  bool hasComputeGraph() const { return (nullptr != m_pTargetCG); }
+  bool hasComputeGraph() const { return getInsertionPoint().hasComputeGraph(); }
 
   /// create a compute graph
   /// @retval nullptr The graph already exists in module.
@@ -171,6 +157,9 @@ public:
   /// TODO: use unique_ptr.
   template<typename OpType>
   OpType* CloneComputeOp(const OpType& pOp);
+
+private:
+  InsertionPoint m_InsertionPoint;
 };
 
 #include "Bits/IRBuilder.tcc"
