@@ -24,7 +24,8 @@ ONNC_SOURCES = \
 	IR/Compute/Conv.cpp \
 	IR/Compute/Relu.cpp \
 	IR/Compute/LRN.cpp \
-	IR/Graph/Initializer.cpp \
+	IR/Compute/Initializer.cpp \
+	IR/Graph/InitializerProxy.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \

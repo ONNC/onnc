@@ -1,12 +1,12 @@
-//===- Initializer.h -------------------------------------------------------===//
+//===- InitializerProxy.h -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_INITIALIZER_H
-#define ONNC_IR_INITIALIZER_H
+#ifndef ONNC_IR_INITIALIZER_PROXY_H
+#define ONNC_IR_INITIALIZER_PROXY_H
 #include <ostream>
 #include <onnx/common/ir.h>
 #include <string>
@@ -14,19 +14,19 @@
 
 namespace onnc {
 
-/** \class Initializer
+/** \class InitializerProxy
  *
- *  There is no concrete Initializer class in ::onnx::graph.
- *  Initializer is a proxy to encapsulate ::onnx::Graph's initializer.
+ *  There is no concrete InitializerProxy class in ::onnx::graph.
+ *  InitializerProxy is a proxy to encapsulate ::onnx::Graph's initializer.
  */
-class Initializer
+class InitializerProxy
 {
 public:
-  Initializer();
+  InitializerProxy();
 
-  Initializer(const std::string& pName, const ::onnx::Tensor& pTensor);
+  InitializerProxy(const std::string& pName, const ::onnx::Tensor& pTensor);
 
-  ~Initializer() { }
+  ~InitializerProxy() { }
 
   void setName(const std::string& pName) { m_pName = &pName; }
 

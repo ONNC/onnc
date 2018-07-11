@@ -45,6 +45,7 @@ class GlobalMaxPool;
 class Greater;
 class HardSigmoid;
 class Hardmax;
+class Initializer;
 class Identity;
 class InstanceNormalization;
 class LRN;
@@ -167,6 +168,7 @@ public:
   virtual void visit(Greater& pGreater) { }
   virtual void visit(HardSigmoid& pHardSigmoid) { }
   virtual void visit(Hardmax& pHardmax) { }
+  virtual void visit(Initializer& pInitializer) { }
   virtual void visit(Identity& pIdentity) { }
   virtual void visit(InstanceNormalization& pInstanceNormalization) { }
   virtual void visit(LRN& pLRN) { }

@@ -48,7 +48,9 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
     pPM.add(getTargetLower()(this));
   }
 
-  // BM1880 customized Pass
+  TGBackend::addTensorSel(pPM);
+  pPM.add(createPreTensorSel(this));
+  pPM.add(createTensorSel(this));
   pPM.add(createQuantizePass(this));
   pPM.add(createUpdateCtablePass(this));
 

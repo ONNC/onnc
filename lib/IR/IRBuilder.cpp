@@ -158,13 +158,13 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   return node;
 }
 
-onnc::Initializer
+onnc::InitializerProxy
 IRBuilder::AddInitializer(const std::string& pName,
                           const std::vector<::onnx::Dimension>& pSizes,
                           onnc::Value::Type pKind)
 {
   if (!hasTensorGraph())
-    return Initializer();
+    return InitializerProxy();
 
   // XXX: using local variables because ::onnx::Graph::addInitializer does
   // delegation (through std::move).
@@ -191,8 +191,8 @@ IRBuilder::AddInitializer(const std::string& pName,
   getTensorGraph()->addInitializer(t, pName);
 
   // XXX: using back() because ::onnx::Graph::addInitializer is an appending.
-  onnc::Initializer result(getTensorGraph()->initializer_names().back(),
-                           getTensorGraph()->initializers().back());
+  onnc::InitializerProxy result(getTensorGraph()->initializer_names().back(),
+                                getTensorGraph()->initializers().back());
   return result;
 }
 

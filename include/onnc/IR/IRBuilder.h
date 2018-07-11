@@ -9,7 +9,7 @@
 #define ONNC_IR_IR_BUILDER_H
 #include <onnc/IR/Module.h>
 #include <onnc/IR/InsertionPoint.h>
-#include <onnc/IR/Graph/Initializer.h>
+#include <onnc/IR/Graph/InitializerProxy.h>
 #include <onnx/common/ir_pb_converter.h>
 #include <onnx/common/ir.h>
 #include <onnc/ADT/StringMap.h>
@@ -100,7 +100,7 @@ public:
   /// Add an initializer. If @ref pSizes is empty, find dimensions in inputs.
   /// @return The appended Initializer. If it fails, the function return an
   /// invalid Initializer
-  onnc::Initializer
+  onnc::InitializerProxy
   AddInitializer(const std::string& pName,
                  const std::vector<::onnx::Dimension>& pSizes = { },
                  onnc::Value::Type pKind = onnc::Value::kFloat);

@@ -22,4 +22,5 @@ add_libonnc_src(
     Compute/Conv.cpp
     Compute/Relu.cpp
     Compute/LRN.cpp
-    Graph/Initializer.cpp)
+    Compute/Initializer.cpp
+    Graph/InitializerProxy.cpp)
