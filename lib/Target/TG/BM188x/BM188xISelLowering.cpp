@@ -163,13 +163,36 @@ ComputeOperator2 *BM188xISelLowering::LowerUpsample(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerLRN(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerLRN(const onnx::Node &pNode,
                                                ComputeGraph &pGraph)
 {
+  auto &node = const_cast<onnx::Node &>(pNode);
+  auto *graph = node.owningGraph();
+  auto output_name = pNode.outputs()[0]->uniqueName();
+  // add SQR LUT table
+  onnx::Tensor sqrlut_tensor;
+  sqrlut_tensor.sizes().push_back(256);
+  sqrlut_tensor.elem_type() = onnx::TensorProto_DataType_INT8;
+  std::string squlut_name = output_name + "_sqrlut";
+  auto *sqrlut_val = graph->addInitializerAndInput(sqrlut_tensor, squlut_name);
+  node.addInput(sqrlut_val);
+
+  // add POWER LUT table
+  onnx::Tensor powerlut_tensor;
+  powerlut_tensor.sizes().push_back(256);
+  powerlut_tensor.elem_type() = onnx::TensorProto_DataType_INT8;
+  std::string powerlut_name = output_name + "_powerlut";
+  auto *powerlut_val =
+      graph->addInitializerAndInput(powerlut_tensor, powerlut_name);
+  node.addInput(powerlut_val);
+
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *sqrlut = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
+  auto *powerlut =
+      m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGLRN(pNode);
-  return op->addMemOperands(input, output);
+  return op->addMemOperands(input, sqrlut, powerlut, output);
 }
 
 ComputeOperator2 *BM188xISelLowering::Lower2NopInst(const ::onnx::Node &pNode)

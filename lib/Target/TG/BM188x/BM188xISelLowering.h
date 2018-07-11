@@ -39,8 +39,7 @@ private:
   ComputeOperator2 *LowerSum(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerUpsample(const ::onnx::Node &pNode,
                                   ComputeGraph &pGraph);
-  ComputeOperator2 *LowerLRN(const ::onnx::Node &pNode,
-                             ComputeGraph &pGraph);
+  ComputeOperator2 *LowerLRN(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerConcat(const ::onnx::Node &pNode,
                                 ComputeGraph &pGraph);
   ComputeOperator2 *LowerTranspose(const ::onnx::Node &pNode,

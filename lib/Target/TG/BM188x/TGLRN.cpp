@@ -22,33 +22,25 @@ TGLRN::TGLRN(const ::onnx::Node &pNode)
   m_LocalSize = pNode.i(::onnx::Symbol("size"));
 }
 
-TGLRN *TGLRN::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
+TGLRN *TGLRN::addMemOperands(MemOperand *pInput, MemOperand *pSquLut,
+                             MemOperand *pPowerLut, MemOperand *pOutput)
 {
   m_MemOperands.push_back(pInput);
+  m_MemOperands.push_back(pSquLut);
+  m_MemOperands.push_back(pPowerLut);
   m_MemOperands.push_back(pOutput);
   return this;
 }
 
 void TGLRN::TGLRN::emit() const
 {
-  std::cout << "TGLRN::emit\tm_inputAddr:" << m_MemOperands[0]->m_Addr
-            << " m_OutputAddr:" << m_MemOperands[1]->m_Addr << " m_N:" << m_N
-            << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
-            << " m_Alpha:" << m_Alpha << " m_LocalSize:" << m_LocalSize
-            << " m_Beta:" << m_Beta << " m_K:" << m_K << std::endl;
-#if 0
-  bmnet::bmnet_asm::bmnet_lrn_forward_bmkernel(
-                             *bm1880_kernel::getInstance().m_CTX,
-                             m_MemOperands[0]->m_Addr, //input
-                             m_MemOperands[1]->m_Addr, //output
-                             m_MemOperands[2]->m_Addr, //sqr_lut
-                             m_MemOperands[3]->m_Addr, //power_lut,
-                             m_N, m_C, m_H, m_W,
-                             m_LocalSize,
-                             m_SumRightShiftWidth,
-                             m_LrnRightShiftWidth,
-                             m_ThresholdXQuantized);
-#endif
+  bmnet::bmnet_asm::bmnet_lrn_fixed_forward_bmkernel(
+      m_MemOperands[0]->m_Addr, // input
+      m_MemOperands[3]->m_Addr, // output
+      m_MemOperands[1]->m_Addr, // sqr_lut
+      m_MemOperands[2]->m_Addr, // power_lut,
+      m_N, m_C, m_H, m_W, m_LocalSize, m_SumRightShiftWidth,
+      m_LrnRightShiftWidth, m_ThresholdXQuantized);
 }
 
 } // namespace BM188X

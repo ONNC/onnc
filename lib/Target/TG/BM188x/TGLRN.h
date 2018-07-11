@@ -14,7 +14,8 @@ class TGLRN : public BM188xComputeOperator
 public:
   TGLRN(const ::onnx::Node &pNode);
 
-   TGLRN *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
+  TGLRN *addMemOperands(MemOperand *pInput, MemOperand *pSquLut,
+                        MemOperand *pPowerLut, MemOperand *pOutput);
 
   void emit() const override;
   void
