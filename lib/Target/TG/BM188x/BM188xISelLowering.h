@@ -43,6 +43,8 @@ private:
                                 ComputeGraph &pGraph);
   ComputeOperator2 *LowerTranspose(const ::onnx::Node &pNode,
                                    ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLLoad(const ::onnx::Node &pNode,
+                                ComputeGraph &pGraph);
 
 private:
   BM1880Backend *m_p1880backend; // NOLINT
