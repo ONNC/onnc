@@ -22,6 +22,7 @@ add_libonnc_src(
     TGLRN.cpp
     TGMaxPool.cpp
     TGAveragePool.cpp
+    TGGlobalAveragePool.cpp
     TGRelu.cpp
     TGUpsample.cpp
     TGConcat.cpp
