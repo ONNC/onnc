@@ -3,8 +3,8 @@
 #include "TGGemm.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace pm = onnc::PatternMatch;
 
@@ -67,26 +67,25 @@ void TGGemm::emit() const
   int activation_method = RELU;
 
   bmnet::bmnet_asm::bmnet_fc_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX,
-      m_MemOperands[0]->m_Addr, // input_data_gaddr
-      m_MemOperands[1]->m_Addr, // weight_data_gaddr
-      m_MemOperands[2]->m_Addr, // bias_data_gaddr
-      m_MemOperands[3]->m_Addr, // output_data_gaddr
-      m_InRowNum,               // input_row_num
-      m_InColNum,               // input_col_num
-      m_OutColNum,              // weight_col_num
-      m_HaveBias,               // have_bias
-      do_activation,            // do_activation
-      activation_method,        // activation_method
-      GADDR_INVALID,            // activation_ga_slope
-      0,                        // activation_channel_shared
-      0,                        // activation_gt_scale
-      0,                        // activation_gt_rshift
-      0,                        // activation_le_scale
-      0,                        // activation_le_rshift
-      m_WeightTp,               // weight_transpose
-      0,                        // left_shift_width //TODO
-      m_RShiftWidth             // right_shift_width
+      m_MemOperands[0]->m_Addr,        // input_data_gaddr
+      m_MemOperands[1]->m_Addr,        // weight_data_gaddr
+      m_MemOperands[2]->m_Addr,        // bias_data_gaddr
+      m_MemOperands[3]->m_Addr,        // output_data_gaddr
+      m_InRowNum,                      // input_row_num
+      m_InColNum,                      // input_col_num
+      m_OutColNum,                     // weight_col_num
+      m_HaveBias,                      // have_bias
+      do_activation,                   // do_activation
+      activation_method,               // activation_method
+      bmnet::bmnet_asm::GADDR_INVALID, // activation_ga_slope
+      0,                               // activation_channel_shared
+      0,                               // activation_gt_scale
+      0,                               // activation_gt_rshift
+      0,                               // activation_le_scale
+      0,                               // activation_le_rshift
+      m_WeightTp,                      // weight_transpose
+      0,                               // left_shift_width //TODO
+      m_RShiftWidth                    // right_shift_width
   );
 }
 

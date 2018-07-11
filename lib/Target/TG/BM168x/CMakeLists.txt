@@ -1,6 +1,4 @@
 
-include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm168x/bmkernel)
-
 add_libonnc_src(
     BM168xBackend.cpp
     BM168xISelLowering.cpp
@@ -11,3 +9,5 @@ add_libonnc_src(
     TGMaxPool.cpp 
     TGRelu.cpp 
     TGSoftmax.cpp)
+
+add_subdirectory(asm)

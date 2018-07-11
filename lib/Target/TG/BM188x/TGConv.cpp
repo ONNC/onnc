@@ -1,8 +1,8 @@
 #include "TGConv.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 #define DEBUG_TYPE "tg_conv"
 
@@ -116,21 +116,22 @@ void TGConv::emit() const
   DEBUG(print(dbgs()));
   float activation_arg[1] = { 0.0f };
 
-  uint64_t biasAddr =
-      m_DoBias ? m_MemOperands[m_BiasIdx]->m_Addr : GADDR_INVALID;
-  uint64_t scale_addr =
-      m_DoScale ? m_MemOperands[m_ScaleIdx]->m_Addr : GADDR_INVALID;
-  uint64_t scale_bias_addr =
-      m_DoScaleBias ? m_MemOperands[m_ScaleBiasIdx]->m_Addr : GADDR_INVALID;
+  uint64_t biasAddr = m_DoBias ? m_MemOperands[m_BiasIdx]->m_Addr
+                               : bmnet::bmnet_asm::GADDR_INVALID;
+  uint64_t scale_addr = m_DoScale ? m_MemOperands[m_ScaleIdx]->m_Addr
+                                  : bmnet::bmnet_asm::GADDR_INVALID;
+  uint64_t scale_bias_addr = m_DoScaleBias
+                                 ? m_MemOperands[m_ScaleBiasIdx]->m_Addr
+                                 : bmnet::bmnet_asm::GADDR_INVALID;
   bmnet::bmnet_asm::bmnet_conv_parallel_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr, // ifmap
-      m_MemOperands[2]->m_Addr,                                      // ofmap
-      m_MemOperands[1]->m_Addr,                                      // weight
-      biasAddr,                                                      // bias
-      GADDR_INVALID,   // ga_bn_mean,
-      GADDR_INVALID,   // ga_bn_variance,
-      scale_addr,      // ga_scale,
-      scale_bias_addr, // ga_scale_bias,
+      m_MemOperands[0]->m_Addr,        // ifmap
+      m_MemOperands[2]->m_Addr,        // ofmap
+      m_MemOperands[1]->m_Addr,        // weight
+      biasAddr,                        // bias
+      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_mean,
+      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_variance,
+      scale_addr,                      // ga_scale,
+      scale_bias_addr,                 // ga_scale_bias,
       m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
       m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
       m_DoBias,                                                 // do_bias,

@@ -1,0 +1,569 @@
+// clang-format off
+syntax = "proto2";
+package bmnet.bm1680;
+
+message CommandBuffer {
+    repeated Inst inst = 1;
+}
+
+message Inst {
+    optional string name = 1;
+    optional string type = 2;
+    enum ActivationMethod {
+        RELU    = 0;
+        SIGMOID = 1;
+        TANH    = 2;
+        ELU     = 3;
+        PRELU   = 4;
+    }
+
+    // Layer type-specific parameters.
+    optional bmnet_pooling_forward_bmkernel             pooling                                          = 4;
+    optional bmnet_pooling_backward_bmkernel            pooling_b                                        = 5;
+    optional bmnet_conv_forward_bmkernel                conv                                             = 6;
+    optional bmnet_threshold_forward_bmkernel           bmnet_threshold_forward_bmkernel_short           = 7;
+    optional bmnet_exp_forward_bmkernel                 bmnet_exp_forward_bmkernel_short                 = 8;
+    optional bmnet_power_forward_bmkernel               bmnet_power_forward_bmkernel_short               = 9;
+    optional bmnet_absval_forward_bmkernel              bmnet_absval_forward_bmkernel_short              = 10;
+    optional bmnet_sigmoid_forward_bmkernel             bmnet_sigmoid_forward_bmkernel_short             = 11;
+    optional bmnet_log_forward_bmkernel                 bmnet_log_forward_bmkernel_short                 = 12;
+    optional bmnet_fc_forward_bmkernel                  bmnet_fc_forward_bmkernel_short                  = 13;
+    optional bmnet_bias_forward_bmkernel                bmnet_bias_forward_bmkernel_short                = 14;
+    optional bmnet_elu_forward_bmkernel                 bmnet_elu_forward_bmkernel_short                 = 15;
+    optional bmnet_tanh_forward_bmkernel                bmnet_tanh_forward_bmkernel_short                = 16;
+    optional bmnet_lstm_unit_forward_bmkernel           bmnet_lstm_unit_forward_bmkernel_short           = 17;
+    optional bmnet_lrn_forward_bmkernel                 bmnet_lrn_forward_bmkernel_short                 = 18;
+    optional bmnet_bnll_forward_bmkernel                bmnet_bnll_forward_bmkernel_short                = 19;
+    optional bmnet_filter_forward_bmkernel              bmnet_filter_forward_bmkernel_short              = 20;
+    optional bmnet_crop_forward_bmkernel                bmnet_crop_forward_bmkernel_short                = 21;
+    optional bmnet_slice_forward_bmkernel               bmnet_slice_forward_bmkernel_short               = 22;
+    optional bmnet_eltwise_forward_bmkernel             bmnet_eltwise_forward_bmkernel_short             = 23;
+    optional bmnet_tile_forward_bmkernel                bmnet_tile_forward_bmkernel_short                = 24;
+    optional bmnet_relu_forward_compact_bmkernel        bmnet_relu_forward_compact_bmkernel_short        = 25;
+    optional bmnet_relu_forward_bmkernel                bmnet_relu_forward_bmkernel_short                = 26;
+    optional bmnet_dropout_forward_bmkernel             bmnet_dropout_forward_bmkernel_short             = 27;
+    optional bmnet_batchnorm_forward_inference_bmkernel bmnet_batchnorm_forward_inference_bmkernel_short = 28;
+    optional bmnet_softmax_forward_bmkernel             bmnet_softmax_forward_bmkernel_short             = 29;
+    optional bmnet_scale_forward_bmkernel               bmnet_scale_forward_bmkernel_short               = 30;
+    optional bmnet_mvn_forward_bmkernel                 bmnet_mvn_forward_bmkernel_short                 = 31;
+    optional bmnet_reduction_forward_bmkernel           bmnet_reduction_forward_bmkernel_short           = 32;
+    optional bmnet_prelu_forward_bmkernel               bmnet_prelu_forward_bmkernel_short               = 33;
+    optional bmnet_lstm_forward_bmkernel                bmnet_lstm_forward_bmkernel_short                = 34;
+    optional bmnet_embed_forward_bmkernel               bmnet_embed_forward_bmkernel_short               = 35;
+    optional bmnet_rnn_forward_bmkernel                 bmnet_rnn_forward_bmkernel_short                 = 36;
+    optional bmnet_split_forward_bmkernel               bmnet_split_forward_bmkernel_short               = 37;
+    optional bmnet_concat_forward_bmkernel              bmnet_concat_forward_bmkernel_short              = 38;
+    optional bmnet_upsample_bmkernel                    bmnet_upsample_bmkernel_short                    = 39;
+    optional bmnet_reshape_forward_bmkernel             bmnet_reshape_forward_bmkernel_short             = 40;
+    optional bmnet_permute_forward_bmkernel             bmnet_permute_forward_bmkernel_short             = 41;
+    optional bmnet_flatten_forward_bmkernel             bmnet_flatten_forward_bmkernel_short             = 42;
+    optional bmnet_normalize_forward_bmkernel           bmnet_normalize_forward_bmkernel_short           = 43;
+    optional bmnet_deconv_forward_bmkernel              bmnet_deconv_forward_bmkernel_short              = 44;
+    optional bmnet_stack_forward_bmkernel               bmnet_stack_forward_bmkernel_short               = 45;
+
+    message bmnet_pooling_forward_bmkernel {
+        optional uint64 ifmap_gaddr = 1;
+        optional uint64 ofmap_gaddr = 2;
+        optional uint64 index_gaddr = 3;
+        optional uint64 o_findex_gaddr = 4;
+        optional int32 n = 5;
+        optional int32 c = 6;
+        optional int32 h = 7;
+        optional int32 w = 8;
+        optional int32 kh = 9;
+        optional int32 kw = 10;
+        optional int32 pad_h = 11;
+        optional int32 pad_w = 12;
+        optional int32 stride_h = 13;
+        optional int32 stride_w = 14;
+        optional int32 is_avg_pooling = 15;
+        optional float avg_const = 16;
+        optional int32 do_relu = 17;
+    }
+    message bmnet_pooling_backward_bmkernel {
+        optional uint64 ifmap_gaddr = 1;
+        optional uint64 ofmap_gaddr = 2;
+        optional uint64 index_gaddr = 3;
+        optional uint64 o_findex_gaddr = 4;
+        optional int32 n = 5;
+        optional int32 c = 6;
+        optional int32 h = 7;
+        optional int32 w = 8;
+        optional int32 kh = 9;
+        optional int32 kw = 10;
+        optional int32 pad_h = 11;
+        optional int32 pad_w = 12;
+        optional int32 stride_h = 13;
+        optional int32 stride_w = 14;
+        optional int32 is_avg_pooling = 15;
+        optional float avg_const = 16;
+    }
+    message bmnet_conv_forward_bmkernel {
+        optional uint64 ga_ifmap = 1;
+        optional uint64 ga_ofmap = 2;
+        optional uint64 ga_weight = 3;
+        optional uint64 ga_bias = 4;
+        optional uint64 ga_bn_mean = 5;
+        optional uint64 ga_bn_variance = 6;
+        optional uint64 ga_scale = 7;
+        optional uint64 ga_scale_bias = 8;
+        optional int32 input_n = 9;
+        optional int32 input_c = 10;
+        optional int32 input_h = 11;
+        optional int32 input_w = 12;
+        optional int32 groups = 13;
+        optional int32 output_c = 14;
+        optional uint32 kh = 15;
+        optional uint32 kw = 16;
+        optional uint32 dilation_h = 17;
+        optional uint32 dilation_w = 18;
+        optional uint32 pad_h = 19;
+        optional uint32 pad_w = 20;
+        optional uint32 stride_h = 21;
+        optional uint32 stride_w = 22;
+        optional int32 result_add = 23;
+        optional int32 do_bias = 24;
+        optional int32 do_bn = 25;
+        optional int32 do_scale = 26;
+        optional int32 do_scale_bias = 27;
+        optional int32 do_activation = 28;
+        optional float bn_scale = 29;
+        optional float bn_eps = 30;
+        optional int32 activation_method = 31;
+        repeated float activation_arg = 32;
+        optional uint64 activation_ga_slope = 33;
+        optional bool activation_channel_shared = 34;
+    }
+    message bmnet_threshold_forward_bmkernel {
+        optional uint64 input_offset = 1;
+        optional uint64 output_offset = 2;
+        optional float threshold = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_exp_forward_bmkernel {
+        optional uint64 input_offset = 1;
+        optional uint64 output_offset = 2;
+        optional float base = 3;
+        optional float input_scale = 4;
+        optional float input_shift = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+    }
+    message bmnet_power_forward_bmkernel {
+        optional uint64 input_offset = 1;
+        optional uint64 output_offset = 2;
+        optional float power_ = 3;
+        optional float scale_ = 4;
+        optional float shift_ = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+    }
+    message bmnet_absval_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+    }
+    message bmnet_sigmoid_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+    }
+    message bmnet_log_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional float scale = 3;
+        optional float shift = 4;
+        optional float base = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+    }
+    message bmnet_fc_forward_bmkernel {
+        optional uint64 bottom_data_gaddr = 1;
+        optional uint64 weight_data_gaddr = 2;
+        optional uint64 bias_data_gaddr = 3;
+        optional uint64 top_data_gaddr = 4;
+        optional int32 input_row_num = 5;
+        optional int32 input_col_num = 6;
+        optional int32 weight_col_num = 7;
+        optional int32 have_bias = 8;
+        optional int32 using_relu = 9;
+        optional bool weight_transpose = 10;
+    }
+    message bmnet_bias_forward_bmkernel {
+        optional uint64 bottom_data_gaddr = 1;
+        optional uint64 bias_data_gaddr = 2;
+        optional uint64 top_data_gaddr = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_elu_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional float alpha = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_tanh_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+    }
+    message bmnet_lstm_unit_forward_bmkernel {
+        optional uint64 X_i_offset = 1;
+        optional uint64 X_f_offset = 2;
+        optional uint64 X_o_offset = 3;
+        optional uint64 X_g_offset = 4;
+        optional uint64 C_prev_offset = 5;
+        optional uint64 cont_expand_offset = 6;
+        optional uint64 C_offset = 7;
+        optional uint64 H_offset = 8;
+        optional int32 input_n = 9;
+        optional int32 input_c = 10;
+        optional int32 input_h = 11;
+        optional int32 input_w = 12;
+    }
+    message bmnet_lrn_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional float alpha = 7;
+        optional int32 size = 8;
+        optional float beta = 9;
+        optional float k = 10;
+    }
+    message bmnet_bnll_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+    }
+    message bmnet_filter_forward_bmkernel {
+        optional uint64 output_offset = 1;
+        optional uint64 input_offset = 2;
+        optional uint64 filter_offset = 3;
+        optional uint64 arm_reserved_offset = 4;
+        optional int32 output_n = 5;
+        optional int32 input_n = 6;
+        optional int32 item_size = 7;
+    }
+    message bmnet_crop_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        repeated int32 input_dim = 3;
+        repeated int32 output_dim = 4;
+        repeated int32 offsets = 5;
+        optional int32 output_dim_len = 6;
+    }
+    message bmnet_slice_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 outer_dim = 4;
+        optional int32 inner_dim = 5;
+        optional int32 input_slice_dim = 6;
+        optional int32 input_slice_offset = 7;
+        optional int32 output_slice_dim = 8;
+    }
+    message bmnet_eltwise_forward_bmkernel {
+        repeated uint64 ga_input = 1;
+        optional uint64 ga_output = 2;
+        optional int32 input_size = 3;
+        optional int32 op = 4;
+        repeated float coeffs = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+        optional bool do_relu = 10;
+        optional float relu_slope = 11;
+    }
+    message bmnet_tile_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 outer_dim = 4;
+        optional int32 inner_dim = 5;
+        optional int32 tiles = 6;
+    }
+    message bmnet_relu_forward_compact_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional uint64 relu_gaddr = 3;
+        optional float negative_slope = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+    }
+    message bmnet_relu_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional float negative_slope = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_dropout_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional uint64 mask_gaddr = 3;
+        optional uint64 rand_table_gaddr = 4;
+        optional int32 rand_table_offset = 5;
+        optional float dropout_ratio = 6;
+        optional int32 input_n = 7;
+        optional int32 input_dim = 8;
+    }
+    message bmnet_batchnorm_forward_inference_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 mean_ma_gaddr = 2;
+        optional uint64 variance_ma_gaddr = 3;
+        optional float scale_ma = 4;
+        optional uint64 variance_gaddr = 5;
+        optional uint64 top_gaddr = 6;
+        optional float eps = 7;
+        optional int32 input_n = 8;
+        optional int32 input_c = 9;
+        optional int32 input_h = 10;
+        optional int32 input_w = 11;
+    }
+    message bmnet_softmax_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+    }
+    message bmnet_scale_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 scale_gaddr = 2;
+        optional uint64 bias_gaddr = 3;
+        optional uint64 output_gaddr = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 scale_dim = 9;
+        optional int32 inner_dim = 10;
+    }
+    message bmnet_mvn_forward_bmkernel {
+        optional uint64 mean_offset = 1;
+        optional uint64 temp_offset = 2;
+        optional uint64 input_offset = 3;
+        optional uint64 variance_offset = 4;
+        optional uint64 output_offset = 5;
+        optional int32 normalize_variance = 6;
+        optional float eps_ = 7;
+        optional int32 input_n = 8;
+        optional int32 input_c = 9;
+        optional int32 input_h = 10;
+        optional int32 input_w = 11;
+    }
+    message bmnet_reduction_forward_bmkernel {
+        optional uint64 input_offset = 1;
+        optional uint64 output_offset = 2;
+        optional int32 op_ = 3;
+        optional float coeff_ = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+    }
+    message bmnet_prelu_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 slope_gaddr = 2;
+        optional uint64 output_gaddr = 3;
+        optional int32 channel_shared = 4;
+        optional float slope = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+    }
+    message bmnet_lstm_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 cont_gaddr = 2;
+        optional uint64 input_static_gaddr = 3;
+        optional uint64 w_hc_gaddr = 4;
+        optional uint64 w_xc_gaddr = 5;
+        optional uint64 w_static_gaddr = 6;
+        optional uint64 b_c_gaddr = 7;
+        optional uint64 h_0_gaddr = 8;
+        optional uint64 c_0_gaddr = 9;
+        optional uint64 c_gaddr = 10;
+        optional uint64 gate_gaddr = 11;
+        optional uint64 h_T_gaddr = 12;
+        optional uint64 c_T_gaddr = 13;
+        optional uint64 h_gaddr = 14;
+        optional uint64 arm_reserved_gaddr = 15;
+        optional int32 input_n = 16;
+        optional int32 seq_len = 17;
+        optional int32 input_dim = 18;
+        optional int32 input_static_dim = 19;
+        optional int32 output_dim = 20;
+        optional int32 with_input_static = 21;
+    }
+    message bmnet_embed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 weight_gaddr = 2;
+        optional uint64 bias_gaddr = 3;
+        optional uint64 output_gaddr = 4;
+        optional uint64 arm_reserved_gaddr = 5;
+        optional int32 input_n = 6;
+        optional int32 input_dim = 7;
+        optional int32 output_dim = 8;
+        optional int32 with_bias = 9;
+    }
+    message bmnet_rnn_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 cont_gaddr = 2;
+        optional uint64 static_gaddr = 3;
+        optional uint64 w_hh_gaddr = 4;
+        optional uint64 w_xh_gaddr = 5;
+        optional uint64 w_ho_gaddr = 6;
+        optional uint64 w_st_gaddr = 7;
+        optional uint64 b_h_gaddr = 8;
+        optional uint64 b_o_gaddr = 9;
+        optional uint64 h_0_gaddr = 10;
+        optional uint64 h_gaddr = 11;
+        optional uint64 h_T_gaddr = 12;
+        optional uint64 o_gaddr = 13;
+        optional uint64 arm_reserved_gaddr = 14;
+        optional int32 input_n = 15;
+        optional int32 seq_len = 16;
+        optional int32 input_dim = 17;
+        optional int32 static_dim = 18;
+        optional int32 output_dim = 19;
+        optional int32 with_static = 20;
+    }
+    message bmnet_split_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        repeated uint64 top_gaddr = 2;
+        optional int32 top_size = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_concat_forward_bmkernel {
+        repeated uint64 input_gaddrs = 1;
+        repeated uint64 output_gaddrs = 2;
+        repeated int32 input_dims = 3;
+        optional int32 input_num = 4;
+        optional int32 output_dim_len = 5;
+        repeated int32 output_dim = 6;
+    }
+    message bmnet_upsample_bmkernel {
+        optional uint64 ga_ifmap = 1;
+        optional uint64 ga_ofmap = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 size = 7;
+    }
+    message bmnet_reshape_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 output_dim_len = 3;
+        repeated int32 output_dim = 4;
+    }
+    message bmnet_permute_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 output_n = 7;
+        optional int32 output_c = 8;
+        optional int32 output_h = 9;
+        optional int32 output_w = 10;
+        optional int32 order_n = 11;
+        optional int32 order_c = 12;
+        optional int32 order_h = 13;
+        optional int32 order_w = 14;
+        optional bool need_permute_ = 15;
+    }
+    message bmnet_flatten_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 input_dim_len = 3;
+        repeated int32 input_dim = 4;
+    }
+    message bmnet_normalize_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional bool has_scale_blob = 3;
+        optional uint64 scale_gaddr = 4;
+        optional bool across_spatial = 5;
+        optional bool channel_shared = 6;
+        optional float eps = 7;
+        repeated float scales = 8;
+        optional int32 input_n = 9;
+        optional int32 input_c = 10;
+        optional int32 input_h = 11;
+        optional int32 input_w = 12;
+    }
+    message bmnet_deconv_forward_bmkernel {
+        optional uint64 ga_ifmap = 1;
+        optional uint64 ga_ofmap = 2;
+        optional uint64 ga_weight = 3;
+        optional uint64 ga_bias = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 groups = 9;
+        optional int32 output_c = 10;
+        optional int32 output_h = 11;
+        optional int32 output_w = 12;
+        optional int32 kh = 13;
+        optional int32 kw = 14;
+        optional int32 dh = 15;
+        optional int32 dw = 16;
+        optional int32 pad_h = 17;
+        optional int32 pad_w = 18;
+        optional int32 stride_h = 19;
+        optional int32 stride_w = 20;
+        optional bool using_bias = 21;
+        optional bool result_add = 22;
+        optional bool do_relu = 23;
+    }
+    message bmnet_stack_forward_bmkernel {
+        repeated uint64 input_gaddrs = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 input_size = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+        optional int32 axis = 8;
+    }
+
+}
+// clang-format on

@@ -14,6 +14,9 @@ function(add_libonnc_src)
 endfunction()
 
 
+find_package(Boost COMPONENTS system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${ONNX_INCLUDE_DIRS})
 include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
@@ -45,11 +48,10 @@ if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
 endif()
 target_link_libraries(libonnc
+    ${Boost_LIBRARIES}
+    glog
     ${ONNX_LIBRARIES}
     ${PROTOBUF_LIBRARIES})
-if (TARGET_TG)
-    target_link_libraries(libonnc ${BMLIB})
-endif()
 
 install(TARGETS libonnc
     ARCHIVE DESTINATION lib)

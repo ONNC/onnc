@@ -1,6 +1,6 @@
 #include "TGConv.h"
 #include "BM168xCodeEmitter.h"
-#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
+#include <onnc/Target/TG/BM168x/bmkernel_api.h>
 
 #define DEBUG_TYPE "tg_conv"
 #include <onnc/Support/Debug.h>
@@ -87,14 +87,13 @@ void TGConv::emit() const
                << " m_PadW:" << (int)m_PadW << " m_StrideH:" << (int)m_StrideH
                << " m_StrideW:" << (int)m_StrideW << " m_DoBias:" << m_DoBias
                << std::endl;);
-  bmnet::bmnet_conv_forward_bmkernel(
-      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
-      m_MemOperands[2]->m_Addr, m_MemOperands[1]->m_Addr,
-      m_MemOperands[3]->m_Addr,
-      GADDR_INVALID, // ga_bn_mean,
-      GADDR_INVALID, // ga_bn_variance,
-      GADDR_INVALID, // ga_scale,
-      GADDR_INVALID, // ga_scale_bias,
+  bmnet::bmnet_asm::bmnet_conv_forward_bmkernel(
+      m_MemOperands[0]->m_Addr, m_MemOperands[2]->m_Addr,
+      m_MemOperands[1]->m_Addr, m_MemOperands[3]->m_Addr,
+      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_mean,
+      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_variance,
+      bmnet::bmnet_asm::GADDR_INVALID, // ga_scale,
+      bmnet::bmnet_asm::GADDR_INVALID, // ga_scale_bias,
       m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
       m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
       m_DoBias,                                                 // do_bias,

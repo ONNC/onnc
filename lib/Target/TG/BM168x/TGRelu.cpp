@@ -1,6 +1,6 @@
 #include "TGRelu.h"
 #include "BM168xCodeEmitter.h"
-#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
+#include <onnc/Target/TG/BM168x/bmkernel_api.h>
 
 using namespace onnc;
 
@@ -43,7 +43,7 @@ void TGRelu::emit() const
             << " m_OutputAddr:" << m_MemOperands[1]->m_Addr
             << " m_NegativeSlope:" << m_NegativeSlope << " m_N:" << m_N
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W << std::endl;
-  bmnet::bmnet_relu_forward_bmkernel(
-      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
-      m_MemOperands[1]->m_Addr, m_NegativeSlope, m_N, m_C, m_H, m_W);
+  bmnet::bmnet_asm::bmnet_relu_forward_bmkernel(
+      m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr, m_NegativeSlope, m_N,
+      m_C, m_H, m_W);
 }

@@ -1,8 +1,8 @@
 #define DEBUG_TYPE "tg_upsample"
 #include "TGUpsample.h"
 #include "BM188xCodeEmitter.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {
@@ -39,7 +39,6 @@ void TGUpsample::emit() const
 {
   DEBUG(print(dbgs()));
   bmnet::bmnet_asm::bmnet_upsample_fixed_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // ifmap_gaddr
       m_MemOperands[1]->m_Addr, // ofmap_gaddr
       m_N, m_C, m_H, m_W, m_Scale);

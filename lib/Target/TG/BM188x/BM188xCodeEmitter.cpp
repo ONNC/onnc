@@ -1,13 +1,12 @@
 #define DEBUG_TYPE "bm188x_code_emitter"
 #include "BM188xCodeEmitter.h"
 #include "TGConv.h"
-#include <bm_kernel.h>
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
-#include <bmnet/utils/io.hpp>
 #include <cstdint>
 #include <fstream>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
+#include <onnc/Target/TG/io.hpp>
 
 #include <onnc/JSON/Object.h>
 #include <onnc/JSON/Reader.h>
@@ -181,12 +180,6 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   if (!pOutputPath.empty())
     output_path = pOutputPath;
 
-  // ReadInt8DataFromBinaryFile(weight, weight_data);
-  bmnet::BM188xBackendContext ctx(BM_CHIP_BM1880, 1, m_WeightData);
-  bm1880_kernel::getInstance().m_CTX = &ctx;
-  // StartInst::encode()
-  kernel_enter(ctx.get_bmkernel_handle());
-
   std::fstream fp;
   if (m_Backend->getOption().m_DumpASM) {
     if (m_Backend->getOption().m_ASMOutput.empty())
@@ -201,14 +194,6 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
     i->emit();
   }
   instList.clear();
-  // EndInst::encode()
-  kernel_submit();
-  kernel_exit();
-  // output
-  std::vector<uint8_t> cmdbuf;
-  ctx.read_cmdbuf(cmdbuf);
-  bmnet::WriteFloatDataToBinaryFile(cmdbuf.data(), cmdbuf.size(),
-                                    output_path.generic_string());
 }
 
 void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)

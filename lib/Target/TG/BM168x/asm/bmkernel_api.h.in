@@ -1,0 +1,45 @@
+#ifndef BM168X_BMKERNEL_API_H
+#define BM168X_BMKERNEL_API_H
+
+#include <onnc/Target/TG/BM168x/asm/bm168x_asm.pb.h>
+#include <onnc/Target/TG/bmkernel_api_base.h>
+
+namespace bmnet {
+
+namespace bmnet_asm {
+
+// clang-format off
+{% for py_i in tg.get_insts() %}
+inline void {{ py_i.name }}(
+    {% for p in py_i.get_prarms() %}
+    {{ p.get_arg() }}{{ ")" if loop.last else "," }}
+    {% endfor %}
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1680::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("{{ py_i.name }}");
+        auto *{{ py_i.short_name }} = inst->mutable_{{ py_i.short_name }}();
+        {% for p in py_i.get_prarms() %}
+        {% if p.type.is_vector %}
+        for (size_t i = 0; i < (size_t){{ p.type.vector_size }}; i++)
+            {{ py_i.short_name }}->add_{{ p.name.lower() }}({{ p.type.proto_cast("bmnet::bm1680") }}{{ p.name }}[i]);
+        {% else %}
+        {{ py_i.short_name }}->set_{{ p.name.lower() }}({{ p.type.proto_cast("bmnet::bm1680") }}{{ p.name }});
+        {% endif %}
+        {% endfor %}
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
+{% endfor %}
+// clang-format on
+
+} // namespace bmnet_asm
+} // namespace bmnet
+#endif /* BM168X_BMKERNEL_API_H */

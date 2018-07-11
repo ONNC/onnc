@@ -1,6 +1,6 @@
 #include "TGLRN.h"
 #include "BM168xCodeEmitter.h"
-#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
+#include <onnc/Target/TG/BM168x/bmkernel_api.h>
 
 using namespace onnc;
 
@@ -40,8 +40,7 @@ void TGLRN::TGLRN::emit() const
             << " m_C:" << m_C << " m_H:" << m_H << " m_W:" << m_W
             << " m_Alpha:" << m_Alpha << "m_LocalSize:" << m_LocalSize
             << " m_Beta:" << m_Beta << "m_K:" << m_K << std::endl;
-  bmnet::bmnet_lrn_forward_bmkernel(*bm168x_kernel::getInstance().m_CTX,
-                                    m_MemOperands[0]->m_Addr,
-                                    m_MemOperands[1]->m_Addr, m_N, m_C, m_H,
-                                    m_W, m_Alpha, m_LocalSize, m_Beta, m_K);
+  bmnet::bmnet_asm::bmnet_lrn_forward_bmkernel(
+      m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W,
+      m_Alpha, m_LocalSize, m_Beta, m_K);
 }

@@ -1,6 +1,6 @@
 
 function(gen_proto_cpp)
-    cmake_parse_arguments(OPT "" "SRCS;HDRS;PROTO" "" ${ARGN})
+    cmake_parse_arguments(OPT "" "TARGET;SRCS;HDRS;PROTO" "" ${ARGN})
     #prepare proto name
     get_filename_component(OPT_PROTO ${OPT_PROTO} ABSOLUTE)
     get_filename_component(proto_name ${OPT_PROTO} NAME)
@@ -11,6 +11,7 @@ function(gen_proto_cpp)
     set(target_name libonnc_${relative_path}__${proto_name})
     string(REPLACE "/" "_" target_name ${target_name})
     string(REPLACE "." "_" target_name ${target_name})
+    set(${OPT_TARGET} ${target_name} PARENT_SCOPE)
     set(out_path ${LIB_ONNC_BINARY_DIR}/include/onnc/${relative_path})
     #set return variable
     set(hdrs ${out_path}/${proto_name_we}.pb.h)

@@ -1,0 +1,488 @@
+// clang-format off
+syntax = "proto2";
+package bmnet.bm1880;
+
+message CommandBuffer {
+    repeated Inst inst = 1;
+}
+
+message Inst {
+    optional string name = 1;
+    optional string type = 2;
+    enum ActivationMethod {
+        RELU    = 0;
+        SIGMOID = 1;
+        TANH    = 2;
+        ELU     = 3;
+        PRELU   = 4;
+    }
+
+    // Layer type-specific parameters.
+    optional bmnet_pooling_fixed_forward_bmkernel             pooling       = 4;
+    optional bmnet_conv_fixed_forward_bmkernel                conv          = 5;
+    optional bmnet_conv_parallel_fixed_forward_bmkernel       conv_p        = 6;
+    optional bmnet_fc_fixed_forward_bmkernel                  fc            = 7;
+    optional bmnet_relu_fixed_forward_bmkernel                relu          = 8;
+    optional bmnet_leakyrelu_fixed_forward_bmkernel           leakyrelu     = 9;
+    optional bmnet_prelu_fixed_forward_bmkernel               prelu         = 10;
+    optional bmnet_batchnorm_fixed_forward_inference_bmkernel batchnorm     = 11;
+    optional bmnet_scale_fixed_forward_bmkernel               scale         = 12;
+    optional bmnet_reshape_fixed_forward_bmkernel             reshape       = 13;
+    optional bmnet_split_fixed_forward_bmkernel               split         = 14;
+    optional bmnet_concat_fixed_forward_bmkernel              concat        = 15;
+    optional bmnet_eltwise_fixed_forward_bmkernel             eltwise       = 16;
+    optional bmnet_permute_fixed_forward_bmkernel             permute       = 17;
+    optional bmnet_priorbox_fixed_forward_bmkernel            priorbox      = 18;
+    optional bmnet_lrn_fixed_forward_bmkernel                 lrn           = 19;
+    optional bmnet_upsample_fixed_bmkernel                    upsample      = 20;
+    optional bmnet_normalize_fixed_forward_bmkernel           normalize     = 21;
+    optional bmnet_tl_conv_forward_bmkernel                   bm_tl_conv    = 22;
+    optional bmnet_tl_activation_forward_bmkernel             tl_activation = 23;
+    optional bmnet_tl_scale_forward_bmkernel                  tl_csale      = 24;
+    optional bmnet_tl_batchnorm_forward_bmkernel              tl_bn         = 25;
+    optional bmnet_tl_eltwise_forward_bmkernel                tl_eltwise    = 26;
+    optional bmnet_tl_lrn_forward_bmkernel                    tl_lrn        = 27;
+    optional bmnet_tl_pooling_forward_bmkernel                tl_pool       = 28;
+    optional bmnet_tl_upsample_forward_bmkernel               tl_upsample   = 29;
+
+    message bmnet_pooling_fixed_forward_bmkernel {
+        optional uint64 ifmap_gaddr = 1;
+        optional uint64 ofmap_gaddr = 2;
+        optional uint64 index_gaddr = 3;
+        optional uint64 o_findex_gaddr = 4;
+        optional int32 n = 5;
+        optional int32 c = 6;
+        optional int32 h = 7;
+        optional int32 w = 8;
+        optional int32 kh = 9;
+        optional int32 kw = 10;
+        optional int32 pad_top = 11;
+        optional int32 pad_bot = 12;
+        optional int32 pad_left = 13;
+        optional int32 pad_right = 14;
+        optional int32 stride_h = 15;
+        optional int32 stride_w = 16;
+        optional int32 is_avg_pooling = 17;
+        optional float avg_const = 18;
+        optional int32 do_relu = 19;
+        optional int32 right_shift_width = 20;
+        repeated int32 threshold_x_quantized = 21;
+    }
+    message bmnet_conv_fixed_forward_bmkernel {
+        optional uint64 ga_ifmap = 1;
+        optional uint64 ga_ofmap = 2;
+        optional uint64 ga_weight = 3;
+        optional uint64 ga_bias = 4;
+        optional uint64 ga_bn_mean = 5;
+        optional uint64 ga_bn_variance = 6;
+        optional uint64 ga_scale = 7;
+        optional uint64 ga_scale_bias = 8;
+        optional int32 input_n = 9;
+        optional int32 input_c = 10;
+        optional int32 input_h = 11;
+        optional int32 input_w = 12;
+        optional int32 groups = 13;
+        optional int32 output_c = 14;
+        optional uint32 kh = 15;
+        optional uint32 kw = 16;
+        optional uint32 dilation_h = 17;
+        optional uint32 dilation_w = 18;
+        optional uint32 pad_h = 19;
+        optional uint32 pad_w = 20;
+        optional uint32 stride_h = 21;
+        optional uint32 stride_w = 22;
+        optional int32 result_add = 23;
+        optional int32 do_bias = 24;
+        optional int32 do_bn = 25;
+        optional int32 do_scale = 26;
+        optional int32 do_scale_bias = 27;
+        optional int32 do_activation = 28;
+        optional float bn_scale = 29;
+        optional float bn_eps = 30;
+        optional int32 activation_method = 31;
+        repeated float activation_arg = 32;
+        optional uint64 activation_ga_slope = 33;
+        optional bool activation_channel_shared = 34;
+        optional int32 activation_gt_scale = 35;
+        optional int32 activation_gt_rshift = 36;
+        optional int32 activation_le_scale = 37;
+        optional int32 activation_le_rshift = 38;
+        optional int32 right_shift_width = 39;
+        optional int32 bn_right_shift_width = 40;
+        optional int32 scalar_right_shift_width = 41;
+        optional bool use_winograd = 42;
+    }
+    message bmnet_conv_parallel_fixed_forward_bmkernel {
+        optional uint64 ga_ifmap = 1;
+        optional uint64 ga_ofmap = 2;
+        optional uint64 ga_weight = 3;
+        optional uint64 ga_bias = 4;
+        optional uint64 ga_bn_mean = 5;
+        optional uint64 ga_bn_variance = 6;
+        optional uint64 ga_scale = 7;
+        optional uint64 ga_scale_bias = 8;
+        optional int32 input_n = 9;
+        optional int32 input_c = 10;
+        optional int32 input_h = 11;
+        optional int32 input_w = 12;
+        optional int32 groups = 13;
+        optional int32 output_c = 14;
+        optional uint32 kh = 15;
+        optional uint32 kw = 16;
+        optional uint32 dilation_h = 17;
+        optional uint32 dilation_w = 18;
+        optional uint32 pad_h = 19;
+        optional uint32 pad_w = 20;
+        optional uint32 stride_h = 21;
+        optional uint32 stride_w = 22;
+        optional int32 result_add = 23;
+        optional int32 do_bias = 24;
+        optional int32 do_bn = 25;
+        optional int32 do_scale = 26;
+        optional int32 do_scale_bias = 27;
+        optional int32 do_activation = 28;
+        optional float bn_scale = 29;
+        optional float bn_eps = 30;
+        optional int32 activation_method = 31;
+        repeated float activation_arg = 32;
+        optional uint64 activation_ga_slope = 33;
+        optional bool activation_channel_shared = 34;
+        optional int32 activation_gt_scale = 35;
+        optional int32 activation_gt_rshift = 36;
+        optional int32 activation_le_scale = 37;
+        optional int32 activation_le_rshift = 38;
+        optional int32 right_shift_width = 39;
+        optional int32 bn_right_shift_width = 40;
+        optional int32 scale_right_shift_width = 41;
+        optional bool use_winograd = 42;
+    }
+    message bmnet_fc_fixed_forward_bmkernel {
+        optional uint64 bottom_data_gaddr = 1;
+        optional uint64 weight_data_gaddr = 2;
+        optional uint64 bias_data_gaddr = 3;
+        optional uint64 top_data_gaddr = 4;
+        optional int32 input_row_num = 5;
+        optional int32 input_col_num = 6;
+        optional int32 weight_col_num = 7;
+        optional int32 have_bias = 8;
+        optional int32 do_activation = 9;
+        optional int32 activation_method = 10;
+        optional uint64 activation_ga_slope = 11;
+        optional int32 activation_channel_shared = 12;
+        optional int32 activation_gt_scale = 13;
+        optional int32 activation_gt_rshift = 14;
+        optional int32 activation_le_scale = 15;
+        optional int32 activation_le_rshift = 16;
+        optional bool weight_transpose = 17;
+        optional int32 left_shift_width = 18;
+        optional int32 right_shift_width = 19;
+    }
+    message bmnet_relu_fixed_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional float negative_slope = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_leakyrelu_fixed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 GT_right_shift_width = 7;
+        optional int32 LE_right_shift_width = 8;
+        optional int32 GT_scale = 9;
+        optional int32 LE_scale = 10;
+    }
+    message bmnet_prelu_fixed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 slope_gaddr = 2;
+        optional uint64 output_gaddr = 3;
+        optional int32 channel_shared = 4;
+        optional int32 slope = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+        optional int32 GT_scale = 10;
+        optional int32 GT_right_shift_width = 11;
+        optional int32 LE_right_shift_width = 12;
+    }
+    message bmnet_batchnorm_fixed_forward_inference_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 mean_ma_gaddr = 2;
+        optional uint64 variance_ma_gaddr = 3;
+        optional uint64 top_gaddr = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 right_shift_width = 9;
+    }
+    message bmnet_scale_fixed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 scale_gaddr = 2;
+        optional uint64 bias_gaddr = 3;
+        optional uint64 output_gaddr = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 scale_dim = 9;
+        optional int32 inner_dim = 10;
+        optional int32 right_shift_width = 11;
+    }
+    message bmnet_reshape_fixed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 output_dim_len = 3;
+        repeated int32 output_dim = 4;
+    }
+    message bmnet_split_fixed_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        repeated uint64 top_gaddr = 2;
+        optional int32 top_size = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+    }
+    message bmnet_concat_fixed_forward_bmkernel {
+        repeated uint64 input_gaddrs = 1;
+        optional uint64 output_gaddr = 2;
+        repeated int32 input_dims = 3;
+        optional int32 input_num = 4;
+        optional int32 concat_axis = 5;
+        optional int32 output_dim_len = 6;
+        repeated int32 output_dim = 7;
+    }
+    message bmnet_eltwise_fixed_forward_bmkernel {
+        repeated uint64 ga_input = 1;
+        optional uint64 ga_output = 2;
+        optional int32 input_size = 3;
+        optional int32 op = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional bool do_relu = 9;
+        optional float relu_slope = 10;
+        optional int32 right_shift_width = 11;
+        repeated int32 threshold_x_quantized = 12;
+    }
+    message bmnet_permute_fixed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 output_n = 7;
+        optional int32 output_c = 8;
+        optional int32 output_h = 9;
+        optional int32 output_w = 10;
+        optional int32 order_n = 11;
+        optional int32 order_c = 12;
+        optional int32 order_h = 13;
+        optional int32 order_w = 14;
+        optional bool need_permute = 15;
+    }
+    message bmnet_priorbox_fixed_forward_bmkernel {
+        optional uint64 weight_data_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 output_c = 3;
+        optional int32 output_h = 4;
+        optional int32 output_w = 5;
+    }
+    message bmnet_lrn_fixed_forward_bmkernel {
+        optional uint64 bottom_gaddr = 1;
+        optional uint64 top_gaddr = 2;
+        optional uint64 sqr_lut_gaddr = 3;
+        optional uint64 power_lut_gaddr = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 size = 9;
+        optional int32 sum_right_shift_width = 10;
+        optional int32 lrn_right_shift_width = 11;
+        repeated int32 threshold_x_quantized = 12;
+    }
+    message bmnet_upsample_fixed_bmkernel {
+        optional uint64 ga_ifmap = 1;
+        optional uint64 ga_ofmap = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 size = 7;
+    }
+    message bmnet_normalize_fixed_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional bool has_scale_blob = 3;
+        optional uint64 scale_gaddr = 4;
+        optional uint64 sqr_lut_gaddr = 5;
+        optional uint64 sqrt_lut_gaddr = 6;
+        optional bool across_spatial = 7;
+        optional bool channel_shared = 8;
+        repeated int32 scales = 9;
+        optional int32 input_n = 10;
+        optional int32 input_c = 11;
+        optional int32 input_h = 12;
+        optional int32 input_w = 13;
+        optional int32 sum_right_shift_width = 14;
+        optional int32 norma_right_shift_width = 15;
+        optional int32 scale_right_shift_width = 16;
+        repeated int32 threshold_x_quantized = 17;
+    }
+    message bmnet_tl_conv_forward_bmkernel {
+        optional uint64 la_ifmap = 1;
+        optional uint64 la_ofmap = 2;
+        optional uint64 la_weight = 3;
+        optional uint64 la_bias = 4;
+        repeated uint32 group_weight = 5;
+        repeated uint32 group_bias = 6;
+        optional int32 input_n = 7;
+        optional int32 input_c = 8;
+        optional int32 input_h = 9;
+        optional int32 input_w = 10;
+        optional int32 group = 11;
+        optional int32 output_c = 12;
+        optional int32 output_h = 13;
+        optional int32 output_w = 14;
+        optional uint32 kh = 15;
+        optional uint32 kw = 16;
+        optional uint32 dh = 17;
+        optional uint32 dw = 18;
+        optional uint32 pad_h_top = 19;
+        optional uint32 pad_h_bottom = 20;
+        optional uint32 pad_w_left = 21;
+        optional uint32 pad_w_right = 22;
+        optional uint32 stride_h = 23;
+        optional uint32 stride_w = 24;
+        optional uint32 result_add = 25;
+        optional uint32 ctrl = 26;
+        optional int32 rshift = 27;
+        optional bool do_bias = 28;
+        optional bool use_winograd = 29;
+        optional bool do_relu = 30;
+    }
+    message bmnet_tl_activation_forward_bmkernel {
+        optional uint64 input_laddr = 1;
+        optional uint64 output_laddr = 2;
+        optional uint64 weight_laddr = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+        optional int32 gt_rshift = 8;
+        optional int32 le_rshift = 9;
+        optional int32 gt_scale = 10;
+        optional int32 le_scale = 11;
+        optional int32 gt_right_shift_width = 12;
+        optional int32 le_right_shift_width = 13;
+        optional int32 activation_arg_len = 14;
+        repeated float activation_arg = 15;
+        optional bool channel_shared = 16;
+        optional ActivationMethod activation_type = 17;
+    }
+    message bmnet_tl_scale_forward_bmkernel {
+        optional uint64 input_laddr = 1;
+        optional uint64 output_laddr = 2;
+        optional uint64 scale_laddr = 3;
+        optional uint64 bias_laddr = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 scale_dim = 9;
+        optional int32 right_shift_width = 10;
+        optional bool do_bias = 11;
+        optional bool do_relu = 12;
+        optional float relu_slope = 13;
+    }
+    message bmnet_tl_batchnorm_forward_bmkernel {
+        optional uint64 bottom_laddr = 1;
+        optional uint64 top_laddr = 2;
+        optional uint64 mean_laddr = 3;
+        optional uint64 variance_laddr = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional int32 right_shift_width = 9;
+        optional bool do_relu = 10;
+    }
+    message bmnet_tl_eltwise_forward_bmkernel {
+        repeated uint64 la_input = 1;
+        optional uint64 la_output = 2;
+        optional uint64 la_working = 3;
+        optional int32 input_n = 4;
+        optional int32 input_c = 5;
+        optional int32 input_h = 6;
+        optional int32 input_w = 7;
+        optional int32 input_size = 8;
+        optional int32 right_shift_width = 9;
+        optional int32 op = 10;
+        repeated int32 threshold_x_quantized = 11;
+        optional bool use_default_coeff = 12;
+        optional bool do_relu = 13;
+        optional float relu_slope = 14;
+    }
+    message bmnet_tl_lrn_forward_bmkernel {
+        optional uint64 bottom_laddr = 1;
+        optional uint64 top_laddr = 2;
+        optional uint64 sqr_lut_laddr = 3;
+        optional uint64 power_lut_laddr = 4;
+        optional uint64 working_laddr = 5;
+        optional int32 input_n = 6;
+        optional int32 input_c = 7;
+        optional int32 input_h = 8;
+        optional int32 input_w = 9;
+        optional int32 size = 10;
+        optional int32 sum_right_shift_width = 11;
+        optional int32 lrn_right_shift_width = 12;
+        repeated int32 threshold_x_quantized = 13;
+    }
+    message bmnet_tl_pooling_forward_bmkernel {
+        optional uint64 ifmap_laddr = 1;
+        optional uint64 ofmap_laddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 output_n = 7;
+        optional int32 output_c = 8;
+        optional int32 output_h = 9;
+        optional int32 output_w = 10;
+        optional uint32 kh = 11;
+        optional uint32 kw = 12;
+        optional uint32 stride_h = 13;
+        optional uint32 stride_w = 14;
+        optional uint32 pad_h_top = 15;
+        optional uint32 pad_h_bottom = 16;
+        optional uint32 pad_w_left = 17;
+        optional uint32 pad_w_right = 18;
+        optional bool is_avg_pooling = 19;
+        optional int32 right_shift_width = 20;
+        optional int32 threshold_x_quantized = 21;
+    }
+    message bmnet_tl_upsample_forward_bmkernel {
+        optional uint64 la_ifmap = 1;
+        optional uint64 la_ofmap = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 output_h = 7;
+        optional int32 output_w = 8;
+        optional int32 size = 9;
+    }
+
+}
+// clang-format on

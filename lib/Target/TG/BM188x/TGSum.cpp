@@ -2,8 +2,8 @@
 #include "TGSum.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace pm = onnc::PatternMatch;
 
@@ -67,7 +67,6 @@ void TGSum::emit() const
     input[i] = m_MemOperands[i]->m_Addr;
 
   bmnet::bmnet_asm::bmnet_eltwise_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX,
       input,                        // inputs
       m_MemOperands.back()->m_Addr, // ouput
       m_InputNum,

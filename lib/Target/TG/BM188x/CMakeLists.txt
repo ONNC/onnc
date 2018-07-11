@@ -1,6 +1,4 @@
 
-include_directories(SYSTEM ${BMTAP_SOURCE_DIR}/bmnet/src/targets/plat-bm188x/bmkernel)
-
 include(proto)
 gen_proto_cpp(PROTO proto/common_calibration2.proto SRCS proto_src)
 
@@ -30,3 +28,5 @@ add_libonnc_src(
     TGTranspose.cpp
     TGSum.cpp
     TGPRelu.cpp)
+
+add_subdirectory(asm)

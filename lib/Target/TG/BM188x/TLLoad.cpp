@@ -1,8 +1,8 @@
 #include "TLLoad.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 #define DEBUG_TYPE "tl_load"
 

@@ -1,8 +1,8 @@
 #define DEBUG_TYPE "tg_relu"
 #include "TGRelu.h"
 #include "BM188xCodeEmitter.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {
@@ -45,7 +45,6 @@ void TGRelu::emit() const
   DEBUG(print(dbgs()));
 
   bmnet::bmnet_asm::bmnet_relu_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX,
       m_MemOperands[0]->m_Addr, // input_gaddr
       m_MemOperands[1]->m_Addr, // output_gaddr
       m_NegativeSlope,          // negative_slope

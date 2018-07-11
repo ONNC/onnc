@@ -1,6 +1,6 @@
 #include "TGLRN.h"
 #include "BM188xCodeEmitter.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {
@@ -31,7 +31,6 @@ void TGLRN::TGLRN::emit() const
             << " m_Beta:" << m_Beta << "m_K:" << m_K << std::endl;
 #if 0
   bmnet::bmnet_asm::bmnet_lrn_forward_bmkernel(
-                             *bm1880_kernel::getInstance().m_CTX,
                              m_InputAddr, m_OutputAddr, m_N, m_C, m_H, m_W,
                              m_Alpha, m_LocalSize, m_Beta, m_K);
 #endif

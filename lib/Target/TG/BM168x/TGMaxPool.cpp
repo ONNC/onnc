@@ -1,6 +1,6 @@
 #include "TGMaxPool.h"
 #include "BM168xCodeEmitter.h"
-#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
+#include <onnc/Target/TG/BM168x/bmkernel_api.h>
 
 using namespace onnc;
 
@@ -54,11 +54,10 @@ void TGMaxPool::emit() const
             << " m_StrideW:" << m_StrideW << std::endl;
 
   // bmnet_pooling_forward_bmkernel
-  bmnet::bmnet_pooling_forward_bmkernel(
-      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
-      m_MemOperands[1]->m_Addr,
-      GADDR_INVALID, // useless oindex_gaddr
-      GADDR_INVALID, // useless relu_gaddr
+  bmnet::bmnet_asm::bmnet_pooling_forward_bmkernel(
+      m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr,
+      bmnet::bmnet_asm::GADDR_INVALID, // useless oindex_gaddr
+      bmnet::bmnet_asm::GADDR_INVALID, // useless relu_gaddr
       m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadH, m_PadW, m_StrideH, m_StrideW,
       false, // is_avg_pooling
       0.0f,  // always is 0.0f

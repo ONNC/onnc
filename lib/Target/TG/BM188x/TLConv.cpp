@@ -1,8 +1,8 @@
 #include "TLConv.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 #define DEBUG_TYPE "tl_conv"
 
@@ -123,24 +123,23 @@ void TLConv::emit() const
   // FIXME(arcbbb): Support Group == 1 for the moment
   assert(m_Groups == 1);
 
-  u32 bias_array[m_Groups];
-  u32 weight_array[m_Groups];
+  bmnet::bmnet_asm::u32 bias_array[m_Groups];
+  bmnet::bmnet_asm::u32 weight_array[m_Groups];
 
   bias_array[0] = m_BiasAddr;
   weight_array[0] = m_WeightAddr;
 
-  u32 *group_bias = &bias_array[0];
-  u32 *group_weight = &weight_array[0];
+  bmnet::bmnet_asm::u32 *group_bias = &bias_array[0];
+  bmnet::bmnet_asm::u32 *group_weight = &weight_array[0];
 
   bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
   bmnet::bmnet_asm::bmnet_tl_conv_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX, // CTX
-      m_IFmapAddr,                         // ifmap
-      m_OFmapAddr,                         // ofmap
-      m_WeightAddr,                        // weight
-      m_BiasAddr,                          // bias
-      group_weight,                        // weight addr for each group
-      group_bias,                          // bias addr for each group
+      m_IFmapAddr,  // ifmap
+      m_OFmapAddr,  // ofmap
+      m_WeightAddr, // weight
+      m_BiasAddr,   // bias
+      group_weight, // weight addr for each group
+      group_bias,   // bias addr for each group
       m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_OutH, m_OutW, m_KH, m_KW,
       m_DilationH, m_DilationW,                      // Dilation
       m_PadHTop, m_PadHBot, m_PadWLeft, m_PadWRight, // padding

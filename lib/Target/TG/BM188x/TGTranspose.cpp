@@ -1,8 +1,8 @@
 #define DEBUG_TYPE "tg_transpose"
 #include "TGTranspose.h"
 #include "BM188xCodeEmitter.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {
@@ -30,7 +30,7 @@ TGTranspose::TGTranspose(const ::onnx::Node &pNode)
          ((orders[0] == 0) && (orders[1] == 2) && (orders[2] == 1) &&
           (orders[3] == 3) && (orders[4] == 4)));
 
-  for (u32 i = 0; i < orders.size(); ++i) {
+  for (bmnet::bmnet_asm::u32 i = 0; i < orders.size(); ++i) {
     m_Order[i] = orders[i];
     m_OutputShape[i] = inDim[orders[i]].dim;
   }
@@ -42,7 +42,7 @@ TGTranspose::TGTranspose(const ::onnx::Node &pNode)
   }
 
   // Check if we need to reorder the data or keep it.
-  for (u32 i = 0; i < orders.size(); ++i) {
+  for (bmnet::bmnet_asm::u32 i = 0; i < orders.size(); ++i) {
     if (orders[i] != i) {
       // As long as there is one order which is different from the natural order
       // of the data, we need to permute. Otherwise, we share the data and diff.
@@ -74,10 +74,9 @@ void TGTranspose::emit() const
 {
   DEBUG(print(dbgs()));
   bmnet::bmnet_asm::bmnet_permute_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
-      m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W, m_OutputShape[0],
-      m_OutputShape[1], m_OutputShape[2], m_OutputShape[3], m_Order[0],
-      m_Order[1], m_Order[2], m_Order[3], m_NeedPermute);
+      m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W,
+      m_OutputShape[0], m_OutputShape[1], m_OutputShape[2], m_OutputShape[3],
+      m_Order[0], m_Order[1], m_Order[2], m_Order[3], m_NeedPermute);
 }
 
 } // namespace BM188X

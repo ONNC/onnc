@@ -1,6 +1,6 @@
 #include "TGGemm.h"
 #include "BM168xCodeEmitter.h"
-#include <bmnet/targets/plat-bm168x/bmkernel/bmkernel_api.h>
+#include <onnc/Target/TG/BM168x/bmkernel_api.h>
 
 #define DEBUG_TYPE "tg_gemm"
 #include <onnc/Support/Debug.h>
@@ -62,9 +62,8 @@ void TGGemm::emit() const
                << " m_InColNum:" << m_InColNum << " m_OutColNum:" << m_OutColNum
                << " m_HaveBias:" << m_HaveBias << " m_UsingRelu:" << m_UsingRelu
                << " m_WeightTp:" << m_WeightTp << std::endl;);
-  bmnet::bmnet_fc_forward_bmkernel(
-      *bm168x_kernel::getInstance().m_CTX, m_MemOperands[0]->m_Addr,
-      m_MemOperands[1]->m_Addr, m_MemOperands[2]->m_Addr,
-      m_MemOperands[3]->m_Addr, m_InRowNum, m_InColNum, m_OutColNum, m_HaveBias,
-      m_UsingRelu, m_WeightTp);
+  bmnet::bmnet_asm::bmnet_fc_forward_bmkernel(
+      m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr,
+      m_MemOperands[2]->m_Addr, m_MemOperands[3]->m_Addr, m_InRowNum,
+      m_InColNum, m_OutColNum, m_HaveBias, m_UsingRelu, m_WeightTp);
 }

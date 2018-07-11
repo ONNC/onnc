@@ -124,19 +124,6 @@ set(ONNX_LIBRARIES
     ${ONNX_INSTALL_DIR}/lib/libonnx.a
     ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
     
-if (TARGET_TG)
-    find_package(Boost COMPONENTS program_options system REQUIRED)
-    set(BMTAP_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap2 install path")
-    set(BMTAP_SOURCE_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap2 source path")
-    set(BMTAP_BINARY_DIR ${ONNC_BINARY_DIR} CACHE PATH "bmtap2 binary path")
-    set(BMLIB 
-        ${Boost_LIBRARIES}
-        ${BMTAP_INSTALL_DIR}/lib/libbmnet.so
-        ${BMTAP_INSTALL_DIR}/lib/libbmutils.so
-        ${BMTAP_INSTALL_DIR}/lib/libbmruntime.so
-        ${BMTAP_INSTALL_DIR}/lib/libbmkernel-static.a)
-endif()
-
 ####################
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)

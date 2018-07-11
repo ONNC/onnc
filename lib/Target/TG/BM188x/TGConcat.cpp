@@ -1,8 +1,8 @@
 #define DEBUG_TYPE "tg_concat"
 #include "TGConcat.h"
 #include "BM188xCodeEmitter.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {
@@ -52,10 +52,9 @@ void TGConcat::emit() const
     input_addr.push_back(m_MemOperands[i]->m_Addr);
 
   bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX, input_addr.data(),
-      m_MemOperands[1]->m_Addr, const_cast<int *>(m_InputDims.data()),
-      m_InputDims.size(), m_ConcatAxis, m_OutputDim.size(),
-      const_cast<int *>(m_OutputDim.data()));
+      input_addr.data(), m_MemOperands[1]->m_Addr,
+      const_cast<int *>(m_InputDims.data()), m_InputDims.size(), m_ConcatAxis,
+      m_OutputDim.size(), const_cast<int *>(m_OutputDim.data()));
 }
 
 } // namespace BM188X

@@ -1,8 +1,8 @@
 #define DEBUG_TYPE "tg_prelu"
 #include "TGPRelu.h"
 #include "BM188xCodeEmitter.h"
-#include <bmnet/targets/plat-bm188x/bmkernel/bmkernel_api.h>
 #include <onnc/Support/Debug.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 namespace onnc {
 namespace BM188X {
@@ -48,19 +48,18 @@ void TGPRelu::emit() const
   DEBUG(print(dbgs()));
 
   bmnet::bmnet_asm::bmnet_prelu_fixed_forward_bmkernel(
-      *bm1880_kernel::getInstance().m_CTX, // bmnet context
-      m_MemOperands[0]->m_Addr,            // input_gaddr
-      m_MemOperands[1]->m_Addr,            // slope_gaddr
-      m_MemOperands[2]->m_Addr,            // output_gaddr
-      m_ChannelShared,                     // channel_shared
-      m_Slope,                             // slope
-      m_N,                                 // input_n
-      m_C,                                 // input_c
-      m_H,                                 // input_h
-      m_W,                                 // input_w
-      m_GTScale,                           // GT_scale
-      m_GTRShiftWidth,                     // GT_right_shift_width
-      m_LERShiftWidth);                    // LE_right_shift_width
+      m_MemOperands[0]->m_Addr, // input_gaddr
+      m_MemOperands[1]->m_Addr, // slope_gaddr
+      m_MemOperands[2]->m_Addr, // output_gaddr
+      m_ChannelShared,          // channel_shared
+      m_Slope,                  // slope
+      m_N,                      // input_n
+      m_C,                      // input_c
+      m_H,                      // input_h
+      m_W,                      // input_w
+      m_GTScale,                // GT_scale
+      m_GTRShiftWidth,          // GT_right_shift_width
+      m_LERShiftWidth);         // LE_right_shift_width
 }
 
 void TGPRelu::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
