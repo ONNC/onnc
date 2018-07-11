@@ -100,5 +100,6 @@ AC_CONFIG_FILES([tools/unittests/Makefile])
 AC_CONFIG_FILES([tools/onnc/Makefile])
 AC_CONFIG_FILES([tools/readonnx/Makefile])
 AC_CONFIG_FILES([tools/onnx2tg/Makefile])
+AC_CONFIG_FILES([tools/onnc-jit/Makefile])
 
 AC_OUTPUT
