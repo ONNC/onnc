@@ -32,7 +32,7 @@ private:
   ComputeOperator2 *LowerAveragePool(const ::onnx::Node &pNode,
                                      ComputeGraph &pGraph);
   ComputeOperator2 *LowerGemm(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerReshape(const ::onnx::Node &pNode);
+  ComputeOperator2 *Lower2NopInst(const ::onnx::Node &pNode);
   ComputeOperator2 *LowerFlatten(const ::onnx::Node &pNode);
   ComputeOperator2 *LowerSum(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerUpsample(const ::onnx::Node &pNode,

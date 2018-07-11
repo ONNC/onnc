@@ -136,22 +136,11 @@ ComputeOperator2 *BM188xISelLowering::LowerUpsample(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerReshape(const ::onnx::Node &pNode)
+ComputeOperator2 *BM188xISelLowering::Lower2NopInst(const ::onnx::Node &pNode)
 {
-  // reshape is in-place layer
+  // emit nop instruction
+  // nop is in-place layer
   // create MemOperand by input value with output name
-  // reshape emit nop instruction
-  m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON,
-                            pNode.outputs()[0]->uniqueName());
-  return nullptr;
-}
-
-ComputeOperator2 *BM188xISelLowering::LowerFlatten(const ::onnx::Node &pNode)
-{
-  // flatten is in-place layer
-  // create MemOperand by input value with output name
-  // reshape emit nop instruction
   m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON,
                             pNode.outputs()[0]->uniqueName());
@@ -188,12 +177,11 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
                << ", type=" << node.kind().toString() << "\n";);
 
   uint32_t symbol = pNode.kind();
-  if (symbol == ::onnx::Symbol("Undefined"))
+  if (symbol == ::onnx::Symbol("Undefined")) {
     return nullptr;
-  else if (symbol == ::onnx::Symbol("Reshape")) {
-    return LowerReshape(pNode);
-  } else if (symbol == ::onnx::Symbol("Flatten")) {
-    return LowerFlatten(pNode);
+  } else if (symbol == ::onnx::Symbol("Reshape") ||
+             symbol == ::onnx::Symbol("Flatten")) {
+    return Lower2NopInst(pNode);
   } else if (symbol == ::onnx::Symbol("Concat")) {
     return LowerConcat(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Conv")) {
@@ -215,7 +203,7 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
   } else if (symbol == ::onnx::Symbol("Transpose")) {
     return LowerTranspose(pNode, pGraph);
   }
-  DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
-               << std::endl;);
+  std::cout << "Warning: unsupported node type: " << pNode.kind().toString()
+            << "\n";
   return nullptr;
 }
