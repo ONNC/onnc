@@ -471,7 +471,7 @@ def get_tg():
     cur_inst.add_param("sqrt_lut_gaddr").set_type("gaddr_t")
     cur_inst.add_param("across_spatial").set_type("bool")
     cur_inst.add_param("channel_shared").set_type("bool")
-    cur_inst.add_param("scales").set_type("int").set_c_array(0)
+    cur_inst.add_param("scales").set_type("int").set_c_array("input_c")
     cur_inst.add_param("input_n").set_type("int")
     cur_inst.add_param("input_c").set_type("int")
     cur_inst.add_param("input_h").set_type("int")

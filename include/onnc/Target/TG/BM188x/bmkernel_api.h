@@ -814,7 +814,7 @@ inline void bmnet_normalize_fixed_forward_bmkernel(
         normalize->set_sqrt_lut_gaddr(sqrt_lut_gaddr);
         normalize->set_across_spatial(across_spatial);
         normalize->set_channel_shared(channel_shared);
-        for (size_t i = 0; i < (size_t)0; i++)
+        for (size_t i = 0; i < (size_t)input_c; i++)
             normalize->add_scales(scales[i]);
         normalize->set_input_n(input_n);
         normalize->set_input_c(input_c);
