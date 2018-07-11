@@ -128,6 +128,7 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 
   pWeight.reserve(weight_size);
 
+  // TODO save the weight on the address of MemOperand
   for (auto &inst : m_Backend->getInsts()) {
 
     // handle special case

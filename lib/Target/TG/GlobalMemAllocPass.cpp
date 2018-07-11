@@ -42,26 +42,33 @@ void GlobalMemAlloc::AllocGlobalMem()
 
   DEBUG(dbgs() << __func__ << " dump global memory layout:"
                << "\n";);
+
+  // FIXME memory allocation only need to traverse MemOperands in order
+  // but currently CodeEmitter's prepareWeight function can't save the weight
+  // on the address of MemOperand. So we need to sync the traverse order
+  // between MemAlloc and prepareWeight now.
   std::unordered_map<const ::onnx::Value *, MemOperand *> allocatedValue;
-  for (auto &mem : m_pTarget->getMemOperands()) {
-    int tensor_size = 0;
-    if (allocatedValue.count(mem->m_Value)) {
-      mem->m_Addr = allocatedValue[mem->m_Value]->m_Addr;
-      mem->m_Size = allocatedValue[mem->m_Value]->m_Size;
-      continue;
+  for (auto &inst : m_pTarget->getInsts()) {
+    for (auto &mem : inst->getMemOperands()) {
+      int tensor_size = 0;
+      if (allocatedValue.count(mem->m_Value)) {
+        mem->m_Addr = allocatedValue[mem->m_Value]->m_Addr;
+        mem->m_Size = allocatedValue[mem->m_Value]->m_Size;
+        continue;
+      }
+      if (mem->m_MemType == MemType::NEURON) {
+        mem->m_Addr = neuron_offset;
+        tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
+        neuron_offset += tensor_size;
+      } else if (mem->m_MemType == MemType::WEIGHT) {
+        mem->m_Addr = weight_offset;
+        tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
+        weight_offset += tensor_size;
+      }
+      mem->m_Size = tensor_size;
+      allocatedValue.insert({ mem->m_Value, mem });
+      DEBUG(dbgs() << tab << mem << "\n");
     }
-    if (mem->m_MemType == MemType::NEURON) {
-      mem->m_Addr = neuron_offset;
-      tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
-      neuron_offset += tensor_size;
-    } else if (mem->m_MemType == MemType::WEIGHT) {
-      mem->m_Addr = weight_offset;
-      tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
-      weight_offset += tensor_size;
-    }
-    mem->m_Size = tensor_size;
-    allocatedValue.insert({ mem->m_Value, mem });
-    DEBUG(dbgs() << tab << mem << "\n");
   }
 }
 
