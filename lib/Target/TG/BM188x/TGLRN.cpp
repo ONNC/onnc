@@ -22,6 +22,13 @@ TGLRN::TGLRN(const ::onnx::Node &pNode)
   m_LocalSize = pNode.i(::onnx::Symbol("size"));
 }
 
+TGLRN *TGLRN::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
+{
+  m_MemOperands.push_back(pInput);
+  m_MemOperands.push_back(pOutput);
+  return this;
+}
+
 void TGLRN::TGLRN::emit() const
 {
   std::cout << "TGLRUN::emit\tm_inputAddr:" << m_MemOperands[0]->m_Addr

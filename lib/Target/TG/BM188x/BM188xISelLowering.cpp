@@ -163,6 +163,15 @@ ComputeOperator2 *BM188xISelLowering::LowerUpsample(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerLRN(const ::onnx::Node &pNode,
+                                               ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGLRN(pNode);
+  return op->addMemOperands(input, output);
+}
+
 ComputeOperator2 *BM188xISelLowering::Lower2NopInst(const ::onnx::Node &pNode)
 {
   // emit nop instruction
@@ -235,6 +244,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerTLLoad(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("TLStore")) {
     return LowerTLStore(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("LRN")) {
+    return LowerLRN(pNode, pGraph);
   }
   std::cout << "Warning: unsupported node type: " << pNode.kind().toString()
             << "\n";

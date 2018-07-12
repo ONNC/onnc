@@ -14,6 +14,8 @@ class TGLRN : public BM188xComputeOperator
 public:
   TGLRN(const ::onnx::Node &pNode);
 
+   TGLRN *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
+
   void emit() const override;
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override

@@ -127,6 +127,9 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
       // Do nothing.
     } else if (symbol == onnx::Symbol("BatchNormalization")) {
       layer_cal_param->set_right_shift_width(0);
+      // Do nothing.
+    } else if (symbol == onnx::Symbol("LRN")) {
+      // FIXME: fp.tsai@iclink.tw
     } else {
       // FIXME: Add assert in the future.
       errs() << "Error: Unsupport op type " << node->kind().toString()
