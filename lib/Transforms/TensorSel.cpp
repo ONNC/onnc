@@ -5,8 +5,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <onnc/IR/IRBuilder.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Core/PassSupport.h>
+#include <tuple>
+#include <stack>
 
 using namespace onnc;
 
@@ -29,7 +32,47 @@ TensorSel::~TensorSel()
 
 Pass::ReturnType TensorSel::runOnModule(::onnc::Module &pModule)
 {
-  // TODO
+  typedef std::tuple<::onnx::Graph*, ComputeGraph*,
+                     ::onnx::graph_node_list_iterator> tag;
+  std::stack<tag> worklist;
+
+  ::onnx::Graph* topOnnxG = pModule.getGraphIR().get();
+  ComputeGraph* topCG = pModule.begin()->value();
+
+  worklist.push(tag{topOnnxG, topCG, topOnnxG->begin()});
+
+  IRBuilder builder(pModule);
+
+  // iterative based dfs lowering onnx graph.
+  while (!worklist.empty()) {
+    ::onnx::Graph* onnxG;
+    ComputeGraph* computeG;
+    ::onnx::graph_node_list_iterator onnxNIter;
+
+    std::tie(onnxG, computeG, onnxNIter) = worklist.top();
+    worklist.pop();
+
+    while (onnxNIter != onnxG->end()) {
+      ::onnx::Node* onnxN = *onnxNIter;
+      ++onnxNIter;
+      if (onnxN->kind() == ::onnx::kUndefined)
+        continue;
+
+      // create new compute graph if this is subgraph node.
+      if (onnxN->hasAttribute(::onnx::kSubgraph)) {
+        // push current onto stack, lower new subgraph first.
+        worklist.push(tag{onnxG, computeG, onnxNIter});
+
+        onnxG = &*onnxN->g(::onnx::kSubgraph);
+        computeG = builder.CreateComputeGraph(onnxG->name());
+        onnxNIter = onnxG->begin();
+      } else {
+        Lower* lower = m_LowerRegistry.lookup(*onnxN);
+        lower->activate(*computeG, *onnxN);
+      }
+    }
+  }
+
   return Pass::kModuleChanged;
 }
 
