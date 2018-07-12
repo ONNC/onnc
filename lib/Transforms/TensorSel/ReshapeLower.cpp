@@ -5,10 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TRANSFORMS_TENSOR_SELECTION_STANDARD_RESHAPELOWER_H
-#define ONNC_TRANSFORMS_TENSOR_SELECTION_STANDARD_RESHAPELOWER_H
 #include <onnc/Transforms/TensorSel/Lower.h>
-#include <onnc/Transfroms/TensorSel/Standards/ReshapeLower.h>
+#include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
 
 using namespace onnc;
 

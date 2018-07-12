@@ -5,10 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TRANSFORMS_TENSOR_SELECTION_STANDARD_AVERAGEPOOLLOWER_H
-#define ONNC_TRANSFORMS_TENSOR_SELECTION_STANDARD_AVERAGEPOOLLOWER_H
 #include <onnc/Transforms/TensorSel/Lower.h>
-#include <onnc/Transfroms/TensorSel/Standards/AveragePoolLower.h>
+#include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
 
 using namespace onnc;
 

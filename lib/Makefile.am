@@ -35,6 +35,18 @@ ONNC_SOURCES = \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
+	Transforms/TensorSel/AddLower.cpp \
+	Transforms/TensorSel/ConvLower.cpp \
+	Transforms/TensorSel/SoftmaxLower.cpp \
+	Transforms/TensorSel/AveragePoolLower.cpp \
+	Transforms/TensorSel/GemmLower.cpp \
+	Transforms/TensorSel/MaxPoolLower.cpp \
+	Transforms/TensorSel/SumLower.cpp \
+	Transforms/TensorSel/BatchNormalizationLower.cpp \
+	Transforms/TensorSel/LRNLower.cpp \
+	Transforms/TensorSel/ReluLower.cpp \
+	Transforms/TensorSel/ConcatLower.cpp \
+	Transforms/TensorSel/ReshapeLower.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
