@@ -14,6 +14,7 @@
 #include "TGUpsample.h"
 #include "TLConv.h"
 #include "TLLoad.h"
+#include "TLStore.h"
 #include <onnc/Support/Debug.h>
 
 using namespace onnc;
@@ -66,6 +67,13 @@ ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const ::onnx::Node &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLLoad(pNode);
+  return op;
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerTLStore(const ::onnx::Node &pNode,
+                                                   ComputeGraph &pGraph)
+{
+  auto *op = new BM188X::TLStore(pNode);
   return op;
 }
 
@@ -225,6 +233,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerTranspose(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("TLLoad")) {
     return LowerTLLoad(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("TLStore")) {
+    return LowerTLStore(pNode, pGraph);
   }
   std::cout << "Warning: unsupported node type: " << pNode.kind().toString()
             << "\n";
