@@ -15,6 +15,7 @@ namespace onnc {
 class TargetMemInfo;
 class TargetOptions;
 class TargetTransformInfo;
+class LowerRegistry;
 
 class TargetBackend
 {
@@ -30,6 +31,9 @@ public:
   virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
 
   virtual const TargetTransformInfo* getTTI() const { return nullptr; }
+
+  /// For the backend using standard TensorSel pass.
+  virtual void RegisterLowers(LowerRegistry& pRegistry) const { return; }
 };
 
 } // namespace of onnc

@@ -56,6 +56,11 @@ X86_32Backend::~X86_32Backend()
 {
 }
 
+void X86_32Backend::RegisterLowers(LowerRegistry& pRegistry) const
+{
+  // TODO
+}
+
 //===----------------------------------------------------------------------===//
 // X86_64Backend
 //===----------------------------------------------------------------------===//
@@ -65,6 +70,11 @@ X86_64Backend::X86_64Backend(const TargetOptions& pOptions)
 
 X86_64Backend::~X86_64Backend()
 {
+}
+
+void X86_64Backend::RegisterLowers(LowerRegistry& pRegistry) const
+{
+  // TODO
 }
 
 //===----------------------------------------------------------------------===//

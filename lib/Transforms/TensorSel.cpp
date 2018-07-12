@@ -17,6 +17,9 @@ char TensorSel::ID = 0;
 //===----------------------------------------------------------------------===//
 TensorSel::TensorSel(const TargetBackend* pBackend)
   : ModulePass(ID), m_pBackend(pBackend), m_LowerRegistry() {
+  if (nullptr != m_pBackend) {
+    m_pBackend->RegisterLowers(m_LowerRegistry);
+  }
 }
 
 TensorSel::~TensorSel()
