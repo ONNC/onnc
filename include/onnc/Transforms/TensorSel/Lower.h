@@ -31,11 +31,20 @@ public:
 public:
   virtual ~Lower() = 0;
 
-  int isMe(const ::onnx::Node& pNode) const { return m_MatchFn(pNode); }
+  /// If a backend doesn't want to use single quailty-match function, then
+  /// we shall allow them to override this function.
+  virtual int isMe(const ::onnx::Node& pNode) const { return m_MatchFn(pNode); }
 
+  /// In case a backend defines a single quality-match function.
   void setQualityMatchFn(QualityMatchFnTy pFn) { m_MatchFn = pFn; }
 
-  virtual ComputeOperator* lower(InsertionPoint& pISP, ::onnx::Node& pNode) const = 0;
+  /// Abstract interface for lowering process.
+  /// Create corresponding ComputeOperator according to @ref pNode and insert it
+  /// in @ref pCG.
+  ///
+  /// @return The created ComputeOperator.
+  /// @retval nullptr failed
+  virtual ComputeOperator* activate(ComputeGraph& pCG, ::onnx::Node& pNode) const = 0;
 
   std::string name() { return m_Name; }
 
@@ -48,6 +57,6 @@ protected:
   QualityMatchFnTy m_MatchFn;
 };
 
-}
+} // namespace of onnc
 
 #endif
