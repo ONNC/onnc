@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class ReluLowerLower : public Lower
+class ReluLower : public Lower
 {
 public:
-  ReluLowerLower();
+  ReluLower();
 
-  ~ReluLowerLower();
+  ~ReluLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

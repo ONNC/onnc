@@ -1,4 +1,4 @@
-//===- SoftmaxLower.h ------------------------------------------------------===//
+//===- SoftmaxLower.h -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class SoftmaxLowerLower : public Lower
+class SoftmaxLower : public Lower
 {
 public:
-  SoftmaxLowerLower();
+  SoftmaxLower();
 
-  ~SoftmaxLowerLower();
+  ~SoftmaxLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

@@ -1,4 +1,4 @@
-//===- LRNLower.h --------------------------------------------------------===//
+//===- LRNLower.h ---------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class LRNLowerLower : public Lower
+class LRNLower : public Lower
 {
 public:
-  LRNLowerLower();
+  LRNLower();
 
-  ~LRNLowerLower();
+  ~LRNLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

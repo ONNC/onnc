@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class AveragePoolLowerLower : public Lower
+class AveragePoolLower : public Lower
 {
 public:
-  AveragePoolLowerLower();
+  AveragePoolLower();
 
-  ~AveragePoolLowerLower();
+  ~AveragePoolLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

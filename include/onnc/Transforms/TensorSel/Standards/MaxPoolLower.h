@@ -1,4 +1,4 @@
-//===- MaxPoolLower.h ------------------------------------------------------===//
+//===- MaxPoolLower.h -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class MaxPoolLowerLower : public Lower
+class MaxPoolLower : public Lower
 {
 public:
-  MaxPoolLowerLower();
+  MaxPoolLower();
 
-  ~MaxPoolLowerLower();
+  ~MaxPoolLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

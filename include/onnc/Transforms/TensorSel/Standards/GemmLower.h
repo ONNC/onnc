@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class GemmLowerLower : public Lower
+class GemmLower : public Lower
 {
 public:
-  GemmLowerLower();
+  GemmLower();
 
-  ~GemmLowerLower();
+  ~GemmLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

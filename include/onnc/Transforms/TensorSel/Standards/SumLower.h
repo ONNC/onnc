@@ -1,4 +1,4 @@
-//===- SumLower.h --------------------------------------------------------===//
+//===- SumLower.h ---------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class SumLowerLower : public Lower
+class SumLower : public Lower
 {
 public:
-  SumLowerLower();
+  SumLower();
 
-  ~SumLowerLower();
+  ~SumLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

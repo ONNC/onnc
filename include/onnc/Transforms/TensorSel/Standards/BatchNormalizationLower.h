@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class BatchNormalizationLowerLower : public Lower
+class BatchNormalizationLower : public Lower
 {
 public:
-  BatchNormalizationLowerLower();
+  BatchNormalizationLower();
 
-  ~BatchNormalizationLowerLower();
+  ~BatchNormalizationLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 

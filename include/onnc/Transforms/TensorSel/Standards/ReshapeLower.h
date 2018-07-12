@@ -1,4 +1,4 @@
-//===- ReshapeLower.h ------------------------------------------------------===//
+//===- ReshapeLower.h -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,12 +11,12 @@
 
 namespace onnc {
 
-class ReshapeLowerLower : public Lower
+class ReshapeLower : public Lower
 {
 public:
-  ReshapeLowerLower();
+  ReshapeLower();
 
-  ~ReshapeLowerLower();
+  ~ReshapeLower();
 
   int isMe(const ::onnx::Node& pNode) const override;
 
