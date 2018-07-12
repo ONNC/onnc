@@ -8,8 +8,7 @@
 #ifndef ONNC_TRANSFORM_LOWER_H
 #define ONNC_TRANSFORM_LOWER_H
 #include <onnc/IR/ComputeOperator.h>
-#include <onnc/IR/Module.h>
-#include <onnc/IR/InsertionPoint.h>
+#include <onnc/IR/ComputeGraph.h>
 #include <onnx/common/ir.h>
 #include <string>
 
@@ -31,6 +30,12 @@ public:
   void setQualityMatchFn(QualityMatchFnTy pFn) { m_MatchFn = pFn; }
 
   virtual ComputeOperator* lower(InsertionPoint& pISP, ::onnx::Node& pNode) const = 0;
+
+  std::string name() { return m_Name; }
+
+  const std::string& name() const { return m_Name; }
+
+  void setName(const std::string& pName) { m_Name = pName; }
 
 protected:
   std::string m_Name;
