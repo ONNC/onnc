@@ -18,7 +18,7 @@ char PreTensorSel::ID = 0;
 //===----------------------------------------------------------------------===//
 // PreTensorSel
 //===----------------------------------------------------------------------===//
-Pass::ReturnType runOnModule(::onnc::Module &pModule)
+Pass::ReturnType PreTensorSel::runOnModule(::onnc::Module &pModule)
 {
   IRBuilder builder(pModule);
 
