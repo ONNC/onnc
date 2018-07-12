@@ -157,7 +157,6 @@ SKYPAT_F(TensorSelTest, select_stanard_graph)
   pm.step(module, state);
   errs() << state.pass->getPassName() << std::endl;
 
-  tensor_selection->getLowerRegistry().add(ConvLower);
   // TensorSel
   pm.step(module, state);
   errs() << state.pass->getPassName() << std::endl;
