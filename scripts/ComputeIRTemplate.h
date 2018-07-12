@@ -24,13 +24,17 @@ public:
 public:
   ${OperatorName}();
 
+  // clang-format off
   ${ConstructorByAttributes}
+  // clang-format on
   // shallow copy constructor.
-  ${OperatorName}(const ${OperatorName}& pCopy);
+  ${OperatorName}(const ${OperatorName} &pCopy);
 
   ~${OperatorName}() { }
 
+  // clang-format off
   ${AttributesGetters}
+  // clang-format on
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -39,15 +43,20 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
   ${InputsGetters}
   ${OutputsGetters}
   ${InputsSetters}
   ${OutputsSetters}
+  // clang-format on
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
+  // clang-format off
 private:
   ${AttributesMemberVariables}
+  // clang-format on
 };
 
 } // namespace of onnc
