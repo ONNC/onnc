@@ -41,10 +41,9 @@ Pass::ReturnType bm188x::PreTensorSel::runOnModule(::onnc::Module &pModule)
 
   tensor = pModule.getGraphIR()->initializers().begin();
   while (tensor != tEnd) {
-    builder.AddComputeOp<onnc::Initializer>(*tname);
-    // TODO: setTensor
-    ++tensor;
-    ++tname;
+    Initializer* initializer = builder.AddComputeOp<onnc::Initializer>(*tname);
+    initializer->setTensor(tensor++);
+    initializer->setName(tname++);
   }
   return Pass::kModuleNoChanged;
 }
