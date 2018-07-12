@@ -9,6 +9,7 @@
 #define ONNC_TRANSFORM_TENSOR_SELECTION_H
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Target/TargetBackend.h>
+#include <onnc/Transforms/TensorSel/LowerRegistry.h>
 
 namespace onnc {
 
@@ -30,6 +31,7 @@ public:
 
 protected:
   const TargetBackend* m_pBackend;
+  LowerRegistry m_LowerRegistry;
 };
 
 ModulePass *CreateTensorSel(const TargetBackend* pBackend);

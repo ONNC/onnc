@@ -6,47 +6,77 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
-#include <onnc/Support/ManagedStatic.h>
 
 using namespace onnc;
-
-static ManagedStatic<LowerRegistry::LowerList> s_LowerList;
 
 //===----------------------------------------------------------------------===//
 // LowerRegistry
 //===----------------------------------------------------------------------===//
-void
-LowerRegistry::RegisterLower(Lower& pLower, Lower::QualityMatchFnTy pMatchFn)
-{
-  pLower.setQualityMatchFn(pMatchFn);
-  s_LowerList->push_back(&pLower);
+LowerRegistry::LowerRegistry()
+  : m_LowerList() {
 }
 
-LowerRegistry::iterator LowerRegistry::Begin()
+LowerRegistry::~LowerRegistry()
 {
-  return s_LowerList->begin();
+  clear();
 }
 
-LowerRegistry::iterator LowerRegistry::End()
+LowerRegistry::iterator LowerRegistry::begin()
 {
-  return s_LowerList->end();
+  return m_LowerList.begin();
 }
 
-bool LowerRegistry::IsEmpty()
+LowerRegistry::iterator LowerRegistry::end()
 {
-  return s_LowerList->empty();
+  return m_LowerList.end();
 }
 
-unsigned int LowerRegistry::Size()
+LowerRegistry::const_iterator LowerRegistry::begin() const
 {
-  return s_LowerList->size();
+  return m_LowerList.begin();
 }
 
-Lower* LowerRegistry::LookUp(const ::onnx::Node& pNode)
+LowerRegistry::const_iterator LowerRegistry::end() const
+{
+  return m_LowerList.end();
+}
+
+bool LowerRegistry::empty() const
+{
+  return m_LowerList.empty();
+}
+
+unsigned int LowerRegistry::size() const
+{
+  return m_LowerList.size();
+}
+
+void LowerRegistry::clear()
+{
+  iterator lower, lEnd = end();
+  for (lower = begin(); lower != lEnd; ++lower) {
+    delete *lower;
+  }
+  m_LowerList.clear();
+}
+
+Lower* LowerRegistry::lookup(const ::onnx::Node& pNode)
 {
   int max = 0;
   Lower* target = nullptr;
-  for (Lower* lower : *s_LowerList) {
+  for (Lower* lower : m_LowerList) {
+    int score = lower->isMe(pNode);
+    if (score > max)
+      target = lower;
+  }
+  return target;
+}
+
+const Lower* LowerRegistry::lookup(const ::onnx::Node& pNode) const
+{
+  int max = 0;
+  const Lower* target = nullptr;
+  for (const Lower* lower : m_LowerList) {
     int score = lower->isMe(pNode);
     if (score > max)
       target = lower;

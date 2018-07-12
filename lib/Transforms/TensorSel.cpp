@@ -16,11 +16,12 @@ char TensorSel::ID = 0;
 // TensorSel
 //===----------------------------------------------------------------------===//
 TensorSel::TensorSel(const TargetBackend* pBackend)
-  : ModulePass(ID), m_pBackend(pBackend) {
+  : ModulePass(ID), m_pBackend(pBackend), m_LowerRegistry() {
 }
 
 TensorSel::~TensorSel()
 {
+  m_LowerRegistry.clear();
 }
 
 Pass::ReturnType TensorSel::runOnModule(::onnc::Module &pModule)
