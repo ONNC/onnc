@@ -11,7 +11,8 @@ TEST_SOURCES = DigraphTest.cpp \
 	StringMapTest.cpp \
 	JsonValueTest.cpp \
 	JsonObjectTest.cpp \
-	ComputeIRTest.cpp
+	ComputeIRTest.cpp \
+	TensorSelTest.cpp
 endif
 
 if ENABLE_REGRESSION
