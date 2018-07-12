@@ -15,6 +15,8 @@ public:
 public:
   RemoveUnusedNodes() : ModulePass(ID) {}
 
+  StringRef getPassName() const override { return "RemoveUnusedNodes"; }
+
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
     ::onnx::Graph *graph = pModule.getGraphIR().get();

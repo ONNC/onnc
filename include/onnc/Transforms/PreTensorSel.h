@@ -26,6 +26,8 @@ public:
   ~PreTensorSel() { }
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
+
+  StringRef getPassName() const override { return "PreTensorSel"; }
 };
 
 ModulePass *CreatePreTensorSel();

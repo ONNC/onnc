@@ -29,6 +29,12 @@ public:
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
+  LowerRegistry& getLowerRegistry() { return m_LowerRegistry; }
+
+  const LowerRegistry& getLowerRegistry() const { return m_LowerRegistry; }
+
+  StringRef getPassName() const override { return "TensorSel"; }
+
 protected:
   const TargetBackend* m_pBackend;
   LowerRegistry m_LowerRegistry;
