@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/IR/ComputeGraph.h>
+#include <onnc/IR/Module.h>
 
 using namespace onnc;
 
@@ -20,12 +21,18 @@ ComputeGraph::ComputeGraph(const std::string& pName,
     m_pNodeHead(nullptr),
     m_pNodeRear(nullptr),
     m_NodeList(),
-    m_ArcList(pArcList) {
+    m_ArcList(pArcList),
+    m_ValueList(pModule.getValueList()) {
 }
 
 ComputeGraph::~ComputeGraph()
 {
   clear();
+}
+
+void ComputeGraph::addValue(Value* pValue)
+{
+  m_Module.addValue(pValue);
 }
 
 void ComputeGraph::erase(ComputeOperator& pNode)

@@ -134,6 +134,11 @@ Module::~Module()
     error(onnx_graph_alive);
   }
   m_pOnnxGraph.reset();
+  for (auto entry : m_Values) {
+    Value* v = entry.value();
+    delete v;
+  }
+  m_Values.clear();
 }
 
 Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
@@ -181,6 +186,20 @@ ComputeGraph* Module::createComputeGraph(StringRef pName)
 
   entry->setValue(new ComputeGraph(pName, *this, m_ComputeOperands));
   return entry->value();
+}
+
+void Module::addValue(Value* pValue)
+{
+  bool exist = false;
+  auto* entry = m_Values.insert(pValue->getName(), exist);
+  if (exist)
+    return;
+  entry->setValue(pValue);
+}
+
+Module::ValueList& Module::getValueList()
+{
+  return m_Values;
 }
 
 void Module::print(std::ostream& pOS) const

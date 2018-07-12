@@ -41,6 +41,14 @@ ComputeGraph& ComputeGraph::addOperator(OpType& pOperator)
   return *this;
 }
 
+template<typename ValueType, typename ... ValueCtorParams>
+ValueType* ComputeGraph::addValue(ValueCtorParams&& ... pParams)
+{
+  ValueType* result = new ValueType(pParams...);
+  this->addValue(result);
+  return result;
+}
+
 template<typename OpndType, typename ... ArcCtorParams>
 OpndType* ComputeGraph::addOperand(Node& pU, Node& pV, ArcCtorParams&& ... pParams)
 {

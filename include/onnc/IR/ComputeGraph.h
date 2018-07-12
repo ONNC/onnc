@@ -8,6 +8,7 @@
 #ifndef ONNC_IR_COMPUTE_GRAPH_H
 #define ONNC_IR_COMPUTE_GRAPH_H
 #include <onnc/ADT/Bits/PolicyNodeIterator.h>
+#include <onnc/ADT/StringMap.h>
 #include <onnc/ADT/TypeTraits.h>
 #include <onnc/Support/MemoryPool.h>
 #include <onnc/IR/ComputeOperator.h>
@@ -25,6 +26,8 @@ class ComputeGraph
 {
 public:
   typedef std::unordered_set<ComputeOperand*> ArcList;
+
+  typedef StringMap<Value*> ValueList;
 
 public:
   typedef ComputeOperator Node;
@@ -60,6 +63,11 @@ public:
   /// node.
   template<typename OpType>
   ComputeGraph& addOperator(OpType& pOperator);
+
+  template<typename ValueType, typename ... ValueCtorParams>
+  ValueType* addValue(ValueCtorParams&& ... pParams);
+
+  void addValue(Value* pValue);
 
   template<typename OpndType, typename ... ArcCtorParams>
   OpndType* addOperand(Node& pU, Node& pV, ArcCtorParams&& ... pParams);
@@ -123,6 +131,7 @@ private:
   Node* m_pNodeRear;
   NodeList m_NodeList;
   ArcList& m_ArcList;
+  ValueList& m_ValueList;
 };
 
 #include "Bits/ComputeGraph.tcc"

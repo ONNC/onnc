@@ -32,6 +32,8 @@ public:
   typedef ComputeGraph::ArcList ComputeOperandList;
   typedef std::vector<onnc::Define*> ComputeDefineList;
 
+  typedef StringMap<Value*> ValueList;
+
   typedef std::map<std::string, int64_t> OpsetImport;
   typedef std::map<std::string, std::string> MetaDataMap;
 
@@ -151,6 +153,12 @@ public:
   /// @retval nullptr The graph already exists
   ComputeGraph* createComputeGraph(StringRef pName);
 
+  /// Add a value which is created by ComputeGraph.
+  /// Value is deleted by Module.
+  void addValue(Value* pValue);
+
+  ValueList& getValueList();
+
   // print the whole module to @ref pOS.
   void print(std::ostream& pOS) const;
 
@@ -176,6 +184,7 @@ private:
   ComputeGraphList m_ComputeGraphs;
   ComputeOperandList m_ComputeOperands;
   ComputeDefineList m_ComputeDefines;
+  ValueList m_Values;
 };
 
 template<> void Module::print<Module::OpsetImport>(std::ostream& pOS) const;
