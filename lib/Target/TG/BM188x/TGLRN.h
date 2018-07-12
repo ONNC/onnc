@@ -33,6 +33,9 @@ private:
   // bias
   float m_K;
   int m_LocalSize;
+  int m_SumRightShiftWidth;
+  int m_LrnRightShiftWidth;
+  int m_ThresholdXQuantized[2];
 };
 
 } // namespace BM188X
