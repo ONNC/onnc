@@ -43,6 +43,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/AddLower.cpp \
 	Transforms/TensorSel/AcosLower.cpp \
 	Transforms/TensorSel/AbsLower.cpp \
+	Transforms/TensorSel/AndLower.cpp \
 	Transforms/TensorSel/ATenLower.cpp \
 	Transforms/TensorSel/AffineLower.cpp \
 	Transforms/TensorSel/ConvLower.cpp \
