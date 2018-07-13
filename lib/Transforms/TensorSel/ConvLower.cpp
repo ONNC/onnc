@@ -31,4 +31,10 @@ int ConvLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 ConvLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
+  // check input/output name
+  // check default attributes
+  // create operators
+  // set default attributes
+  // set optional attributes
+  // set input/output
 }
