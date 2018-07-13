@@ -12,12 +12,12 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // LRN
 //===----------------------------------------------------------------------===//
-LRN::LRN()
+LRN::LRN(const IntAttr& pSize)
   : ComputeOperator("LRN"),
-    m_Alpha(),
-    m_Beta(),
-    m_Bias(),
-    m_Size() {
+    m_Alpha(1e-4f),
+    m_Beta(0.75f),
+    m_Bias(1.0f),
+    m_Size(pSize) {
 }
 
 LRN::LRN(const FloatAttr& pAlpha,

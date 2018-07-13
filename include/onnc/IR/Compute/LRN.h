@@ -23,7 +23,7 @@ public:
   };
 
 public:
-  LRN();
+  LRN(const IntAttr& pSize);
 
   LRN(const FloatAttr& pAlpha,
       const FloatAttr& pBeta,
@@ -37,6 +37,12 @@ public:
   const FloatAttr& getBeta() const { return m_Beta; }
 
   const FloatAttr& getBias() const { return m_Bias; }
+
+  void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
+
+  void setBeta(const FloatAttr& pBeta) { m_Beta = pBeta; }
+
+  void setBias(const FloatAttr& pBias) { m_Bias = pBias; }
 
   const IntAttr& getSize() const { return m_Size; }
 
