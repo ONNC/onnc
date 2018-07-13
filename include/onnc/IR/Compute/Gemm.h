@@ -45,6 +45,16 @@ public:
 
   const IntAttr& getTransB() const { return m_TransB; }
 
+  void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
+
+  void setBeta(const FloatAttr& pBeta) { m_Beta = pBeta; }
+
+  void setBroadcast(const IntAttr& pBroadcast) { m_Broadcast = pBroadcast; }
+
+  void setTransA(const IntAttr& pTransA) { m_TransA = pTransA; }
+
+  void setTransB(const IntAttr& pTransB) { m_TransB = pTransB; }
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -72,6 +82,7 @@ public:
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
 private:
   FloatAttr m_Alpha;
   FloatAttr m_Beta;

@@ -14,8 +14,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Gemm::Gemm()
   : ComputeOperator("Gemm"),
-    m_Alpha(),
-    m_Beta(),
+    m_Alpha(1.0),
+    m_Beta(1.0),
     m_Broadcast(),
     m_TransA(),
     m_TransB() {
