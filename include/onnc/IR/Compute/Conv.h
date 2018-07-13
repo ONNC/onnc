@@ -48,6 +48,18 @@ public:
 
   const IntsAttr& getStrides() const { return m_Strides; }
 
+  void setAutoPad(const StringAttr& pAutoPad)  { m_AutoPad = pAutoPad; }
+
+  void setDilations(const IntsAttr& pDilations)  { m_Dilations = pDilations; }
+
+  void setGroup(const IntAttr& pGroup)  { m_Group = pGroup; }
+
+  void setKernelShape(const IntsAttr& pKernelShape)  { m_KernelShape = pKernelShape; }
+
+  void setPads(const IntsAttr& pPads)  { m_Pads = pPads; }
+
+  void setStrides(const IntsAttr& pStrides)  { m_Strides = pStrides; }
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
