@@ -78,6 +78,9 @@ ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const ::onnx::Node &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLLoad(pNode);
+  auto *input_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  op->addMemOperands(input_memop);
   return op;
 }
 
@@ -85,6 +88,11 @@ ComputeOperator2 *BM188xISelLowering::LowerTLStore(const ::onnx::Node &pNode,
                                                    ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLStore(pNode);
+  // FIXME(arcbbb): It's a workaround.
+  // not to violate SSA, we add output value as input.
+  auto *output_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  op->addMemOperands(output_memop);
   return op;
 }
 

@@ -46,10 +46,9 @@ TLLoad::TLLoad(const ::onnx::Node &pNode)
 
 void TLLoad::emit() const {}
 
-TLLoad *TLLoad::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
+TLLoad *TLLoad::addMemOperands(MemOperand *pInput)
 {
   m_MemOperands.push_back(pInput);
-  m_MemOperands.push_back(pOutput);
   return this;
 }
 

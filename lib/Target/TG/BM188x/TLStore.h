@@ -16,7 +16,7 @@ public:
 
   void emit() const override;
   void print(OStream &pOS) const override;
-  TLStore *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
+  TLStore *addMemOperands(MemOperand *pOutput);
 
 private:
   uint64_t m_DstGOffset;

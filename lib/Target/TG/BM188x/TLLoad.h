@@ -16,7 +16,7 @@ public:
 
   void emit() const override;
   void print(OStream &pOS) const override;
-  TLLoad *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
+  TLLoad *addMemOperands(MemOperand *pInput);
 
 private:
   uint64_t m_SrcGOffset;

@@ -99,8 +99,8 @@ TLConv *TLConv::addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                                MemOperand *pWeight, MemOperand *pBias)
 {
   m_MemOperands.push_back(pInput);
-  m_MemOperands.push_back(pWeight);
   m_MemOperands.push_back(pOutput);
+  m_MemOperands.push_back(pWeight);
   if (pBias != nullptr) {
     assert(m_DoBias);
     m_MemOperands.push_back(pBias);

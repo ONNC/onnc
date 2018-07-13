@@ -46,9 +46,8 @@ TLStore::TLStore(const ::onnx::Node &pNode)
 
 void TLStore::emit() const {}
 
-TLStore *TLStore::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
+TLStore *TLStore::addMemOperands(MemOperand *pOutput)
 {
-  m_MemOperands.push_back(pInput);
   m_MemOperands.push_back(pOutput);
   return this;
 }
