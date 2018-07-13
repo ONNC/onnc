@@ -16,8 +16,6 @@ Sum::Sum()
   : ComputeOperator("Sum") {
 }
 
-
-
 void Sum::print(std::ostream& pOS) const
 {
 }

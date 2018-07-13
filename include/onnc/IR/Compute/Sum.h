@@ -24,10 +24,8 @@ public:
 
 public:
   Sum();
-
   
   ~Sum() { }
-
   
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
