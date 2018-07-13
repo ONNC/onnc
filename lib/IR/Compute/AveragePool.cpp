@@ -12,11 +12,11 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // AveragePool
 //===----------------------------------------------------------------------===//
-AveragePool::AveragePool()
+AveragePool::AveragePool(const IntsAttr& pKernelShape)
   : ComputeOperator("AveragePool"),
     m_AutoPad(),
     m_CountIncludePad(),
-    m_KernelShape(),
+    m_KernelShape(pKernelShape),
     m_Pads(),
     m_Strides() {
 }

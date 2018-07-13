@@ -23,7 +23,7 @@ public:
   };
 
 public:
-  AveragePool();
+  AveragePool(const IntsAttr& pKernelShape);
 
   AveragePool(const StringAttr& pAutoPad,
               const IntAttr& pCountIncludePad,
@@ -35,13 +35,21 @@ public:
 
   const StringAttr& getAutoPad() const { return m_AutoPad; }
 
+  void setAutoPad(const StringAttr& pAutoPad) { m_AutoPad = pAutoPad; }
+
   const IntAttr& getCountIncludePad() const { return m_CountIncludePad; }
+
+  void setCountIncludePad(const IntAttr& pCIP) { m_CountIncludePad = pCIP; }
 
   const IntsAttr& getKernelShape() const { return m_KernelShape; }
 
   const IntsAttr& getPads() const { return m_Pads; }
 
+  void setPads(const IntsAttr& pPads) { m_Pads = pPads; }
+
   const IntsAttr& getStrides() const { return m_Strides; }
+
+  void setStrides(const IntsAttr& pS) { m_Strides = pS; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -62,6 +70,7 @@ public:
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
 private:
   StringAttr m_AutoPad;
   IntAttr m_CountIncludePad;
