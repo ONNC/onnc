@@ -35,7 +35,11 @@ public:
 
   const IntAttr& getAxis() const { return m_Axis; }
 
+  void setAxis(const IntAttr& pAxis) { m_Axis = pAxis; }
+
   const IntAttr& getBroadcast() const { return m_Broadcast; }
+
+  void setBroadcast(const IntAttr& pB) { m_Broadcast = pB; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
