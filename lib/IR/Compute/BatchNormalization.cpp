@@ -14,10 +14,10 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 BatchNormalization::BatchNormalization()
   : ComputeOperator("BatchNormalization"),
-    m_Epsilon(),
-    m_IsTest(),
-    m_Momentum(),
-    m_Spatial() {
+    m_Epsilon(1e-5f),
+    m_IsTest(0),
+    m_Momentum(0.9f),
+    m_Spatial(1) {
 }
 
 BatchNormalization::BatchNormalization(const FloatAttr& pEpsilon,

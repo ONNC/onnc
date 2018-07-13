@@ -21,6 +21,8 @@ ONNC_SOURCES = \
 	IR/Compute/Abs.cpp \
 	IR/Compute/Add.cpp \
 	IR/Compute/Affine.cpp \
+	IR/Compute/AveragePool.cpp \
+	IR/Compute/BatchNormalization.cpp \
 	IR/Compute/Conv.cpp \
 	IR/Compute/Relu.cpp \
 	IR/Compute/LRN.cpp \

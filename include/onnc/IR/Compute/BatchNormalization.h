@@ -21,11 +21,12 @@ public:
     kX = 0,
     kScale = 1,
     kB = 2,
-    kMean = 3,
-    kVar = 4,
+    kInMean = 3,
+    kInVar = 4,
+
     kY = 0,
-    kMean = 1,
-    kVar = 2,
+    kOutMean = 1,
+    kOutVar = 2,
     kSavedMean = 3,
     kSavedVar = 4
   };
@@ -42,11 +43,19 @@ public:
 
   const FloatAttr& getEpsilon() const { return m_Epsilon; }
 
+  void setEpsilon(const FloatAttr& pE) { m_Epsilon = pE; }
+
   const IntAttr& getIsTest() const { return m_IsTest; }
+
+  void setIsTest(const IntAttr& pB) { m_IsTest = pB; }
 
   const FloatAttr& getMomentum() const { return m_Momentum; }
 
+  void setMomentum(const FloatAttr& pMomentum) { m_Momentum = pMomentum; }
+
   const IntAttr& getSpatial() const { return m_Spatial; }
+
+  void setSpatial(const IntAttr& pS) { m_Spatial = pS; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -62,15 +71,15 @@ public:
 
   Tensor* getB() { return getInput(kB); }
 
-  Tensor* getMean() { return getInput(kMean); }
+  Tensor* getInMean() { return getInput(kInMean); }
 
-  Tensor* getVar() { return getInput(kVar); }
+  Tensor* getInVar() { return getInput(kInVar); }
 
   Tensor* getY() { return getOutput(kY); }
 
-  Tensor* getMean() { return getOutput(kMean); }
+  Tensor* getOutMean() { return getOutput(kOutMean); }
 
-  Tensor* getVar() { return getOutput(kVar); }
+  Tensor* getOutVar() { return getOutput(kOutVar); }
 
   Tensor* getSavedMean() { return getOutput(kSavedMean); }
 
@@ -82,15 +91,15 @@ public:
 
   void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
 
-  void setMean(Tensor& pTensor) { m_Inputs[kMean] = &pTensor; }
+  void setInMean(Tensor& pTensor) { m_Inputs[kInMean] = &pTensor; }
 
-  void setVar(Tensor& pTensor) { m_Inputs[kVar] = &pTensor; }
+  void setInVar(Tensor& pTensor) { m_Inputs[kInVar] = &pTensor; }
 
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
 
-  void setMean(Tensor& pTensor) { m_Outputs[kMean] = &pTensor; }
+  void setOutMean(Tensor& pTensor) { m_Outputs[kOutMean] = &pTensor; }
 
-  void setVar(Tensor& pTensor) { m_Outputs[kVar] = &pTensor; }
+  void setOutVar(Tensor& pTensor) { m_Outputs[kOutVar] = &pTensor; }
 
   void setSavedMean(Tensor& pTensor) { m_Outputs[kSavedMean] = &pTensor; }
 
@@ -99,6 +108,7 @@ public:
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
 private:
   FloatAttr m_Epsilon;
   IntAttr m_IsTest;
