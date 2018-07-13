@@ -82,6 +82,7 @@ typedef TensorT<uint8_t,     onnc::Value::kUint8>   Uint8Tensor;
 typedef TensorT<uint16_t,    onnc::Value::kUint16>  Uint16Tensor;
 typedef TensorT<int64_t,     onnc::Value::kInt64>   Int64Tensor;
 typedef TensorT<uint32_t,    onnc::Value::kUint32>  Uint32Tensor;
+typedef TensorT<uint64_t,    onnc::Value::kUint64>  Uint64Tensor;
 typedef TensorT<double,      onnc::Value::kDouble>  DoubleTensor;
 typedef TensorT<std::string, onnc::Value::kString>  StringTensor;
 

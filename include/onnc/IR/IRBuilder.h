@@ -17,6 +17,7 @@
 #include <vector>
 
 namespace onnc {
+class Tensor;
 
 /** \class IRBuilder
  *  \brief IRBullder encapsulates creating parts of a onnc::Module
@@ -157,6 +158,12 @@ public:
   /// TODO: use unique_ptr.
   template<typename OpType>
   OpType* CloneComputeOp(const OpType& pOp);
+
+  /// Create tensor from onnx value. The method is used when creating
+  /// compute tensor for all of onnx graph inputs.
+  /// @param pTensor If the value has initializer.
+  Tensor* CreateComputeTensor(const ::onnx::Value& pValue,
+                              const ::onnx::Tensor* pTensor = nullptr);
 
 private:
   InsertionPoint m_InsertionPoint;

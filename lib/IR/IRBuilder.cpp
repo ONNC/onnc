@@ -5,6 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnx/onnx.pb.h>
 
@@ -244,4 +245,75 @@ bool IRBuilder::FinalizeTensorGraph(const StringList& pOutputs)
         getInsertionPoint().getCreatedValues().find(output)->value());
   }
   return true;
+}
+
+Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
+                                       const ::onnx::Tensor* pTensor)
+{
+  const std::string &name = pValue.uniqueName();
+  ComputeGraph& cg = *getComputeGraph();
+  Tensor* onncTensor;
+  switch (pValue.elemType()) {
+  case Value::kInt8: {
+    auto t = cg.addValue<Int8Tensor>(name);
+    // Copy initializing data from tensor.
+    if (pTensor) {
+      if (pTensor->is_raw_data()) {
+        int32_t* d = (int32_t*)pTensor->raw().c_str();
+        for (size_t i = 0; i < pTensor->raw().size() / sizeof(int32_t); ++i)
+          t->getValues().push_back(d[i]);
+      } else {
+        for (int i : pTensor->int32s())
+          t->getValues().push_back(i);
+      }
+    }
+    onncTensor = t;
+    break;
+  }
+  case Value::kInt16: {
+    auto t = cg.addValue<Int16Tensor>(name);
+    // Copy initializing data from tensor.
+    if (pTensor)
+      for (int i : pTensor->int32s())
+        t->getValues().push_back(i);
+    onncTensor = t;
+    break;
+  }
+  case Value::kInt32: {
+    auto t = cg.addValue<Int32Tensor>(name);
+    // Copy initializing data from tensor.
+    if (pTensor)
+      t->getValues() = pTensor->int32s();
+    onncTensor = t;
+    break;
+  }
+  case Value::kInt64: {
+    auto t = cg.addValue<Int64Tensor>(name);
+    // Copy initializing data from tensor.
+    if (pTensor)
+      t->getValues() = pTensor->int64s();
+    onncTensor = t;
+    break;
+  }
+  case Value::kUint8:   onncTensor = cg.addValue<Uint8Tensor>(name); break;
+  case Value::kUint16:  onncTensor = cg.addValue<Uint16Tensor>(name); break;
+  case Value::kUint32:  onncTensor = cg.addValue<Uint32Tensor>(name); break;
+  case Value::kUint64:  onncTensor = cg.addValue<Uint64Tensor>(name); break;
+  case Value::kFloat:   onncTensor = cg.addValue<FloatTensor>(name); break;
+  case Value::kFloat16: onncTensor = cg.addValue<Float16Tensor>(name); break;
+  case Value::kString:  onncTensor = cg.addValue<StringTensor>(name); break;
+  case Value::kBoolean: onncTensor = cg.addValue<BooleanTensor>(name); break;
+  case Value::kDouble:  onncTensor = cg.addValue<DoubleTensor>(name); break;
+  default:
+    errs() << "createTensor error: unknow elemtype = "
+           << pValue.elemType() << "\n";
+    return nullptr;
+  }
+
+  std::vector<int64_t> sizes(pValue.sizes().size());
+  for (int i = 0; i < pValue.sizes().size(); ++i)
+    sizes[i] = pValue.sizes()[i].dim;
+  onncTensor->setDimensions(sizes);
+
+  return onncTensor;
 }

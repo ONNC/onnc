@@ -21,27 +21,41 @@ char PreTensorSel::ID = 0;
 Pass::ReturnType PreTensorSel::runOnModule(::onnc::Module &pModule)
 {
   IRBuilder builder(pModule);
+  ::onnx::Graph* graph = pModule.getGraphIR().get();
 
   // Create top-level graph
-  if (pModule.getGraphIR()->has_name())
-    builder.CreateComputeGraph(pModule.getGraphIR()->name());
+  if (graph->has_name())
+    builder.CreateComputeGraph(graph->name());
   else
     builder.CreateComputeGraph("top-level");
 
   // Create initializer. In ONNC, initializer is a kind of ComputeOperator.
   // XXX: ONNX doesn't define new types for these data structures
   std::vector<::onnx::Tensor>::const_iterator tensor, tEnd =
-      pModule.getGraphIR()->initializers().end();
+      graph->initializers().end();
 
   std::vector<std::string>::const_iterator tname =
-      pModule.getGraphIR()->initializer_names().begin();
+      graph->initializer_names().begin();
 
-  tensor = pModule.getGraphIR()->initializers().begin();
+  tensor = graph->initializers().begin();
+  std::map<std::string, const ::onnx::Tensor*> initializerInputs;
   while (tensor != tEnd) {
-    builder.AddComputeOp<onnc::Initializer>(*tname);
-    // TODO: setTensor
-    ++tensor;
-    ++tname;
+    initializerInputs[*tname++] = &*tensor++;
+  }
+
+  for (::onnx::Value* v : graph->inputs()) {
+    auto it = initializerInputs.find(v->uniqueName());
+    const ::onnx::Tensor* onnxTensor = it != initializerInputs.end() ?
+      it->second : nullptr;
+
+    Tensor* onncTensor = builder.CreateComputeTensor(*v, onnxTensor);
+
+    // Create initializer tensor
+    if (onnxTensor) {
+      Initializer* initializer =
+        builder.AddComputeOp<onnc::Initializer>(v->uniqueName());
+      initializer->setTensor(*onncTensor);
+    }
   }
 
   return Pass::kModuleChanged;

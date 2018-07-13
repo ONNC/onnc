@@ -24,6 +24,10 @@ namespace onnc {
 class Initializer : public ComputeOperator
 {
 public:
+  enum IOConst {
+    kOutput = 0
+  };
+public:
   Initializer();
 
   Initializer(const StringAttr& pName);
