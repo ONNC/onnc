@@ -67,10 +67,10 @@ public:
   unsigned int getNumOfOutputs() const { return m_Outputs.size(); }
 
   template<typename OpndType>
-  void addInputs(OpndType& pOperand) { m_Inputs.push_back(&pOperand); }
+  void addInput(OpndType& pOperand) { m_Inputs.push_back(&pOperand); }
 
   template<typename OpndType>
-  void addOutputs(OpndType& pOperand) { m_Outputs.push_back(&pOperand); }
+  void addOutput(OpndType& pOperand) { m_Outputs.push_back(&pOperand); }
 
   /// Use covariant return type to override this function
   virtual onnc::Value* getInput(unsigned int pIdx) { return m_Inputs[pIdx]; }
