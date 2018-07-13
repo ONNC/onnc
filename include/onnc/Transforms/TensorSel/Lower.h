@@ -22,6 +22,12 @@ class Lower
 public:
   typedef int (*QualityMatchFnTy)(const ::onnx::Node&);
 
+  enum Score : int {
+    kUndefined = -1,
+    kNotMe = 0,
+    kStdLower = 10
+  };
+
 public:
   virtual ~Lower() = 0;
 
