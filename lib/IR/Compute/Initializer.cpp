@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/IR/Compute/Initializer.h>
+#include <onnc/Diagnostic/MsgHandling.h>
 
 using namespace onnc;
 
@@ -24,6 +25,15 @@ Initializer::Initializer(const StringAttr& pName)
 
 Initializer::~Initializer()
 {
+}
+
+void Initializer::setTensor(onnc::Tensor& pTensor)
+{
+  if (!m_Outputs.empty()) {
+    // fatal error
+    return;
+  }
+  m_Outputs.push_back(&pTensor);
 }
 
 void Initializer::print(std::ostream& pOS) const

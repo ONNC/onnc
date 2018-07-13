@@ -46,6 +46,8 @@ public:
   template<typename TensorType>
   const TensorType* getTensor() const { return getOutput<TensorType>(); }
 
+  void setTensor(Tensor& pTensor);
+
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
