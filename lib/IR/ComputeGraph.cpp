@@ -30,7 +30,7 @@ ComputeGraph::~ComputeGraph()
   clear();
 }
 
-void ComputeGraph::addValue(Value* pValue)
+void ComputeGraph::addValueToModule(Value* pValue)
 {
   m_Module.addValue(pValue);
 }
