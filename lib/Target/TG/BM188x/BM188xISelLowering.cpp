@@ -60,6 +60,17 @@ ComputeOperator2 *BM188xISelLowering::LowerTLConv(const ::onnx::Node &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLConv(pNode);
+  auto *input_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output_memop =
+      m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *weight_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
+  bool do_bias = op->isDoBias();
+  MemOperand *bias_memop = nullptr;
+  if (do_bias)
+    bias_memop = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
+  op->addMemOperands(input_memop, output_memop, weight_memop, bias_memop);
   return op;
 }
 
