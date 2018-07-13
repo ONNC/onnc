@@ -56,6 +56,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/ReluLower.cpp \
 	Transforms/TensorSel/ConcatLower.cpp \
 	Transforms/TensorSel/ReshapeLower.cpp \
+	Transforms/TensorSel/XorLower.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
 	Core/PassInfo.cpp \
