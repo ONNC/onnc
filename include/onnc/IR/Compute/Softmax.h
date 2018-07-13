@@ -31,6 +31,8 @@ public:
 
   const IntAttr& getAxis() const { return m_Axis; }
 
+  void setAxis(const IntAttr& pAxis) { m_Axis = pAxis; }
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -50,6 +52,7 @@ public:
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
 private:
   IntAttr m_Axis;
 };

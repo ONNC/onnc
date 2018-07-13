@@ -14,7 +14,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Softmax::Softmax()
   : ComputeOperator("Softmax"),
-    m_Axis() {
+    m_Axis(1) {
 }
 
 Softmax::Softmax(const IntAttr& pAxis)
