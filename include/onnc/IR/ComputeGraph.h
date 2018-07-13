@@ -14,6 +14,7 @@
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
+#include <onnc/Support/Casting.h>
 #include <set>
 
 namespace onnc {
@@ -67,7 +68,11 @@ public:
   template<typename ValueType, typename ... ValueCtorParams>
   ValueType* addValue(ValueCtorParams&& ... pParams);
 
-  void addValue(Value* pValue);
+  template<typename ValueType = onnc::Value>
+  ValueType* getValue(StringRef pName);
+
+  template<typename ValueType = onnc::Value>
+  const ValueType* getValue(StringRef pName) const;
 
   template<typename OpndType, typename ... ArcCtorParams>
   OpndType* addOperand(Node& pU, Node& pV, ArcCtorParams&& ... pParams);
@@ -123,6 +128,9 @@ public:
 
 private:
   typedef std::unordered_set<Node*> NodeList;
+
+private:
+  void addValueToModule(Value* pValue);
 
 private:
   Module& m_Module;

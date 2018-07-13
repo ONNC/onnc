@@ -45,8 +45,28 @@ template<typename ValueType, typename ... ValueCtorParams>
 ValueType* ComputeGraph::addValue(ValueCtorParams&& ... pParams)
 {
   ValueType* result = new ValueType(pParams...);
-  this->addValue(result);
+  this->addValueToModule(result);
   return result;
+}
+
+template<typename ValueType>
+ValueType* ComputeGraph::getValue(StringRef pName)
+{
+  ValueList::iterator entry = m_ValueList.find(pName);
+  if (m_ValueList.end() == entry)
+    return nullptr;
+
+  return static_cast<ValueType*>(entry->value());
+}
+
+template<typename ValueType>
+const ValueType* ComputeGraph::getValue(StringRef pName) const
+{
+  ValueList::iterator entry = m_ValueList.find(pName);
+  if (m_ValueList.end() == entry)
+    return nullptr;
+
+  return static_cast<const ValueType*>(entry->value());
 }
 
 template<typename OpndType, typename ... ArcCtorParams>
