@@ -70,8 +70,8 @@ Pass::ReturnType TensorSel::runOnModule(::onnc::Module &pModule)
         Lower* lower = m_LowerRegistry.lookup(*onnxN);
         lower->activate(*computeG, *onnxN);
       }
-    }
-  }
+    } // end of while
+  } // end of stack empty checking
 
   return Pass::kModuleChanged;
 }
