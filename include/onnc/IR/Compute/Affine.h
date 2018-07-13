@@ -36,6 +36,10 @@ public:
 
   const FloatAttr& getBeta() const { return m_Beta; }
 
+  void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
+
+  void setBeta(const FloatAttr& pBeta) { m_Beta = pBeta; }
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }

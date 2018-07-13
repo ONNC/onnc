@@ -44,6 +44,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/AcosLower.cpp \
 	Transforms/TensorSel/AbsLower.cpp \
 	Transforms/TensorSel/ATenLower.cpp \
+	Transforms/TensorSel/AffineLower.cpp \
 	Transforms/TensorSel/ConvLower.cpp \
 	Transforms/TensorSel/SoftmaxLower.cpp \
 	Transforms/TensorSel/AveragePoolLower.cpp \
