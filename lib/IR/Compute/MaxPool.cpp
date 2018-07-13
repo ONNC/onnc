@@ -12,10 +12,10 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // MaxPool
 //===----------------------------------------------------------------------===//
-MaxPool::MaxPool()
+MaxPool::MaxPool(const IntsAttr& pKernelShape)
   : ComputeOperator("MaxPool"),
     m_AutoPad(),
-    m_KernelShape(),
+    m_KernelShape(pKernelShape),
     m_Pads(),
     m_Strides() {
 }

@@ -23,7 +23,7 @@ public:
   };
 
 public:
-  MaxPool();
+  MaxPool(const IntsAttr& pKernelShape);
 
   MaxPool(const StringAttr& pAutoPad,
           const IntsAttr& pKernelShape,
@@ -39,6 +39,12 @@ public:
   const IntsAttr& getPads() const { return m_Pads; }
 
   const IntsAttr& getStrides() const { return m_Strides; }
+
+  void setAutoPad(const StringAttr& pAutoPad) { m_AutoPad = m_AutoPad; }
+
+  void setPads(const IntsAttr& pPads) { m_Pads = m_Pads; }
+
+  void setStrides(const IntsAttr& pStrides) { m_Strides = m_Strides; }
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
