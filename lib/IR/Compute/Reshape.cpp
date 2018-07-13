@@ -16,8 +16,6 @@ Reshape::Reshape()
   : ComputeOperator("Reshape") {
 }
 
-
-
 void Reshape::print(std::ostream& pOS) const
 {
 }

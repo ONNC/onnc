@@ -25,10 +25,8 @@ public:
 
 public:
   Reshape();
-
   
   ~Reshape() { }
-
   
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
