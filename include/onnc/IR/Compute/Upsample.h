@@ -23,7 +23,7 @@ public:
   };
 
 public:
-  Upsample();
+  Upsample(const FloatAttr& pHeightScale, const FloatAttr& pWidthScale);
 
   Upsample(const FloatAttr& pHeightScale,
            const StringAttr& pMode,
@@ -34,6 +34,8 @@ public:
   const FloatAttr& getHeightScale() const { return m_HeightScale; }
 
   const StringAttr& getMode() const { return m_Mode; }
+
+  void setMode(const StringAttr& pMode) { m_Mode = pMode; }
 
   const FloatAttr& getWidthScale() const { return m_WidthScale; }
 
@@ -56,6 +58,7 @@ public:
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
 private:
   FloatAttr m_HeightScale;
   StringAttr m_Mode;

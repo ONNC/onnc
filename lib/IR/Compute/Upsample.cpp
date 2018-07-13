@@ -12,11 +12,11 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Upsample
 //===----------------------------------------------------------------------===//
-Upsample::Upsample()
+Upsample::Upsample(const FloatAttr& pHeightScale, const FloatAttr& pWidthScale)
   : ComputeOperator("Upsample"),
-    m_HeightScale(),
-    m_Mode(),
-    m_WidthScale() {
+    m_HeightScale(pHeightScale),
+    m_Mode("nearest"),
+    m_WidthScale(pWidthScale) {
 }
 
 Upsample::Upsample(const FloatAttr& pHeightScale,
