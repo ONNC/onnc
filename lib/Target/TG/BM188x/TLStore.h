@@ -22,6 +22,8 @@ private:
   uint64_t m_DstGOffset;
   uint64_t m_SrcLAddr;
   bool m_DoTranspose;
+  bool m_IsAligned;
+  bool m_IsNeuron;
   int m_LocalN;
   int m_LocalC;
   int m_LocalH;
