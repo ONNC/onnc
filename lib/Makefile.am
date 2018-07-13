@@ -19,6 +19,7 @@ ONNC_SOURCES = \
 	IR/Compute/Tensor.cpp \
 	IR/Compute/ATen.cpp \
 	IR/Compute/Abs.cpp \
+	IR/Compute/Acos.cpp \
 	IR/Compute/Add.cpp \
 	IR/Compute/Affine.cpp \
 	IR/Compute/AveragePool.cpp \
@@ -40,6 +41,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
 	Transforms/TensorSel/AddLower.cpp \
+	Transforms/TensorSel/AcosLower.cpp \
 	Transforms/TensorSel/ConvLower.cpp \
 	Transforms/TensorSel/SoftmaxLower.cpp \
 	Transforms/TensorSel/AveragePoolLower.cpp \
