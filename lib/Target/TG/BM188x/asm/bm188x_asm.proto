@@ -18,32 +18,36 @@ message Inst {
     }
 
     // Layer type-specific parameters.
-    optional bmnet_pooling_fixed_forward_bmkernel             pooling       = 4;
-    optional bmnet_conv_fixed_forward_bmkernel                conv          = 5;
-    optional bmnet_conv_parallel_fixed_forward_bmkernel       conv_p        = 6;
-    optional bmnet_fc_fixed_forward_bmkernel                  fc            = 7;
-    optional bmnet_relu_fixed_forward_bmkernel                relu          = 8;
-    optional bmnet_leakyrelu_fixed_forward_bmkernel           leakyrelu     = 9;
-    optional bmnet_prelu_fixed_forward_bmkernel               prelu         = 10;
-    optional bmnet_batchnorm_fixed_forward_inference_bmkernel batchnorm     = 11;
-    optional bmnet_scale_fixed_forward_bmkernel               scale         = 12;
-    optional bmnet_reshape_fixed_forward_bmkernel             reshape       = 13;
-    optional bmnet_split_fixed_forward_bmkernel               split         = 14;
-    optional bmnet_concat_fixed_forward_bmkernel              concat        = 15;
-    optional bmnet_eltwise_fixed_forward_bmkernel             eltwise       = 16;
-    optional bmnet_permute_fixed_forward_bmkernel             permute       = 17;
-    optional bmnet_priorbox_fixed_forward_bmkernel            priorbox      = 18;
-    optional bmnet_lrn_fixed_forward_bmkernel                 lrn           = 19;
-    optional bmnet_upsample_fixed_bmkernel                    upsample      = 20;
-    optional bmnet_normalize_fixed_forward_bmkernel           normalize     = 21;
-    optional bmnet_tl_conv_forward_bmkernel                   bm_tl_conv    = 22;
-    optional bmnet_tl_activation_forward_bmkernel             tl_activation = 23;
-    optional bmnet_tl_scale_forward_bmkernel                  tl_csale      = 24;
-    optional bmnet_tl_batchnorm_forward_bmkernel              tl_bn         = 25;
-    optional bmnet_tl_eltwise_forward_bmkernel                tl_eltwise    = 26;
-    optional bmnet_tl_lrn_forward_bmkernel                    tl_lrn        = 27;
-    optional bmnet_tl_pooling_forward_bmkernel                tl_pool       = 28;
-    optional bmnet_tl_upsample_forward_bmkernel               tl_upsample   = 29;
+    optional bmnet_pooling_fixed_forward_bmkernel             pooling               = 4;
+    optional bmnet_conv_fixed_forward_bmkernel                conv                  = 5;
+    optional bmnet_conv_parallel_fixed_forward_bmkernel       conv_p                = 6;
+    optional bmnet_fc_fixed_forward_bmkernel                  fc                    = 7;
+    optional bmnet_relu_fixed_forward_bmkernel                relu                  = 8;
+    optional bmnet_leakyrelu_fixed_forward_bmkernel           leakyrelu             = 9;
+    optional bmnet_prelu_fixed_forward_bmkernel               prelu                 = 10;
+    optional bmnet_batchnorm_fixed_forward_inference_bmkernel batchnorm             = 11;
+    optional bmnet_scale_fixed_forward_bmkernel               scale                 = 12;
+    optional bmnet_reshape_fixed_forward_bmkernel             reshape               = 13;
+    optional bmnet_split_fixed_forward_bmkernel               split                 = 14;
+    optional bmnet_concat_fixed_forward_bmkernel              concat                = 15;
+    optional bmnet_eltwise_fixed_forward_bmkernel             eltwise               = 16;
+    optional bmnet_permute_fixed_forward_bmkernel             permute               = 17;
+    optional bmnet_priorbox_fixed_forward_bmkernel            priorbox              = 18;
+    optional bmnet_lrn_fixed_forward_bmkernel                 lrn                   = 19;
+    optional bmnet_upsample_fixed_bmkernel                    upsample              = 20;
+    optional bmnet_normalize_fixed_forward_bmkernel           normalize             = 21;
+    optional bmnet_tl_conv_forward_bmkernel                   bm_tl_conv            = 22;
+    optional bmnet_tl_activation_forward_bmkernel             tl_activation         = 23;
+    optional bmnet_tl_scale_forward_bmkernel                  tl_csale              = 24;
+    optional bmnet_tl_batchnorm_forward_bmkernel              tl_bn                 = 25;
+    optional bmnet_tl_eltwise_forward_bmkernel                tl_eltwise            = 26;
+    optional bmnet_tl_lrn_forward_bmkernel                    tl_lrn                = 27;
+    optional bmnet_tl_pooling_forward_bmkernel                tl_pool               = 28;
+    optional bmnet_tl_upsample_forward_bmkernel               tl_upsample           = 29;
+    optional bmnet_tl_load_stride_bmkernel                    tl_layer_load_stride  = 30;
+    optional bmnet_tl_load_bmkernel                           tl_layer_load         = 31;
+    optional bmnet_tl_store_stride_bmkernel                   tl_layer_store_stride = 32;
+    optional bmnet_tl_store_bmkernel                          tl_layer_store        = 33;
 
     message bmnet_pooling_fixed_forward_bmkernel {
         optional uint64 ifmap_gaddr = 1;
@@ -482,6 +486,62 @@ message Inst {
         optional int32 output_h = 7;
         optional int32 output_w = 8;
         optional int32 size = 9;
+    }
+    message bmnet_tl_load_stride_bmkernel {
+        optional uint64 ga_src = 1;
+        optional uint64 la_dst = 2;
+        optional int32 Local_N = 3;
+        optional int32 Local_C = 4;
+        optional int32 Local_H = 5;
+        optional int32 Local_W = 6;
+        optional int32 Global_C = 7;
+        optional int32 Global_H = 8;
+        optional int32 Global_W = 9;
+        optional bool DoTranspose = 10;
+        optional bool DoAligned = 11;
+        optional bool isNeuron = 12;
+    }
+    message bmnet_tl_load_bmkernel {
+        optional uint64 ga_src = 1;
+        optional uint64 la_dst = 2;
+        optional int32 Local_N = 3;
+        optional int32 Local_C = 4;
+        optional int32 Local_H = 5;
+        optional int32 Local_W = 6;
+        optional int32 Global_C = 7;
+        optional int32 Global_H = 8;
+        optional int32 Global_W = 9;
+        optional bool DoTranspose = 10;
+        optional bool DoAligned = 11;
+        optional bool isNeuron = 12;
+    }
+    message bmnet_tl_store_stride_bmkernel {
+        optional uint64 ga_dst = 1;
+        optional uint64 la_src = 2;
+        optional int32 Local_N = 3;
+        optional int32 Local_C = 4;
+        optional int32 Local_H = 5;
+        optional int32 Local_W = 6;
+        optional int32 Global_C = 7;
+        optional int32 Global_H = 8;
+        optional int32 Global_W = 9;
+        optional bool DoTranspose = 10;
+        optional bool DoAligned = 11;
+        optional bool isNeuron = 12;
+    }
+    message bmnet_tl_store_bmkernel {
+        optional uint64 ga_dst = 1;
+        optional uint64 la_src = 2;
+        optional int32 Local_N = 3;
+        optional int32 Local_C = 4;
+        optional int32 Local_H = 5;
+        optional int32 Local_W = 6;
+        optional int32 Global_C = 7;
+        optional int32 Global_H = 8;
+        optional int32 Global_W = 9;
+        optional bool DoTranspose = 10;
+        optional bool DoAligned = 11;
+        optional bool isNeuron = 12;
     }
 
 }
