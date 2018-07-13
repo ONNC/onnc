@@ -23,6 +23,9 @@ AddLower::~AddLower()
 
 int AddLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Add"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

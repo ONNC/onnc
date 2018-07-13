@@ -23,6 +23,9 @@ MaxPoolLower::~MaxPoolLower()
 
 int MaxPoolLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("MaxPool"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

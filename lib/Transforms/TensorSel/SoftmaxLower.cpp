@@ -23,6 +23,9 @@ SoftmaxLower::~SoftmaxLower()
 
 int SoftmaxLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Softmax"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

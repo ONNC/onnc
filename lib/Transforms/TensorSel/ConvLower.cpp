@@ -23,6 +23,9 @@ ConvLower::~ConvLower()
 
 int ConvLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Conv"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

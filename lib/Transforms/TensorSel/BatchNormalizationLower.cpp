@@ -23,6 +23,9 @@ BatchNormalizationLower::~BatchNormalizationLower()
 
 int BatchNormalizationLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("BatchNormalization"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

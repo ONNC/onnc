@@ -23,6 +23,9 @@ ReshapeLower::~ReshapeLower()
 
 int ReshapeLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Reshape"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

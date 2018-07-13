@@ -23,6 +23,9 @@ AveragePoolLower::~AveragePoolLower()
 
 int AveragePoolLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("AveragePool"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

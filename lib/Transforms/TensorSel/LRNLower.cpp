@@ -23,6 +23,9 @@ LRNLower::~LRNLower()
 
 int LRNLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("LRN"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

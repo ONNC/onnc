@@ -23,6 +23,9 @@ GemmLower::~GemmLower()
 
 int GemmLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Gemm"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

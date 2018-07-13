@@ -23,6 +23,9 @@ SumLower::~SumLower()
 
 int SumLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Sum"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*

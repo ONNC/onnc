@@ -23,6 +23,9 @@ ConcatLower::~ConcatLower()
 
 int ConcatLower::isMe(const ::onnx::Node& pNode) const
 {
+  if (pNode.kind() == ::onnx::Symbol("Concat"))
+    return kStdLower;
+  return kNotMe;
 }
 
 ComputeOperator*
