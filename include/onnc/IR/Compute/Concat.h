@@ -23,8 +23,6 @@ public:
   };
 
 public:
-  Concat();
-
   Concat(const IntAttr& pAxis);
 
   ~Concat() { }
@@ -42,6 +40,12 @@ public:
   Tensor* getInputs(size_t pIdx) { return getInput(kInputs + pIdx); }
 
   Tensor* getConcatResult() { return getOutput(kConcatResult); }
+
+  void addInput(Tensor& pTensor) { m_Inputs.push_back(&pTensor); }
+
+  bool isInputEmpty() const { return m_Inputs.empty(); }
+
+  unsigned int getInputSize() const { return m_Inputs.size(); }
 
   void setInputs(size_t pIdx, Tensor& pTensor) { m_Inputs[kInputs + pIdx] = &pTensor; }
 

@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConcatLower.h>
+#include <onnc/IR/Compute/Concat.h>
 
 using namespace onnc;
 
@@ -32,9 +33,39 @@ ComputeOperator*
 ConcatLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
   // check input/output name
-  // check default attributes
+  if (pNode.inputs().empty())
+    return nullptr;
+
+  for (::onnx::Value* xv : pNode.inputs()) {
+    if (!xv->has_unique_name())
+      return nullptr;
+  }
+
+  if (1 != pNode.outputs().size())
+    return nullptr;
+
+  for (::onnx::Value* xv : pNode.outputs()) {
+    if (!xv->has_unique_name())
+      return nullptr;
+  }
+
+  // check required attributes
+  if (!pNode.hasAttribute(::onnx::Symbol("axis")))
+    return nullptr;
+
   // create operators
-  // set default attributes
-  // set optional attributes
+  onnc::Concat* op = pGraph.addOperator<onnc::Concat>(
+      pNode.i(::onnx::Symbol("axis")));
+
   // set input/output
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* input = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    op->addInput(*input);
+  }
+
+  onnc::Tensor* output = pGraph.getValue<onnc::Tensor>(
+      pNode.outputs()[onnc::Concat::kConcatResult]->uniqueName());
+  op->setConcatResult(*output);
+
+  return op;
 }

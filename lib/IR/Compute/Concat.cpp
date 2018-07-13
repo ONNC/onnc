@@ -12,11 +12,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Concat
 //===----------------------------------------------------------------------===//
-Concat::Concat()
-  : ComputeOperator("Concat"),
-    m_Axis() {
-}
-
 Concat::Concat(const IntAttr& pAxis)
   : ComputeOperator("Concat"),
     m_Axis(pAxis) {
