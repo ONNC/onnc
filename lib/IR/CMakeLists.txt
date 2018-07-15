@@ -27,7 +27,13 @@ add_libonnc_src(
     Compute/Concat.cpp
     Compute/Gemm.cpp
     Compute/Conv.cpp
+    Compute/MaxPool.cpp
     Compute/Relu.cpp
+    Compute/Reshape.cpp
     Compute/LRN.cpp
+    Compute/Softmax.cpp
+    Compute/Sum.cpp
+    Compute/Upsample.cpp
+    Compute/Xor.cpp
     Compute/Initializer.cpp
     Graph/InitializerProxy.cpp)
