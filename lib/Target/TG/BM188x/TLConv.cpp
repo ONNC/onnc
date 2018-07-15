@@ -112,8 +112,45 @@ TLConv *TLConv::addMemOperands(MemOperand *pInput, MemOperand *pWeight,
 
 void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
 {
-  if ((m_NIdx != 0) or (m_HIdx != 0))
-    return;
+  pWeight.clear();
+  {
+    const onnx::Value *value = m_MemOperands[1]->m_Value;
+    const onnx::Tensor &tensor =
+        onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(m_MemOperands[1]->m_Type == onnx::TensorProto_DataType_INT8);
+    const std::string &raw = tensor.raw();
+    size_t count = onnc::getTotalCount(tensor.sizes());
+    pWeight.resize(count);
+    std::vector<int8_t> data;
+    std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+#ifdef DEBUG_WEIGHT_BIN
+    std::cout << value->uniqueName() << "\n";
+    for (auto i : data) {
+      std::cout << (int32_t)i << ",";
+    }
+    std::cout << "\n";
+#endif
+    assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
+
+    // conv weight is arranged by (1, oc, kh*kw, ic)
+    // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+    int ic = m_InC / m_Groups;
+    for (int oc_i = 0; oc_i < m_OutC; ++oc_i) {
+      for (int k_i = 0; k_i < m_KH * m_KW; ++k_i) {
+        for (int ic_i = 0; ic_i < ic; ++ic_i) {
+          pWeight[oc_i * (m_KH * m_KW * ic) + k_i * ic + ic_i] =
+              data[oc_i * (m_KH * m_KW * ic) + ic_i * (m_KH * m_KW) + k_i];
+        }
+      }
+    }
+#ifdef DEBUG_WEIGHT_BIN
+    std::cout << "after conv weight:\n";
+    for (auto i : pWeight) {
+      std::cout << (int)i << ",";
+    }
+    std::cout << "\n";
+#endif
+  }
 }
 
 void TLConv::emit() const

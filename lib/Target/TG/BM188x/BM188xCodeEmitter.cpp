@@ -1,6 +1,7 @@
 #define DEBUG_TYPE "bm188x_code_emitter"
 #include "BM188xCodeEmitter.h"
 #include "TGConv.h"
+#include "TLConv.h"
 #include <cstdint>
 #include <fstream>
 #include <onnc/IR/ONNXUtils.h>
@@ -136,6 +137,14 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
       std::vector<int8_t> weight;
       auto *tgconv = dynamic_cast< ::onnc::BM188X::TGConv *>(inst.get());
       tgconv->prepareWeight(weight);
+      pWeight.insert(pWeight.end(), weight.begin(), weight.end());
+      continue;
+    }
+
+    if (inst->getTypeName() == "TLConv") {
+      std::vector<int8_t> weight;
+      auto *tlconv = dynamic_cast< ::onnc::BM188X::TLConv *>(inst.get());
+      tlconv->prepareWeight(weight);
       pWeight.insert(pWeight.end(), weight.begin(), weight.end());
       continue;
     }
