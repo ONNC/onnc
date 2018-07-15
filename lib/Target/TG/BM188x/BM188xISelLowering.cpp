@@ -70,7 +70,7 @@ ComputeOperator2 *BM188xISelLowering::LowerTLConv(const ::onnx::Node &pNode,
   MemOperand *bias_memop = nullptr;
   if (do_bias)
     bias_memop = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
-  op->addMemOperands(input_memop, output_memop, weight_memop, bias_memop);
+  op->addMemOperands(input_memop, weight_memop, output_memop, bias_memop);
   return op;
 }
 

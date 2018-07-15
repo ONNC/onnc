@@ -18,8 +18,8 @@ public:
   void emit() const override;
   void prepareWeight(std::vector<int8_t> &pWeight);
   void print(OStream &pOS) const override;
-  TLConv *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
-                         MemOperand *pWeight, MemOperand *pBias);
+  TLConv *addMemOperands(MemOperand *pInput, MemOperand *pWeight,
+                         MemOperand *pOutput, MemOperand *pBias);
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
   bool isDoBias() { return (m_DoBias == 1) ? true : false; }
