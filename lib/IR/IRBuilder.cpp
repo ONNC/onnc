@@ -346,7 +346,7 @@ Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
   return DoCreateComputeTensor(*getComputeGraph(), pValue, pTensor);
 }
 
-Tensor* CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue)
+Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue)
 {
   Tensor* result = nullptr;
   switch (pValue.elemType()) {
