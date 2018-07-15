@@ -202,6 +202,11 @@ Module::ValueList& Module::getValueList()
   return m_Values;
 }
 
+const Module::ValueList& Module::getValueList() const
+{
+  return m_Values;
+}
+
 void Module::print(std::ostream& pOS) const
 {
   if (!hasGraphIR()) {

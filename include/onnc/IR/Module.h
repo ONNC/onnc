@@ -159,6 +159,8 @@ public:
 
   ValueList& getValueList();
 
+  const ValueList& getValueList() const;
+
   // print the whole module to @ref pOS.
   void print(std::ostream& pOS) const;
 
