@@ -38,25 +38,30 @@ Pass::ReturnType PreTensorSel::runOnModule(::onnc::Module &pModule)
       graph->initializer_names().begin();
 
   tensor = graph->initializers().begin();
-  std::map<std::string, const ::onnx::Tensor*> initializerInputs;
+
+  std::map<std::string, const ::onnx::Tensor*> initializers;
   while (tensor != tEnd) {
-    initializerInputs[*tname++] = &*tensor++;
+    initializers[*tname] = &*tensor;
+    ++tname;
+    ++tensor;
   }
 
   for (::onnx::Value* v : graph->inputs()) {
-    auto it = initializerInputs.find(v->uniqueName());
-    const ::onnx::Tensor* onnxTensor = it != initializerInputs.end() ?
-      it->second : nullptr;
-
-    Tensor* onncTensor = builder.CreateComputeTensor(*v, *onnxTensor);
-
-    // Create initializer tensor
-    if (onnxTensor) {
-      Initializer* initializer =
-        builder.AddComputeOp<onnc::Initializer>(v->uniqueName());
-      initializer->setTensor(*onncTensor);
+    auto it = initializers.find(v->uniqueName());
+    if (initializers.end() == it) {
+      // If a value doesn't appear in initilizers, then we only need to keep
+      // its shape.
+      builder.CreateComputeTensor(*v);
     }
-  }
+    else {
+      // The value appears in an initializer, we should create corresponding
+      // initializer to handle with the value.
+      Initializer* init =
+          builder.AddComputeOp<onnc::Initializer>(v->uniqueName());
+      Tensor* value = builder.CreateComputeTensor(*v, *it->second);
+      init->setTensor(*value);
+    }
+  } // end of trip on all input values
 
   return Pass::kModuleChanged;
 }
