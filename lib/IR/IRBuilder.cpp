@@ -414,3 +414,8 @@ Tensor* CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue)
   result->setDimensions(sizes);
   return result;
 }
+
+Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue)
+{
+  return IRBuilder::CreateComputeTensor(*getComputeGraph(), pValue);
+}

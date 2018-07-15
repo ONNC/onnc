@@ -169,6 +169,10 @@ public:
   /// compute tensor for all of onnx graph inputs.
   static Tensor* CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue);
 
+  /// Create tensor from onnx value. The method is used when creating
+  /// compute tensor for all of onnx graph inputs.
+  Tensor* CreateComputeTensor(const ::onnx::Value& pValue);
+
 private:
   InsertionPoint m_InsertionPoint;
 };
