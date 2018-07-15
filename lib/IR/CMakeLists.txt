@@ -18,8 +18,14 @@ add_libonnc_src(
     Compute/Tensor.cpp
     Compute/ATen.cpp
     Compute/Abs.cpp
+    Compute/Acos.cpp
     Compute/Add.cpp
+    Compute/And.cpp
     Compute/Affine.cpp
+    Compute/AveragePool.cpp
+    Compute/BatchNormalization.cpp
+    Compute/Concat.cpp
+    Compute/Gemm.cpp
     Compute/Conv.cpp
     Compute/Relu.cpp
     Compute/LRN.cpp

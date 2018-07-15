@@ -6,6 +6,11 @@ add_libonnc_src(
     TensorSel/Lower.cpp
     TensorSel/LowerRegistry.cpp
     TensorSel/AddLower.cpp
+    TensorSel/AcosLower.cpp
+    TensorSel/AbsLower.cpp
+    TensorSel/AndLower.cpp
+    TensorSel/ATenLower.cpp
+    TensorSel/AffineLower.cpp
     TensorSel/ConvLower.cpp
     TensorSel/SoftmaxLower.cpp
     TensorSel/AveragePoolLower.cpp
@@ -16,4 +21,6 @@ add_libonnc_src(
     TensorSel/LRNLower.cpp
     TensorSel/ReluLower.cpp
     TensorSel/ConcatLower.cpp
-    TensorSel/ReshapeLower.cpp)
+    TensorSel/ReshapeLower.cpp
+    TensorSel/UpsampleLower.cpp
+    TensorSel/XorLower.cpp)
