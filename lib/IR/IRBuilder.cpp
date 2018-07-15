@@ -247,6 +247,27 @@ bool IRBuilder::FinalizeTensorGraph(const StringList& pOutputs)
   return true;
 }
 
+#define CREATE_VAL_DATA(onnxTensor, onncValType, valType, valVec) \
+  do { \
+    auto t = cg.addValue<onncValType>(name); \
+    /* copy tensor init data. */ \
+    if (onnxTensor) { \
+      if (onnxTensor->is_raw_data()) { \
+        const size_t numElems = onnxTensor->raw().size() / sizeof(valType); \
+        valType* d = (valType*)onnxTensor->raw().c_str(); \
+        t->getValues().resize(numElems); \
+        for (size_t i = 0; i < numElems; ++i) \
+          t->getValues()[i] = d[i]; \
+      } else { \
+        const size_t numElems = onnxTensor->valVec().size(); \
+        t->getValues().resize(numElems); \
+        for (int i = 0; i < numElems; ++i) \
+          t->getValues()[i] = onnxTensor->valVec()[i]; \
+      } \
+      onncTensor = t; \
+    } \
+  } while (false);
+
 Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
                                        const ::onnx::Tensor* pTensor)
 {
@@ -255,55 +276,57 @@ Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
   Tensor* onncTensor;
   switch (pValue.elemType()) {
   case Value::kInt8: {
-    auto t = cg.addValue<Int8Tensor>(name);
-    // Copy initializing data from tensor.
-    if (pTensor) {
-      if (pTensor->is_raw_data()) {
-        int32_t* d = (int32_t*)pTensor->raw().c_str();
-        for (size_t i = 0; i < pTensor->raw().size() / sizeof(int32_t); ++i)
-          t->getValues().push_back(d[i]);
-      } else {
-        for (int i : pTensor->int32s())
-          t->getValues().push_back(i);
-      }
-    }
-    onncTensor = t;
+    CREATE_VAL_DATA(pTensor, Int8Tensor, int32_t, int32s);
     break;
   }
   case Value::kInt16: {
-    auto t = cg.addValue<Int16Tensor>(name);
-    // Copy initializing data from tensor.
-    if (pTensor)
-      for (int i : pTensor->int32s())
-        t->getValues().push_back(i);
-    onncTensor = t;
+    CREATE_VAL_DATA(pTensor, Int16Tensor, int32_t, int32s);
     break;
   }
   case Value::kInt32: {
-    auto t = cg.addValue<Int32Tensor>(name);
-    // Copy initializing data from tensor.
-    if (pTensor)
-      t->getValues() = pTensor->int32s();
-    onncTensor = t;
+    CREATE_VAL_DATA(pTensor, Int32Tensor, int32_t, int32s);
     break;
   }
   case Value::kInt64: {
-    auto t = cg.addValue<Int64Tensor>(name);
-    // Copy initializing data from tensor.
-    if (pTensor)
-      t->getValues() = pTensor->int64s();
-    onncTensor = t;
+    CREATE_VAL_DATA(pTensor, Int64Tensor, int64_t, int64s);
     break;
   }
-  case Value::kUint8:   onncTensor = cg.addValue<Uint8Tensor>(name); break;
-  case Value::kUint16:  onncTensor = cg.addValue<Uint16Tensor>(name); break;
-  case Value::kUint32:  onncTensor = cg.addValue<Uint32Tensor>(name); break;
-  case Value::kUint64:  onncTensor = cg.addValue<Uint64Tensor>(name); break;
-  case Value::kFloat:   onncTensor = cg.addValue<FloatTensor>(name); break;
-  case Value::kFloat16: onncTensor = cg.addValue<Float16Tensor>(name); break;
-  case Value::kString:  onncTensor = cg.addValue<StringTensor>(name); break;
-  case Value::kBoolean: onncTensor = cg.addValue<BooleanTensor>(name); break;
-  case Value::kDouble:  onncTensor = cg.addValue<DoubleTensor>(name); break;
+  case Value::kUint8: {
+    CREATE_VAL_DATA(pTensor, Uint8Tensor, int32_t, int32s);
+    break;
+  }
+  case Value::kUint16: {
+    CREATE_VAL_DATA(pTensor, Uint16Tensor, int32_t, int32s);
+    break;
+  }
+  case Value::kUint32: {
+    CREATE_VAL_DATA(pTensor, Uint32Tensor, uint64_t, uint64s);
+    break;
+  }
+  case Value::kUint64: {
+    CREATE_VAL_DATA(pTensor, Uint64Tensor, uint64_t, uint64s);
+    break;
+  }
+  case Value::kFloat: {
+    CREATE_VAL_DATA(pTensor, FloatTensor, float, floats);
+    break;
+  }
+  case Value::kFloat16: {
+    CREATE_VAL_DATA(pTensor, Float16Tensor, float, floats);
+    break;
+  }
+  case Value::kString: {
+    CREATE_VAL_DATA(pTensor, StringTensor, std::string, strings);
+    break;
+  }
+  case Value::kBoolean: {
+    CREATE_VAL_DATA(pTensor, BooleanTensor, int32_t, int32s);
+    break;
+  }
+  case Value::kDouble: {
+    CREATE_VAL_DATA(pTensor, DoubleTensor, double, doubles);
+    break;
+  }
   default:
     errs() << "createTensor error: unknow elemtype = "
            << pValue.elemType() << "\n";
