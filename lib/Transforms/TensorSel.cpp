@@ -8,6 +8,7 @@
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Core/PassSupport.h>
+#include <onnc/Diagnostic/MsgHandling.h>
 #include <tuple>
 #include <stack>
 
@@ -66,8 +67,17 @@ Pass::ReturnType TensorSel::runOnModule(::onnc::Module &pModule)
         onnxG = &*onnxN->g(::onnx::kSubgraph);
         computeG = builder.CreateComputeGraph(onnxG->name());
         onnxNIter = onnxG->begin();
-      } else {
+      }
+      else {
         Lower* lower = m_LowerRegistry.lookup(*onnxN);
+        if (nullptr == lower) {
+          if (onnxN->has_name())
+            fatal(no_corre_lower) << onnxN->name();
+          else
+            fatal(no_corre_lower) << onnxN->kind().toString();
+          return Pass::kPassFailure;
+        }
+
         lower->activate(*computeG, *onnxN);
       }
     } // end of while
