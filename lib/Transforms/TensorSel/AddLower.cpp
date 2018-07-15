@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
 #include <onnc/IR/Compute/Add.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -59,15 +60,18 @@ AddLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     op->setBroadcast(pNode.i(::onnx::Symbol("broadcast")));
 
   // set input/output
-  onnc::Tensor* a =
-     pGraph.getValue<onnc::Tensor>(pNode.inputs()[onnc::Add::kA]->uniqueName());
-  onnc::Tensor* b =
-     pGraph.getValue<onnc::Tensor>(pNode.inputs()[onnc::Add::kB]->uniqueName());
-  onnc::Tensor* c =
-    pGraph.getValue<onnc::Tensor>(pNode.outputs()[onnc::Add::kC]->uniqueName());
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
+  }
 
-  op->setA(*a);
-  op->setB(*b);
-  op->setC(*c);
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
   return op;
 }

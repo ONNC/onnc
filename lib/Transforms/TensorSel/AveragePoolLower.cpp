@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
 #include <onnc/IR/Compute/AveragePool.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -68,12 +69,18 @@ AveragePoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     op->setStrides(pNode.is(::onnx::Symbol("strides")));
 
   // set input/output
-  onnc::Tensor* x = pGraph.getValue<onnc::Tensor>(
-      pNode.inputs()[onnc::AveragePool::kX]->uniqueName());
-  onnc::Tensor* y = pGraph.getValue<onnc::Tensor>(
-      pNode.outputs()[onnc::AveragePool::kY]->uniqueName());
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
+  }
 
-  op->setX(*x);
-  op->setY(*y);
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
   return op;
 }

@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConcatLower.h>
 #include <onnc/IR/Compute/Concat.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -59,13 +60,17 @@ ConcatLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
-    onnc::Tensor* input = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
-    op->addInput(*input);
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
   }
 
-  onnc::Tensor* output = pGraph.getValue<onnc::Tensor>(
-      pNode.outputs()[onnc::Concat::kConcatResult]->uniqueName());
-  op->setConcatResult(*output);
-
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
   return op;
 }

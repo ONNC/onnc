@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConvLower.h>
 #include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 

@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/IR/Compute/BatchNormalization.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -97,18 +98,18 @@ BatchNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) con
     op->setOutVar(*out_var);
   }
 
-  onnc::Tensor* saved_mean = nullptr;
-  if (pNode.outputs().size() >= BatchNormalization::kSavedMean) {
-    saved_mean = pGraph.getValue<onnc::Tensor>(
-        pNode.outputs()[onnc::BatchNormalization::kSavedMean]->uniqueName());
-    op->setSavedMean(*saved_mean);
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
   }
 
-  onnc::Tensor* saved_var = nullptr;
-  if (pNode.outputs().size() >= BatchNormalization::kSavedVar) {
-    saved_var = pGraph.getValue<onnc::Tensor>(
-        pNode.outputs()[onnc::BatchNormalization::kSavedVar]->uniqueName());
-    op->setSavedVar(*saved_var);
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
   }
 
   return op;

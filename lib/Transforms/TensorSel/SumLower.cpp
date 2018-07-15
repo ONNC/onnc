@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/SumLower.h>
 #include <onnc/IR/Compute/Sum.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -53,11 +54,18 @@ SumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   onnc::Sum* op = pGraph.addOperator<onnc::Sum>();
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs())
-    op->addInput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
+  }
 
-  for (::onnx::Value* xv : pNode.outputs())
-    op->addOutput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
-
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
   return op;
 }
