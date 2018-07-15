@@ -161,9 +161,13 @@ public:
 
   /// Create tensor from onnx value. The method is used when creating
   /// compute tensor for all of onnx graph inputs.
-  /// @param pTensor If the value has initializer.
+  /// @param pTensor The tensor from an initializer.
   Tensor* CreateComputeTensor(const ::onnx::Value& pValue,
-                              const ::onnx::Tensor* pTensor = nullptr);
+                              const ::onnx::Tensor& pTensor);
+
+  /// Create tensor from onnx value. The method is used when creating
+  /// compute tensor for all of onnx graph inputs.
+  static Tensor* CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue);
 
 private:
   InsertionPoint m_InsertionPoint;

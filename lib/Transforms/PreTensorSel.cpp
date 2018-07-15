@@ -48,7 +48,7 @@ Pass::ReturnType PreTensorSel::runOnModule(::onnc::Module &pModule)
     const ::onnx::Tensor* onnxTensor = it != initializerInputs.end() ?
       it->second : nullptr;
 
-    Tensor* onncTensor = builder.CreateComputeTensor(*v, onnxTensor);
+    Tensor* onncTensor = builder.CreateComputeTensor(*v, *onnxTensor);
 
     // Create initializer tensor
     if (onnxTensor) {

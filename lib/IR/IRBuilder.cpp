@@ -247,84 +247,84 @@ bool IRBuilder::FinalizeTensorGraph(const StringList& pOutputs)
   return true;
 }
 
-#define CREATE_VAL_DATA(onnxTensor, onncValType, valType, valVec) \
-  do { \
-    auto t = cg.addValue<onncValType>(name); \
-    /* copy tensor init data. */ \
-    if (onnxTensor) { \
-      if (onnxTensor->is_raw_data()) { \
-        const size_t numElems = onnxTensor->raw().size() / sizeof(valType); \
-        valType* d = (valType*)onnxTensor->raw().c_str(); \
-        t->getValues().resize(numElems); \
-        for (size_t i = 0; i < numElems; ++i) \
-          t->getValues()[i] = d[i]; \
-      } else { \
-        const size_t numElems = onnxTensor->valVec().size(); \
-        t->getValues().resize(numElems); \
-        for (int i = 0; i < numElems; ++i) \
-          t->getValues()[i] = onnxTensor->valVec()[i]; \
-      } \
-      onncTensor = t; \
-    } \
-  } while (false);
+#define CREATE_VAL_DATA(result, CG, tensor, ONNCType, NativeType, accessor) \
+{ \
+  auto t = CG.addValue<ONNCType>(name); \
+  /* copy tensor init data. */ \
+  if (tensor.is_raw_data()) { \
+    const size_t numElems = tensor.raw().size() / sizeof(NativeType); \
+    NativeType* d = (NativeType*)tensor.raw().c_str(); \
+    t->getValues().resize(numElems); \
+    for (size_t i = 0; i < numElems; ++i) \
+      t->getValues()[i] = d[i]; \
+  } \
+  else { \
+    const size_t numElems = tensor.accessor().size(); \
+    t->getValues().resize(numElems); \
+    for (int i = 0; i < numElems; ++i) \
+      t->getValues()[i] = tensor.accessor()[i]; \
+  } \
+  result = t; \
+}
 
-Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
-                                       const ::onnx::Tensor* pTensor)
+static Tensor*
+DoCreateComputeTensor(ComputeGraph& pCG,
+                      const ::onnx::Value& pValue,
+                      const ::onnx::Tensor& pTensor)
 {
   const std::string &name = pValue.uniqueName();
-  ComputeGraph& cg = *getComputeGraph();
-  Tensor* onncTensor;
+  Tensor* result = nullptr;
   switch (pValue.elemType()) {
   case Value::kInt8: {
-    CREATE_VAL_DATA(pTensor, Int8Tensor, int32_t, int32s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Int8Tensor, int32_t, int32s);
     break;
   }
   case Value::kInt16: {
-    CREATE_VAL_DATA(pTensor, Int16Tensor, int32_t, int32s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Int16Tensor, int32_t, int32s);
     break;
   }
   case Value::kInt32: {
-    CREATE_VAL_DATA(pTensor, Int32Tensor, int32_t, int32s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Int32Tensor, int32_t, int32s);
     break;
   }
   case Value::kInt64: {
-    CREATE_VAL_DATA(pTensor, Int64Tensor, int64_t, int64s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Int64Tensor, int64_t, int64s);
     break;
   }
   case Value::kUint8: {
-    CREATE_VAL_DATA(pTensor, Uint8Tensor, int32_t, int32s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Uint8Tensor, int32_t, int32s);
     break;
   }
   case Value::kUint16: {
-    CREATE_VAL_DATA(pTensor, Uint16Tensor, int32_t, int32s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Uint16Tensor, int32_t, int32s);
     break;
   }
   case Value::kUint32: {
-    CREATE_VAL_DATA(pTensor, Uint32Tensor, uint64_t, uint64s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Uint32Tensor, uint64_t, uint64s);
     break;
   }
   case Value::kUint64: {
-    CREATE_VAL_DATA(pTensor, Uint64Tensor, uint64_t, uint64s);
+    CREATE_VAL_DATA(result, pCG, pTensor, Uint64Tensor, uint64_t, uint64s);
     break;
   }
   case Value::kFloat: {
-    CREATE_VAL_DATA(pTensor, FloatTensor, float, floats);
+    CREATE_VAL_DATA(result, pCG, pTensor, FloatTensor, float, floats);
     break;
   }
   case Value::kFloat16: {
-    CREATE_VAL_DATA(pTensor, Float16Tensor, float, floats);
+    CREATE_VAL_DATA(result, pCG, pTensor, Float16Tensor, float, floats);
     break;
   }
   case Value::kString: {
-    CREATE_VAL_DATA(pTensor, StringTensor, std::string, strings);
+    CREATE_VAL_DATA(result, pCG, pTensor, StringTensor, std::string, strings);
     break;
   }
   case Value::kBoolean: {
-    CREATE_VAL_DATA(pTensor, BooleanTensor, int32_t, int32s);
+    CREATE_VAL_DATA(result, pCG, pTensor, BooleanTensor, int32_t, int32s);
     break;
   }
   case Value::kDouble: {
-    CREATE_VAL_DATA(pTensor, DoubleTensor, double, doubles);
+    CREATE_VAL_DATA(result, pCG, pTensor, DoubleTensor, double, doubles);
     break;
   }
   default:
@@ -336,7 +336,81 @@ Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
   std::vector<int64_t> sizes(pValue.sizes().size());
   for (int i = 0; i < pValue.sizes().size(); ++i)
     sizes[i] = pValue.sizes()[i].dim;
-  onncTensor->setDimensions(sizes);
+  result->setDimensions(sizes);
+  return result;
+}
 
-  return onncTensor;
+Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
+                                       const ::onnx::Tensor& pTensor)
+{
+  return DoCreateComputeTensor(*getComputeGraph(), pValue, pTensor);
+}
+
+Tensor* CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue)
+{
+  Tensor* result = nullptr;
+  switch (pValue.elemType()) {
+  case Value::kInt8: {
+    result = pCG.addValue<onnc::Int8Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kInt16: {
+    result = pCG.addValue<onnc::Int16Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kInt32: {
+    result = pCG.addValue<onnc::Int32Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kInt64: {
+    result = pCG.addValue<onnc::Int64Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kUint8: {
+    result = pCG.addValue<onnc::Uint8Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kUint16: {
+    result = pCG.addValue<onnc::Uint16Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kUint32: {
+    result = pCG.addValue<onnc::Uint32Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kUint64: {
+    result = pCG.addValue<onnc::Uint64Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kFloat: {
+    result = pCG.addValue<onnc::FloatTensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kFloat16: {
+    result = pCG.addValue<onnc::Float16Tensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kString: {
+    result = pCG.addValue<onnc::StringTensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kBoolean: {
+    result = pCG.addValue<onnc::BooleanTensor>(pValue.uniqueName());
+    break;
+  }
+  case Value::kDouble: {
+    result = pCG.addValue<onnc::DoubleTensor>(pValue.uniqueName());
+    break;
+  }
+  default:
+    errs() << "createTensor error: unknow elemtype = "
+           << pValue.elemType() << "\n";
+    return nullptr;
+  }
+
+  std::vector<int64_t> sizes(pValue.sizes().size());
+  for (int i = 0; i < pValue.sizes().size(); ++i)
+    sizes[i] = pValue.sizes()[i].dim;
+  result->setDimensions(sizes);
+  return result;
 }
