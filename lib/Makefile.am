@@ -28,8 +28,14 @@ ONNC_SOURCES = \
 	IR/Compute/Conv.cpp \
   IR/Compute/Concat.cpp \
 	IR/Compute/Gemm.cpp \
-	IR/Compute/Relu.cpp \
 	IR/Compute/LRN.cpp \
+	IR/Compute/MaxPool.cpp \
+	IR/Compute/Upsample.cpp \
+	IR/Compute/Relu.cpp \
+	IR/Compute/Reshape.cpp \
+	IR/Compute/Softmax.cpp \
+	IR/Compute/Sum.cpp \
+	IR/Compute/Xor.cpp \
 	IR/Compute/Initializer.cpp \
 	IR/Graph/InitializerProxy.cpp \
 	Target/Target.cpp \
