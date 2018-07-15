@@ -32,7 +32,7 @@ TGLRN *TGLRN::addMemOperands(MemOperand *pInput, MemOperand *pSquLut,
   return this;
 }
 
-void TGLRN::TGLRN::emit() const
+void TGLRN::emit() const
 {
   bmnet::bmnet_asm::bmnet_lrn_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input
@@ -41,6 +41,20 @@ void TGLRN::TGLRN::emit() const
       m_MemOperands[2]->m_Addr, // power_lut,
       m_N, m_C, m_H, m_W, m_LocalSize, m_SumRightShiftWidth,
       m_LrnRightShiftWidth, m_ThresholdXQuantized);
+}
+
+void TGLRN::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
+{
+  for (int i = 0; i < pLayerCtable->blob_param_size(); ++i) {
+    std::string outputName = m_MemOperands[3]->m_Name;
+    if (pLayerCtable->blob_param(i).name() == outputName) {
+      m_LrnRightShiftWidth = pLayerCtable->blob_param(i).right_shift_width();
+    } else if (pLayerCtable->blob_param(i).name() == "sum_sq") {
+      m_SumRightShiftWidth = pLayerCtable->blob_param(i).right_shift_width();
+    }
+  }
+  m_ThresholdXQuantized[0] = pLayerCtable->threshold_x_quantized(0);
+  m_ThresholdXQuantized[1] = pLayerCtable->threshold_x_quantized(1);
 }
 
 } // namespace BM188X

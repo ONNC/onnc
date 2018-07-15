@@ -19,10 +19,12 @@ public:
 
   void emit() const override;
   void
-  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override
-  {
-    // TODO
-  }
+  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
+
+  float getAlpha() { return m_Alpha; }
+  float getBeta() { return m_Beta; }
+  float getBias() { return m_K; }
+  int getLocalSize() { return m_LocalSize; }
 
 private:
   int m_N;
