@@ -60,6 +60,7 @@ static bool isConstantInput(const onnx::Node *pNode, size_t pIndex)
                                                           { 1, 2, 3, 4 } },
                                                         { "Mul", { 1 } },
                                                         { "Add", { 1 } },
+                                                        { "PRelu", { 1 } },
                                                         { "Unsqueeze", { 0 } },
                                                         { "Gemm", { 1, 2 } } };
   // clang-format on
