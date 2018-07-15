@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReluLower.h>
 #include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
@@ -50,7 +51,19 @@ ReluLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   onnc::Relu* op = pGraph.addOperator<onnc::Relu>();
 
   // set input/output
-  op->setX(*pGraph.getValue<onnc::Tensor>(ox->uniqueName()));
-  op->setY(*pGraph.getValue<onnc::Tensor>(oy->uniqueName()));
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
+  }
+
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
+
   return op;
 }
