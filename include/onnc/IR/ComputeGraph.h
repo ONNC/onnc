@@ -15,6 +15,9 @@
 #include <onnc/IR/ComputeOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
 #include <onnc/Support/Casting.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/JSON/Value.h>
+#include <iosfwd>
 #include <set>
 
 namespace onnc {
@@ -125,6 +128,12 @@ public:
   const_bfs_iterator bfs_begin() const;
 
   const_bfs_iterator bfs_end() const;
+
+  void print(std::ostream& pOS) const;
+
+  void print(json::Value& pJSON) const;
+
+  void dump() const { print(errs()); }
 
 private:
   typedef std::unordered_set<Node*> NodeList;

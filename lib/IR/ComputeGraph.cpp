@@ -185,3 +185,11 @@ ComputeGraph::const_bfs_iterator ComputeGraph::bfs_end() const
 {
   return const_bfs_iterator();
 }
+
+void ComputeGraph::print(std::ostream& pOS) const
+{
+}
+
+void ComputeGraph::print(json::Value& pValue) const
+{
+}
