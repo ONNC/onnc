@@ -45,11 +45,11 @@ ONNC_SOURCES = \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp \
 	Transforms/removeUnusedNodes.cpp \
+	Transforms/BookONNXGraphs.cpp \
 	Transforms/PreTensorSel.cpp \
 	Transforms/GraphPairPass.cpp \
 	Transforms/ComplementInitializers.cpp \
 	Transforms/ComplementInputOperators.cpp \
-	Transforms/ComplementOutputOperators.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
