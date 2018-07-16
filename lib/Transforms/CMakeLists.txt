@@ -1,6 +1,10 @@
 
 add_libonnc_src(
     BookONNXGraphs.cpp
+    ComplementInitializers.cpp
+    ComplementInputOperators.cpp
+    ComplementOutputOperators.cpp
+    GraphPairPass.cpp
     removeUnusedNodes.cpp
     PreTensorSel.cpp
     TensorSel.cpp
