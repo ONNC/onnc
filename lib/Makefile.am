@@ -48,6 +48,8 @@ ONNC_SOURCES = \
 	Transforms/PreTensorSel.cpp \
 	Transforms/GraphPairPass.cpp \
 	Transforms/ComplementInitializers.cpp \
+	Transforms/ComplementInputOperators.cpp \
+	Transforms/ComplementOutputOperators.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
