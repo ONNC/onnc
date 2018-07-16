@@ -78,8 +78,14 @@ ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const ::onnx::Node &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLLoad(pNode);
-  auto *input_memop =
-      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto is_neuron = pNode.i(::onnx::Symbol("is_neuron"));
+  MemType mem_type;
+  if (is_neuron) {
+    mem_type = MemType::NEURON;
+  } else {
+    mem_type = MemType::WEIGHT;
+  }
+  auto *input_memop = m_pBackend->getMemOperand(pNode.inputs()[0], mem_type);
   op->addMemOperands(input_memop);
   return op;
 }
@@ -88,10 +94,16 @@ ComputeOperator2 *BM188xISelLowering::LowerTLStore(const ::onnx::Node &pNode,
                                                    ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLStore(pNode);
+  auto is_neuron = pNode.i(::onnx::Symbol("is_neuron"));
+  MemType mem_type;
+  if (is_neuron) {
+    mem_type = MemType::NEURON;
+  } else {
+    mem_type = MemType::WEIGHT;
+  }
   // FIXME(arcbbb): It's a workaround.
   // not to violate SSA, we add output value as input.
-  auto *output_memop =
-      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output_memop = m_pBackend->getMemOperand(pNode.inputs()[0], mem_type);
   op->addMemOperands(output_memop);
   return op;
 }
