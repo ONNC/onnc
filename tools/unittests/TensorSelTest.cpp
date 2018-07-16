@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
+#include <onnc/Transforms/BookONNXGraphs.h>
 #include <onnc/Transforms/PreTensorSel.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/IR/IRBuilder.h>
@@ -62,6 +63,7 @@ SKYPAT_F(TensorSelTest, alexnet)
 
   pm.add(createRemoveUnusedNodesPass(), state);
   pm.add(CreateUpdateGraphOutputSizePass(), state);
+  pm.add(CreateBookONNXGraphs(), state);
   pm.add(CreatePreTensorSel(), state);
 
   /// create tensor selection

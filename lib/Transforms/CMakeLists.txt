@@ -1,5 +1,6 @@
 
 add_libonnc_src(
+    BookONNXGraphs.cpp
     removeUnusedNodes.cpp
     PreTensorSel.cpp
     TensorSel.cpp
