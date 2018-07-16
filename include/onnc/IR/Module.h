@@ -25,6 +25,8 @@ namespace onnc {
 class Module
 {
 public:
+  typedef ::onnx::Graph TensorGraph;
+
   typedef StringMap<::onnx::Graph*> TensorGraphList;
   typedef TensorGraphList::iterator tg_iterator;
   typedef TensorGraphList::const_iterator const_tg_iterator;
@@ -33,7 +35,7 @@ public:
   typedef ComputeGraphList::iterator cg_iterator;
   typedef ComputeGraphList::const_iterator const_cg_iterator;
 
-  typedef ComputeGraph::ArcList ComputeOperandList;
+  typedef std::unordered_set<ComputeOperand*> ComputeOperandList;
   typedef std::vector<onnc::Define*> ComputeDefineList;
 
   typedef StringMap<Value*> ValueList;
