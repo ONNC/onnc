@@ -16,6 +16,7 @@
 #include <onnc/Transforms/ComplementInputOperators.h>
 #include <onnc/Transforms/ComplementInitializers.h>
 #include <onnc/IRReader/ONNXReader.h>
+#include <onnc/Transforms/ComplementOutputOperators.h>
 #include <onnc/ADT/Rope.h>
 #include <onnc/Support/OFStream.h>
 
@@ -68,6 +69,7 @@ SKYPAT_F(TensorSelTest, alexnet)
   pm.add(CreateBookONNXGraphs(), state);
   pm.add(CreateComplementInitializers(), state);
   pm.add(CreateComplementInputOperators(), state);
+  pm.add(CreateComplementOutputOperators(), state);
 
   /// create tensor selection
   TensorSel* tensor_selection = new TensorSel();
@@ -130,6 +132,15 @@ SKYPAT_F(TensorSelTest, alexnet)
   }
 
   // ComplementInputOperators
+  pm.step(module, state);
+  {
+    errs() << state.pass->getPassName() << std::endl;
+    OFStream os((Rope(++counter) + Rope(".") +
+                 Rope(state.pass->getPassName()) + (".log")).str());
+    module.print(os);
+  }
+
+  // ComplementOutputOperators
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;
