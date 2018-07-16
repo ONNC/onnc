@@ -37,8 +37,8 @@ Pass::ReturnType TensorSel::runOnModule(::onnc::Module &pModule)
                      ::onnx::graph_node_list_iterator> tag;
   std::stack<tag> worklist;
 
-  ::onnx::Graph* topOnnxG = pModule.getGraphIR().get();
-  ComputeGraph* topCG = pModule.begin()->value();
+  ::onnx::Graph* topOnnxG = pModule.getRootTensorGraph();
+  ComputeGraph* topCG = pModule.cgBegin()->value();
 
   worklist.push(tag{topOnnxG, topCG, topOnnxG->begin()});
 

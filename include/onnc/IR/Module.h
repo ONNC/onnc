@@ -25,6 +25,10 @@ namespace onnc {
 class Module
 {
 public:
+  typedef StringMap<::onnx::Graph*> TensorGraphList;
+  typedef TensorGraphList::iterator tg_iterator;
+  typedef TensorGraphList::const_iterator const_tg_iterator;
+
   typedef StringMap<ComputeGraph*> ComputeGraphList;
   typedef ComputeGraphList::iterator cg_iterator;
   typedef ComputeGraphList::const_iterator const_cg_iterator;
@@ -104,11 +108,44 @@ public:
   // move @ref pGraph from outside.
   Module& delegate(::onnx::Graph& pGraph);
 
-  std::shared_ptr< ::onnx::Graph> getGraphIR() { return m_pOnnxGraph; }
+  /// obsolete function. Use getRootTensorGraph instead
+  std::shared_ptr< ::onnx::Graph> getGraphIR() { return m_RootTensorGraph; }
 
-  std::shared_ptr<const ::onnx::Graph> getGraphIR() const { return m_pOnnxGraph; }
+  /// obsolete function. Use getRootTensorGraph instead
+  std::shared_ptr<const ::onnx::Graph>
+  getGraphIR() const { return m_RootTensorGraph; }
 
-  bool hasGraphIR() const { return (0 != m_pOnnxGraph.use_count()); }
+  /// obsolete function. Use hasRootTensorGraph instead
+  bool hasGraphIR() const { return (0 != m_RootTensorGraph.use_count()); }
+
+  bool hasRootTensorGraph() const {
+    return (0 != m_RootTensorGraph.use_count());
+  }
+
+  ::onnx::Graph* getRootTensorGraph() { return m_RootTensorGraph.get(); }
+
+  const ::onnx::Graph* getRootTensorGraph() const { return m_RootTensorGraph.get(); }
+
+  /// get the graph named @ref pName
+  /// @retval nullptr not found
+  ::onnx::Graph* getTensorGraph(StringRef pName);
+
+  /// get the graph named @ref pName
+  /// @retval nullptr not found
+  const ::onnx::Graph* getTensorGraph(StringRef pName) const;
+
+  tg_iterator tgBegin() { return m_TensorGraphs.begin(); }
+
+  tg_iterator tgEnd() { return m_TensorGraphs.end(); }
+
+  const_tg_iterator tgBegin() const { return m_TensorGraphs.begin(); }
+
+  const_tg_iterator tgEnd() const { return m_TensorGraphs.end(); }
+
+  /// record a sub graph ::onnx::Graph.
+  /// @retval false failed to record. The subgraph has existed
+  /// @retval true  success to record.
+  bool recordSubgraph(::onnx::Graph& pSubgraph);
 
   MetaDataMap &getMetaData() { return m_OnnxMetaData; }
 
@@ -136,13 +173,13 @@ public:
   /// @retval nullptr not found
   const ComputeGraph* getComputeGraph(StringRef pName) const;
 
-  cg_iterator begin() { return m_ComputeGraphs.begin(); }
+  cg_iterator cgBegin() { return m_ComputeGraphs.begin(); }
 
-  cg_iterator end() { return m_ComputeGraphs.end(); }
+  cg_iterator cgEnd() { return m_ComputeGraphs.end(); }
 
-  const_cg_iterator begin() const { return m_ComputeGraphs.begin(); }
+  const_cg_iterator cgBegin() const { return m_ComputeGraphs.begin(); }
 
-  const_cg_iterator end() const { return m_ComputeGraphs.end(); }
+  const_cg_iterator cgEnd() const { return m_ComputeGraphs.end(); }
 
   /// return the number of compute graphs
   unsigned getNumOfComputeGraphs() const { return m_ComputeGraphs.numOfEntries(); }
@@ -183,7 +220,9 @@ public:
 
 private:
   // Graph IR field
-  std::shared_ptr< ::onnx::Graph> m_pOnnxGraph;
+  std::shared_ptr< ::onnx::Graph> m_RootTensorGraph;
+  TensorGraphList m_TensorGraphs;
+
   OnnxInfo m_OnnxInfo;
   OpsetImport m_OnnxSetId;
   MetaDataMap m_OnnxMetaData;

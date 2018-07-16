@@ -112,7 +112,8 @@ PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
 // Module
 //===----------------------------------------------------------------------===//
 Module::Module()
-  : m_pOnnxGraph(),
+  : m_RootTensorGraph(),
+    m_TensorGraphs(),
     m_OnnxInfo(),
     m_OnnxSetId(),
     m_OnnxMetaData(),
@@ -121,7 +122,8 @@ Module::Module()
 }
 
 Module::Module(std::unique_ptr< ::onnx::Graph> pGraph)
-  : m_pOnnxGraph(std::move(pGraph)),
+  : m_RootTensorGraph(std::move(pGraph)),
+    m_TensorGraphs(),
     m_OnnxInfo(),
     m_OnnxSetId(),
     m_OnnxMetaData(),
@@ -131,11 +133,13 @@ Module::Module(std::unique_ptr< ::onnx::Graph> pGraph)
 
 Module::~Module()
 {
-  if (1 < m_pOnnxGraph.use_count()) {
+  // Supposedly subgraph can be deleted by destructing top-level graph
+  if (1 < m_RootTensorGraph.use_count()) {
     // display error because Module should response for the life cycle of IR.
     error(onnx_graph_alive);
   }
-  m_pOnnxGraph.reset();
+  m_RootTensorGraph.reset();
+
   for (auto entry : m_Values) {
     Value* v = entry.value();
     delete v;
@@ -145,16 +149,34 @@ Module::~Module()
 
 Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
 {
-  if (m_pOnnxGraph)
-    m_pOnnxGraph.reset();
-  m_pOnnxGraph = std::move(pGraph);
-  return *this;
+  if (m_RootTensorGraph)
+    m_RootTensorGraph.reset();
+  return delegate(*pGraph.release());
 }
 
 Module& Module::delegate(::onnx::Graph& pGraph)
 {
-  m_pOnnxGraph.reset(&pGraph);
+  m_RootTensorGraph.reset(&pGraph);
+
+  bool exist = false;
+  TensorGraphList::entry_type* entry = nullptr;
+  if (m_RootTensorGraph->has_name())
+    entry = m_TensorGraphs.insert(m_RootTensorGraph->name(), exist);
+  else
+    entry = m_TensorGraphs.insert("top-level", exist);
+  entry->setValue(m_RootTensorGraph.get());
   return *this;
+}
+
+bool Module::recordSubgraph(::onnx::Graph& pSubgraph)
+{
+  bool exist = false;
+  TensorGraphList::entry_type* entry = m_TensorGraphs.insert(pSubgraph.name(), exist);
+  if (exist)
+    return false;
+
+  entry->setValue(&pSubgraph);
+  return true;
 }
 
 ComputeGraph* Module::getComputeGraph(StringRef pName)
@@ -218,11 +240,11 @@ void Module::print(std::ostream& pOS) const
     return;
   }
 
-  pOS << "graph " << getGraphIR()->name() << "{\n";
+  pOS << "graph " << getRootTensorGraph()->name() << "{\n";
 
   // XXX: This is ONNX's failure. They forget to write a constant
   // version of ::onnx::Graph::initializer_names()
-  ::onnx::Graph* graph = const_cast<::onnx::Graph*>(getGraphIR().get());
+  ::onnx::Graph* graph = const_cast<::onnx::Graph*>(getRootTensorGraph());
 
   // dump graph initializers
   pOS << "  initializers: {\n";

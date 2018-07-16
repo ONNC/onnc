@@ -62,7 +62,7 @@ void IRBuilder::update(const ::onnx::ModelProto& pProto)
     getModule().getMetaData().insert({ strStrEntry.key(), strStrEntry.value() });
   }
 
-  getInsertionPoint().setTensorGraph(*getModule().getGraphIR().get());
+  getInsertionPoint().setTensorGraph(*getModule().getRootTensorGraph());
 }
 
 void IRBuilder::setComputeGraph(ComputeGraph* pCG)

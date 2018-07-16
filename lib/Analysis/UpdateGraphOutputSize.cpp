@@ -126,7 +126,7 @@ void UpdateGraphOutputSize::updateOutputValueInfo(onnx::Graph *pGraph)
 
 Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
 {
-  onnx::Graph *graph = pModule.getGraphIR().get();
+  onnx::Graph *graph = pModule.getRootTensorGraph();
 
   // update input batch size and reset old output valueInfo
   if (m_BatchSize > 0) {

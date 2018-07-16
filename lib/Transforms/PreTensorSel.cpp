@@ -22,7 +22,7 @@ char PreTensorSel::ID = 0;
 Pass::ReturnType PreTensorSel::runOnModule(::onnc::Module &pModule)
 {
   IRBuilder builder(pModule);
-  ::onnx::Graph* graph = pModule.getGraphIR().get();
+  ::onnx::Graph* graph = pModule.getRootTensorGraph();
 
   // Create top-level graph
   if (graph->has_name())

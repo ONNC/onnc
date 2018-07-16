@@ -19,7 +19,7 @@ public:
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
-    ::onnx::Graph *graph = pModule.getGraphIR().get();
+    ::onnx::Graph *graph = pModule.getRootTensorGraph();
     Pass::ReturnType isChanged = Pass::kModuleNoChanged;
     for (auto it = graph->begin(), ie = graph->end(); it != ie; ++it) {
       auto *node = *it;
