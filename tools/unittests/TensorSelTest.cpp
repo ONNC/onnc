@@ -13,6 +13,8 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/Transforms/removeUnusedNodes.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/Transforms/ComplementInputOperators.h>
+#include <onnc/Transforms/ComplementInitializers.h>
 #include <onnc/IRReader/ONNXReader.h>
 #include <onnc/ADT/Rope.h>
 #include <onnc/Support/OFStream.h>
@@ -64,7 +66,8 @@ SKYPAT_F(TensorSelTest, alexnet)
   pm.add(createRemoveUnusedNodesPass(), state);
   pm.add(CreateUpdateGraphOutputSizePass(), state);
   pm.add(CreateBookONNXGraphs(), state);
-  pm.add(CreatePreTensorSel(), state);
+  pm.add(CreateComplementInitializers(), state);
+  pm.add(CreateComplementInputOperators(), state);
 
   /// create tensor selection
   TensorSel* tensor_selection = new TensorSel();
@@ -108,7 +111,7 @@ SKYPAT_F(TensorSelTest, alexnet)
     module.print(os);
   }
 
-  // PreTensorSel
+  // BookONNXGraphs
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;
@@ -117,7 +120,16 @@ SKYPAT_F(TensorSelTest, alexnet)
     module.print(os);
   }
 
-  // TensorSel
+  // ComplementInitializers
+  pm.step(module, state);
+  {
+    errs() << state.pass->getPassName() << std::endl;
+    OFStream os((Rope(++counter) + Rope(".") +
+                 Rope(state.pass->getPassName()) + (".log")).str());
+    module.print(os);
+  }
+
+  // ComplementInputOperators
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;
