@@ -82,10 +82,10 @@ public:
   void replaceInput(unsigned int pIdx, onnc::Value& pValue);
 
   /// Use covariant return type to override this function
-  virtual onnc::Value* getOutput(unsigned int pIdx) { return m_Inputs[pIdx]; }
+  virtual onnc::Value* getOutput(unsigned int pIdx) { return m_Outputs[pIdx]; }
 
   /// Use covariant return type to override this function
-  virtual const onnc::Value* getOutput(unsigned int pIdx) const { return m_Inputs[pIdx]; }
+  virtual const onnc::Value* getOutput(unsigned int pIdx) const { return m_Outputs[pIdx]; }
 
   /// display the operator
   void print(std::ostream& pOS) const = 0;
