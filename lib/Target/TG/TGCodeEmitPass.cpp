@@ -24,11 +24,11 @@ public:
   {
     const ::onnx::Graph *graph = pModule.getGraphIR().get();
     TGCodeEmitter *CE = m_Target->getTargetCodeEmitter();
-    CE->genWeightBin(m_OutputFilename + ".weight.bin");
     if (m_OutputFilename == "-") {
       CE->genRuntimeInfo(graph, onnc::outs());
       CE->encodeInstructions(onnc::outs());
     } else {
+      CE->genWeightBin(m_OutputFilename + ".weight.bin");
       std::fstream rt_fp(m_OutputFilename + ".rt.json",
                          std::ios::out | std::ios::binary);
       CE->genRuntimeInfo(graph, rt_fp);
