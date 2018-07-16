@@ -9,6 +9,8 @@
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Diagnostic/MsgHandling.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/IR/Dump.h>
 #include <tuple>
 #include <stack>
 
@@ -20,7 +22,7 @@ char TensorSel::ID = 0;
 // TensorSel
 //===----------------------------------------------------------------------===//
 TensorSel::TensorSel(const TargetBackend* pBackend)
-  : ModulePass(ID), m_pBackend(pBackend), m_LowerRegistry() {
+  : GraphPairPass(ID), m_pBackend(pBackend), m_LowerRegistry() {
   if (nullptr != m_pBackend) {
     m_pBackend->RegisterLowers(m_LowerRegistry);
   }
@@ -31,58 +33,21 @@ TensorSel::~TensorSel()
   m_LowerRegistry.clear();
 }
 
-Pass::ReturnType TensorSel::runOnModule(::onnc::Module &pModule)
+Pass::ReturnType TensorSel::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 {
-  typedef std::tuple<::onnx::Graph*, ComputeGraph*,
-                     ::onnx::graph_node_list_iterator> tag;
-  std::stack<tag> worklist;
-
-  ::onnx::Graph* topOnnxG = pModule.getRootTensorGraph();
-  ComputeGraph* topCG = pModule.cgBegin()->value();
-
-  worklist.push(tag{topOnnxG, topCG, topOnnxG->begin()});
-
-  IRBuilder builder(pModule);
-
-  // iterative based dfs lowering onnx graph.
-  while (!worklist.empty()) {
-    ::onnx::Graph* onnxG;
-    ComputeGraph* computeG;
-    ::onnx::graph_node_list_iterator onnxNIter;
-
-    std::tie(onnxG, computeG, onnxNIter) = worklist.top();
-    worklist.pop();
-
-    while (onnxNIter != onnxG->end()) {
-      ::onnx::Node* onnxN = *onnxNIter;
-      ++onnxNIter;
-      if (onnxN->kind() == ::onnx::kUndefined)
-        continue;
-
-      // create new compute graph if this is subgraph node.
-      if (onnxN->hasAttribute(::onnx::kSubgraph)) {
-        // push current onto stack, lower new subgraph first.
-        worklist.push(tag{onnxG, computeG, onnxNIter});
-
-        onnxG = &*onnxN->g(::onnx::kSubgraph);
-        computeG = builder.CreateComputeGraph(onnxG->name());
-        onnxNIter = onnxG->begin();
-      }
-      else {
-        Lower* lower = m_LowerRegistry.lookup(*onnxN);
-        if (nullptr == lower) {
-          if (onnxN->has_name())
-            fatal(no_corre_lower) << onnxN->name();
-          else
-            fatal(no_corre_lower) << onnxN->kind().toString();
-          return Pass::kPassFailure;
-        }
-
-        lower->activate(*computeG, *onnxN);
-      }
-    } // end of while
-  } // end of stack empty checking
-
+  ::onnx::graph_node_list_iterator tg_node, tg_end = pTG.end();
+  for (tg_node = pTG.begin(); tg_node != tg_end; ++tg_node) {
+    // lower creates corresponding compute operator and values
+    Lower* lower = m_LowerRegistry.lookup(**tg_node);
+    if (nullptr == lower) {
+      if (tg_node->has_name())
+        fatal(no_corre_lower) << tg_node->name();
+      else
+        fatal(no_corre_lower) << tg_node->kind().toString();
+      return Pass::kPassFailure;
+    }
+    lower->activate(pCG, **tg_node);
+  }
   return Pass::kModuleChanged;
 }
 

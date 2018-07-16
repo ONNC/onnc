@@ -69,7 +69,6 @@ SKYPAT_F(TensorSelTest, alexnet)
   pm.add(CreateBookONNXGraphs(), state);
   pm.add(CreateComplementInitializers(), state);
   pm.add(CreateComplementInputOperators(), state);
-  pm.add(CreateComplementOutputOperators(), state);
 
   /// create tensor selection
   TensorSel* tensor_selection = new TensorSel();
@@ -93,6 +92,7 @@ SKYPAT_F(TensorSelTest, alexnet)
   tensor_selection->getLowerRegistry().emplace<onnc::LRNLower>();
   tensor_selection->getLowerRegistry().emplace<onnc::SoftmaxLower>();
   pm.add(tensor_selection, state);
+  pm.add(CreateComplementOutputOperators(), state);
 
   // RemoveUnusedNodesPass
   int counter = 0;
@@ -132,6 +132,15 @@ SKYPAT_F(TensorSelTest, alexnet)
   }
 
   // ComplementInputOperators
+  pm.step(module, state);
+  {
+    errs() << state.pass->getPassName() << std::endl;
+    OFStream os((Rope(++counter) + Rope(".") +
+                 Rope(state.pass->getPassName()) + (".log")).str());
+    module.print(os);
+  }
+
+  // TensorSel 
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;

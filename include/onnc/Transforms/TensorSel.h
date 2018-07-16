@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_TENSOR_SELECTION_H
 #define ONNC_TRANSFORM_TENSOR_SELECTION_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Transforms/GraphPairPass.h>
 #include <onnc/Target/TargetBackend.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
 
@@ -17,7 +17,7 @@ namespace onnc {
  *  \brief TensorSel converts ONNX node to ComputeOperator and creates
  *  ComputeGraph objects for subgraph in ONNX.
  */
-class TensorSel : public ModulePass
+class TensorSel : public GraphPairPass
 {
 public:
   static char ID;
@@ -27,13 +27,13 @@ public:
 
   virtual ~TensorSel();
 
-  Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
-
   LowerRegistry& getLowerRegistry() { return m_LowerRegistry; }
 
   const LowerRegistry& getLowerRegistry() const { return m_LowerRegistry; }
 
   StringRef getPassName() const override { return "TensorSel"; }
+
+  Pass::ReturnType runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG) override;
 
 protected:
   const TargetBackend* m_pBackend;
