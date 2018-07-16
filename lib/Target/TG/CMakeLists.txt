@@ -1,5 +1,6 @@
 
-set(bm_PYTHONPATH ${CMAKE_CURRENT_SOURCE_DIR}/python)
+set(bm_target_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
+set(bm_PYTHONPATH ${bm_target_path}/target)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 

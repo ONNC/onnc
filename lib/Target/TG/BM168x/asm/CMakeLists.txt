@@ -3,13 +3,15 @@ set(bmkernel_api_h ${ONNC_SOURCE_DIR}/include/onnc/Target/TG/BM168x/bmkernel_api
 set(asm_proto ${CMAKE_CURRENT_SOURCE_DIR}/bm168x_asm.proto)
 set(asm_files ${bmkernel_api_h} ${asm_proto})
 add_custom_command(OUTPUT ${asm_files}
-    COMMAND PYTHONPATH=${bm_PYTHONPATH} python3 ${CMAKE_CURRENT_SOURCE_DIR}/asm.py
-    --api ${bmkernel_api_h}
-    --proto ${asm_proto}
+    COMMAND PYTHONPATH=${bm_PYTHONPATH} python3 -B ${bm_target_path}/target/BM168x/asm.py
+    --api-in ${CMAKE_CURRENT_SOURCE_DIR}/bmkernel_api.h.in
+    --api-out ${bmkernel_api_h}
+    --proto-in ${bm_target_path}/target/BM168x/asm.proto.in
+    --proto-out ${asm_proto}
     DEPENDS
-    asm.py
+    ${bm_target_path}/target/BM168x/asm.py
     bmkernel_api.h.in
-    asm.proto.in
+    ${bm_target_path}/target/BM188x/asm.proto.in
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_custom_target(gen_168x_asm_proto
     DEPENDS ${asm_files})
