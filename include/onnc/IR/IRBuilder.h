@@ -9,7 +9,7 @@
 #define ONNC_IR_IR_BUILDER_H
 #include <onnc/IR/Module.h>
 #include <onnc/IR/InsertionPoint.h>
-#include <onnc/IR/Graph/InitializerProxy.h>
+#include <onnc/IR/Tensor/InitializerProxy.h>
 #include <onnx/common/ir_pb_converter.h>
 #include <onnx/common/ir.h>
 #include <onnc/ADT/StringMap.h>

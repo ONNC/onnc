@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/IR/Graph/InitializerProxy.h>
+#include <onnc/IR/Tensor/InitializerProxy.h>
 
 using namespace onnc;
 
