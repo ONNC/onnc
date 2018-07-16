@@ -26,8 +26,8 @@ class Module
 {
 public:
   typedef StringMap<ComputeGraph*> ComputeGraphList;
-  typedef ComputeGraphList::iterator compute_iterator;
-  typedef ComputeGraphList::const_iterator const_compute_iterator;
+  typedef ComputeGraphList::iterator cg_iterator;
+  typedef ComputeGraphList::const_iterator const_cg_iterator;
 
   typedef ComputeGraph::ArcList ComputeOperandList;
   typedef std::vector<onnc::Define*> ComputeDefineList;
@@ -136,13 +136,13 @@ public:
   /// @retval nullptr not found
   const ComputeGraph* getComputeGraph(StringRef pName) const;
 
-  compute_iterator begin() { return m_ComputeGraphs.begin(); }
+  cg_iterator begin() { return m_ComputeGraphs.begin(); }
 
-  compute_iterator end() { return m_ComputeGraphs.end(); }
+  cg_iterator end() { return m_ComputeGraphs.end(); }
 
-  const_compute_iterator begin() const { return m_ComputeGraphs.begin(); }
+  const_cg_iterator begin() const { return m_ComputeGraphs.begin(); }
 
-  const_compute_iterator end() const { return m_ComputeGraphs.end(); }
+  const_cg_iterator end() const { return m_ComputeGraphs.end(); }
 
   /// return the number of compute graphs
   unsigned getNumOfComputeGraphs() const { return m_ComputeGraphs.numOfEntries(); }
