@@ -67,7 +67,7 @@ void GlobalMemAlloc::AllocGlobalMem()
       }
       mem->m_Size = tensor_size;
       allocatedValue.insert({ mem->m_Value, mem });
-      DEBUG(dbgs() << tab << mem << "\n");
+      DEBUG(dbgs() << tab << *mem << "\n");
     }
   }
 }
