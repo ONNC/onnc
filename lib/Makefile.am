@@ -46,6 +46,7 @@ ONNC_SOURCES = \
 	Target/NPUTargetBackend.cpp \
 	Transforms/removeUnusedNodes.cpp \
 	Transforms/PreTensorSel.cpp \
+	Transforms/GraphPairPass.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
