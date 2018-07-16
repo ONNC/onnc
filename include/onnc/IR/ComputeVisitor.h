@@ -10,6 +10,12 @@
 
 namespace onnc {
 
+/// ONNC defined operators
+class Initializer;
+class InputOperator;
+class OutputOperator;
+
+/// ONNX defined operators
 class Abs;
 class Acos;
 class Add;
@@ -45,7 +51,6 @@ class GlobalMaxPool;
 class Greater;
 class HardSigmoid;
 class Hardmax;
-class Initializer;
 class Identity;
 class InstanceNormalization;
 class LRN;
@@ -133,6 +138,13 @@ class ThresholdedRelu;
 class ComputeVisitor
 {
 public:
+  /// ONNC defined operators @{
+  virtual void visit(Initializer& pInitializer) { }
+  virtual void visit(InputOperator& pInputOperator) { }
+  virtual void visit(OutputOperator& pOutputOperator) { }
+
+  /// @}
+  /// ONNX defined operators @{
   virtual void visit(Abs& pAbs) { }
   virtual void visit(Acos& pAcos) { }
   virtual void visit(Add& pAdd) { }
@@ -168,7 +180,6 @@ public:
   virtual void visit(Greater& pGreater) { }
   virtual void visit(HardSigmoid& pHardSigmoid) { }
   virtual void visit(Hardmax& pHardmax) { }
-  virtual void visit(Initializer& pInitializer) { }
   virtual void visit(Identity& pIdentity) { }
   virtual void visit(InstanceNormalization& pInstanceNormalization) { }
   virtual void visit(LRN& pLRN) { }
@@ -249,6 +260,7 @@ public:
   virtual void visit(Scale& pScale) { }
   virtual void visit(ScaledTanh& pScaledTanh) { }
   virtual void visit(ThresholdedRelu& pThresholdedRelu) { }
+  /// @}
 };
 
 } // namespace of onnc

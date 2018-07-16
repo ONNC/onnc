@@ -37,6 +37,8 @@ ONNC_SOURCES = \
 	IR/Compute/Sum.cpp \
 	IR/Compute/Xor.cpp \
 	IR/Compute/Initializer.cpp \
+	IR/Compute/InputOperator.cpp \
+	IR/Compute/OutputOperator.cpp \
 	IR/Graph/InitializerProxy.cpp \
 	Target/Target.cpp \
 	Target/TargetBackend.cpp \
