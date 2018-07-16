@@ -116,6 +116,7 @@ Module::Module()
     m_OnnxInfo(),
     m_OnnxSetId(),
     m_OnnxMetaData(),
+    m_pRootComputeGraph(nullptr),
     m_ComputeGraphs() {
 }
 
@@ -124,6 +125,7 @@ Module::Module(std::unique_ptr< ::onnx::Graph> pGraph)
     m_OnnxInfo(),
     m_OnnxSetId(),
     m_OnnxMetaData(),
+    m_pRootComputeGraph(nullptr),
     m_ComputeGraphs() {
 }
 
@@ -185,6 +187,8 @@ ComputeGraph* Module::createComputeGraph(StringRef pName)
     return nullptr;
 
   entry->setValue(new ComputeGraph(pName, *this, m_ComputeOperands));
+  if (!hasRootComputeGraph())
+    m_pRootComputeGraph = entry->value();
   return entry->value();
 }
 

@@ -122,6 +122,12 @@ public:
 
   const OnnxInfo& getOnnxInfo() const { return m_OnnxInfo; }
 
+  bool hasRootComputeGraph() const { return (nullptr != m_pRootComputeGraph); }
+
+  ComputeGraph* getRootComputeGraph() { return m_pRootComputeGraph; }
+
+  const ComputeGraph* getRootComputeGraph() const { return m_pRootComputeGraph; }
+
   /// get the graph named @ref pName
   /// @retval nullptr not found
   ComputeGraph* getComputeGraph(StringRef pName);
@@ -183,6 +189,7 @@ private:
   MetaDataMap m_OnnxMetaData;
 
   // compute IR field
+  ComputeGraph* m_pRootComputeGraph;
   ComputeGraphList m_ComputeGraphs;
   ComputeOperandList m_ComputeOperands;
   ComputeDefineList m_ComputeDefines;
