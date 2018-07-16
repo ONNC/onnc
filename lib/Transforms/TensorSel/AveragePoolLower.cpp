@@ -61,11 +61,14 @@ AveragePoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
     op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
+
   if (pNode.hasAttribute(::onnx::Symbol("count_include_pad")))
     op->setCountIncludePad(pNode.i(::onnx::Symbol("count_include_pad")));
-  if (pNode.hasAttribute(::onnx::Symbol("pads")));
+
+  if (pNode.hasAttribute(::onnx::Symbol("pads")))
     op->setPads(pNode.is(::onnx::Symbol("pads")));
-  if (pNode.hasAttribute(::onnx::Symbol("strides")));
+
+  if (pNode.hasAttribute(::onnx::Symbol("strides")))
     op->setStrides(pNode.is(::onnx::Symbol("strides")));
 
   // set input/output
