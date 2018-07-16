@@ -47,6 +47,7 @@ ONNC_SOURCES = \
 	Transforms/removeUnusedNodes.cpp \
 	Transforms/PreTensorSel.cpp \
 	Transforms/GraphPairPass.cpp \
+	Transforms/ComplementInitializers.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \

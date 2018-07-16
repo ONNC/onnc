@@ -27,9 +27,10 @@ Pass::ReturnType GraphPairPass::runOnModule(::onnc::Module &pModule)
     ComputeGraph* cg = pModule.getComputeGraph(tg->value()->name());
     if (nullptr == cg)
       return Pass::kPassFailure;
-    result |= this->runOnGraphs(*tg->value(), *cg); 
-    if (Pass::IsFailed(result) || Pass::IsRetry(result))
-      return result;
+    Pass::ReturnType gres = this->runOnGraphs(*tg->value(), *cg); 
+    if (Pass::IsFailed(gres) || Pass::IsRetry(gres))
+      return gres;
+    result |= gres;
   }
   return result;
 }
