@@ -267,10 +267,9 @@ bool IRBuilder::FinalizeTensorGraph(const StringList& pOutputs)
   result = t; \
 }
 
-static Tensor*
-DoCreateComputeTensor(ComputeGraph& pCG,
-                      const ::onnx::Value& pValue,
-                      const ::onnx::Tensor& pTensor)
+Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG,
+                                       const ::onnx::Value& pValue,
+                                       const ::onnx::Tensor& pTensor)
 {
   const std::string &name = pValue.uniqueName();
   Tensor* result = nullptr;
@@ -343,7 +342,7 @@ DoCreateComputeTensor(ComputeGraph& pCG,
 Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
                                        const ::onnx::Tensor& pTensor)
 {
-  return DoCreateComputeTensor(*getComputeGraph(), pValue, pTensor);
+  return CreateComputeTensor(*getComputeGraph(), pValue, pTensor);
 }
 
 Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue)
