@@ -27,7 +27,9 @@ add_libonnc_src(
     Compute/Concat.cpp
     Compute/Gemm.cpp
     Compute/Conv.cpp
+    Compute/InputOperator.cpp
     Compute/MaxPool.cpp
+    Compute/OutputOperator.cpp
     Compute/Relu.cpp
     Compute/Reshape.cpp
     Compute/LRN.cpp
