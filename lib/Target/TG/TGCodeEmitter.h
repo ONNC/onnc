@@ -18,11 +18,12 @@ public:
 
   virtual ~TGCodeEmitter() = default;
 
-  virtual void encodeInstructions(const Path &pOutputPath) = 0;
+  virtual void encodeInstructions(std::ostream &pOS) = 0;
 
-  virtual void genWeightBin(const Path &pOutputPath) { return; }
+  virtual void genWeightBin(const std::string &pOutputFilename) { return; }
 
-  virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) = 0;
+  virtual void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+                              std::ostream &pOS) = 0;
 
 private:
   // void *m_BmkernelHandle;

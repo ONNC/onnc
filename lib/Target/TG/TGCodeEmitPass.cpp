@@ -1,5 +1,6 @@
 #include "TG.h"
 #include "TGBackend.h"
+#include <fstream>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
@@ -14,8 +15,8 @@ public:
   static char ID;
 
 public:
-  TGCodeEmit(TGBackend *pTarget, const Path &pOutputPath)
-      : ModulePass(ID), m_Target(pTarget), m_OutputPath(pOutputPath)
+  TGCodeEmit(TGBackend *pTarget, const std::string &pOutputFilename)
+      : ModulePass(ID), m_Target(pTarget), m_OutputFilename(pOutputFilename)
   {
   }
 
@@ -23,18 +24,23 @@ public:
   {
     const ::onnx::Graph *graph = pModule.getGraphIR().get();
     TGCodeEmitter *CE = m_Target->getTargetCodeEmitter();
-    // FIXME output path
-    CE->genRuntimeInfo(graph);
-    // FIXME output path
-    CE->genWeightBin("cmdbuf.weight.bin");
-    // FIXME assume BackendContxt require weight
-    CE->encodeInstructions(m_OutputPath);
+    CE->genWeightBin(m_OutputFilename + ".weight.bin");
+    if (m_OutputFilename == "-") {
+      CE->genRuntimeInfo(graph, onnc::outs());
+      CE->encodeInstructions(onnc::outs());
+    } else {
+      std::fstream rt_fp(m_OutputFilename + ".rt.json",
+                         std::ios::out | std::ios::binary);
+      CE->genRuntimeInfo(graph, rt_fp);
+      std::fstream asm_fp(m_OutputFilename + ".s", std::ios::out);
+      CE->encodeInstructions(asm_fp);
+    }
     return Pass::kModuleNoChanged;
   }
 
 private:
   TGBackend *m_Target;
-  Path m_OutputPath;
+  std::string m_OutputFilename;
 };
 
 } // anonymous namespace
@@ -42,7 +48,7 @@ private:
 char TGCodeEmit::ID = 0;
 
 ModulePass *onnc::createTGCodeEmitPass(TGBackend *pTarget,
-                                       const Path &pOutputPath)
+                                       const std::string &pOutputFilename)
 {
-  return new TGCodeEmit(pTarget, pOutputPath);
+  return new TGCodeEmit(pTarget, pOutputFilename);
 }

@@ -23,9 +23,10 @@ public:
 
   ~BM168xCodeEmitter() override = default;
 
-  void encodeInstructions(const Path &pOutputPath) override;
+  void encodeInstructions(std::ostream &pOS) override;
 
-  void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
+  void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+                      std::ostream &pOS) override;
 
 private:
   // void *m_BmkernelHandle; // NOLINT

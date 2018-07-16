@@ -11,12 +11,8 @@ BM168xCodeEmitter::BM168xCodeEmitter(TGBackend *pBackend)
 {
 }
 
-void BM168xCodeEmitter::encodeInstructions(const Path &pOutputPath)
+void BM168xCodeEmitter::encodeInstructions(std::ostream &pOS)
 {
-  Path output_path("cmdbuf.bin");
-  if (!pOutputPath.empty())
-    output_path = pOutputPath;
-
   // TODO refactor
   if (dynamic_cast<BM1680Backend *>(m_pBackend)) {
     DEBUG(dbgs() << "BM1680Backend BM168xCodeEmitter::encodeInstructions\n");
@@ -33,7 +29,8 @@ void BM168xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   assert(0);
 }
 
-void BM168xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
+void BM168xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+                                       std::ostream &pOS)
 {
   // TODO: Generate runtime info for BM168x.
   return;

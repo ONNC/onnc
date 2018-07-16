@@ -5,6 +5,21 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+// onnx2tg will generate assembly, weight and runtime file.
+
+// If filename is “-” or omitted, onnx2tg reads from standard input. Otherwise,
+// it will from filename. Inputs can be in onnx model(.onnx).
+
+// If the -o option is omitted, then onnx2tg will send its output except weight
+// to standard output if the input is from standard input. If the -o option
+// specifies “-“, then the output except weight will also be sent to standard
+// output.
+
+// If no -o option is specified and an input file other than “-” is specified,
+// then onnx2tg creates the output filename by taking the input filename,
+// removing existing .onnx extension, and adding a .s(assembly),
+// .weight.bin(weight) and .rt.json(runtime info) suffix for different outputs.
+
 #include "ONNX2TGApp.h"
 #include <iostream>
 #include <onnc/ADT/Color.h>

@@ -56,7 +56,7 @@ void TGBackend::addMemAlloc(PassManager &pPM)
 
 void TGBackend::addCodeEmit(PassManager &pPM, const Path &pOutput)
 {
-  pPM.add(createTGCodeEmitPass(this, pOutput));
+  pPM.add(createTGCodeEmitPass(this, pOutput.native()));
 }
 
 bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType pType)

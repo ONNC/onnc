@@ -172,33 +172,20 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 #endif
 }
 
-void BM188xCodeEmitter::genWeightBin(const Path &pOutputPath)
+void BM188xCodeEmitter::genWeightBin(const std::string &pOutputFilename)
 {
   prepareWeight(m_WeightData);
   if (!m_WeightData.empty())
-    bmnet::WriteInt8DataToBinaryFile(&m_WeightData,
-                                     pOutputPath.native().c_str());
+    bmnet::WriteInt8DataToBinaryFile(&m_WeightData, pOutputFilename.c_str());
 }
 
-void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
+void BM188xCodeEmitter::encodeInstructions(std::ostream &pOS)
 {
   auto &instList = m_Backend->getInsts();
   if (instList.empty())
     return;
 
-  Path output_path("cmdbuf.bin");
-  if (!pOutputPath.empty())
-    output_path = pOutputPath;
-
-  std::fstream fp;
-  if (m_Backend->getOption().m_DumpASM) {
-    if (m_Backend->getOption().m_ASMOutput.empty())
-      ::bmnet::bmnet_asm::asm_context::get_context().set_fp(onnc::outs());
-    else {
-      fp.open(m_Backend->getOption().m_ASMOutput, std::ios::out);
-      ::bmnet::bmnet_asm::asm_context::get_context().set_fp(fp);
-    }
-  }
+  ::bmnet::bmnet_asm::asm_context::get_context().set_fp(pOS);
   for (auto const &i : instList) {
     ::bmnet::bmnet_asm::asm_context::get_context().name = i->getLayerName();
     i->emit();
@@ -206,7 +193,8 @@ void BM188xCodeEmitter::encodeInstructions(const Path &pOutputPath)
   instList.clear();
 }
 
-void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
+void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+                                       std::ostream &pOS)
 {
   onnc::json::Object jRoot;
   onnc::json::Object jMemLayout;
@@ -300,13 +288,9 @@ void BM188xCodeEmitter::genRuntimeInfo(const ::onnx::Graph *pOnnxGraph)
   jRoot.insert("onnc out layer threshold", jOutputThres);
   jRoot.insert("data layer dim", jInputDim);
 
-  std::string sOutPath = pOnnxGraph->has_name()
-                             ? (pOnnxGraph->name() + "_runtime.json")
-                             : "runtime.json";
-  std::ofstream outfile(sOutPath, std::ofstream::binary);
-  onnc::IndentOStream oss(outfile);
+  // std::ofstream outfile(pOutputFilename, std::ofstream::binary);
+  onnc::IndentOStream oss(pOS);
   jRoot.print(oss);
-  outfile.close();
 
   return;
 }

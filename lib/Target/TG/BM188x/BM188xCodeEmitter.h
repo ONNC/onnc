@@ -27,13 +27,14 @@ public:
 
   ~BM188xCodeEmitter() override = default;
 
-  void encodeInstructions(const Path &pOutputPath) override;
+  void encodeInstructions(std::ostream &pOS) override;
 
   void prepareWeight(std::vector<int8_t> &pWeight);
 
-  void genWeightBin(const Path &pOutputPath) override;
+  void genWeightBin(const std::string &pOutputFilename) override;
 
-  void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph) override;
+  void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+                      std::ostream &pOS) override;
 
 private:
   // void *m_BmkernelHandle;
