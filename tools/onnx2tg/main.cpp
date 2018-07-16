@@ -20,30 +20,32 @@
 
 using namespace onnc;
 
-static AboutData g_About("onnx2tg", "onnc2tg", "0.1.0", AboutLicense::kPrivate,
-                         "ONNC is the compiler driver");
+static AboutData
+    g_About("onnx2tg", "onnc2tg", "0.1.0", AboutLicense::kPrivate,
+            "The onnx2tg command compiles ONNX models into "
+            "assembly(.s), weight(.weight.bin) and runtime files(.rt.json)");
 
-static cl::opt<std::string> OptInput("input", cl::kPositional, cl::kOptional,
-                                     cl::kValueRequired,
-                                     cl::desc("The input file"), cl::init("-"),
-                                     cl::about(g_About));
+static cl::opt<std::string> InputFilename("input", cl::kPositional,
+                                          cl::kOptional, cl::kValueRequired,
+                                          cl::desc("input onnx model"),
+                                          cl::init("-"), cl::about(g_About));
 
-static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
-                                      cl::kValueRequired,
-                                      cl::desc("The output file"),
-                                      cl::init("cmdbuf.bin"),
-                                      cl::about(g_About));
+static cl::opt<std::string> OutputFilename(
+    "o", cl::kShort, cl::kOptional, cl::kValueRequired,
+    cl::desc("output file basename for .s, .weight.bin and .rt.json"),
+    cl::about(g_About));
 
-static cl::opt<std::string> march("march", cl::kShort, cl::kOptional,
-                                  cl::kValueRequired,
-                                  cl::desc("The march of TG [bm1680|bm1880]"),
-                                  cl::init("bm1880"), cl::about(g_About));
+static cl::opt<std::string>
+    march("march", cl::kShort, cl::kOptional, cl::kValueRequired,
+          cl::desc("The march of Bimain TG [bm1680|bm1880]"),
+          cl::init("bm1880"), cl::about(g_About));
 
 static cl::opt<bool>
     dumpASM("S", cl::kShort, cl::kOptional, cl::kValueDisallowed,
             cl::init(false),
             cl::desc("Print ASM(generated machine code) for debugging"),
             cl::about(g_About));
+
 static cl::opt<std::string> asm_output("so", cl::kShort, cl::kOptional,
                                        cl::kValueRequired,
                                        cl::desc("asm output file name"),
@@ -92,12 +94,18 @@ int main(int pArgc, char *pArgv[])
     exit(0);
   }
 
-  onnx2tg.options().setInput(OptInput);
+  onnx2tg.options().setInput(InputFilename);
+  std::string OFN = OutputFilename;
+  if (OutputFilename.empty()) {
+    StringRef IFN = InputFilename;
+    if (IFN.endswith(".onnx"))
+      OFN = IFN.drop_back(5);
+    else
+      OFN = IFN;
+  }
 
   // set up output
-  if (OptOutput.hasOccurrence())
-    onnx2tg.options().setOutput(OptOutput);
-
+  onnx2tg.options().setOutput(OFN);
   onnx2tg.options().setMarch(march);
   onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
   onnx2tg.options().setDumpASM(dumpASM);
