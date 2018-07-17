@@ -1,5 +1,5 @@
 
-set(common_option -S -print-module-before-isel)
+set(common_option -print-module-before-isel)
 
 tg_test(ASM_NAME lenet_with_weight.s         MARCH bm1880 ONNX2TG_ARGS ${common_option})
 tg_test(ASM_NAME lenet.s                     MARCH bm1880 ONNX2TG_ARGS ${common_option} -add-dummy-weight)

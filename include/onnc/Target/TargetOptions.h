@@ -17,9 +17,6 @@ namespace onnc {
 class TargetOptions
 {
 public:
-  bool m_DumpASM{ false };
-
-  std::string m_ASMOutput;
 
   // PrintModuleBeforeSel- print module before target lowering pass in backend
   bool m_PrintModuleBeforeSel{ false };
