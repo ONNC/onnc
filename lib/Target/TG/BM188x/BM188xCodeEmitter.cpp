@@ -61,6 +61,94 @@ static onnc::json::Object genFallbackPlan(std::string pONNCLast,
     }
   }
 
+  std::vector<onnx::Dimension> onncOutDim;
+  for (auto n : pOnnxGraph->nodes()) {
+    for (size_t i = 0; i < n->outputs().size(); ++i) {
+      if (n->outputs()[i]->uniqueName() == pONNCLast) {
+        onncOutDim = n->outputs()[i]->sizes();
+        break;
+      }
+    }
+  }
+  assert(onncOutDim.size() != 0);
+
+  // Generate acc top_1.
+  {
+    onnc::json::Object jLayerAccTop1;
+    jLayerAccTop1.insert("type", "Accuracy");
+    onnc::json::Object jInputValue;
+    jInputValue.insert("name", pONNCLast);
+
+    onnc::json::Array jDim;
+    for (size_t j = 0; j < onncOutDim.size(); j++) {
+      jDim.push_back(onnc::json::Value(onncOutDim[j].dim));
+    }
+    jInputValue.insert("dim", jDim);
+    jLayerAccTop1.insert("input0", jInputValue);
+
+    onnc::json::Object jOutputValue;
+    jOutputValue.insert("name", "acc_top1");
+    jLayerAccTop1.insert("output0", jOutputValue);
+
+    onnc::json::Object jTopk;
+    jTopk.insert("top_k", 1);
+
+    jLayerAccTop1.insert("args", jTopk);
+    jExeSteps.insert(std::to_string(step), jLayerAccTop1);
+    step++;
+  }
+
+  // Generate acc top_5.
+  {
+    onnc::json::Object jLayerAccTop5;
+    jLayerAccTop5.insert("type", "Accuracy");
+    onnc::json::Object jInputValue;
+    jInputValue.insert("name", pONNCLast);
+
+    onnc::json::Array jDim;
+    for (size_t j = 0; j < onncOutDim.size(); j++) {
+      jDim.push_back(onnc::json::Value(onncOutDim[j].dim));
+    }
+    jInputValue.insert("dim", jDim);
+    jLayerAccTop5.insert("input0", jInputValue);
+
+    onnc::json::Object jOutputValue;
+    jOutputValue.insert("name", "acc_top5");
+    jLayerAccTop5.insert("output0", jOutputValue);
+
+    onnc::json::Object jTopk;
+    jTopk.insert("top_k", 5);
+    jLayerAccTop5.insert("args", jTopk);
+
+    jExeSteps.insert(std::to_string(step), jLayerAccTop5);
+    step++;
+  }
+
+  // Generate loss.
+  {
+    onnc::json::Object jLayerLoss;
+    jLayerLoss.insert("type", "SoftmaxWithLoss");
+    onnc::json::Object jInputValue;
+    jInputValue.insert("name", pONNCLast);
+
+    onnc::json::Array jDim;
+    for (size_t j = 0; j < onncOutDim.size(); j++) {
+      jDim.push_back(onnc::json::Value(onncOutDim[j].dim));
+    }
+    jInputValue.insert("dim", jDim);
+    jLayerLoss.insert("input0", jInputValue);
+
+    onnc::json::Object jOutput0Value;
+    jOutput0Value.insert("name", "prob");
+    onnc::json::Object jOutput1Value;
+    jOutput1Value.insert("name", "loss");
+    jLayerLoss.insert("output0", jOutput0Value);
+    jLayerLoss.insert("output1", jOutput1Value);
+
+    jExeSteps.insert(std::to_string(step), jLayerLoss);
+    step++;
+  }
+
   return jExeSteps;
 }
 
@@ -270,12 +358,10 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
       instList[instList.size() - 1]->getLayerName();
   jOutputLayer.insert("onnc output", onncOutputLayerName);
 
-  // Generate fallback plan if need.
-  if (onnxOutputLayerName != onncOutputLayerName) {
-    jFallback =
-        genFallbackPlan(onncOutputLayerName, onnxOutputLayerName, pOnnxGraph);
-    jRoot.insert("cpu fallback", jFallback);
-  }
+  // Generate fallback plan.
+  jFallback =
+      genFallbackPlan(onncOutputLayerName, onnxOutputLayerName, pOnnxGraph);
+  jRoot.insert("cpu fallback", jFallback);
 
   // Generate the threshold of onnc out layer for de-quantization.
   const tg::bm1880::LayerCalibrationParameter &outCtable =
