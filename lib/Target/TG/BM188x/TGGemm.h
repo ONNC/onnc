@@ -15,7 +15,6 @@ public:
   enum ActivationMethod { RELU = 0, SIGMOID, TANH, ELU, PRELU };
   TGGemm(const ::onnx::Node &pNode);
   void emit() const override;
-  void print(OStream &pOS) const override;
   TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);
 

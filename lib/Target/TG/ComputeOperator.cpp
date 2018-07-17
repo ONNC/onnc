@@ -38,11 +38,6 @@ void ComputeOperator2::memAlloc(MemTable &pPMemLayout)
   }
 }
 
-void ComputeOperator2::print(OStream &pOS) const
-{
-  pOS << m_TypeName << " " << m_LayerName << "\n";
-}
-
 ComputeOperator2 *ComputeOperator2::addMemOperand(MemOperand *pMemOperand)
 {
   m_MemOperands.push_back(pMemOperand);

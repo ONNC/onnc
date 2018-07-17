@@ -15,7 +15,6 @@ public:
   TLStore(const ::onnx::Node &pNode);
 
   void emit() const override;
-  void print(OStream &pOS) const override;
   TLStore *addMemOperands(MemOperand *pOutput);
 
 private:

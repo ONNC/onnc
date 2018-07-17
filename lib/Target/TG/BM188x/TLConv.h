@@ -17,7 +17,6 @@ public:
 
   void emit() const override;
   void prepareWeight(std::vector<int8_t> &pWeight);
-  void print(OStream &pOS) const override;
   TLConv *addMemOperands(MemOperand *pInput, MemOperand *pWeight,
                          MemOperand *pOutput, MemOperand *pBias);
   void

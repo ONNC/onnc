@@ -191,22 +191,5 @@ void TLConv::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
   m_RShiftWidth = pLayerCtable->right_shift_width();
 }
 
-void TLConv::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[2] << " = Conv <inN:" << m_InN << ", inC:" << m_InC
-      << ", inH:" << m_InH << ", inW:" << m_InW << ", outC:" << m_OutC
-      << ", groups:" << m_Groups << ", kH:" << m_KH << ", kW:" << m_KW
-      << ", dilationH:" << m_DilationH << ", dilationW:" << m_DilationW
-      << ", padHTop:" << (int)m_PadHTop << ", padWLeft:" << (int)m_PadWLeft
-      << ", strideH:" << (int)m_StrideH << ", strideW:" << (int)m_StrideW
-      << ", m_DoBias:" << m_DoBias << ", rShiftWidth:" << m_RShiftWidth << "> ("
-      << *m_MemOperands[0] << ", " << *m_MemOperands[1];
-  if (m_DoBias) {
-    pOS << ", " << *m_MemOperands[3] << ")\n";
-  } else {
-    pOS << ")\n";
-  }
-}
-
 } // namespace BM188X
 } // namespace onnc

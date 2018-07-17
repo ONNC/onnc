@@ -60,19 +60,8 @@ TGTranspose *TGTranspose::addMemOperands(MemOperand *pInput,
   return this;
 }
 
-void TGTranspose::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[1] << " = Transpose <N:" << m_N << ", C:" << m_C
-      << ", H:" << m_H << ", W:" << m_W << ",  OrderN:" << m_Order[0]
-      << ", OrderC:" << m_Order[1] << ", OrderH:" << m_Order[2]
-      << ", OrderW:" << m_Order[3] << ",  ON:" << m_OutputShape[0]
-      << ", OC:" << m_OutputShape[1] << ", OH:" << m_OutputShape[2]
-      << ", OW:" << m_OutputShape[3] << "> (" << *m_MemOperands[0] << ")\n";
-}
-
 void TGTranspose::emit() const
 {
-  DEBUG(print(dbgs()));
   bmnet::bmnet_asm::bmnet_permute_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W,
       m_OutputShape[0], m_OutputShape[1], m_OutputShape[2], m_OutputShape[3],

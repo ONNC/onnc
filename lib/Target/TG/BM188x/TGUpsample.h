@@ -15,7 +15,6 @@ public:
   TGUpsample(const ::onnx::Node &pNode);
 
   void emit() const override;
-  void print(OStream &pOS) const override;
   TGUpsample *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override

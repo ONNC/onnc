@@ -15,7 +15,6 @@ public:
   TGSum(const ::onnx::Node &pNode);
 
   void emit() const override;
-  void print(OStream &pOS) const override;
   TGSum *addMemOperands(std::vector<MemOperand *> pVInput, MemOperand *pOutput);
   void
   update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;

@@ -51,7 +51,6 @@ void TLStore::emit() const
   // Calculate the address after Global Memory Allocation Pass
   uint64_t gaddr = m_DstGOffset + m_MemOperands[0]->m_Addr;
 
-  DEBUG(print(dbgs()));
   bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
   // TODO(arcbbb): only support 4d tensor for the moment
   bmnet::bmnet_asm::bmnet_tl_store_stride_bmkernel(
@@ -76,12 +75,5 @@ TLStore *TLStore::addMemOperands(MemOperand *pOutput)
   return this;
 }
 
-void TLStore::print(OStream &pOs) const
-{
-  pOs << m_DstGOffset << "<" << m_LocalN << "," << m_LocalC << "," << m_LocalH
-      << "," << m_LocalW << "> = TLStore <src:" << m_SrcLAddr << "> (<"
-      << m_GlobalC << "," << m_GlobalH << "," << m_GlobalW << ">)\n";
-  ;
-}
 } // namespace BM188X
 } // namespace onnc

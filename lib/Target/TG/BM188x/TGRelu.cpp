@@ -33,16 +33,8 @@ TGRelu *TGRelu::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
   return this;
 }
 
-void TGRelu::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[1] << " = ReLU <negativeSlope:" << m_NegativeSlope
-      << ", N:" << m_N << ", C:" << m_C << ", H:" << m_H << ", W:" << m_W
-      << "> (" << *m_MemOperands[1] << ")\n";
-}
-
 void TGRelu::emit() const
 {
-  DEBUG(print(dbgs()));
 
   bmnet::bmnet_asm::bmnet_relu_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input_gaddr

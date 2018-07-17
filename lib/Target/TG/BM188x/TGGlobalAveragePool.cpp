@@ -30,17 +30,8 @@ TGGlobalAveragePool *TGGlobalAveragePool::addMemOperands(MemOperand *pInput,
   return this;
 }
 
-void TGGlobalAveragePool::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[1] << " = GlobalAveragePool <N:" << m_N << ", C:" << m_C
-      << ", H:" << m_H << ", W:" << m_W << ", rShiftWidth:" << m_RShiftWidth
-      << ", thresholdX:" << m_ThresholdXQuantized << "> (" << *m_MemOperands[0]
-      << ")\n";
-}
-
 void TGGlobalAveragePool::emit() const
 {
-  DEBUG(print(dbgs()));
 
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr,        // ifmap_gaddr

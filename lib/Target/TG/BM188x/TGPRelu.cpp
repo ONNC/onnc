@@ -36,16 +36,8 @@ TGPRelu *TGPRelu::addMemOperands(MemOperand *pInput, MemOperand *pSlope,
   return this;
 }
 
-void TGPRelu::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[2] << " = PReLU <Slope:" << m_Slope << ", N:" << m_N
-      << ", C:" << m_C << ", H:" << m_H << ", W:" << m_W << "> ("
-      << *m_MemOperands[1] << ")\n";
-}
-
 void TGPRelu::emit() const
 {
-  DEBUG(print(dbgs()));
 
   bmnet::bmnet_asm::bmnet_prelu_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input_gaddr

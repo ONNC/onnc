@@ -32,34 +32,8 @@ TGSum *TGSum::addMemOperands(std::vector<MemOperand *> pInput,
   return this;
 }
 
-// clang-format off
-void TGSum::print(OStream &pOS) const
-{
-  pOS << *(m_MemOperands.back()) << " = Sum "
-      << "< "
-      << "inN:" << m_InN << ", inC:" << m_InC
-      << ", inH:" << m_InH << ", inW:" << m_InW;
-
-  int thx_size = m_InputNum;
-  for (int i = 0; i < thx_size; ++i) {
-    pOS << ", threshold_x_quantized[" << i << "] = "
-        << m_ThresholdXQuantized[i] << "\n";
-  }
-
-  pOS << ", rShiftWidth:" << m_RShiftWidth << "> ("
-      << " >";
-
-  pOS << " (";
-  int mop_size = m_MemOperands.size();
-  for (int i = 0; i < mop_size; ++i)
-    pOS << *m_MemOperands[i] << ", ";
-  pOS << ")\n";
-}
-// clang-format on
-
 void TGSum::emit() const
 {
-  DEBUG(print(dbgs()));
 
   int in_size = m_MemOperands.size() - 1;
   uint64_t *input = new uint64_t[in_size];

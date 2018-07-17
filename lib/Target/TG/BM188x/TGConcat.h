@@ -15,7 +15,6 @@ public:
   TGConcat(const ::onnx::Node &pNode);
 
   void emit() const override;
-  void print(OStream &pOS) const override;
   TGConcat *addMemOperands(std::vector<MemOperand *> &pInput,
                            MemOperand *pOutput);
   void

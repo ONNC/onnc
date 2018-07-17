@@ -33,19 +33,8 @@ TGConcat *TGConcat::addMemOperands(std::vector<MemOperand *> &pInput,
   return this;
 }
 
-void TGConcat::print(OStream &pOS) const
-{
-  pOS << *(m_MemOperands.back()) << " = Concat <axis:" << m_ConcatAxis << "> (";
-  size_t i = 0;
-  for (; i < m_MemOperands.size() - 2; i++) {
-    pOS << *m_MemOperands[i] << ", ";
-  }
-  pOS << *m_MemOperands[i] << ")\n";
-}
-
 void TGConcat::emit() const
 {
-  DEBUG(print(dbgs()));
   // Need to modify the api to use const.
   std::vector<uint64_t> input_addr;
   for (size_t i = 0; i < m_InputDims.size(); i++)

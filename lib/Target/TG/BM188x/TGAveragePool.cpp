@@ -47,20 +47,8 @@ TGAveragePool *TGAveragePool::addMemOperands(MemOperand *pInput,
   return this;
 }
 
-void TGAveragePool::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[1] << " = AveragePool <N:" << m_N << ", C:" << m_C
-      << ", H:" << m_H << ", W:" << m_W << ",  kH:" << m_KH << ", kW:" << m_KW
-      << ", padT:" << m_PadT << ", padB:" << m_PadB << ", padL:" << m_PadL
-      << ", padR:" << m_PadR << ", srideH:" << m_StrideH
-      << ", strideW:" << m_StrideW << ", rShiftWidth:" << m_RShiftWidth
-      << ", thresholdX:" << m_ThresholdXQuantized << "> (" << *m_MemOperands[0]
-      << ")\n";
-}
-
 void TGAveragePool::emit() const
 {
-  DEBUG(print(dbgs()));
 
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr,        // ifmap_gaddr

@@ -50,8 +50,6 @@ public:
 
   virtual void memAlloc(MemTable &pPMemLayout);
 
-  virtual void print(OStream &pOS) const;
-
   ComputeOperator2 *addMemOperand(MemOperand *pMemOperand);
 
 private:

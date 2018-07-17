@@ -29,15 +29,8 @@ TGUpsample *TGUpsample::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
   return this;
 }
 
-void TGUpsample::print(OStream &pOS) const
-{
-  pOS << *m_MemOperands[1] << " = Upsample <N:" << m_N << ", C:" << m_C
-      << ", H:" << m_H << ", W:" << m_W << ",  scale:" << m_Scale << ")\n";
-}
-
 void TGUpsample::emit() const
 {
-  DEBUG(print(dbgs()));
   bmnet::bmnet_asm::bmnet_upsample_fixed_bmkernel(
       m_MemOperands[0]->m_Addr, // ifmap_gaddr
       m_MemOperands[1]->m_Addr, // ofmap_gaddr
