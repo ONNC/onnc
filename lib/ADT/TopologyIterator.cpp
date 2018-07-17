@@ -15,24 +15,24 @@ using namespace onnc;
 using namespace onnc::digraph;
 
 //===----------------------------------------------------------------------===//
-// TopoIteratorBase
+// TopoDFSAlgoBase
 //===----------------------------------------------------------------------===//
-TopoIteratorBase::TopoIteratorBase()
+TopoDFSAlgoBase::TopoDFSAlgoBase()
   : m_Idx(0), m_OrderList() {
 }
 
-bool TopoIteratorBase::isEnd() const
+bool TopoDFSAlgoBase::isEnd() const
 {
   return (m_Idx == m_OrderList.size());
 }
 
-void TopoIteratorBase::advance()
+void TopoDFSAlgoBase::advance()
 {
   ++m_Idx;
   setNode(m_OrderList[m_Idx]);
 }
 
-void TopoIteratorBase::InitOrderList(NodeBase* pNode)
+void TopoDFSAlgoBase::InitOrderList(NodeBase* pNode)
 {
   Visited visited;
   Stack stack;
@@ -67,25 +67,25 @@ void TopoIteratorBase::InitOrderList(NodeBase* pNode)
 }
 
 //===----------------------------------------------------------------------===//
-// TopoIterator
+// TopoDFSAlgo
 //===----------------------------------------------------------------------===//
-TopoIterator::TopoIterator()
-  : TopoIteratorBase() {
+TopoDFSAlgo::TopoDFSAlgo()
+  : TopoDFSAlgoBase() {
 }
 
-TopoIterator::TopoIterator(NodeBase* pNode)
-  : TopoIteratorBase() {
+TopoDFSAlgo::TopoDFSAlgo(NodeBase* pNode)
+  : TopoDFSAlgoBase() {
   InitOrderList(pNode);
   setNode(m_OrderList[m_Idx]);
 }
 
-TopoIterator::TopoIterator(const NodeBase* pNode)
-  : TopoIteratorBase() {
+TopoDFSAlgo::TopoDFSAlgo(const NodeBase* pNode)
+  : TopoDFSAlgoBase() {
   InitOrderList(const_cast<NodeBase*>(pNode));
   setNode(m_OrderList[m_Idx]);
 }
 
-void TopoIterator::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
+void TopoDFSAlgo::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
 {
   ArcBase* iter = pRoot.first_out;
   while (nullptr != iter) {
@@ -98,25 +98,25 @@ void TopoIterator::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
 }
 
 //===----------------------------------------------------------------------===//
-// RevTopoIterator
+// RevTopoDFSAlgo
 //===----------------------------------------------------------------------===//
-RevTopoIterator::RevTopoIterator()
-  : TopoIteratorBase() {
+RevTopoDFSAlgo::RevTopoDFSAlgo()
+  : TopoDFSAlgoBase() {
 }
 
-RevTopoIterator::RevTopoIterator(NodeBase* pNode)
-  : TopoIteratorBase() {
+RevTopoDFSAlgo::RevTopoDFSAlgo(NodeBase* pNode)
+  : TopoDFSAlgoBase() {
   InitOrderList(pNode);
   setNode(m_OrderList[m_Idx]);
 }
 
-RevTopoIterator::RevTopoIterator(const NodeBase* pNode)
-  : TopoIteratorBase() {
+RevTopoDFSAlgo::RevTopoDFSAlgo(const NodeBase* pNode)
+  : TopoDFSAlgoBase() {
   InitOrderList(const_cast<NodeBase*>(pNode));
   setNode(m_OrderList[m_Idx]);
 }
 
-void RevTopoIterator::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
+void RevTopoDFSAlgo::doPushAllChildren(NodeBase& pRoot, Visited& pV, Stack& pS)
 {
   ArcBase* iter = pRoot.first_in;
   while (nullptr != iter) {

@@ -299,7 +299,8 @@ SKYPAT_F(DigraphTest, topology_iterator_test_1)
   g.connect(*n2, *n4);
   g.connect(*n3, *n5);
 
-  TopologyIterator<digraph::NodeBase, NonConstTraits> iter(n1);
+  using Iterator = TopologyIterator<TopoDFSAlgo, digraph::NodeBase, NonConstTraits>;
+  Iterator iter(n1);
 
   ASSERT_TRUE(&*iter == n1);
   iter.next();
@@ -328,7 +329,8 @@ SKYPAT_F(DigraphTest, topology_iterator_test_2)
   g.connect(*n2, *n4);
   g.connect(*n3, *n5);
 
-  TopologyIterator<digraph::NodeBase, NonConstTraits> iter(n1);
+  using Iterator = TopologyIterator<TopoDFSAlgo, digraph::NodeBase, NonConstTraits>;
+  Iterator iter(n1);
 
   ASSERT_TRUE(&*iter == n1);
   iter.next();
@@ -375,7 +377,8 @@ SKYPAT_F(DigraphTest, topology_iterator_test_3)
   errs() << std::hex << (void*)n7 << " ";
   errs() << std::hex << (void*)n8 << std::endl;
 
-  RevTopologyIterator<digraph::NodeBase, NonConstTraits> iter(n7);
+  using Iterator = TopologyIterator<RevTopoDFSAlgo, digraph::NodeBase, NonConstTraits>;
+  Iterator iter(n7);
 
   ASSERT_TRUE(&*iter == n7);
   iter.next();
@@ -417,14 +420,16 @@ SKYPAT_F(DigraphTest, topology_iterator_test_4)
   g.connect(*n6, *n7);
   g.connect(*n6, *n8);
 
-  RevTopologyIterator<MyNode, NonConstTraits> iter(n7);
+  using Iterator = TopologyIterator<RevTopoDFSAlgo, MyNode, NonConstTraits>;
+  Iterator iter(n7);
+
   while (!iter.isEnd()) {
     errs() << iter->data << " ";
     iter.next();
   }
   errs() << std::endl;
 
-  RevTopologyIterator<MyNode, NonConstTraits> iter2(n6);
+  Iterator iter2(n6);
   while (!iter2.isEnd()) {
     errs() << iter2->data << " ";
     iter2.next();
