@@ -14,7 +14,7 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Target/TargetRegistry.h>
-#include <onnc/Transforms/removeUnusedNodes.h>
+#include <onnc/Transforms/RemoveTrainingNodes.h>
 
 using namespace onnc;
 
@@ -40,7 +40,7 @@ TGBackend::~TGBackend()
 void TGBackend::addTensorSel(PassManager &pPM)
 {
   // IR level pass
-  pPM.add(createRemoveUnusedNodesPass());
+  pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(createONNXFuseOptPass(this));
   if (m_Options.m_PrintModuleBeforeSel)

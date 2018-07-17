@@ -11,7 +11,7 @@
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/Core/PassManager.h>
-#include <onnc/Transforms/removeUnusedNodes.h>
+#include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Transforms/ComplementInputOperators.h>
 #include <onnc/Transforms/ComplementInitializers.h>
@@ -64,7 +64,7 @@ SKYPAT_F(TensorSelTest, alexnet)
   PassManager pm(registry);
   PassManager::State state;
 
-  pm.add(createRemoveUnusedNodesPass(), state);
+  pm.add(CreateRemoveTrainingNodesPass(), state);
   pm.add(CreateUpdateGraphOutputSizePass(), state);
   pm.add(CreateBookONNXGraphs(), state);
   pm.add(CreateComplementInitializers(), state);
@@ -94,7 +94,7 @@ SKYPAT_F(TensorSelTest, alexnet)
   pm.add(tensor_selection, state);
   pm.add(CreateComplementOutputOperators(), state);
 
-  // RemoveUnusedNodesPass
+  // RemoveTrainingNodesPass
   int counter = 0;
   pm.step(module, state);
   {
@@ -283,7 +283,7 @@ SKYPAT_F(TensorSelTest, select_stanard_graph)
   PassManager pm(registry);
   PassManager::State state;
 
-  pm.add(createRemoveUnusedNodesPass(), state);
+  pm.add(CreateRemoveTrainingNodesPass(), state);
   pm.add(CreateUpdateGraphOutputSizePass(), state);
   pm.add(CreatePreTensorSel(), state);
 
@@ -291,7 +291,7 @@ SKYPAT_F(TensorSelTest, select_stanard_graph)
   TensorSel* tensor_selection = new TensorSel();
   pm.add(tensor_selection, state);
 
-  // RemoveUnusedNodesPass
+  // RemoveTrainingNodesPass
   pm.step(module, state);
   errs() << state.pass->getPassName() << std::endl;
 

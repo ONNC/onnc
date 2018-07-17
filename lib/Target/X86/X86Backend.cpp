@@ -8,7 +8,7 @@
 #include "X86Backend.h"
 #include "TargetInfo/X86TargetInfo.h"
 #include <onnc/Target/TargetRegistry.h>
-#include <onnc/Transforms/removeUnusedNodes.h>
+#include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Transforms/PreTensorSel.h>
 #include <onnc/Transforms/TensorSel.h>
@@ -29,7 +29,7 @@ X86Backend::~X86Backend()
 void X86Backend::addTensorSel(PassManager& pPM)
 {
   // target independent pass
-  pPM.add(createRemoveUnusedNodesPass());
+  pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(CreatePreTensorSel());
   pPM.add(CreateTensorSel(this));

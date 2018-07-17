@@ -16,7 +16,7 @@
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
-#include <onnc/Transforms/removeUnusedNodes.h>
+#include <onnc/Transforms/RemoveTrainingNodes.h>
 
 using namespace onnc;
 
@@ -32,7 +32,7 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
   // target independent pass
-  pPM.add(createRemoveUnusedNodesPass());
+  pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
 
   // BM1880 customized Pass

@@ -5,7 +5,7 @@ add_libonnc_src(
     ComplementInputOperators.cpp
     ComplementOutputOperators.cpp
     GraphPairPass.cpp
-    removeUnusedNodes.cpp
+    RemoveTrainingNodes.cpp
     PreTensorSel.cpp
     TensorSel.cpp
     TensorSel/Lower.cpp
