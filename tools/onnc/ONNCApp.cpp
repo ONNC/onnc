@@ -59,6 +59,7 @@ int ONNCApp::compile()
   PassManager pm;
   TargetBackend* backend = target->createBackend(options().target());
   backend->addTensorSel(pm);
+  backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, options().output());
 

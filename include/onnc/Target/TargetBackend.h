@@ -26,6 +26,8 @@ public:
 
   virtual void addTensorSel(PassManager& pPM) { return; }
 
+  virtual void addTensorSched(PassManager& pPM) { return; }
+
   virtual void addMemAlloc(PassManager& pPM) { return; }
 
   virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
