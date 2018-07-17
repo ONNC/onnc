@@ -7,7 +7,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ADT_DIGRAPH_NODE_H
 #define ONNC_ADT_DIGRAPH_NODE_H
-#include <vector>
 
 namespace onnc {
 namespace digraph {
