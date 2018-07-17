@@ -7,6 +7,7 @@
 namespace bmnet {
 
 namespace bmnet_asm {
+using ActivationMethod = bmnet::bm1880::Inst::ActivationMethod;
 
 // clang-format off
 {% for py_i in tg_tl.get_insts() %}

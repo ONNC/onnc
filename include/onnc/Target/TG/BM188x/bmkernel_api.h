@@ -7,6 +7,7 @@
 namespace bmnet {
 
 namespace bmnet_asm {
+using ActivationMethod = bmnet::bm1880::Inst::ActivationMethod;
 
 // clang-format off
 inline void bmnet_pooling_fixed_forward_bmkernel(
@@ -923,7 +924,7 @@ inline void bmnet_tl_activation_forward_bmkernel(
     int activation_arg_len,
     float* activation_arg,
     bool channel_shared,
-    bmnet::bm1880::Inst::ActivationMethod activation_type)
+    const ActivationMethod activation_type)
 {
     // gen asm
     if (asm_context::get_context().on())

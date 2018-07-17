@@ -59,54 +59,6 @@ inline void bmnet_pooling_forward_bmkernel(
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
-inline void bmnet_pooling_backward_bmkernel(
-    gaddr_t ifmap_gaddr,
-    gaddr_t ofmap_gaddr,
-    gaddr_t index_gaddr,
-    gaddr_t o_findex_gaddr,
-    int n,
-    int c,
-    int h,
-    int w,
-    int kh,
-    int kw,
-    int pad_h,
-    int pad_w,
-    int stride_h,
-    int stride_w,
-    int is_avg_pooling,
-    float avg_const)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_pooling_backward_bmkernel");
-        auto *pooling_b = inst->mutable_pooling_b();
-        pooling_b->set_ifmap_gaddr(ifmap_gaddr);
-        pooling_b->set_ofmap_gaddr(ofmap_gaddr);
-        pooling_b->set_index_gaddr(index_gaddr);
-        pooling_b->set_o_findex_gaddr(o_findex_gaddr);
-        pooling_b->set_n(n);
-        pooling_b->set_c(c);
-        pooling_b->set_h(h);
-        pooling_b->set_w(w);
-        pooling_b->set_kh(kh);
-        pooling_b->set_kw(kw);
-        pooling_b->set_pad_h(pad_h);
-        pooling_b->set_pad_w(pad_w);
-        pooling_b->set_stride_h(stride_h);
-        pooling_b->set_stride_w(stride_w);
-        pooling_b->set_is_avg_pooling(is_avg_pooling);
-        pooling_b->set_avg_const(avg_const);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
 inline void bmnet_conv_forward_bmkernel(
     gaddr_t ga_ifmap,
     gaddr_t ga_ofmap,
@@ -604,36 +556,6 @@ inline void bmnet_bnll_forward_bmkernel(
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
-inline void bmnet_filter_forward_bmkernel(
-    gaddr_t output_offset,
-    gaddr_t input_offset,
-    gaddr_t filter_offset,
-    gaddr_t arm_reserved_offset,
-    int output_n,
-    int input_n,
-    int item_size)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_filter_forward_bmkernel");
-        auto *bmnet_filter_forward_bmkernel_short = inst->mutable_bmnet_filter_forward_bmkernel_short();
-        bmnet_filter_forward_bmkernel_short->set_output_offset(output_offset);
-        bmnet_filter_forward_bmkernel_short->set_input_offset(input_offset);
-        bmnet_filter_forward_bmkernel_short->set_filter_offset(filter_offset);
-        bmnet_filter_forward_bmkernel_short->set_arm_reserved_offset(arm_reserved_offset);
-        bmnet_filter_forward_bmkernel_short->set_output_n(output_n);
-        bmnet_filter_forward_bmkernel_short->set_input_n(input_n);
-        bmnet_filter_forward_bmkernel_short->set_item_size(item_size);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
 inline void bmnet_crop_forward_bmkernel(
     gaddr_t input_gaddr,
     gaddr_t output_gaddr,
@@ -765,38 +687,6 @@ inline void bmnet_tile_forward_bmkernel(
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
-inline void bmnet_relu_forward_compact_bmkernel(
-    gaddr_t bottom_gaddr,
-    gaddr_t top_gaddr,
-    gaddr_t relu_gaddr,
-    float negative_slope,
-    int input_n,
-    int input_c,
-    int input_h,
-    int input_w)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_relu_forward_compact_bmkernel");
-        auto *bmnet_relu_forward_compact_bmkernel_short = inst->mutable_bmnet_relu_forward_compact_bmkernel_short();
-        bmnet_relu_forward_compact_bmkernel_short->set_bottom_gaddr(bottom_gaddr);
-        bmnet_relu_forward_compact_bmkernel_short->set_top_gaddr(top_gaddr);
-        bmnet_relu_forward_compact_bmkernel_short->set_relu_gaddr(relu_gaddr);
-        bmnet_relu_forward_compact_bmkernel_short->set_negative_slope(negative_slope);
-        bmnet_relu_forward_compact_bmkernel_short->set_input_n(input_n);
-        bmnet_relu_forward_compact_bmkernel_short->set_input_c(input_c);
-        bmnet_relu_forward_compact_bmkernel_short->set_input_h(input_h);
-        bmnet_relu_forward_compact_bmkernel_short->set_input_w(input_w);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
 inline void bmnet_relu_forward_bmkernel(
     gaddr_t bottom_gaddr,
     gaddr_t top_gaddr,
@@ -824,38 +714,6 @@ inline void bmnet_relu_forward_bmkernel(
         bmnet_relu_forward_bmkernel_short->set_input_c(input_c);
         bmnet_relu_forward_bmkernel_short->set_input_h(input_h);
         bmnet_relu_forward_bmkernel_short->set_input_w(input_w);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
-inline void bmnet_dropout_forward_bmkernel(
-    gaddr_t bottom_gaddr,
-    gaddr_t top_gaddr,
-    gaddr_t mask_gaddr,
-    gaddr_t rand_table_gaddr,
-    int rand_table_offset,
-    float dropout_ratio,
-    int input_n,
-    int input_dim)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_dropout_forward_bmkernel");
-        auto *bmnet_dropout_forward_bmkernel_short = inst->mutable_bmnet_dropout_forward_bmkernel_short();
-        bmnet_dropout_forward_bmkernel_short->set_bottom_gaddr(bottom_gaddr);
-        bmnet_dropout_forward_bmkernel_short->set_top_gaddr(top_gaddr);
-        bmnet_dropout_forward_bmkernel_short->set_mask_gaddr(mask_gaddr);
-        bmnet_dropout_forward_bmkernel_short->set_rand_table_gaddr(rand_table_gaddr);
-        bmnet_dropout_forward_bmkernel_short->set_rand_table_offset(rand_table_offset);
-        bmnet_dropout_forward_bmkernel_short->set_dropout_ratio(dropout_ratio);
-        bmnet_dropout_forward_bmkernel_short->set_input_n(input_n);
-        bmnet_dropout_forward_bmkernel_short->set_input_dim(input_dim);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
@@ -1058,154 +916,6 @@ inline void bmnet_prelu_forward_bmkernel(
         bmnet_prelu_forward_bmkernel_short->set_input_c(input_c);
         bmnet_prelu_forward_bmkernel_short->set_input_h(input_h);
         bmnet_prelu_forward_bmkernel_short->set_input_w(input_w);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
-inline void bmnet_lstm_forward_bmkernel(
-    gaddr_t input_gaddr,
-    gaddr_t cont_gaddr,
-    gaddr_t input_static_gaddr,
-    gaddr_t w_hc_gaddr,
-    gaddr_t w_xc_gaddr,
-    gaddr_t w_static_gaddr,
-    gaddr_t b_c_gaddr,
-    gaddr_t h_0_gaddr,
-    gaddr_t c_0_gaddr,
-    gaddr_t c_gaddr,
-    gaddr_t gate_gaddr,
-    gaddr_t h_T_gaddr,
-    gaddr_t c_T_gaddr,
-    gaddr_t h_gaddr,
-    gaddr_t arm_reserved_gaddr,
-    int input_n,
-    int seq_len,
-    int input_dim,
-    int input_static_dim,
-    int output_dim,
-    int with_input_static)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_lstm_forward_bmkernel");
-        auto *bmnet_lstm_forward_bmkernel_short = inst->mutable_bmnet_lstm_forward_bmkernel_short();
-        bmnet_lstm_forward_bmkernel_short->set_input_gaddr(input_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_cont_gaddr(cont_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_input_static_gaddr(input_static_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_w_hc_gaddr(w_hc_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_w_xc_gaddr(w_xc_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_w_static_gaddr(w_static_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_b_c_gaddr(b_c_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_h_0_gaddr(h_0_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_c_0_gaddr(c_0_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_c_gaddr(c_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_gate_gaddr(gate_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_h_t_gaddr(h_T_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_c_t_gaddr(c_T_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_h_gaddr(h_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_arm_reserved_gaddr(arm_reserved_gaddr);
-        bmnet_lstm_forward_bmkernel_short->set_input_n(input_n);
-        bmnet_lstm_forward_bmkernel_short->set_seq_len(seq_len);
-        bmnet_lstm_forward_bmkernel_short->set_input_dim(input_dim);
-        bmnet_lstm_forward_bmkernel_short->set_input_static_dim(input_static_dim);
-        bmnet_lstm_forward_bmkernel_short->set_output_dim(output_dim);
-        bmnet_lstm_forward_bmkernel_short->set_with_input_static(with_input_static);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
-inline void bmnet_embed_forward_bmkernel(
-    gaddr_t input_gaddr,
-    gaddr_t weight_gaddr,
-    gaddr_t bias_gaddr,
-    gaddr_t output_gaddr,
-    gaddr_t arm_reserved_gaddr,
-    int input_n,
-    int input_dim,
-    int output_dim,
-    int with_bias)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_embed_forward_bmkernel");
-        auto *bmnet_embed_forward_bmkernel_short = inst->mutable_bmnet_embed_forward_bmkernel_short();
-        bmnet_embed_forward_bmkernel_short->set_input_gaddr(input_gaddr);
-        bmnet_embed_forward_bmkernel_short->set_weight_gaddr(weight_gaddr);
-        bmnet_embed_forward_bmkernel_short->set_bias_gaddr(bias_gaddr);
-        bmnet_embed_forward_bmkernel_short->set_output_gaddr(output_gaddr);
-        bmnet_embed_forward_bmkernel_short->set_arm_reserved_gaddr(arm_reserved_gaddr);
-        bmnet_embed_forward_bmkernel_short->set_input_n(input_n);
-        bmnet_embed_forward_bmkernel_short->set_input_dim(input_dim);
-        bmnet_embed_forward_bmkernel_short->set_output_dim(output_dim);
-        bmnet_embed_forward_bmkernel_short->set_with_bias(with_bias);
-        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
-    }
-}
-inline void bmnet_rnn_forward_bmkernel(
-    gaddr_t input_gaddr,
-    gaddr_t cont_gaddr,
-    gaddr_t static_gaddr,
-    gaddr_t w_hh_gaddr,
-    gaddr_t w_xh_gaddr,
-    gaddr_t w_ho_gaddr,
-    gaddr_t w_st_gaddr,
-    gaddr_t b_h_gaddr,
-    gaddr_t b_o_gaddr,
-    gaddr_t h_0_gaddr,
-    gaddr_t h_gaddr,
-    gaddr_t h_T_gaddr,
-    gaddr_t o_gaddr,
-    gaddr_t arm_reserved_gaddr,
-    int input_n,
-    int seq_len,
-    int input_dim,
-    int static_dim,
-    int output_dim,
-    int with_static)
-{
-    // gen asm
-    if (asm_context::get_context().on())
-    {
-        bmnet::bm1680::CommandBuffer buf;
-        auto *inst = buf.add_inst();
-        auto &name = asm_context::get_context().name;
-        if (not name.empty())
-            inst->set_name(name);
-        name.clear();
-        inst->set_type("bmnet_rnn_forward_bmkernel");
-        auto *bmnet_rnn_forward_bmkernel_short = inst->mutable_bmnet_rnn_forward_bmkernel_short();
-        bmnet_rnn_forward_bmkernel_short->set_input_gaddr(input_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_cont_gaddr(cont_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_static_gaddr(static_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_w_hh_gaddr(w_hh_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_w_xh_gaddr(w_xh_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_w_ho_gaddr(w_ho_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_w_st_gaddr(w_st_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_b_h_gaddr(b_h_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_b_o_gaddr(b_o_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_h_0_gaddr(h_0_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_h_gaddr(h_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_h_t_gaddr(h_T_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_o_gaddr(o_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_arm_reserved_gaddr(arm_reserved_gaddr);
-        bmnet_rnn_forward_bmkernel_short->set_input_n(input_n);
-        bmnet_rnn_forward_bmkernel_short->set_seq_len(seq_len);
-        bmnet_rnn_forward_bmkernel_short->set_input_dim(input_dim);
-        bmnet_rnn_forward_bmkernel_short->set_static_dim(static_dim);
-        bmnet_rnn_forward_bmkernel_short->set_output_dim(output_dim);
-        bmnet_rnn_forward_bmkernel_short->set_with_static(with_static);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
