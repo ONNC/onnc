@@ -15,21 +15,28 @@ using namespace onnc;
 using namespace onnc::digraph;
 
 //===----------------------------------------------------------------------===//
-// TopoDFSAlgoBase
+// TopoAlgoBase
 //===----------------------------------------------------------------------===//
-TopoDFSAlgoBase::TopoDFSAlgoBase()
+TopoAlgoBase::TopoAlgoBase()
   : m_Idx(0), m_OrderList() {
 }
 
-bool TopoDFSAlgoBase::isEnd() const
+bool TopoAlgoBase::isEnd() const
 {
   return (m_Idx == m_OrderList.size());
 }
 
-void TopoDFSAlgoBase::advance()
+void TopoAlgoBase::advance()
 {
   ++m_Idx;
   setNode(m_OrderList[m_Idx]);
+}
+
+//===----------------------------------------------------------------------===//
+// TopoDFSAlgoBase
+//===----------------------------------------------------------------------===//
+TopoDFSAlgoBase::TopoDFSAlgoBase()
+  : TopoAlgoBase() {
 }
 
 void TopoDFSAlgoBase::InitOrderList(NodeBase* pNode)

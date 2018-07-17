@@ -15,10 +15,10 @@
 
 namespace onnc {
 
-class TopoDFSAlgoBase : public NodeIteratorBase
+class TopoAlgoBase : public NodeIteratorBase
 {
 public:
-  TopoDFSAlgoBase();
+  TopoAlgoBase();
 
   bool isEnd() const;
 
@@ -27,18 +27,26 @@ public:
 protected:
   typedef digraph::NodeBase NodeType;
   typedef std::vector<NodeType*> OrderList;
-  typedef std::deque<std::pair<bool, NodeType*> > Stack;
   typedef std::vector<NodeType*> PostOrder;
   typedef std::unordered_set<NodeType*> Visited;
+
+protected:
+  unsigned int m_Idx;
+  OrderList m_OrderList;
+};
+
+class TopoDFSAlgoBase : public TopoAlgoBase
+{
+public:
+  TopoDFSAlgoBase();
+
+protected:
+  typedef std::deque<std::pair<bool, NodeType*> > Stack;
 
 protected:
   void InitOrderList(NodeType* pNode);
 
   virtual void doPushAllChildren(NodeType& pRoot, Visited& pV, Stack& pS) = 0;
-
-protected:
-  unsigned int m_Idx;
-  OrderList m_OrderList;
 };
 
 class TopoDFSAlgo : public TopoDFSAlgoBase
