@@ -11,6 +11,7 @@
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/Core/PassManager.h>
+#include <onnc/Transforms/DeadNodeElimination.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Transforms/ComplementInputOperators.h>
@@ -66,6 +67,7 @@ SKYPAT_F(TensorSelTest, alexnet)
 
   pm.add(CreateRemoveTrainingNodesPass(), state);
   pm.add(CreateUpdateGraphOutputSizePass(), state);
+  pm.add(CreateDeadNodeEliminationPass(), state);
   pm.add(CreateBookONNXGraphs(), state);
   pm.add(CreateComplementInitializers(), state);
   pm.add(CreateComplementInputOperators(), state);
@@ -105,6 +107,15 @@ SKYPAT_F(TensorSelTest, alexnet)
   }
 
   // UpdateGraphOutputSizePass
+  pm.step(module, state);
+  {
+    errs() << state.pass->getPassName() << std::endl;
+    OFStream os((Rope(++counter) + Rope(".") +
+                 Rope(state.pass->getPassName()) + (".log")).str());
+    module.print(os);
+  }
+
+  // DeadNodeEliminationPass
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;

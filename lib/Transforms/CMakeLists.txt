@@ -4,6 +4,7 @@ add_libonnc_src(
     ComplementInitializers.cpp
     ComplementInputOperators.cpp
     ComplementOutputOperators.cpp
+    DeadNodeElimination.cpp
     GraphPairPass.cpp
     RemoveTrainingNodes.cpp
     PreTensorSel.cpp

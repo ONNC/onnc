@@ -44,6 +44,7 @@ ONNC_SOURCES = \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp \
+	Transforms/DeadNodeElimination.cpp \
 	Transforms/RemoveTrainingNodes.cpp \
 	Transforms/BookONNXGraphs.cpp \
 	Transforms/PreTensorSel.cpp \
