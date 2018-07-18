@@ -96,6 +96,9 @@ public:
   /// entrance ramp for visitor
   virtual void accept(ComputeVisitor& pVisitor) = 0;
 
+  /// entrance ramp for visitor
+  virtual void accept(ComputeVisitor& pVisitor) const = 0;
+
 protected:
   typedef std::vector<const GraphOperator*>  GraphOperatorList;
   typedef std::vector<onnc::Value*> ValueList;

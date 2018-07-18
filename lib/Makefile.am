@@ -26,7 +26,7 @@ ONNC_SOURCES = \
 	IR/Compute/AveragePool.cpp \
 	IR/Compute/BatchNormalization.cpp \
 	IR/Compute/Conv.cpp \
-  IR/Compute/Concat.cpp \
+	IR/Compute/Concat.cpp \
 	IR/Compute/Gemm.cpp \
 	IR/Compute/LRN.cpp \
 	IR/Compute/MaxPool.cpp \
@@ -51,7 +51,7 @@ ONNC_SOURCES = \
 	Transforms/GraphPairPass.cpp \
 	Transforms/ComplementInitializers.cpp \
 	Transforms/ComplementInputOperators.cpp \
-        Transforms/ComplementOutputOperators.cpp \
+	Transforms/ComplementOutputOperators.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
@@ -83,11 +83,11 @@ ONNC_SOURCES = \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
 	Core/InitializePasses.cpp \
-  Analysis/LivenessAnalysis.cpp \
-  Analysis/MemoryAllocation.cpp \
+	Analysis/LivenessAnalysis.cpp \
+	Analysis/MemoryAllocation.cpp \
 	Analysis/NodeIRScheduler.cpp \
-  Analysis/SplitNode.cpp \
-  Analysis/UpdateGraphOutputSize.cpp \
+	Analysis/SplitNode.cpp \
+	Analysis/UpdateGraphOutputSize.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \
@@ -102,73 +102,73 @@ ONNC_SOURCES = \
 	ADT/StringList.cpp \
 	ADT/StringRef.cpp \
 	Support/Debug.cpp \
-  Support/AsyncPipe.cpp \
-  Support/CArgu.cpp \
-  Support/CArguRef.cpp \
-  Support/CEnv.cpp \
-  Support/Directory.cpp \
-  Support/DirIterator.cpp \
-  Support/ErrorCode.cpp \
-  Support/Environ.cpp \
-  Support/Expansion.cpp \
-  Support/Glob.cpp \
+	Support/AsyncPipe.cpp \
+	Support/CArgu.cpp \
+	Support/CArguRef.cpp \
+	Support/CEnv.cpp \
+	Support/Directory.cpp \
+	Support/DirIterator.cpp \
+	Support/ErrorCode.cpp \
+	Support/Environ.cpp \
+	Support/Expansion.cpp \
+	Support/Glob.cpp \
 	Support/Host.cpp \
-  Support/IOStream.cpp \
-  Support/IndentOStreamBuf.cpp \
-  Support/ManagedStatic.cpp \
-  Support/MappedFileRegion.cpp \
-  Support/MemoryMap.cpp \
-  Support/Path.cpp \
-  Support/Pipe.cpp \
-  Support/FileHandle.cpp \
-  Support/FileLock.cpp \
-  Support/FileInfo.cpp \
-  Support/FileStatus.cpp \
-  Support/FileSystem.cpp \
-  Support/Timer.cpp \
-  Support/Random.cpp \
-  Support/Readline.cpp \
-  Support/linenoise.cpp \
-  Support/SelfPipe.cpp \
-  Support/Signal.cpp \
-  Support/Unix/AsyncPipe.inc \
-  Support/Unix/Expansion.inc \
-  Support/Unix/Glob.inc \
-  Support/Unix/Path.inc \
-  Support/Unix/Pipe.inc \
-  Support/Unix/FileSystem.inc \
-  Support/Unix/Random.inc \
-  Support/Unix/SelfPipe.inc \
-  Support/Windows/Path.inc \
-  Support/Windows/FileSystem.inc \
-  Support/Dragon/Path.inc \
-  Support/Dragon/FileSystem.inc \
+	Support/IOStream.cpp \
+	Support/IndentOStreamBuf.cpp \
+	Support/ManagedStatic.cpp \
+	Support/MappedFileRegion.cpp \
+	Support/MemoryMap.cpp \
+	Support/Path.cpp \
+	Support/Pipe.cpp \
+	Support/FileHandle.cpp \
+	Support/FileLock.cpp \
+	Support/FileInfo.cpp \
+	Support/FileStatus.cpp \
+	Support/FileSystem.cpp \
+	Support/Timer.cpp \
+	Support/Random.cpp \
+	Support/Readline.cpp \
+	Support/linenoise.cpp \
+	Support/SelfPipe.cpp \
+	Support/Signal.cpp \
+	Support/Unix/AsyncPipe.inc \
+	Support/Unix/Expansion.inc \
+	Support/Unix/Glob.inc \
+	Support/Unix/Path.inc \
+	Support/Unix/Pipe.inc \
+	Support/Unix/FileSystem.inc \
+	Support/Unix/Random.inc \
+	Support/Unix/SelfPipe.inc \
+	Support/Windows/Path.inc \
+	Support/Windows/FileSystem.inc \
+	Support/Dragon/Path.inc \
+	Support/Dragon/FileSystem.inc \
 	JSON/Array.cpp \
-  JSON/Object.cpp \
-  JSON/Value.cpp \
-  JSON/JsonParser.ypp \
-  JSON/JsonScanner.lpp \
-  JSON/String.cpp \
-  JSON/Notation.cpp \
-  Diagnostic/Diagnostic.cpp \
-  Diagnostic/DiagnosticInfoMap.cpp \
-  Diagnostic/Engine.cpp \
-  Diagnostic/GeneralOptions.cpp \
-  Diagnostic/MsgHandler.cpp \
-  Diagnostic/MsgHandling.cpp \
-  Diagnostic/Policy.cpp \
-  Diagnostic/Logger.cpp \
-  Diagnostic/SysLog.cpp \
-  Diagnostic/StreamLog.cpp \
+	JSON/Object.cpp \
+	JSON/Value.cpp \
+	JSON/JsonParser.ypp \
+	JSON/JsonScanner.lpp \
+	JSON/String.cpp \
+	JSON/Notation.cpp \
+	Diagnostic/Diagnostic.cpp \
+	Diagnostic/DiagnosticInfoMap.cpp \
+	Diagnostic/Engine.cpp \
+	Diagnostic/GeneralOptions.cpp \
+	Diagnostic/MsgHandler.cpp \
+	Diagnostic/MsgHandling.cpp \
+	Diagnostic/Policy.cpp \
+	Diagnostic/Logger.cpp \
+	Diagnostic/SysLog.cpp \
+	Diagnostic/StreamLog.cpp \
 	Config/AboutLicense.cpp \
 	Config/AboutData.cpp \
-  ONNXWrapper/ONNXWrapper.cpp \
-  Option/Alias.cpp \
-  Option/CommandLine.cpp \
-  Option/OptDefs.cpp \
-  Option/Option.cpp \
-  Option/OptionPool.cpp \
-  Option/OptParser.cpp
+	ONNXWrapper/ONNXWrapper.cpp \
+	Option/Alias.cpp \
+	Option/CommandLine.cpp \
+	Option/OptDefs.cpp \
+	Option/Option.cpp \
+	Option/OptionPool.cpp \
+	Option/OptParser.cpp
 
 ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ -I${srcdir}/Target
 
@@ -198,6 +198,7 @@ endif
 if ENABLE_X86_TARGET
 ONNC_X86_TARGET_SOURCES = \
 	Target/X86/X86Backend.cpp \
+	Target/X86/X86InplaceValueFusible.cpp \
 	Target/X86/TargetInfo/X86TargetInfo.cpp
 endif
 

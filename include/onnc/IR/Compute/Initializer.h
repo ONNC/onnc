@@ -56,6 +56,8 @@ public:
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
+  void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
+
 private:
   StringAttr m_Name;
 };
