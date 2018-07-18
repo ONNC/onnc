@@ -105,14 +105,15 @@ void UpdateGraphOutputSize::updateOutputValueInfo(onnx::Graph *pGraph)
   std::unordered_set<onnx::Value *> output_set(outputs.begin(), outputs.end());
   // reset output valueInfo
   for (onnx::Node *n : pGraph->nodes()) {
-    onnx::Value *out = n->outputs()[0];
-    // do not reset graph's outputs valueInfo
-    if (output_set.count(out))
-      continue;
-    // reset dimension and elemType
-    std::vector<onnx::Dimension> sizes;
-    out->setSizes(sizes);
-    out->setElemType(onnx::TensorProto_DataType_UNDEFINED);
+    for (onnx::Value *out : n->outputs()) {
+      // do not reset graph's outputs valueInfo
+      if (output_set.count(out))
+        continue;
+      // reset dimension and elemType
+      std::vector<onnx::Dimension> sizes;
+      out->setSizes(sizes);
+      out->setElemType(onnx::TensorProto_DataType_UNDEFINED);
+    }
   }
 
   // update graph's outputs valueInfo
