@@ -171,6 +171,10 @@ void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
     }
 #endif
   }
+  if (m_DoBias == 1) {
+    auto *mem_op = m_MemOperands[m_BiasIdx];
+    BM188xCodeEmitter::prepare16bitWeight(mem_op, pWeight);
+  }
 }
 
 void TLConv::emit() const
