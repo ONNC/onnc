@@ -41,7 +41,7 @@ void TGConcat::emit() const
     input_addr.push_back(m_MemOperands[i]->m_Addr);
 
   bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
-      input_addr.data(), m_MemOperands[1]->m_Addr,
+      input_addr.data(), m_MemOperands.back()->m_Addr,
       const_cast<int *>(m_InputDims.data()), m_InputDims.size(), m_ConcatAxis,
       m_OutputDim.size(), const_cast<int *>(m_OutputDim.data()));
 }
