@@ -3,6 +3,7 @@
 #include "BM188xBackend.h"
 #include "TGCodeEmitter.h"
 #include <memory>
+#include <onnc/JSON/Object.h>
 #include <onnc/Support/Path.h>
 #include <vector>
 
@@ -35,6 +36,12 @@ public:
 
   void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
                       std::ostream &pOS) override;
+
+private:
+  json::Object genOutputLayer(std::string &pDefaultOnncLayerName,
+                              std::string &pDefalutOnnxLayerName,
+                              const ::onnx::Graph *pOnnxGraph);
+  float getThreshold(const std::string &pOnncLayerName);
 
 private:
   // void *m_BmkernelHandle;

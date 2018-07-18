@@ -16,6 +16,71 @@
 
 using namespace onnc;
 
+float BM188xCodeEmitter::getThreshold(const std::string &pOnncLayerName)
+{
+
+  const tg::bm1880::LayerCalibrationParameter &ctable =
+      *m_Backend->getLayerCtable(pOnncLayerName);
+  float threshold = 0.0;
+  for (int j = 0; j < ctable.blob_param_size(); j++) {
+    if (ctable.blob_param(j).name() == pOnncLayerName) {
+      threshold = ctable.blob_param(j).threshold_y();
+      break;
+    }
+  }
+  return threshold;
+}
+
+onnc::json::Object
+BM188xCodeEmitter::genOutputLayer(std::string &pDefaultOnncLayerName,
+                                  std::string &pDefalutOnnxLayerName,
+                                  const ::onnx::Graph *pOnnxGraph)
+{
+  int step = 0;
+  onnc::json::Object jExeSteps;
+  auto &instList = m_Backend->getInsts();
+
+  // Generate default output layer info(last one).
+  {
+    onnc::json::Object last_layer_info;
+    pDefalutOnnxLayerName = pOnnxGraph->outputs()[0]->uniqueName();
+    pDefaultOnncLayerName = instList.rbegin()->get()->getLayerName();
+    // Generate the threshold of onnc out layer for de-quantization.
+    float threshold = getThreshold(pDefaultOnncLayerName);
+
+    last_layer_info.insert("onnx output", pDefalutOnnxLayerName);
+    last_layer_info.insert("onnc output", pDefaultOnncLayerName);
+    last_layer_info.insert("threshold", threshold);
+    jExeSteps.insert(std::to_string(step++), last_layer_info);
+  }
+
+  // generate the other output layer info
+  for (size_t i = 1; i < pOnnxGraph->outputs().size(); ++i) {
+    std::string onnx_layer_name = pOnnxGraph->outputs()[i]->uniqueName();
+    std::string onnc_layer_name;
+    for (auto inst = instList.rbegin(); inst != instList.rend(); ++inst) {
+      if (inst->get()->getLayerName() == onnx_layer_name) {
+        onnc_layer_name = onnx_layer_name;
+      }
+    }
+    if (onnc_layer_name.empty()) {
+      // TODO this onnx does not generate onnc inst, we need to fix it if
+      // support multiple value for cpu fallback
+      assert(0);
+    }
+
+    float threshold = getThreshold(onnc_layer_name);
+
+    // insert output layer i
+    onnc::json::Object layer_info;
+    layer_info.insert("onnx output", onnx_layer_name);
+    layer_info.insert("onnc output", onnc_layer_name);
+    layer_info.insert("threshold", threshold);
+    jExeSteps.insert(std::to_string(step++), layer_info);
+  }
+  return jExeSteps;
+}
+
 static onnc::json::Object genFallbackPlan(std::string pONNCLast,
                                           std::string pONNXLast,
                                           const ::onnx::Graph *pOnnxGraph)
@@ -296,7 +361,6 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   onnc::json::Object jMemLayout;
   onnc::json::Object jInputThres;
   onnc::json::Object jInputDim;
-  onnc::json::Object jOutputThres;
   onnc::json::Object jOutputLayer;
   onnc::json::Object jBatch;
   onnc::json::Object jFallback;
@@ -351,35 +415,22 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   auto batchSize = sizes[0].dim;
   jBatch.insert("size", batchSize);
 
-  // Generate output layer name.
-  std::string onnxOutputLayerName = pOnnxGraph->outputs()[0]->uniqueName();
-  jOutputLayer.insert("onnx output", onnxOutputLayerName);
-  std::string onncOutputLayerName =
-      instList[instList.size() - 1]->getLayerName();
-  jOutputLayer.insert("onnc output", onncOutputLayerName);
+  // Generate output layer info
+  std::string defalutOnnxOutLayerName;
+  std::string defaultOnncOutLayerName;
+  jOutputLayer = genOutputLayer(defaultOnncOutLayerName,
+                                defalutOnnxOutLayerName, pOnnxGraph);
+  jRoot.insert("output layer", jOutputLayer);
 
   // Generate fallback plan.
-  jFallback =
-      genFallbackPlan(onncOutputLayerName, onnxOutputLayerName, pOnnxGraph);
+  jFallback = genFallbackPlan(defaultOnncOutLayerName, defalutOnnxOutLayerName,
+                              pOnnxGraph);
   jRoot.insert("cpu fallback", jFallback);
-
-  // Generate the threshold of onnc out layer for de-quantization.
-  const tg::bm1880::LayerCalibrationParameter &outCtable =
-      *m_Backend->getLayerCtable(onncOutputLayerName);
-  for (int i = 0; i < dataCtable.blob_param_size(); i++) {
-    if (outCtable.blob_param(i).name() == onncOutputLayerName) {
-      threshold = outCtable.blob_param(i).threshold_y();
-      jOutputThres.insert("threshold", threshold);
-      break;
-    }
-  }
 
   // Insert all information to root.
   jRoot.insert("memory layout", jMemLayout);
   jRoot.insert("data layer threshold", jInputThres);
-  jRoot.insert("output layer", jOutputLayer);
   jRoot.insert("batch", jBatch);
-  jRoot.insert("onnc out layer threshold", jOutputThres);
   jRoot.insert("data layer dim", jInputDim);
 
   // std::ofstream outfile(pOutputFilename, std::ofstream::binary);
