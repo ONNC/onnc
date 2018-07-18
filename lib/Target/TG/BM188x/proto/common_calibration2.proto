@@ -22,6 +22,13 @@ message PReLUCalibrationParameter {
   required int32 le_right_shift_width = 3;
 }
 
+message LeakyReLUCalibrationParameter {
+  required int32 gt_scale = 1;
+  required int32 le_scale = 2;
+  required int32 gt_right_shift_width = 3;
+  required int32 le_right_shift_width = 4;
+}
+
 message LayerCalibrationParameter {
   required string name = 1; // the layer name
 
@@ -36,6 +43,7 @@ message LayerCalibrationParameter {
   optional PoolingCalibrationParameter pooling_param = 121;
   optional ReLUCalibrationParameter relu_param = 123;
   optional PReLUCalibrationParameter prelu_param = 124;
+  optional LeakyReLUCalibrationParameter leakyrelu_param = 125;
 }
 
 message BlobParameter {

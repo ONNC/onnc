@@ -24,6 +24,7 @@ add_libonnc_src(
     TGAveragePool.cpp
     TGGlobalAveragePool.cpp
     TGRelu.cpp
+    TGLeakyRelu.cpp
     TGUpsample.cpp
     TGConcat.cpp
     TGTranspose.cpp

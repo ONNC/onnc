@@ -6,6 +6,7 @@
 #include "TGGemm.h"
 #include "TGGlobalAveragePool.h"
 #include "TGLRN.h"
+#include "TGLeakyRelu.h"
 #include "TGMaxPool.h"
 #include "TGPRelu.h"
 #include "TGRelu.h"
@@ -128,6 +129,17 @@ ComputeOperator2 *BM188xISelLowering::LowerPRelu(const ::onnx::Node &pNode,
   auto *op = new BM188X::TGPRelu(pNode);
 
   return op->addMemOperands(input, slope, output);
+}
+
+ComputeOperator2 *BM188xISelLowering::LowerLeakyRelu(const ::onnx::Node &pNode,
+                                                     ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+
+  auto *op = new BM188X::TGLeakyRelu(pNode);
+
+  return op->addMemOperands(input, output);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const ::onnx::Node &pNode,
@@ -280,6 +292,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerRelu(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("PRelu")) {
     return LowerPRelu(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("LeakyRelu")) {
+    return LowerLeakyRelu(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("MaxPool")) {
     return LowerMaxPool(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("AveragePool")) {
