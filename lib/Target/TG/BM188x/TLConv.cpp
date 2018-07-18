@@ -123,18 +123,27 @@ void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
     pWeight.resize(count);
     std::vector<int8_t> data;
     std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+    int ic = m_InC / m_Groups;
 #ifdef DEBUG_WEIGHT_BIN
     std::cout << value->uniqueName() << "\n";
-    for (auto i : data) {
-      std::cout << (int32_t)i << ",";
+    for (int oc_i = 0; oc_i < m_OutC; ++oc_i) {
+      for (int ic_i = 0; ic_i < ic; ++ic_i) {
+        std::cout << "Kernel at " << oc_i << ", " << ic_i << "\n";
+        for (int kh_i = 0; kh_i < m_KH; ++kh_i) {
+          for (int kw_i = 0; kw_i < m_KW; ++kw_i) {
+            std::cout << (int)data[oc_i * ic * m_KH * m_KW +
+                                   ic_i * m_KH * m_KW + kh_i * m_KW + kw_i]
+                      << ", ";
+          }
+          std::cout << "\n";
+        }
+      }
     }
-    std::cout << "\n";
 #endif
     assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
 
     // conv weight is arranged by (1, oc, kh*kw, ic)
     // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
-    int ic = m_InC / m_Groups;
     for (int oc_i = 0; oc_i < m_OutC; ++oc_i) {
       for (int k_i = 0; k_i < m_KH * m_KW; ++k_i) {
         for (int ic_i = 0; ic_i < ic; ++ic_i) {
@@ -145,10 +154,21 @@ void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
     }
 #ifdef DEBUG_WEIGHT_BIN
     std::cout << "after conv weight:\n";
-    for (auto i : pWeight) {
-      std::cout << (int)i << ",";
+    for (int oc_i = 0; oc_i < m_OutC; ++oc_i) {
+      std::cout << "Kernel at " << oc_i << "\n";
+      for (int kh_i = 0; kh_i < m_KH; ++kh_i) {
+        for (int kw_i = 0; kw_i < m_KW; ++kw_i) {
+          std::cout << "[";
+          for (int ic_i = 0; ic_i < ic; ++ic_i) {
+            std::cout << (int)pWeight[oc_i * ic * m_KH * m_KW +
+                                      kh_i * m_KW * ic + kw_i * ic + ic_i]
+                      << ", ";
+          }
+          std::cout << "], ";
+        }
+        std::cout << "\n";
+      }
     }
-    std::cout << "\n";
 #endif
   }
 }
