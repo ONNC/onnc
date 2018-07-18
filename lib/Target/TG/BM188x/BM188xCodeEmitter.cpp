@@ -149,6 +149,14 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
       continue;
     }
 
+    if (inst->getTypeName() == "TLLoad") {
+      continue;
+    }
+
+    if (inst->getTypeName() == "TLStore") {
+      continue;
+    }
+
     for (auto *mem_op : inst->getMemOperands()) {
       if (mem_op->m_MemType == MemType::NEURON)
         continue;
