@@ -26,8 +26,6 @@ public:
   float getConvOuputThreshold() { return m_ConvOutputThreshold; }
 
 private:
-  int m_NIdx, m_HIdx;
-
   uint64_t m_IFmapAddr, m_OFmapAddr, m_WeightAddr, m_BiasAddr;
 
   int m_InN, m_InC, m_InH, m_InW;

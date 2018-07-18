@@ -21,6 +21,7 @@ TLConv::TLConv(const ::onnx::Node &pNode)
   m_DoBias = false;
   m_UseWinograd = false;
   m_DoRelu = false;
+  m_RShiftWidth = 0;
 
   // ONNC extension attribute
   assert(pNode.hasAttribute(::onnx::Symbol("op_name")));
