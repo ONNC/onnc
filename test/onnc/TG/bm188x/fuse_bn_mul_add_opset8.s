@@ -1,4 +1,4 @@
-#; RUN : onnx-as fuse_bn_mul_add_opset8.s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight | FileCheck fuse_bn_mul_add_opset8.s
+# RUN: onnx-as %s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight -o=- |& tee kkk.log | FileCheck %s
 #; CHECK: FLOAT tensor <1, 64, 1, 1> %conv1_7x7_s2_bn_sc_1 = Scale(FLOAT tensor <1, 64, 1, 1> %data_0, FLOAT tensor <64> %19, FLOAT tensor <64> %21)
 
 
@@ -26,3 +26,4 @@ graph {
   output { name: "conv1_7x7_s2_bn_sc_1"  type { tensor_type { elem_type: FLOAT shape { dim { dim_value: 1 } dim { dim_value: 64 } dim { dim_value: 1 } dim { dim_value: 1 } } } } }
 }
 opset_import { domain: "" version: 8 }
+metadata_props { key: "initializers" value: "conv1_7x7_s2_bn_scale_0,conv1_7x7_s2_bn_bias_0,conv1_7x7_s2_bn_mean_0,conv1_7x7_s2_bn_var_0,conv1_7x7_s2_bn_sc_w_0,conv1_7x7_s2_bn_sc_b_0" }

@@ -1,4 +1,4 @@
-#; RUN : onnx-as fuse_conv_bn_mul_add_relu_opset8.s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight | FileCheck fuse_conv_bn_mul_add_relu_opset8.s
+# RUN: onnx-as %s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight -o=- | FileCheck %s
 #; CHECK: FLOAT tensor <1, 64, 112, 112> %conv1_7x7_s2_bn_sc_2 = Conv <strides:INTS [2,2], pads:INTS [3,3,3,3], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 1, do_relu:INT 1> (FLOAT tensor <1, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_7x7_s2_w_0, FLOAT tensor <64> %22, FLOAT tensor <64> %24)
 
 ir_version: 3
@@ -28,3 +28,4 @@ graph {
   output { name: "conv1_7x7_s2_bn_sc_2"  type { tensor_type { elem_type: FLOAT shape { dim { dim_value: 1 } dim { dim_value: 64 } dim { dim_value: 112 } dim { dim_value: 112 } } } } }
 }
 opset_import { domain: "" version: 8 }
+metadata_props { key: "initializers" value: "conv1_7x7_s2_w_0,conv1_7x7_s2_bn_scale_0,conv1_7x7_s2_bn_bias_0,conv1_7x7_s2_bn_mean_0,conv1_7x7_s2_bn_var_0,conv1_7x7_s2_bn_sc_w_0,conv1_7x7_s2_bn_sc_b_0" }

@@ -18,5 +18,4 @@ add_libonnc_src(
 add_subdirectory(BM168x)
 add_subdirectory(BM188x)
 add_subdirectory(TargetInfo)
-add_subdirectory(test)
 
