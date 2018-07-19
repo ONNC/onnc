@@ -1,4 +1,5 @@
-#!/bin/bash -ex
+#!/bin/bash
+set -exo pipefail
 onnx_as=$1
 onnx2tg=$2
 $onnx_as ${asm_name} -o ${onnx_name}
