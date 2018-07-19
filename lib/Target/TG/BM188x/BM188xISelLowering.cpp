@@ -15,6 +15,7 @@
 #include "TGUpsample.h"
 #include "TLConv.h"
 #include "TLLoad.h"
+#include "TLPool.h"
 #include "TLStore.h"
 #include <onnc/Support/Debug.h>
 
@@ -138,13 +139,26 @@ ComputeOperator2 *BM188xISelLowering::LowerLeakyRelu(const ::onnx::Node &pNode,
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
 
   auto *op = new BM188X::TGLeakyRelu(pNode);
+  return op->addMemOperands(input, output);
+}
 
+ComputeOperator2 *BM188xISelLowering::LowerTLPool(const ::onnx::Node &pNode,
+                                                  ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TLPool(pNode);
   return op->addMemOperands(input, output);
 }
 
 ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const ::onnx::Node &pNode,
                                                    ComputeGraph &pGraph)
 {
+  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
+    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+    if (is_sliced)
+      return LowerTLPool(pNode, pGraph);
+  }
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGMaxPool(pNode);
@@ -155,6 +169,11 @@ ComputeOperator2 *
 BM188xISelLowering::LowerAveragePool(const ::onnx::Node &pNode,
                                      ComputeGraph &pGraph)
 {
+  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
+    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+    if (is_sliced)
+      return LowerTLPool(pNode, pGraph);
+  }
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGAveragePool(pNode);

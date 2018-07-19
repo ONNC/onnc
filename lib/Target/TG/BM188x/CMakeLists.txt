@@ -21,6 +21,7 @@ add_libonnc_src(
     TGGemm.cpp
     TGLRN.cpp
     TGMaxPool.cpp
+    TLPool.cpp
     TGAveragePool.cpp
     TGGlobalAveragePool.cpp
     TGRelu.cpp

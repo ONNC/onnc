@@ -29,6 +29,8 @@ private:
   ComputeOperator2 *LowerPRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerLeakyRelu(const ::onnx::Node &pNode,
                                    ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLPool(const ::onnx::Node &pNode,
+                                ComputeGraph &pGraph);
   ComputeOperator2 *LowerMaxPool(const ::onnx::Node &pNode,
                                  ComputeGraph &pGraph);
   ComputeOperator2 *LowerAveragePool(const ::onnx::Node &pNode,
