@@ -1,10 +1,12 @@
 #include "BM188xBackend.h"
 #include "PatternMatch.h"
 #include <algorithm>
+#include <onnc/ADT/StringRef.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
+#include <vector>
 
 using namespace onnc;
 
@@ -52,35 +54,34 @@ static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
     pGraph->addInitializer(newTensor, name);
   }
 }
-static bool isConstantInput(const onnx::Node *pNode, size_t pIndex)
-{
-  // clang-format off
-  std::map<std::string, std::vector<size_t> > table = { { "Conv", { 1, 2 } },
-                                                        { "BatchNormalization",
-                                                          { 1, 2, 3, 4 } },
-                                                        { "Mul", { 1 } },
-                                                        { "Add", { 1 } },
-                                                        { "PRelu", { 1 } },
-                                                        { "Unsqueeze", { 0 } },
-                                                        { "Gemm", { 1, 2 } } };
-  // clang-format on
-  for (auto &t : table)
-    if (match(pNode, mSymbol(t.first))) {
-      if (std::find(t.second.begin(), t.second.end(), pIndex) != t.second.end())
-        return true;
-    }
-  return false;
-}
 
 Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 {
   if (not m_pBackend->getOption().m_AddDummyWeight)
     return Pass::kModuleNoChanged;
+
+  auto &meta_data = pModule.getMetaData();
+  auto it = meta_data.find("initializers");
+  if (it == meta_data.end())
+    return Pass::kModuleNoChanged;
+
+  std::vector<StringRef> inits;
+  StringRef(it->second).split(inits, ',');
   onnx::Graph *graph = pModule.getGraphIR().get();
-  for (const auto *node : graph->nodes()) {
-    for (size_t i = 0; i < node->inputs().size(); i++)
-      if (isConstantInput(node, i))
-        addInitializerBase(graph, node->inputs()[i]);
+  for (auto init : inits) {
+    bool found = false;
+    for (const onnx::Value *val : graph->inputs())
+      if (val->uniqueName() == init) {
+        addInitializerBase(graph, val);
+        found = true;
+        break;
+      }
+    if (not found) {
+      errs() << "error: initializer " << init
+             << " in meta_data does not exist in inputs!\n";
+      assert(0);
+      exit(1);
+    }
   }
   return Pass::kModuleNoChanged;
 }

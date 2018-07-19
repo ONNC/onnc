@@ -14,3 +14,4 @@ graph {
   output { name: "bn_conv1_1" type { tensor_type { elem_type: FLOAT shape { dim { dim_value: 4} dim { dim_value: 64 } dim { dim_value: 112} dim {dim_value: 112 } } } } }
 }
 opset_import { domain: "" version: 6 }
+metadata_props { key: "initializers" value: "bn_conv1_scale_0,bn_conv1_bias_0,bn_conv1_mean_0,bn_conv1_var_0" }

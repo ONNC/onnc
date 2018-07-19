@@ -36,3 +36,4 @@ graph {
   output { name: "res2a_relu_1" type { tensor_type { elem_type: FLOAT shape { dim {dim_value: 1} dim { dim_value: 64 } dim { dim_value: 56 } dim { dim_value: 56} } } } }
 }
 opset_import { domain: "" version: 6 }
+metadata_props { key: "initializers" value: "res2a_branch1_w_0,res2a_branch2a_w_0,res2a_branch2b_w_0" }

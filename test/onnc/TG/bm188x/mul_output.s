@@ -45,3 +45,4 @@ graph {
   output { name: "conv6-3_1" type { tensor_type { elem_type: FLOAT shape { dim { dim_value: 1 } dim { dim_value: 10 } } } } }
 }
 opset_import { domain: "" version: 8 }
+metadata_props { key: "initializers" value: "conv5_w_0,conv5_b_0,conv6-1_w_0,conv6-1_b_0,conv6-2_w_0,conv6-2_b_0,conv6-3_w_0,conv6-3_b_0" }
