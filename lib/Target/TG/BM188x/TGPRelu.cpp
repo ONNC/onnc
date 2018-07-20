@@ -67,7 +67,7 @@ void TGPRelu::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
   const ::onnx::Tensor &tensor =
       ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
   assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT8);
-
+  assert(tensor.is_raw_data());
   m_ChannelShared = (tensor.raw().size() == 1);
   m_Slope = tensor.raw()[0];
 }

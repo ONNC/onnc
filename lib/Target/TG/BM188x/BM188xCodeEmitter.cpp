@@ -230,6 +230,7 @@ void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
   const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
                                                *pMemOp->m_Value->owningGraph());
 
+  assert(tensor.is_raw_data());
   const std::string &raw = tensor.raw();
   std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
 #ifdef DEBUG_WEIGHT_BIN
@@ -250,6 +251,7 @@ void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
   const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
                                                *pMemOp->m_Value->owningGraph());
 
+  assert(tensor.is_raw_data());
   const std::string &raw = tensor.raw();
   size_t count = onnc::getTotalCount(tensor.sizes());
   std::vector<int16_t> int16_vector(count);

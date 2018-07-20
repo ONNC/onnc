@@ -9,12 +9,15 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
                                         const std::string &pName)
 {
   const onnx::Tensor &tensor = *pGraph->getInitializer(pName);
-  size_t count = onnc::getTotalCount(tensor.sizes());
-  assert(tensor.is_raw_data());
-  const std::string &raw = tensor.raw();
-  std::vector<float> data(count);
-  std::memcpy(data.data(), raw.data(), count * sizeof(float));
-  return data;
+  assert(tensor.elem_type() == onnx::TensorProto_DataType_FLOAT);
+  if (tensor.is_raw_data()) {
+    size_t count = onnc::getTotalCount(tensor.sizes());
+    const std::string &raw = tensor.raw();
+    std::vector<float> data(count);
+    std::memcpy(data.data(), raw.data(), count * sizeof(float));
+    return data;
+  }
+  return tensor.floats();
 }
 
 bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
@@ -346,10 +349,20 @@ onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
       new_bias.push_back(0);
     }
   }
+
   onnx::Tensor new_scale_tensor = *pGraph->getInitializer(scale_name);
+  if (new_scale_tensor.is_raw_data()) {
+    new_scale_tensor.set_raw_data((const char *)new_scale.data());
+  } else {
+    new_scale_tensor.floats() = new_scale;
+  }
+
   onnx::Tensor new_bias_tensor = *pGraph->getInitializer(bias_name);
-  new_scale_tensor.set_raw_data((const char *)new_scale.data());
-  new_bias_tensor.set_raw_data((const char *)new_bias.data());
+  if (new_bias_tensor.is_raw_data()) {
+    new_bias_tensor.set_raw_data((const char *)new_bias.data());
+  } else {
+    new_bias_tensor.floats() = new_bias;
+  }
 
   onnx::Value *new_scalar_value =
       pGraph->addInitializerAndInput(new_scale_tensor);

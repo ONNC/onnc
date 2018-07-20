@@ -148,6 +148,7 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
     const onnx::Tensor &tensor =
         onnc::getTensor(value->uniqueName(), *value->owningGraph());
     assert(m_MemOperands[1]->m_Type == onnx::TensorProto_DataType_INT8);
+    assert(tensor.is_raw_data());
     const std::string &raw = tensor.raw();
     size_t count = onnc::getTotalCount(tensor.sizes());
     pWeight.resize(count);
