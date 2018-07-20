@@ -233,7 +233,8 @@ ComputeOperator2 *BM188xISelLowering::LowerLRN(const onnx::Node &pNode,
   auto output_name = pNode.outputs()[0]->uniqueName();
   // add SQR LUT table
   onnx::Tensor sqrlut_tensor;
-  sqrlut_tensor.sizes().push_back(256);
+  // Magic number 32 is a temporary solution.
+  sqrlut_tensor.sizes().push_back(256 * 32);
   sqrlut_tensor.elem_type() = onnx::TensorProto_DataType_INT8;
   std::string squlut_name = output_name + "_sqrlut";
   auto *sqrlut_val = graph->addInitializerAndInput(sqrlut_tensor, squlut_name);
@@ -241,7 +242,8 @@ ComputeOperator2 *BM188xISelLowering::LowerLRN(const onnx::Node &pNode,
 
   // add POWER LUT table
   onnx::Tensor powerlut_tensor;
-  powerlut_tensor.sizes().push_back(256);
+  // Magic number 32 is a temporary solution.
+  powerlut_tensor.sizes().push_back(256 * 32);
   powerlut_tensor.elem_type() = onnx::TensorProto_DataType_INT8;
   std::string powerlut_name = output_name + "_powerlut";
   auto *powerlut_val =
