@@ -404,7 +404,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   jInputThres.insert("threshold", threshold);
 
   // Generate data_layer dimension.
-  auto sizes = pOnnxGraph->inputs()[0]->sizes();
+  auto sizes = input->sizes();
   onnc::json::Array jDimArr;
   for (size_t i = 0; i < sizes.size(); ++i) {
     jDimArr.push_back(onnc::json::Value(sizes[i].dim));
