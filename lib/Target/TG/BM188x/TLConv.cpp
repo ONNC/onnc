@@ -119,7 +119,8 @@ TLConv *TLConv::addMemOperands(MemOperand *pInput, MemOperand *pWeight,
 void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
 {
   pWeight.clear();
-  {
+  if (m_MemOperands[1]->m_IsWrittenInBin == false) {
+    m_MemOperands[1]->m_IsWrittenInBin = true;
     const onnx::Value *value = m_MemOperands[1]->m_Value;
     const onnx::Tensor &tensor =
         onnc::getTensor(value->uniqueName(), *value->owningGraph());
@@ -178,9 +179,13 @@ void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
     }
 #endif
   }
+
   if (m_DoBias == 1) {
     auto *mem_op = m_MemOperands[m_BiasIdx];
-    BM188xCodeEmitter::prepare16bitWeight(mem_op, pWeight);
+    if (m_MemOperands[m_BiasIdx]->m_IsWrittenInBin == false) {
+      m_MemOperands[m_BiasIdx]->m_IsWrittenInBin = true;
+      BM188xCodeEmitter::prepare16bitWeight(mem_op, pWeight);
+    }
   }
 }
 

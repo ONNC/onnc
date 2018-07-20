@@ -14,7 +14,7 @@ std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem)
 MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
                        MemType pMemType)
     : m_Name(pName), m_Addr(0x0), m_Size(0), m_Type(pValue->elemType()),
-      m_MemType(pMemType), m_Value(pValue)
+      m_MemType(pMemType), m_Value(pValue), m_IsWrittenInBin(false)
 {
   m_Count = 1;
   auto &dim = pValue->sizes();

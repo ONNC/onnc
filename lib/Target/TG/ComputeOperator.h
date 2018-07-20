@@ -27,6 +27,7 @@ struct MemOperand {
   ::onnx::TensorProto_DataType m_Type;
   MemType m_MemType;
   const ::onnx::Value *m_Value;
+  bool m_IsWrittenInBin;
   MemOperand(std::string pName, const ::onnx::Value *pValue, MemType pMemType);
 };
 
