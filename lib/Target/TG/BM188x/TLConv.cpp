@@ -94,6 +94,11 @@ TLConv::TLConv(const ::onnx::Node &pNode)
     m_StrideH = i[0];
     m_StrideW = i[1];
   }
+
+  // Support FuseRelu
+  if (pNode.hasAttribute(::onnx::Symbol("do_relu"))) {
+    m_DoRelu = true;
+  }
 }
 
 TLConv *TLConv::addMemOperands(MemOperand *pInput, MemOperand *pWeight,
