@@ -7,7 +7,6 @@ add_libonnc_src(
     DeadNodeElimination.cpp
     GraphBuildingPass.cpp
     RemoveTrainingNodes.cpp
-    PreTensorSel.cpp
     TensorSel.cpp
     TensorSel/Lower.cpp
     TensorSel/LowerRegistry.cpp
