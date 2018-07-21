@@ -1,4 +1,3 @@
-include/onnc/Transforms/TensorSel.h 
 add_libonnc_src(
     BookONNXGraphs.cpp
     BuildInitializers.cpp
