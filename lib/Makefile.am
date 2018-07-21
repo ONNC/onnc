@@ -47,7 +47,6 @@ ONNC_SOURCES = \
 	Transforms/DeadNodeElimination.cpp \
 	Transforms/RemoveTrainingNodes.cpp \
 	Transforms/BookONNXGraphs.cpp \
-	Transforms/PreTensorSel.cpp \
 	Transforms/GraphBuildingPass.cpp \
 	Transforms/BuildInitializers.cpp \
 	Transforms/BuildInputOperators.cpp \

@@ -10,7 +10,6 @@
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
-#include <onnc/Transforms/PreTensorSel.h>
 #include <onnc/Transforms/TensorSel.h>
 
 using namespace onnc;
@@ -31,7 +30,6 @@ void X86Backend::addTensorSel(PassManager& pPM)
   // target independent pass
   pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
-  pPM.add(CreatePreTensorSel());
   pPM.add(CreateTensorSel(this));
 }
 
