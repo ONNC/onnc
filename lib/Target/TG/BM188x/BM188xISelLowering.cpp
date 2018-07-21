@@ -204,8 +204,19 @@ ComputeOperator2 *BM188xISelLowering::LowerGemm(const ::onnx::Node &pNode,
 ComputeOperator2 *BM188xISelLowering::LowerSum(const ::onnx::Node &pNode,
                                                ComputeGraph &pGraph)
 {
-  std::vector<MemOperand *> vInput;
+  // BM188x does not support NEURON addition with Numpy-style broadcasting
+  // TODO refactoring checking
+  auto dim_input0 = pNode.inputs()[0]->sizes();
   int input_size = pNode.inputs().size();
+  for (int i = 1; i < input_size; ++i) {
+    auto dim_input_i = pNode.inputs()[i]->sizes();
+    assert(dim_input0.size() == dim_input_i.size());
+    for (size_t j = 0; j < dim_input0.size(); ++j) {
+      assert(dim_input0[j].dim == dim_input_i[j].dim);
+    }
+  }
+
+  std::vector<MemOperand *> vInput;
 
   for (int i = 0; i < input_size; ++i) {
     vInput.push_back(

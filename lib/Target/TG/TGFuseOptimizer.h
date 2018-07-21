@@ -46,6 +46,9 @@ protected:
 
   virtual onnx::Node *FuseBN(onnx::Graph *pGraph, onnx::Node *pNode);
 
+  virtual onnx::Node *AliasSumOperator(onnx::Graph *pGraph,
+                                       onnx::Node *pAddNode);
+
 private:
   bool FuseNodes(::onnx::Graph *pGraph, const int64_t &pOpsetVersion);
 

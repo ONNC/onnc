@@ -20,6 +20,18 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
   return tensor.floats();
 }
 
+static bool isNeuronInputs(onnx::Node *pAddNode)
+{
+  onnx::Graph *graph = pAddNode->owningGraph();
+  std::unordered_set<std::string> init_names(graph->initializer_names().begin(),
+                                             graph->initializer_names().end());
+  auto input0 = pAddNode->inputs()[0]->uniqueName();
+  auto input1 = pAddNode->inputs()[1]->uniqueName();
+  if (init_names.count(input0) || init_names.count(input1))
+    return false;
+  return true;
+}
+
 bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
 {
   if (match(pNode, mSymbol("BatchNormalization")) and
@@ -233,7 +245,8 @@ bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
 bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph,
                                 const int64_t &pOpsetVersion)
 {
-  for (auto it = pGraph->rbegin(); it != pGraph->rend(); ++it) {
+  // WARNING: change iteration order will impact the optimization result
+  for (auto it = pGraph->begin(); it != pGraph->end(); ++it) {
     auto *node = *it;
     if (6 == pOpsetVersion && FuseOpset6Nodes(pGraph, node)) {
       return true;
@@ -255,6 +268,10 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph,
     }
     if (match(node, mSymbol("BatchNormalization"))) {
       FuseBN(pGraph, node);
+      return true;
+    }
+    if (match(node, mSymbol("Add")) && isNeuronInputs(node)) {
+      AliasSumOperator(pGraph, node);
       return true;
     }
     if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Scale"))) {
@@ -387,4 +404,17 @@ onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
   }
   pBNNode->destroy();
   return scale_node;
+}
+
+onnx::Node *TGFuseOptimizer::AliasSumOperator(onnx::Graph *pGraph,
+                                              onnx::Node *pAddNode)
+{
+  onnx::Node *sum_node = pGraph->create(onnx::Symbol("Sum"));
+  sum_node->addInput(pAddNode->inputs()[0]);
+  sum_node->addInput(pAddNode->inputs()[1]);
+  sum_node->output()->copyMetadata(pAddNode->output());
+  sum_node->insertBefore(pAddNode);
+  pAddNode->replaceAllUsesWith(sum_node);
+  pAddNode->destroy();
+  return sum_node;
 }
