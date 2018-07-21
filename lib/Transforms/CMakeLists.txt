@@ -1,11 +1,11 @@
-
+include/onnc/Transforms/TensorSel.h 
 add_libonnc_src(
     BookONNXGraphs.cpp
     ComplementInitializers.cpp
     ComplementInputOperators.cpp
     ComplementOutputOperators.cpp
     DeadNodeElimination.cpp
-    GraphPairPass.cpp
+    GraphBuildingPass.cpp
     RemoveTrainingNodes.cpp
     PreTensorSel.cpp
     TensorSel.cpp

@@ -48,7 +48,7 @@ ONNC_SOURCES = \
 	Transforms/RemoveTrainingNodes.cpp \
 	Transforms/BookONNXGraphs.cpp \
 	Transforms/PreTensorSel.cpp \
-	Transforms/GraphPairPass.cpp \
+	Transforms/GraphBuildingPass.cpp \
 	Transforms/ComplementInitializers.cpp \
 	Transforms/ComplementInputOperators.cpp \
 	Transforms/ComplementOutputOperators.cpp \

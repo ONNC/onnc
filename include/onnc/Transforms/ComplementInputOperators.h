@@ -7,20 +7,20 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_COMPLEMENT_INPUT_OPERATORS_H
 #define ONNC_TRANSFORM_COMPLEMENT_INPUT_OPERATORS_H
-#include <onnc/Transforms/GraphPairPass.h>
+#include <onnc/Transforms/GraphBuildingPass.h>
 
 namespace onnc {
 
 /** \class ComplementInputOperators
  *  \brief ComplementInputOperators add InputOperator objects in ComputeGraph.
  */
-class ComplementInputOperators : public GraphPairPass
+class ComplementInputOperators : public GraphBuildingPass
 {
 public:
   static char ID;
 
 public:
-  ComplementInputOperators() : GraphPairPass(ID) { }
+  ComplementInputOperators() : GraphBuildingPass(ID) { }
 
   ~ComplementInputOperators() { }
 

@@ -1,28 +1,28 @@
-//===- GraphPairPass.h ----------------------------------------------------===//
+//===- GraphBuildingPass.h ------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_TRANSFORM_GRAPH_PAIR_H
-#define ONNC_TRANSFORM_GRAPH_PAIR_H
+#ifndef ONNC_TRANSFORM_GRAPH_BUILDING_H
+#define ONNC_TRANSFORM_GRAPH_BUILDING_H
 #include <onnc/Core/ModulePass.h>
 #include <onnc/IR/ComputeGraph.h>
 #include <onnx/common/ir.h>
 
 namespace onnc {
 
-/** \class GraphPairPass
- *  \brief GraphPairPass converts ONNX node to ComputeOperator and creates
+/** \class GraphBuildingPass
+ *  \brief GraphBuildingPass converts ONNX node to ComputeOperator and creates
  *  ComputeGraph objects for subgraph in ONNX.
  */
-class GraphPairPass : public ModulePass
+class GraphBuildingPass : public ModulePass
 {
 public:
-  GraphPairPass(char& pPassID);
+  GraphBuildingPass(char& pPassID);
 
-  virtual ~GraphPairPass() { }
+  virtual ~GraphBuildingPass() { }
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 

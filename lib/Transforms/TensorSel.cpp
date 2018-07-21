@@ -22,7 +22,7 @@ char TensorSel::ID = 0;
 // TensorSel
 //===----------------------------------------------------------------------===//
 TensorSel::TensorSel(const TargetBackend* pBackend)
-  : GraphPairPass(ID), m_pBackend(pBackend), m_LowerRegistry() {
+  : GraphBuildingPass(ID), m_pBackend(pBackend), m_LowerRegistry() {
   if (nullptr != m_pBackend) {
     m_pBackend->RegisterLowers(m_LowerRegistry);
   }

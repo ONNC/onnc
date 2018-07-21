@@ -1,22 +1,22 @@
-//===- GraphPairPass.cpp --------------------------------------------------===//
+//===- GraphBuildingPass.cpp ----------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Transforms/GraphPairPass.h>
+#include <onnc/Transforms/GraphBuildingPass.h>
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// GraphPairPass
+// GraphBuildingPass
 //===----------------------------------------------------------------------===//
-GraphPairPass::GraphPairPass(char& pPassID)
+GraphBuildingPass::GraphBuildingPass(char& pPassID)
   : ModulePass(pPassID) {
 }
 
-Pass::ReturnType GraphPairPass::runOnModule(::onnc::Module &pModule)
+Pass::ReturnType GraphBuildingPass::runOnModule(::onnc::Module &pModule)
 {
   if (!pModule.hasRootTensorGraph())
     return Pass::kModuleNoChanged;

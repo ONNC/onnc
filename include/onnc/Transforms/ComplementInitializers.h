@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_COMPLEMENT_INITIALIZERS_H
 #define ONNC_TRANSFORM_COMPLEMENT_INITIALIZERS_H
-#include <onnc/Transforms/GraphPairPass.h>
+#include <onnc/Transforms/GraphBuildingPass.h>
 
 namespace onnc {
 
@@ -15,13 +15,13 @@ namespace onnc {
  *  \brief ComplementInitializers creates ComputeGraph objects and converts ONNX's
  *  initializers to ComputeOperators
  */
-class ComplementInitializers : public GraphPairPass
+class ComplementInitializers : public GraphBuildingPass
 {
 public:
   static char ID;
 
 public:
-  ComplementInitializers() : GraphPairPass(ID) { }
+  ComplementInitializers() : GraphBuildingPass(ID) { }
 
   ~ComplementInitializers() { }
 
