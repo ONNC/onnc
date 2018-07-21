@@ -14,10 +14,10 @@
 #include <onnc/Transforms/DeadNodeElimination.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
-#include <onnc/Transforms/ComplementInputOperators.h>
-#include <onnc/Transforms/ComplementInitializers.h>
+#include <onnc/Transforms/BuildInputOperators.h>
+#include <onnc/Transforms/BuildInitializers.h>
 #include <onnc/IRReader/ONNXReader.h>
-#include <onnc/Transforms/ComplementOutputOperators.h>
+#include <onnc/Transforms/BuildOutputOperators.h>
 #include <onnc/ADT/Rope.h>
 #include <onnc/Support/OFStream.h>
 
@@ -69,8 +69,8 @@ SKYPAT_F(TensorSelTest, alexnet)
   pm.add(CreateUpdateGraphOutputSizePass(), state);
   pm.add(CreateDeadNodeEliminationPass(), state);
   pm.add(CreateBookONNXGraphs(), state);
-  pm.add(CreateComplementInitializers(), state);
-  pm.add(CreateComplementInputOperators(), state);
+  pm.add(CreateBuildInitializers(), state);
+  pm.add(CreateBuildInputOperators(), state);
 
   /// create tensor selection
   TensorSel* tensor_selection = new TensorSel();
@@ -94,7 +94,7 @@ SKYPAT_F(TensorSelTest, alexnet)
   tensor_selection->getLowerRegistry().emplace<onnc::LRNLower>();
   tensor_selection->getLowerRegistry().emplace<onnc::SoftmaxLower>();
   pm.add(tensor_selection, state);
-  pm.add(CreateComplementOutputOperators(), state);
+  pm.add(CreateBuildOutputOperators(), state);
 
   // RemoveTrainingNodesPass
   int counter = 0;
@@ -133,7 +133,7 @@ SKYPAT_F(TensorSelTest, alexnet)
     module.print(os);
   }
 
-  // ComplementInitializers
+  // BuildInitializers
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;
@@ -142,7 +142,7 @@ SKYPAT_F(TensorSelTest, alexnet)
     module.print(os);
   }
 
-  // ComplementInputOperators
+  // BuildInputOperators
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;
@@ -160,7 +160,7 @@ SKYPAT_F(TensorSelTest, alexnet)
     module.print(os);
   }
 
-  // ComplementOutputOperators
+  // BuildOutputOperators
   pm.step(module, state);
   {
     errs() << state.pass->getPassName() << std::endl;

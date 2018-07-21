@@ -1,11 +1,11 @@
-//===- ComplementInputOperators.cpp ---------------------------------------===//
+//===- BuildInputOperators.cpp --------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Transforms/ComplementInputOperators.h>
+#include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/IRBuilder.h>
@@ -13,13 +13,13 @@
 
 using namespace onnc;
 
-char ComplementInputOperators::ID = 0;
+char BuildInputOperators::ID = 0;
 
 //===----------------------------------------------------------------------===//
-// ComplementInputOperators
+// BuildInputOperators
 //===----------------------------------------------------------------------===//
 Pass::ReturnType
-ComplementInputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+BuildInputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 {
   const std::vector<std::string>& names = pTG.initializer_names();
 
@@ -40,9 +40,9 @@ ComplementInputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-INITIALIZE_PASS(ComplementInputOperators, "ComplementInputOperators");
+INITIALIZE_PASS(BuildInputOperators, "BuildInputOperators");
 
-ModulePass *onnc::CreateComplementInputOperators()
+ModulePass *onnc::CreateBuildInputOperators()
 {
-  return new ComplementInputOperators();
+  return new BuildInputOperators();
 }

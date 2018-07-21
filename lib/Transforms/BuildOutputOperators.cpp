@@ -1,11 +1,11 @@
-//===- ComplementOutputOperators.cpp --------------------------------------===//
+//===- BuildOutputOperators.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Transforms/ComplementOutputOperators.h>
+#include <onnc/Transforms/BuildOutputOperators.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/IRBuilder.h>
@@ -13,13 +13,13 @@
 
 using namespace onnc;
 
-char ComplementOutputOperators::ID = 0;
+char BuildOutputOperators::ID = 0;
 
 //===----------------------------------------------------------------------===//
-// ComplementOutputOperators
+// BuildOutputOperators
 //===----------------------------------------------------------------------===//
 Pass::ReturnType
-ComplementOutputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+BuildOutputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 {
   for (::onnx::Value* v : pTG.outputs())
     pCG.addOperator<onnc::OutputOperator>(v->uniqueName());
@@ -30,9 +30,9 @@ ComplementOutputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-INITIALIZE_PASS(ComplementOutputOperators, "ComplementOutputOperators");
+INITIALIZE_PASS(BuildOutputOperators, "BuildOutputOperators");
 
-ModulePass *onnc::CreateComplementOutputOperators()
+ModulePass *onnc::CreateBuildOutputOperators()
 {
-  return new ComplementOutputOperators();
+  return new BuildOutputOperators();
 }

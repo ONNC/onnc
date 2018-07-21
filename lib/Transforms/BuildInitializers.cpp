@@ -1,11 +1,11 @@
-//===- ComplementInitializers.cpp -----------------------------------------===//
+//===- BuildInitializers.cpp ----------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Transforms/ComplementInitializers.h>
+#include <onnc/Transforms/BuildInitializers.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/IRBuilder.h>
@@ -13,13 +13,13 @@
 
 using namespace onnc;
 
-char ComplementInitializers::ID = 0;
+char BuildInitializers::ID = 0;
 
 //===----------------------------------------------------------------------===//
-// ComplementInitializers
+// BuildInitializers
 //===----------------------------------------------------------------------===//
 Pass::ReturnType
-ComplementInitializers::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+BuildInitializers::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 {
   // Create initializer. In ONNC, initializer is a kind of ComputeOperator.
   // XXX: ONNX doesn't define new types for these data structures
@@ -55,9 +55,9 @@ ComplementInitializers::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-INITIALIZE_PASS(ComplementInitializers, "ComplementInitializers");
+INITIALIZE_PASS(BuildInitializers, "BuildInitializers");
 
-ModulePass *onnc::CreateComplementInitializers()
+ModulePass *onnc::CreateBuildInitializers()
 {
-  return new ComplementInitializers();
+  return new BuildInitializers();
 }

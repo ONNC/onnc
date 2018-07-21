@@ -49,9 +49,9 @@ ONNC_SOURCES = \
 	Transforms/BookONNXGraphs.cpp \
 	Transforms/PreTensorSel.cpp \
 	Transforms/GraphBuildingPass.cpp \
-	Transforms/ComplementInitializers.cpp \
-	Transforms/ComplementInputOperators.cpp \
-	Transforms/ComplementOutputOperators.cpp \
+	Transforms/BuildInitializers.cpp \
+	Transforms/BuildInputOperators.cpp \
+	Transforms/BuildOutputOperators.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
