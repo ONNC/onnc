@@ -50,7 +50,7 @@ if test "$check_bmkernel" = "yes"; then
     AC_SUBST(BMAPI_INCLUDES)
     AC_SUBST(BMAPI_LIBS)
 fi
-AM_CONDITIONAL([HAVE_BMKERNEL], [test ${HAVE_BMKERNEL} = 1])
+AM_CONDITIONAL([HAVE_BMKERNEL], [test "${HAVE_BMKERNEL}" = 1])
 
 
 ])
