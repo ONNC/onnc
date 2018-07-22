@@ -9,25 +9,28 @@ dnl Luba Tang <luba@skymizer.com>
 
 AC_DEFUN([ENUM_ONNC_TARGETS],
 [dnl
-  dnl from ${LLVM}/autoconf/configure.ac
   dnl Allow specific targets to be specified for building (or not)
   TARGETS_TO_BUILD="";
 
   AC_ARG_ENABLE([targets],
     [AS_HELP_STRING([--enable-targets],
               [Build specific host targets: all or target1,target2,... Valid targets are:
-       host, sophon, tg, x86, x86_64, sparc, powerpc, alpha, aarch64, arm, arm64, mips, spu, hexagon,
-       xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
+       host, vanilla, sophon, tg, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
+       arm64, mips, spu, hexagon, xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
     [],
     [enableval=all])
 
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
-    all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG"
+    all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG"
         check_bmkernel=yes
         ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
+    vanilla)
+        TARGETS_TO_BUILD="Vanilla $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_VANILLA_TARGET, 1, [define Vanilla target])
+        ;;
     x86)
         TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD"
         AC_DEFINE(ENABLE_X86_TARGET, 1, [define x86 target])
@@ -84,6 +87,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
     if test -d ${srcdir}/lib/Target/${target_to_build} ; then
       ONNC_TARGET_PLATFORMS="ONNC_PLATFORM($target_to_build) $ONNC_TARGET_PLATFORMS"
     fi
+    dnl check *Backend.cpp file
     if test -f ${srcdir}/lib/Target/${target_to_build}/*Backend.cpp ; then
       ONNC_TARGET_BACKENDS="ONNC_BACKEND($target_to_build) $ONNC_TARGET_BACKENDS";
     fi
@@ -92,6 +96,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_SUBST(ONNC_TARGET_PLATFORMS)
   AC_SUBST(ONNC_TARGET_BACKENDS)
 
+  AM_CONDITIONAL([ENABLE_VANILLA_TARGET], [ test "${TARGETS_TO_BUILD/Vanilla}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_X86_TARGET],     [ test "${TARGETS_TO_BUILD/X86}"     != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_AArch64_TARGET], [ test "${TARGETS_TO_BUILD/AArch64}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_ARM_TARGET],     [ test "${TARGETS_TO_BUILD/ARM}"     != "${TARGETS_TO_BUILD}" ])
