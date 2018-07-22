@@ -42,6 +42,9 @@
 /* Enable unittest */
 #undef ENABLE_UNITTEST
 
+/* define Vanilla target */
+#undef ENABLE_VANILLA_TARGET
+
 /* define x86_64 target */
 #undef ENABLE_X86_TARGET
 
