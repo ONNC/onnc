@@ -5,7 +5,6 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include "BM188xBackend.h"
 #include "BM188x/BM188xTargetMemInfo.h"
 #include "BM188x/BM188xTargetTransformInfo.h"
@@ -17,6 +16,9 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
+#ifdef BMNETC_EXIST
+#include <bmnetc/bmnetc.h>
+#endif
 
 using namespace onnc;
 
@@ -31,6 +33,10 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
+#ifdef BMNETC_EXIST
+  bmnetc_pass_extention(backend, pm);
+#endif
+
   // target independent pass
   pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());

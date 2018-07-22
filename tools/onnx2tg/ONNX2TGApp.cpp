@@ -20,9 +20,6 @@
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetSelect.h>
 #include <string>
-#ifdef BMNETC_EXIST
-#include <bmnetc/bmnetc.h>
-#endif
 
 using namespace onnc;
 using namespace llvm;
@@ -83,10 +80,8 @@ int ONNX2TG::compile()
   PassManager pm;
 
   TargetBackend *backend = target->createBackend(m_Config.getOptions());
-#ifdef BMNETC_EXIST
-  bmnetc_pass_extention(backend, pm);
-#endif
   backend->addTensorSel(pm);
+  backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, m_Config.output());
   pm.run(module);
