@@ -23,7 +23,6 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
     all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG"
-        check_bmkernel=yes
         ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
