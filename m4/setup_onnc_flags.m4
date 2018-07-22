@@ -6,11 +6,8 @@ dnl
 dnl   LIBONNC_INCLUDES
 dnl   LIBONNC_LDFLAGS
 dnl   LIBONNC_LIBS
-dnl
-dnl * libonnc.m4 depends on AM variables set by pthread_check.m4
-dnl
 
-AC_DEFUN([CHECK_ONNC],
+AC_DEFUN([SETUP_ONNC_FLAGS],
 [dnl
 
 abs_builddir=$(cd "${builddir}" && pwd)

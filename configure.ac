@@ -89,7 +89,6 @@ SETUP_ONNC_FLAGS
 
 ####################
 # Check for targets
-CHECK_BMKERNEL
 
 ####################
 # OUTPUT
