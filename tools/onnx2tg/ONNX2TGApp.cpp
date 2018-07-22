@@ -44,10 +44,10 @@ static ExitOnError ExitOnErr;
 
 int ONNX2TG::compile()
 {
-  // TODO Figure out why Reader need to be defined here. (potential bug)
   onnc::onnx::Reader reader;
   Module module;
   {
+    // XXX: copy strings twice
     std::unique_ptr<MemoryBuffer> MB = ExitOnErr(
         errorOrToExpected(MemoryBuffer::getFileOrSTDIN(m_Config.input())));
     std::string data = MB.get()->getBuffer().str();
