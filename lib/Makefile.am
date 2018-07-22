@@ -40,10 +40,6 @@ ONNC_SOURCES = \
 	IR/Compute/InputOperator.cpp \
 	IR/Compute/OutputOperator.cpp \
 	IR/Tensor/InitializerProxy.cpp \
-	Target/Target.cpp \
-	Target/TargetBackend.cpp \
-	Target/TargetRegistry.cpp \
-	Target/NPUTargetBackend.cpp \
 	Transforms/DeadNodeElimination.cpp \
 	Transforms/RemoveTrainingNodes.cpp \
 	Transforms/BookONNXGraphs.cpp \
@@ -173,38 +169,6 @@ ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ -I${srcdir}/Target
 
 ONNC_LIBS = -lz @ONNX_LIBS@
 
-if ENABLE_SOPHON_TARGET
-ONNC_SOPHON_TARGET_SOURCES = \
-	Target/Sophon/SophonBackend.cpp \
-	Target/Sophon/TargetInfo/SophonTargetInfo.cpp
-endif
-
-if ENABLE_TG_TARGET
-ONNC_TG_TARGET_SOURCES = \
-	Target/TG/TGBackend.cpp \
-	Target/TG/TargetInfo/TGTargetInfo.cpp \
-	Target/TG/TGCodeEmitPass.cpp \
-	Target/TG/TargetLowering.cpp \
-	Target/TG/TargetLoweringPass.cpp \
-	Target/TG/BM188x/asm.pb.cc \
-	Target/TG/BM188x/common_calibration2.pb.cc
-
-ONNC_INCLUDES += -I${srcdir}/Target/TG
-
-endif
-
-if ENABLE_X86_TARGET
-ONNC_X86_TARGET_SOURCES = \
-	Target/X86/X86Backend.cpp \
-	Target/X86/X86InplaceValueFusible.cpp \
-	Target/X86/TargetInfo/X86TargetInfo.cpp
-endif
-
-ONNC_TARGET_SOURCES = \
-  ${ONNC_SOPHON_TARGET_SOURCES} \
-  ${ONNC_TG_TARGET_SOURCES} \
-  ${ONNC_X86_TARGET_SOURCES}
-
 ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
 ONNC_CPPFLAGS = -DONNX_NAMESPACE=onnx
@@ -221,6 +185,25 @@ AM_CPPFLAGS = ${ONNC_INCLUDES} ${ONNC_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
 AM_YFLAGS = -d
 AM_LFLAGS = -olex.yy.c
+
+#####################################
+# Target-depednet files and settings
+ONNC_TARGET_SOURCES = Target/Target.cpp \
+	Target/TargetBackend.cpp \
+	Target/TargetRegistry.cpp \
+	Target/NPUTargetBackend.cpp
+
+if ENABLE_SOPHON_TARGET
+include $(srcdir)/Target/Sophon/Makefile.am
+endif
+
+if ENABLE_TG_TARGET
+include $(srcdir)/Target/TG/Makefile.am
+endif
+
+if ENABLE_X86_TARGET
+include $(srcdir)/Target/X86/Makefile.am
+endif
 
 #####################################
 # Build shared libraries
