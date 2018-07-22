@@ -1,5 +1,4 @@
-// NOTE: this disassembler is more convenient than proto's DebugString()
-// it will IGNORE init data in model for readability
+// onnx-dis IGNORES init data in model for readability
 // output can be pass to onnx-as as a new  onnx.model binary without init data
 #include "llvm/Support/CommandLine.h"
 #include <fstream>
