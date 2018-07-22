@@ -74,7 +74,6 @@ CHECK_PTHREAD
 CHECK_SKYPAT
 CHECK_ONNX
 CHECK_ZLIB
-CHECK_LLVM
 CHECK_ENABLE_OPTION([debug], [no], [ENABLE_DEBUG])
 CHECK_ENABLE_OPTION([unittest], [no], [ENABLE_UNITTEST])
 CHECK_ENABLE_OPTION([regression], [no], [ENABLE_REGRESSION])
@@ -84,11 +83,8 @@ CHECK_ENABLE_OPTION([gettimeofday], [yes], [ENABLE_GETTIMEOFDAY])
 
 ####################
 # Check for variables
-ENUM_ONNC_TARGETS
 SETUP_ONNC_FLAGS
-
-####################
-# Check for targets
+ENUM_ONNC_TARGETS
 
 ####################
 # OUTPUT
@@ -102,11 +98,6 @@ AC_CONFIG_FILES([tools/Makefile])
 AC_CONFIG_FILES([tools/unittests/Makefile])
 AC_CONFIG_FILES([tools/onnc/Makefile])
 AC_CONFIG_FILES([tools/readonnx/Makefile])
-AC_CONFIG_FILES([tools/onnx2tg/Makefile])
 AC_CONFIG_FILES([tools/onnc-jit/Makefile])
-
-####################
-# BACKEND OUTPUT
-PROTO_CONFIG_FILES([lib/Target/TG/BM188x/proto/common_calibration2.proto],[lib/Target/TG/BM188x])
 
 AC_OUTPUT

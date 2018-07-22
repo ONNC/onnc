@@ -189,8 +189,7 @@ ONNC_TG_TARGET_SOURCES = \
 	Target/TG/BM188x/asm.pb.cc \
 	Target/TG/BM188x/common_calibration2.pb.cc
 
-ONNC_INCLUDES += @BMKERNEL_INCLUDES@ @BMAPI_INCLUDES@ -I${srcdir}/Target/TG
-ONNC_LIBS += ${BMKERNEL_LIBS} ${BMAPI_LIBS}
+ONNC_INCLUDES += -I${srcdir}/Target/TG
 
 endif
 

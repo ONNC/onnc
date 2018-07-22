@@ -95,10 +95,15 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_SUBST(ONNC_TARGET_PLATFORMS)
   AC_SUBST(ONNC_TARGET_BACKENDS)
 
+  dnl enable variables
   AM_CONDITIONAL([ENABLE_VANILLA_TARGET], [ test "${TARGETS_TO_BUILD/Vanilla}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_X86_TARGET],     [ test "${TARGETS_TO_BUILD/X86}"     != "${TARGETS_TO_BUILD}" ])
+  AM_CONDITIONAL([ENABLE_TG_TARGET],      [ test "${TARGETS_TO_BUILD/TG}"      != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_AArch64_TARGET], [ test "${TARGETS_TO_BUILD/AArch64}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_ARM_TARGET],     [ test "${TARGETS_TO_BUILD/ARM}"     != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_SOPHON_TARGET],  [ test "${TARGETS_TO_BUILD/Sophon}"  != "${TARGETS_TO_BUILD}" ])
-  AM_CONDITIONAL([ENABLE_TG_TARGET],      [ test "${TARGETS_TO_BUILD/TG}"      != "${TARGETS_TO_BUILD}" ])
+
+  dnl include target-dependent autoconf function calls.
+  AM_COND_IF([ENABLE_X86_TARGET],     [m4_include(m4/targets/x86.m4)])
+  AM_COND_IF([ENABLE_TG_TARGET],      [m4_include(m4/targets/tg.m4)])
 ])
