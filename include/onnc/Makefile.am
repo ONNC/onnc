@@ -42,7 +42,7 @@ nobase_nodist_include_HEADERS = \
 	ADT/Uncopyable.h \
 	Target/TargetBackend.h \
 	IR/ComputeOperator.h \
-  IR/ComputeOperand.h \
-  IR/ComputeMemOperand.h \
-  IR/ComputeRegOperand.h \
+	IR/ComputeOperand.h \
+	IR/ComputeMemOperand.h \
+	IR/ComputeRegOperand.h \
 	IR/Tensor/InitializerProxy.h
