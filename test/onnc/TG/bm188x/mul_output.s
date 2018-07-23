@@ -2,7 +2,7 @@
 
 #CHECK:    "output layer": {
 #CHECK-NEXT:        "0": {
-#CHECK-NEXT:            "onnc output": "conv6-3_1",
+#CHECK-NEXT:            "onnc output": "conv6-1_1",
 #CHECK-NEXT:            "onnx output": "prob1_1",
 #CHECK-NEXT:            "threshold": {{.*}}
 #CHECK-NEXT:        },

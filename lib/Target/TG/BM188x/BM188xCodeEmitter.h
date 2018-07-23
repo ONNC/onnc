@@ -39,9 +39,12 @@ public:
 
 private:
   json::Object genOutputLayer(std::string &pDefaultOnncLayerName,
-                              std::string &pDefalutOnnxLayerName,
+                              std::string &pDefaultOnnxLayerName,
                               const ::onnx::Graph *pOnnxGraph);
   float getThreshold(const std::string &pOnncLayerName);
+
+  std::string findOnncLayerName(const onnx::Graph *pOnnxGraph,
+                                const onnx::Value *pValue);
 
 private:
   // void *m_BmkernelHandle;

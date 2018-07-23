@@ -31,51 +31,53 @@ float BM188xCodeEmitter::getThreshold(const std::string &pOnncLayerName)
   return threshold;
 }
 
+std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
+                                                 const onnx::Value *pValue)
+{
+  std::string onnx_layer_name = pValue->uniqueName();
+  auto &instList = m_Backend->getInsts();
+  for (auto inst = instList.rbegin(); inst != instList.rend(); ++inst) {
+    if (inst->get()->getLayerName() == onnx_layer_name) {
+      return onnx_layer_name;
+    }
+  }
+  const onnx::Value *input = pValue->node()->inputs()[0];
+  auto graph_inputs = pOnnxGraph->inputs();
+  if (std::find(graph_inputs.begin(), graph_inputs.end(), input) !=
+      graph_inputs.end()) {
+    // can not find the onnc layer
+    assert(0);
+  }
+  return findOnncLayerName(pOnnxGraph, input);
+}
+
 onnc::json::Object
 BM188xCodeEmitter::genOutputLayer(std::string &pDefaultOnncLayerName,
-                                  std::string &pDefalutOnnxLayerName,
+                                  std::string &pDefaultOnnxLayerName,
                                   const ::onnx::Graph *pOnnxGraph)
 {
-  int step = 0;
+  size_t step = 0;
   onnc::json::Object jExeSteps;
-  auto &instList = m_Backend->getInsts();
 
-  // Generate default output layer info(last one).
-  {
-    onnc::json::Object last_layer_info;
-    pDefalutOnnxLayerName = pOnnxGraph->outputs()[0]->uniqueName();
-    pDefaultOnncLayerName = instList.rbegin()->get()->getLayerName();
-    // Generate the threshold of onnc out layer for de-quantization.
-    float threshold = getThreshold(pDefaultOnncLayerName);
-
-    last_layer_info.insert("onnx output", pDefalutOnnxLayerName);
-    last_layer_info.insert("onnc output", pDefaultOnncLayerName);
-    last_layer_info.insert("threshold", threshold);
-    jExeSteps.insert(std::to_string(step++), last_layer_info);
-  }
+  // generate default output layer
+  const onnx::Value *onnx_layer = pOnnxGraph->outputs()[step];
+  pDefaultOnncLayerName = findOnncLayerName(pOnnxGraph, onnx_layer);
+  pDefaultOnnxLayerName = onnx_layer->uniqueName();
+  onnc::json::Object layer_info;
+  layer_info.insert("onnx output", pDefaultOnnxLayerName);
+  layer_info.insert("onnc output", pDefaultOnncLayerName);
+  layer_info.insert("threshold", getThreshold(pDefaultOnncLayerName));
+  jExeSteps.insert(std::to_string(step++), layer_info);
 
   // generate the other output layer info
-  for (size_t i = 1; i < pOnnxGraph->outputs().size(); ++i) {
-    std::string onnx_layer_name = pOnnxGraph->outputs()[i]->uniqueName();
-    std::string onnc_layer_name;
-    for (auto inst = instList.rbegin(); inst != instList.rend(); ++inst) {
-      if (inst->get()->getLayerName() == onnx_layer_name) {
-        onnc_layer_name = onnx_layer_name;
-      }
-    }
-    if (onnc_layer_name.empty()) {
-      // TODO this onnx does not generate onnc inst, we need to fix it if
-      // support multiple value for cpu fallback
-      assert(0);
-    }
-
-    float threshold = getThreshold(onnc_layer_name);
-
-    // insert output layer i
+  while (step < pOnnxGraph->outputs().size()) {
+    const onnx::Value *onnx_layer = pOnnxGraph->outputs()[step];
+    std::string onnc_layer_name = findOnncLayerName(pOnnxGraph, onnx_layer);
+    std::string onnx_layer_name = onnx_layer->uniqueName();
     onnc::json::Object layer_info;
     layer_info.insert("onnx output", onnx_layer_name);
     layer_info.insert("onnc output", onnc_layer_name);
-    layer_info.insert("threshold", threshold);
+    layer_info.insert("threshold", getThreshold(onnc_layer_name));
     jExeSteps.insert(std::to_string(step++), layer_info);
   }
   return jExeSteps;
