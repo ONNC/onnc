@@ -13,9 +13,14 @@ configure_file(
 
 set(LLVM_LIT_ARGS "-sv" CACHE STRING "Default options for lit")
 
-add_lit_testsuites(LLVM ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS
+set(check-dep
     onnx-as
-    onnx-dis
-    onnx2tg)
+    onnx-dis)
+
+if (TARGET_TG)
+    set(check-dep ${check-dep} onnx2tg)
+endif()
+
+add_lit_testsuites(LLVM ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS ${check-dep})
 add_custom_target(check DEPENDS check-onnc)
