@@ -12,7 +12,6 @@ add_libonnc_src(
     AddDummyWeightPass.cpp
     BM188xFuseOptimizer.cpp
     PrepareCtablePass.cpp
-    PreTensorSel.cpp
     UpdateCtablePass.cpp
     QuantizePass.cpp
     TLLoad.cpp
