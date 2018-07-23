@@ -1,5 +1,5 @@
 # gen asm proto
-set(bmkernel_api_h ${ONNC_SOURCE_DIR}/include/onnc/Target/TG/BM168x/bmkernel_api.h)
+set(bmkernel_api_h ${tg_root}/include/onnc/Target/TG/BM168x/bmkernel_api.h)
 set(asm_proto ${CMAKE_CURRENT_SOURCE_DIR}/bm168x_asm.proto)
 set(asm_files ${bmkernel_api_h} ${asm_proto})
 add_custom_command(OUTPUT ${asm_files}
