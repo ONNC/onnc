@@ -10,6 +10,7 @@
 #include "TGMaxPool.h"
 #include "TGPRelu.h"
 #include "TGRelu.h"
+#include "TGScale.h"
 #include "TGSum.h"
 #include "TGTranspose.h"
 #include "TGUpsample.h"
@@ -303,6 +304,17 @@ ComputeOperator2 *BM188xISelLowering::LowerTranspose(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerScale(const ::onnx::Node &pNode,
+                                                 ComputeGraph &pGraph)
+{
+  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *scale = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
+  auto *bias = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
+  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  auto *op = new BM188X::TGScale(pNode);
+  return op->addMemOperands(input, scale, bias, output);
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
                                                      ComputeGraph &pGraph)
 {
@@ -346,6 +358,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerTLStore(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("LRN")) {
     return LowerLRN(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("Scale")) {
+    return LowerScale(pNode, pGraph);
   }
   std::cout << "Warning: unsupported node type: " << pNode.kind().toString()
             << "\n";

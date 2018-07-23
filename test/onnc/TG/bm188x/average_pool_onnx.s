@@ -26,6 +26,7 @@
 # CHECK-NEXT:     do_relu: 0
 # CHECK-NEXT:     right_shift_width: {{.*}}
 # CHECK-NEXT:     threshold_x_quantized: {{.*}}
+# CHECK-NEXT:     ceil_mode: false
 # CHECK-NEXT:   }
 # CHECK-NEXT: }
 

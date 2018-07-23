@@ -58,9 +58,10 @@ void TGMaxPool::emit() const
       m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr,
       bmnet::bmnet_asm::GADDR_INVALID, // useless oindex_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // useless relu_gaddr
-      m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadH, m_PadW, m_StrideH, m_StrideW,
+      m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadH, m_PadH, m_PadW, m_PadW, m_StrideH,
+      m_StrideW,
       false, // is_avg_pooling
       0.0f,  // always is 0.0f
-      false  // disable actvation
-  );
+      false, // disable actvation
+      0);
 }

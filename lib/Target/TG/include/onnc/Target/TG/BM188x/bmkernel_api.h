@@ -31,7 +31,8 @@ inline void bmnet_pooling_fixed_forward_bmkernel(
     float avg_const,
     int do_relu,
     int right_shift_width,
-    const int* threshold_x_quantized)
+    const int* threshold_x_quantized,
+    const bool ceil_mode)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -66,6 +67,7 @@ inline void bmnet_pooling_fixed_forward_bmkernel(
         pooling->set_right_shift_width(right_shift_width);
         for (size_t i = 0; i < (size_t)1; i++)
             pooling->add_threshold_x_quantized(threshold_x_quantized[i]);
+        pooling->set_ceil_mode(ceil_mode);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
@@ -566,7 +568,10 @@ inline void bmnet_concat_fixed_forward_bmkernel(
     int input_num,
     int concat_axis,
     int output_dim_len,
-    int* output_dim)
+    int* output_dim,
+    const int need_quantize_num,
+    const int* right_shift_width,
+    const int* threshold_x_quantized)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -589,6 +594,11 @@ inline void bmnet_concat_fixed_forward_bmkernel(
         concat->set_output_dim_len(output_dim_len);
         for (size_t i = 0; i < (size_t)output_dim_len; i++)
             concat->add_output_dim(output_dim[i]);
+        concat->set_need_quantize_num(need_quantize_num);
+        for (size_t i = 0; i < (size_t)need_quantize_num; i++)
+            concat->add_right_shift_width(right_shift_width[i]);
+        for (size_t i = 0; i < (size_t)need_quantize_num; i++)
+            concat->add_threshold_x_quantized(threshold_x_quantized[i]);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }

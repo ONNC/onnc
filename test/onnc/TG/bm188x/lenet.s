@@ -82,6 +82,7 @@
 # CHECK-NEXT:     do_relu: 0
 # CHECK-NEXT:     right_shift_width: 7
 # CHECK-NEXT:     threshold_x_quantized: 128
+# CHECK-NEXT:     ceil_mode: false
 # CHECK-NEXT:   }
 # CHECK-NEXT: }
 # CHECK:      inst {
@@ -157,6 +158,7 @@
 # CHECK-NEXT:     do_relu: 0
 # CHECK-NEXT:     right_shift_width: 7
 # CHECK-NEXT:     threshold_x_quantized: 145
+# CHECK-NEXT:     ceil_mode: false
 # CHECK-NEXT:   }
 # CHECK-NEXT: }
 # CHECK:      inst {

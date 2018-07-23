@@ -71,6 +71,7 @@ message Inst {
         optional int32 do_relu = 19;
         optional int32 right_shift_width = 20;
         repeated int32 threshold_x_quantized = 21;
+        optional bool ceil_mode = 22;
     }
     message bmnet_conv_fixed_forward_bmkernel {
         optional uint64 ga_ifmap = 1;
@@ -263,6 +264,9 @@ message Inst {
         optional int32 concat_axis = 5;
         optional int32 output_dim_len = 6;
         repeated int32 output_dim = 7;
+        optional int32 need_quantize_num = 8;
+        repeated int32 right_shift_width = 9;
+        repeated int32 threshold_x_quantized = 10;
     }
     message bmnet_eltwise_fixed_forward_bmkernel {
         repeated uint64 ga_input = 1;

@@ -39,11 +39,12 @@ void TGGlobalAveragePool::emit() const
       bmnet::bmnet_asm::GADDR_INVALID, // index_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
       m_N, m_C, m_H, m_W, m_H, m_W, 0, 0, 0, 0, 1, 1,
-      1,                     // is_avg_pooling
-      0.0f,                  // avg_const
-      m_EnableRelu,          // do_relu
-      m_RShiftWidth,         // right_shift_width
-      &m_ThresholdXQuantized // threshold_x_quantized
+      1,                      // is_avg_pooling
+      0.0f,                   // avg_const
+      m_EnableRelu,           // do_relu
+      m_RShiftWidth,          // right_shift_width
+      &m_ThresholdXQuantized, // threshold_x_quantized
+      0                       // ceil_mode
   );
 }
 

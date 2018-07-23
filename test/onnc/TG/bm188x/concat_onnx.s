@@ -21,6 +21,7 @@
 # CHECK-NEXT:     output_dim: 256
 # CHECK-NEXT:     output_dim: 28
 # CHECK-NEXT:     output_dim: 28
+# CHECK-NEXT:     need_quantize_num: 0
 # CHECK-NEXT:     }
 # CHECK-NEXT: }
 

@@ -76,6 +76,7 @@
 #; CHECK-NEXT:     do_relu: 0
 #; CHECK-NEXT:     right_shift_width: 8
 #; CHECK-NEXT:     threshold_x_quantized: 219
+#; CHECK-NEXT:     ceil_mode: false
 #; CHECK-NEXT:   }
 #; CHECK-NEXT: }
 

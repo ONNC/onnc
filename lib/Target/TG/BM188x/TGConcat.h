@@ -18,16 +18,16 @@ public:
   TGConcat *addMemOperands(std::vector<MemOperand *> &pInput,
                            MemOperand *pOutput);
   void
-  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override
-  {
-    return;
-  }
+  update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable) override;
 
 private:
   std::vector<unsigned long int> m_InputAddr;
   std::vector<int> m_InputDims;
   std::vector<int> m_OutputDim;
   int m_ConcatAxis;
+  int m_NeedQuantizeNum;
+  std::vector<int> m_RShiftWidth;
+  std::vector<int> m_ThresholdXQuantized;
 };
 
 } // namespace BM188X

@@ -118,9 +118,12 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
       prelu_cal_param->set_gt_scale(0);
       prelu_cal_param->set_gt_right_shift_width(0);
       prelu_cal_param->set_le_right_shift_width(0);
+    } else if (symbol == onnx::Symbol("Concat")) {
+      tg::bm1880::ConcatCalibrationParameter *concat_param =
+          layer_cal_param->mutable_concat_param();
+      concat_param->set_need_quantize_num(0);
     } else if (symbol == onnx::Symbol("Relu") ||
                symbol == onnx::Symbol("Flatten") ||
-               symbol == onnx::Symbol("Concat") ||
                symbol == onnx::Symbol("Reshape") ||
                symbol == onnx::Symbol("Unsqueeze") ||
                symbol == onnx::Symbol("Transpose")) {

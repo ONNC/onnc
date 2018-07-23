@@ -20,13 +20,16 @@ inline void bmnet_pooling_forward_bmkernel(
     int w,
     int kh,
     int kw,
-    int pad_h,
-    int pad_w,
+    int pad_top,
+    int pad_bot,
+    int pad_left,
+    int pad_right,
     int stride_h,
     int stride_w,
     int is_avg_pooling,
     float avg_const,
-    int do_relu)
+    int do_relu,
+    const bool ceil_mode)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -49,13 +52,16 @@ inline void bmnet_pooling_forward_bmkernel(
         pooling->set_w(w);
         pooling->set_kh(kh);
         pooling->set_kw(kw);
-        pooling->set_pad_h(pad_h);
-        pooling->set_pad_w(pad_w);
+        pooling->set_pad_top(pad_top);
+        pooling->set_pad_bot(pad_bot);
+        pooling->set_pad_left(pad_left);
+        pooling->set_pad_right(pad_right);
         pooling->set_stride_h(stride_h);
         pooling->set_stride_w(stride_w);
         pooling->set_is_avg_pooling(is_avg_pooling);
         pooling->set_avg_const(avg_const);
         pooling->set_do_relu(do_relu);
+        pooling->set_ceil_mode(ceil_mode);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }

@@ -65,13 +65,16 @@ message Inst {
         optional int32 w = 8;
         optional int32 kh = 9;
         optional int32 kw = 10;
-        optional int32 pad_h = 11;
-        optional int32 pad_w = 12;
-        optional int32 stride_h = 13;
-        optional int32 stride_w = 14;
-        optional int32 is_avg_pooling = 15;
-        optional float avg_const = 16;
-        optional int32 do_relu = 17;
+        optional int32 pad_top = 11;
+        optional int32 pad_bot = 12;
+        optional int32 pad_left = 13;
+        optional int32 pad_right = 14;
+        optional int32 stride_h = 15;
+        optional int32 stride_w = 16;
+        optional int32 is_avg_pooling = 17;
+        optional float avg_const = 18;
+        optional int32 do_relu = 19;
+        optional bool ceil_mode = 20;
     }
     message bmnet_conv_forward_bmkernel {
         optional uint64 ga_ifmap = 1;

@@ -53,11 +53,12 @@ void TGMaxPool::emit() const
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
       m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadT, m_PadB, m_PadL, m_PadR, m_StrideH,
       m_StrideW,
-      0,                     // is_avg_pooling
-      0.0f,                  // avg_const
-      0,                     // do_relu
-      m_RShiftWidth,         // right_shift_width
-      &m_ThresholdXQuantized // threshold_x_quantized
+      0,                      // is_avg_pooling
+      0.0f,                   // avg_const
+      0,                      // do_relu
+      m_RShiftWidth,          // right_shift_width
+      &m_ThresholdXQuantized, // threshold_x_quantized
+      0                       // ceil_mode
   );
 }
 

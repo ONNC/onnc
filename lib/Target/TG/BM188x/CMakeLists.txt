@@ -30,6 +30,7 @@ add_libonnc_src(
     TGConcat.cpp
     TGTranspose.cpp
     TGSum.cpp
-    TGPRelu.cpp)
+    TGPRelu.cpp
+    TGScale.cpp)
 
 add_subdirectory(asm)

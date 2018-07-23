@@ -91,12 +91,15 @@ BM1880Backend::getLayerCtable(const std::string &pName)
   for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
     const tg::bm1880::LayerCalibrationParameter &layer =
         m_NetCtableParam.layer(i);
-    if (layer.name() == pName) {
-      return &layer;
+    for (int j = 0; j < layer.blob_param_size(); j++) {
+      if (layer.blob_param(j).name() == pName) {
+        return &layer;
+      }
     }
   }
   return nullptr;
 }
+
 std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
 {
   return std::make_unique<BM188xFuseOptimizer>(this);

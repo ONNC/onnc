@@ -29,6 +29,12 @@ message LeakyReLUCalibrationParameter {
   required int32 le_right_shift_width = 4;
 }
 
+message ConcatCalibrationParameter {
+  repeated int32 right_shift_width = 1;
+  repeated int32 threshold_x_quantized = 2;
+  required int32 need_quantize_num = 3[default = 0];
+}
+
 message LayerCalibrationParameter {
   required string name = 1; // the layer name
 
@@ -44,6 +50,7 @@ message LayerCalibrationParameter {
   optional ReLUCalibrationParameter relu_param = 123;
   optional PReLUCalibrationParameter prelu_param = 124;
   optional LeakyReLUCalibrationParameter leakyrelu_param = 125;
+  optional ConcatCalibrationParameter concat_param = 126;
 }
 
 message BlobParameter {
