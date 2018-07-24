@@ -74,4 +74,3 @@ void BM1682Backend::addTensorSel(PassManager &pPM)
   bmnetc_pass_extention(backend, pm);
 #endif
 }
-

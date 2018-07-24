@@ -14,19 +14,21 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // AveragePoolLower
 //===----------------------------------------------------------------------===//
-onnc::ComputeOperator*
-AveragePoolLower::act(Module& pModule, ::onnx::Node& pNode) const
+onnc::ComputeOperator *AveragePoolLower::act(Module &pModule,
+                                             ::onnx::Node &pNode) const
 {
- /**
-  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TGAveragePool(pNode);
-  return op->addMemOperands(input, output);
- **/
+  /**
+    auto *input = m_pBackend->getMemOperand(pNode.inputs()[0],
+                                            MemType::NEURON);
+    auto *output = m_pBackend->getMemOperand(pNode.outputs()[0],
+                                             MemType::NEURON);
+    auto *op = new BM188X::TGAveragePool(pNode);
+    return op->addMemOperands(input, output);
+   */
   return nullptr;
 }
 
-int AveragePoolLower::isMe(const ::onnx::Node& pNode) const
+int AveragePoolLower::isMe(const ::onnx::Node &pNode) const
 {
   if (pNode.kind() == ::onnx::Symbol("AveragePool"))
     return 10;
