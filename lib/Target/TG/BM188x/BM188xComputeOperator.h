@@ -11,7 +11,6 @@
 #include "ComputeOperator.h"
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
-#include <onnc/Target/TG/BM188x/asm.h>
 #include <onnc/Target/TG/BM188x/common_calibration2.pb.h>
 #include <onnx/common/ir.h>
 #include <string>
