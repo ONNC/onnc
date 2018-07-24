@@ -1250,6 +1250,74 @@ inline void bmnet_stack_forward_bmkernel(
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
+inline void bmnet_arithmetic_forward_bmkernel(
+    gaddr_t input_gaddr_0,
+    gaddr_t input_gaddr_1,
+    gaddr_t output_gaddr,
+    int op,
+    int input_n,
+    int input_c,
+    int input_h,
+    int input_w,
+    bool is_b_const,
+    float b_value)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1680::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_arithmetic_forward_bmkernel");
+        auto *bmnet_arithmetic_forward_bmkernel_short = inst->mutable_bmnet_arithmetic_forward_bmkernel_short();
+        bmnet_arithmetic_forward_bmkernel_short->set_input_gaddr_0(input_gaddr_0);
+        bmnet_arithmetic_forward_bmkernel_short->set_input_gaddr_1(input_gaddr_1);
+        bmnet_arithmetic_forward_bmkernel_short->set_output_gaddr(output_gaddr);
+        bmnet_arithmetic_forward_bmkernel_short->set_op(op);
+        bmnet_arithmetic_forward_bmkernel_short->set_input_n(input_n);
+        bmnet_arithmetic_forward_bmkernel_short->set_input_c(input_c);
+        bmnet_arithmetic_forward_bmkernel_short->set_input_h(input_h);
+        bmnet_arithmetic_forward_bmkernel_short->set_input_w(input_w);
+        bmnet_arithmetic_forward_bmkernel_short->set_is_b_const(is_b_const);
+        bmnet_arithmetic_forward_bmkernel_short->set_b_value(b_value);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
+inline void bmnet_resizebilinear_forward_bmkernel(
+    gaddr_t input_gaddr,
+    gaddr_t output_gaddr,
+    int input_n,
+    int input_c,
+    int input_h,
+    int input_w,
+    int resize_h,
+    int resize_w)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1680::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_resizebilinear_forward_bmkernel");
+        auto *bmnet_resizeblinear_forward_bmkernel_short = inst->mutable_bmnet_resizeblinear_forward_bmkernel_short();
+        bmnet_resizeblinear_forward_bmkernel_short->set_input_gaddr(input_gaddr);
+        bmnet_resizeblinear_forward_bmkernel_short->set_output_gaddr(output_gaddr);
+        bmnet_resizeblinear_forward_bmkernel_short->set_input_n(input_n);
+        bmnet_resizeblinear_forward_bmkernel_short->set_input_c(input_c);
+        bmnet_resizeblinear_forward_bmkernel_short->set_input_h(input_h);
+        bmnet_resizeblinear_forward_bmkernel_short->set_input_w(input_w);
+        bmnet_resizeblinear_forward_bmkernel_short->set_resize_h(resize_h);
+        bmnet_resizeblinear_forward_bmkernel_short->set_resize_w(resize_w);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
 // clang-format on
 
 } // namespace bmnet_asm

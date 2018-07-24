@@ -53,6 +53,8 @@ message Inst {
     optional bmnet_normalize_forward_bmkernel           bmnet_normalize_forward_bmkernel_short           = 36;
     optional bmnet_deconv_forward_bmkernel              bmnet_deconv_forward_bmkernel_short              = 37;
     optional bmnet_stack_forward_bmkernel               bmnet_stack_forward_bmkernel_short               = 38;
+    optional bmnet_arithmetic_forward_bmkernel          bmnet_arithmetic_forward_bmkernel_short          = 39;
+    optional bmnet_resizebilinear_forward_bmkernel      bmnet_resizeblinear_forward_bmkernel_short       = 40;
 
     message bmnet_pooling_forward_bmkernel {
         optional uint64 ifmap_gaddr = 1;
@@ -456,6 +458,28 @@ message Inst {
         optional int32 input_h = 6;
         optional int32 input_w = 7;
         optional int32 axis = 8;
+    }
+    message bmnet_arithmetic_forward_bmkernel {
+        optional uint64 input_gaddr_0 = 1;
+        optional uint64 input_gaddr_1 = 2;
+        optional uint64 output_gaddr = 3;
+        optional int32 op = 4;
+        optional int32 input_n = 5;
+        optional int32 input_c = 6;
+        optional int32 input_h = 7;
+        optional int32 input_w = 8;
+        optional bool is_b_const = 9;
+        optional float b_value = 10;
+    }
+    message bmnet_resizebilinear_forward_bmkernel {
+        optional uint64 input_gaddr = 1;
+        optional uint64 output_gaddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
+        optional int32 resize_h = 7;
+        optional int32 resize_w = 8;
     }
 
 }
