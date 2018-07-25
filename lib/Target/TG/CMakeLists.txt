@@ -3,6 +3,11 @@ set(bm_target_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
 set(bm_PYTHONPATH ${bm_target_path}/target)
 set(tg_root ${CMAKE_CURRENT_SOURCE_DIR})
 
+if (BMNETC_EXIST)
+    add_definitions(-DBMNETC_EXIST)
+    include_directories(${BMNETC_TEMP_SOURCE_DIR}/src/include)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(SYSTEM ${tg_root}/include)
 install(DIRECTORY include/ DESTINATION include)
