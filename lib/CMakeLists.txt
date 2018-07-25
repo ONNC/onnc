@@ -48,6 +48,7 @@ if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
 endif()
 target_link_libraries(libonnc
+    ${EXTERNAL_LIBRARY}
     ${Boost_LIBRARIES}
     glog
     ${ONNX_LIBRARIES}
