@@ -29,7 +29,7 @@ BM1680Backend::~BM1680Backend() = default;
 void BM1680Backend::addTensorSel(PassManager &pPM)
 {
 #ifdef BMNETC_EXIST
-  bmnetc_pass_extention(backend, pm);
+  bmnetc_pass_extention(this, pPM);
 #endif
 }
 
@@ -71,6 +71,6 @@ std::unique_ptr<TGFuseOptimizer> BM1682Backend::getFuseOptimizr()
 void BM1682Backend::addTensorSel(PassManager &pPM)
 {
 #ifdef BMNETC_EXIST
-  bmnetc_pass_extention(backend, pm);
+  bmnetc_pass_extention(this, pPM);
 #endif
 }

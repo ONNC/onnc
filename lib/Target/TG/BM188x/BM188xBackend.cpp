@@ -34,7 +34,7 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
 #ifdef BMNETC_EXIST
-  bmnetc_pass_extention(backend, pm);
+  bmnetc_pass_extention(this, pPM);
 #endif
 
   // target independent pass
