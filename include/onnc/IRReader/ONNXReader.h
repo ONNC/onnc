@@ -31,16 +31,26 @@ public:
   /// @return error occurred in the parsing.
   SystemError parse(const Path& pFileName, Module& pModule);
 
+  /// parse ONNX file content
+  /// @ref pContent File content
   SystemError parse(ConstBuffer pContent, Module& pModule);
+
+  /// parse ONNX file with file decriptor.
+  /// @note It doesn't close the file descriptor. Users is responsible for
+  /// closing the file.
+  /// @return error occurred in the parsing.
+  SystemError parse(int pFD, Module& pModule);
 
   /// Set the total bytes limit.
   /// @param[in] pTotalBytesLimit
   /// @param[in] pWarningThreshold
   void setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold);
 
+  static void ShutdownProtobufLibrary();
+
 private:
   int m_TotalBytesLimit;
-  int pWarningThreshold;
+  int m_WarningThreshold;
 };
 
 } // namespace of onnx

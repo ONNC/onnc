@@ -17,16 +17,40 @@
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
+// Non-member functions
+//===----------------------------------------------------------------------===//
+static inline bool
+DoParse(Module& pModule, ::google::protobuf::io::ZeroCopyInputStream& pStream,
+        int pTotalBytesLimit, int pWarningThreshold)
+{
+  ::google::protobuf::io::CodedInputStream coded_input(&pStream);
+
+  coded_input.SetTotalBytesLimit(pTotalBytesLimit, pWarningThreshold);
+  ::onnx::ModelProto model;
+  if (!model.ParseFromCodedStream(&coded_input)) {
+    return false;
+  }
+  IRBuilder builder(pModule);
+  builder.update(model);
+  return true;
+}
+
+//===----------------------------------------------------------------------===//
 // onnx::Reader
 //===----------------------------------------------------------------------===//
 onnc::onnx::Reader::Reader()
-  : m_TotalBytesLimit(1024LL << 20), pWarningThreshold(512LL << 20) {
+  : m_TotalBytesLimit(1024LL << 20), m_WarningThreshold(512LL << 20) {
   // Verify that the version of the library that we linked against is
   // compatible with the version of the headers we compiled against.
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 }
 
 onnc::onnx::Reader::~Reader()
+{
+  // leave ShutdownProtobufLibrary() to CoreApplication's destructor.
+}
+
+void onnc::onnx::Reader::ShutdownProtobufLibrary()
 {
   // Optional:  Delete all global objects allocated by libprotobuf.
   google::protobuf::ShutdownProtobufLibrary();
@@ -39,48 +63,38 @@ SystemError onnc::onnx::Reader::parse(const Path& pFileName, Module& pModule)
   if (!err.isGood())
     return err;
 
-
-  { // protobuf should be destroyed before the file being closed.
-    ::google::protobuf::io::FileInputStream raw_input(file.handler());
-    ::google::protobuf::io::CodedInputStream coded_input(&raw_input);
-
-    ::onnx::ModelProto model;
-    coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
-    if (!model.ParseFromCodedStream(&coded_input)) {
-      error(onnx_cannot_parsed) << pFileName;
-      return SystemError::kUnknownError;
-    }
-    IRBuilder builder(pModule);
-    builder.update(model);
+  err = parse(file.handler(), pModule);
+  if (!err.isGood()) {
+    error(onnx_cannot_parsed) << pFileName;
+    return err;
   }
 
   err = file.close();
   if (!err.isGood())
     return err;
+
   return SystemError::kSuccess;
 }
 
 SystemError onnc::onnx::Reader::parse(ConstBuffer pContent, Module& pModule)
 {
-  {
-    ::google::protobuf::io::ArrayInputStream input(
-        (const uint8_t *)pContent.raw(), pContent.size());
-    ::google::protobuf::io::CodedInputStream coded_input(&input);
+  ::google::protobuf::io::ArrayInputStream input(
+      (const uint8_t *)pContent.raw(), pContent.size());
+  if (!DoParse(pModule, input, m_TotalBytesLimit, m_WarningThreshold))
+    return SystemError::kUnknownError;
+  return SystemError::kSuccess;
+}
 
-    coded_input.SetTotalBytesLimit(m_TotalBytesLimit, pWarningThreshold);
-    ::onnx::ModelProto model;
-    if (!model.ParseFromCodedStream(&coded_input)) {
-      error(onnx_cannot_parsed);
-      return SystemError::kUnknownError;
-    }
-    IRBuilder builder(pModule);
-    builder.update(model);
-  }
+SystemError onnc::onnx::Reader::parse(int pFD, Module& pModule)
+{
+  ::google::protobuf::io::FileInputStream input(pFD);
+  if (!DoParse(pModule, input, m_TotalBytesLimit, m_WarningThreshold))
+    return SystemError::kUnknownError;
   return SystemError::kSuccess;
 }
 
 void onnc::onnx::Reader::setTotalBytesLimit(int pTotalBytesLimit, int pWarningThreshold)
 {
   m_TotalBytesLimit = pTotalBytesLimit;
-  pWarningThreshold = pWarningThreshold;
+  m_WarningThreshold = pWarningThreshold;
 }

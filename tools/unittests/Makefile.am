@@ -12,7 +12,8 @@ TEST_SOURCES = DigraphTest.cpp \
 	JsonValueTest.cpp \
 	JsonObjectTest.cpp \
 	ComputeIRTest.cpp \
-	TensorSelTest.cpp
+	TensorSelTest.cpp \
+	ONNXReaderTest.cpp
 endif
 
 if ENABLE_REGRESSION

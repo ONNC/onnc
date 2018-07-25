@@ -8,6 +8,7 @@
 #include <onnc/Core/Application.h>
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Support/ManagedStatic.h>
+#include <onnc/IRReader/ONNXReader.h>
 
 using namespace onnc;
 
@@ -21,5 +22,6 @@ CoreApplication::CoreApplication(int pArgc, char* pArgv[])
 
 CoreApplication::~CoreApplication()
 {
+  onnx::Reader::ShutdownProtobufLibrary();
   shutdown();
 }
