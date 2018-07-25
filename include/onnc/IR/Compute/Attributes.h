@@ -18,6 +18,7 @@ class Attribute
 {
 public:
   enum Type {
+    kBoolean,
     kFloat,
     kInteger,
     kString,
@@ -45,6 +46,7 @@ public:
 
   void print(std::ostream& pOS) const {
     pOS << ConstSwitch<std::string>(kind())
+           .Case<kBoolean>("bool")
            .Case<kFloat>("float")
            .Case<kInteger>("int")
            .Case<kString>("string")
@@ -131,12 +133,14 @@ private:
   VectorType m_Vector;
 };
 
+typedef ScalarAttribute<bool, Attribute::kBoolean>       BoolAttr;
 typedef ScalarAttribute<double, Attribute::kFloat>       FloatAttr;
 typedef ScalarAttribute<int64_t, Attribute::kInteger>    IntAttr;
 typedef ScalarAttribute<std::string, Attribute::kString> StringAttr;
 typedef ScalarAttribute<Tensor, Attribute::kTensor>      TensorAttr;
 typedef ScalarAttribute<ComputeGraph, Attribute::kGraph> GraphAttr;
 
+typedef VectorAttribute<bool, Attribute::kBoolean>       BoolsAttr;
 typedef VectorAttribute<double, Attribute::kFloat>       FloatsAttr;
 typedef VectorAttribute<int64_t, Attribute::kInteger>    IntsAttr;
 typedef VectorAttribute<std::string, Attribute::kString> StringsAttr;
