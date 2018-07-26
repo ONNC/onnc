@@ -51,7 +51,7 @@ AveragePoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   }
 
   // check required attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("pads")))
+  if (!pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
     return nullptr;
 
   // create operators
