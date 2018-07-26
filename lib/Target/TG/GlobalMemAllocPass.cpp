@@ -1,3 +1,10 @@
+//===- GlobalMemAllocPass.cpp ----------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #define DEBUG_TYPE "tg_mem_alloc"
 #include "TG.h"
 #include "TGBackend.h"
