@@ -39,10 +39,11 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
 
   // target independent pass
   pPM.add(CreateRemoveTrainingNodesPass());
+  // TODO refactoring, AddDummyWeightPass can be target indepedent pass
+  pPM.add(createAddDummyWeightPass(this));
   pPM.add(CreateUpdateGraphOutputSizePass());
 
   // BM1880 customized Pass
-  pPM.add(createAddDummyWeightPass(this));
   pPM.add(createPrepareCtablePass(this));
   pPM.add(createONNXFuseOptPass(this));
   if (getOption().m_PrintModuleBeforeSel)
