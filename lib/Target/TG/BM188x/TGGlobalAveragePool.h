@@ -24,12 +24,12 @@ private:
   int m_C;
   int m_H;
   int m_W;
-  int m_KH;
-  int m_KW;
-  int m_PadH;
-  int m_PadW;
-  int m_StrideH;
-  int m_StrideW;
+  //int m_KH;
+  //int m_KW;
+  //int m_PadH;
+  //int m_PadW;
+  //int m_StrideH;
+  //int m_StrideW;
   int m_EnableRelu;
   int m_RShiftWidth;
   int m_ThresholdXQuantized;
