@@ -1,4 +1,4 @@
-# RUN: onnx-as %s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight -o=- |& tee kkk.log | FileCheck %s
+# RUN: onnx-as %s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight -o=- 2>&1 | tee kkk.log | FileCheck %s
 #; CHECK: FLOAT tensor <1, 64, 1, 1> %conv1_7x7_s2_bn_sc_1 = Scale(FLOAT tensor <1, 64, 1, 1> %data_0, FLOAT tensor <64> %19, FLOAT tensor <64> %21)
 
 
