@@ -1,23 +1,51 @@
+//===- main.cpp -----------------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 // onnx-dis IGNORES init data in model for readability
 // output can be pass to onnx-as as a new  onnx.model binary without init data
-#include "llvm/Support/CommandLine.h"
-#include <fstream>
+#include <onnc/Option/CommandLine.h>
+#include <onnc/Config/AboutData.h>
+#include <onnc/Support/IOStream.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <iostream>
 #include <onnx/common/ir_pb_converter.h>
+#include <fstream>
 #include <string>
 
-using namespace llvm;
+using namespace onnc;
 using namespace std;
 
-static cl::opt<std::string> InputFilename(cl::Positional,
+//===----------------------------------------------------------------------===//
+// Command Line Options
+//===----------------------------------------------------------------------===//
+static AboutData g_About("onnx-dis",
+                         "onnx-dis",
+                         "0.9",
+                         AboutLicense::kUnknown,
+                         ".onnx -> .onnx.s disassembler");
+
+static cl::opt<std::string> InputFilename(cl::kPositional,
                                           cl::desc("<input .onnx.s file>"),
-                                          cl::init("-"));
+                                          cl::init("-"),
+                                          cl::about(g_About));
 
-static cl::opt<bool> DumpWeight("dump-weight", cl::desc("Dump wegiht"));
-static cl::opt<bool> help("h", cl::desc("help"));
+static cl::opt<bool> DumpWeight("dump-weight",
+                                cl::desc("Dump wegiht"),
+                                cl::about(g_About));
 
+static cl::opt<bool> OptHelp("help", cl::kLong, cl::desc("help"),
+                             cl::about(g_About));
+
+static cl::alias HelpAliasH("h", cl::kShort, cl::trueopt(OptHelp));
+static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
+
+//===----------------------------------------------------------------------===//
+// Procedures
+//===----------------------------------------------------------------------===//
 template <class T> static void dumpRawTensor(const std::string &pRaw)
 {
   vector<T> data(pRaw.size() / (sizeof(T) / sizeof(char)));
@@ -121,14 +149,17 @@ static void dumpModelProto(const ::onnx::ModelProto &pModel)
   }
 }
 
+//===----------------------------------------------------------------------===//
+// Main function
+//===----------------------------------------------------------------------===//
 int main(int pArgc, char *pArgv[])
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  cl::ParseCommandLineOptions(pArgc, pArgv, ".onnx -> .onnx.s disassembler\n");
-  if (help) {
-    cl::PrintHelpMessage();
-    return 0;
+  cl::ParseCommandLine(pArgc, pArgv);
+  if (OptHelp) {
+    g_About.print(outs());
+    return EXIT_SUCCESS;
   }
 
   onnx::ModelProto model;
@@ -141,7 +172,7 @@ int main(int pArgc, char *pArgv[])
     codeInputStream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
     if (!model.ParseFromCodedStream(&codeInputStream)) {
       std::cerr << "Failed to parse onnx::ModelProto.\n";
-      return -1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -149,5 +180,5 @@ int main(int pArgc, char *pArgv[])
 
   google::protobuf::ShutdownProtobufLibrary();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
