@@ -25,7 +25,10 @@ public:
   enum Score : int {
     kUndefined = -1,
     kNotMe = 0,
-    kStdLower = 10
+    kStdLower = 10,
+    kTargetLow = 20,
+    kTargetNormal = 30,
+    kTargetHigh = 40
   };
 
 public:
