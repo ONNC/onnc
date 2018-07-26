@@ -66,6 +66,17 @@ struct desc
   const char* mesg;
 };
 
+/** \class value_desc
+ *  \brief desc wraps description of an option and pass the description to
+ *  OptDefs.
+ */
+struct value_desc
+{
+  value_desc(const char* pDesc) : mesg(pDesc) { }
+  void apply(OptDefs& pOption) const { pOption.setDescription(mesg); }
+  const char* mesg;
+};
+
 /** \class help
  *  \brief help wraps the help manual of an option. The command line parser
  *  shows the help manual when it fails to parse an option on the command

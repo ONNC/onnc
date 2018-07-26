@@ -44,6 +44,8 @@ public:
 
   void setValueStr(const std::string& pS) { m_ValueStr = pS; }
 
+  void setValueDesc(const std::string& pS) { m_ValueDesc = pS; }
+
   template<class T>
   void setValue(const T& pValue) { DataType::operator=(pValue); }
 
@@ -51,10 +53,13 @@ public:
 
   DataType& getValue() { return *this; }
 
+  const std::string& getValueDesc() const { return m_ValueDesc; }
+
   void print(std::ostream& pOS) const { pOS << getValue(); }
 
 protected:
   std::string m_ValueStr;
+  std::string m_ValueDesc;
 };
 
 /** \class OptStorage
@@ -78,6 +83,8 @@ public:
 
   void setValueStr(const std::string& pS) { m_ValueStr = pS; }
 
+  void setValueDesc(const std::string& pS) { m_ValueDesc = pS; }
+
   template<class T>
   void setValue(const T& pValue) { m_Data = pValue; }
 
@@ -91,11 +98,14 @@ public:
   // If the datatype is a pointer, support -> on it.
   DataType operator->() const { return m_Data; }
 
+  const std::string& getValueDesc() const { return m_ValueDesc; }
+
   void print(std::ostream& pOS) const { pOS << m_Data; }
 
 protected:
   DataType m_Data;
   std::string m_ValueStr;
+  std::string m_ValueDesc;
 };
 
 //===----------------------------------------------------------------------===//
