@@ -93,7 +93,11 @@ static onnc::json::Object genFallbackPlan(std::string pONNCLast,
   onnc::json::Object jExeSteps;
   for (auto n : pOnnxGraph->nodes()) {
     // Find the left layers info for fallback.
-    if (is_find_fallback) {
+    // The Flatten/Reshape don't generate asm,
+    // so we dont add them to the fallback plan
+    // if they are at end of a model
+    if (is_find_fallback && strcmp(n->kind().toString(), "Flatten") != 0 &&
+        strcmp(n->kind().toString(), "Reshape") != 0) {
       onnc::json::Object jLayerInfo;
       jLayerInfo.insert("type", n->kind().toString());
 
