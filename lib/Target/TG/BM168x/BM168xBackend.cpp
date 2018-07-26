@@ -9,7 +9,7 @@
 #include "BM168xCodeEmitter.h"
 #include "BM168xFuseOptimizer.h"
 #include "BM168xISelLowering.h"
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
 #endif
 
@@ -28,7 +28,7 @@ BM1680Backend::~BM1680Backend() = default;
 
 void BM1680Backend::addTensorSel(PassManager &pPM)
 {
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
   bmnetc_pass_extention(this, pPM);
 #endif
 }
@@ -70,7 +70,7 @@ std::unique_ptr<TGFuseOptimizer> BM1682Backend::getFuseOptimizr()
 
 void BM1682Backend::addTensorSel(PassManager &pPM)
 {
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
   bmnetc_pass_extention(this, pPM);
 #endif
 }

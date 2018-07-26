@@ -29,7 +29,7 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Path.h>
 
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
 #include <bmnetc/foo.h>
 #endif
 
@@ -116,7 +116,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().setAddDummyCTable(AddDummyCTable);
   onnx2tg.options().setAddDummyWeight(AddDummyWeight);
 
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
   foo();
 #endif
 

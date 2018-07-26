@@ -16,7 +16,7 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
 #endif
 
@@ -33,7 +33,7 @@ BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
 
 void BM1880Backend::addTensorSel(PassManager &pPM)
 {
-#ifdef BMNETC_EXIST
+#ifdef BMONNC_EXIST
   bmnetc_pass_extention(this, pPM);
 #endif
 
