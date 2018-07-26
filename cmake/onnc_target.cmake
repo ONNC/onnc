@@ -21,11 +21,6 @@ function(enum_onnc_targets)
 
     # special option value
     check_canonical_system()
-    if (ONNC_ON_APPLE)
-        if (TARGET_TG)
-            set(TARGET_TG OFF CACHE BOOL "Build TG" FORCE)
-        endif()
-    endif()
 
     # evaluate macro for Platforms.def and Backends.def
     set(ONNC_TARGET_PLATFORMS "")
