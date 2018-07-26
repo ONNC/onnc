@@ -31,6 +31,8 @@ add_libonnc_src(
     TGTranspose.cpp
     TGSum.cpp
     TGPRelu.cpp
-    TGScale.cpp)
+    TGScale.cpp
+    Compute/AveragePool.cpp
+    Lowers/AveragePoolLower.cpp)
 
 add_subdirectory(asm)

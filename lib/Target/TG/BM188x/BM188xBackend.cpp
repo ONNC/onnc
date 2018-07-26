@@ -11,18 +11,22 @@
 #include "BM188xCodeEmitter.h"
 #include "BM188xFuseOptimizer.h"
 #include "BM188xISelLowering.h"
+#include "Lowers/AveragePoolLower.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
+#include <onnc/Transforms/TensorSel/LowerRegistry.h>
 #ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
 #endif
 
 using namespace onnc;
 
+//===----------------------------------------------------------------------===//
 // BM1880
+//===----------------------------------------------------------------------===//
 BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
     : TGBackend(new BM188xISelLowering(this), new BM188xCodeEmitter(this),
                 pOptions)
@@ -109,4 +113,9 @@ BM1880Backend::getLayerCtable(const std::string &pName)
 std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
 {
   return std::make_unique<BM188xFuseOptimizer>(this);
+}
+
+void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
+{
+  pRegistry.emplace<BM188X::AveragePoolLower>();
 }

@@ -22,23 +22,34 @@ class BM1880Backend : public TGBackend
 {
 public:
   BM1880Backend(const TargetOptions &pOptions);
+
   ~BM1880Backend() override = default;
 
   void addTensorSel(PassManager &pPM) override;
 
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
+
   std::string getBackendName() override
   {
     return std::string("BM1880Backend");
   };
+
   std::string getCtableName() override { return std::string("bm1880_ctable"); }
+
   void setCtableProto(const std::string &pTextString) override;
+
   tg::bm1880::LayerCalibrationParameter *
   getMutableLayerCtable(const std::string &pName);
+
   const tg::bm1880::LayerCalibrationParameter *
+
   getLayerCtable(const std::string &pName);
+
   const TargetTransformInfo *getTTI() const override { return m_pTTI; }
+
   std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
+
+  void RegisterLowers(LowerRegistry& pRegistry) const override;
 
 private:
   tg::bm1880::NetCalibrationParameter m_NetCtableParam;

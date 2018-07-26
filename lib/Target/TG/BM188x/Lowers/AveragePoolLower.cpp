@@ -6,31 +6,88 @@
 //
 //===----------------------------------------------------------------------===//
 #include "AveragePoolLower.h"
-#include "../Compute/MemOperand.h"
+#include "../Compute/AveragePool.h"
+#include <onnc/IR/IRBuilder.h>
 
-using namespace bm188x;
 using namespace onnc;
+using namespace onnc::BM188X;
 
 //===----------------------------------------------------------------------===//
 // AveragePoolLower
 //===----------------------------------------------------------------------===//
-onnc::ComputeOperator *AveragePoolLower::act(Module &pModule,
-                                             ::onnx::Node &pNode) const
+BM188X::AveragePoolLower::AveragePoolLower()
 {
-  /**
-    auto *input = m_pBackend->getMemOperand(pNode.inputs()[0],
-                                            MemType::NEURON);
-    auto *output = m_pBackend->getMemOperand(pNode.outputs()[0],
-                                             MemType::NEURON);
-    auto *op = new BM188X::TGAveragePool(pNode);
-    return op->addMemOperands(input, output);
-   */
-  return nullptr;
 }
 
-int AveragePoolLower::isMe(const ::onnx::Node &pNode) const
+BM188X::AveragePoolLower::~AveragePoolLower()
+{
+}
+
+int BM188X::AveragePoolLower::isMe(const ::onnx::Node &pNode) const
 {
   if (pNode.kind() == ::onnx::Symbol("AveragePool"))
-    return 10;
-  return 0;
+    return kTargetNormal;
+  return kNotMe;
+}
+
+onnc::ComputeOperator *
+BM188X::AveragePoolLower::activate(ComputeGraph& pGraph,
+                                   ::onnx::Node &pNode) const
+{
+  // check input/output name
+  if (1 != pNode.inputs().size())
+    return nullptr;
+
+  for (::onnx::Value* xv : pNode.inputs()) {
+    if (!xv->has_unique_name())
+      return nullptr;
+  }
+
+  if (1 != pNode.outputs().size())
+    return nullptr;
+
+  for (::onnx::Value* xv : pNode.outputs()) {
+    if (!xv->has_unique_name())
+      return nullptr;
+  }
+
+  // check required attributes
+  if (!pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
+    return nullptr;
+
+  // create operators
+  BM188X::AveragePool* op = pGraph.addOperator<onnc::BM188X::AveragePool>(
+      pNode.is(::onnx::Symbol("kernel_shape")));
+
+  // set optional attributes
+  if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
+    op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
+
+  if (pNode.hasAttribute(::onnx::Symbol("count_include_pad")))
+    op->setCountIncludePad(pNode.i(::onnx::Symbol("count_include_pad")));
+
+  if (pNode.hasAttribute(::onnx::Symbol("pads")))
+    op->setPads(pNode.is(::onnx::Symbol("pads")));
+
+  if (pNode.hasAttribute(::onnx::Symbol("strides")))
+    op->setStrides(pNode.is(::onnx::Symbol("strides")));
+
+  if (pNode.hasAttribute(::onnx::Symbol("enable_relu")))
+    op->setEnableRelu(pNode.i(::onnx::Symbol("enable_relu")));
+
+  // set input/output
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
+  }
+
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
+  return op;
 }
