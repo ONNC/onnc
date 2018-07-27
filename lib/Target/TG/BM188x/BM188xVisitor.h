@@ -14,7 +14,8 @@ namespace BM188X {
 
 class Sum;
 class Store;
-
+class Scale;
+  
 class BM188xVisitor : public ComputeVisitor
 {
 public:
@@ -31,6 +32,8 @@ public:
 
   virtual void visit(Sum& pSum) { }
 
+  virtual void visit(Scale& pScale) { }
+  
   BM188xVisitor();
 
   /// for dyn_cast

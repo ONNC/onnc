@@ -17,6 +17,7 @@
 #include "Lowers/GlobalAveragePoolLower.h"
 #include "Lowers/StoreLower.h"
 #include "Lowers/SumLower.h"
+#include "Lowers/ScaleLower.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -128,4 +129,5 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::GlobalAveragePoolLower>();
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::StoreLower>();
+  pRegistry.emplace<BM188X::ScaleLower>();
 }

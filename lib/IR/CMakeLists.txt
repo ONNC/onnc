@@ -39,4 +39,5 @@ add_libonnc_src(
     Compute/Upsample.cpp
     Compute/Xor.cpp
     Compute/Initializer.cpp
+    Compute/Scale.cpp
     Tensor/InitializerProxy.cpp)

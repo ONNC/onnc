@@ -40,11 +40,13 @@ add_libonnc_src(
     Compute/GlobalAveragePool.cpp
     Compute/Sum.cpp
     Compute/Store.cpp
+    Compute/Scale.cpp
     Lowers/AveragePoolLower.cpp
     Lowers/ConvLower.cpp
     Lowers/GemmLower.cpp
     Lowers/GlobalAveragePoolLower.cpp
     Lowers/StoreLower.cpp
-    Lowers/SumLower.cpp)
+    Lowers/SumLower.cpp
+    Lowers/ScaleLower.cpp)
 
 add_subdirectory(asm)
