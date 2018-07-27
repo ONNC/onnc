@@ -26,6 +26,7 @@ add_libonnc_src(
     Compute/BatchNormalization.cpp
     Compute/Concat.cpp
     Compute/Gemm.cpp
+    Compute/GlobalAveragePool.cpp
     Compute/Conv.cpp
     Compute/InputOperator.cpp
     Compute/MaxPool.cpp
