@@ -15,8 +15,9 @@ namespace BM188X {
 TGConv::TGConv(const ::onnx::Node &pNode)
     : BM188xComputeOperator(pNode, std::string("Conv")), m_Groups(1),
       m_DilationH(1), m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1),
-      m_StrideW(1), m_DoBias(0), /* m_DoRelu(0),*/ m_DoScale(0), m_DoScaleBias(0),
-      m_RShiftWidth(0), m_ScaleRShiftWidth(0), m_ConvOutputThreshold(0)
+      m_StrideW(1), m_DoBias(0), /* m_DoRelu(0),*/ m_DoScale(0),
+      m_DoScaleBias(0), m_RShiftWidth(0), m_ScaleRShiftWidth(0),
+      m_ConvOutputThreshold(0)
 {
   const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;
