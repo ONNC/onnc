@@ -14,6 +14,7 @@
 #include "Lowers/AveragePoolLower.h"
 #include "Lowers/ConvLower.h"
 #include "Lowers/GemmLower.h"
+#include "Lowers/StoreLower.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -122,4 +123,5 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::AveragePoolLower>();
   pRegistry.emplace<BM188X::ConvLower>();
   pRegistry.emplace<BM188X::GemmLower>();
+  pRegistry.emplace<BM188X::StoreLower>();
 }
