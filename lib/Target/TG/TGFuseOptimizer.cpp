@@ -20,6 +20,16 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
   return tensor.floats();
 }
 
+static inline bool isTensor(onnx::Value *pValue)
+{
+  onnx::Graph *graph = pValue->owningGraph();
+  std::unordered_set<std::string> init_names(graph->initializer_names().begin(),
+                                             graph->initializer_names().end());
+  if (init_names.count(pValue->uniqueName()))
+    return true;
+  return false;
+}
+
 static bool isNeuronInputs(onnx::Node *pAddNode)
 {
   onnx::Graph *graph = pAddNode->owningGraph();
@@ -133,6 +143,45 @@ onnx::Node *TGFuseOptimizer::FuseBNAddV6(onnx::Graph *pGraph,
 
 // We can fuse Mul into BN as follows:
 // Y = BN (X, scale, bias, mean, var)
+// Z = Mul (Y, mul_tensor)
+// into
+// Y = BN (X, new_scale, new_bias, mean, var)
+// with new scale = scale * mul_tensor_tensor, new bias = bias *
+// mul_tensor_tensor
+onnx::Node *TGFuseOptimizer::FuseBNMulTensor(onnx::Graph *pGraph,
+                                             onnx::Node *pBNNode,
+                                             onnx::Node *pMulNode)
+{
+  auto bn_inputs = pBNNode->inputs();
+  auto mul_inputs = pMulNode->inputs();
+  const std::string &scale_name = bn_inputs[1]->uniqueName();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  const std::string &mul_name = mul_inputs[1]->uniqueName();
+
+  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
+  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
+  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
+  mul.sizes() = scale.sizes();
+
+  scale.multiply(mul);
+  bias.multiply(mul);
+  replaceInput(scale, 1, pBNNode, pGraph);
+  replaceInput(bias, 2, pBNNode, pGraph);
+
+  if (mul_inputs[1]->uses().size() == 1) {
+    auto input = mul_inputs[1];
+    pMulNode->removeInput(1);
+    pGraph->eraseInitializerAndInput(input);
+  }
+
+  pBNNode->output()->copyMetadata(pMulNode->output());
+  pMulNode->replaceAllUsesWith(pBNNode);
+  pMulNode->destroy();
+  return pBNNode;
+}
+
+// We can fuse Mul into BN as follows:
+// Y = BN (X, scale, bias, mean, var)
 // mul = unsqueeze (mul_tensor)
 // Z = Mul (Y, mul)
 // into
@@ -171,6 +220,40 @@ onnx::Node *TGFuseOptimizer::FuseBNMul(onnx::Graph *pGraph, onnx::Node *pBNNode,
   if (unsque_node->output()->uses().size() == 0) {
     unsque_node->destroy();
   }
+  return pBNNode;
+}
+
+// We can fuse Add into BN as follows:
+// Y = BN (X, scale, bias, mean, var)
+// Z = Add (Y, add_tensor)
+// into
+// Y = BN (X, scale, new_bias, mean, var)
+// with new bias = bias + add_tensor
+onnx::Node *TGFuseOptimizer::FuseBNAddTensor(onnx::Graph *pGraph,
+                                             onnx::Node *pBNNode,
+                                             onnx::Node *pAddNode)
+{
+  auto bn_inputs = pBNNode->inputs();
+  auto add_inputs = pAddNode->inputs();
+  const std::string &bias_name = bn_inputs[2]->uniqueName();
+  const std::string &add_name = add_inputs[1]->uniqueName();
+
+  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
+  onnx::Tensor add = *pGraph->getInitializer(add_name);
+  add.sizes() = bias.sizes();
+
+  bias.add(add);
+  replaceInput(bias, 2, pBNNode, pGraph);
+
+  if (add_inputs[1]->uses().size() == 1) {
+    auto input = add_inputs[1];
+    pAddNode->removeInput(1);
+    pGraph->eraseInitializerAndInput(input);
+  }
+
+  pBNNode->output()->copyMetadata(pAddNode->output());
+  pAddNode->replaceAllUsesWith(pBNNode);
+  pAddNode->destroy();
   return pBNNode;
 }
 
@@ -215,6 +298,32 @@ onnx::Node *TGFuseOptimizer::FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
 
 bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
 {
+  if (match(pNode, mSymbol("BatchNormalization")) &&
+      match(next(pNode), mSymbol("Mul")) &&
+      isTensor(next(pNode)->inputs()[1])) {
+    auto tensor_dims = next(pNode)->inputs()[1]->sizes();
+    if (tensor_dims.size() != 3 || tensor_dims[1].dim != 1 ||
+        tensor_dims[2].dim != 1) {
+      return false;
+    }
+    // tensor =  (C, 1, 1)
+    FuseBNMulTensor(pGraph, pNode, next(pNode));
+    return true;
+  }
+
+  if (match(pNode, mSymbol("BatchNormalization")) &&
+      match(next(pNode), mSymbol("Add")) &&
+      isTensor(next(pNode)->inputs()[1])) {
+    auto tensor_dims = next(pNode)->inputs()[1]->sizes();
+    if (tensor_dims.size() != 3 || tensor_dims[1].dim != 1 ||
+        tensor_dims[2].dim != 1) {
+      return false;
+    }
+    // tensor =  (C, 1, 1)
+    FuseBNMulTensor(pGraph, pNode, next(pNode));
+    return true;
+  }
+
   if (match(pNode, mSymbol("BatchNormalization")) &&
       match(next(pNode), mSymbol("Mul")) &&
       match(input(next(pNode), 1), mSymbol("Unsqueeze"))) {
