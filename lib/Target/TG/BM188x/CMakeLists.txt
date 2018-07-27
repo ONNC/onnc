@@ -39,6 +39,7 @@ add_libonnc_src(
     Compute/Gemm.cpp
     Compute/GlobalAveragePool.cpp
     Compute/LRN.cpp
+    Compute/Pool.cpp
     Compute/Sum.cpp
     Compute/Store.cpp
     Lowers/AveragePoolLower.cpp
