@@ -5,33 +5,33 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Transforms/TensorSel/Lower.h>
-#include <onnc/Transforms/TensorSel/Standards/SumLower.h>
-#include <onnc/IR/Compute/Sum.h>
+#include "SumLower.h"
+#include "../Compute/Sum.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
+using namespace onnc::BM188X;
 
 //===----------------------------------------------------------------------===//
 // SumLower
 //===----------------------------------------------------------------------===//
-SumLower::SumLower()
+BM188X::SumLower::SumLower()
 {
 }
 
-SumLower::~SumLower()
+BM188X::SumLower::~SumLower()
 {
 }
 
-int SumLower::isMe(const ::onnx::Node& pNode) const
+int BM188X::SumLower::isMe(const ::onnx::Node &pNode) const
 {
   if (pNode.kind() == ::onnx::Symbol("Sum"))
-    return kStdLower;
+    return kTargetNormal;
   return kNotMe;
 }
 
-ComputeOperator*
-SumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+onnc::ComputeOperator *
+BM188X::SumLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
 {
   // check input/output name
   if (0 == pNode.inputs().size())
@@ -51,7 +51,7 @@ SumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   }
 
   // create operators
-  onnc::Sum* op = pGraph.addOperator<onnc::Sum>();
+  BM188X::Sum* op = pGraph.addOperator<BM188X::Sum>();
 
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
