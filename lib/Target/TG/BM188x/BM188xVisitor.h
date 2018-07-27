@@ -33,6 +33,8 @@ public:
   virtual void visit(Sum& pSum) { }
 
   virtual void visit(Scale& pScale) { }
+
+  virtual void visit(Relu& pRelu) { }
   
   BM188xVisitor();
 
