@@ -1,3 +1,15 @@
+//===---------------------------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// Copyright(c) 2018, The ONNC Team
+//
+// This file is part of the ONNC Project and is distributed under
+// 3-clause BSD license (https://opensource.org/licenses/BSD-3-Clause)
+//
+// See LICENSE.TXT for details.
+//
+//===---------------------------------------------------------------------===//
 #include "BM168xCodeEmitter.h"
 #include <cstdint>
 #include <fstream>

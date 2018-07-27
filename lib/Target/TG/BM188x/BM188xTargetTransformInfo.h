@@ -1,10 +1,15 @@
-//===- BM188xTargetTransformInfo.h ----------------------------------------===//
+//===---------------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
+// Copyright(c) 2018, The ONNC Team
+//
+// This file is part of the ONNC Project and is distributed under
+// 3-clause BSD license (https://opensource.org/licenses/BSD-3-Clause)
+//
 // See LICENSE.TXT for details.
 //
-//===----------------------------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 #ifndef ONNC_TG188x_TARGET_TRANSFORMINFO_H
 #define ONNC_TG188x_TARGET_TRANSFORMINFO_H
 #include <onnc/Target/TargetTransformInfo.h>
