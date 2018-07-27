@@ -57,8 +57,8 @@ add_libonnc_src(
     Lowers/PReluLower.cpp
     Lowers/StoreLower.cpp
     Lowers/SumLower.cpp
-    Lowers/ScaleLower.cpp
     Lowers/TransposeLower.cpp
     Lowers/ReluLower.cpp)
+    Lowers/ScaleLower.cpp)
 
 add_subdirectory(asm)

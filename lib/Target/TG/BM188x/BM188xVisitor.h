@@ -57,6 +57,8 @@ public:
   virtual void visit(BM188X::Scale& pScale) { }
 
   virtual void visit(BM188X::Relu& pRelu) { }
+
+  virtual void visit(Scale& pScale) { }
   
   BM188xVisitor();
 
