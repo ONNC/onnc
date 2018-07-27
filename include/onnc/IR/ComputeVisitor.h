@@ -138,6 +138,17 @@ class ThresholdedRelu;
 class ComputeVisitor
 {
 public:
+  typedef const void* VisitorTypeID;
+
+public:
+  ComputeVisitor() : m_VisitorID(nullptr) { }
+
+  ComputeVisitor(char& pID) : m_VisitorID(&pID) { }
+
+  bool hasVisitorID() const { return (nullptr != m_VisitorID); }
+
+  VisitorTypeID getVisitorID() const { return m_VisitorID; }
+
   /// ONNC defined operators @{
   virtual void visit(const Initializer& pInitializer) { }
   virtual void visit(const InputOperator& pInputOperator) { }
@@ -385,6 +396,9 @@ public:
   virtual void visit(ScaledTanh& pScaledTanh) { }
   virtual void visit(ThresholdedRelu& pThresholdedRelu) { }
   /// @}
+
+private:
+  VisitorTypeID m_VisitorID;
 };
 
 } // namespace of onnc
