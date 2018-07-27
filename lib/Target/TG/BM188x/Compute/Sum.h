@@ -35,6 +35,12 @@ public:
     m_ThresholdXQuantized = pT;
   }
 
+  void print(std::ostream& pOS) const override;
+
+  void accept(ComputeVisitor& pV) override;
+
+  void accept(ComputeVisitor& pV) const override;
+
 private:
   IntAttr m_RShiftWidth;
   IntAttr m_DoRelu;

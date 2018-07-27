@@ -12,6 +12,7 @@
 namespace onnc {
 namespace BM188X {
 
+class Sum;
 class Store;
 
 class BM188xVisitor : public ComputeVisitor
@@ -24,7 +25,11 @@ public:
 
   virtual void visit(const Store& pStore) { }
 
+  virtual void visit(const Sum& pSum) { }
+
   virtual void visit(Store& pStore) { }
+
+  virtual void visit(Sum& pSum) { }
 
   BM188xVisitor();
 
