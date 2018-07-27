@@ -38,6 +38,7 @@ add_libonnc_src(
     Compute/Conv.cpp
     Compute/Gemm.cpp
     Compute/GlobalAveragePool.cpp
+    Compute/Load.cpp
     Compute/LRN.cpp
     Compute/LeakyRelu.cpp
     Compute/Pool.cpp
