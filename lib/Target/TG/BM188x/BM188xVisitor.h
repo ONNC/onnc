@@ -113,6 +113,8 @@ public:
   /// }@
 
   virtual void visit(Scale& pScale) { }
+
+  virtual void visit(Relu& pRelu) { }
   
   BM188xVisitor();
 
