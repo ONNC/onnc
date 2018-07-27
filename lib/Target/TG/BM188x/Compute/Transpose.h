@@ -26,9 +26,9 @@ public:
 
   void print(std::ostream &pOS) const override;
 
-  void accept(ComputeVisitor &pV) override { pV.visit(*this); }
+  void accept(ComputeVisitor &pV) override;
 
-  void accept(ComputeVisitor &pV) const override { pV.visit(*this); }
+  void accept(ComputeVisitor &pV) const override;
 
 private:
   int m_W;

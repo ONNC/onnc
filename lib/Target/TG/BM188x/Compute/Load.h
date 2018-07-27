@@ -44,6 +44,12 @@ public:
 
   const StringAttr &getSplitName() const { return m_SplitName; }
 
+  void print(std::ostream& pOS) const override;
+
+  void accept(ComputeVisitor& pV) override;
+
+  void accept(ComputeVisitor& pV) const override;
+
 private:
   IntAttr m_SrcGOffset;
   IntAttr m_DstLAddr;

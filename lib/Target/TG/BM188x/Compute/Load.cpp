@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Load.h"
+#include "../BM188xVisitor.h"
 
 #define DEBUG_TYPE "tl_load"
 
@@ -34,3 +35,23 @@ BM188X::Load::Load(const IntAttr &pSrcGOffset,
       m_SplitName(pSplitName)
 {
 }
+
+void BM188X::Load::print(std::ostream& pOS) const
+{
+  // TODO
+}
+
+void BM188X::Load::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::Load::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
