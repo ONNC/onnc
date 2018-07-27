@@ -41,6 +41,7 @@ add_libonnc_src(
     Compute/LRN.cpp
     Compute/LeakyRelu.cpp
     Compute/Pool.cpp
+    Compute/PRelu.cpp
     Compute/Sum.cpp
     Compute/Store.cpp
     Compute/Scale.cpp
@@ -50,6 +51,7 @@ add_libonnc_src(
     Lowers/GlobalAveragePoolLower.cpp
     Lowers/LRNLower.cpp
     Lowers/LeakyReluLower.cpp
+    Lowers/PReluLower.cpp
     Lowers/StoreLower.cpp
     Lowers/SumLower.cpp
     Lowers/ScaleLower.cpp)
