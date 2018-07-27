@@ -17,6 +17,7 @@
 #include "Lowers/GlobalAveragePoolLower.h"
 #include "Lowers/LRNLower.h"
 #include "Lowers/LeakyReluLower.h"
+#include "Lowers/PReluLower.h"
 #include "Lowers/StoreLower.h"
 #include "Lowers/SumLower.h"
 #include "Lowers/ScaleLower.h"
@@ -132,6 +133,7 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::GlobalAveragePoolLower>();
   pRegistry.emplace<BM188X::LRNLower>();
   pRegistry.emplace<BM188X::LeakyReluLower>();
+  pRegistry.emplace<BM188X::PReluLower>();
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::ScaleLower>();

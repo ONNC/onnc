@@ -35,6 +35,7 @@ add_libonnc_src(
     Compute/Reshape.cpp
     Compute/LRN.cpp
     Compute/LeakyRelu.cpp
+    Compute/PRelu.cpp
     Compute/Softmax.cpp
     Compute/Sum.cpp
     Compute/Upsample.cpp
