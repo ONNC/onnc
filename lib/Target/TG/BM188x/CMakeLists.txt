@@ -41,6 +41,7 @@ add_libonnc_src(
     Compute/Load.cpp
     Compute/LRN.cpp
     Compute/LeakyRelu.cpp
+    Compute/MaxPool.cpp
     Compute/Pool.cpp
     Compute/PRelu.cpp
     Compute/Sum.cpp

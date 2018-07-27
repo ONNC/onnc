@@ -19,6 +19,7 @@ class Gemm;
 class GlobalAveragePool;
 class LRN;
 class LeakyRelu;
+class MaxPool;
 class Pool;
 class PRelu;
 class Sum;
@@ -36,6 +37,8 @@ public:
 
   virtual void visit(const BM188X::AveragePool& pAveragePool) { }
 
+  virtual void visit(const BM188X::MaxPool& pMaxPool) { }
+
   virtual void visit(const BM188X::Pool& pPool) { }
 
   virtual void visit(const BM188X::Store& pStore) { }
@@ -47,6 +50,8 @@ public:
   virtual void visit(const BM188X::Relu& pRelu) { }
 
   virtual void visit(BM188X::AveragePool& pAveragePool) { }
+
+  virtual void visit(BM188X::MaxPool& pMaxPool) { }
 
   virtual void visit(BM188X::Pool& pPool) { }
 
