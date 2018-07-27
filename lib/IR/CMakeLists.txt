@@ -38,6 +38,7 @@ add_libonnc_src(
     Compute/PRelu.cpp
     Compute/Softmax.cpp
     Compute/Sum.cpp
+    Compute/Transpose.cpp
     Compute/Upsample.cpp
     Compute/Xor.cpp
     Compute/Initializer.cpp

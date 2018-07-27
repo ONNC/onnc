@@ -22,6 +22,7 @@
 #include "Lowers/SumLower.h"
 #include "Lowers/ScaleLower.h"
 #include "Lowers/ReluLower.h"
+#include "Lowers/TransposeLower.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -138,4 +139,5 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::ScaleLower>();
   pRegistry.emplace<BM188X::ReluLower>();
+  pRegistry.emplace<BM188X::TransposeLower>();
 }

@@ -47,6 +47,7 @@ add_libonnc_src(
     Compute/Store.cpp
     Compute/Scale.cpp
     Compute/Relu.cpp
+    Compute/Transpose.cpp
     Lowers/AveragePoolLower.cpp
     Lowers/ConvLower.cpp
     Lowers/GemmLower.cpp
@@ -57,6 +58,7 @@ add_libonnc_src(
     Lowers/StoreLower.cpp
     Lowers/SumLower.cpp
     Lowers/ScaleLower.cpp
-    Lowers/ReluLower.cpp)
+    Lowers/ReluLower.cpp
+    Lowers/TransposeLower.cpp)
 
 add_subdirectory(asm)
