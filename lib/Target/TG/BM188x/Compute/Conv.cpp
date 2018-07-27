@@ -5,8 +5,10 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#define DEBUG_TYPE "tg_conv"
 #include "Conv.h"
+#include "../BM188xVisitor.h"
+
+#define DEBUG_TYPE "tg_conv"
 
 using namespace onnc;
 using namespace onnc::BM188X;
@@ -28,4 +30,18 @@ BM188X::Conv::~Conv()
 void BM188X::Conv::print(std::ostream& pOS) const
 {
   // TODO
+}
+
+void BM188X::Conv::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::Conv::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }

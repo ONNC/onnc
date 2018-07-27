@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #define DEBUG_TYPE "tg_averagepool"
 #include "AveragePool.h"
+#include "../BM188xVisitor.h"
 
 using namespace onnc;
 using namespace onnc::BM188X;
@@ -24,4 +25,18 @@ BM188X::AveragePool::AveragePool(const IntsAttr& pKernelShape)
 void BM188X::AveragePool::print(std::ostream& pOS) const
 {
   // TODO
+}
+
+void BM188X::AveragePool::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::AveragePool::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }

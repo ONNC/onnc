@@ -5,10 +5,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#define DEBUG_TYPE "tg_global_average_pool"
 #include "GlobalAveragePool.h"
 #include "PatternMatch.h"
+#include "../BM188xVisitor.h"
 #include <onnc/Support/Debug.h>
+#define DEBUG_TYPE "tg_global_average_pool"
 
 using namespace onnc;
 using namespace onnc::BM188X;
@@ -37,4 +38,18 @@ void BM188X::GlobalAveragePool::init(const ::onnx::Node &pNode)
 void BM188X::GlobalAveragePool::print(std::ostream &pOS) const
 {
   // TODO
+}
+
+void BM188X::GlobalAveragePool::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::GlobalAveragePool::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }

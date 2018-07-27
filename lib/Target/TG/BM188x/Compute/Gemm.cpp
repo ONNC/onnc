@@ -5,10 +5,12 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#define DEBUG_TYPE "tg_gemm"
 #include "Gemm.h"
 #include "PatternMatch.h"
+#include "../BM188xVisitor.h"
 #include <onnc/Support/Debug.h>
+
+#define DEBUG_TYPE "tg_gemm"
 
 using namespace onnc;
 using namespace onnc::BM188X;
@@ -52,4 +54,18 @@ void BM188X::Gemm::init(const ::onnx::Node &pNode)
 void BM188X::Gemm::print(std::ostream &pOS) const
 {
   // TODO
+}
+
+void BM188X::Gemm::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::Gemm::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }

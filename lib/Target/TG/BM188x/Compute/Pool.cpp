@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Pool.h"
+#include "../BM188xVisitor.h"
 
 #define DEBUG_TYPE "tl_pool"
 
@@ -25,4 +26,23 @@ Pool::Pool(const IntAttr& pIFmapAddr,
        m_OFmapAddr(pOFmapAddr), m_InDim(pInDim), m_OutDim(pOutDim),
        m_IsAvgPooling(pIsAvgPooling), m_SplitName(pSpliteName)
 {
+}
+
+void BM188X::Pool::print(std::ostream& pOS) const
+{
+  // TODO
+}
+
+void BM188X::Pool::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::Pool::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }

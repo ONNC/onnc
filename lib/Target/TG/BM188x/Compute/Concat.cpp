@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #define DEBUG_TYPE "tg_concat"
 #include "Concat.h"
+#include "../BM188xVisitor.h"
 
 using namespace onnc;
 using namespace onnc::BM188X;
@@ -51,12 +52,16 @@ void BM188X::Concat::print(std::ostream& pOS) const
   // TODO
 }
 
-void BM188X::Concat::accept(ComputeVisitor& pVisitor)
+void BM188X::Concat::accept(ComputeVisitor& pV)
 {
-  pVisitor.visit(*this);
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }
 
-void BM188X::Concat::accept(ComputeVisitor& pVisitor) const
+void BM188X::Concat::accept(ComputeVisitor& pV) const
 {
-  pVisitor.visit(*this);
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }
