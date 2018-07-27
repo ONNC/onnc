@@ -20,7 +20,6 @@ unsigned int TGQuadrupleMatchFn(const Quadruple &pQuadruple);
 ModulePass *createONNXFuseOptPass(TGBackend *pTarget);
 ModulePass *createTGCodeEmitPass(TGBackend *pTarget,
                                  const std::string &pOutputFilename);
-ModulePass *createGlobalMemAllocPass(TGBackend *pTarget);
 ModulePass *createTargetLoweringPass(TGBackend *pTarget);
 
 } // namespace onnc

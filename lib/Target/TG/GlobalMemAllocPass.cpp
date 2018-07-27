@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#define DEBUG_TYPE "tg_mem_alloc"
+#include "GlobalMemAllocPass.h"
 #include "TG.h"
 #include "TGBackend.h"
 #include <onnc/ADT/Color.h>
@@ -15,33 +15,22 @@
 #include <onnc/Support/IOStream.h>
 #include <onnx/common/ir.h>
 
+#define DEBUG_TYPE "tg_mem_alloc"
+
 using namespace onnc;
+using namespace onnc::BM188X;
 
-namespace {
+char GlobalMemAlloc::ID = 0;
 
-class GlobalMemAlloc : public ModulePass
+//===----------------------------------------------------------------------===//
+// GlobalMemAlloc
+//===----------------------------------------------------------------------===//
+GlobalMemAlloc::GlobalMemAlloc(TGBackend *pTarget)
+    : ModulePass(ID), m_pTarget(pTarget)
 {
+}
 
-private:
-  TGBackend *m_pTarget; // NOLINT
-  void AllocGlobalMem();
-
-public:
-  static char ID;
-
-public:
-  GlobalMemAlloc(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
-
-  Pass::ReturnType runOnModule(::onnc::Module &pModule) override
-  {
-    AllocGlobalMem();
-    return Pass::kModuleNoChanged;
-  }
-};
-
-} // anonymous namespace
-
-void GlobalMemAlloc::AllocGlobalMem()
+Pass::ReturnType GlobalMemAlloc::runOnModule(::onnc::Module &pModule)
 {
   unsigned int weight_offset = 0;
   unsigned int neuron_offset = 0;
@@ -77,11 +66,10 @@ void GlobalMemAlloc::AllocGlobalMem()
       DEBUG(dbgs() << tab << *mem << "\n");
     }
   }
+  return kModuleNoChanged;
 }
 
-char GlobalMemAlloc::ID = 0;
-
-ModulePass *onnc::createGlobalMemAllocPass(TGBackend *pTarget)
+ModulePass *onnc::CreateGlobalMemAllocPass(TGBackend *pTarget)
 {
   return new GlobalMemAlloc(pTarget);
 }

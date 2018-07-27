@@ -11,6 +11,7 @@
 #include "TGCodeEmitter.h"
 #include "TGFuseOptimizer.h"
 #include "TargetLowering.h"
+#include "GlobalMemAllocPass.h"
 #include <memory>
 #include <onnc/Support/Path.h>
 #include <onnc/Target/DLATargetBackend.h>
