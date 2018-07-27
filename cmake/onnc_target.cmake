@@ -40,4 +40,12 @@ function(enum_onnc_targets)
         set(ENABLE_${op_name}_TARGET ${TARGET_${op_name}} PARENT_SCOPE)
     endforeach()
 
+    # target list
+    set(ONNC_TARGETS_TO_BUILD "")
+    foreach(op_name ${TARGET_LIST})
+        if (TARGET_${op_name})
+            list(APPEND ONNC_TARGETS_TO_BUILD ${op_name})
+        endif()
+    endforeach()
+    set(ONNC_TARGETS_TO_BUILD "${ONNC_TARGETS_TO_BUILD}" PARENT_SCOPE)
 endfunction()

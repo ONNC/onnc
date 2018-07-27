@@ -2,6 +2,7 @@ include(check)
 
 set(ONNC_TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(ONNC_TOOL_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/../tools")
+string(REPLACE ";" " " ONNC_TARGETS_BUILT "${ONNC_TARGETS_TO_BUILD}")
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
