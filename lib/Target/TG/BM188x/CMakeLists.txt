@@ -9,6 +9,7 @@ add_libonnc_src(
     BM188xCodeEmitter.cpp
     BM188xTargetTransformInfo.cpp
     BM188xTargetMemInfo.cpp
+    BM188xVisitor.cpp
     AddDummyWeightPass.cpp
     BM188xFuseOptimizer.cpp
     PrepareCtablePass.cpp
