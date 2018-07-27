@@ -63,10 +63,6 @@ public:
 
   virtual void visit(BM188X::Relu& pRelu) { }
 
-  virtual void visit(Scale& pScale) { }
-
-  virtual void visit(Relu& pRelu) { }
-  
   BM188xVisitor();
 
   /// for dyn_cast
