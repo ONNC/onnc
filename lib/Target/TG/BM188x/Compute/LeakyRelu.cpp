@@ -5,8 +5,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#define DEBUG_TYPE "tg_leakyrelu"
 #include "LeakyRelu.h"
+#include "../BM188xVisitor.h"
+#include <onnc/Support/Casting.h>
+
+#define DEBUG_TYPE "tg_leakyrelu"
 
 using namespace onnc;
 using namespace onnc::BM188X;
@@ -27,4 +30,18 @@ BM188X::LeakyRelu::~LeakyRelu()
 void BM188X::LeakyRelu::print(std::ostream &pOS) const
 {
   // TODO
+}
+
+void BM188X::LeakyRelu::accept(ComputeVisitor& pV)
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
+}
+
+void BM188X::LeakyRelu::accept(ComputeVisitor& pV) const
+{
+  BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }

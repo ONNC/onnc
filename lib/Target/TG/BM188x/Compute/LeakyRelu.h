@@ -21,17 +21,33 @@ public:
 
   ~LeakyRelu();
 
+  const IntAttr &getGTRShiftWidth() const { return m_GTRShiftWidth; }
+
+  const IntAttr &getLERShiftWidth() const { return m_LERShiftWidth; }
+
+  const IntAttr &getGTScale() const { return m_GTScale; }
+
+  const IntAttr &getLEScale() const { return m_LEScale; }
+
+  void setGTRShiftWidth(const IntAttr &pGSW) { m_GTRShiftWidth = pGSW; }
+
+  void setLERShiftWidth(const IntAttr &pLSW) { m_LERShiftWidth = pLSW; }
+
+  void setGTScale(const IntAttr &pGS) { m_GTScale = pGS; }
+
+  void setLEScale(const IntAttr &pLS) { m_LEScale = pLS; }
+  
   void print(std::ostream &pOS) const override;
 
-  void accept(ComputeVisitor &pV) override { pV.visit(*this); }
+  void accept(ComputeVisitor &pV) override;
 
-  void accept(ComputeVisitor &pV) const override { pV.visit(*this); }
+  void accept(ComputeVisitor &pV) const override;
 
 private:
-  int m_GTRShiftWidth;
-  int m_LERShiftWidth;
-  int m_GTScale;
-  int m_LEScale;
+  IntAttr m_GTRShiftWidth;
+  IntAttr m_LERShiftWidth;
+  IntAttr m_GTScale;
+  IntAttr m_LEScale;
 };
 
 } // namespace BM188X
