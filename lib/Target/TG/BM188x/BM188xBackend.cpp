@@ -24,6 +24,7 @@
 #include "Lowers/ReluLower.h"
 #include "Lowers/TransposeLower.h"
 #include "TG.h"
+#include "QuantizePass.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
@@ -70,7 +71,7 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
     pPM.add(getTargetLower()(this));
   }
 
-  pPM.add(createQuantizePass(this));
+  pPM.add(CreateQuantizePass(this));
   pPM.add(createUpdateCtablePass(this));
 
   return;
