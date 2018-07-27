@@ -12,6 +12,7 @@
 #include "BM188xFuseOptimizer.h"
 #include "BM188xISelLowering.h"
 #include "Lowers/AveragePoolLower.h"
+#include "Lowers/ConvLower.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -118,4 +119,5 @@ std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
 void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
 {
   pRegistry.emplace<BM188X::AveragePoolLower>();
+  pRegistry.emplace<BM188X::ConvLower>();
 }
