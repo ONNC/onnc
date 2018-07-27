@@ -31,7 +31,7 @@ class Scale;
 class Store;
 class Sum;
 class Transpose;
-  
+ 
 class BM188xVisitor : public ComputeVisitor
 {
 public:
@@ -112,6 +112,8 @@ public:
   virtual void visit(onnc::Upsample& pUpsample) { }
   /// }@
 
+  virtual void visit(Scale& pScale) { }
+  
   BM188xVisitor();
 
   /// for dyn_cast
