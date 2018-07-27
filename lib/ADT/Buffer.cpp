@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/ADT/Buffer.h>
+#include <cstdlib>
 
 using namespace onnc;
 
@@ -14,7 +15,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 void onnc::free(Buffer& pBuffer)
 {
-  ::free(pBuffer.raw());
+  std::free(pBuffer.raw());
   pBuffer.assign(nullptr, 0);
 }
 
