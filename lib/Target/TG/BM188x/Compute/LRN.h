@@ -21,11 +21,15 @@ public:
 
   ~LRN();
 
+  int getSumRightShftWidth() const { return m_SumRightShiftWidth; }
+
+  int getLrnRightShiftWidth() const { return m_LrnRightShiftWidth; }
+
   void print(std::ostream &pOS) const override;
 
-  void accept(ComputeVisitor &pV) override { pV.visit(*this); }
+  void accept(ComputeVisitor &pV) override;
 
-  void accept(ComputeVisitor &pV) const override { pV.visit(*this); }
+  void accept(ComputeVisitor &pV) const override;
 
 private:
   int m_SumRightShiftWidth;
