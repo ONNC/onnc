@@ -15,6 +15,7 @@ add_libonnc_src(
     PrepareCtablePass.cpp
     UpdateCtablePass.cpp
     QuantizePass.cpp
+    QuantizeVisitor.cpp
     TLLoad.cpp
     TLStore.cpp
     TGConv.cpp
