@@ -12,6 +12,7 @@ add_libonnc_src(
     BM188xVisitor.cpp
     AddDummyWeightPass.cpp
     BM188xFuseOptimizer.cpp
+    CodeEmitVisitor.cpp
     PrepareCtablePass.cpp
     UpdateCtablePass.cpp
     QuantizePass.cpp
