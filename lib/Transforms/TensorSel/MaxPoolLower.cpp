@@ -42,7 +42,7 @@ MaxPoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
       return nullptr;
   }
 
-  if (1 != pNode.outputs().size())
+  if (1 != pNode.outputs().size() || 2 != pNode.outputs().size())
     return nullptr;
 
   for (::onnx::Value* xv : pNode.outputs()) {
