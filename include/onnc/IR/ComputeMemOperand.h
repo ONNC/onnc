@@ -27,6 +27,10 @@ public:
     : m_Start(pStart), m_Length(pLength) {
   }
 
+  ComputeMemOperand(onnc::Value& pValue, Residence pResidence)
+    : ComputeOperand(pValue, pResidence), m_Start(0), m_Length(0) {
+  }
+
   void setStart(uint32_t pStart) { m_Start = pStart; }
 
   uint32_t start() const { return m_Start; }
