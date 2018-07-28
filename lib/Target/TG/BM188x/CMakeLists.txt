@@ -55,6 +55,7 @@ add_libonnc_src(
     Lowers/ConvLower.cpp
     Lowers/GemmLower.cpp
     Lowers/GlobalAveragePoolLower.cpp
+    Lowers/LoadLower.cpp
     Lowers/LRNLower.cpp
     Lowers/LeakyReluLower.cpp
     Lowers/MaxPoolLower.cpp
