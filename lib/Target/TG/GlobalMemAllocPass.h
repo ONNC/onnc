@@ -25,6 +25,8 @@ public:
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
+  void runOnComputeGraph(onnc::ComputeGraph &pCG);
+
 private:
   TGBackend *m_pTarget; // NOLINT
 };

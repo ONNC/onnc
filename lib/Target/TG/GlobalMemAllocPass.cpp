@@ -71,10 +71,8 @@ GlobalMemAlloc::GlobalMemAlloc(TGBackend *pTarget)
 {
 }
 
-Pass::ReturnType GlobalMemAlloc::runOnModule(::onnc::Module &pModule) override
+Pass::ReturnType GlobalMemAlloc::runOnModule(::onnc::Module &pModule)
 {
-  AllocGlobalMem(); // remove this later.
-
   Module::cg_iterator cg, cgEnd = pModule.cgEnd();
   for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
     runOnComputeGraph(*cg->value());
@@ -98,46 +96,7 @@ void GlobalMemAlloc::runOnComputeGraph(onnc::ComputeGraph &pCG)
   }
 }
 
-void GlobalMemAlloc::AllocGlobalMem()
-{
-  unsigned int weight_offset = 0;
-  unsigned int neuron_offset = 0;
-  std::string tab = "\t";
-
-  DEBUG(dbgs() << __func__ << " dump global memory layout:"
-               << "\n";);
-
-  // FIXME memory allocation only need to traverse MemOperands in order
-  // but currently CodeEmitter's prepareWeight function can't save the weight
-  // on the address of MemOperand. So we need to sync the traverse order
-  // between MemAlloc and prepareWeight now.
-  std::unordered_map<const ::onnx::Value *, MemOperand *> allocatedValue;
-  for (auto &inst : m_pTarget->getInsts()) {
-    for (auto &mem : inst->getMemOperands()) {
-      int tensor_size = 0;
-      if (allocatedValue.count(mem->m_Value)) {
-        mem->m_Addr = allocatedValue[mem->m_Value]->m_Addr;
-        mem->m_Size = allocatedValue[mem->m_Value]->m_Size;
-        continue;
-      }
-      if (mem->m_MemType == MemType::NEURON) {
-        mem->m_Addr = neuron_offset;
-        tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
-        neuron_offset += tensor_size;
-      } else if (mem->m_MemType == MemType::WEIGHT) {
-        mem->m_Addr = weight_offset;
-        tensor_size = m_pTarget->sizeOfTensorType(mem->m_Type) * mem->m_Count;
-        weight_offset += tensor_size;
-      }
-      mem->m_Size = tensor_size;
-      allocatedValue.insert({ mem->m_Value, mem });
-      DEBUG(dbgs() << tab << *mem << "\n");
-    }
-  }
-  return kModuleNoChanged;
-}
-
-ModulePass *onnc::createGlobalMemAllocPass(TGBackend *pTarget)
+ModulePass *onnc::CreateGlobalMemAllocPass(TGBackend *pTarget)
 {
   return new GlobalMemAlloc(pTarget);
 }
