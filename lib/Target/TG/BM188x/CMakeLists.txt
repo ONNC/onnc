@@ -57,6 +57,7 @@ add_libonnc_src(
     Lowers/GlobalAveragePoolLower.cpp
     Lowers/LRNLower.cpp
     Lowers/LeakyReluLower.cpp
+    Lowers/PoolLower.cpp
     Lowers/PReluLower.cpp
     Lowers/StoreLower.cpp
     Lowers/SumLower.cpp
