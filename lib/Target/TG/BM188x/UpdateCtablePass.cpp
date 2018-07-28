@@ -19,6 +19,8 @@ public:
   {
   }
 
+  StringRef getPassName() const override { return "UpdateCtable"; }
+  
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:

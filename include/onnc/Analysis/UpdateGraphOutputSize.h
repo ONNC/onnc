@@ -25,11 +25,11 @@ public:
 public:
   UpdateGraphOutputSize();
 
+  StringRef getPassName() const override { return "UpdateGraphOutputSize"; }
+  
   ReturnType runOnModule(Module &pModule) override;
 
   void setBatchSize(unsigned pBatchSize) { m_BatchSize = pBatchSize; }
-
-  StringRef getPassName() const override { return "UpdateGraphOutputSize"; }
 
 private:
   void updateInputBatchSize(onnx::Graph *pGraph);

@@ -50,12 +50,12 @@ public:
   /// (N * K + K * N + N * M) * (Element Size), however, target's might
   /// choose to load part of rows and columns to compute a tile, so its
   /// real memory usage will be reduced a lot.
-  virtual MemSize getOperatorMemUsage(const onnx::Node *pNode) const
+  virtual MemSize getOperatorMemUsage(const ::onnx::Node *pNode) const
   {
     return MemSize();
   }
 
-  virtual MemSize getOperatorMemUsage(const onnx::Node *pNode,
+  virtual MemSize getOperatorMemUsage(const ::onnx::Node *pNode,
                                 const std::vector<LongInts> &pInputSizes,
                                 const std::vector<LongInts> &pOutputSizes) const
   {
@@ -64,14 +64,14 @@ public:
 
   /// @param pIdx Get required memory size of input[pIdx].
   /// @param pNewInputSize Based on new input size, get actual required size.
-  virtual MemSize getOperatorInputMemUsage(const onnx::Node *pNode,
+  virtual MemSize getOperatorInputMemUsage(const ::onnx::Node *pNode,
                                 unsigned pIdx,
                                 const LongInts &pNewInputSize) const
   {
     return MemSize();
   }
 
-  virtual MemSize getOperatorOutputMemUsage(const onnx::Node *pNode,
+  virtual MemSize getOperatorOutputMemUsage(const ::onnx::Node *pNode,
                                 unsigned pIdx,
                                 const LongInts &pNewOutputSize) const
   {
@@ -80,7 +80,7 @@ public:
 
   /// Expose coarse grained execution units infomation, so scheduler can use
   /// it to scheduling graph IR.
-  virtual const ExeResource *queryExeResType(const onnx::Node *pNode) const
+  virtual const ExeResource *queryExeResType(const ::onnx::Node *pNode) const
   {
     return nullptr;
   }

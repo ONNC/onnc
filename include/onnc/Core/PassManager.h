@@ -76,6 +76,8 @@ public:
 
   const State& state() const { return m_RunState; }
 
+  Pass* lookup(Pass::AnalysisID pID);
+
 private:
   struct DepNode : public DigraphNode<DepNode>
   {

@@ -13,6 +13,8 @@ public:
   static char ID;
   ONNCModulePrinter() : ModulePass(ID) {}
 
+  StringRef getPassName() const override { return "ONNCModulePrinter"; }
+  
   Pass::ReturnType runOnModule(Module &pModule) override
   {
     ::onnc::DumpModule(pModule);

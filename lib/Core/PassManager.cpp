@@ -211,6 +211,15 @@ unsigned int PassManager::size() const
   return m_AvailableAnalysis.size();
 }
 
+Pass* PassManager::lookup(Pass::AnalysisID pID)
+{
+  DepNode* node = findNode(pID);
+  if (nullptr == node)
+    return nullptr;
+
+  return node->pass;
+}
+
 bool PassManager::hasAdded(Pass::AnalysisID pID) const
 {
   return (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pID));

@@ -17,6 +17,8 @@ public:
 public:
   ONNXFuseOpt(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
 
+  StringRef getPassName() const override { return "ONNXFuseOpt"; }
+  
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:

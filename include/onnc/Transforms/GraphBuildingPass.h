@@ -24,6 +24,8 @@ public:
 
   virtual ~GraphBuildingPass() { }
 
+  StringRef getPassName() const override { return "GraphBuilding"; }
+
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
   virtual Pass::ReturnType runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG) = 0;

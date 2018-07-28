@@ -36,7 +36,7 @@ public:
   }
 
 protected:
-  const onnx::Node *m_pNode; // NOLINT
+  const ::onnx::Node *m_pNode; // NOLINT
 };
 
 } // namespace onnc

@@ -23,6 +23,8 @@ public:
 public:
   GlobalMemAlloc(TGBackend *pTarget);
 
+  StringRef getPassName() const override { return "GlobalMemAlloc"; }
+  
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
 private:

@@ -23,6 +23,8 @@ public:
   {
   }
 
+  StringRef getPassName() const override { return "AddDummyWeight"; }
+  
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:

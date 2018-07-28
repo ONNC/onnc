@@ -16,6 +16,8 @@ public:
 public:
   TargetISel(TGBackend *pBackend) : ModulePass(ID), m_pTarget(pBackend) {}
 
+  StringRef getPassName() const override { return "TargetISel"; }
+  
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
     TargetLowering *TLI = m_pTarget->getTargetLowering();
