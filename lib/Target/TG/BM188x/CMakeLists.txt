@@ -52,6 +52,7 @@ add_libonnc_src(
     Compute/Relu.cpp
     Compute/Transpose.cpp
     Lowers/AveragePoolLower.cpp
+    Lowers/ConcatLower.cpp
     Lowers/ConvLower.cpp
     Lowers/GemmLower.cpp
     Lowers/GlobalAveragePoolLower.cpp
