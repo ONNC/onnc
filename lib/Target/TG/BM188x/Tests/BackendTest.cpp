@@ -85,7 +85,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     errs() << std::endl;
 
     // Run passes step by step
-    for (int i = 0; i < pm.size(); ++i) {
+    for (size_t i = 0; i < pm.size(); ++i) {
       pm.step(golden_module);
       errs() << pm.state().pass->getPassName() << std::endl;
       //golden_module.print(errs());
@@ -122,7 +122,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     errs() << std::endl;
 
     // Run passes step by step
-    for (int i = 0; i < pm.size(); ++i) {
+    for (size_t i = 0; i < pm.size(); ++i) {
       pm.step(test_module);
       errs() << pm.state().pass->getPassName() << std::endl;
       //test_module.print(errs());
