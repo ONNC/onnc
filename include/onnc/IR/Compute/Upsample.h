@@ -22,6 +22,8 @@ public:
     kY = 0
   };
 
+  static char ID;
+
 public:
   Upsample(const FloatAttr& pHeightScale, const FloatAttr& pWidthScale);
 
@@ -60,6 +62,8 @@ public:
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   FloatAttr m_HeightScale;

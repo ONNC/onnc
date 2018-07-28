@@ -17,6 +17,9 @@ namespace BM188X {
 class Conv : public onnc::Conv
 {
 public:
+  static char ID;
+
+public:
   Conv();
 
   ~Conv();
@@ -66,6 +69,8 @@ public:
   void accept(ComputeVisitor &pV) override;
 
   void accept(ComputeVisitor &pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   int m_DoBias;

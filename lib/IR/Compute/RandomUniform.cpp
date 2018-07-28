@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char RandomUniform::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // RandomUniform
 //===----------------------------------------------------------------------===//
 RandomUniform::RandomUniform()
-  : ComputeOperator("RandomUniform"),
+  : ComputeOperator("RandomUniform", ID),
     m_Dtype(),
     m_High(),
     m_Low(),
@@ -26,7 +28,7 @@ RandomUniform::RandomUniform(const IntAttr& pDtype,
                              const FloatAttr& pLow,
                              const FloatAttr& pSeed,
                              const IntsAttr& pShape)
-  : ComputeOperator("RandomUniform"),
+  : ComputeOperator("RandomUniform", ID),
     m_Dtype(pDtype),
     m_High(pHigh),
     m_Low(pLow),
@@ -36,4 +38,11 @@ RandomUniform::RandomUniform(const IntAttr& pDtype,
 
 void RandomUniform::print(std::ostream& pOS) const
 {
+}
+
+bool RandomUniform::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

@@ -19,6 +19,9 @@ namespace BM188X {
 class AveragePool : public onnc::AveragePool
 {
 public:
+  static char ID;
+
+public:
   AveragePool(const IntsAttr& pKernelShape);
 
   void setEnableRelu(const IntAttr& pEnableRelu) { m_EnableRelu = pEnableRelu; }
@@ -38,6 +41,8 @@ public:
   void accept(ComputeVisitor& pV) override;
 
   void accept(ComputeVisitor& pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntAttr m_EnableRelu;

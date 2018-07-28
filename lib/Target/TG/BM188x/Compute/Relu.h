@@ -18,6 +18,9 @@ namespace BM188X {
 class Relu : public onnc::Relu
 {
 public:
+  static char ID;
+
+public:
   Relu();
 
   const FloatAttr &getNegativeSlope() const { return m_NegativeSlope; }
@@ -30,6 +33,8 @@ public:
 
   void accept(ComputeVisitor& pV) const override;
   
+  static bool classof(const ComputeOperator* pOp);
+
 private:
   FloatAttr m_NegativeSlope;
 };

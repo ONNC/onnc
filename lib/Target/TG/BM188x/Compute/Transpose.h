@@ -18,6 +18,9 @@ namespace BM188X {
 class Transpose : public onnc::Transpose
 {
 public:
+  static char ID;
+
+public:
   Transpose();
 
   ~Transpose();
@@ -29,6 +32,8 @@ public:
   void accept(ComputeVisitor &pV) override;
 
   void accept(ComputeVisitor &pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   int m_W;

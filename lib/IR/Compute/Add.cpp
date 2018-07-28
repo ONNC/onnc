@@ -9,18 +9,20 @@
 
 using namespace onnc;
 
+char Add::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Add
 //===----------------------------------------------------------------------===//
 Add::Add()
-  : ComputeOperator("Add"),
+  : ComputeOperator("Add", ID),
     m_Axis(0),
     m_Broadcast(0) {
 }
 
 Add::Add(const IntAttr& pAxis,
          const IntAttr& pBroadcast)
-  : ComputeOperator("Add"),
+  : ComputeOperator("Add", ID),
     m_Axis(pAxis),
     m_Broadcast(pBroadcast) {
 }
@@ -34,4 +36,11 @@ Add::Add(const Add& pCopy)
 void Add::print(std::ostream& pOS) const
 {
   pOS << name() << "< " << getAxis() << ", " << getBroadcast() << ">";
+}
+
+bool Add::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

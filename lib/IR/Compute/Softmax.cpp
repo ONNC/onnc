@@ -9,19 +9,28 @@
 
 using namespace onnc;
 
+char Softmax::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Softmax
 //===----------------------------------------------------------------------===//
 Softmax::Softmax()
-  : ComputeOperator("Softmax"),
+  : ComputeOperator("Softmax", ID),
     m_Axis(1) {
 }
 
 Softmax::Softmax(const IntAttr& pAxis)
-  : ComputeOperator("Softmax"),
+  : ComputeOperator("Softmax", ID),
     m_Axis(pAxis) {
 }
 
 void Softmax::print(std::ostream& pOS) const
 {
+}
+
+bool Softmax::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

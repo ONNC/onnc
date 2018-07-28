@@ -13,6 +13,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::Transpose::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Transpose
 //===----------------------------------------------------------------------===//
@@ -20,6 +22,7 @@ BM188X::Transpose::Transpose()
     : onnc::Transpose(), m_W(0),
       m_Order(), m_OutputShape(), m_NeedPermute(false)
 {
+  setID(ID);
 }
 
 BM188X::Transpose::~Transpose()
@@ -74,4 +77,11 @@ void BM188X::Transpose::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::Transpose::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

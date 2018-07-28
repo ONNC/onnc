@@ -9,19 +9,28 @@
 
 using namespace onnc;
 
+char Loop::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Loop
 //===----------------------------------------------------------------------===//
 Loop::Loop()
-  : ComputeOperator("Loop"),
+  : ComputeOperator("Loop", ID),
     m_Body() {
 }
 
 Loop::Loop(const GraphAttr& pBody)
-  : ComputeOperator("Loop"),
+  : ComputeOperator("Loop", ID),
     m_Body(pBody) {
 }
 
 void Loop::print(std::ostream& pOS) const
 {
+}
+
+bool Loop::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

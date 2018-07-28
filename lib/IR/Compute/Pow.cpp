@@ -9,22 +9,31 @@
 
 using namespace onnc;
 
+char Pow::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Pow
 //===----------------------------------------------------------------------===//
 Pow::Pow()
-  : ComputeOperator("Pow"),
+  : ComputeOperator("Pow", ID),
     m_Axis(),
     m_Broadcast() {
 }
 
 Pow::Pow(const IntAttr& pAxis,
          const IntAttr& pBroadcast)
-  : ComputeOperator("Pow"),
+  : ComputeOperator("Pow", ID),
     m_Axis(pAxis),
     m_Broadcast(pBroadcast) {
 }
 
 void Pow::print(std::ostream& pOS) const
 {
+}
+
+bool Pow::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

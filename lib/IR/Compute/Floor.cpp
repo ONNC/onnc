@@ -9,15 +9,24 @@
 
 using namespace onnc;
 
+char Floor::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Floor
 //===----------------------------------------------------------------------===//
 Floor::Floor()
-  : ComputeOperator("Floor") {
+  : ComputeOperator("Floor", ID) {
 }
 
 
 
 void Floor::print(std::ostream& pOS) const
 {
+}
+
+bool Floor::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

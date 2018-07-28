@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char GRU::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // GRU
 //===----------------------------------------------------------------------===//
 GRU::GRU()
-  : ComputeOperator("GRU"),
+  : ComputeOperator("GRU", ID),
     m_ActivationAlpha(),
     m_ActivationBeta(),
     m_Activations(),
@@ -32,7 +34,7 @@ GRU::GRU(const FloatsAttr& pActivationAlpha,
          const IntAttr& pHiddenSize,
          const IntAttr& pLinearBeforeReset,
          const IntAttr& pOutputSequence)
-  : ComputeOperator("GRU"),
+  : ComputeOperator("GRU", ID),
     m_ActivationAlpha(pActivationAlpha),
     m_ActivationBeta(pActivationBeta),
     m_Activations(pActivations),
@@ -45,4 +47,11 @@ GRU::GRU(const FloatsAttr& pActivationAlpha,
 
 void GRU::print(std::ostream& pOS) const
 {
+}
+
+bool GRU::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

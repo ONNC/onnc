@@ -13,6 +13,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::Load::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Load
 //===----------------------------------------------------------------------===//
@@ -24,7 +26,7 @@ BM188X::Load::Load(const IntAttr &pSrcGOffset,
                    const IntsAttr &pLocalDim,
                    const IntsAttr &pGlobalDim,
                    const StringAttr &pSplitName)
-    : ComputeOperator("TLLoad"),
+    : ComputeOperator("TLLoad", ID),
       m_SrcGOffset(pSrcGOffset),
       m_DstLAddr(pDstLAddr),
       m_DoTranspose(pDoTranspose),
@@ -55,3 +57,10 @@ void BM188X::Load::accept(ComputeVisitor& pV) const
     visitor->visit(*this);
 }
 
+
+bool BM188X::Load::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
+}

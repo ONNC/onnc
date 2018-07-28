@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char Slice::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Slice
 //===----------------------------------------------------------------------===//
 Slice::Slice()
-  : ComputeOperator("Slice"),
+  : ComputeOperator("Slice", ID),
     m_Axes(),
     m_Ends(),
     m_Starts() {
@@ -22,7 +24,7 @@ Slice::Slice()
 Slice::Slice(const IntsAttr& pAxes,
              const IntsAttr& pEnds,
              const IntsAttr& pStarts)
-  : ComputeOperator("Slice"),
+  : ComputeOperator("Slice", ID),
     m_Axes(pAxes),
     m_Ends(pEnds),
     m_Starts(pStarts) {
@@ -30,4 +32,11 @@ Slice::Slice(const IntsAttr& pAxes,
 
 void Slice::print(std::ostream& pOS) const
 {
+}
+
+bool Slice::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

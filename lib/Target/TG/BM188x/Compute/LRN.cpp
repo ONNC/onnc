@@ -13,6 +13,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::LRN::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // LRN
 //===----------------------------------------------------------------------===//
@@ -20,6 +22,7 @@ BM188X::LRN::LRN(const IntAttr& pSize)
     : onnc::LRN(pSize), m_SumRightShiftWidth(0), m_LrnRightShiftWidth(0),
       m_ThresholdXQuantized()
 {
+  setID(ID);
   m_ThresholdXQuantized[0] = 0;
   m_ThresholdXQuantized[1] = 0;
 }
@@ -45,4 +48,11 @@ void BM188X::LRN::accept(ComputeVisitor &pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::LRN::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

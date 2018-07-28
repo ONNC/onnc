@@ -17,6 +17,9 @@ namespace BM188X {
 class Gemm : public onnc::Gemm
 {
 public:
+  static char ID;
+
+public:
   enum ActivationMethod { RELU = 0, SIGMOID, TANH, ELU, PRELU };
 
 public:
@@ -35,6 +38,8 @@ public:
   void accept(ComputeVisitor &pV) override;
 
   void accept(ComputeVisitor &pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   int m_InRowNum;

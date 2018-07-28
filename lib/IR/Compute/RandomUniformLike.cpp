@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char RandomUniformLike::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // RandomUniformLike
 //===----------------------------------------------------------------------===//
 RandomUniformLike::RandomUniformLike()
-  : ComputeOperator("RandomUniformLike"),
+  : ComputeOperator("RandomUniformLike", ID),
     m_Dtype(),
     m_High(),
     m_Low(),
@@ -24,7 +26,7 @@ RandomUniformLike::RandomUniformLike(const IntAttr& pDtype,
                                      const FloatAttr& pHigh,
                                      const FloatAttr& pLow,
                                      const FloatAttr& pSeed)
-  : ComputeOperator("RandomUniformLike"),
+  : ComputeOperator("RandomUniformLike", ID),
     m_Dtype(pDtype),
     m_High(pHigh),
     m_Low(pLow),
@@ -33,4 +35,11 @@ RandomUniformLike::RandomUniformLike(const IntAttr& pDtype,
 
 void RandomUniformLike::print(std::ostream& pOS) const
 {
+}
+
+bool RandomUniformLike::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

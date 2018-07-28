@@ -13,12 +13,14 @@
 
 using namespace onnc;
 
+char BM188X::Scale::ID = 0;
 //===----------------------------------------------------------------------===//
 // BM188X::Scale
 //===----------------------------------------------------------------------===//
 BM188X::Scale::Scale()
-    : m_RShiftWidth(0)
+    : onnc::Scale(), m_RShiftWidth(0)
 {
+  setID(ID);
 }
 
 void BM188X::Scale::print(std::ostream& pOS) const
@@ -40,3 +42,10 @@ void BM188X::Scale::accept(ComputeVisitor& pV) const
     visitor->visit(*this);
 }
 
+
+bool BM188X::Scale::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
+}

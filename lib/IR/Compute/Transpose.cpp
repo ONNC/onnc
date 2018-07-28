@@ -9,19 +9,28 @@
 
 using namespace onnc;
 
+char Transpose::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Transpose
 //===----------------------------------------------------------------------===//
 Transpose::Transpose()
-  : ComputeOperator("Transpose"),
+  : ComputeOperator("Transpose", ID),
     m_Perm() {
 }
 
 Transpose::Transpose(const IntsAttr& pPerm)
-  : ComputeOperator("Transpose"),
+  : ComputeOperator("Transpose", ID),
     m_Perm(pPerm) {
 }
 
 void Transpose::print(std::ostream& pOS) const
 {
+}
+
+bool Transpose::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

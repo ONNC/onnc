@@ -16,6 +16,9 @@ namespace BM188X {
 class Store : public ComputeOperator
 {
 public:
+  static char ID;
+
+public:
   Store(const IntAttr& pDstGOffset,
         const IntAttr& pSrcLAddr,
         const BoolAttr& pDoTranspose,
@@ -62,6 +65,8 @@ public:
   void accept(ComputeVisitor& pV) override;
 
   void accept(ComputeVisitor& pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntAttr m_DstGOffset;

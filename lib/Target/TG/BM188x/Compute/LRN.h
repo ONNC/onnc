@@ -17,6 +17,9 @@ namespace BM188X {
 class LRN : public onnc::LRN
 {
 public:
+  static char ID;
+
+public:
   LRN(const IntAttr& pSize);
 
   ~LRN();
@@ -30,6 +33,8 @@ public:
   void accept(ComputeVisitor &pV) override;
 
   void accept(ComputeVisitor &pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   int m_SumRightShiftWidth;

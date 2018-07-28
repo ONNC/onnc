@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char RandomNormal::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // RandomNormal
 //===----------------------------------------------------------------------===//
 RandomNormal::RandomNormal()
-  : ComputeOperator("RandomNormal"),
+  : ComputeOperator("RandomNormal", ID),
     m_Dtype(),
     m_Mean(),
     m_Scale(),
@@ -26,7 +28,7 @@ RandomNormal::RandomNormal(const IntAttr& pDtype,
                            const FloatAttr& pScale,
                            const FloatAttr& pSeed,
                            const IntsAttr& pShape)
-  : ComputeOperator("RandomNormal"),
+  : ComputeOperator("RandomNormal", ID),
     m_Dtype(pDtype),
     m_Mean(pMean),
     m_Scale(pScale),
@@ -36,4 +38,11 @@ RandomNormal::RandomNormal(const IntAttr& pDtype,
 
 void RandomNormal::print(std::ostream& pOS) const
 {
+}
+
+bool RandomNormal::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

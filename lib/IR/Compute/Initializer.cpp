@@ -10,16 +10,18 @@
 
 using namespace onnc;
 
+char Initializer::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Initializer
 //===----------------------------------------------------------------------===//
 Initializer::Initializer()
-  : ComputeOperator("Initializer"),
+  : ComputeOperator("Initializer", ID),
     m_Name() {
 }
 
 Initializer::Initializer(const StringAttr& pName)
-  : ComputeOperator("Initializer"),
+  : ComputeOperator("Initializer", ID),
     m_Name(pName) {
 }
 
@@ -39,4 +41,11 @@ void Initializer::setTensor(onnc::Tensor& pTensor)
 void Initializer::print(std::ostream& pOS) const
 {
   pOS << name();
+}
+
+bool Initializer::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

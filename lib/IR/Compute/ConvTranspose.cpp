@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char ConvTranspose::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // ConvTranspose
 //===----------------------------------------------------------------------===//
 ConvTranspose::ConvTranspose()
-  : ComputeOperator("ConvTranspose"),
+  : ComputeOperator("ConvTranspose", ID),
     m_AutoPad(),
     m_Dilations(),
     m_Group(),
@@ -32,7 +34,7 @@ ConvTranspose::ConvTranspose(const StringAttr& pAutoPad,
                              const IntsAttr& pOutputShape,
                              const IntsAttr& pPads,
                              const IntsAttr& pStrides)
-  : ComputeOperator("ConvTranspose"),
+  : ComputeOperator("ConvTranspose", ID),
     m_AutoPad(pAutoPad),
     m_Dilations(pDilations),
     m_Group(pGroup),
@@ -45,4 +47,11 @@ ConvTranspose::ConvTranspose(const StringAttr& pAutoPad,
 
 void ConvTranspose::print(std::ostream& pOS) const
 {
+}
+
+bool ConvTranspose::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

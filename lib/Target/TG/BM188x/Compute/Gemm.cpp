@@ -16,6 +16,7 @@ using namespace onnc;
 using namespace onnc::BM188X;
 
 namespace pm = onnc::PatternMatch;
+char BM188X::Gemm::ID = 0;
 
 //===----------------------------------------------------------------------===//
 // Gemm
@@ -25,6 +26,7 @@ BM188X::Gemm::Gemm()
       m_InColNum(0), m_OutColNum(0), m_HaveBias(0), m_WeightTp(false),
       m_EnableRelu(false), m_RShiftWidth(0)
 {
+  setID(ID);
 }
 
 BM188X::Gemm::~Gemm()
@@ -68,4 +70,11 @@ void BM188X::Gemm::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::Gemm::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

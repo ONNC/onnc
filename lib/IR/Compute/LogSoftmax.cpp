@@ -9,19 +9,28 @@
 
 using namespace onnc;
 
+char LogSoftmax::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // LogSoftmax
 //===----------------------------------------------------------------------===//
 LogSoftmax::LogSoftmax()
-  : ComputeOperator("LogSoftmax"),
+  : ComputeOperator("LogSoftmax", ID),
     m_Axis() {
 }
 
 LogSoftmax::LogSoftmax(const IntAttr& pAxis)
-  : ComputeOperator("LogSoftmax"),
+  : ComputeOperator("LogSoftmax", ID),
     m_Axis(pAxis) {
 }
 
 void LogSoftmax::print(std::ostream& pOS) const
 {
+}
+
+bool LogSoftmax::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

@@ -17,6 +17,9 @@ namespace BM188X {
 class Sum : public onnc::Sum
 {
 public:
+  static char ID;
+
+public:
   Sum();
 
   const IntAttr &getRShiftWidth() const { return m_RShiftWidth; }
@@ -40,6 +43,8 @@ public:
   void accept(ComputeVisitor& pV) override;
 
   void accept(ComputeVisitor& pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntAttr m_RShiftWidth;

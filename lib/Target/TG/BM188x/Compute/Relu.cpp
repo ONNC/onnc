@@ -13,12 +13,15 @@
 
 using namespace onnc;
 
+char BM188X::Relu::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // BM188X::Relu
 //===----------------------------------------------------------------------===//
 BM188X::Relu::Relu()
-    : m_NegativeSlope(0.0)
+    : onnc::Relu(), m_NegativeSlope(0.0)
 {
+  setID(ID);
 }
 
 void BM188X::Relu::print(std::ostream& pOS) const
@@ -40,3 +43,10 @@ void BM188X::Relu::accept(ComputeVisitor& pV) const
     visitor->visit(*this);
 }
 
+
+bool BM188X::Relu::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
+}

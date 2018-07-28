@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char Gemm::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Gemm
 //===----------------------------------------------------------------------===//
 Gemm::Gemm()
-  : ComputeOperator("Gemm"),
+  : ComputeOperator("Gemm", ID),
     m_Alpha(1.0),
     m_Beta(1.0),
     m_Broadcast(),
@@ -26,7 +28,7 @@ Gemm::Gemm(const FloatAttr& pAlpha,
            const IntAttr& pBroadcast,
            const IntAttr& pTransA,
            const IntAttr& pTransB)
-  : ComputeOperator("Gemm"),
+  : ComputeOperator("Gemm", ID),
     m_Alpha(pAlpha),
     m_Beta(pBeta),
     m_Broadcast(pBroadcast),
@@ -36,4 +38,11 @@ Gemm::Gemm(const FloatAttr& pAlpha,
 
 void Gemm::print(std::ostream& pOS) const
 {
+}
+
+bool Gemm::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

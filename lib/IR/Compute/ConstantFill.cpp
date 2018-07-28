@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char ConstantFill::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // ConstantFill
 //===----------------------------------------------------------------------===//
 ConstantFill::ConstantFill()
-  : ComputeOperator("ConstantFill"),
+  : ComputeOperator("ConstantFill", ID),
     m_Dtype(),
     m_ExtraShape(),
     m_InputAsShape(),
@@ -26,7 +28,7 @@ ConstantFill::ConstantFill(const IntAttr& pDtype,
                            const IntAttr& pInputAsShape,
                            const IntsAttr& pShape,
                            const FloatAttr& pValue)
-  : ComputeOperator("ConstantFill"),
+  : ComputeOperator("ConstantFill", ID),
     m_Dtype(pDtype),
     m_ExtraShape(pExtraShape),
     m_InputAsShape(pInputAsShape),
@@ -36,4 +38,11 @@ ConstantFill::ConstantFill(const IntAttr& pDtype,
 
 void ConstantFill::print(std::ostream& pOS) const
 {
+}
+
+bool ConstantFill::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

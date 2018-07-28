@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char AveragePool::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // AveragePool
 //===----------------------------------------------------------------------===//
 AveragePool::AveragePool(const IntsAttr& pKernelShape)
-  : ComputeOperator("AveragePool"),
+  : ComputeOperator("AveragePool", ID),
     m_AutoPad(),
     m_CountIncludePad(),
     m_KernelShape(pKernelShape),
@@ -26,7 +28,7 @@ AveragePool::AveragePool(const StringAttr& pAutoPad,
                          const IntsAttr& pKernelShape,
                          const IntsAttr& pPads,
                          const IntsAttr& pStrides)
-  : ComputeOperator("AveragePool"),
+  : ComputeOperator("AveragePool", ID),
     m_AutoPad(pAutoPad),
     m_CountIncludePad(pCountIncludePad),
     m_KernelShape(pKernelShape),
@@ -36,4 +38,11 @@ AveragePool::AveragePool(const StringAttr& pAutoPad,
 
 void AveragePool::print(std::ostream& pOS) const
 {
+}
+
+bool AveragePool::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

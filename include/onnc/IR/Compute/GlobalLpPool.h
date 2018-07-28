@@ -22,6 +22,8 @@ public:
     kY = 0
   };
 
+  static char ID;
+
 public:
   GlobalLpPool();
 
@@ -52,6 +54,8 @@ public:
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntAttr m_P;

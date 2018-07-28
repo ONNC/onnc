@@ -14,6 +14,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::LeakyRelu::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // LeakyRelu
 //===----------------------------------------------------------------------===//
@@ -21,6 +23,7 @@ BM188X::LeakyRelu::LeakyRelu(const FloatAttr &pAlpha)
     : onnc::LeakyRelu(pAlpha), m_GTRShiftWidth(0), m_LERShiftWidth(0),
       m_GTScale(0), m_LEScale(0)
 {
+  setID(ID);
 }
 
 BM188X::LeakyRelu::~LeakyRelu()
@@ -44,4 +47,11 @@ void BM188X::LeakyRelu::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::LeakyRelu::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char RNN::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // RNN
 //===----------------------------------------------------------------------===//
 RNN::RNN()
-  : ComputeOperator("RNN"),
+  : ComputeOperator("RNN", ID),
     m_ActivationAlpha(),
     m_ActivationBeta(),
     m_Activations(),
@@ -30,7 +32,7 @@ RNN::RNN(const FloatsAttr& pActivationAlpha,
          const StringAttr& pDirection,
          const IntAttr& pHiddenSize,
          const IntAttr& pOutputSequence)
-  : ComputeOperator("RNN"),
+  : ComputeOperator("RNN", ID),
     m_ActivationAlpha(pActivationAlpha),
     m_ActivationBeta(pActivationBeta),
     m_Activations(pActivations),
@@ -42,4 +44,11 @@ RNN::RNN(const FloatsAttr& pActivationAlpha,
 
 void RNN::print(std::ostream& pOS) const
 {
+}
+
+bool RNN::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

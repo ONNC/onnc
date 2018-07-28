@@ -13,6 +13,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::Store::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Store
 //===----------------------------------------------------------------------===//
@@ -24,7 +26,7 @@ BM188X::Store::Store(const IntAttr& pDstGOffset,
              const IntsAttr& pLocalDim,
              const IntsAttr& pGlobalDim,
              const StringAttr& pSplitName)
-    : ComputeOperator("Store"), m_DstGOffset(pDstGOffset),
+    : ComputeOperator("Store", ID), m_DstGOffset(pDstGOffset),
       m_SrcLAddr(pSrcLAddr), m_DoTranspose(pDoTranspose),
       m_IsAligned(pIsAligned), m_IsNeuron(pIsNeuron), m_LocalDim(pLocalDim),
       m_GlobalDim(pGlobalDim), m_SplitName(pSplitName)
@@ -48,4 +50,11 @@ void BM188X::Store::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::Store::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

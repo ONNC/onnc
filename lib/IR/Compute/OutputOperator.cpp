@@ -10,16 +10,18 @@
 
 using namespace onnc;
 
+char OutputOperator::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // OutputOperator
 //===----------------------------------------------------------------------===//
 OutputOperator::OutputOperator()
-  : ComputeOperator("OutputOperator"),
+  : ComputeOperator("OutputOperator", ID),
     m_Name() {
 }
 
 OutputOperator::OutputOperator(const StringAttr& pName)
-  : ComputeOperator("OutputOperator"),
+  : ComputeOperator("OutputOperator", ID),
     m_Name(pName) {
 }
 
@@ -35,4 +37,11 @@ void OutputOperator::addTensor(onnc::Tensor& pTensor)
 void OutputOperator::print(std::ostream& pOS) const
 {
   pOS << name();
+}
+
+bool OutputOperator::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

@@ -16,6 +16,9 @@ namespace BM188X {
 class MaxPool : public ComputeOperator
 {
 public:
+  static char ID;
+
+public:
   MaxPool(const IntsAttr& pKS);
 
   const IntsAttr &getKernelShape() const { return m_KernelShape; }
@@ -41,6 +44,8 @@ public:
   void accept(ComputeVisitor &pV) override;
 
   void accept(ComputeVisitor &pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntsAttr m_KernelShape;

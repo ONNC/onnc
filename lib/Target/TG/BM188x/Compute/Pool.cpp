@@ -13,6 +13,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::Pool::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Pool
 //===----------------------------------------------------------------------===//
@@ -22,7 +24,7 @@ Pool::Pool(const IntAttr& pIFmapAddr,
            const IntsAttr& pOutDim,
            bool pIsAvgPooling,
            const StringAttr& pSpliteName)
-    :  ComputeOperator("TLPool"), m_IFmapAddr(pIFmapAddr),
+    :  ComputeOperator("TLPool", ID), m_IFmapAddr(pIFmapAddr),
        m_OFmapAddr(pOFmapAddr), m_InDim(pInDim), m_OutDim(pOutDim),
        m_IsAvgPooling(pIsAvgPooling), m_SplitName(pSpliteName)
 {
@@ -45,4 +47,11 @@ void BM188X::Pool::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::Pool::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

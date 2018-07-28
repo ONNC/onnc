@@ -13,6 +13,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::Conv::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Conv
 //===----------------------------------------------------------------------===//
@@ -21,6 +23,7 @@ BM188X::Conv::Conv()
       m_DoScaleBias(0), m_RShiftWidth(0), m_ScaleRShiftWidth(0),
       m_ConvOutputThreshold(0.f)
 {
+  setID(ID);
 }
 
 BM188X::Conv::~Conv()
@@ -44,4 +47,11 @@ void BM188X::Conv::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::Conv::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

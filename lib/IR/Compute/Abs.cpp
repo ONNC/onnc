@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char Abs::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Abs
 //===----------------------------------------------------------------------===//
 Abs::Abs()
-  : ComputeOperator("Abs") {
+  : ComputeOperator("Abs", ID) {
 }
 
 Abs::Abs(const Abs& pCopy)
@@ -23,4 +25,11 @@ Abs::Abs(const Abs& pCopy)
 void Abs::print(std::ostream& pOS) const
 {
   pOS << name();
+}
+
+bool Abs::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

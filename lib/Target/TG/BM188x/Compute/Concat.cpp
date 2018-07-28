@@ -12,6 +12,8 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
+char BM188X::Concat::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Concat
 //===----------------------------------------------------------------------===//
@@ -19,6 +21,7 @@ BM188X::Concat::Concat(const IntAttr& pAxis)
     : onnc::Concat(pAxis), m_NeedQuantizeNum(0), m_RShiftWidth(),
       m_ThresholdXQuantized()
 {
+  setID(ID);
 }
 
 BM188X::Concat::~Concat()
@@ -64,4 +67,11 @@ void BM188X::Concat::accept(ComputeVisitor& pV) const
   BM188xVisitor* visitor = dyn_cast<BM188xVisitor>(&pV);
   if (nullptr != visitor)
     visitor->visit(*this);
+}
+
+bool BM188X::Concat::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

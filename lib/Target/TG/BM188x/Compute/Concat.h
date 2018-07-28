@@ -17,6 +17,9 @@ namespace BM188X {
 class Concat : public onnc::Concat
 {
 public:
+  static char ID;
+
+public:
   Concat(const IntAttr& pAxis);
 
   ~Concat();
@@ -38,6 +41,8 @@ public:
   void accept(ComputeVisitor& pVisitor) override;
 
   void accept(ComputeVisitor& pVisitor) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   int m_NeedQuantizeNum;

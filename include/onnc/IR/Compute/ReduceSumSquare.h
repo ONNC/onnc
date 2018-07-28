@@ -22,6 +22,8 @@ public:
     kReduced = 0
   };
 
+  static char ID;
+
 public:
   ReduceSumSquare();
 
@@ -55,6 +57,9 @@ public:
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
+
+  static bool classof(const ComputeOperator* pOp);
+
 private:
   IntsAttr m_Axes;
   IntAttr m_Keepdims;

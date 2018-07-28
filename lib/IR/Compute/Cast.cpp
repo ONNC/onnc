@@ -9,19 +9,28 @@
 
 using namespace onnc;
 
+char Cast::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Cast
 //===----------------------------------------------------------------------===//
 Cast::Cast()
-  : ComputeOperator("Cast"),
+  : ComputeOperator("Cast", ID),
     m_To() {
 }
 
 Cast::Cast(const IntAttr& pTo)
-  : ComputeOperator("Cast"),
+  : ComputeOperator("Cast", ID),
     m_To(pTo) {
 }
 
 void Cast::print(std::ostream& pOS) const
 {
+}
+
+bool Cast::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

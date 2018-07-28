@@ -22,6 +22,8 @@ public:
     kX = 0
   };
 
+  static char ID;
+
 public:
   GivenTensorFill();
 
@@ -61,6 +63,8 @@ public:
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntsAttr m_ExtraShape;

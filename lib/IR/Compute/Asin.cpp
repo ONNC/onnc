@@ -9,15 +9,24 @@
 
 using namespace onnc;
 
+char Asin::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Asin
 //===----------------------------------------------------------------------===//
 Asin::Asin()
-  : ComputeOperator("Asin") {
+  : ComputeOperator("Asin", ID) {
 }
 
 
 
 void Asin::print(std::ostream& pOS) const
 {
+}
+
+bool Asin::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

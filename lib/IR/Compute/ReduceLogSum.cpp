@@ -9,22 +9,31 @@
 
 using namespace onnc;
 
+char ReduceLogSum::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // ReduceLogSum
 //===----------------------------------------------------------------------===//
 ReduceLogSum::ReduceLogSum()
-  : ComputeOperator("ReduceLogSum"),
+  : ComputeOperator("ReduceLogSum", ID),
     m_Axes(),
     m_Keepdims() {
 }
 
 ReduceLogSum::ReduceLogSum(const IntsAttr& pAxes,
                            const IntAttr& pKeepdims)
-  : ComputeOperator("ReduceLogSum"),
+  : ComputeOperator("ReduceLogSum", ID),
     m_Axes(pAxes),
     m_Keepdims(pKeepdims) {
 }
 
 void ReduceLogSum::print(std::ostream& pOS) const
 {
+}
+
+bool ReduceLogSum::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

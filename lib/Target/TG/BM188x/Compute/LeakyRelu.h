@@ -17,6 +17,9 @@ namespace BM188X {
 class LeakyRelu : public onnc::LeakyRelu
 {
 public:
+  static char ID;
+
+public:
   LeakyRelu(const FloatAttr &pAlpha);
 
   ~LeakyRelu();
@@ -42,6 +45,8 @@ public:
   void accept(ComputeVisitor &pV) override;
 
   void accept(ComputeVisitor &pV) const override;
+
+  static bool classof(const ComputeOperator* pOp);
 
 private:
   IntAttr m_GTRShiftWidth;

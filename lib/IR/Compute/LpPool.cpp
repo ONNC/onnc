@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char LpPool::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // LpPool
 //===----------------------------------------------------------------------===//
 LpPool::LpPool()
-  : ComputeOperator("LpPool"),
+  : ComputeOperator("LpPool", ID),
     m_AutoPad(),
     m_KernelShape(),
     m_P(),
@@ -26,7 +28,7 @@ LpPool::LpPool(const StringAttr& pAutoPad,
                const IntAttr& pP,
                const IntsAttr& pPads,
                const IntsAttr& pStrides)
-  : ComputeOperator("LpPool"),
+  : ComputeOperator("LpPool", ID),
     m_AutoPad(pAutoPad),
     m_KernelShape(pKernelShape),
     m_P(pP),
@@ -36,4 +38,11 @@ LpPool::LpPool(const StringAttr& pAutoPad,
 
 void LpPool::print(std::ostream& pOS) const
 {
+}
+
+bool LpPool::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

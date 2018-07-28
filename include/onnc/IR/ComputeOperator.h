@@ -38,12 +38,17 @@ public:
 
   typedef int64_t Opcode;
 
+  typedef const void* OperatorTypeID;
+
 public:
-  ComputeOperator(StringRef pName);
+  ComputeOperator(StringRef pName, char& pID);
+
+  OperatorTypeID getID() const { return m_ID; }
 
   /// Shallow copy constructor (without copy of arcs of graph).
   /// Copy things:
   /// - the opcode,
+  /// - the ID,
   /// - list of pointers to input values,
   /// - list of pointers to output values, and
   /// - list of pointers to graph operators.
@@ -105,7 +110,11 @@ protected:
   typedef std::vector<ComputeOperand*> OperandList;
 
 protected:
+  void setID(char& pID) { m_ID = &pID; }
+
+protected:
   Opcode m_OpCode;
+  OperatorTypeID m_ID;
   ValueList m_Inputs;
   ValueList m_Outputs;
 

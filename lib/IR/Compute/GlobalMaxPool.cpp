@@ -9,15 +9,24 @@
 
 using namespace onnc;
 
+char GlobalMaxPool::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // GlobalMaxPool
 //===----------------------------------------------------------------------===//
 GlobalMaxPool::GlobalMaxPool()
-  : ComputeOperator("GlobalMaxPool") {
+  : ComputeOperator("GlobalMaxPool", ID) {
 }
 
 
 
 void GlobalMaxPool::print(std::ostream& pOS) const
 {
+}
+
+bool GlobalMaxPool::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }

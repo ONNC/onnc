@@ -9,11 +9,13 @@
 
 using namespace onnc;
 
+char Conv::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // Conv
 //===----------------------------------------------------------------------===//
 Conv::Conv()
-  : ComputeOperator("Conv"),
+  : ComputeOperator("Conv", ID),
     m_AutoPad(),
     m_Dilations(),
     m_Group(),
@@ -28,7 +30,7 @@ Conv::Conv(const StringAttr& pAutoPad,
            const IntsAttr& pKernelShape,
            const IntsAttr& pPads,
            const IntsAttr& pStrides)
-  : ComputeOperator("Conv"),
+  : ComputeOperator("Conv", ID),
     m_AutoPad(pAutoPad),
     m_Dilations(pDilations),
     m_Group(pGroup),
@@ -40,4 +42,11 @@ Conv::Conv(const StringAttr& pAutoPad,
 void Conv::print(std::ostream& pOS) const
 {
   pOS << name();
+}
+
+bool Conv::classof(const ComputeOperator* pOp)
+{
+  if (nullptr == pOp)
+    return false;
+  return (pOp->getID() == &ID);
 }
