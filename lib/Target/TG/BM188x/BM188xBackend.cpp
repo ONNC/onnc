@@ -60,9 +60,6 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
     pPM.add(getTargetLower()(this));
   }
 
-  pPM.add(createQuantizePass(this));
-  pPM.add(createUpdateCtablePass(this));
-
   return;
 }
 

@@ -13,7 +13,6 @@ add_libonnc_src(
     BM188xFuseOptimizer.cpp
     PrepareCtablePass.cpp
     UpdateCtablePass.cpp
-    QuantizePass.cpp
     TLLoad.cpp
     TLStore.cpp
     TGConv.cpp
