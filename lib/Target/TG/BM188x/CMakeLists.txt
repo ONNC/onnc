@@ -63,3 +63,4 @@ add_libonnc_src(
     Lowers/ReluLower.cpp)
 
 add_subdirectory(asm)
+add_subdirectory(Tests)
