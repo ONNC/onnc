@@ -12,17 +12,22 @@
 #include "BM188xFuseOptimizer.h"
 #include "BM188xISelLowering.h"
 #include "Lowers/AveragePoolLower.h"
+#include "Lowers/ConcatLower.h"
 #include "Lowers/ConvLower.h"
 #include "Lowers/GemmLower.h"
 #include "Lowers/GlobalAveragePoolLower.h"
 #include "Lowers/LRNLower.h"
 #include "Lowers/LeakyReluLower.h"
+#include "Lowers/LoadLower.h"
+#include "Lowers/MaxPoolLower.h"
 #include "Lowers/PReluLower.h"
+#include "Lowers/PoolLower.h"
+#include "Lowers/ReluLower.h"
+#include "Lowers/ScaleLower.h"
 #include "Lowers/StoreLower.h"
 #include "Lowers/SumLower.h"
-#include "Lowers/ScaleLower.h"
-#include "Lowers/ReluLower.h"
 #include "Lowers/TransposeLower.h"
+#include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 #include "TG.h"
 #include "QuantizePass.h"
 #include <google/protobuf/text_format.h>
@@ -130,15 +135,20 @@ std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
 void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
 {
   pRegistry.emplace<BM188X::AveragePoolLower>();
+  pRegistry.emplace<BM188X::ConcatLower>();
   pRegistry.emplace<BM188X::ConvLower>();
   pRegistry.emplace<BM188X::GemmLower>();
   pRegistry.emplace<BM188X::GlobalAveragePoolLower>();
   pRegistry.emplace<BM188X::LRNLower>();
   pRegistry.emplace<BM188X::LeakyReluLower>();
+  pRegistry.emplace<BM188X::LoadLower>();
+  pRegistry.emplace<BM188X::MaxPoolLower>();
   pRegistry.emplace<BM188X::PReluLower>();
-  pRegistry.emplace<BM188X::SumLower>();
-  pRegistry.emplace<BM188X::StoreLower>();
-  pRegistry.emplace<BM188X::ScaleLower>();
+  pRegistry.emplace<BM188X::PoolLower>();
   pRegistry.emplace<BM188X::ReluLower>();
+  pRegistry.emplace<BM188X::ScaleLower>();
+  pRegistry.emplace<BM188X::StoreLower>();
+  pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::TransposeLower>();
+  pRegistry.emplace<onnc::UpsampleLower>();
 }
