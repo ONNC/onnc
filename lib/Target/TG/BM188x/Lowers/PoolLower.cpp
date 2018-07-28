@@ -28,8 +28,10 @@ int BM188X::PoolLower::isMe(const ::onnx::Node &pNode) const
 {
   if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
     auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
-    if (is_sliced)
+    if (is_sliced) {
+      // higher than BM188X::MaxPool and BM188X::AveragePool.
       return kTargetHigh;
+    }
   }
   return kNotMe;
 }
