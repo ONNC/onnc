@@ -72,8 +72,6 @@ public:
   virtual void visit(const BM188X::Sum& pSum) { }
 
   virtual void visit(const BM188X::Transpose& pTranspose) { }
-
-  virtual void visit(const onnc::Upsample& pUpsample) { }
   /// }@
 
   /// non-const version @{
@@ -108,14 +106,8 @@ public:
   virtual void visit(BM188X::Sum& pSum) { }
 
   virtual void visit(BM188X::Transpose& pTranspose) { }
-
-  virtual void visit(onnc::Upsample& pUpsample) { }
   /// }@
 
-  virtual void visit(Scale& pScale) { }
-
-  virtual void visit(Relu& pRelu) { }
-  
   BM188xVisitor();
 
   /// for dyn_cast

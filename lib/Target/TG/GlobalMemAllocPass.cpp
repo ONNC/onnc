@@ -41,12 +41,13 @@ static void CreateMemOperands(onnc::ComputeGraph &pCG, ComputeOperator &pNode,
 // For handle special cases.
 class GlobalMemAllocVisitor : public BM188X::BM188xVisitor
 {
+  using BM188X::BM188xVisitor::visit;
 public:
   GlobalMemAllocVisitor(onnc::ComputeGraph &pCG)
     : m_Processed(false), m_CG(pCG) {
   }
 
-  void visit(Initializer &pInitializer) override
+  void visit(onnc::Initializer &pInitializer) override
   {
     m_Processed = true;
     CreateMemOperands(m_CG, pInitializer, ComputeOperand::kWeightResidence);
@@ -66,8 +67,8 @@ private:
 //===----------------------------------------------------------------------===//
 // GlobalMemAlloc
 //===----------------------------------------------------------------------===//
-GlobalMemAlloc::GlobalMemAlloc(TGBackend *pTarget)
-    : ModulePass(ID), m_pTarget(pTarget)
+GlobalMemAlloc::GlobalMemAlloc()
+    : ModulePass(ID)
 {
 }
 
@@ -96,7 +97,7 @@ void GlobalMemAlloc::runOnComputeGraph(onnc::ComputeGraph &pCG)
   }
 }
 
-ModulePass *onnc::CreateGlobalMemAllocPass(TGBackend *pTarget)
+ModulePass *onnc::CreateGlobalMemAllocPass()
 {
-  return new GlobalMemAlloc(pTarget);
+  return new GlobalMemAlloc();
 }

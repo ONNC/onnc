@@ -21,19 +21,16 @@ public:
   static char ID;
 
 public:
-  GlobalMemAlloc(TGBackend *pTarget);
+  GlobalMemAlloc();
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
   void runOnComputeGraph(onnc::ComputeGraph &pCG);
-
-private:
-  TGBackend *m_pTarget; // NOLINT
 };
 
 } // namespace BM188X
 
-ModulePass *CreateGlobalMemAllocPass(TGBackend *pTarget);
+ModulePass *CreateGlobalMemAllocPass();
 
 } // namespace onnc
 

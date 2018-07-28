@@ -14,6 +14,7 @@ namespace BM188X {
 
 class CodeEmitVisitor : public BM188xVisitor
 {
+  using BM188X::BM188xVisitor::visit;
 public:
   void visit(const BM188X::AveragePool& pAveragePool) override;
 
