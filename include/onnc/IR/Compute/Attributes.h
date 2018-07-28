@@ -117,6 +117,12 @@ public:
     : Attribute(pCopy), m_Vector(pCopy.vector()) {
   }
 
+  /// fill constructor.
+  /// Constructs a container with pN elements. Each element is a copy of pV
+  VectorAttribute(typename VectorType::size_type pN, const ValueType& pV)
+    : Attribute(Kind), m_Vector(pN, pV) {
+  }
+
   virtual ~VectorAttribute() { }
 
   VectorAttribute& operator=(const VectorAttribute& pCopy) {
