@@ -16,11 +16,11 @@ using namespace onnc::BM188X;
 //===----------------------------------------------------------------------===//
 // MaxPool
 //===----------------------------------------------------------------------===//
-BM188X::MaxPool::MaxPool()
+BM188X::MaxPool::MaxPool(const IntsAttr& pKS)
     : ComputeOperator("MaxPool"),
-      m_KernelShape(),
-      m_Pads(),
-      m_Strides(),
+      m_KernelShape(pKS),
+      m_Pads(IntsAttr(4,0)),
+      m_Strides(IntsAttr(2, 1)),
       m_RShiftWidth(0),
       m_ThresholdXQuantized(0)
 {

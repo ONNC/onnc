@@ -16,9 +16,7 @@ namespace BM188X {
 class MaxPool : public ComputeOperator
 {
 public:
-  MaxPool();
-
-  void setKernelShape(const IntsAttr &pKS) { m_KernelShape = pKS; }
+  MaxPool(const IntsAttr& pKS);
 
   const IntsAttr &getKernelShape() const { return m_KernelShape; }
 
