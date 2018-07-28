@@ -25,6 +25,7 @@ public:
 
   ~BM1880Backend() override = default;
 
+  /// override TensorSel stage.
   void addTensorSel(PassManager &pPM) override;
 
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
@@ -42,13 +43,13 @@ public:
   getMutableLayerCtable(const std::string &pName);
 
   const tg::bm1880::LayerCalibrationParameter *
-
   getLayerCtable(const std::string &pName);
 
   const TargetTransformInfo *getTTI() const override { return m_pTTI; }
 
   std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
 
+  /// register lowers for TensorSel.
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 
 private:
