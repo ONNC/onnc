@@ -22,7 +22,7 @@ public:
 
   virtual void genWeightBin(const std::string &pOutputFilename) { return; }
 
-  virtual void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+  virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph,
                               std::ostream &pOS) = 0;
 
 private:

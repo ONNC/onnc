@@ -18,7 +18,7 @@ extern onnc::Target TheTGTarget;
 
 unsigned int TGQuadrupleMatchFn(const Quadruple &pQuadruple);
 ModulePass *createONNXFuseOptPass(TGBackend *pTarget);
-ModulePass *createTGCodeEmitPass(TGBackend *pTarget,
+ModulePass *CreateTGCodeEmitPass(TGBackend *pTarget,
                                  const std::string &pOutputFilename);
 ModulePass *createTargetLoweringPass(TGBackend *pTarget);
 
