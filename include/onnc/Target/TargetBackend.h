@@ -8,6 +8,7 @@
 #ifndef ONNC_TARGET_TARGET_BACKEND_H
 #define ONNC_TARGET_TARGET_BACKEND_H
 #include <onnc/Core/PassManager.h>
+#include <onnc/Target/TargetOptions.h>
 #include <onnc/Support/Path.h>
 
 namespace onnc {
@@ -20,7 +21,9 @@ class LowerRegistry;
 class TargetBackend
 {
 public:
-  TargetBackend(const TargetOptions& pOptions) { }
+  TargetBackend(const TargetOptions& pOptions)
+    : m_TargetOptions(pOptions) {
+  }
 
   virtual ~TargetBackend() { }
 
@@ -36,6 +39,11 @@ public:
 
   /// For the backend using standard TensorSel pass.
   virtual void RegisterLowers(LowerRegistry& pRegistry) const { return; }
+
+  const TargetOptions& options() const { return m_TargetOptions; }
+
+private:
+  const TargetOptions& m_TargetOptions;
 };
 
 } // namespace of onnc

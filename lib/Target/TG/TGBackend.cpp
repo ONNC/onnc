@@ -23,7 +23,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
                      const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE), m_Options(pOptions)
+    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE)
 {
   m_ReplaceTargetLower = nullptr;
 }
@@ -43,7 +43,7 @@ void TGBackend::addTensorSel(PassManager &pPM)
   pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(createONNXFuseOptPass(this));
-  if (m_Options.m_PrintModuleBeforeSel)
+  if (options().shouldPrintBeforeTensorSel())
     pPM.add(createONNCModulePrinterPass());
   pPM.add(createTargetLoweringPass(this));
   return;
