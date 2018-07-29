@@ -57,8 +57,6 @@ public:
   MemOperand *getMemOperand(const ::onnx::Value *pValue, MemType pMemType,
                             const std::string &pName = std::string());
 
-  const TargetOptions &getOption() { return m_Options; }
-
   TargetLowering *getTargetLowering() { return m_pTLI; }
 
   TGCodeEmitter *getTargetCodeEmitter() { return m_pCE; }
@@ -98,7 +96,6 @@ private:
   TargetLowering *m_pTLI; // NOLINT
   TGCodeEmitter *m_pCE;   // NOLINT
   Path m_OutputPath;
-  TargetOptions m_Options;
   LowerPass_t m_ReplaceTargetLower;
 };
 

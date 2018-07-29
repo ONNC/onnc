@@ -67,7 +67,7 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   // BM1880 customized Pass
   pPM.add(createPrepareCtablePass(this));
   pPM.add(createONNXFuseOptPass(this));
-  if (getOption().shouldPrintBeforeTensorSel())
+  if (options().shouldPrintBeforeTensorSel())
     pPM.add(createONNCModulePrinterPass());
 
   if (getTargetLower() == nullptr) {
