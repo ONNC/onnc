@@ -20,9 +20,9 @@ class LowerRegistry;
 class TargetBackend
 {
 public:
-  TargetBackend(const TargetOptions& pOptions){}
+  TargetBackend(const TargetOptions& pOptions) { }
 
-  virtual ~TargetBackend(){}
+  virtual ~TargetBackend() { }
 
   virtual void addTensorSel(PassManager& pPM) { return; }
 
