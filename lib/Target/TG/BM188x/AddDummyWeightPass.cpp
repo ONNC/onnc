@@ -1,3 +1,10 @@
+//===- AddDummyWeightPass.cpp ---------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include "BM188xBackend.h"
 #include "PatternMatch.h"
 #include <algorithm>
@@ -11,6 +18,7 @@
 using namespace onnc;
 
 using namespace PatternMatch;
+
 namespace {
 
 class AddDummyWeight : public ModulePass
@@ -19,16 +27,13 @@ public:
   static char ID;
 
 public:
-  AddDummyWeight(BM1880Backend *pBackend) : ModulePass(ID), m_pBackend(pBackend)
-  {
+  AddDummyWeight()
+    : ModulePass(ID) {
   }
 
   StringRef getPassName() const override { return "AddDummyWeight"; }
   
   Pass::ReturnType runOnModule(Module &pModule) override;
-
-private:
-  BM1880Backend *m_pBackend; // NOLINT
 };
 
 } // namespace
@@ -57,12 +62,10 @@ static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
   }
 }
 
+char AddDummyWeight::ID = 0;
+
 Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 {
-  /// XXX: this condition should move to backend.
-  if (!m_pBackend->options().shouldUseDummyWeight())
-    return Pass::kModuleNoChanged;
-
   auto &meta_data = pModule.getMetaData();
   auto it = meta_data.find("initializers");
   if (it == meta_data.end())
@@ -89,9 +92,10 @@ Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
   return Pass::kModuleNoChanged;
 }
 
-char AddDummyWeight::ID = 0;
-
-ModulePass *onnc::createAddDummyWeightPass(BM1880Backend *pBackend)
+//===----------------------------------------------------------------------===//
+// Factory Method
+//===----------------------------------------------------------------------===//
+ModulePass *onnc::CreateAddDummyWeightPass()
 {
-  return new AddDummyWeight(pBackend);
+  return new AddDummyWeight();
 }

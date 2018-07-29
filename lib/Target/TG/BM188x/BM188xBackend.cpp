@@ -61,7 +61,8 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   // target independent pass
   pPM.add(CreateRemoveTrainingNodesPass());
   // TODO refactoring, AddDummyWeightPass can be target indepedent pass
-  pPM.add(createAddDummyWeightPass(this));
+  if (options().shouldUseDummyWeight())
+    pPM.add(CreateAddDummyWeightPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
 
   // BM1880 customized Pass
@@ -76,7 +77,8 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
     pPM.add(getTargetLower()(this));
   }
 
-  pPM.add(CreateQuantizePass(this));
+  if (!options().shouldIgnoreCalibrationStep())
+    pPM.add(CreateQuantizePass(this));
   pPM.add(createUpdateCtablePass(this));
 
   return;

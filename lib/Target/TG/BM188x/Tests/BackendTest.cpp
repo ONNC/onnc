@@ -103,7 +103,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     PassManager pm(registry);
 
     pm.add(CreateRemoveTrainingNodesPass());
-    pm.add(createAddDummyWeightPass( &test_backend ));
+    pm.add(CreateAddDummyWeightPass());
     pm.add(CreateUpdateGraphOutputSizePass());
     pm.add(createPrepareCtablePass( &test_backend ));
     pm.add(createONNXFuseOptPass( &test_backend ));

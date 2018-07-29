@@ -57,9 +57,12 @@ private:
   TargetTransformInfo *m_pTTI; // NOLINT
 };
 
+//===----------------------------------------------------------------------===//
+// Factory Methods
+//===----------------------------------------------------------------------===//
 ModulePass *createPrepareCtablePass(BM1880Backend *pBackend);
 ModulePass *createUpdateCtablePass(BM1880Backend *pBackend);
-ModulePass *createAddDummyWeightPass(BM1880Backend *pBackend);
+ModulePass *CreateAddDummyWeightPass();
 
 } // namespace onnc
 
