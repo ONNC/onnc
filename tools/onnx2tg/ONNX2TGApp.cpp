@@ -79,7 +79,7 @@ int ONNX2TG::compile()
 
   PassManager pm;
 
-  TargetBackend *backend = target->createBackend(m_Config.getOptions());
+  TargetBackend *backend = target->createBackend(m_Config.target());
   backend->addTensorSel(pm);
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);

@@ -35,7 +35,9 @@ private:
 Pass::ReturnType PrepareCtable::runOnModule(Module &pModule)
 {
   auto ctable = m_pBackend->getCtable(pModule);
-  if (m_pBackend->getOption().m_AddDummyCTable) {
+  /// XXX: this makes the pass logic difficult to trace.
+  /// The condition should move to backend.
+  if (m_pBackend->getOption().shouldUseDummyCTable()) {
     if (not ctable.empty()) {
       std::cerr << "error: ctable exist!" << std::endl;
       exit(1);

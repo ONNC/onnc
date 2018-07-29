@@ -59,7 +59,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
   onnc::onnx::Reader reader;
 
   TargetOptions options;
-  options.m_AddDummyWeight = true;
+  options.useDummyWeight(true);
 
   // BM188xBackend passes, the golden.
   onnc::Module golden_module;
@@ -111,7 +111,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     pm.add(CreateQuantizePass( &test_backend ));
     pm.add(createUpdateCtablePass( &test_backend ));
     pm.add(CreateGlobalMemAllocPass( &test_backend ));
-    pm.add(createTGCodeEmitPass( &test_backend, "-" ));
+    pm.add(CreateTGCodeEmitPass( &test_backend, "-" ));
 
     // Print pass names in execution order.
     errs() << "ExecutionOrder: ";

@@ -32,23 +32,9 @@ public:
 
   void setMarch(const std::string &pArch) { m_Arch = pArch; }
 
-  bool PrintModuleBeforeISel() const;
+  onnc::TargetOptions &target();
 
-  void setPrintModuleBeforeISel(bool pSet);
-
-  bool IgnoreCalibrationStep() const;
-
-  void setIgnoreCalibrationStep(bool pSet);
-
-  bool AddDummyCTable() const;
-
-  void setAddDummyCTable(bool pSet);
-
-  bool AddDummyWeight() const;
-
-  void setAddDummyWeight(bool pSet);
-
-  onnc::TargetOptions &getOptions();
+  const onnc::TargetOptions &target() const;
 
 private:
   std::string m_Input;

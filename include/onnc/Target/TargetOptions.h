@@ -12,21 +12,47 @@ namespace onnc {
 
 /** \class TargetOptions
  *  \brief TargetOptions stores settings of a compiler
- *  XXX: should it be in Target/ or Core/?
  */
 class TargetOptions
 {
 public:
+  TargetOptions();
 
-  // PrintModuleBeforeSel- print module before target lowering pass in backend
-  bool m_PrintModuleBeforeSel{ false };
+  TargetOptions(const TargetOptions& pCopy);
 
-  // IgnoreCalibrationStep
-  bool m_IgnoreCalibrationStep{ false };
+  TargetOptions& operator=(const TargetOptions& pCopy);
 
-  bool m_AddDummyCTable{ false };
+  ~TargetOptions() { }
 
-  bool m_AddDummyWeight{ false };
+  /// The property holds whether printing module before tensor selection
+  bool shouldPrintBeforeTensorSel() const { return m_PrintModuleBeforeSel; }
+
+  void printBeforeTensorSel(bool pEnable = true) {
+    m_PrintModuleBeforeSel = pEnable;
+  }
+
+  /// This property holds whether ignoring calibration step
+  bool shouldIgnoreCalibrationStep() const { return m_IgnoreCalibrationStep; }
+
+  void ignoreCalibrationStep(bool pEnable = true) {
+    m_IgnoreCalibrationStep = pEnable;
+  }
+
+  /// This property holds whether adding dummy CTable
+  bool shouldUseDummyCTable() const { return m_AddDummyCTable; }
+
+  void useDummyCTable(bool pEnable = true) { m_AddDummyCTable = pEnable; }
+
+  /// This property holds whether adding dummy weight
+  bool shouldUseDummyWeight() const { return m_AddDummyWeight; }
+
+  void useDummyWeight(bool pEnable = true) { m_AddDummyWeight = pEnable; }
+
+private:
+  bool m_PrintModuleBeforeSel;
+  bool m_IgnoreCalibrationStep;
+  bool m_AddDummyCTable;
+  bool m_AddDummyWeight;
 };
 
 } // namespace onnc

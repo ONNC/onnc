@@ -59,7 +59,8 @@ static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
 
 Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 {
-  if (not m_pBackend->getOption().m_AddDummyWeight)
+  /// XXX: this condition should move to backend.
+  if (!m_pBackend->getOption().shouldUseDummyWeight())
     return Pass::kModuleNoChanged;
 
   auto &meta_data = pModule.getMetaData();

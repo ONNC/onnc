@@ -111,10 +111,10 @@ int main(int pArgc, char *pArgv[])
   // set up output
   onnx2tg.options().setOutput(OFN);
   onnx2tg.options().setMarch(march);
-  onnx2tg.options().setPrintModuleBeforeISel(printModuleBeforeISel);
-  onnx2tg.options().setIgnoreCalibrationStep(IgnoreCalibrationStep);
-  onnx2tg.options().setAddDummyCTable(AddDummyCTable);
-  onnx2tg.options().setAddDummyWeight(AddDummyWeight);
+  onnx2tg.options().target().printBeforeTensorSel(printModuleBeforeISel);
+  onnx2tg.options().target().ignoreCalibrationStep(IgnoreCalibrationStep);
+  onnx2tg.options().target().useDummyCTable(AddDummyCTable);
+  onnx2tg.options().target().useDummyWeight(AddDummyWeight);
 
 #ifdef BMONNC_EXIST
   foo();

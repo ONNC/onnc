@@ -10,31 +10,16 @@
 //===----------------------------------------------------------------------===//
 // Config
 //===----------------------------------------------------------------------===//
-Config::Config() : m_Input(), m_Output() {}
-bool Config::PrintModuleBeforeISel() const
-{
-  return m_Options.m_PrintModuleBeforeSel;
+Config::Config()
+  : m_Input(), m_Output() {
 }
 
-void Config::setPrintModuleBeforeISel(bool pSet)
+onnc::TargetOptions &Config::target()
 {
-  m_Options.m_PrintModuleBeforeSel = pSet;
+  return m_Options;
 }
 
-bool Config::IgnoreCalibrationStep() const
+const onnc::TargetOptions &Config::target() const
 {
-  return m_Options.m_IgnoreCalibrationStep;
+  return m_Options;
 }
-
-void Config::setIgnoreCalibrationStep(bool pSet)
-{
-  m_Options.m_IgnoreCalibrationStep = pSet;
-}
-
-bool Config::AddDummyCTable() const { return m_Options.m_AddDummyCTable; }
-void Config::setAddDummyCTable(bool pSet) { m_Options.m_AddDummyCTable = pSet; }
-
-bool Config::AddDummyWeight() const { return m_Options.m_AddDummyWeight; }
-void Config::setAddDummyWeight(bool pSet) { m_Options.m_AddDummyWeight = pSet; }
-
-onnc::TargetOptions &Config::getOptions() { return m_Options; }
