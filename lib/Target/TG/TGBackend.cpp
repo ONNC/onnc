@@ -33,6 +33,7 @@ TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
 
 TGBackend::~TGBackend()
 {
+  m_Instructions.clear();
   for (auto &memOp : m_MemOperands) {
     delete (memOp);
   }

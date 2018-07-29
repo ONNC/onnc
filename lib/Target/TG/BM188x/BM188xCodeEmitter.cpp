@@ -360,8 +360,6 @@ void BM188xCodeEmitter::encodeInstructions(std::ostream &pOS)
     ::bmnet::bmnet_asm::asm_context::get_context().name = i->getLayerName();
     i->emit();
   }
-  /// XXX: don't clear outside object
-  m_Instructions.clear();
 }
 
 void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
