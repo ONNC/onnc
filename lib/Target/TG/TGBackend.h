@@ -34,7 +34,10 @@ const int GLOBAL_WEIGHT_TAG = 0x2;
 class TGBackend : public DLATargetBackend
 {
 public:
-  TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
+  typedef std::vector<std::unique_ptr<ComputeOperator2> > Instructions;
+
+public:
+  TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE, Instructions& pInsns,
             const TargetOptions &pOptions);
 
   ~TGBackend() override;
@@ -91,7 +94,7 @@ public:
   LowerPass_t getTargetLower() const { return m_ReplaceTargetLower; }
 
 private:
-  std::vector<std::unique_ptr<ComputeOperator2> > m_Instructions;
+  Instructions& m_Instructions;
   std::vector<MemOperand *> m_MemOperands;
   TargetLowering *m_pTLI; // NOLINT
   TGCodeEmitter *m_pCE;   // NOLINT

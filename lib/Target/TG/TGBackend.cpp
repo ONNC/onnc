@@ -22,8 +22,9 @@ using namespace onnc;
 // TGBackend
 //===----------------------------------------------------------------------===//
 TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
-                     const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_pTLI(pTLI), m_pCE(pCE)
+                     Instructions& pInsns, const TargetOptions &pOptions)
+    : DLATargetBackend(pOptions), m_Instructions(pInsns), m_pTLI(pTLI),
+      m_pCE(pCE)
 {
   m_ReplaceTargetLower = nullptr;
 }
@@ -122,17 +123,20 @@ MemOperand *TGBackend::getMemOperand(const ::onnx::Value *pValue,
 //===----------------------------------------------------------------------===//
 TargetBackend *CreateTGBM1680Backend(const TargetOptions &pOptions)
 {
-  return new BM1680Backend(pOptions);
+  static TGBackend::Instructions insns;
+  return new BM1680Backend(insns, pOptions);
 }
 
 TargetBackend *CreateTGBM1682Backend(const TargetOptions &pOptions)
 {
-  return new BM1682Backend(pOptions);
+  static TGBackend::Instructions insns;
+  return new BM1682Backend(insns, pOptions);
 }
 
 TargetBackend *CreateTGBM1880Backend(const TargetOptions &pOptions)
 {
-  return new BM1880Backend(pOptions);
+  static TGBackend::Instructions insns;
+  return new BM1880Backend(insns, pOptions);
 }
 
 extern "C" void InitializeTGONNCBackend()

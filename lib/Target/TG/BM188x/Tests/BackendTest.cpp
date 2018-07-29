@@ -63,7 +63,8 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
 
   // BM188xBackend passes, the golden.
   onnc::Module golden_module;
-  BM1880Backend golden_backend(options);
+  TGBackend::Instructions golden_insns;
+  BM1880Backend golden_backend(golden_insns, options);
   {
     SystemError err = reader.parse(path, golden_module);
     ASSERT_TRUE(err.isGood());
@@ -94,7 +95,8 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
   
   // passes under test
   onnc::Module test_module;
-  BM1880Backend test_backend(options);
+  TGBackend::Instructions test_insns;
+  BM1880Backend test_backend(test_insns, options);
   {
     SystemError err = reader.parse(path, test_module);
     ASSERT_TRUE(err.isGood());
