@@ -21,6 +21,9 @@ class TargetTransformInfo;
 class BM1880Backend : public TGBackend
 {
 public:
+  using LayerCtable = tg::bm1880::LayerCalibrationParameter;
+
+public:
   BM1880Backend(TGBackend::Instructions& pInsns,
                 TGBackend::ComputeOperators& pCOps,
                 const TargetOptions &pOptions);
@@ -41,11 +44,9 @@ public:
 
   void setCtableProto(const std::string &pTextString) override;
 
-  tg::bm1880::LayerCalibrationParameter *
-  getMutableLayerCtable(const std::string &pName);
+  LayerCtable* getMutableLayerCtable(const std::string &pName);
 
-  const tg::bm1880::LayerCalibrationParameter *
-  getLayerCtable(const std::string &pName);
+  const LayerCtable* getLayerCtable(const std::string &pName);
 
   const TargetTransformInfo *getTTI() const override { return m_pTTI; }
 

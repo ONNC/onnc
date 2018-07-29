@@ -102,7 +102,7 @@ void BM1880Backend::setCtableProto(const std::string &pTextString)
                                                   &m_NetCtableParam);
 }
 
-tg::bm1880::LayerCalibrationParameter *
+BM1880Backend::LayerCtable *
 BM1880Backend::getMutableLayerCtable(const std::string &pName)
 {
   for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
@@ -115,7 +115,7 @@ BM1880Backend::getMutableLayerCtable(const std::string &pName)
   return nullptr;
 }
 
-const tg::bm1880::LayerCalibrationParameter *
+const BM1880Backend::LayerCtable *
 BM1880Backend::getLayerCtable(const std::string &pName)
 {
   for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
