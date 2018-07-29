@@ -1,8 +1,16 @@
+//===- TGCodeEmitter.h ----------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_CODE_EMITTER_H
 #define ONNC_TARGET_TG_CODE_EMITTER_H
-#include <memory>
-#include <onnc/Support/Path.h>
+#include <onnx/common/ir.h>
 #include <vector>
+#include <string>
+#include <ostream>
 
 namespace onnc {
 
@@ -11,12 +19,7 @@ class TGBackend;
 class TGCodeEmitter
 {
 public:
-  TGCodeEmitter(TGBackend *pBackend)
-  {
-    (void)pBackend; // WIP
-  }
-
-  virtual ~TGCodeEmitter() = default;
+  virtual ~TGCodeEmitter() = 0; //< pure interface
 
   virtual void encodeInstructions(::std::ostream &pOS) = 0;
 
@@ -24,10 +27,6 @@ public:
 
   virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph,
                               std::ostream &pOS) = 0;
-
-private:
-  // void *m_BmkernelHandle;
-  // TGBackend *m_pBackend; // NOLINT
 };
 
 } // namespace onnc

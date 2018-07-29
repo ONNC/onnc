@@ -16,6 +16,11 @@
 
 using namespace onnc;
 
+BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
+    : TGCodeEmitter(), m_Backend(pBackend)
+{
+}
+
 float BM188xCodeEmitter::getThreshold(const std::string &pOnncLayerName)
 {
 
@@ -221,11 +226,6 @@ static onnc::json::Object genFallbackPlan(std::string pONNCLast,
   }
 
   return jExeSteps;
-}
-
-BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
-    : TGCodeEmitter(pBackend), m_Backend(pBackend)
-{
 }
 
 //#define DEBUG_WEIGHT_BIN

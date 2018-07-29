@@ -7,7 +7,7 @@
 using namespace onnc;
 
 BM168xCodeEmitter::BM168xCodeEmitter(TGBackend *pBackend)
-    : TGCodeEmitter(pBackend), m_pBackend(pBackend)
+    : TGCodeEmitter(), m_pBackend(pBackend)
 {
 }
 
