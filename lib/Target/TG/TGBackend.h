@@ -16,6 +16,7 @@
 #include <onnc/Support/Path.h>
 #include <onnc/Target/DLATargetBackend.h>
 #include <onnc/Target/TargetOptions.h>
+#include <onnc/IR/ComputeOperator.h>
 #include <onnx/common/ir.h>
 #include <string>
 #include <vector>
@@ -35,10 +36,11 @@ class TGBackend : public DLATargetBackend
 {
 public:
   typedef std::vector<std::unique_ptr<ComputeOperator2> > Instructions;
+  typedef std::vector<ComputeOperator*> ComputeOperators;
 
 public:
   TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE, Instructions& pInsns,
-            const TargetOptions &pOptions);
+            ComputeOperators& pCOps, const TargetOptions &pOptions);
 
   ~TGBackend() override;
 
@@ -93,8 +95,11 @@ public:
 
   LowerPass_t getTargetLower() const { return m_ReplaceTargetLower; }
 
-private:
+protected:
   Instructions& m_Instructions;
+  ComputeOperators& m_ComputeOperators;
+
+private:
   std::vector<MemOperand *> m_MemOperands;
   TargetLowering *m_pTLI; // NOLINT
   TGCodeEmitter *m_pCE;   // NOLINT

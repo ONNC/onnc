@@ -21,7 +21,9 @@ class TargetTransformInfo;
 class BM1880Backend : public TGBackend
 {
 public:
-  BM1880Backend(TGBackend::Instructions& pInsns, const TargetOptions &pOptions);
+  BM1880Backend(TGBackend::Instructions& pInsns,
+                TGBackend::ComputeOperators& pCOps,
+                const TargetOptions &pOptions);
 
   ~BM1880Backend() override = default;
 
