@@ -10,7 +10,6 @@
 #include "ComputeOperator.h"
 #include "TGCodeEmitter.h"
 #include "TGFuseOptimizer.h"
-#include "TargetLowering.h"
 #include "GlobalMemAllocPass.h"
 #include <memory>
 #include <onnc/Support/Path.h>
@@ -36,7 +35,8 @@ class TGBackend : public DLATargetBackend
 {
 public:
   typedef std::vector<std::unique_ptr<ComputeOperator2> > Instructions;
-  typedef std::vector<ComputeOperator*> ComputeOperators;
+  typedef std::vector<MemOperand *> MemOperands;
+  typedef std::vector<ComputeOperator *> ComputeOperators;
 
 public:
   TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE, Instructions& pInsns,
@@ -49,11 +49,6 @@ public:
   void addCodeEmit(PassManager &pPM, const Path &pOutputFile) override;
 
   void addMemAlloc(PassManager &pPM) override;
-
-  std::vector<std::unique_ptr<ComputeOperator2> > &getInsts()
-  {
-    return m_Instructions;
-  }
 
   std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; }
 
@@ -95,12 +90,14 @@ public:
 
   LowerPass_t getTargetLower() const { return m_ReplaceTargetLower; }
 
+  Instructions& getInsts() { return m_Instructions; }
+
 protected:
   Instructions& m_Instructions;
   ComputeOperators& m_ComputeOperators;
+  MemOperands m_MemOperands;
 
 private:
-  std::vector<MemOperand *> m_MemOperands;
   TargetLowering *m_pTLI; // NOLINT
   TGCodeEmitter *m_pCE;   // NOLINT
   Path m_OutputPath;

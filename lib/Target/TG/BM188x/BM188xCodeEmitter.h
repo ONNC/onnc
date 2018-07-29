@@ -24,7 +24,9 @@ public:
                                 std::vector<int8_t> &pWeight);
   static void prepare16bitWeight(const MemOperand *pMemOp,
                                  std::vector<int8_t> &pWeight);
-  BM188xCodeEmitter(BM1880Backend *pBackend);
+
+public:
+  BM188xCodeEmitter(BM1880Backend *pBackend, BM1880Backend::Instructions& pInsns);
 
   ~BM188xCodeEmitter() override = default;
 
@@ -49,6 +51,7 @@ private:
 private:
   // void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
+  BM1880Backend::Instructions& m_Instructions;
   std::vector<int8_t> m_WeightData;
 };
 

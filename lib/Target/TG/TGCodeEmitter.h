@@ -14,8 +14,6 @@
 
 namespace onnc {
 
-class TGBackend;
-
 class TGCodeEmitter
 {
 public:

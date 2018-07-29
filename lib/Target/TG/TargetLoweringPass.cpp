@@ -1,5 +1,13 @@
+//===- TargetLoweringPass.cpp ---------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include "TG.h"
 #include "TGBackend.h"
+#include "TargetLowering.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnx/common/ir.h>
@@ -23,7 +31,7 @@ public:
     TargetLowering *TLI = m_pTarget->getTargetLowering();
     TLI->PrepareISelLowering(pModule);
     ::onnx::Graph *graph = pModule.getGraphIR().get();
-    TLI->ISelLowering(graph);
+    TLI->ISelLowering(graph, m_pTarget->getInsts());
     return Pass::kModuleNoChanged;
   }
 

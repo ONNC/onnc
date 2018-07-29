@@ -10,6 +10,7 @@
 #include "BM188x/BM188xBackend.h"
 #include "TG.h"
 #include "TargetInfo/TGTargetInfo.h"
+#include "TargetLowering.h"
 #include <algorithm>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>

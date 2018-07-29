@@ -16,8 +16,9 @@
 
 using namespace onnc;
 
-BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend)
-    : TGCodeEmitter(), m_Backend(pBackend)
+BM188xCodeEmitter::BM188xCodeEmitter(BM1880Backend *pBackend,
+                                     BM1880Backend::Instructions& pInsns)
+    : TGCodeEmitter(), m_Backend(pBackend), m_Instructions(pInsns)
 {
 }
 
@@ -40,8 +41,9 @@ std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
                                                  const onnx::Value *pValue)
 {
   std::string onnx_layer_name = pValue->uniqueName();
-  auto &instList = m_Backend->getInsts();
-  for (auto inst = instList.rbegin(); inst != instList.rend(); ++inst) {
+  for (auto inst = m_Instructions.rbegin();
+       inst != m_Instructions.rend();
+       ++inst) {
     if (inst->get()->getLayerName() == onnx_layer_name) {
       return onnx_layer_name;
     }
@@ -291,7 +293,7 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
   pWeight.reserve(weight_size);
 
   // TODO save the weight on the address of MemOperand
-  for (auto &inst : m_Backend->getInsts()) {
+  for (auto &inst : m_Instructions) {
 
     // handle special case
     if (inst->getTypeName() == "Conv") {
@@ -350,21 +352,24 @@ void BM188xCodeEmitter::genWeightBin(const std::string &pOutputFilename)
 
 void BM188xCodeEmitter::encodeInstructions(std::ostream &pOS)
 {
-  auto &instList = m_Backend->getInsts();
-  if (instList.empty())
+  if (m_Instructions.empty())
     return;
 
   ::bmnet::bmnet_asm::asm_context::get_context().set_fp(pOS);
-  for (auto const &i : instList) {
+  for (auto const &i : m_Instructions) {
     ::bmnet::bmnet_asm::asm_context::get_context().name = i->getLayerName();
     i->emit();
   }
-  instList.clear();
+  /// XXX: don't clear outside object
+  m_Instructions.clear();
 }
 
 void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
                                        std::ostream &pOS)
 {
+  if (m_Instructions.empty())
+    return;
+
   onnc::json::Object jRoot;
   onnc::json::Object jMemLayout;
   onnc::json::Object jInputThres;
@@ -373,10 +378,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   onnc::json::Object jBatch;
   onnc::json::Object jFallback;
   // Generate memory layout.
-  auto &instList = m_Backend->getInsts();
-  if (instList.empty())
-    return;
-  for (auto const &inst : instList) {
+  for (auto const &inst : m_Instructions) {
     onnc::json::Object jLayer;
     for (auto &mem : inst->getMemOperands()) {
       onnc::json::Object jMem;
