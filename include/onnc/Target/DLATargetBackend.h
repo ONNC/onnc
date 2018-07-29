@@ -16,12 +16,14 @@ class TargetOptions;
 class DLATargetBackend : public TargetBackend
 {
 public:
-  DLATargetBackend(const TargetOptions &pOptions) : TargetBackend(pOptions) {}
+  DLATargetBackend(const TargetOptions &pOptions)
+    : TargetBackend(pOptions) {
+  }
 
   virtual ~DLATargetBackend(){}
 
-  /// This is not a constant function. Because there in case memory emulator must change its
-  /// internal state.
+  /// This is not a constant function. Because there in case memory emulator
+  /// must change its internal state.
   TargetMemInfo* getMemInfo() { return m_pMemInfo; }
 
   const TargetMemInfo* getMemInfo() const { return m_pMemInfo; }
