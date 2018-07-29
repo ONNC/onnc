@@ -1,4 +1,3 @@
-lib/Target/TG/BM188x/BM188xCodeEmitter.cpp
 set(bm_target_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
 set(bm_PYTHONPATH ${bm_target_path}/target)
 set(tg_root ${CMAKE_CURRENT_SOURCE_DIR})
