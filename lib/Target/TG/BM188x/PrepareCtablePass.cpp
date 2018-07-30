@@ -144,7 +144,15 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
       layer_cal_param->set_right_shift_width(0);
       // Do nothing.
     } else if (symbol == onnx::Symbol("LRN")) {
-      // FIXME: fp.tsai@iclink.tw
+      auto add_blob = [&](std::string pN) {
+        tg::bm1880::BlobParameter *out_blob_param =
+            layer_cal_param->add_blob_param();
+        out_blob_param->set_name(pN);
+        out_blob_param->set_threshold_y(1);
+      };
+      add_blob("sq");
+      add_blob("sum_sq");
+      add_blob("scale");
     } else {
       // FIXME: Add assert in the future.
       errs() << "Error: Unsupport op type " << node->kind().toString()
