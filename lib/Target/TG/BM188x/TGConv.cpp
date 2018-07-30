@@ -187,19 +187,19 @@ void TGConv::prepareWeight(std::vector<int8_t> &pWeight)
   // 16bit bias
   if (m_DoBias == 1) {
     auto *mem_op = m_MemOperands[m_BiasIdx];
-    BM188xCodeEmitter::prepare16bitWeight(*mem_op, pWeight);
+    Weight::prepare16bitWeight(*mem_op, pWeight);
   }
 
   // 8bit scale bias
   if (m_DoScale == 1) {
     auto *mem_op = m_MemOperands[m_ScaleIdx];
-    BM188xCodeEmitter::prepare8bitWeight(*mem_op, pWeight);
+    Weight::prepare8bitWeight(*mem_op, pWeight);
   }
 
   // 16bit scale bias
   if (m_DoScaleBias == 1) {
     auto *mem_op = m_MemOperands[m_ScaleBiasIdx];
-    BM188xCodeEmitter::prepare16bitWeight(*mem_op, pWeight);
+    Weight::prepare16bitWeight(*mem_op, pWeight);
   }
 }
 

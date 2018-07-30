@@ -2,6 +2,7 @@
 #define BM188X_CODE_EMITTER_H
 #include "BM188xBackend.h"
 #include "TGCodeEmitter.h"
+#include "Weight.h"
 #include <memory>
 #include <onnc/JSON/Object.h>
 #include <onnc/Support/Path.h>
@@ -20,13 +21,6 @@ class BM1880Backend;
 class BM188xCodeEmitter : public TGCodeEmitter
 {
 public:
-  typedef std::vector<int8_t> Weight;
-
-public:
-  static void prepare8bitWeight(const MemOperand &pMemOp, Weight &pWeight);
-  static void prepare16bitWeight(const MemOperand &pMemOp, Weight &pWeight);
-
-public:
   BM188xCodeEmitter(BM1880Backend *pBackend, BM1880Backend::Instructions& pInsns);
 
   ~BM188xCodeEmitter() override = default;
@@ -35,8 +29,6 @@ public:
                       std::ostream &pOS) override;
 
   void encodeInstructions(std::ostream &pOS) override;
-
-  void prepareWeight(Weight &pWeight);
 
   void genWeightBin(const std::string &pOutputFilename) override;
 
@@ -53,7 +45,6 @@ private:
   // void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
   BM1880Backend::Instructions& m_Instructions;
-  Weight m_WeightData;
 };
 
 class bm1880_kernel

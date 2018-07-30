@@ -35,6 +35,7 @@ add_libonnc_src(
     TGSum.cpp
     TGPRelu.cpp
     TGScale.cpp
+    Weight.cpp
     Compute/AveragePool.cpp
     Compute/Concat.cpp
     Compute/Conv.cpp
