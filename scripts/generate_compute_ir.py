@@ -227,6 +227,117 @@ def gen_compute_ir_visitor(operator_schemas, template_filename, dist):
   template_file.close()
   return
 
+
+# TODO: Refactor
+def gen_tensor_sel_substitution_hash(schema):
+  hash = {
+    'OperatorName': schema.name,
+    'OPERATORNAME': schema.name.upper(),
+  }
+
+  # ========== Input Output ==============
+
+  # Check number of i/o
+  def check_number_of_io(io_schemas, io_type):
+    # Using the same logic as ONNX schema
+    local_hash = { 'io_type': io_type }
+    arg_min = 0
+    arg_max = 0
+    for io_schema in io_schemas:
+      if io_schema.option == OpSchema.FormalParameterOption.Single:
+        arg_max += 1
+        arg_min = arg_max
+      elif io_schema.option == OpSchema.FormalParameterOption.Optional:
+        arg_max += 1
+      elif io_schema.option == OpSchema.FormalParameterOption.Variadic:
+        # ONNX said "Only last formal parameter could be variadic."
+        local_hash['arg_min'] = arg_max + 1
+        return 'pNode.{io_type}s().size() < {arg_min}'.format(**local_hash)
+    if arg_min == arg_max:
+      local_hash['arg_min'] = arg_min
+      return 'pNode.{io_type}s().size() != {arg_min}'.format(**local_hash)
+    else:
+      local_hash['arg_min'] = arg_min
+      local_hash['arg_max'] = arg_max
+      return 'pNode.{io_type}s().size() < {arg_min} || {arg_max} < pNode.{io_type}s().size()'.format(**local_hash)
+
+  hash['CheckInputNum'] = check_number_of_io(schema.inputs, 'input')
+  hash['CheckOutputNum'] = check_number_of_io(schema.outputs, 'output')
+
+  # ========== end of Input Output ==============
+
+
+  # ========== Attributes ==============
+  attrs = []
+  if schema.attributes:
+    attrs = [attr for _, attr in sorted(schema.attributes.items())]
+  required_attrs = filter(lambda attr: attr.required, attrs)
+  optional_attrs = filter(lambda attr: not attr.required, attrs)
+
+  flatten = lambda l: [item for sublist in l for item in sublist]
+
+  def attr_type_getter(attr):
+    return {
+      OpSchema.AttrType.FLOAT: 'f',
+      OpSchema.AttrType.INT: 'i',
+      OpSchema.AttrType.STRING: 's',
+      OpSchema.AttrType.TENSOR: 't',
+      OpSchema.AttrType.GRAPH: 'g',
+      OpSchema.AttrType.FLOATS: 'fs',
+      OpSchema.AttrType.INTS: 'is',
+      OpSchema.AttrType.STRINGS: 'ss',
+      OpSchema.AttrType.TENSORS: 'ts',
+      OpSchema.AttrType.GRAPHS: 'gs',
+    }[attr.type]
+
+  def for_attr(attrs, cb):
+    def transform_attr(attr):
+      return {
+        'attr_name': attr.name,
+        'AttrName': to_camel_case(attr.name),
+        'attr_type_getter': attr_type_getter(attr)
+      }
+    return [cb(transform_attr(attr)) for attr in attrs]
+
+  hash['CheckDefaultAttributes'] = '\n  '.join(flatten(
+    for_attr(required_attrs, lambda attr: [
+      'if (!pNode.hasAttribute(::onnx::Symbol("{attr_name}")))'.format(**attr),
+      '  return nullptr;',
+    ])
+  ))
+
+  hash['CreateOperator'] = ''.join(
+    for_attr(required_attrs, lambda attr:
+      '\n    pNode.{attr_type_getter}(::onnx::Symbol("{attr_name}"))'.format(**attr)
+    )
+  )
+
+  hash['SetOptionalAttributes'] = '\n  '.join(flatten(
+    for_attr(optional_attrs, lambda attr: [
+      'if (pNode.hasAttribute(::onnx::Symbol("{attr_name}")))'.format(**attr),
+      '  op->set{AttrName}(pNode.{attr_type_getter}(::onnx::Symbol("{attr_name}")));'.format(**attr),
+    ])
+  ))
+
+  # ========== end of Attributes ==============
+
+  return hash
+
+def gen_tensor_sel(operator_schemas, template_filename, dist):
+  # TODO: Refactor to simple data structure and simple for loop
+  for domain, supportmap in operator_schemas:
+    for _, namemap in supportmap:
+      for op_type, schema, versions in namemap:
+        substitution_hash = gen_tensor_sel_substitution_hash(schema)
+
+        template_file = open(template_filename)
+        template_str = template_file.read()
+        out_file = open(Template(dist).substitute(substitution_hash), 'w')
+        out_file.write(Template(template_str).substitute(substitution_hash))
+        out_file.close()
+        template_file.close()
+
+
 if __name__ == '__main__':
   # domain -> support level -> name -> [schema]
   index = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))  # type: Dict[Text, Dict[int, Dict[Text, List[OpSchema]]]]
@@ -263,3 +374,9 @@ if __name__ == '__main__':
   gen_compute_ir(operator_schemas, 'ComputeIRTemplate.cpp', 'ComputeIR.cpp/${OperatorName}.cpp')
   # TODO: better template engine
   gen_compute_ir_visitor(operator_schemas, 'ComputeVisitorTemplate.h', 'ComputeVisitor.h')
+  if not os.path.exists("Lower.h"):
+    os.makedirs("Lower.h")
+  gen_tensor_sel(operator_schemas, 'LowerTemplate.h', 'Lower.h/${OperatorName}Lower.h')
+  if not os.path.exists("Lower.cpp"):
+    os.makedirs("Lower.cpp")
+  gen_tensor_sel(operator_schemas, 'LowerTemplate.cpp', 'Lower.cpp/${OperatorName}Lower.cpp')
