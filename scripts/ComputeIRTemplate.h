@@ -21,20 +21,28 @@ public:
     ${IOConst}
   };
 
+  static char ID;
+
 public:
-  ${OperatorName}();
+  ${OperatorName}(${ConstructorRequireAttributes});
 
   // clang-format off
   ${ConstructorByAttributes}
   // clang-format on
+
   // shallow copy constructor.
   ${OperatorName}(const ${OperatorName} &pCopy);
 
   ~${OperatorName}() { }
 
   // clang-format off
+  // Attributes getters
   ${AttributesGetters}
+
+  // Attributes setters
+  ${AttributesSetters}
   // clang-format on
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -44,17 +52,29 @@ public:
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
   // clang-format off
+  // Inputs getters
   ${InputsGetters}
+
+  // Outputs getters
   ${OutputsGetters}
+
+  // Inputs setters
   ${InputsSetters}
+
+  // Outputs setters
   ${OutputsSetters}
   // clang-format on
+
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
-  // clang-format off
+  void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
+
+  static bool classof(const ComputeOperator* pOp);
+
 private:
+  // clang-format off
   ${AttributesMemberVariables}
   // clang-format on
 };

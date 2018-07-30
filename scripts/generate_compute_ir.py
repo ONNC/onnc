@@ -26,9 +26,6 @@ def to_camel_case(snake_str, init_upper = True):
         components[0] = ''.join([components[0][0].upper(), components[0][1:]])
     return components[0] + ''.join(''.join([x[0].upper(), x[1:]]) for x in components[1:])
 
-def format_attr_type(attr_type):
-    return to_camel_case(str(attr_type).rsplit('.', 1)[-1].lower())+'Attr'
-
 def gen_compute_ir_substitution_hash(schema):
   hash = {
     'OperatorName': schema.name,
@@ -36,11 +33,23 @@ def gen_compute_ir_substitution_hash(schema):
   }
 
   # ========== Input Output ==============
-  def for_io_schema(io_schemas, cb):
+
+  # Check same name
+  alt_name = {}
+  for io_schema in schema.inputs:
+    alt_name[to_camel_case(io_schema.name)] = False
+  for io_schema in schema.outputs:
+    output_name = to_camel_case(io_schema.name)
+    alt_name[output_name] = output_name in alt_name
+
+  def for_io_schema(io_schemas, io, cb):
     def transform_io_schema(idx, io_schema):
+      name = io_schema.name
+      if alt_name[to_camel_case(name)]:
+        name = ('in_' if io == 'i' else 'out_') + name
       return {
         'idx': idx,
-        'io_name': to_camel_case(io_schema.name),
+        'io_name': to_camel_case(name),
         'option': io_schema.option,
       }
     return [cb(transform_io_schema(idx, io_schema)) for idx, io_schema in enumerate(io_schemas)]
@@ -48,7 +57,7 @@ def gen_compute_ir_substitution_hash(schema):
   # ${IOConst}
   def io_const(io_schema):
     return 'k{io_name} = {idx}'.format(**io_schema)
-  hash['IOConst'] = ',\n    '.join(for_io_schema(schema.inputs, io_const) + for_io_schema(schema.outputs, io_const))
+  hash['IOConst'] = ',\n    '.join(for_io_schema(schema.inputs, 'i', io_const) + for_io_schema(schema.outputs, 'o', io_const))
 
   def io_getter(prefix):
     def io_getter_cb(io_schema):
@@ -58,9 +67,9 @@ def gen_compute_ir_substitution_hash(schema):
         return 'Tensor* get{io_name}() {{ return get{prefix}(k{io_name}); }}\n'.format(prefix=prefix, **io_schema)
     return io_getter_cb
   # ${InputsGetters}
-  hash['InputsGetters'] = '\n  '.join(for_io_schema(schema.inputs, io_getter('Input')))
+  hash['InputsGetters'] = '\n  '.join(for_io_schema(schema.inputs, 'i', io_getter('Input')))
   # ${OutputsGetters}
-  hash['OutputsGetters'] = '\n  '.join(for_io_schema(schema.outputs, io_getter('Output')))
+  hash['OutputsGetters'] = '\n  '.join(for_io_schema(schema.outputs, 'o', io_getter('Output')))
 
   def io_setter(prefix):
     def io_setter_cb(io_schema):
@@ -70,67 +79,103 @@ def gen_compute_ir_substitution_hash(schema):
         return 'void set{io_name}(Tensor& pTensor) {{ m_{prefix}s[k{io_name}] = &pTensor; }}\n'.format(prefix = prefix, **io_schema)
     return io_setter_cb
   # ${InputsSetters}
-  hash['InputsSetters'] = '\n  '.join(for_io_schema(schema.inputs, io_setter('Input')))
+  hash['InputsSetters'] = '\n  '.join(for_io_schema(schema.inputs, 'i', io_setter('Input')))
   # ${OutputsSetters}
-  hash['OutputsSetters'] = '\n  '.join(for_io_schema(schema.outputs, io_setter('Output')))
+  hash['OutputsSetters'] = '\n  '.join(for_io_schema(schema.outputs, 'o', io_setter('Output')))
   # ========== end of Input Output ==============
 
   # ========== Attributes ==============
   attrs = []
   if schema.attributes:
     attrs = [attr for _, attr in sorted(schema.attributes.items())]
-  def for_attr(cb):
+  required_attrs = filter(lambda attr: attr.required, attrs)
+
+  def format_attr_type(attr_type):
+      return to_camel_case(str(attr_type).rsplit('.', 1)[-1].lower())+'Attr'
+
+  def format_attr_default_value(attr_dv):
+    if attr_dv.type == 0:
+      return ''
+    elif attr_dv.type == OpSchema.AttrType.STRINGS: # TODO
+      return ''
+    else:
+      return {
+        OpSchema.AttrType.FLOAT: lambda attr: attr.f,
+        OpSchema.AttrType.INT: lambda attr: attr.i,
+        OpSchema.AttrType.STRING: lambda attr: '"' + attr.s + '"',
+      }[attr_dv.type](attr_dv)
+
+  def for_attr(attrs, cb):
     def transform_attr(attr):
       return {
         'attr_type': format_attr_type(attr.type),
         'attr_name': to_camel_case(attr.name),
+        'attr_required': attr.required,
+        'attr_default_value': format_attr_default_value(attr.default_value),
       }
     return [cb(transform_attr(attr)) for attr in attrs]
 
   if schema.attributes:
     # ${AttributesGetters}
-    hash['AttributesGetters'] = '\n  '.join(for_attr(lambda attr:
+    hash['AttributesGetters'] = '\n  '.join(for_attr(attrs, lambda attr:
       'const {attr_type}& get{attr_name}() const {{ return m_{attr_name}; }}\n'.format(**attr)
     ))
 
+    # ${AttributesSetters}
+    hash['AttributesSetters'] = '\n  '.join(for_attr(attrs, lambda attr:
+      'void set{attr_name}(const {attr_type}& p{attr_name}) {{ m_{attr_name} = p{attr_name}; }}\n'.format(**attr)
+    ))
+
     # ${AttributesMemberVariables}
-    hash['AttributesMemberVariables'] = '\n  '.join(for_attr(lambda attr:
+    hash['AttributesMemberVariables'] = '\n  '.join(for_attr(attrs, lambda attr:
       '{attr_type} m_{attr_name};'.format(**attr)
     ))
 
-    indent = ' ' * len(hash['OperatorName'])
-    attrs_params = for_attr(lambda attr: 'const {attr_type}& p{attr_name}'.format(**attr))
+    required_attrs_params = for_attr(required_attrs, lambda attr: 'const {attr_type}& p{attr_name}'.format(**attr))
+    hash['ConstructorRequireAttributes'] = ', '.join(required_attrs_params)
 
-    # ${ConstructorByAttributes}
-    hash['ConstructorByAttributes'] = '{OperatorName}({attrs_params});\n'.format(
-      attrs_params=(',\n   ' + indent).join(attrs_params),
-      **hash
-    )
+    if len(attrs) != len(required_attrs):
+      indent = ' ' * len(hash['OperatorName'])
+      attrs_params = for_attr(attrs, lambda attr: 'const {attr_type}& p{attr_name}'.format(**attr))
+      # ${ConstructorByAttributes}
+      hash['ConstructorByAttributes'] = '{OperatorName}({attrs_params});\n'.format(
+        attrs_params=(',\n   ' + indent).join(attrs_params),
+        **hash
+      )
 
-    # ${ConstructorByAttributesImplementation}
-    hash['ConstructorByAttributesImplementation'] = '''{OperatorName}::{OperatorName}({attrs_params})
-  : ComputeOperator("{OperatorName}"),
+      # ${ConstructorByAttributesImplementation}
+      hash['ConstructorByAttributesImplementation'] = '''{OperatorName}::{OperatorName}({attrs_params})
+  : ComputeOperator("{OperatorName}", ID),
     {attrs_call_constructor} {{
 }}'''.format(
-      attrs_params = (',\n   ' + (indent * 2)).join(attrs_params),
-      attrs_call_constructor = (',\n    ').join(for_attr(lambda attr: 'm_{attr_name}(p{attr_name})'.format(**attr))),
-      **hash
-    )
+        attrs_params = (',\n   ' + (indent * 2)).join(attrs_params),
+        attrs_call_constructor = (',\n    ').join(for_attr(attrs, lambda attr: 'm_{attr_name}(p{attr_name})'.format(**attr))),
+        **hash
+      )
+    else:
+      hash['ConstructorByAttributes'] = ''
+      hash['ConstructorByAttributesImplementation'] = ''
 
-    # ${CallAttributesDefaultConstructor}
-    hash['CallAttributesDefaultConstructor'] = ',\n    ' + (',\n    ').join(for_attr(lambda attr: 'm_{attr_name}()'.format(**attr)))
+    # ${CallAttributesConstructor}
+    hash['CallAttributesConstructor'] = ',\n    ' + (',\n    ').join(
+        for_attr(
+          attrs,
+          lambda attr: ('m_{attr_name}(p{attr_name})' if attr['attr_required'] else 'm_{attr_name}({attr_default_value})').format(**attr)
+        ))
 
     # ${CallAttributesCopyConstructor}
-    hash['CallAttributesCopyConstructor'] = ',\n    ' + (',\n    ').join(for_attr(lambda attr: 'm_{attr_name}(pCopy.get{attr_name}())'.format(**attr)))
+    hash['CallAttributesCopyConstructor'] = ',\n    ' + (',\n    ').join(for_attr(attrs, lambda attr: 'm_{attr_name}(pCopy.get{attr_name}())'.format(**attr)))
 
     # ${PrintAttributes}
-    hash['PrintAttributes'] = ' << "< "' + (' << ", "').join(for_attr(lambda attr: ' << get{attr_name}()'.format(**attr))) + ' << ">"'
+    hash['PrintAttributes'] = ' << "< "' + (' << ", "').join(for_attr(attrs, lambda attr: ' << get{attr_name}()'.format(**attr))) + ' << ">"'
   else:
     hash['AttributesGetters'] = ''
+    hash['AttributesSetters'] = ''
     hash['AttributesMemberVariables'] = ''
+    hash['ConstructorRequireAttributes'] = ''
     hash['ConstructorByAttributes'] = ''
     hash['ConstructorByAttributesImplementation'] = ''
-    hash['CallAttributesDefaultConstructor'] = ''
+    hash['CallAttributesConstructor'] = ''
     hash['CallAttributesCopyConstructor'] = ''
     hash['PrintAttributes'] = ''
   # ========== end of Attributes ==============
@@ -154,6 +199,7 @@ def gen_compute_ir(operator_schemas, template_filename, dist):
 
 def gen_compute_ir_visitor(operator_schemas, template_filename, dist):
   forward_declaration = []
+  const_visitor_member_functions = []
   visitor_member_functions = []
   # TODO: Refactor to simple data structure and simple for loop
   for domain, supportmap in operator_schemas:
@@ -162,11 +208,14 @@ def gen_compute_ir_visitor(operator_schemas, template_filename, dist):
         substitution_hash = gen_compute_ir_substitution_hash(schema)
         # ${forward_declaration}
         forward_declaration.append('class {OperatorName};'.format(**substitution_hash))
+        # ${const_visitor_member_functions}
+        const_visitor_member_functions.append('virtual void visit(const {OperatorName}& p{OperatorName}) {{ }}'.format(**substitution_hash))
         # ${visitor_member_functions}
         visitor_member_functions.append('virtual void visit({OperatorName}& p{OperatorName}) {{ }}'.format(**substitution_hash))
 
   visitor_substitution_hash = {
     'forward_declaration': '\n'.join(forward_declaration),
+    'const_visitor_member_functions': '\n  '.join(const_visitor_member_functions),
     'visitor_member_functions': '\n  '.join(visitor_member_functions),
   }
 
