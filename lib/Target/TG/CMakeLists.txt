@@ -1,4 +1,6 @@
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget/target)
+
 set(bm_target_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
 set(bm_PYTHONPATH ${bm_target_path}/target)
 set(tg_root ${CMAKE_CURRENT_SOURCE_DIR})
