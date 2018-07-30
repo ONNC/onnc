@@ -18,8 +18,15 @@ Reshape::Reshape()
   : ComputeOperator("Reshape", ID) {
 }
 
+
+
+Reshape::Reshape(const Reshape& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Reshape::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Reshape::classof(const ComputeOperator* pOp)

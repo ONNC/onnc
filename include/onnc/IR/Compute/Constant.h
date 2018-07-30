@@ -24,13 +24,26 @@ public:
   static char ID;
 
 public:
-  Constant();
-
   Constant(const TensorAttr& pValue);
+
+  // clang-format off
+  
+  // clang-format on
+
+  // shallow copy constructor.
+  Constant(const Constant &pCopy);
 
   ~Constant() { }
 
+  // clang-format off
+  // Attributes getters
   const TensorAttr& getValue() const { return m_Value; }
+
+
+  // Attributes setters
+  void setValue(const TensorAttr& pValue) { m_Value = pValue; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -40,11 +53,21 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -55,7 +78,9 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   TensorAttr m_Value;
+  // clang-format on
 };
 
 } // namespace of onnc

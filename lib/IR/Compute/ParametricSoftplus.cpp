@@ -27,8 +27,15 @@ ParametricSoftplus::ParametricSoftplus(const FloatAttr& pAlpha,
     m_Beta(pBeta) {
 }
 
+ParametricSoftplus::ParametricSoftplus(const ParametricSoftplus& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Alpha(pCopy.getAlpha()),
+    m_Beta(pCopy.getBeta()) {
+}
+
 void ParametricSoftplus::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
 }
 
 bool ParametricSoftplus::classof(const ComputeOperator* pOp)

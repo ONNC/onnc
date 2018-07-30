@@ -16,7 +16,7 @@ char GlobalLpPool::ID = 0;
 //===----------------------------------------------------------------------===//
 GlobalLpPool::GlobalLpPool()
   : ComputeOperator("GlobalLpPool", ID),
-    m_P() {
+    m_P(2) {
 }
 
 GlobalLpPool::GlobalLpPool(const IntAttr& pP)
@@ -24,8 +24,14 @@ GlobalLpPool::GlobalLpPool(const IntAttr& pP)
     m_P(pP) {
 }
 
+GlobalLpPool::GlobalLpPool(const GlobalLpPool& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_P(pCopy.getP()) {
+}
+
 void GlobalLpPool::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getP() << ">";
 }
 
 bool GlobalLpPool::classof(const ComputeOperator* pOp)

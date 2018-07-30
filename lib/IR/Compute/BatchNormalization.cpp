@@ -16,25 +16,30 @@ char BatchNormalization::ID = 0;
 //===----------------------------------------------------------------------===//
 BatchNormalization::BatchNormalization()
   : ComputeOperator("BatchNormalization", ID),
-    m_Epsilon(1e-5f),
-    m_IsTest(0),
-    m_Momentum(0.9f),
+    m_Epsilon(9.99999974738e-06),
+    m_Momentum(0.899999976158),
     m_Spatial(1) {
 }
 
 BatchNormalization::BatchNormalization(const FloatAttr& pEpsilon,
-                                       const IntAttr& pIsTest,
                                        const FloatAttr& pMomentum,
                                        const IntAttr& pSpatial)
   : ComputeOperator("BatchNormalization", ID),
     m_Epsilon(pEpsilon),
-    m_IsTest(pIsTest),
     m_Momentum(pMomentum),
     m_Spatial(pSpatial) {
 }
 
+BatchNormalization::BatchNormalization(const BatchNormalization& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Epsilon(pCopy.getEpsilon()),
+    m_Momentum(pCopy.getMomentum()),
+    m_Spatial(pCopy.getSpatial()) {
+}
+
 void BatchNormalization::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getEpsilon() << ", " << getMomentum() << ", " << getSpatial() << ">";
 }
 
 bool BatchNormalization::classof(const ComputeOperator* pOp)

@@ -27,14 +27,30 @@ public:
 public:
   MeanVarianceNormalization();
 
+  // clang-format off
   MeanVarianceNormalization(const IntAttr& pAcrossChannels,
                             const IntAttr& pNormalizeVariance);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  MeanVarianceNormalization(const MeanVarianceNormalization &pCopy);
+
   ~MeanVarianceNormalization() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getAcrossChannels() const { return m_AcrossChannels; }
 
   const IntAttr& getNormalizeVariance() const { return m_NormalizeVariance; }
+
+
+  // Attributes setters
+  void setAcrossChannels(const IntAttr& pAcrossChannels) { m_AcrossChannels = pAcrossChannels; }
+
+  void setNormalizeVariance(const IntAttr& pNormalizeVariance) { m_NormalizeVariance = pNormalizeVariance; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_AcrossChannels;
   IntAttr m_NormalizeVariance;
+  // clang-format on
 };
 
 } // namespace of onnc

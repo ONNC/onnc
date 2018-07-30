@@ -17,7 +17,7 @@ char ReduceMean::ID = 0;
 ReduceMean::ReduceMean()
   : ComputeOperator("ReduceMean", ID),
     m_Axes(),
-    m_Keepdims() {
+    m_Keepdims(1) {
 }
 
 ReduceMean::ReduceMean(const IntsAttr& pAxes,
@@ -27,8 +27,15 @@ ReduceMean::ReduceMean(const IntsAttr& pAxes,
     m_Keepdims(pKeepdims) {
 }
 
+ReduceMean::ReduceMean(const ReduceMean& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ReduceMean::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
 }
 
 bool ReduceMean::classof(const ComputeOperator* pOp)

@@ -15,20 +15,18 @@ char Mul::ID = 0;
 // Mul
 //===----------------------------------------------------------------------===//
 Mul::Mul()
-  : ComputeOperator("Mul", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Mul", ID) {
 }
 
-Mul::Mul(const IntAttr& pAxis,
-         const IntAttr& pBroadcast)
-  : ComputeOperator("Mul", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Mul::Mul(const Mul& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Mul::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Mul::classof(const ComputeOperator* pOp)

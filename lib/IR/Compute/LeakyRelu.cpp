@@ -16,7 +16,7 @@ char LeakyRelu::ID = 0;
 //===----------------------------------------------------------------------===//
 LeakyRelu::LeakyRelu()
   : ComputeOperator("LeakyRelu", ID),
-    m_Alpha() {
+    m_Alpha(0.00999999977648) {
 }
 
 LeakyRelu::LeakyRelu(const FloatAttr& pAlpha)
@@ -24,8 +24,14 @@ LeakyRelu::LeakyRelu(const FloatAttr& pAlpha)
     m_Alpha(pAlpha) {
 }
 
+LeakyRelu::LeakyRelu(const LeakyRelu& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Alpha(pCopy.getAlpha()) {
+}
+
 void LeakyRelu::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAlpha() << ">";
 }
 
 bool LeakyRelu::classof(const ComputeOperator* pOp)

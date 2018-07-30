@@ -58,8 +58,6 @@ GemmLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     op->setAlpha(pNode.f(::onnx::Symbol("alpha")));
   if (pNode.hasAttribute(::onnx::Symbol("beta")))
     op->setBeta(pNode.f(::onnx::Symbol("beta")));
-  if (pNode.hasAttribute(::onnx::Symbol("broadcast")))
-    op->setBroadcast(pNode.i(::onnx::Symbol("broadcast")));
   if (pNode.hasAttribute(::onnx::Symbol("transA")))
     op->setTransA(pNode.i(::onnx::Symbol("transA")));
   if (pNode.hasAttribute(::onnx::Symbol("transB")))

@@ -20,8 +20,13 @@ Reciprocal::Reciprocal()
 
 
 
+Reciprocal::Reciprocal(const Reciprocal& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Reciprocal::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Reciprocal::classof(const ComputeOperator* pOp)

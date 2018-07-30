@@ -15,20 +15,18 @@ char Or::ID = 0;
 // Or
 //===----------------------------------------------------------------------===//
 Or::Or()
-  : ComputeOperator("Or", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Or", ID) {
 }
 
-Or::Or(const IntAttr& pAxis,
-       const IntAttr& pBroadcast)
-  : ComputeOperator("Or", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Or::Or(const Or& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Or::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Or::classof(const ComputeOperator* pOp)

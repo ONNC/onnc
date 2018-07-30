@@ -20,8 +20,13 @@ Floor::Floor()
 
 
 
+Floor::Floor(const Floor& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Floor::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Floor::classof(const ComputeOperator* pOp)

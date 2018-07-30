@@ -17,8 +17,8 @@ char RandomNormalLike::ID = 0;
 RandomNormalLike::RandomNormalLike()
   : ComputeOperator("RandomNormalLike", ID),
     m_Dtype(),
-    m_Mean(),
-    m_Scale(),
+    m_Mean(0.0),
+    m_Scale(1.0),
     m_Seed() {
 }
 
@@ -33,8 +33,17 @@ RandomNormalLike::RandomNormalLike(const IntAttr& pDtype,
     m_Seed(pSeed) {
 }
 
+RandomNormalLike::RandomNormalLike(const RandomNormalLike& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Dtype(pCopy.getDtype()),
+    m_Mean(pCopy.getMean()),
+    m_Scale(pCopy.getScale()),
+    m_Seed(pCopy.getSeed()) {
+}
+
 void RandomNormalLike::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getDtype() << ", " << getMean() << ", " << getScale() << ", " << getSeed() << ">";
 }
 
 bool RandomNormalLike::classof(const ComputeOperator* pOp)

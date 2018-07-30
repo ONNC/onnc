@@ -29,33 +29,40 @@ public:
 public:
   Gemm();
 
+  // clang-format off
   Gemm(const FloatAttr& pAlpha,
        const FloatAttr& pBeta,
-       const IntAttr& pBroadcast,
        const IntAttr& pTransA,
        const IntAttr& pTransB);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  Gemm(const Gemm &pCopy);
+
   ~Gemm() { }
 
+  // clang-format off
+  // Attributes getters
   const FloatAttr& getAlpha() const { return m_Alpha; }
 
   const FloatAttr& getBeta() const { return m_Beta; }
-
-  const IntAttr& getBroadcast() const { return m_Broadcast; }
 
   const IntAttr& getTransA() const { return m_TransA; }
 
   const IntAttr& getTransB() const { return m_TransB; }
 
+
+  // Attributes setters
   void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
 
   void setBeta(const FloatAttr& pBeta) { m_Beta = pBeta; }
 
-  void setBroadcast(const IntAttr& pBroadcast) { m_Broadcast = pBroadcast; }
-
   void setTransA(const IntAttr& pTransA) { m_TransA = pTransA; }
 
   void setTransB(const IntAttr& pTransB) { m_TransB = pTransB; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -65,21 +72,31 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getA() { return getInput(kA); }
 
   Tensor* getB() { return getInput(kB); }
 
   Tensor* getC() { return getInput(kC); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setA(Tensor& pTensor) { m_Inputs[kA] = &pTensor; }
 
   void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
 
   void setC(Tensor& pTensor) { m_Inputs[kC] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -90,11 +107,12 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Beta;
-  IntAttr m_Broadcast;
   IntAttr m_TransA;
   IntAttr m_TransB;
+  // clang-format on
 };
 
 } // namespace of onnc

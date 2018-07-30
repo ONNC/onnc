@@ -15,20 +15,18 @@ char Pow::ID = 0;
 // Pow
 //===----------------------------------------------------------------------===//
 Pow::Pow()
-  : ComputeOperator("Pow", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Pow", ID) {
 }
 
-Pow::Pow(const IntAttr& pAxis,
-         const IntAttr& pBroadcast)
-  : ComputeOperator("Pow", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Pow::Pow(const Pow& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Pow::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Pow::classof(const ComputeOperator* pOp)

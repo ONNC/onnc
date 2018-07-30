@@ -14,24 +14,28 @@ char Upsample::ID = 0;
 //===----------------------------------------------------------------------===//
 // Upsample
 //===----------------------------------------------------------------------===//
-Upsample::Upsample(const FloatAttr& pHeightScale, const FloatAttr& pWidthScale)
+Upsample::Upsample(const FloatsAttr& pScales)
   : ComputeOperator("Upsample", ID),
-    m_HeightScale(pHeightScale),
     m_Mode("nearest"),
-    m_WidthScale(pWidthScale) {
+    m_Scales(pScales) {
 }
 
-Upsample::Upsample(const FloatAttr& pHeightScale,
-                   const StringAttr& pMode,
-                   const FloatAttr& pWidthScale)
+Upsample::Upsample(const StringAttr& pMode,
+                   const FloatsAttr& pScales)
   : ComputeOperator("Upsample", ID),
-    m_HeightScale(pHeightScale),
     m_Mode(pMode),
-    m_WidthScale(pWidthScale) {
+    m_Scales(pScales) {
+}
+
+Upsample::Upsample(const Upsample& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Mode(pCopy.getMode()),
+    m_Scales(pCopy.getScales()) {
 }
 
 void Upsample::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getMode() << ", " << getScales() << ">";
 }
 
 bool Upsample::classof(const ComputeOperator* pOp)

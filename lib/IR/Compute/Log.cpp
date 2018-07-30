@@ -20,8 +20,13 @@ Log::Log()
 
 
 
+Log::Log(const Log& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Log::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Log::classof(const ComputeOperator* pOp)

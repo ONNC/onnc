@@ -20,8 +20,13 @@ Cos::Cos()
 
 
 
+Cos::Cos(const Cos& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Cos::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Cos::classof(const ComputeOperator* pOp)

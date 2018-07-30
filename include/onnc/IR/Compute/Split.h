@@ -27,14 +27,30 @@ public:
 public:
   Split();
 
+  // clang-format off
   Split(const IntAttr& pAxis,
         const IntsAttr& pSplit);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  Split(const Split &pCopy);
+
   ~Split() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getAxis() const { return m_Axis; }
 
   const IntsAttr& getSplit() const { return m_Split; }
+
+
+  // Attributes setters
+  void setAxis(const IntAttr& pAxis) { m_Axis = pAxis; }
+
+  void setSplit(const IntsAttr& pSplit) { m_Split = pSplit; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
+
+  // Outputs getters
   Tensor* getOutputs(size_t pIdx) { return getOutput(kOutputs + pIdx); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
+
+  // Outputs setters
   void setOutputs(size_t pIdx, Tensor& pTensor) { m_Outputs[kOutputs + pIdx] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_Axis;
   IntsAttr m_Split;
+  // clang-format on
 };
 
 } // namespace of onnc

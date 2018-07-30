@@ -14,18 +14,21 @@ char Cast::ID = 0;
 //===----------------------------------------------------------------------===//
 // Cast
 //===----------------------------------------------------------------------===//
-Cast::Cast()
-  : ComputeOperator("Cast", ID),
-    m_To() {
-}
-
 Cast::Cast(const IntAttr& pTo)
   : ComputeOperator("Cast", ID),
     m_To(pTo) {
 }
 
+
+
+Cast::Cast(const Cast& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_To(pCopy.getTo()) {
+}
+
 void Cast::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getTo() << ">";
 }
 
 bool Cast::classof(const ComputeOperator* pOp)

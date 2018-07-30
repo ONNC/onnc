@@ -20,8 +20,13 @@ PRelu::PRelu()
 
 
 
+PRelu::PRelu(const PRelu& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void PRelu::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool PRelu::classof(const ComputeOperator* pOp)

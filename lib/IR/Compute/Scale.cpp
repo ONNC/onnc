@@ -16,7 +16,7 @@ char Scale::ID = 0;
 //===----------------------------------------------------------------------===//
 Scale::Scale()
   : ComputeOperator("Scale", ID),
-    m_Scale() {
+    m_Scale(1.0) {
 }
 
 Scale::Scale(const FloatAttr& pScale)
@@ -24,8 +24,14 @@ Scale::Scale(const FloatAttr& pScale)
     m_Scale(pScale) {
 }
 
+Scale::Scale(const Scale& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Scale(pCopy.getScale()) {
+}
+
 void Scale::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getScale() << ">";
 }
 
 bool Scale::classof(const ComputeOperator* pOp)

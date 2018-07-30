@@ -20,8 +20,13 @@ Sqrt::Sqrt()
 
 
 
+Sqrt::Sqrt(const Sqrt& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Sqrt::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Sqrt::classof(const ComputeOperator* pOp)

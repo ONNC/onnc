@@ -29,6 +29,7 @@ public:
 public:
   Conv();
 
+  // clang-format off
   Conv(const StringAttr& pAutoPad,
        const IntsAttr& pDilations,
        const IntAttr& pGroup,
@@ -36,8 +37,15 @@ public:
        const IntsAttr& pPads,
        const IntsAttr& pStrides);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  Conv(const Conv &pCopy);
+
   ~Conv() { }
 
+  // clang-format off
+  // Attributes getters
   const StringAttr& getAutoPad() const { return m_AutoPad; }
 
   const IntsAttr& getDilations() const { return m_Dilations; }
@@ -50,17 +58,21 @@ public:
 
   const IntsAttr& getStrides() const { return m_Strides; }
 
-  void setAutoPad(const StringAttr& pAutoPad)  { m_AutoPad = pAutoPad; }
 
-  void setDilations(const IntsAttr& pDilations)  { m_Dilations = pDilations; }
+  // Attributes setters
+  void setAutoPad(const StringAttr& pAutoPad) { m_AutoPad = pAutoPad; }
 
-  void setGroup(const IntAttr& pGroup)  { m_Group = pGroup; }
+  void setDilations(const IntsAttr& pDilations) { m_Dilations = pDilations; }
 
-  void setKernelShape(const IntsAttr& pKernelShape)  { m_KernelShape = pKernelShape; }
+  void setGroup(const IntAttr& pGroup) { m_Group = pGroup; }
 
-  void setPads(const IntsAttr& pPads)  { m_Pads = pPads; }
+  void setKernelShape(const IntsAttr& pKernelShape) { m_KernelShape = pKernelShape; }
 
-  void setStrides(const IntsAttr& pStrides)  { m_Strides = pStrides; }
+  void setPads(const IntsAttr& pPads) { m_Pads = pPads; }
+
+  void setStrides(const IntsAttr& pStrides) { m_Strides = pStrides; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -70,21 +82,31 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getW() { return getInput(kW); }
 
   Tensor* getB() { return getInput(kB); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
   void setW(Tensor& pTensor) { m_Inputs[kW] = &pTensor; }
 
   void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -95,12 +117,14 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   StringAttr m_AutoPad;
   IntsAttr m_Dilations;
   IntAttr m_Group;
   IntsAttr m_KernelShape;
   IntsAttr m_Pads;
   IntsAttr m_Strides;
+  // clang-format on
 };
 
 } // namespace of onnc

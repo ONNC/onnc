@@ -15,20 +15,18 @@ char Greater::ID = 0;
 // Greater
 //===----------------------------------------------------------------------===//
 Greater::Greater()
-  : ComputeOperator("Greater", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Greater", ID) {
 }
 
-Greater::Greater(const IntAttr& pAxis,
-                 const IntAttr& pBroadcast)
-  : ComputeOperator("Greater", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Greater::Greater(const Greater& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Greater::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Greater::classof(const ComputeOperator* pOp)

@@ -16,7 +16,7 @@ char MaxPool::ID = 0;
 //===----------------------------------------------------------------------===//
 MaxPool::MaxPool(const IntsAttr& pKernelShape)
   : ComputeOperator("MaxPool", ID),
-    m_AutoPad(),
+    m_AutoPad("NOTSET"),
     m_KernelShape(pKernelShape),
     m_Pads(),
     m_Strides() {
@@ -33,8 +33,17 @@ MaxPool::MaxPool(const StringAttr& pAutoPad,
     m_Strides(pStrides) {
 }
 
+MaxPool::MaxPool(const MaxPool& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_AutoPad(pCopy.getAutoPad()),
+    m_KernelShape(pCopy.getKernelShape()),
+    m_Pads(pCopy.getPads()),
+    m_Strides(pCopy.getStrides()) {
+}
+
 void MaxPool::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAutoPad() << ", " << getKernelShape() << ", " << getPads() << ", " << getStrides() << ">";
 }
 
 bool MaxPool::classof(const ComputeOperator* pOp)

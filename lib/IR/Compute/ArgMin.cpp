@@ -16,8 +16,8 @@ char ArgMin::ID = 0;
 //===----------------------------------------------------------------------===//
 ArgMin::ArgMin()
   : ComputeOperator("ArgMin", ID),
-    m_Axis(),
-    m_Keepdims() {
+    m_Axis(0),
+    m_Keepdims(1) {
 }
 
 ArgMin::ArgMin(const IntAttr& pAxis,
@@ -27,8 +27,15 @@ ArgMin::ArgMin(const IntAttr& pAxis,
     m_Keepdims(pKeepdims) {
 }
 
+ArgMin::ArgMin(const ArgMin& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ArgMin::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ", " << getKeepdims() << ">";
 }
 
 bool ArgMin::classof(const ComputeOperator* pOp)

@@ -17,7 +17,7 @@ char ImageScaler::ID = 0;
 ImageScaler::ImageScaler()
   : ComputeOperator("ImageScaler", ID),
     m_Bias(),
-    m_Scale() {
+    m_Scale(1.0) {
 }
 
 ImageScaler::ImageScaler(const FloatsAttr& pBias,
@@ -27,8 +27,15 @@ ImageScaler::ImageScaler(const FloatsAttr& pBias,
     m_Scale(pScale) {
 }
 
+ImageScaler::ImageScaler(const ImageScaler& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Bias(pCopy.getBias()),
+    m_Scale(pCopy.getScale()) {
+}
+
 void ImageScaler::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getBias() << ", " << getScale() << ">";
 }
 
 bool ImageScaler::classof(const ComputeOperator* pOp)

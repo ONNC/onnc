@@ -30,11 +30,25 @@ public:
 public:
   GRUUnit();
 
+  // clang-format off
   GRUUnit(const IntAttr& pDropStates);
+
+  // clang-format on
+
+  // shallow copy constructor.
+  GRUUnit(const GRUUnit &pCopy);
 
   ~GRUUnit() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getDropStates() const { return m_DropStates; }
+
+
+  // Attributes setters
+  void setDropStates(const IntAttr& pDropStates) { m_DropStates = pDropStates; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,6 +58,8 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getHiddenPrev() { return getInput(kHiddenPrev); }
 
   Tensor* getGates() { return getInput(kGates); }
@@ -52,8 +68,12 @@ public:
 
   Tensor* getT() { return getInput(kT); }
 
+
+  // Outputs getters
   Tensor* getHidden() { return getOutput(kHidden); }
 
+
+  // Inputs setters
   void setHiddenPrev(Tensor& pTensor) { m_Inputs[kHiddenPrev] = &pTensor; }
 
   void setGates(Tensor& pTensor) { m_Inputs[kGates] = &pTensor; }
@@ -62,7 +82,11 @@ public:
 
   void setT(Tensor& pTensor) { m_Inputs[kT] = &pTensor; }
 
+
+  // Outputs setters
   void setHidden(Tensor& pTensor) { m_Outputs[kHidden] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -73,7 +97,9 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_DropStates;
+  // clang-format on
 };
 
 } // namespace of onnc

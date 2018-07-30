@@ -14,18 +14,21 @@ char Unsqueeze::ID = 0;
 //===----------------------------------------------------------------------===//
 // Unsqueeze
 //===----------------------------------------------------------------------===//
-Unsqueeze::Unsqueeze()
-  : ComputeOperator("Unsqueeze", ID),
-    m_Axes() {
-}
-
 Unsqueeze::Unsqueeze(const IntsAttr& pAxes)
   : ComputeOperator("Unsqueeze", ID),
     m_Axes(pAxes) {
 }
 
+
+
+Unsqueeze::Unsqueeze(const Unsqueeze& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()) {
+}
+
 void Unsqueeze::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ">";
 }
 
 bool Unsqueeze::classof(const ComputeOperator* pOp)

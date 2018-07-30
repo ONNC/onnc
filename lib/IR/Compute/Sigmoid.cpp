@@ -20,8 +20,13 @@ Sigmoid::Sigmoid()
 
 
 
+Sigmoid::Sigmoid(const Sigmoid& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Sigmoid::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Sigmoid::classof(const ComputeOperator* pOp)

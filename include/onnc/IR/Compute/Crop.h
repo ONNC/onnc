@@ -27,14 +27,30 @@ public:
 public:
   Crop();
 
+  // clang-format off
   Crop(const IntsAttr& pBorder,
        const IntsAttr& pScale);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  Crop(const Crop &pCopy);
+
   ~Crop() { }
 
+  // clang-format off
+  // Attributes getters
   const IntsAttr& getBorder() const { return m_Border; }
 
   const IntsAttr& getScale() const { return m_Scale; }
+
+
+  // Attributes setters
+  void setBorder(const IntsAttr& pBorder) { m_Border = pBorder; }
+
+  void setScale(const IntsAttr& pScale) { m_Scale = pScale; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntsAttr m_Border;
   IntsAttr m_Scale;
+  // clang-format on
 };
 
 } // namespace of onnc

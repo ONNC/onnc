@@ -16,8 +16,8 @@ char LpNormalization::ID = 0;
 //===----------------------------------------------------------------------===//
 LpNormalization::LpNormalization()
   : ComputeOperator("LpNormalization", ID),
-    m_Axis(),
-    m_P() {
+    m_Axis(-1),
+    m_P(2) {
 }
 
 LpNormalization::LpNormalization(const IntAttr& pAxis,
@@ -27,8 +27,15 @@ LpNormalization::LpNormalization(const IntAttr& pAxis,
     m_P(pP) {
 }
 
+LpNormalization::LpNormalization(const LpNormalization& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()),
+    m_P(pCopy.getP()) {
+}
+
 void LpNormalization::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ", " << getP() << ">";
 }
 
 bool LpNormalization::classof(const ComputeOperator* pOp)

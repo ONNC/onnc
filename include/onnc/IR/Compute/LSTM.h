@@ -36,17 +36,24 @@ public:
 public:
   LSTM();
 
+  // clang-format off
   LSTM(const FloatsAttr& pActivationAlpha,
        const FloatsAttr& pActivationBeta,
        const StringsAttr& pActivations,
        const FloatAttr& pClip,
        const StringAttr& pDirection,
        const IntAttr& pHiddenSize,
-       const IntAttr& pInputForget,
-       const IntAttr& pOutputSequence);
+       const IntAttr& pInputForget);
+
+  // clang-format on
+
+  // shallow copy constructor.
+  LSTM(const LSTM &pCopy);
 
   ~LSTM() { }
 
+  // clang-format off
+  // Attributes getters
   const FloatsAttr& getActivationAlpha() const { return m_ActivationAlpha; }
 
   const FloatsAttr& getActivationBeta() const { return m_ActivationBeta; }
@@ -61,7 +68,23 @@ public:
 
   const IntAttr& getInputForget() const { return m_InputForget; }
 
-  const IntAttr& getOutputSequence() const { return m_OutputSequence; }
+
+  // Attributes setters
+  void setActivationAlpha(const FloatsAttr& pActivationAlpha) { m_ActivationAlpha = pActivationAlpha; }
+
+  void setActivationBeta(const FloatsAttr& pActivationBeta) { m_ActivationBeta = pActivationBeta; }
+
+  void setActivations(const StringsAttr& pActivations) { m_Activations = pActivations; }
+
+  void setClip(const FloatAttr& pClip) { m_Clip = pClip; }
+
+  void setDirection(const StringAttr& pDirection) { m_Direction = pDirection; }
+
+  void setHiddenSize(const IntAttr& pHiddenSize) { m_HiddenSize = pHiddenSize; }
+
+  void setInputForget(const IntAttr& pInputForget) { m_InputForget = pInputForget; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -71,6 +94,8 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getW() { return getInput(kW); }
@@ -87,12 +112,16 @@ public:
 
   Tensor* getP() { return getInput(kP); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
   Tensor* getYH() { return getOutput(kYH); }
 
   Tensor* getYC() { return getOutput(kYC); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
   void setW(Tensor& pTensor) { m_Inputs[kW] = &pTensor; }
@@ -109,11 +138,15 @@ public:
 
   void setP(Tensor& pTensor) { m_Inputs[kP] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
 
   void setYH(Tensor& pTensor) { m_Outputs[kYH] = &pTensor; }
 
   void setYC(Tensor& pTensor) { m_Outputs[kYC] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -124,6 +157,7 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   FloatsAttr m_ActivationAlpha;
   FloatsAttr m_ActivationBeta;
   StringsAttr m_Activations;
@@ -131,7 +165,7 @@ private:
   StringAttr m_Direction;
   IntAttr m_HiddenSize;
   IntAttr m_InputForget;
-  IntAttr m_OutputSequence;
+  // clang-format on
 };
 
 } // namespace of onnc

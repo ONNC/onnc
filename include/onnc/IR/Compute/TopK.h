@@ -26,16 +26,32 @@ public:
   static char ID;
 
 public:
-  TopK();
+  TopK(const IntAttr& pK);
 
+  // clang-format off
   TopK(const IntAttr& pAxis,
        const IntAttr& pK);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  TopK(const TopK &pCopy);
+
   ~TopK() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getAxis() const { return m_Axis; }
 
   const IntAttr& getK() const { return m_K; }
+
+
+  // Attributes setters
+  void setAxis(const IntAttr& pAxis) { m_Axis = pAxis; }
+
+  void setK(const IntAttr& pK) { m_K = pK; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -45,17 +61,27 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
+
+  // Outputs getters
   Tensor* getValues() { return getOutput(kValues); }
 
   Tensor* getIndices() { return getOutput(kIndices); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
+
+  // Outputs setters
   void setValues(Tensor& pTensor) { m_Outputs[kValues] = &pTensor; }
 
   void setIndices(Tensor& pTensor) { m_Outputs[kIndices] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -66,8 +92,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_Axis;
   IntAttr m_K;
+  // clang-format on
 };
 
 } // namespace of onnc

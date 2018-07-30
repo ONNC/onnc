@@ -24,8 +24,14 @@ Transpose::Transpose(const IntsAttr& pPerm)
     m_Perm(pPerm) {
 }
 
+Transpose::Transpose(const Transpose& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Perm(pCopy.getPerm()) {
+}
+
 void Transpose::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getPerm() << ">";
 }
 
 bool Transpose::classof(const ComputeOperator* pOp)

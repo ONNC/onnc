@@ -16,9 +16,9 @@ char ConvTranspose::ID = 0;
 //===----------------------------------------------------------------------===//
 ConvTranspose::ConvTranspose()
   : ComputeOperator("ConvTranspose", ID),
-    m_AutoPad(),
+    m_AutoPad("NOTSET"),
     m_Dilations(),
-    m_Group(),
+    m_Group(1),
     m_KernelShape(),
     m_OutputPadding(),
     m_OutputShape(),
@@ -45,8 +45,21 @@ ConvTranspose::ConvTranspose(const StringAttr& pAutoPad,
     m_Strides(pStrides) {
 }
 
+ConvTranspose::ConvTranspose(const ConvTranspose& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_AutoPad(pCopy.getAutoPad()),
+    m_Dilations(pCopy.getDilations()),
+    m_Group(pCopy.getGroup()),
+    m_KernelShape(pCopy.getKernelShape()),
+    m_OutputPadding(pCopy.getOutputPadding()),
+    m_OutputShape(pCopy.getOutputShape()),
+    m_Pads(pCopy.getPads()),
+    m_Strides(pCopy.getStrides()) {
+}
+
 void ConvTranspose::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAutoPad() << ", " << getDilations() << ", " << getGroup() << ", " << getKernelShape() << ", " << getOutputPadding() << ", " << getOutputShape() << ", " << getPads() << ", " << getStrides() << ">";
 }
 
 bool ConvTranspose::classof(const ComputeOperator* pOp)

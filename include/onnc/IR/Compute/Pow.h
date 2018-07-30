@@ -28,14 +28,22 @@ public:
 public:
   Pow();
 
-  Pow(const IntAttr& pAxis,
-      const IntAttr& pBroadcast);
+  // clang-format off
+  
+  // clang-format on
+
+  // shallow copy constructor.
+  Pow(const Pow &pCopy);
 
   ~Pow() { }
 
-  const IntAttr& getAxis() const { return m_Axis; }
+  // clang-format off
+  // Attributes getters
+  
 
-  const IntAttr& getBroadcast() const { return m_Broadcast; }
+  // Attributes setters
+  
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -45,17 +53,27 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getY() { return getInput(kY); }
 
+
+  // Outputs getters
   Tensor* getZ() { return getOutput(kZ); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
   void setY(Tensor& pTensor) { m_Inputs[kY] = &pTensor; }
 
+
+  // Outputs setters
   void setZ(Tensor& pTensor) { m_Outputs[kZ] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -66,8 +84,9 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
-  IntAttr m_Axis;
-  IntAttr m_Broadcast;
+  // clang-format off
+  
+  // clang-format on
 };
 
 } // namespace of onnc

@@ -28,14 +28,25 @@ public:
 public:
   Dropout();
 
-  Dropout(const IntAttr& pIsTest,
-          const FloatAttr& pRatio);
+  // clang-format off
+  Dropout(const FloatAttr& pRatio);
+
+  // clang-format on
+
+  // shallow copy constructor.
+  Dropout(const Dropout &pCopy);
 
   ~Dropout() { }
 
-  const IntAttr& getIsTest() const { return m_IsTest; }
-
+  // clang-format off
+  // Attributes getters
   const FloatAttr& getRatio() const { return m_Ratio; }
+
+
+  // Attributes setters
+  void setRatio(const FloatAttr& pRatio) { m_Ratio = pRatio; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -45,17 +56,27 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getData() { return getInput(kData); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
   Tensor* getMask() { return getOutput(kMask); }
 
+
+  // Inputs setters
   void setData(Tensor& pTensor) { m_Inputs[kData] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
 
   void setMask(Tensor& pTensor) { m_Outputs[kMask] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -66,8 +87,9 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
-  IntAttr m_IsTest;
+  // clang-format off
   FloatAttr m_Ratio;
+  // clang-format on
 };
 
 } // namespace of onnc

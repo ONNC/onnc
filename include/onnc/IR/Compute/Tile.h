@@ -28,10 +28,23 @@ public:
 public:
   Tile();
 
+  // clang-format off
   
+  // clang-format on
+
+  // shallow copy constructor.
+  Tile(const Tile &pCopy);
+
   ~Tile() { }
 
+  // clang-format off
+  // Attributes getters
   
+
+  // Attributes setters
+  
+  // clang-format on
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -40,17 +53,27 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
   Tensor* getRepeats() { return getInput(kRepeats); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
   void setRepeats(Tensor& pTensor) { m_Inputs[kRepeats] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -59,6 +82,11 @@ public:
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
 
   static bool classof(const ComputeOperator* pOp);
+
+private:
+  // clang-format off
+  
+  // clang-format on
 };
 
 } // namespace of onnc

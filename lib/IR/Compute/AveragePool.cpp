@@ -16,8 +16,8 @@ char AveragePool::ID = 0;
 //===----------------------------------------------------------------------===//
 AveragePool::AveragePool(const IntsAttr& pKernelShape)
   : ComputeOperator("AveragePool", ID),
-    m_AutoPad(),
-    m_CountIncludePad(),
+    m_AutoPad("NOTSET"),
+    m_CountIncludePad(0),
     m_KernelShape(pKernelShape),
     m_Pads(IntsAttr(4, 0)), //< fill constructor {0, 0, 0, 0}
     m_Strides(IntsAttr(2, 1)) { //< fill constructor {1, 1}
@@ -36,8 +36,18 @@ AveragePool::AveragePool(const StringAttr& pAutoPad,
     m_Strides(pStrides) {
 }
 
+AveragePool::AveragePool(const AveragePool& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_AutoPad(pCopy.getAutoPad()),
+    m_CountIncludePad(pCopy.getCountIncludePad()),
+    m_KernelShape(pCopy.getKernelShape()),
+    m_Pads(pCopy.getPads()),
+    m_Strides(pCopy.getStrides()) {
+}
+
 void AveragePool::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAutoPad() << ", " << getCountIncludePad() << ", " << getKernelShape() << ", " << getPads() << ", " << getStrides() << ">";
 }
 
 bool AveragePool::classof(const ComputeOperator* pOp)

@@ -16,7 +16,7 @@ char Hardmax::ID = 0;
 //===----------------------------------------------------------------------===//
 Hardmax::Hardmax()
   : ComputeOperator("Hardmax", ID),
-    m_Axis() {
+    m_Axis(1) {
 }
 
 Hardmax::Hardmax(const IntAttr& pAxis)
@@ -24,8 +24,14 @@ Hardmax::Hardmax(const IntAttr& pAxis)
     m_Axis(pAxis) {
 }
 
+Hardmax::Hardmax(const Hardmax& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()) {
+}
+
 void Hardmax::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ">";
 }
 
 bool Hardmax::classof(const ComputeOperator* pOp)

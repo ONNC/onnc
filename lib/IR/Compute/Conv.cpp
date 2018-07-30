@@ -16,9 +16,9 @@ char Conv::ID = 0;
 //===----------------------------------------------------------------------===//
 Conv::Conv()
   : ComputeOperator("Conv", ID),
-    m_AutoPad(),
+    m_AutoPad("NOTSET"),
     m_Dilations(),
-    m_Group(),
+    m_Group(1),
     m_KernelShape(),
     m_Pads(),
     m_Strides() {
@@ -39,9 +39,19 @@ Conv::Conv(const StringAttr& pAutoPad,
     m_Strides(pStrides) {
 }
 
+Conv::Conv(const Conv& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_AutoPad(pCopy.getAutoPad()),
+    m_Dilations(pCopy.getDilations()),
+    m_Group(pCopy.getGroup()),
+    m_KernelShape(pCopy.getKernelShape()),
+    m_Pads(pCopy.getPads()),
+    m_Strides(pCopy.getStrides()) {
+}
+
 void Conv::print(std::ostream& pOS) const
 {
-  pOS << name();
+  pOS << name() << "< " << getAutoPad() << ", " << getDilations() << ", " << getGroup() << ", " << getKernelShape() << ", " << getPads() << ", " << getStrides() << ">";
 }
 
 bool Conv::classof(const ComputeOperator* pOp)

@@ -26,16 +26,32 @@ public:
   static char ID;
 
 public:
-  MaxRoiPool();
+  MaxRoiPool(const IntsAttr& pPooledShape);
 
+  // clang-format off
   MaxRoiPool(const IntsAttr& pPooledShape,
              const FloatAttr& pSpatialScale);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  MaxRoiPool(const MaxRoiPool &pCopy);
+
   ~MaxRoiPool() { }
 
+  // clang-format off
+  // Attributes getters
   const IntsAttr& getPooledShape() const { return m_PooledShape; }
 
   const FloatAttr& getSpatialScale() const { return m_SpatialScale; }
+
+
+  // Attributes setters
+  void setPooledShape(const IntsAttr& pPooledShape) { m_PooledShape = pPooledShape; }
+
+  void setSpatialScale(const FloatAttr& pSpatialScale) { m_SpatialScale = pSpatialScale; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -45,17 +61,27 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getRois() { return getInput(kRois); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
   void setRois(Tensor& pTensor) { m_Inputs[kRois] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -66,8 +92,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntsAttr m_PooledShape;
   FloatAttr m_SpatialScale;
+  // clang-format on
 };
 
 } // namespace of onnc

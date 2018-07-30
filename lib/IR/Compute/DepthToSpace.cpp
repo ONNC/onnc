@@ -14,18 +14,21 @@ char DepthToSpace::ID = 0;
 //===----------------------------------------------------------------------===//
 // DepthToSpace
 //===----------------------------------------------------------------------===//
-DepthToSpace::DepthToSpace()
-  : ComputeOperator("DepthToSpace", ID),
-    m_Blocksize() {
-}
-
 DepthToSpace::DepthToSpace(const IntAttr& pBlocksize)
   : ComputeOperator("DepthToSpace", ID),
     m_Blocksize(pBlocksize) {
 }
 
+
+
+DepthToSpace::DepthToSpace(const DepthToSpace& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Blocksize(pCopy.getBlocksize()) {
+}
+
 void DepthToSpace::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getBlocksize() << ">";
 }
 
 bool DepthToSpace::classof(const ComputeOperator* pOp)

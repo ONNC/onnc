@@ -14,18 +14,21 @@ char Constant::ID = 0;
 //===----------------------------------------------------------------------===//
 // Constant
 //===----------------------------------------------------------------------===//
-Constant::Constant()
-  : ComputeOperator("Constant", ID),
-    m_Value() {
-}
-
 Constant::Constant(const TensorAttr& pValue)
   : ComputeOperator("Constant", ID),
     m_Value(pValue) {
 }
 
+
+
+Constant::Constant(const Constant& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Value(pCopy.getValue()) {
+}
+
 void Constant::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getValue() << ">";
 }
 
 bool Constant::classof(const ComputeOperator* pOp)

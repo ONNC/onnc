@@ -1,12 +1,12 @@
-//===- MaxPool.h --------------------------------------------------===//
+//===- Multinomial.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_MAXPOOL_H
-#define ONNC_IR_COMPUTE_OPERATOR_MAXPOOL_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_MULTINOMIAL_H
+#define ONNC_IR_COMPUTE_OPERATOR_MULTINOMIAL_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,51 +14,46 @@
 
 namespace onnc {
 
-class MaxPool : public ComputeOperator
+class Multinomial : public ComputeOperator
 {
 public:
   enum IOConst {
-    kX = 0,
-    kY = 0
+    kInput = 0,
+    kOutput = 0
   };
 
   static char ID;
 
 public:
-  MaxPool(const IntsAttr& pKernelShape);
+  Multinomial();
 
   // clang-format off
-  MaxPool(const StringAttr& pAutoPad,
-          const IntsAttr& pKernelShape,
-          const IntsAttr& pPads,
-          const IntsAttr& pStrides);
+  Multinomial(const IntAttr& pDtype,
+              const IntAttr& pSampleSize,
+              const FloatAttr& pSeed);
 
   // clang-format on
 
   // shallow copy constructor.
-  MaxPool(const MaxPool &pCopy);
+  Multinomial(const Multinomial &pCopy);
 
-  ~MaxPool() { }
+  ~Multinomial() { }
 
   // clang-format off
   // Attributes getters
-  const StringAttr& getAutoPad() const { return m_AutoPad; }
+  const IntAttr& getDtype() const { return m_Dtype; }
 
-  const IntsAttr& getKernelShape() const { return m_KernelShape; }
+  const IntAttr& getSampleSize() const { return m_SampleSize; }
 
-  const IntsAttr& getPads() const { return m_Pads; }
-
-  const IntsAttr& getStrides() const { return m_Strides; }
+  const FloatAttr& getSeed() const { return m_Seed; }
 
 
   // Attributes setters
-  void setAutoPad(const StringAttr& pAutoPad) { m_AutoPad = pAutoPad; }
+  void setDtype(const IntAttr& pDtype) { m_Dtype = pDtype; }
 
-  void setKernelShape(const IntsAttr& pKernelShape) { m_KernelShape = pKernelShape; }
+  void setSampleSize(const IntAttr& pSampleSize) { m_SampleSize = pSampleSize; }
 
-  void setPads(const IntsAttr& pPads) { m_Pads = pPads; }
-
-  void setStrides(const IntsAttr& pStrides) { m_Strides = pStrides; }
+  void setSeed(const FloatAttr& pSeed) { m_Seed = pSeed; }
 
   // clang-format on
 
@@ -72,19 +67,19 @@ public:
 
   // clang-format off
   // Inputs getters
-  Tensor* getX() { return getInput(kX); }
+  Tensor* getInput() { return getInput(kInput); }
 
 
   // Outputs getters
-  Tensor* getY() { return getOutput(kY); }
+  Tensor* getOutput() { return getOutput(kOutput); }
 
 
   // Inputs setters
-  void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
+  void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
 
   // Outputs setters
-  void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+  void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
 
   // clang-format on
 
@@ -98,10 +93,9 @@ public:
 
 private:
   // clang-format off
-  StringAttr m_AutoPad;
-  IntsAttr m_KernelShape;
-  IntsAttr m_Pads;
-  IntsAttr m_Strides;
+  IntAttr m_Dtype;
+  IntAttr m_SampleSize;
+  FloatAttr m_Seed;
   // clang-format on
 };
 

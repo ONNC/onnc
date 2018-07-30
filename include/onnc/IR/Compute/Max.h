@@ -27,10 +27,23 @@ public:
 public:
   Max();
 
+  // clang-format off
   
+  // clang-format on
+
+  // shallow copy constructor.
+  Max(const Max &pCopy);
+
   ~Max() { }
 
+  // clang-format off
+  // Attributes getters
   
+
+  // Attributes setters
+  
+  // clang-format on
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -39,13 +52,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getData0(size_t pIdx) { return getInput(kData0 + pIdx); }
 
+
+  // Outputs getters
   Tensor* getMax() { return getOutput(kMax); }
 
+
+  // Inputs setters
   void setData0(size_t pIdx, Tensor& pTensor) { m_Inputs[kData0 + pIdx] = &pTensor; }
 
+
+  // Outputs setters
   void setMax(Tensor& pTensor) { m_Outputs[kMax] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -54,6 +77,11 @@ public:
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
 
   static bool classof(const ComputeOperator* pOp);
+
+private:
+  // clang-format off
+  
+  // clang-format on
 };
 
 } // namespace of onnc

@@ -15,20 +15,18 @@ char And::ID = 0;
 // And
 //===----------------------------------------------------------------------===//
 And::And()
-  : ComputeOperator("And", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("And", ID) {
 }
 
-And::And(const IntAttr& pAxis,
-         const IntAttr& pBroadcast)
-  : ComputeOperator("And", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+And::And(const And& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void And::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool And::classof(const ComputeOperator* pOp)

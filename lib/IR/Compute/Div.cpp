@@ -15,20 +15,18 @@ char Div::ID = 0;
 // Div
 //===----------------------------------------------------------------------===//
 Div::Div()
-  : ComputeOperator("Div", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Div", ID) {
 }
 
-Div::Div(const IntAttr& pAxis,
-         const IntAttr& pBroadcast)
-  : ComputeOperator("Div", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Div::Div(const Div& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Div::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Div::classof(const ComputeOperator* pOp)

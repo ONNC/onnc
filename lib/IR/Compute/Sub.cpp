@@ -15,20 +15,18 @@ char Sub::ID = 0;
 // Sub
 //===----------------------------------------------------------------------===//
 Sub::Sub()
-  : ComputeOperator("Sub", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Sub", ID) {
 }
 
-Sub::Sub(const IntAttr& pAxis,
-         const IntAttr& pBroadcast)
-  : ComputeOperator("Sub", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Sub::Sub(const Sub& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Sub::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Sub::classof(const ComputeOperator* pOp)

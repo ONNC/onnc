@@ -53,12 +53,6 @@ AndLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::And* op = pGraph.addOperator<onnc::And>();
 
-  // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("axis")))
-    op->setAxis(pNode.i(::onnx::Symbol("axis")));
-  if (pNode.hasAttribute(::onnx::Symbol("broadcast")))
-    op->setBroadcast(pNode.i(::onnx::Symbol("broadcast")));
-
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());

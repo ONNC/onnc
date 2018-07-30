@@ -16,7 +16,7 @@ char LoopIndexTensor::ID = 0;
 //===----------------------------------------------------------------------===//
 LoopIndexTensor::LoopIndexTensor()
   : ComputeOperator("LoopIndexTensor", ID),
-    m_Axis() {
+    m_Axis(0) {
 }
 
 LoopIndexTensor::LoopIndexTensor(const IntAttr& pAxis)
@@ -24,8 +24,14 @@ LoopIndexTensor::LoopIndexTensor(const IntAttr& pAxis)
     m_Axis(pAxis) {
 }
 
+LoopIndexTensor::LoopIndexTensor(const LoopIndexTensor& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()) {
+}
+
 void LoopIndexTensor::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ">";
 }
 
 bool LoopIndexTensor::classof(const ComputeOperator* pOp)

@@ -20,8 +20,13 @@ Not::Not()
 
 
 
+Not::Not(const Not& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Not::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Not::classof(const ComputeOperator* pOp)

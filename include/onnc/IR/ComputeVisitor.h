@@ -68,6 +68,7 @@ class MaxRoiPool;
 class Mean;
 class Min;
 class Mul;
+class Multinomial;
 class Neg;
 class Not;
 class Or;
@@ -119,7 +120,6 @@ class ATen;
 class Affine;
 class ConstantFill;
 class Crop;
-class FC;
 class GRUUnit;
 class GivenTensorFill;
 class If;
@@ -208,6 +208,7 @@ public:
   virtual void visit(const Mean& pMean) { }
   virtual void visit(const Min& pMin) { }
   virtual void visit(const Mul& pMul) { }
+  virtual void visit(const Multinomial& pMultinomial) { }
   virtual void visit(const Neg& pNeg) { }
   virtual void visit(const Not& pNot) { }
   virtual void visit(const Or& pOr) { }
@@ -259,7 +260,6 @@ public:
   virtual void visit(const Affine& pAffine) { }
   virtual void visit(const ConstantFill& pConstantFill) { }
   virtual void visit(const Crop& pCrop) { }
-  virtual void visit(const FC& pFC) { }
   virtual void visit(const GRUUnit& pGRUUnit) { }
   virtual void visit(const GivenTensorFill& pGivenTensorFill) { }
   virtual void visit(const If& pIf) { }
@@ -332,6 +332,7 @@ public:
   virtual void visit(Mean& pMean) { }
   virtual void visit(Min& pMin) { }
   virtual void visit(Mul& pMul) { }
+  virtual void visit(Multinomial& pMultinomial) { }
   virtual void visit(Neg& pNeg) { }
   virtual void visit(Not& pNot) { }
   virtual void visit(Or& pOr) { }
@@ -383,7 +384,6 @@ public:
   virtual void visit(Affine& pAffine) { }
   virtual void visit(ConstantFill& pConstantFill) { }
   virtual void visit(Crop& pCrop) { }
-  virtual void visit(FC& pFC) { }
   virtual void visit(GRUUnit& pGRUUnit) { }
   virtual void visit(GivenTensorFill& pGivenTensorFill) { }
   virtual void visit(If& pIf) { }

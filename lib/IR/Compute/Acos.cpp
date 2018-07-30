@@ -18,8 +18,10 @@ Acos::Acos()
   : ComputeOperator("Acos", ID) {
 }
 
+
+
 Acos::Acos(const Acos& pCopy)
-  : ComputeOperator(pCopy) {
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Acos::print(std::ostream& pOS) const

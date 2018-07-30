@@ -17,7 +17,7 @@ char ReduceLogSumExp::ID = 0;
 ReduceLogSumExp::ReduceLogSumExp()
   : ComputeOperator("ReduceLogSumExp", ID),
     m_Axes(),
-    m_Keepdims() {
+    m_Keepdims(1) {
 }
 
 ReduceLogSumExp::ReduceLogSumExp(const IntsAttr& pAxes,
@@ -27,8 +27,15 @@ ReduceLogSumExp::ReduceLogSumExp(const IntsAttr& pAxes,
     m_Keepdims(pKeepdims) {
 }
 
+ReduceLogSumExp::ReduceLogSumExp(const ReduceLogSumExp& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ReduceLogSumExp::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
 }
 
 bool ReduceLogSumExp::classof(const ComputeOperator* pOp)

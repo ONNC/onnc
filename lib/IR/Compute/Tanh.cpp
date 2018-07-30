@@ -20,8 +20,13 @@ Tanh::Tanh()
 
 
 
+Tanh::Tanh(const Tanh& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Tanh::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Tanh::classof(const ComputeOperator* pOp)

@@ -25,21 +25,32 @@ public:
   static char ID;
 
 public:
-  Upsample(const FloatAttr& pHeightScale, const FloatAttr& pWidthScale);
+  Upsample(const FloatsAttr& pScales);
 
-  Upsample(const FloatAttr& pHeightScale,
-           const StringAttr& pMode,
-           const FloatAttr& pWidthScale);
+  // clang-format off
+  Upsample(const StringAttr& pMode,
+           const FloatsAttr& pScales);
+
+  // clang-format on
+
+  // shallow copy constructor.
+  Upsample(const Upsample &pCopy);
 
   ~Upsample() { }
 
-  const FloatAttr& getHeightScale() const { return m_HeightScale; }
-
+  // clang-format off
+  // Attributes getters
   const StringAttr& getMode() const { return m_Mode; }
 
+  const FloatsAttr& getScales() const { return m_Scales; }
+
+
+  // Attributes setters
   void setMode(const StringAttr& pMode) { m_Mode = pMode; }
 
-  const FloatAttr& getWidthScale() const { return m_WidthScale; }
+  void setScales(const FloatsAttr& pScales) { m_Scales = pScales; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -49,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -66,9 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
-  FloatAttr m_HeightScale;
+  // clang-format off
   StringAttr m_Mode;
-  FloatAttr m_WidthScale;
+  FloatsAttr m_Scales;
+  // clang-format on
 };
 
 } // namespace of onnc

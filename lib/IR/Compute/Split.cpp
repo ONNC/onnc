@@ -16,7 +16,7 @@ char Split::ID = 0;
 //===----------------------------------------------------------------------===//
 Split::Split()
   : ComputeOperator("Split", ID),
-    m_Axis(),
+    m_Axis(0),
     m_Split() {
 }
 
@@ -27,8 +27,15 @@ Split::Split(const IntAttr& pAxis,
     m_Split(pSplit) {
 }
 
+Split::Split(const Split& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()),
+    m_Split(pCopy.getSplit()) {
+}
+
 void Split::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ", " << getSplit() << ">";
 }
 
 bool Split::classof(const ComputeOperator* pOp)

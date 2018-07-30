@@ -14,10 +14,10 @@ char MaxRoiPool::ID = 0;
 //===----------------------------------------------------------------------===//
 // MaxRoiPool
 //===----------------------------------------------------------------------===//
-MaxRoiPool::MaxRoiPool()
+MaxRoiPool::MaxRoiPool(const IntsAttr& pPooledShape)
   : ComputeOperator("MaxRoiPool", ID),
-    m_PooledShape(),
-    m_SpatialScale() {
+    m_PooledShape(pPooledShape),
+    m_SpatialScale(1.0) {
 }
 
 MaxRoiPool::MaxRoiPool(const IntsAttr& pPooledShape,
@@ -27,8 +27,15 @@ MaxRoiPool::MaxRoiPool(const IntsAttr& pPooledShape,
     m_SpatialScale(pSpatialScale) {
 }
 
+MaxRoiPool::MaxRoiPool(const MaxRoiPool& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_PooledShape(pCopy.getPooledShape()),
+    m_SpatialScale(pCopy.getSpatialScale()) {
+}
+
 void MaxRoiPool::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getPooledShape() << ", " << getSpatialScale() << ">";
 }
 
 bool MaxRoiPool::classof(const ComputeOperator* pOp)

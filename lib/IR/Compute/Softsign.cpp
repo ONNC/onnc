@@ -20,8 +20,13 @@ Softsign::Softsign()
 
 
 
+Softsign::Softsign(const Softsign& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Softsign::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Softsign::classof(const ComputeOperator* pOp)

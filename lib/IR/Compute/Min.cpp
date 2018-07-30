@@ -20,8 +20,13 @@ Min::Min()
 
 
 
+Min::Min(const Min& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Min::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Min::classof(const ComputeOperator* pOp)

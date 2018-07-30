@@ -1,4 +1,4 @@
-//===- LRN.h --------------------------------------------------------------===//
+//===- LRN.h --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -27,26 +27,40 @@ public:
 public:
   LRN(const IntAttr& pSize);
 
+  // clang-format off
   LRN(const FloatAttr& pAlpha,
       const FloatAttr& pBeta,
       const FloatAttr& pBias,
       const IntAttr& pSize);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  LRN(const LRN &pCopy);
+
   ~LRN() { }
 
+  // clang-format off
+  // Attributes getters
   const FloatAttr& getAlpha() const { return m_Alpha; }
 
   const FloatAttr& getBeta() const { return m_Beta; }
 
   const FloatAttr& getBias() const { return m_Bias; }
 
+  const IntAttr& getSize() const { return m_Size; }
+
+
+  // Attributes setters
   void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
 
   void setBeta(const FloatAttr& pBeta) { m_Beta = pBeta; }
 
   void setBias(const FloatAttr& pBias) { m_Bias = pBias; }
 
-  const IntAttr& getSize() const { return m_Size; }
+  void setSize(const IntAttr& pSize) { m_Size = pSize; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -56,13 +70,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -73,10 +97,12 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Beta;
   FloatAttr m_Bias;
   IntAttr m_Size;
+  // clang-format on
 };
 
 } // namespace of onnc

@@ -54,8 +54,6 @@ BatchNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) con
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("epsilon")))
     op->setEpsilon(pNode.f(::onnx::Symbol("epsilon")));
-  if (pNode.hasAttribute(::onnx::Symbol("is_test")))
-    op->setIsTest(pNode.i(::onnx::Symbol("is_test")));
   if (pNode.hasAttribute(::onnx::Symbol("momentum")))
     op->setMomentum(pNode.f(::onnx::Symbol("momentum")));
   if (pNode.hasAttribute(::onnx::Symbol("spatial")))

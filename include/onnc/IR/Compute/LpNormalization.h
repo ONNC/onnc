@@ -27,14 +27,30 @@ public:
 public:
   LpNormalization();
 
+  // clang-format off
   LpNormalization(const IntAttr& pAxis,
                   const IntAttr& pP);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  LpNormalization(const LpNormalization &pCopy);
+
   ~LpNormalization() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getAxis() const { return m_Axis; }
 
   const IntAttr& getP() const { return m_P; }
+
+
+  // Attributes setters
+  void setAxis(const IntAttr& pAxis) { m_Axis = pAxis; }
+
+  void setP(const IntAttr& pP) { m_P = pP; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_Axis;
   IntAttr m_P;
+  // clang-format on
 };
 
 } // namespace of onnc

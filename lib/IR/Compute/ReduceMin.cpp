@@ -17,7 +17,7 @@ char ReduceMin::ID = 0;
 ReduceMin::ReduceMin()
   : ComputeOperator("ReduceMin", ID),
     m_Axes(),
-    m_Keepdims() {
+    m_Keepdims(1) {
 }
 
 ReduceMin::ReduceMin(const IntsAttr& pAxes,
@@ -27,8 +27,15 @@ ReduceMin::ReduceMin(const IntsAttr& pAxes,
     m_Keepdims(pKeepdims) {
 }
 
+ReduceMin::ReduceMin(const ReduceMin& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ReduceMin::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
 }
 
 bool ReduceMin::classof(const ComputeOperator* pOp)

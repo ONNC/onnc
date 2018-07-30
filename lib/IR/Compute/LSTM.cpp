@@ -20,10 +20,9 @@ LSTM::LSTM()
     m_ActivationBeta(),
     m_Activations(),
     m_Clip(),
-    m_Direction(),
+    m_Direction("forward"),
     m_HiddenSize(),
-    m_InputForget(),
-    m_OutputSequence() {
+    m_InputForget(0) {
 }
 
 LSTM::LSTM(const FloatsAttr& pActivationAlpha,
@@ -32,8 +31,7 @@ LSTM::LSTM(const FloatsAttr& pActivationAlpha,
            const FloatAttr& pClip,
            const StringAttr& pDirection,
            const IntAttr& pHiddenSize,
-           const IntAttr& pInputForget,
-           const IntAttr& pOutputSequence)
+           const IntAttr& pInputForget)
   : ComputeOperator("LSTM", ID),
     m_ActivationAlpha(pActivationAlpha),
     m_ActivationBeta(pActivationBeta),
@@ -41,12 +39,23 @@ LSTM::LSTM(const FloatsAttr& pActivationAlpha,
     m_Clip(pClip),
     m_Direction(pDirection),
     m_HiddenSize(pHiddenSize),
-    m_InputForget(pInputForget),
-    m_OutputSequence(pOutputSequence) {
+    m_InputForget(pInputForget) {
+}
+
+LSTM::LSTM(const LSTM& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_ActivationAlpha(pCopy.getActivationAlpha()),
+    m_ActivationBeta(pCopy.getActivationBeta()),
+    m_Activations(pCopy.getActivations()),
+    m_Clip(pCopy.getClip()),
+    m_Direction(pCopy.getDirection()),
+    m_HiddenSize(pCopy.getHiddenSize()),
+    m_InputForget(pCopy.getInputForget()) {
 }
 
 void LSTM::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getActivationAlpha() << ", " << getActivationBeta() << ", " << getActivations() << ", " << getClip() << ", " << getDirection() << ", " << getHiddenSize() << ", " << getInputForget() << ">";
 }
 
 bool LSTM::classof(const ComputeOperator* pOp)

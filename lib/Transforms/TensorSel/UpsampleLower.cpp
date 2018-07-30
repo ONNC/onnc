@@ -58,8 +58,7 @@ UpsampleLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::Upsample* op = pGraph.addOperator<onnc::Upsample>(
-      pNode.f(::onnx::Symbol("height_scale")),
-      pNode.f(::onnx::Symbol("width_scale")));
+      pNode.fs(::onnx::Symbol("scales")));
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("mode")))

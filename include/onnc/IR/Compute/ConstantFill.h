@@ -27,14 +27,22 @@ public:
 public:
   ConstantFill();
 
+  // clang-format off
   ConstantFill(const IntAttr& pDtype,
                const IntsAttr& pExtraShape,
                const IntAttr& pInputAsShape,
                const IntsAttr& pShape,
                const FloatAttr& pValue);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  ConstantFill(const ConstantFill &pCopy);
+
   ~ConstantFill() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getDtype() const { return m_Dtype; }
 
   const IntsAttr& getExtraShape() const { return m_ExtraShape; }
@@ -45,6 +53,20 @@ public:
 
   const FloatAttr& getValue() const { return m_Value; }
 
+
+  // Attributes setters
+  void setDtype(const IntAttr& pDtype) { m_Dtype = pDtype; }
+
+  void setExtraShape(const IntsAttr& pExtraShape) { m_ExtraShape = pExtraShape; }
+
+  void setInputAsShape(const IntAttr& pInputAsShape) { m_InputAsShape = pInputAsShape; }
+
+  void setShape(const IntsAttr& pShape) { m_Shape = pShape; }
+
+  void setValue(const FloatAttr& pValue) { m_Value = pValue; }
+
+  // clang-format on
+
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
   const Tensor* getInput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -53,13 +75,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -70,11 +102,13 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_Dtype;
   IntsAttr m_ExtraShape;
   IntAttr m_InputAsShape;
   IntsAttr m_Shape;
   FloatAttr m_Value;
+  // clang-format on
 };
 
 } // namespace of onnc

@@ -20,8 +20,13 @@ Neg::Neg()
 
 
 
+Neg::Neg(const Neg& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Neg::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Neg::classof(const ComputeOperator* pOp)

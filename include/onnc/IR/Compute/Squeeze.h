@@ -27,11 +27,25 @@ public:
 public:
   Squeeze();
 
+  // clang-format off
   Squeeze(const IntsAttr& pAxes);
+
+  // clang-format on
+
+  // shallow copy constructor.
+  Squeeze(const Squeeze &pCopy);
 
   ~Squeeze() { }
 
+  // clang-format off
+  // Attributes getters
   const IntsAttr& getAxes() const { return m_Axes; }
+
+
+  // Attributes setters
+  void setAxes(const IntsAttr& pAxes) { m_Axes = pAxes; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -41,13 +55,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getData() { return getInput(kData); }
 
+
+  // Outputs getters
   Tensor* getSqueezed() { return getOutput(kSqueezed); }
 
+
+  // Inputs setters
   void setData(Tensor& pTensor) { m_Inputs[kData] = &pTensor; }
 
+
+  // Outputs setters
   void setSqueezed(Tensor& pTensor) { m_Outputs[kSqueezed] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -58,7 +82,9 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntsAttr m_Axes;
+  // clang-format on
 };
 
 } // namespace of onnc

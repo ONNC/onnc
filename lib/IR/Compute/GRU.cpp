@@ -20,10 +20,9 @@ GRU::GRU()
     m_ActivationBeta(),
     m_Activations(),
     m_Clip(),
-    m_Direction(),
+    m_Direction("forward"),
     m_HiddenSize(),
-    m_LinearBeforeReset(),
-    m_OutputSequence() {
+    m_LinearBeforeReset(0) {
 }
 
 GRU::GRU(const FloatsAttr& pActivationAlpha,
@@ -32,8 +31,7 @@ GRU::GRU(const FloatsAttr& pActivationAlpha,
          const FloatAttr& pClip,
          const StringAttr& pDirection,
          const IntAttr& pHiddenSize,
-         const IntAttr& pLinearBeforeReset,
-         const IntAttr& pOutputSequence)
+         const IntAttr& pLinearBeforeReset)
   : ComputeOperator("GRU", ID),
     m_ActivationAlpha(pActivationAlpha),
     m_ActivationBeta(pActivationBeta),
@@ -41,12 +39,23 @@ GRU::GRU(const FloatsAttr& pActivationAlpha,
     m_Clip(pClip),
     m_Direction(pDirection),
     m_HiddenSize(pHiddenSize),
-    m_LinearBeforeReset(pLinearBeforeReset),
-    m_OutputSequence(pOutputSequence) {
+    m_LinearBeforeReset(pLinearBeforeReset) {
+}
+
+GRU::GRU(const GRU& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_ActivationAlpha(pCopy.getActivationAlpha()),
+    m_ActivationBeta(pCopy.getActivationBeta()),
+    m_Activations(pCopy.getActivations()),
+    m_Clip(pCopy.getClip()),
+    m_Direction(pCopy.getDirection()),
+    m_HiddenSize(pCopy.getHiddenSize()),
+    m_LinearBeforeReset(pCopy.getLinearBeforeReset()) {
 }
 
 void GRU::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getActivationAlpha() << ", " << getActivationBeta() << ", " << getActivations() << ", " << getClip() << ", " << getDirection() << ", " << getHiddenSize() << ", " << getLinearBeforeReset() << ">";
 }
 
 bool GRU::classof(const ComputeOperator* pOp)

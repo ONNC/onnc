@@ -20,8 +20,13 @@ Identity::Identity()
 
 
 
+Identity::Identity(const Identity& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Identity::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Identity::classof(const ComputeOperator* pOp)

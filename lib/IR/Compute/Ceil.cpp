@@ -20,8 +20,13 @@ Ceil::Ceil()
 
 
 
+Ceil::Ceil(const Ceil& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Ceil::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Ceil::classof(const ComputeOperator* pOp)

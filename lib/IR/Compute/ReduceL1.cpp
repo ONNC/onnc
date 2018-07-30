@@ -17,7 +17,7 @@ char ReduceL1::ID = 0;
 ReduceL1::ReduceL1()
   : ComputeOperator("ReduceL1", ID),
     m_Axes(),
-    m_Keepdims() {
+    m_Keepdims(1) {
 }
 
 ReduceL1::ReduceL1(const IntsAttr& pAxes,
@@ -27,8 +27,15 @@ ReduceL1::ReduceL1(const IntsAttr& pAxes,
     m_Keepdims(pKeepdims) {
 }
 
+ReduceL1::ReduceL1(const ReduceL1& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ReduceL1::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
 }
 
 bool ReduceL1::classof(const ComputeOperator* pOp)

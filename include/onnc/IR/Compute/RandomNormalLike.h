@@ -27,13 +27,21 @@ public:
 public:
   RandomNormalLike();
 
+  // clang-format off
   RandomNormalLike(const IntAttr& pDtype,
                    const FloatAttr& pMean,
                    const FloatAttr& pScale,
                    const FloatAttr& pSeed);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  RandomNormalLike(const RandomNormalLike &pCopy);
+
   ~RandomNormalLike() { }
 
+  // clang-format off
+  // Attributes getters
   const IntAttr& getDtype() const { return m_Dtype; }
 
   const FloatAttr& getMean() const { return m_Mean; }
@@ -41,6 +49,18 @@ public:
   const FloatAttr& getScale() const { return m_Scale; }
 
   const FloatAttr& getSeed() const { return m_Seed; }
+
+
+  // Attributes setters
+  void setDtype(const IntAttr& pDtype) { m_Dtype = pDtype; }
+
+  void setMean(const FloatAttr& pMean) { m_Mean = pMean; }
+
+  void setScale(const FloatAttr& pScale) { m_Scale = pScale; }
+
+  void setSeed(const FloatAttr& pSeed) { m_Seed = pSeed; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -50,13 +70,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getInput() { return getInput(kInput); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -67,10 +97,12 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntAttr m_Dtype;
   FloatAttr m_Mean;
   FloatAttr m_Scale;
   FloatAttr m_Seed;
+  // clang-format on
 };
 
 } // namespace of onnc

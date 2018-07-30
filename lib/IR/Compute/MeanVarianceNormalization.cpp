@@ -16,8 +16,8 @@ char MeanVarianceNormalization::ID = 0;
 //===----------------------------------------------------------------------===//
 MeanVarianceNormalization::MeanVarianceNormalization()
   : ComputeOperator("MeanVarianceNormalization", ID),
-    m_AcrossChannels(),
-    m_NormalizeVariance() {
+    m_AcrossChannels(0),
+    m_NormalizeVariance(1) {
 }
 
 MeanVarianceNormalization::MeanVarianceNormalization(const IntAttr& pAcrossChannels,
@@ -27,8 +27,15 @@ MeanVarianceNormalization::MeanVarianceNormalization(const IntAttr& pAcrossChann
     m_NormalizeVariance(pNormalizeVariance) {
 }
 
+MeanVarianceNormalization::MeanVarianceNormalization(const MeanVarianceNormalization& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_AcrossChannels(pCopy.getAcrossChannels()),
+    m_NormalizeVariance(pCopy.getNormalizeVariance()) {
+}
+
 void MeanVarianceNormalization::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAcrossChannels() << ", " << getNormalizeVariance() << ">";
 }
 
 bool MeanVarianceNormalization::classof(const ComputeOperator* pOp)

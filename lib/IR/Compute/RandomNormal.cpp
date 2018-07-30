@@ -14,13 +14,13 @@ char RandomNormal::ID = 0;
 //===----------------------------------------------------------------------===//
 // RandomNormal
 //===----------------------------------------------------------------------===//
-RandomNormal::RandomNormal()
+RandomNormal::RandomNormal(const IntsAttr& pShape)
   : ComputeOperator("RandomNormal", ID),
-    m_Dtype(),
-    m_Mean(),
-    m_Scale(),
+    m_Dtype(1),
+    m_Mean(0.0),
+    m_Scale(1.0),
     m_Seed(),
-    m_Shape() {
+    m_Shape(pShape) {
 }
 
 RandomNormal::RandomNormal(const IntAttr& pDtype,
@@ -36,8 +36,18 @@ RandomNormal::RandomNormal(const IntAttr& pDtype,
     m_Shape(pShape) {
 }
 
+RandomNormal::RandomNormal(const RandomNormal& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Dtype(pCopy.getDtype()),
+    m_Mean(pCopy.getMean()),
+    m_Scale(pCopy.getScale()),
+    m_Seed(pCopy.getSeed()),
+    m_Shape(pCopy.getShape()) {
+}
+
 void RandomNormal::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getDtype() << ", " << getMean() << ", " << getScale() << ", " << getSeed() << ", " << getShape() << ">";
 }
 
 bool RandomNormal::classof(const ComputeOperator* pOp)

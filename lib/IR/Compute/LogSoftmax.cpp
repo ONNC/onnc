@@ -16,7 +16,7 @@ char LogSoftmax::ID = 0;
 //===----------------------------------------------------------------------===//
 LogSoftmax::LogSoftmax()
   : ComputeOperator("LogSoftmax", ID),
-    m_Axis() {
+    m_Axis(1) {
 }
 
 LogSoftmax::LogSoftmax(const IntAttr& pAxis)
@@ -24,8 +24,14 @@ LogSoftmax::LogSoftmax(const IntAttr& pAxis)
     m_Axis(pAxis) {
 }
 
+LogSoftmax::LogSoftmax(const LogSoftmax& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()) {
+}
+
 void LogSoftmax::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ">";
 }
 
 bool LogSoftmax::classof(const ComputeOperator* pOp)

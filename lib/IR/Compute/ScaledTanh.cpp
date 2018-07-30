@@ -27,8 +27,15 @@ ScaledTanh::ScaledTanh(const FloatAttr& pAlpha,
     m_Beta(pBeta) {
 }
 
+ScaledTanh::ScaledTanh(const ScaledTanh& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Alpha(pCopy.getAlpha()),
+    m_Beta(pCopy.getBeta()) {
+}
+
 void ScaledTanh::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
 }
 
 bool ScaledTanh::classof(const ComputeOperator* pOp)

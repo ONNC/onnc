@@ -16,8 +16,8 @@ char ArgMax::ID = 0;
 //===----------------------------------------------------------------------===//
 ArgMax::ArgMax()
   : ComputeOperator("ArgMax", ID),
-    m_Axis(),
-    m_Keepdims() {
+    m_Axis(0),
+    m_Keepdims(1) {
 }
 
 ArgMax::ArgMax(const IntAttr& pAxis,
@@ -27,8 +27,15 @@ ArgMax::ArgMax(const IntAttr& pAxis,
     m_Keepdims(pKeepdims) {
 }
 
+ArgMax::ArgMax(const ArgMax& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ArgMax::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ", " << getKeepdims() << ">";
 }
 
 bool ArgMax::classof(const ComputeOperator* pOp)

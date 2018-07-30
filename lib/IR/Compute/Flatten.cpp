@@ -16,7 +16,7 @@ char Flatten::ID = 0;
 //===----------------------------------------------------------------------===//
 Flatten::Flatten()
   : ComputeOperator("Flatten", ID),
-    m_Axis() {
+    m_Axis(1) {
 }
 
 Flatten::Flatten(const IntAttr& pAxis)
@@ -24,8 +24,14 @@ Flatten::Flatten(const IntAttr& pAxis)
     m_Axis(pAxis) {
 }
 
+Flatten::Flatten(const Flatten& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()) {
+}
+
 void Flatten::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ">";
 }
 
 bool Flatten::classof(const ComputeOperator* pOp)

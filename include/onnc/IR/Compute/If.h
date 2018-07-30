@@ -25,16 +25,30 @@ public:
   static char ID;
 
 public:
-  If();
+  If(const GraphAttr& pElseBranch, const GraphAttr& pThenBranch);
 
-  If(const GraphAttr& pElseBranch,
-     const GraphAttr& pThenBranch);
+  // clang-format off
+  
+  // clang-format on
+
+  // shallow copy constructor.
+  If(const If &pCopy);
 
   ~If() { }
 
+  // clang-format off
+  // Attributes getters
   const GraphAttr& getElseBranch() const { return m_ElseBranch; }
 
   const GraphAttr& getThenBranch() const { return m_ThenBranch; }
+
+
+  // Attributes setters
+  void setElseBranch(const GraphAttr& pElseBranch) { m_ElseBranch = pElseBranch; }
+
+  void setThenBranch(const GraphAttr& pThenBranch) { m_ThenBranch = pThenBranch; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +58,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getCond() { return getInput(kCond); }
 
+
+  // Outputs getters
   Tensor* getOutputs(size_t pIdx) { return getOutput(kOutputs + pIdx); }
 
+
+  // Inputs setters
   void setCond(Tensor& pTensor) { m_Inputs[kCond] = &pTensor; }
 
+
+  // Outputs setters
   void setOutputs(size_t pIdx, Tensor& pTensor) { m_Outputs[kOutputs + pIdx] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +85,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   GraphAttr m_ElseBranch;
   GraphAttr m_ThenBranch;
+  // clang-format on
 };
 
 } // namespace of onnc

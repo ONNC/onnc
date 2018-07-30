@@ -23,7 +23,6 @@ public:
     kB = 2,
     kInMean = 3,
     kInVar = 4,
-
     kY = 0,
     kOutMean = 1,
     kOutVar = 2,
@@ -36,28 +35,35 @@ public:
 public:
   BatchNormalization();
 
+  // clang-format off
   BatchNormalization(const FloatAttr& pEpsilon,
-                     const IntAttr& pIsTest,
                      const FloatAttr& pMomentum,
                      const IntAttr& pSpatial);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  BatchNormalization(const BatchNormalization &pCopy);
+
   ~BatchNormalization() { }
 
+  // clang-format off
+  // Attributes getters
   const FloatAttr& getEpsilon() const { return m_Epsilon; }
-
-  void setEpsilon(const FloatAttr& pE) { m_Epsilon = pE; }
-
-  const IntAttr& getIsTest() const { return m_IsTest; }
-
-  void setIsTest(const IntAttr& pB) { m_IsTest = pB; }
 
   const FloatAttr& getMomentum() const { return m_Momentum; }
 
-  void setMomentum(const FloatAttr& pMomentum) { m_Momentum = pMomentum; }
-
   const IntAttr& getSpatial() const { return m_Spatial; }
 
-  void setSpatial(const IntAttr& pS) { m_Spatial = pS; }
+
+  // Attributes setters
+  void setEpsilon(const FloatAttr& pEpsilon) { m_Epsilon = pEpsilon; }
+
+  void setMomentum(const FloatAttr& pMomentum) { m_Momentum = pMomentum; }
+
+  void setSpatial(const IntAttr& pSpatial) { m_Spatial = pSpatial; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -67,6 +73,8 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getScale() { return getInput(kScale); }
@@ -77,6 +85,8 @@ public:
 
   Tensor* getInVar() { return getInput(kInVar); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
   Tensor* getOutMean() { return getOutput(kOutMean); }
@@ -87,6 +97,8 @@ public:
 
   Tensor* getSavedVar() { return getOutput(kSavedVar); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
   void setScale(Tensor& pTensor) { m_Inputs[kScale] = &pTensor; }
@@ -97,6 +109,8 @@ public:
 
   void setInVar(Tensor& pTensor) { m_Inputs[kInVar] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
 
   void setOutMean(Tensor& pTensor) { m_Outputs[kOutMean] = &pTensor; }
@@ -107,6 +121,8 @@ public:
 
   void setSavedVar(Tensor& pTensor) { m_Outputs[kSavedVar] = &pTensor; }
 
+  // clang-format on
+
   void print(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
@@ -116,10 +132,11 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   FloatAttr m_Epsilon;
-  IntAttr m_IsTest;
   FloatAttr m_Momentum;
   IntAttr m_Spatial;
+  // clang-format on
 };
 
 } // namespace of onnc

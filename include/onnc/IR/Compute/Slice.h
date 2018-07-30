@@ -25,19 +25,37 @@ public:
   static char ID;
 
 public:
-  Slice();
+  Slice(const IntsAttr& pEnds, const IntsAttr& pStarts);
 
+  // clang-format off
   Slice(const IntsAttr& pAxes,
         const IntsAttr& pEnds,
         const IntsAttr& pStarts);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  Slice(const Slice &pCopy);
+
   ~Slice() { }
 
+  // clang-format off
+  // Attributes getters
   const IntsAttr& getAxes() const { return m_Axes; }
 
   const IntsAttr& getEnds() const { return m_Ends; }
 
   const IntsAttr& getStarts() const { return m_Starts; }
+
+
+  // Attributes setters
+  void setAxes(const IntsAttr& pAxes) { m_Axes = pAxes; }
+
+  void setEnds(const IntsAttr& pEnds) { m_Ends = pEnds; }
+
+  void setStarts(const IntsAttr& pStarts) { m_Starts = pStarts; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -47,13 +65,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getData() { return getInput(kData); }
 
+
+  // Outputs getters
   Tensor* getOutput() { return getOutput(kOutput); }
 
+
+  // Inputs setters
   void setData(Tensor& pTensor) { m_Inputs[kData] = &pTensor; }
 
+
+  // Outputs setters
   void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -64,9 +92,11 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntsAttr m_Axes;
   IntsAttr m_Ends;
   IntsAttr m_Starts;
+  // clang-format on
 };
 
 } // namespace of onnc

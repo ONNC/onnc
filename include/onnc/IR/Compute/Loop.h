@@ -27,13 +27,26 @@ public:
   static char ID;
 
 public:
-  Loop();
-
   Loop(const GraphAttr& pBody);
+
+  // clang-format off
+  
+  // clang-format on
+
+  // shallow copy constructor.
+  Loop(const Loop &pCopy);
 
   ~Loop() { }
 
+  // clang-format off
+  // Attributes getters
   const GraphAttr& getBody() const { return m_Body; }
+
+
+  // Attributes setters
+  void setBody(const GraphAttr& pBody) { m_Body = pBody; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -43,21 +56,31 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getM() { return getInput(kM); }
 
   Tensor* getCond() { return getInput(kCond); }
 
   Tensor* getVInitial(size_t pIdx) { return getInput(kVInitial + pIdx); }
 
+
+  // Outputs getters
   Tensor* getVFinalAndScanOutputs(size_t pIdx) { return getOutput(kVFinalAndScanOutputs + pIdx); }
 
+
+  // Inputs setters
   void setM(Tensor& pTensor) { m_Inputs[kM] = &pTensor; }
 
   void setCond(Tensor& pTensor) { m_Inputs[kCond] = &pTensor; }
 
   void setVInitial(size_t pIdx, Tensor& pTensor) { m_Inputs[kVInitial + pIdx] = &pTensor; }
 
+
+  // Outputs setters
   void setVFinalAndScanOutputs(size_t pIdx, Tensor& pTensor) { m_Outputs[kVFinalAndScanOutputs + pIdx] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -68,7 +91,9 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   GraphAttr m_Body;
+  // clang-format on
 };
 
 } // namespace of onnc

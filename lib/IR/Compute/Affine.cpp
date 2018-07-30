@@ -16,8 +16,8 @@ char Affine::ID = 0;
 //===----------------------------------------------------------------------===//
 Affine::Affine()
   : ComputeOperator("Affine", ID),
-    m_Alpha(),
-    m_Beta() {
+    m_Alpha(1.0),
+    m_Beta(0.0) {
 }
 
 Affine::Affine(const FloatAttr& pAlpha,
@@ -28,10 +28,11 @@ Affine::Affine(const FloatAttr& pAlpha,
 }
 
 Affine::Affine(const Affine& pCopy)
-  : ComputeOperator(pCopy),
+  : ComputeOperator(pCopy) /* shallow copy */,
     m_Alpha(pCopy.getAlpha()),
     m_Beta(pCopy.getBeta()) {
 }
+
 void Affine::print(std::ostream& pOS) const
 {
   pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";

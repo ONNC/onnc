@@ -17,7 +17,7 @@ char ReduceSumSquare::ID = 0;
 ReduceSumSquare::ReduceSumSquare()
   : ComputeOperator("ReduceSumSquare", ID),
     m_Axes(),
-    m_Keepdims() {
+    m_Keepdims(1) {
 }
 
 ReduceSumSquare::ReduceSumSquare(const IntsAttr& pAxes,
@@ -27,8 +27,15 @@ ReduceSumSquare::ReduceSumSquare(const IntsAttr& pAxes,
     m_Keepdims(pKeepdims) {
 }
 
+ReduceSumSquare::ReduceSumSquare(const ReduceSumSquare& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ReduceSumSquare::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
 }
 
 bool ReduceSumSquare::classof(const ComputeOperator* pOp)

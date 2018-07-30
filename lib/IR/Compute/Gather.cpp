@@ -16,7 +16,7 @@ char Gather::ID = 0;
 //===----------------------------------------------------------------------===//
 Gather::Gather()
   : ComputeOperator("Gather", ID),
-    m_Axis() {
+    m_Axis(0) {
 }
 
 Gather::Gather(const IntAttr& pAxis)
@@ -24,8 +24,14 @@ Gather::Gather(const IntAttr& pAxis)
     m_Axis(pAxis) {
 }
 
+Gather::Gather(const Gather& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()) {
+}
+
 void Gather::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ">";
 }
 
 bool Gather::classof(const ComputeOperator* pOp)

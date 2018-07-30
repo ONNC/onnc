@@ -15,20 +15,18 @@ char Equal::ID = 0;
 // Equal
 //===----------------------------------------------------------------------===//
 Equal::Equal()
-  : ComputeOperator("Equal", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Equal", ID) {
 }
 
-Equal::Equal(const IntAttr& pAxis,
-             const IntAttr& pBroadcast)
-  : ComputeOperator("Equal", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Equal::Equal(const Equal& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Equal::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Equal::classof(const ComputeOperator* pOp)

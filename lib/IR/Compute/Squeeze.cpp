@@ -24,8 +24,14 @@ Squeeze::Squeeze(const IntsAttr& pAxes)
     m_Axes(pAxes) {
 }
 
+Squeeze::Squeeze(const Squeeze& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()) {
+}
+
 void Squeeze::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ">";
 }
 
 bool Squeeze::classof(const ComputeOperator* pOp)

@@ -27,14 +27,30 @@ public:
 public:
   ReduceLogSumExp();
 
+  // clang-format off
   ReduceLogSumExp(const IntsAttr& pAxes,
                   const IntAttr& pKeepdims);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  ReduceLogSumExp(const ReduceLogSumExp &pCopy);
+
   ~ReduceLogSumExp() { }
 
+  // clang-format off
+  // Attributes getters
   const IntsAttr& getAxes() const { return m_Axes; }
 
   const IntAttr& getKeepdims() const { return m_Keepdims; }
+
+
+  // Attributes setters
+  void setAxes(const IntsAttr& pAxes) { m_Axes = pAxes; }
+
+  void setKeepdims(const IntAttr& pKeepdims) { m_Keepdims = pKeepdims; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getData() { return getInput(kData); }
 
+
+  // Outputs getters
   Tensor* getReduced() { return getOutput(kReduced); }
 
+
+  // Inputs setters
   void setData(Tensor& pTensor) { m_Inputs[kData] = &pTensor; }
 
+
+  // Outputs setters
   void setReduced(Tensor& pTensor) { m_Outputs[kReduced] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   IntsAttr m_Axes;
   IntAttr m_Keepdims;
+  // clang-format on
 };
 
 } // namespace of onnc

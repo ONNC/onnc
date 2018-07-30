@@ -16,19 +16,22 @@ char Dropout::ID = 0;
 //===----------------------------------------------------------------------===//
 Dropout::Dropout()
   : ComputeOperator("Dropout", ID),
-    m_IsTest(),
-    m_Ratio() {
+    m_Ratio(0.5) {
 }
 
-Dropout::Dropout(const IntAttr& pIsTest,
-                 const FloatAttr& pRatio)
+Dropout::Dropout(const FloatAttr& pRatio)
   : ComputeOperator("Dropout", ID),
-    m_IsTest(pIsTest),
     m_Ratio(pRatio) {
+}
+
+Dropout::Dropout(const Dropout& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Ratio(pCopy.getRatio()) {
 }
 
 void Dropout::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getRatio() << ">";
 }
 
 bool Dropout::classof(const ComputeOperator* pOp)

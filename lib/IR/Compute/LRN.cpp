@@ -1,4 +1,4 @@
-//===- LRN.cpp ------------------------------------------------------------===//
+//===- LRN.cpp ------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -16,9 +16,9 @@ char LRN::ID = 0;
 //===----------------------------------------------------------------------===//
 LRN::LRN(const IntAttr& pSize)
   : ComputeOperator("LRN", ID),
-    m_Alpha(1e-4f),
-    m_Beta(0.75f),
-    m_Bias(1.0f),
+    m_Alpha(9.99999974738e-05),
+    m_Beta(0.75),
+    m_Bias(1.0),
     m_Size(pSize) {
 }
 
@@ -33,9 +33,17 @@ LRN::LRN(const FloatAttr& pAlpha,
     m_Size(pSize) {
 }
 
+LRN::LRN(const LRN& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Alpha(pCopy.getAlpha()),
+    m_Beta(pCopy.getBeta()),
+    m_Bias(pCopy.getBias()),
+    m_Size(pCopy.getSize()) {
+}
+
 void LRN::print(std::ostream& pOS) const
 {
-  // TODO
+  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ", " << getBias() << ", " << getSize() << ">";
 }
 
 bool LRN::classof(const ComputeOperator* pOp)

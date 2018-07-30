@@ -27,14 +27,30 @@ public:
 public:
   Selu();
 
+  // clang-format off
   Selu(const FloatAttr& pAlpha,
        const FloatAttr& pGamma);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  Selu(const Selu &pCopy);
+
   ~Selu() { }
 
+  // clang-format off
+  // Attributes getters
   const FloatAttr& getAlpha() const { return m_Alpha; }
 
   const FloatAttr& getGamma() const { return m_Gamma; }
+
+
+  // Attributes setters
+  void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
+
+  void setGamma(const FloatAttr& pGamma) { m_Gamma = pGamma; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Gamma;
+  // clang-format on
 };
 
 } // namespace of onnc

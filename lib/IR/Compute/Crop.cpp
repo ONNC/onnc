@@ -27,8 +27,15 @@ Crop::Crop(const IntsAttr& pBorder,
     m_Scale(pScale) {
 }
 
+Crop::Crop(const Crop& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Border(pCopy.getBorder()),
+    m_Scale(pCopy.getScale()) {
+}
+
 void Crop::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getBorder() << ", " << getScale() << ">";
 }
 
 bool Crop::classof(const ComputeOperator* pOp)

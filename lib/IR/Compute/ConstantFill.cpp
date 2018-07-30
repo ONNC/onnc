@@ -16,11 +16,11 @@ char ConstantFill::ID = 0;
 //===----------------------------------------------------------------------===//
 ConstantFill::ConstantFill()
   : ComputeOperator("ConstantFill", ID),
-    m_Dtype(),
+    m_Dtype(1),
     m_ExtraShape(),
     m_InputAsShape(),
     m_Shape(),
-    m_Value() {
+    m_Value(0.0) {
 }
 
 ConstantFill::ConstantFill(const IntAttr& pDtype,
@@ -36,8 +36,18 @@ ConstantFill::ConstantFill(const IntAttr& pDtype,
     m_Value(pValue) {
 }
 
+ConstantFill::ConstantFill(const ConstantFill& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Dtype(pCopy.getDtype()),
+    m_ExtraShape(pCopy.getExtraShape()),
+    m_InputAsShape(pCopy.getInputAsShape()),
+    m_Shape(pCopy.getShape()),
+    m_Value(pCopy.getValue()) {
+}
+
 void ConstantFill::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getDtype() << ", " << getExtraShape() << ", " << getInputAsShape() << ", " << getShape() << ", " << getValue() << ">";
 }
 
 bool ConstantFill::classof(const ComputeOperator* pOp)

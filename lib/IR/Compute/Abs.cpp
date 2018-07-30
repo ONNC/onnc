@@ -1,4 +1,4 @@
-//===- Abs.cpp ------------------------------------------------------------===//
+//===- Abs.cpp ------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -17,6 +17,8 @@ char Abs::ID = 0;
 Abs::Abs()
   : ComputeOperator("Abs", ID) {
 }
+
+
 
 Abs::Abs(const Abs& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {

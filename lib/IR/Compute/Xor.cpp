@@ -15,20 +15,18 @@ char Xor::ID = 0;
 // Xor
 //===----------------------------------------------------------------------===//
 Xor::Xor()
-  : ComputeOperator("Xor", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Xor", ID) {
 }
 
-Xor::Xor(const IntAttr& pAxis,
-         const IntAttr& pBroadcast)
-  : ComputeOperator("Xor", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Xor::Xor(const Xor& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Xor::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Xor::classof(const ComputeOperator* pOp)

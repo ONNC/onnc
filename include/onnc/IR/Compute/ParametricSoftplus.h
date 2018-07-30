@@ -27,14 +27,30 @@ public:
 public:
   ParametricSoftplus();
 
+  // clang-format off
   ParametricSoftplus(const FloatAttr& pAlpha,
                      const FloatAttr& pBeta);
 
+  // clang-format on
+
+  // shallow copy constructor.
+  ParametricSoftplus(const ParametricSoftplus &pCopy);
+
   ~ParametricSoftplus() { }
 
+  // clang-format off
+  // Attributes getters
   const FloatAttr& getAlpha() const { return m_Alpha; }
 
   const FloatAttr& getBeta() const { return m_Beta; }
+
+
+  // Attributes setters
+  void setAlpha(const FloatAttr& pAlpha) { m_Alpha = pAlpha; }
+
+  void setBeta(const FloatAttr& pBeta) { m_Beta = pBeta; }
+
+  // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
 
@@ -44,13 +60,23 @@ public:
 
   const Tensor* getOutput(unsigned int pIdx) const override { return static_cast<Tensor*>(m_Outputs[pIdx]); }
 
+  // clang-format off
+  // Inputs getters
   Tensor* getX() { return getInput(kX); }
 
+
+  // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+
+  // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
+
+  // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  // clang-format on
 
   void print(std::ostream& pOS) const override;
 
@@ -61,8 +87,10 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Beta;
+  // clang-format on
 };
 
 } // namespace of onnc

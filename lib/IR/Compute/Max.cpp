@@ -20,8 +20,13 @@ Max::Max()
 
 
 
+Max::Max(const Max& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void Max::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Max::classof(const ComputeOperator* pOp)

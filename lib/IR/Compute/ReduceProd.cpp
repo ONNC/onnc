@@ -17,7 +17,7 @@ char ReduceProd::ID = 0;
 ReduceProd::ReduceProd()
   : ComputeOperator("ReduceProd", ID),
     m_Axes(),
-    m_Keepdims() {
+    m_Keepdims(1) {
 }
 
 ReduceProd::ReduceProd(const IntsAttr& pAxes,
@@ -27,8 +27,15 @@ ReduceProd::ReduceProd(const IntsAttr& pAxes,
     m_Keepdims(pKeepdims) {
 }
 
+ReduceProd::ReduceProd(const ReduceProd& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axes(pCopy.getAxes()),
+    m_Keepdims(pCopy.getKeepdims()) {
+}
+
 void ReduceProd::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
 }
 
 bool ReduceProd::classof(const ComputeOperator* pOp)

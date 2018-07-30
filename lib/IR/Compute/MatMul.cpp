@@ -20,8 +20,13 @@ MatMul::MatMul()
 
 
 
+MatMul::MatMul(const MatMul& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
+}
+
 void MatMul::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool MatMul::classof(const ComputeOperator* pOp)

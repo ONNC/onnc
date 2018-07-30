@@ -15,20 +15,18 @@ char Less::ID = 0;
 // Less
 //===----------------------------------------------------------------------===//
 Less::Less()
-  : ComputeOperator("Less", ID),
-    m_Axis(),
-    m_Broadcast() {
+  : ComputeOperator("Less", ID) {
 }
 
-Less::Less(const IntAttr& pAxis,
-           const IntAttr& pBroadcast)
-  : ComputeOperator("Less", ID),
-    m_Axis(pAxis),
-    m_Broadcast(pBroadcast) {
+
+
+Less::Less(const Less& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
 void Less::print(std::ostream& pOS) const
 {
+  pOS << name();
 }
 
 bool Less::classof(const ComputeOperator* pOp)

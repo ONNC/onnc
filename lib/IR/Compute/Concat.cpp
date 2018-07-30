@@ -19,8 +19,16 @@ Concat::Concat(const IntAttr& pAxis)
     m_Axis(pAxis) {
 }
 
+
+
+Concat::Concat(const Concat& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Axis(pCopy.getAxis()) {
+}
+
 void Concat::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getAxis() << ">";
 }
 
 bool Concat::classof(const ComputeOperator* pOp)

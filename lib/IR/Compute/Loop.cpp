@@ -14,18 +14,21 @@ char Loop::ID = 0;
 //===----------------------------------------------------------------------===//
 // Loop
 //===----------------------------------------------------------------------===//
-Loop::Loop()
-  : ComputeOperator("Loop", ID),
-    m_Body() {
-}
-
 Loop::Loop(const GraphAttr& pBody)
   : ComputeOperator("Loop", ID),
     m_Body(pBody) {
 }
 
+
+
+Loop::Loop(const Loop& pCopy)
+  : ComputeOperator(pCopy) /* shallow copy */,
+    m_Body(pCopy.getBody()) {
+}
+
 void Loop::print(std::ostream& pOS) const
 {
+  pOS << name() << "< " << getBody() << ">";
 }
 
 bool Loop::classof(const ComputeOperator* pOp)
