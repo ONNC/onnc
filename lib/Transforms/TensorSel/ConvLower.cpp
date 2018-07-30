@@ -1,4 +1,4 @@
-//===- ConvLower.cpp ------------------------------------------------------===//
+//===- ConvLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,22 +33,26 @@ int ConvLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 ConvLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (1 > pNode.inputs().size() || pNode.inputs().size() > 4)
+  // check input/output number
+  if (pNode.inputs().size() < 2 || 3 < pNode.inputs().size())
     return nullptr;
 
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  if (1 != pNode.outputs().size())
-    return nullptr;
-
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
+
+  // check default attributes
+  
 
   // create operators
   onnc::Conv* op = pGraph.addOperator<onnc::Conv>();
@@ -56,10 +60,8 @@ ConvLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
     op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
-
   if (pNode.hasAttribute(::onnx::Symbol("dilations")))
     op->setDilations(pNode.is(::onnx::Symbol("dilations")));
-
   if (pNode.hasAttribute(::onnx::Symbol("group")))
     op->setGroup(pNode.i(::onnx::Symbol("group")));
   if (pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
@@ -70,11 +72,18 @@ ConvLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     op->setStrides(pNode.is(::onnx::Symbol("strides")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs())
-    op->addInput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
+  }
 
-  for (::onnx::Value* xv : pNode.outputs())
-    op->addOutput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
-
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
   return op;
 }

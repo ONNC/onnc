@@ -1,4 +1,4 @@
-//===- GemmLower.cpp ------------------------------------------------------===//
+//===- GemmLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,22 +33,26 @@ int GemmLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 GemmLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (3 == pNode.inputs().size())
+  // check input/output number
+  if (pNode.inputs().size() != 3)
     return nullptr;
 
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  if (1 != pNode.outputs().size())
-    return nullptr;
-
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
+
+  // check default attributes
+  
 
   // create operators
   onnc::Gemm* op = pGraph.addOperator<onnc::Gemm>();

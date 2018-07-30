@@ -1,4 +1,4 @@
-//===- AcosLower.cpp ------------------------------------------------------===//
+//===- AcosLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,25 +33,32 @@ int AcosLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 AcosLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (1 != pNode.inputs().size())
+  // check input/output number
+  if (pNode.inputs().size() != 1)
     return nullptr;
 
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
-
-  if (1 != pNode.outputs().size())
-    return nullptr;
 
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
+  // check default attributes
+  
+
   // create operators
   onnc::Acos* op = pGraph.addOperator<onnc::Acos>();
+
+  // set optional attributes
+  
 
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
@@ -67,6 +74,5 @@ AcosLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addOutput(*tensor);
   }
-
   return op;
 }

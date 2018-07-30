@@ -1,4 +1,4 @@
-//===- AveragePoolLower.cpp -----------------------------------------------===//
+//===- AveragePoolLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,41 +33,39 @@ int AveragePoolLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 AveragePoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (1 != pNode.inputs().size())
+  // check input/output number
+  if (pNode.inputs().size() != 1)
     return nullptr;
 
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
-
-  if (1 != pNode.outputs().size())
-    return nullptr;
 
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  // check required attributes
+  // check default attributes
   if (!pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
     return nullptr;
 
   // create operators
   onnc::AveragePool* op = pGraph.addOperator<onnc::AveragePool>(
-      pNode.is(::onnx::Symbol("kernel_shape")));
+    pNode.is(::onnx::Symbol("kernel_shape")));
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
     op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
-
   if (pNode.hasAttribute(::onnx::Symbol("count_include_pad")))
     op->setCountIncludePad(pNode.i(::onnx::Symbol("count_include_pad")));
-
   if (pNode.hasAttribute(::onnx::Symbol("pads")))
     op->setPads(pNode.is(::onnx::Symbol("pads")));
-
   if (pNode.hasAttribute(::onnx::Symbol("strides")))
     op->setStrides(pNode.is(::onnx::Symbol("strides")));
 

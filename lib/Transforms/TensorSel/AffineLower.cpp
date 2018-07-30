@@ -1,4 +1,4 @@
-//===- AffineLower.cpp -------------------------------------------------------===//
+//===- AffineLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,22 +33,26 @@ int AffineLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 AffineLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (1 != pNode.inputs().size())
+  // check input/output number
+  if (pNode.inputs().size() != 1)
     return nullptr;
 
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  if (1 != pNode.outputs().size())
-    return nullptr;
-
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
+
+  // check default attributes
+  
 
   // create operators
   onnc::Affine* op = pGraph.addOperator<onnc::Affine>();

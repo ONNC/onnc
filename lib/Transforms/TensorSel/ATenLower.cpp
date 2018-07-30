@@ -1,4 +1,4 @@
-//===- ATenLower.cpp -------------------------------------------------------===//
+//===- ATenLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,25 +33,32 @@ int ATenLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 ATenLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (pNode.inputs().empty())
+  // check input/output number
+  if (pNode.inputs().size() < 1)
     return nullptr;
 
+  if (pNode.outputs().size() < 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
-
-  if (pNode.outputs().empty())
-    return nullptr;
 
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
+  // check default attributes
+  
+
   // create operators
   onnc::ATen* op = pGraph.addOperator<onnc::ATen>();
+
+  // set optional attributes
+  
 
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
@@ -67,6 +74,5 @@ ATenLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addOutput(*tensor);
   }
-
   return op;
 }

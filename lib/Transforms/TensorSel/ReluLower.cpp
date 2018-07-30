@@ -1,4 +1,4 @@
-//===- ReluLower.cpp ------------------------------------------------------===//
+//===- ReluLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,22 +33,32 @@ int ReluLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 ReluLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
+  // check input/output number
+  if (pNode.inputs().size() != 1)
+    return nullptr;
+
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
   // check input/output name
-  if (1 != pNode.inputs().size())
-    return nullptr;
+  for (::onnx::Value* xv : pNode.inputs()) {
+    if (!xv->has_unique_name())
+      return nullptr;
+  }
 
-  ::onnx::Value* ox = pNode.inputs()[0];
-  if (!ox->has_unique_name())
-    return nullptr;
+  for (::onnx::Value* xv : pNode.outputs()) {
+    if (!xv->has_unique_name())
+      return nullptr;
+  }
 
-  if (1 != pNode.outputs().size())
-    return nullptr;
-  ::onnx::Value* oy = pNode.outputs()[0];
-  if (!oy->has_unique_name())
-    return nullptr;
+  // check default attributes
+  
 
   // create operators
   onnc::Relu* op = pGraph.addOperator<onnc::Relu>();
+
+  // set optional attributes
+  
 
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
@@ -64,6 +74,5 @@ ReluLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addOutput(*tensor);
   }
-
   return op;
 }

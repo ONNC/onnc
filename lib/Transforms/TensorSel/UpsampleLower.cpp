@@ -1,4 +1,4 @@
-//===- UpsampleLower.cpp -------------------------------------------------------===//
+//===- UpsampleLower.cpp -------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,32 +33,31 @@ int UpsampleLower::isMe(const ::onnx::Node& pNode) const
 ComputeOperator*
 UpsampleLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 {
-  // check input/output name
-  if (1 != pNode.inputs().size())
+  // check input/output number
+  if (pNode.inputs().size() != 1)
     return nullptr;
 
+  if (pNode.outputs().size() != 1)
+    return nullptr;
+
+  // check input/output name
   for (::onnx::Value* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
-
-  if (1 != pNode.outputs().size())
-    return nullptr;
 
   for (::onnx::Value* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  // check required attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("height_scale")))
-    return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("width_scale")))
+  // check default attributes
+  if (!pNode.hasAttribute(::onnx::Symbol("scales")))
     return nullptr;
 
   // create operators
   onnc::Upsample* op = pGraph.addOperator<onnc::Upsample>(
-      pNode.fs(::onnx::Symbol("scales")));
+    pNode.fs(::onnx::Symbol("scales")));
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("mode")))
