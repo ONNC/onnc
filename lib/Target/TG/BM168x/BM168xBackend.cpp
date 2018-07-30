@@ -18,11 +18,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // BM1680
 //===----------------------------------------------------------------------===//
-BM1680Backend::BM1680Backend(Instructions& pInsns,
-                             ComputeOperators& pCOps,
-                             const TargetOptions &pOptions)
+BM1680Backend::BM1680Backend(Instructions& pIns, const TargetOptions &pOptions)
     : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
-                pInsns, pCOps, pOptions)
+                pIns, pOptions)
 {
 }
 
@@ -50,11 +48,9 @@ std::unique_ptr<TGFuseOptimizer> BM1680Backend::getFuseOptimizr()
 //===----------------------------------------------------------------------===//
 // BM1682
 //===----------------------------------------------------------------------===//
-BM1682Backend::BM1682Backend(Instructions& pInsns,
-                             ComputeOperators& pCOps,
-                             const TargetOptions &pOptions)
+BM1682Backend::BM1682Backend(Instructions& pIns, const TargetOptions &pOptions)
     : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
-                pInsns, pCOps, pOptions)
+                pIns, pOptions)
 {
 }
 

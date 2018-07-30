@@ -44,10 +44,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // BM1880
 //===----------------------------------------------------------------------===//
-BM1880Backend::BM1880Backend(Instructions& pInsn, ComputeOperators& pCOps,
-                             const TargetOptions &pOptions)
+BM1880Backend::BM1880Backend(Instructions& pInsn, const TargetOptions &pOptions)
     : TGBackend(new BM188xISelLowering(this),
-                new BM188xCodeEmitter(this, pInsn), pInsn, pCOps, pOptions)
+                new BM188xCodeEmitter(this, pInsn), pInsn, pOptions)
 {
   m_pMemInfo = new BM188xTargetMemInfo(this);
   m_pTTI = new BM188xTargetTransformInfo(this);

@@ -25,7 +25,6 @@ public:
 
 public:
   BM1880Backend(TGBackend::Instructions& pInsns,
-                TGBackend::ComputeOperators& pCOps,
                 const TargetOptions &pOptions);
 
   ~BM1880Backend() override = default;

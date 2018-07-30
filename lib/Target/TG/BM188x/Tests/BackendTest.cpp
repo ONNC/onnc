@@ -64,8 +64,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
   // BM188xBackend passes, the golden.
   onnc::Module golden_module;
   TGBackend::Instructions golden_insns;
-  TGBackend::ComputeOperators golden_cops;
-  BM1880Backend golden_backend(golden_insns, golden_cops, options);
+  BM1880Backend golden_backend(golden_insns, options);
   {
     SystemError err = reader.parse(path, golden_module);
     ASSERT_TRUE(err.isGood());
@@ -93,16 +92,15 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
       //golden_module.print(errs());
     }
   }
-  
+
   // passes under test
   onnc::Module test_module;
   TGBackend::Instructions test_insns;
-  TGBackend::ComputeOperators test_cops;
-  BM1880Backend test_backend(test_insns, test_cops, options);
+  BM1880Backend test_backend(test_insns, options);
   {
     SystemError err = reader.parse(path, test_module);
     ASSERT_TRUE(err.isGood());
-    
+
     PassRegistry registry;
     PassManager pm(registry);
 
@@ -155,7 +153,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     ASSERT_TRUE(name_is_found);
   }
   errs() << std::endl;
-  
+
   // Compare memory operands
   typedef std::vector<MemOperand *> MemVector;
   MemVector& golden_mem = golden_backend.getMemOperands();
@@ -166,7 +164,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
   for (MemVector::iterator it = golden_mem.begin(); it != golden_mem.end(); ++it) {
     const std::string& name = (*it)->m_Name;
     errs() << " " << name;
-    
+
     bool name_is_found = false;
     for (MemVector::iterator t_it = test_mem.begin(); t_it != test_mem.end(); ++t_it) {
       if (name == (*t_it)->m_Name) {
@@ -180,4 +178,135 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
 
 }
 
+//===----------------------------------------------------------------------===//
+// test single pass
+//===----------------------------------------------------------------------===//
+SKYPAT_F(BM188xTest, bm188x_single_pass)
+{
+  Path path(TOPDIR);
+  path.append("tools")
+      .append("unittests")
+      .append("data")
+      .append("lenet")
+      .append("model.onnx");
 
+  onnc::Module module;
+  onnc::onnx::Reader reader;
+  SystemError err = reader.parse(path, module);
+
+  ASSERT_TRUE(err.isGood());
+
+  PassRegistry registry;
+  PassManager pm(registry);
+
+  TargetOptions options;
+  options.useDummyWeight(true);
+
+  TGBackend::Instructions insns;
+  BM1880Backend backend(insns, options);
+  pm.add(CreateRemoveTrainingNodesPass());
+  pm.add(CreateAddDummyWeightPass());
+  pm.add(CreateUpdateGraphOutputSizePass());
+  pm.add(createPrepareCtablePass( &backend ));
+  pm.add(createONNXFuseOptPass( &backend ));
+  pm.add(createTargetLoweringPass( &backend ));
+  pm.add(CreateQuantizePass( &backend ));
+  pm.add(createUpdateCtablePass( &backend ));
+  pm.add(CreateGlobalMemAllocPass( &backend ));
+  pm.add(CreateTGCodeEmitPass( &backend, "-" ));
+
+  PassRegistry reg2;
+  PassManager pm2(reg2);
+  TGBackend::Instructions insns2;
+  BM1880Backend backend2(insns2, options);
+  pm2.add(CreateRemoveTrainingNodesPass());
+  pm2.add(CreateAddDummyWeightPass());
+  pm2.add(CreateUpdateGraphOutputSizePass());
+  pm2.add(createPrepareCtablePass( &backend2 ));
+  pm2.add(createONNXFuseOptPass( &backend2 ));
+
+  /// create compute operator
+  pm2.add(CreateDeadNodeEliminationPass());
+  pm2.add(CreateBookONNXGraphs());
+  pm2.add(CreateBuildInitializers());
+  pm2.add(CreateBuildInputOperators());
+  pm2.add(CreateTensorSel(&backend2));
+
+  //pm2.add(createTargetLoweringPass( &backend2 ));
+  //pm2.add(CreateQuantizePass( &backend2 ));
+  //pm2.add(createUpdateCtablePass( &backend2 ));
+  pm2.add(CreateGlobalMemAllocPass( &backend2 ));
+  pm2.add(CreateTGCodeEmitPass( &backend2, "-" ));
+
+  // remove training nodes
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // add dummy weight
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // update output size
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // prepare ctable
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // fuse opt
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // target lowering
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+/**
+  // quantize pass
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // update ctable
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // global mem alloc
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+
+  // tg code emit
+  pm.step(module);
+  errs() << pm.state().pass->getPassName() << std::endl;
+  for (auto &insn : insns) {
+    errs() << insn->getLayerName() << ": " << insn->getTypeName() << std::endl;
+  }
+**/
+}

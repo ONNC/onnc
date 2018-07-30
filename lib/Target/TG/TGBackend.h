@@ -36,11 +36,10 @@ class TGBackend : public DLATargetBackend
 public:
   typedef std::vector<std::unique_ptr<ComputeOperator2> > Instructions;
   typedef std::vector<MemOperand *> MemOperands;
-  typedef std::vector<ComputeOperator *> ComputeOperators;
 
 public:
   TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE, Instructions& pInsns,
-            ComputeOperators& pCOps, const TargetOptions &pOptions);
+            const TargetOptions &pOptions);
 
   ~TGBackend() override;
 
@@ -94,7 +93,6 @@ public:
 
 protected:
   Instructions& m_Instructions;
-  ComputeOperators& m_ComputeOperators;
   MemOperands m_MemOperands;
 
 private:
