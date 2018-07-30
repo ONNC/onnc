@@ -8,6 +8,8 @@
 #include "TGBackend.h"
 #include "BM168x/BM168xBackend.h"
 #include "BM188x/BM188xBackend.h"
+#include "BuildMemOpndPass.h"
+#include "LinearScanAllocPass.h"
 #include "TG.h"
 #include "TargetInfo/TGTargetInfo.h"
 #include "TargetLowering.h"
@@ -56,6 +58,8 @@ void TGBackend::addTensorSel(PassManager &pPM)
 void TGBackend::addMemAlloc(PassManager &pPM)
 {
   pPM.add(CreateGlobalMemAllocPass(this));
+  pPM.add(CreateBuildMemOpndPass());
+  pPM.add(CreateLinearScanAllocPass(this));
 }
 
 void TGBackend::addCodeEmit(PassManager &pPM, const Path &pOutput)

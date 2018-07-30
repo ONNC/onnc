@@ -21,7 +21,9 @@ add_libonnc_src(
     TGFuseOptimizer.cpp
     TGFuseOptimizerPass.cpp
     GlobalMemAllocPass
-    TargetLoweringPass.cpp)
+    TargetLoweringPass.cpp
+    BuildMemOpndPass.cpp
+    LinearScanAllocPass.cpp)
 
 add_subdirectory(BM168x)
 add_subdirectory(BM188x)
