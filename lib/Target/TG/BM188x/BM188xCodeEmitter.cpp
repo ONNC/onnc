@@ -232,11 +232,11 @@ static onnc::json::Object genFallbackPlan(std::string pONNCLast,
 
 //#define DEBUG_WEIGHT_BIN
 
-void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
+void BM188xCodeEmitter::prepare8bitWeight(const MemOperand &pMemOp,
                                           Weight &pWeight)
 {
-  const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
-                                               *pMemOp->m_Value->owningGraph());
+  const onnx::Tensor &tensor = onnc::getTensor(pMemOp.m_Value->uniqueName(),
+                                               *pMemOp.m_Value->owningGraph());
 
   assert(tensor.is_raw_data());
   const std::string &raw = tensor.raw();
@@ -244,7 +244,7 @@ void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
 #ifdef DEBUG_WEIGHT_BIN
   Weight data;
   std::copy(raw.begin(), raw.end(), std::back_inserter(data));
-  std::cout << pMemOp->m_Value->uniqueName() << "\n";
+  std::cout << pMemOp.m_Value->uniqueName() << "\n";
   for (auto i : data) {
     std::cout << (int32_t)i << ",";
   }
@@ -252,12 +252,12 @@ void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
 #endif
 }
 
-void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
+void BM188xCodeEmitter::prepare16bitWeight(const MemOperand &pMemOp,
                                            Weight &pWeight)
 {
-  assert(pMemOp->m_Type == onnx::TensorProto_DataType_INT16);
-  const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
-                                               *pMemOp->m_Value->owningGraph());
+  assert(pMemOp.m_Type == onnx::TensorProto_DataType_INT16);
+  const onnx::Tensor &tensor = onnc::getTensor(pMemOp.m_Value->uniqueName(),
+                                               *pMemOp.m_Value->owningGraph());
 
   assert(tensor.is_raw_data());
   const std::string &raw = tensor.raw();
@@ -265,7 +265,7 @@ void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
   std::vector<int16_t> int16_vector(count);
   memcpy(int16_vector.data(), raw.data(), count * sizeof(int16_t));
 #ifdef DEBUG_WEIGHT_BIN
-  std::cout << pMemOp->m_Value->uniqueName() << "\n";
+  std::cout << pMemOp.m_Value->uniqueName() << "\n";
   for (auto i : int16_vector) {
     std::cout << i << ",";
   }
@@ -325,9 +325,9 @@ void BM188xCodeEmitter::prepareWeight(Weight &pWeight)
         continue;
 
       if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
-        prepare8bitWeight(mem_op, pWeight);
+        prepare8bitWeight(*mem_op, pWeight);
       } else {
-        prepare16bitWeight(mem_op, pWeight);
+        prepare16bitWeight(*mem_op, pWeight);
       }
     }
   }

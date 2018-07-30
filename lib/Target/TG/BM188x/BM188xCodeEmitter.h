@@ -23,8 +23,8 @@ public:
   typedef std::vector<int8_t> Weight;
 
 public:
-  static void prepare8bitWeight(const MemOperand *pMemOp, Weight &pWeight);
-  static void prepare16bitWeight(const MemOperand *pMemOp, Weight &pWeight);
+  static void prepare8bitWeight(const MemOperand &pMemOp, Weight &pWeight);
+  static void prepare16bitWeight(const MemOperand &pMemOp, Weight &pWeight);
 
 public:
   BM188xCodeEmitter(BM1880Backend *pBackend, BM1880Backend::Instructions& pInsns);

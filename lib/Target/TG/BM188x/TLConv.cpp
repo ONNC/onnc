@@ -184,7 +184,7 @@ void TLConv::prepareWeight(std::vector<int8_t> &pWeight)
     auto *mem_op = m_MemOperands[m_BiasIdx];
     if (m_MemOperands[m_BiasIdx]->m_IsWrittenInBin == false) {
       m_MemOperands[m_BiasIdx]->m_IsWrittenInBin = true;
-      BM188xCodeEmitter::prepare16bitWeight(mem_op, pWeight);
+      BM188xCodeEmitter::prepare16bitWeight(*mem_op, pWeight);
     }
   }
 }
