@@ -29,6 +29,7 @@
 #include "TLConv.h"
 #include "TLLoad.h"
 #include "TLPool.h"
+#include "TLRelu.h"
 #include "TLStore.h"
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/TargetTransformInfo.h>
@@ -124,9 +125,28 @@ ComputeOperator2 *BM188xISelLowering::LowerTLStore(const ::onnx::Node &pNode,
   return op;
 }
 
+ComputeOperator2 *BM188xISelLowering::LowerTLRelu(const ::onnx::Node &pNode,
+                                                  ComputeGraph &pGraph)
+{
+  auto *op = new BM188X::TLRelu(pNode);
+  auto *input_memop =
+      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
+  auto *output_memop =
+      m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
+  op->addMemOperands(input_memop, output_memop);
+
+  return op;
+}
+
 ComputeOperator2 *BM188xISelLowering::LowerRelu(const ::onnx::Node &pNode,
                                                 ComputeGraph &pGraph)
 {
+  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
+    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+    if (is_sliced)
+      return LowerTLRelu(pNode, pGraph);
+  }
+
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGRelu(pNode);

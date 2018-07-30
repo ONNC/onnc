@@ -20,6 +20,7 @@ add_libonnc_src(
     ONNXDumpOptPass.cpp
     TLLoad.cpp
     TLStore.cpp
+    TLRelu.cpp
     TGConv.cpp
     TLConv.cpp
     TGGemm.cpp
