@@ -1,5 +1,12 @@
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget/target)
+option(TG_GEN_ASM_PROTO "generate asm.proto by bmtarget" OFF)
+if (TG_GEN_ASM_PROTO)
+    set(bmtarget_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${bmtarget_path}/target)
+    if (NOT EXISTS ${bmtarget_path})
+        message(FATAL_ERROR "can't find bmtarget path: ${bmtarget_path}")
+    endif()
+endif()
 
 set(bm_target_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
 set(bm_PYTHONPATH ${bm_target_path}/target)
