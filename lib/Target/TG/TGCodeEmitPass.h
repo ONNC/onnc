@@ -33,6 +33,9 @@ private:
 
 } // namespace TG
 
+//===----------------------------------------------------------------------===//
+// Factory method
+//===----------------------------------------------------------------------===//
 ModulePass *CreateTGCodeEmitPass(TGBackend *pTarget,
                                  const std::string &pOutputFilename);
 

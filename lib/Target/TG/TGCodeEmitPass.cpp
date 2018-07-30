@@ -34,9 +34,11 @@ Pass::ReturnType TGCodeEmit::runOnModule(Module &pModule)
     CE->genRuntimeInfo(graph, onnc::outs());
     CE->encodeInstructions(onnc::outs());
   } else {
+    // If we're printing in files, get weight binary first
     CE->genWeightBin(m_OutputFilename + ".weight.bin");
     std::fstream rt_fp(m_OutputFilename + ".rt.json",
                        std::ios::out | std::ios::binary);
+
     CE->genRuntimeInfo(graph, rt_fp);
     std::fstream asm_fp(m_OutputFilename + ".s", std::ios::out);
     CE->encodeInstructions(asm_fp);

@@ -233,7 +233,7 @@ static onnc::json::Object genFallbackPlan(std::string pONNCLast,
 //#define DEBUG_WEIGHT_BIN
 
 void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
-                                          std::vector<int8_t> &pWeight)
+                                          Weight &pWeight)
 {
   const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
                                                *pMemOp->m_Value->owningGraph());
@@ -242,7 +242,7 @@ void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
   const std::string &raw = tensor.raw();
   std::copy(raw.begin(), raw.end(), std::back_inserter(pWeight));
 #ifdef DEBUG_WEIGHT_BIN
-  std::vector<int8_t> data;
+  Weight data;
   std::copy(raw.begin(), raw.end(), std::back_inserter(data));
   std::cout << pMemOp->m_Value->uniqueName() << "\n";
   for (auto i : data) {
@@ -253,7 +253,7 @@ void BM188xCodeEmitter::prepare8bitWeight(const MemOperand *pMemOp,
 }
 
 void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
-                                           std::vector<int8_t> &pWeight)
+                                           Weight &pWeight)
 {
   assert(pMemOp->m_Type == onnx::TensorProto_DataType_INT16);
   const onnx::Tensor &tensor = onnc::getTensor(pMemOp->m_Value->uniqueName(),
@@ -279,7 +279,7 @@ void BM188xCodeEmitter::prepare16bitWeight(const MemOperand *pMemOp,
   }
 }
 
-void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
+void BM188xCodeEmitter::prepareWeight(Weight &pWeight)
 {
   size_t weight_size = 0;
   size_t weight_count = 0;
@@ -297,7 +297,7 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
 
     // handle special case
     if (inst->getTypeName() == "Conv") {
-      std::vector<int8_t> weight;
+      Weight weight;
       auto *tgconv = dynamic_cast< ::onnc::BM188X::TGConv *>(inst.get());
       tgconv->prepareWeight(weight);
       pWeight.insert(pWeight.end(), weight.begin(), weight.end());
@@ -305,7 +305,7 @@ void BM188xCodeEmitter::prepareWeight(std::vector<int8_t> &pWeight)
     }
 
     if (inst->getTypeName() == "TLConv") {
-      std::vector<int8_t> weight;
+      Weight weight;
       auto *tlconv = dynamic_cast< ::onnc::BM188X::TLConv *>(inst.get());
       tlconv->prepareWeight(weight);
       pWeight.insert(pWeight.end(), weight.begin(), weight.end());

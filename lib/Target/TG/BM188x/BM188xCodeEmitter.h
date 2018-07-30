@@ -20,24 +20,25 @@ class BM1880Backend;
 class BM188xCodeEmitter : public TGCodeEmitter
 {
 public:
-  static void prepare8bitWeight(const MemOperand *pMemOp,
-                                std::vector<int8_t> &pWeight);
-  static void prepare16bitWeight(const MemOperand *pMemOp,
-                                 std::vector<int8_t> &pWeight);
+  typedef std::vector<int8_t> Weight;
+
+public:
+  static void prepare8bitWeight(const MemOperand *pMemOp, Weight &pWeight);
+  static void prepare16bitWeight(const MemOperand *pMemOp, Weight &pWeight);
 
 public:
   BM188xCodeEmitter(BM1880Backend *pBackend, BM1880Backend::Instructions& pInsns);
 
   ~BM188xCodeEmitter() override = default;
 
-  void encodeInstructions(std::ostream &pOS) override;
-
-  void prepareWeight(std::vector<int8_t> &pWeight);
-
-  void genWeightBin(const std::string &pOutputFilename) override;
-
   void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
                       std::ostream &pOS) override;
+
+  void encodeInstructions(std::ostream &pOS) override;
+
+  void prepareWeight(Weight &pWeight);
+
+  void genWeightBin(const std::string &pOutputFilename) override;
 
 private:
   json::Object genOutputLayer(std::string &pDefaultOnncLayerName,
@@ -52,7 +53,7 @@ private:
   // void *m_BmkernelHandle;
   BM1880Backend *m_Backend;
   BM1880Backend::Instructions& m_Instructions;
-  std::vector<int8_t> m_WeightData;
+  Weight m_WeightData;
 };
 
 class bm1880_kernel
