@@ -10,6 +10,7 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
+
 #ifndef BM188X_BMKERNEL_API_H
 #define BM188X_BMKERNEL_API_H
 
