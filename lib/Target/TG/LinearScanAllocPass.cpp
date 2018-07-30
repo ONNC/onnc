@@ -9,6 +9,7 @@
 #include "TGBackend.h"
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
+#include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Value.h>
 
