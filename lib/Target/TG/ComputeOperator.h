@@ -52,6 +52,10 @@ public:
 
   std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; };
 
+  MemOperand *getMemOperand(unsigned int pIdx);
+
+  const MemOperand *getMemOperand(unsigned int pIdx) const;
+
   virtual void emit() const = 0;
 
   virtual void memAlloc(MemTable &pPMemLayout);

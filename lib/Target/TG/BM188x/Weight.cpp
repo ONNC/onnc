@@ -9,9 +9,112 @@
 #include "TGConv.h"
 #include "TLConv.h"
 #include <onnc/Target/TG/io.hpp>
+#include <assert.h>
 
 using namespace onnc;
 using namespace onnc::BM188X;
+
+//===----------------------------------------------------------------------===//
+// PrepareWeight
+//===----------------------------------------------------------------------===//
+void PrepareWeight(Weight::WeightType& pWeight, const TGConv& pTGConv)
+{
+  const onnx::Value *value = pTGConv.getMemOperand(1)->m_Value;
+  const onnx::Tensor &tensor =
+        onnc::getTensor(value->uniqueName(), *value->owningGraph());
+  assert(pTGConv.getMemOperand(1)->m_Type == onnx::TensorProto_DataType_INT8);
+  assert(tensor.is_raw_data());
+  const std::string &raw = tensor.raw();
+  size_t count = onnc::getTotalCount(tensor.sizes());
+
+  Weight::WeightType weight;
+  weight.resize(count);
+  std::vector<int8_t> data;
+  std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+
+  // assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
+
+  // conv weight is arranged by (1, oc, kh*kw, ic)
+  // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+  int ic = pTGConv.getInC() / pTGConv.getGroups();
+  for (int oc_i = 0; oc_i < pTGConv.getOutC(); ++oc_i) {
+    for (int k_i = 0; k_i < pTGConv.getKH() * pTGConv.getKW(); ++k_i) {
+      for (int ic_i = 0; ic_i < ic; ++ic_i) {
+        int to = oc_i * (pTGConv.getKH() * pTGConv.getKW() * ic) + k_i * ic +
+                 ic_i;
+        int from = oc_i * (pTGConv.getKH() * pTGConv.getKW() * ic) +
+                   ic_i * (pTGConv.getKH() * pTGConv.getKW()) + k_i;
+        pWeight[to] = data[from];
+      }
+    }
+  }
+
+  // 16bit bias
+  if (pTGConv.getDoBias() == 1) {
+    auto *mem_op = pTGConv.getMemOperand(pTGConv.getBiasIdx());
+    Weight::prepare16bitWeight(*mem_op, weight);
+  }
+
+  // 8bit scale bias
+  if (pTGConv.getDoScale() == 1) {
+    auto *mem_op = pTGConv.getMemOperand(pTGConv.getScaleIdx());
+    Weight::prepare8bitWeight(*mem_op, weight);
+  }
+
+  // 16bit scale bias
+  if (pTGConv.getDoScaleBias() == 1) {
+    auto *mem_op = pTGConv.getMemOperand(pTGConv.getScaleBiasIdx());
+    Weight::prepare16bitWeight(*mem_op, weight);
+  }
+
+  // update weight
+  pWeight.insert(pWeight.end(), weight.begin(), weight.end());
+}
+
+void PrepareWeight(Weight::WeightType& pWeight, TLConv& pTLConv)
+{
+  Weight::WeightType weight;
+  if (pTLConv.getMemOperand(1)->m_IsWrittenInBin == false) {
+    pTLConv.getMemOperand(1)->m_IsWrittenInBin = true;
+    const onnx::Value *value = pTLConv.getMemOperand(1)->m_Value;
+    const onnx::Tensor &tensor =
+        onnc::getTensor(value->uniqueName(), *value->owningGraph());
+    assert(pTLConv.getMemOperand(1)->m_Type == onnx::TensorProto_DataType_INT8);
+    assert(tensor.is_raw_data());
+    const std::string &raw = tensor.raw();
+    size_t count = onnc::getTotalCount(tensor.sizes());
+    weight.resize(count);
+    std::vector<int8_t> data;
+    std::copy(raw.begin(), raw.end(), std::back_inserter(data));
+    int ic = pTLConv.getInC() / pTLConv.getGroups();
+//    assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
+
+    // conv weight is arranged by (1, oc, kh*kw, ic)
+    // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+    for (int oc_i = 0; oc_i < pTLConv.getOutC(); ++oc_i) {
+      for (int k_i = 0; k_i < pTLConv.getKH() * pTLConv.getKW(); ++k_i) {
+        for (int ic_i = 0; ic_i < ic; ++ic_i) {
+          int to = oc_i * (pTLConv.getKH() * pTLConv.getKW() * ic) +
+              k_i * ic + ic_i;
+          int from = oc_i * (pTLConv.getKH() * pTLConv.getKW() * ic) +
+              ic_i * (pTLConv.getKH() * pTLConv.getKW()) + k_i;
+          weight[to] = data[from];
+        }
+      }
+    }
+  }
+
+  if (pTLConv.getDoBias() == 1) {
+    auto *mem_op = pTLConv.getMemOperand(pTLConv.getBiasIdx());
+    if (!pTLConv.getMemOperand(pTLConv.getBiasIdx())->m_IsWrittenInBin) {
+      pTLConv.getMemOperand(pTLConv.getBiasIdx())->m_IsWrittenInBin = true;
+      Weight::prepare16bitWeight(*mem_op, weight);
+    }
+  }
+
+  // update weight
+  pWeight.insert(pWeight.end(), weight.begin(), weight.end());
+}
 
 //===----------------------------------------------------------------------===//
 // Weight
@@ -50,37 +153,18 @@ BM188X::Weight::prepare16bitWeight(const MemOperand &pMemOp, WeightType& pThis)
 void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
                                    TGBackend::MemOperands& pMemOperands)
 {
+  // calculate weight size
   size_t weight_size = 0;
-  size_t weight_count = 0;
   for (auto *mem_op : pMemOperands) {
-    if (mem_op->m_MemType == MemType::NEURON)
-      continue;
-    weight_size += mem_op->m_Size;
-    ++weight_count;
+    if (mem_op->m_MemType != MemType::NEURON) {
+      weight_size += mem_op->m_Size;
+    }
   }
 
   m_Weight.reserve(weight_size);
 
   // TODO save the weight on the address of MemOperand
   for (auto &inst : pInstructions) {
-
-    // handle special case
-    if (inst->getTypeName() == "Conv") {
-      std::vector<DataType> weight;
-      auto *tgconv = dynamic_cast< ::onnc::BM188X::TGConv *>(inst.get());
-      tgconv->prepareWeight(weight);
-      m_Weight.insert(m_Weight.end(), weight.begin(), weight.end());
-      continue;
-    }
-
-    if (inst->getTypeName() == "TLConv") {
-      std::vector<DataType> weight;
-      auto *tlconv = dynamic_cast< ::onnc::BM188X::TLConv *>(inst.get());
-      tlconv->prepareWeight(weight);
-      m_Weight.insert(m_Weight.end(), weight.begin(), weight.end());
-      continue;
-    }
-
     if (inst->getTypeName() == "TLLoad") {
       continue;
     }
@@ -89,15 +173,28 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
       continue;
     }
 
+    // handle special case
+    if (inst->getTypeName() == "Conv") {
+      auto *tgconv = dynamic_cast< ::onnc::BM188X::TGConv *>(inst.get());
+      PrepareWeight(m_Weight, *tgconv);
+      continue;
+    }
+
+    if (inst->getTypeName() == "TLConv") {
+      std::vector<DataType> weight;
+      auto *tlconv = dynamic_cast< ::onnc::BM188X::TLConv *>(inst.get());
+      PrepareWeight(m_Weight, *tlconv);
+      continue;
+    }
+
     // for those instruction not TLLoad and TLStore
     for (auto *mem_op : inst->getMemOperands()) {
-      if (mem_op->m_MemType == MemType::NEURON)
-        continue;
-
-      if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
-        prepare8bitWeight(*mem_op, m_Weight);
-      } else {
-        prepare16bitWeight(*mem_op, m_Weight);
+      if (mem_op->m_MemType != MemType::NEURON) {
+        if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
+          prepare8bitWeight(*mem_op, m_Weight);
+        } else {
+          prepare16bitWeight(*mem_op, m_Weight);
+        }
       }
     } // for each mem operand
   } // for each instruction

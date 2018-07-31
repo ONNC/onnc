@@ -56,4 +56,14 @@ ComputeOperator2 *ComputeOperator2::addMemOperand(MemOperand *pMemOperand)
   return this;
 }
 
+MemOperand *ComputeOperator2::getMemOperand(unsigned int pIdx)
+{
+  return m_MemOperands[pIdx];
+}
+
+const MemOperand *ComputeOperator2::getMemOperand(unsigned int pIdx) const
+{
+  return m_MemOperands[pIdx];
+}
+
 } // namespace onnc

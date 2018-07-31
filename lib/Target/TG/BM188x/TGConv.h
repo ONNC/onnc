@@ -41,6 +41,23 @@ public:
   int getScaleIdx() { return m_ScaleIdx; }
   int getScaleBiasIdx() { return m_ScaleBiasIdx; }
   float getConvOuputThreshold() { return m_ConvOutputThreshold; }
+  int getInN() const { return m_InN; }
+  int getInC() const { return m_InC; }
+  int getInH() const { return m_InH; }
+  int getInW() const { return m_InW; }
+  int getGroups() const { return m_Groups; }
+  int getOutC() const { return m_OutC; }
+
+  uint16_t getKH() const { return m_KH; }
+  uint16_t getKW() const { return m_KW; }
+
+  int getDoBias() const { return m_DoBias; }
+  int getDoScale() const { return m_DoScale; }
+  int getDoScaleBias() const { return m_DoScaleBias; }
+
+  int getBiasIdx() const { return m_BiasIdx; }
+  int getScaleIdx() const { return m_ScaleIdx; }
+  int getScaleBiasIdx() const { return m_ScaleBiasIdx; }
 
 private:
   int m_InN, m_InC, m_InH, m_InW;
