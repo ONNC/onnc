@@ -9,6 +9,8 @@
 #define ONNC_TARGET_TG_BM188X_WEIGHT_H
 #include "ComputeOperator.h"
 #include "../TGBackend.h"
+#include "TGConv.h"
+#include "TLConv.h"
 #include <onnc/Support/DataTypes.h>
 #include <vector>
 
@@ -34,7 +36,22 @@ public:
                     TGBackend::MemOperands& pMemOperands);
 
 private:
+  bool isWritten(const MemOperand* pOpnd) const;
+
+  void setWritten(const MemOperand* pOpnd);
+
+  void prepareWeight(const TLConv& pTLConv);
+
+  void prepareWeight(const TGConv& pTGConv);
+
+private:
+  /// remember the written TLConv's memory operands to prevent from
+  /// duplicatedly written.
+  typedef std::unordered_set<const MemOperand*> DoneOpndSet;
+
+private:
   WeightType m_Weight;
+  DoneOpndSet m_DoneOpndSet;
 };
 
 } // namespace of BM188X
