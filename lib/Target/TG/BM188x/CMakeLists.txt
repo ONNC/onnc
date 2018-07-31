@@ -4,15 +4,16 @@ gen_proto_cpp(PROTO proto/common_calibration2.proto SRCS proto_src)
 
 add_libonnc_src(
     ${proto_src}
+    AddDummyWeightPass.cpp
     BM188xBackend.cpp
     BM188xISelLowering.cpp
     BM188xCodeEmitter.cpp
     BM188xTargetTransformInfo.cpp
     BM188xTargetMemInfo.cpp
     BM188xVisitor.cpp
-    AddDummyWeightPass.cpp
     BM188xFuseOptimizer.cpp
     CodeEmitVisitor.cpp
+    GenWeightPass.cpp
     PrepareCtablePass.cpp
     UpdateCtablePass.cpp
     TLLoad.cpp
