@@ -1,3 +1,15 @@
+//===---------------------------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// Copyright(c) 2018, The ONNC Team
+//
+// This file is part of the ONNC Project and is distributed under
+// 3-clause BSD license (https://opensource.org/licenses/BSD-3-Clause)
+//
+// See LICENSE.TXT for details.
+//
+//===---------------------------------------------------------------------===//
 #include "BM188xBackend.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
@@ -134,7 +146,15 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
       layer_cal_param->set_right_shift_width(0);
       // Do nothing.
     } else if (symbol == onnx::Symbol("LRN")) {
-      // FIXME: fp.tsai@iclink.tw
+      auto add_blob = [&](std::string pN) {
+        tg::bm1880::BlobParameter *out_blob_param =
+            layer_cal_param->add_blob_param();
+        out_blob_param->set_name(pN);
+        out_blob_param->set_threshold_y(1);
+      };
+      add_blob("sq");
+      add_blob("sum_sq");
+      add_blob("scale");
     } else {
       // FIXME: Add assert in the future.
       errs() << "Error: Unsupport op type " << node->kind().toString()

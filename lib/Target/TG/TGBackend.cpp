@@ -1,10 +1,15 @@
-//===- TGBackend.cpp ------------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
+// Copyright(c) 2018, The ONNC Team
+//
+// This file is part of the ONNC Project and is distributed under
+// 3-clause BSD license (https://opensource.org/licenses/BSD-3-Clause)
+//
 // See LICENSE.TXT for details.
 //
-//===----------------------------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 #include "TGBackend.h"
 #include "BM168x/BM168xBackend.h"
 #include "BM188x/BM188xBackend.h"

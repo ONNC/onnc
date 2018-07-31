@@ -1,10 +1,15 @@
-//===- TGBackend.h --------------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
+// Copyright(c) 2018, The ONNC Team
+//
+// This file is part of the ONNC Project and is distributed under
+// 3-clause BSD license (https://opensource.org/licenses/BSD-3-Clause)
+//
 // See LICENSE.TXT for details.
 //
-//===----------------------------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 #ifndef TARGET_TG_TG_BACKEND_H
 #define TARGET_TG_TG_BACKEND_H
 #include "ComputeOperator.h"

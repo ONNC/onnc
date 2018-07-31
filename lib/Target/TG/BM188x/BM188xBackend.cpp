@@ -1,10 +1,15 @@
-//===- BM1880Backend.cpp --------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
+// Copyright(c) 2018, The ONNC Team
+//
+// This file is part of the ONNC Project and is distributed under
+// 3-clause BSD license (https://opensource.org/licenses/BSD-3-Clause)
+//
 // See LICENSE.TXT for details.
 //
-//===----------------------------------------------------------------------===//
+//===---------------------------------------------------------------------===//
 #include "BM188xBackend.h"
 #include "BM188x/BM188xTargetMemInfo.h"
 #include "BM188x/BM188xTargetTransformInfo.h"
@@ -76,10 +81,6 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   } else {
     pPM.add(getTargetLower()(this));
   }
-
-  if (!options().shouldIgnoreCalibrationStep())
-    pPM.add(CreateQuantizePass(this));
-  pPM.add(createUpdateCtablePass(this));
 
   return;
 }

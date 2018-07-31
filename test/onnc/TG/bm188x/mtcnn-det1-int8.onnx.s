@@ -3,54 +3,54 @@
 # CHECK:      {{inst {[[:space:]]+ name: "conv1_2"}}
 # CHECK-NEXT:     type: "bmnet_prelu_fixed_forward_bmkernel"
 # CHECK-NEXT:     prelu {
-# CHECK-NEXT: 	input_gaddr: 432
-# CHECK-NEXT: 	slope_gaddr: 290
-# CHECK-NEXT: 	output_gaddr: 1432
+# CHECK-NEXT:     input_gaddr: {{.*}}
+# CHECK-NEXT:     slope_gaddr: {{.*}}
+# CHECK-NEXT:     output_gaddr: {{.*}}
 # CHECK-NEXT: 	channel_shared: 0
-# CHECK-NEXT: 	slope: -39
+# CHECK-NEXT:     slope: {{.*}}
 # CHECK-NEXT: 	input_n: 1
 # CHECK-NEXT: 	input_c: 10
 # CHECK-NEXT: 	input_h: 10
 # CHECK-NEXT: 	input_w: 10
-# CHECK-NEXT: 	GT_scale: 124
-# CHECK-NEXT: 	GT_right_shift_width: 7
-# CHECK-NEXT: 	LE_right_shift_width: 6
+# CHECK-NEXT:     GT_scale: {{.*}}
+# CHECK-NEXT:     GT_right_shift_width: {{.*}}
+# CHECK-NEXT:     LE_right_shift_width: {{.*}}
 # CHECK-NEXT:     }
 # CHECK-NEXT: }
 
 # CHECK:      {{inst {[[:space:]]+ name: "conv2_2"}}
 # CHECK-NEXT:     type: "bmnet_prelu_fixed_forward_bmkernel"
 # CHECK-NEXT:     prelu {
-# CHECK-NEXT: 	input_gaddr: 2682
-# CHECK-NEXT: 	slope_gaddr: 1772
-# CHECK-NEXT: 	output_gaddr: 2826
+# CHECK-NEXT:     input_gaddr: {{.*}}
+# CHECK-NEXT:     slope_gaddr: {{.*}}
+# CHECK-NEXT:     output_gaddr: {{.*}}
 # CHECK-NEXT: 	channel_shared: 0
-# CHECK-NEXT: 	slope: 15
+# CHECK-NEXT:     slope: {{.*}}
 # CHECK-NEXT: 	input_n: 1
 # CHECK-NEXT: 	input_c: 16
 # CHECK-NEXT: 	input_h: 3
 # CHECK-NEXT: 	input_w: 3
-# CHECK-NEXT: 	GT_scale: 112
-# CHECK-NEXT: 	GT_right_shift_width: 5
-# CHECK-NEXT: 	LE_right_shift_width: 6
+# CHECK-NEXT:     GT_scale: {{.*}}
+# CHECK-NEXT:     GT_right_shift_width: {{.*}}
+# CHECK-NEXT:     LE_right_shift_width: {{.*}}
 # CHECK-NEXT:     }
 # CHECK-NEXT: }
 
 # CHECK:      {{inst {[[:space:]]+ name: "conv3_2"}}
 # CHECK-NEXT:     type: "bmnet_prelu_fixed_forward_bmkernel"
 # CHECK-NEXT:     prelu {
-# CHECK-NEXT: 	input_gaddr: 2970
-# CHECK-NEXT: 	slope_gaddr: 6460
-# CHECK-NEXT: 	output_gaddr: 3002
+# CHECK-NEXT:     input_gaddr: {{.*}}
+# CHECK-NEXT:     slope_gaddr: {{.*}}
+# CHECK-NEXT:     output_gaddr: {{.*}}
 # CHECK-NEXT: 	channel_shared: 0
-# CHECK-NEXT: 	slope: 5
+# CHECK-NEXT:     slope: {{.*}}
 # CHECK-NEXT: 	input_n: 1
 # CHECK-NEXT: 	input_c: 32
 # CHECK-NEXT: 	input_h: 1
 # CHECK-NEXT: 	input_w: 1
-# CHECK-NEXT: 	GT_scale: 93
-# CHECK-NEXT: 	GT_right_shift_width: 6
-# CHECK-NEXT: 	LE_right_shift_width: 6
+# CHECK-NEXT:     GT_scale: {{.*}}
+# CHECK-NEXT:     GT_right_shift_width: {{.*}}
+# CHECK-NEXT:     LE_right_shift_width: {{.*}}
 # CHECK-NEXT:     }
 # CHECK-NEXT: }
 
