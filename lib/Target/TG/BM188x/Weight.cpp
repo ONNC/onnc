@@ -52,7 +52,7 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
   // calculate weight size
   size_t weight_size = 0;
   for (auto *mem_op : pMemOperands) {
-    if (mem_op->m_MemType != MemType::NEURON) {
+    if (MemType::WEIGHT == mem_op->m_MemType) {
       weight_size += mem_op->m_Size;
     }
   }
@@ -85,7 +85,7 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
 
     // for those instruction not TLLoad and TLStore
     for (auto *mem_op : inst->getMemOperands()) {
-      if (mem_op->m_MemType != MemType::NEURON) {
+      if (MemType::WEIGHT == mem_op->m_MemType) {
         if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
           prepare8bitWeight(*mem_op, m_Weight);
         } else {
@@ -210,4 +210,3 @@ void Weight::prepareWeight(const TLConv& pTLConv)
   // update weight
   m_Weight.insert(m_Weight.end(), weight.begin(), weight.end());
 }
-
