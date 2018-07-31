@@ -13,9 +13,12 @@
 #include "ComputeOperator.h"
 #include <iomanip>
 
-namespace onnc {
+using namespace onnc;
 
-std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem)
+//===---------------------------------------------------------------------===//
+// Non-member function
+//===---------------------------------------------------------------------===//
+std::ostream &onnc::operator<<(std::ostream &pOS, const MemOperand &pMem)
 {
   pOS << "<" << std::dec << pMem.m_Count << " x "
       << TensorProto_DataType_Name(pMem.m_Type) << ">(0x" << std::hex
@@ -23,6 +26,9 @@ std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem)
   return pOS;
 }
 
+//===---------------------------------------------------------------------===//
+// MemOperand
+//===---------------------------------------------------------------------===//
 MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
                        MemType pMemType)
     : m_Name(pName), m_Addr(0x0), m_Size(0), m_Type(pValue->elemType()),
@@ -35,6 +41,9 @@ MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
   }
 }
 
+//===---------------------------------------------------------------------===//
+// ComputeOperator2
+//===---------------------------------------------------------------------===//
 ComputeOperator2::ComputeOperator2(const ::onnx::Node &pNode,
                                    const std::string &pTypeName)
     : m_TypeName(pTypeName)
@@ -65,5 +74,3 @@ const MemOperand *ComputeOperator2::getMemOperand(unsigned int pIdx) const
 {
   return m_MemOperands[pIdx];
 }
-
-} // namespace onnc

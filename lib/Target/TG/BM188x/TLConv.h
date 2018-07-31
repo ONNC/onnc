@@ -28,7 +28,6 @@ public:
   TLConv(const ::onnx::Node &pNode);
 
   void emit() const override;
-  void prepareWeight(std::vector<int8_t> &pWeight);
   TLConv *addMemOperands(MemOperand *pInput, MemOperand *pWeight,
                          MemOperand *pOutput, MemOperand *pBias);
   void
@@ -36,6 +35,20 @@ public:
   bool isDoBias() { return (m_DoBias == 1) ? true : false; }
   int getBiasIdx() { return m_BiasIdx; }
   float getConvOuputThreshold() { return m_ConvOutputThreshold; }
+
+  int getInN() const { return m_InN; }
+  int getInC() const { return m_InC; }
+  int getInH() const { return m_InH; }
+  int getInW() const { return m_InW; }
+  int getGroups() const { return m_Groups; }
+  int getOutC() const { return m_OutC; }
+  int getOutH() const { return m_OutH; }
+  int getOutW() const { return m_OutW; }
+  uint16_t getKH() const { return m_KH; }
+  uint16_t getKW() const { return m_KW; }
+
+  bool getDoBias() const { return m_DoBias; }
+  int getBiasIdx() const { return m_BiasIdx; }
 
 private:
   uint64_t m_IFmapAddr, m_OFmapAddr, m_WeightAddr, m_BiasAddr;

@@ -32,8 +32,6 @@ void PrepareWeight(Weight::WeightType& pWeight, const TGConv& pTGConv)
   std::vector<int8_t> data;
   std::copy(raw.begin(), raw.end(), std::back_inserter(data));
 
-  // assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
-
   // conv weight is arranged by (1, oc, kh*kw, ic)
   // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
   int ic = pTGConv.getInC() / pTGConv.getGroups();
@@ -87,7 +85,6 @@ void PrepareWeight(Weight::WeightType& pWeight, TLConv& pTLConv)
     std::vector<int8_t> data;
     std::copy(raw.begin(), raw.end(), std::back_inserter(data));
     int ic = pTLConv.getInC() / pTLConv.getGroups();
-//    assert((size_t)(m_OutC * m_InC * m_KH * m_KW / m_Groups) == count);
 
     // conv weight is arranged by (1, oc, kh*kw, ic)
     // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
