@@ -49,6 +49,7 @@ add_libonnc_src(
     Compute/Sum.cpp
     Compute/Store.cpp
     Compute/Scale.cpp
+    Compute/SlicedConv.cpp
     Compute/Relu.cpp
     Compute/Transpose.cpp
     Lowers/AveragePoolLower.cpp
@@ -62,6 +63,7 @@ add_libonnc_src(
     Lowers/MaxPoolLower.cpp
     Lowers/PoolLower.cpp
     Lowers/PReluLower.cpp
+    Lowers/SlicedConvLower.cpp
     Lowers/StoreLower.cpp
     Lowers/SumLower.cpp
     Lowers/TransposeLower.cpp

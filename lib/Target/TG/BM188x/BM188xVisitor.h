@@ -28,6 +28,7 @@ class PRelu;
 class Pool;
 class Relu;
 class Scale;
+class SlicedConv;
 class Store;
 class Sum;
 class Transpose;
@@ -67,6 +68,8 @@ public:
 
   virtual void visit(const BM188X::Scale& pScale) { }
 
+  virtual void visit(const BM188X::SlicedConv& pSlicedConv) { }
+
   virtual void visit(const BM188X::Store& pStore) { }
 
   virtual void visit(const BM188X::Sum& pSum) { }
@@ -100,6 +103,8 @@ public:
   virtual void visit(BM188X::Relu& pRelu) { }
 
   virtual void visit(BM188X::Scale& pScale) { }
+
+  virtual void visit(BM188X::SlicedConv& pSlicedConv) { }
 
   virtual void visit(BM188X::Store& pStore) { }
 
