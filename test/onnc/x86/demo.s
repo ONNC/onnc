@@ -1,1 +1,0 @@
-; RUN: touch kkk
