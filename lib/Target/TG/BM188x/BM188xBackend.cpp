@@ -34,7 +34,6 @@
 #include "Lowers/TransposeLower.h"
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 #include "TG.h"
-#include "QuantizePass.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
