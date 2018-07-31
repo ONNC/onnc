@@ -36,6 +36,7 @@ static cl::opt<std::string> InputFilename(cl::kPositional,
 
 static cl::opt<std::string> OutputFilename("o",
                                            cl::kOptional,
+                                           cl::kValueRequired,
                                            cl::desc("Override output filename"),
                                            cl::value_desc("filename"),
                                            cl::about(g_About));
