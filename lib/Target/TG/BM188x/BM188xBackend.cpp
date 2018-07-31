@@ -33,6 +33,8 @@
 #include "Lowers/SumLower.h"
 #include "Lowers/TransposeLower.h"
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
+#include "CodeEmitVisitor.h"
+#include "EncodeInstructionsPass.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -82,6 +84,13 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   }
 
   return;
+}
+
+void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
+{
+  static BM188X::CodeEmitVisitor ceVisitor;
+  TGBackend::addCodeEmit(pPM, pOutputFile);
+  CreateEncodeInstructionsPass(&ceVisitor);
 }
 
 bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)

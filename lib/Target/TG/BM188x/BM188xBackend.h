@@ -37,6 +37,8 @@ public:
   /// override TensorSel stage.
   void addTensorSel(PassManager &pPM) override;
 
+  void addCodeEmit(PassManager &pPM, const Path &pOutputFile) override;
+
   bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
 
   std::string getBackendName() override

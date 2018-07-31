@@ -32,6 +32,7 @@ add_libonnc_src(
     GlobalMemAllocPass
     TargetLoweringPass.cpp
     BuildMemOpndPass.cpp
+    EncodeInstructionsPass.cpp
     LinearScanAllocPass.cpp)
 
 add_subdirectory(BM168x)
