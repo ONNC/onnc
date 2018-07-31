@@ -41,7 +41,6 @@
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
 
 #include "../BM188xBackend.h"
-#include "../QuantizePass.h"
 
 using namespace onnc;
 
@@ -107,11 +106,8 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     pm.add(CreateRemoveTrainingNodesPass());
     pm.add(CreateAddDummyWeightPass());
     pm.add(CreateUpdateGraphOutputSizePass());
-    pm.add(createPrepareCtablePass( &test_backend ));
     pm.add(createONNXFuseOptPass( &test_backend ));
     pm.add(createTargetLoweringPass( &test_backend ));
-    pm.add(CreateQuantizePass( &test_backend ));
-    pm.add(createUpdateCtablePass( &test_backend ));
     pm.add(CreateGlobalMemAllocPass( &test_backend ));
     pm.add(CreateTGCodeEmitPass( &test_backend, "-" ));
 
@@ -207,11 +203,8 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   pm.add(CreateRemoveTrainingNodesPass());
   pm.add(CreateAddDummyWeightPass());
   pm.add(CreateUpdateGraphOutputSizePass());
-  pm.add(createPrepareCtablePass( &backend ));
   pm.add(createONNXFuseOptPass( &backend ));
   pm.add(createTargetLoweringPass( &backend ));
-  pm.add(CreateQuantizePass( &backend ));
-  pm.add(createUpdateCtablePass( &backend ));
   pm.add(CreateGlobalMemAllocPass( &backend ));
   pm.add(CreateTGCodeEmitPass( &backend, "-" ));
 
@@ -222,7 +215,6 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   pm2.add(CreateRemoveTrainingNodesPass());
   pm2.add(CreateAddDummyWeightPass());
   pm2.add(CreateUpdateGraphOutputSizePass());
-  pm2.add(createPrepareCtablePass( &backend2 ));
   pm2.add(createONNXFuseOptPass( &backend2 ));
 
   /// create compute operator
@@ -233,8 +225,6 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   pm2.add(CreateTensorSel(&backend2));
 
   //pm2.add(createTargetLoweringPass( &backend2 ));
-  //pm2.add(CreateQuantizePass( &backend2 ));
-  //pm2.add(createUpdateCtablePass( &backend2 ));
   pm2.add(CreateGlobalMemAllocPass( &backend2 ));
   pm2.add(CreateTGCodeEmitPass( &backend2, "-" ));
 
