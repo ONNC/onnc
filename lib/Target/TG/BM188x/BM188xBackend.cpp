@@ -83,7 +83,11 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
     pPM.add(getTargetLower()(this));
   }
 
+#ifdef BMONNC_EXIST
+  pPM.add(createQuantizePass(this));
+#endif
   pPM.add(createUpdateCtablePass(this));
+
   return;
 }
 
