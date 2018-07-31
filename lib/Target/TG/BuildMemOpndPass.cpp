@@ -16,11 +16,11 @@
 
 using namespace onnc;
 
+char BuildMemOpnd::ID = 0;
+
 //===----------------------------------------------------------------------===//
 // BuildMemOpnd
 //===----------------------------------------------------------------------===//
-char BuildMemOpnd::ID = 0;
-
 BuildMemOpnd::BuildMemOpnd()
     : ModulePass(ID)
 {
@@ -73,6 +73,9 @@ void BuildMemOpnd::clear()
   m_ValOperandMap.clear();
 }
 
+//===----------------------------------------------------------------------===//
+// Factory method
+//===----------------------------------------------------------------------===//
 ModulePass *onnc::CreateBuildMemOpndPass()
 {
   return new BuildMemOpnd();
