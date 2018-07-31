@@ -56,4 +56,26 @@ onnx::Node *BM188xFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
   return new_conv;
 }
 
+onnx::Node *BM188xFuseOptimizer::FuseRelu(onnx::Graph *pGraph,
+                                          onnx::Node *pSumNode,
+                                          onnx::Node *pReluNode)
+{
+  std::vector<int> threshold_x_quantized;
+  {
+    const auto *sum_output_ctable =
+        m_p1880backend->getLayerCtable(pSumNode->output()->uniqueName());
+    for (int i = 0; i < sum_output_ctable->threshold_x_quantized_size(); i++)
+      threshold_x_quantized.push_back(
+          sum_output_ctable->threshold_x_quantized(i));
+  }
+
+  onnx::Node *new_sum = TGFuseOptimizer::FuseRelu(pGraph, pSumNode, pReluNode);
+
+  auto *new_sum_output_ctable =
+      m_p1880backend->getMutableLayerCtable(new_sum->output()->uniqueName());
+  for (auto &i : threshold_x_quantized)
+    new_sum_output_ctable->add_threshold_x_quantized(i);
+  return new_sum;
+}
+
 } // namespace onnc

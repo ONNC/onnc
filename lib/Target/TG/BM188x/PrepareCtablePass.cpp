@@ -114,17 +114,15 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
                symbol == onnx::Symbol("Scale")) {
       layer_cal_param->set_right_shift_width(0);
     } else if (symbol == onnx::Symbol("MaxPool") ||
-               symbol == onnx::Symbol("AveragePool")) {
+               symbol == onnx::Symbol("AveragePool") ||
+               symbol == onnx::Symbol("GlobalAveragePool")) {
       layer_cal_param->set_right_shift_width(0);
       layer_cal_param->add_threshold_x_quantized(0);
     } else if (symbol == onnx::Symbol("Sum") || symbol == onnx::Symbol("Max") ||
                symbol == onnx::Symbol("Mul") || symbol == onnx::Symbol("Add")) {
       layer_cal_param->set_right_shift_width(0);
-      for (auto *v : node->inputs()) {
-        if (0 != initializer_names.count(v->uniqueName()))
-          continue;
+      for (size_t i = 0; i < node->inputs().size(); i++)
         layer_cal_param->add_threshold_x_quantized(0);
-      }
     } else if (symbol == onnx::Symbol("PRelu")) {
       layer_cal_param->set_right_shift_width(0);
       tg::bm1880::PReLUCalibrationParameter *prelu_cal_param =
@@ -155,6 +153,8 @@ std::string PrepareCtable::getDummyCtable(onnx::Graph *pGraph)
       add_blob("sq");
       add_blob("sum_sq");
       add_blob("scale");
+      layer_cal_param->add_threshold_x_quantized(0);
+      layer_cal_param->add_threshold_x_quantized(0);
     } else {
       // FIXME: Add assert in the future.
       errs() << "Error: Unsupport op type " << node->kind().toString()

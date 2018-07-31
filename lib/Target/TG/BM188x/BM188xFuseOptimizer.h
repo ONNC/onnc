@@ -31,6 +31,9 @@ public:
   onnx::Node *FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
                             onnx::Node *pScaleNode) override;
 
+  onnx::Node *FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
+                       onnx::Node *pReluNode) override;
+
 private:
   BM1880Backend *m_p1880backend; // NOLINT
 };
