@@ -26,7 +26,9 @@ public:
   };
 
 public:
-  ComputeRegOperand() : m_Type(kInvalid) { }
+  ComputeRegOperand();
+
+  virtual ~ComputeRegOperand();
 
   bool isValid() const { return kInvalid != m_Type; }
 
@@ -35,6 +37,10 @@ public:
   bool isImm() const { return kImmediate == m_Type; }
 
   void print(std::ostream& pOS) const;
+
+  static bool classof(const ComputeOperand* pOpnd) {
+    return (ComputeOperand::kRegOperand == pOpnd->kind());
+  }
 
 private:
 

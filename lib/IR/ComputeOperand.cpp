@@ -12,12 +12,14 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // ComputeOperand
 //===----------------------------------------------------------------------===//
-ComputeOperand::ComputeOperand()
-  : m_pValue(nullptr), m_Residence(kUnknownResidence) {
+ComputeOperand::ComputeOperand(Kind pKind)
+  : m_Kind(pKind), m_pValue(nullptr), m_Residence(kUnknownResidence) {
 }
 
-ComputeOperand::ComputeOperand(onnc::Value& pValue, Residence pResidence)
-  : m_pValue(&pValue), m_Residence(pResidence) {
+ComputeOperand::ComputeOperand(Kind pKind,
+                               onnc::Value& pValue,
+                               Residence pResidence)
+  : m_Kind(pKind), m_pValue(&pValue), m_Residence(pResidence) {
 }
 
 ComputeOperand::~ComputeOperand()

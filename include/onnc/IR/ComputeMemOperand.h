@@ -19,17 +19,13 @@ namespace onnc {
 class ComputeMemOperand : public ComputeOperand
 {
 public:
-  ComputeMemOperand()
-    : m_Start(0), m_Length(0) {
-  }
+  ComputeMemOperand();
 
-  ComputeMemOperand(uint32_t pStart, uint32_t pLength)
-    : m_Start(pStart), m_Length(pLength) {
-  }
+  ComputeMemOperand(uint32_t pStart, uint32_t pLength);
 
-  ComputeMemOperand(onnc::Value& pValue, Residence pResidence)
-    : ComputeOperand(pValue, pResidence), m_Start(0), m_Length(0) {
-  }
+  ComputeMemOperand(onnc::Value& pValue, Residence pResidence);
+
+  virtual ~ComputeMemOperand();
 
   void setStart(uint32_t pStart) { m_Start = pStart; }
 
@@ -38,6 +34,10 @@ public:
   void setLength(uint32_t pLen) { m_Length = pLen; }
 
   uint32_t length() const { return m_Length; }
+
+  static bool classof(const ComputeOperand* pOpnd) {
+    return (ComputeOperand::kMemOperand == pOpnd->kind());
+  }
 
 private:
   uint32_t m_Start;

@@ -1,8 +1,10 @@
 
 add_libonnc_src(
+    ComputeGraph.cpp
+    ComputeMemOperand.cpp
     ComputeOperand.cpp
     ComputeOperator.cpp
-    ComputeGraph.cpp
+    ComputeRegOperand.cpp
     Module.cpp
     ONNCModulePrinter.cpp
     ONNCNodeNameGen.cpp

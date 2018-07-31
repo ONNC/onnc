@@ -24,6 +24,11 @@ class ComputeOperator;
 class ComputeOperand : public DigraphArc<ComputeOperator, ComputeOperand>
 {
 public:
+  enum Kind {
+    kRegOperand,
+    kMemOperand
+  };
+
   enum Residence {
     kInputResidence,    //< The operand refers to an input
     kWeightResidence,   //< The operand refers to a weight
@@ -35,10 +40,10 @@ public:
 public:
   /// Create a default ComputeOperand.
   /// Points to nowhere; internal memory resident
-  ComputeOperand();
+  ComputeOperand(Kind pKind);
 
   /// Points to @ref pValue
-  ComputeOperand(onnc::Value& pValue, Residence pResidence);
+  ComputeOperand(Kind pKind, onnc::Value& pValue, Residence pResidence);
 
   virtual ~ComputeOperand();
 
@@ -52,7 +57,20 @@ public:
 
   Residence residence() const { return m_Residence; }
 
+  bool isInput() const { return (kInputResidence == m_Residence); }
+
+  bool isWeight() const { return (kWeightResidence == m_Residence); }
+
+  bool isOutput() const { return (kOutputResidence == m_Residence); }
+
+  bool isInternal() const { return (kInternalResidence == m_Residence); }
+
+  bool isUnknown() const { return (kUnknownResidence == m_Residence); }
+
+  Kind kind() const { return m_Kind; }
+
 protected:
+  Kind m_Kind;
   onnc::Value* m_pValue;
   Residence m_Residence;
 };
