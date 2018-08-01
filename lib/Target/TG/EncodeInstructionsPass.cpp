@@ -33,8 +33,10 @@ Pass::ReturnType
 EncodeInstructions::runOnComputeGraph(::onnc::ComputeGraph &pCG)
 {
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
-  for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt)
-    nodeIt->accept(*m_InstEmitVisitors);
+  for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
+    const onnc::ComputeOperator *node = nodeIt;
+    node->accept(*m_InstEmitVisitors);
+  }
   return Pass::kModuleNoChanged;
 }
 
