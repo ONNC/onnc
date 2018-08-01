@@ -19,13 +19,11 @@ char BM188X::MaxPool::ID = 0;
 // MaxPool
 //===----------------------------------------------------------------------===//
 BM188X::MaxPool::MaxPool(const IntsAttr& pKS)
-    : ComputeOperator("MaxPool", ID),
-      m_KernelShape(pKS),
-      m_Pads(IntsAttr(4,0)),
-      m_Strides(IntsAttr(2, 1)),
+    : onnc::MaxPool(pKS),
       m_RShiftWidth(0),
       m_ThresholdXQuantized(0)
 {
+  setID(ID);
 }
 
 void BM188X::MaxPool::print(std::ostream& pOS) const

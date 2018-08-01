@@ -9,27 +9,18 @@
 #define ONNC_TARGET_BM1880_TGMAXPOOL_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Attributes.h>
+#include <onnc/IR/Compute/MaxPool.h>
 
 namespace onnc {
 namespace BM188X {
 
-class MaxPool : public ComputeOperator
+class MaxPool : public onnc::MaxPool
 {
 public:
   static char ID;
 
 public:
   MaxPool(const IntsAttr& pKS);
-
-  const IntsAttr &getKernelShape() const { return m_KernelShape; }
-
-  void setPads(const IntsAttr &pPads) { m_Pads = pPads; }
-
-  const IntsAttr &getPads() const { return m_Pads; }
-
-  void setStrides(const IntsAttr &pStrides) { m_Strides = pStrides; }
-
-  const IntsAttr &getStrides() const { return m_Strides; }
 
   void setRShiftWidth(int pRShiftWidth) { m_RShiftWidth = pRShiftWidth; }
 
@@ -48,9 +39,6 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
-  IntsAttr m_KernelShape;
-  IntsAttr m_Pads;
-  IntsAttr m_Strides;
   int m_RShiftWidth;
   int m_ThresholdXQuantized;
 };
