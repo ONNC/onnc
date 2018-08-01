@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/MaxPool.h"
 #include "TGBackend.h"
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/TG/BM188x/bmkernel_api.h>
@@ -243,22 +244,54 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Load& pOperator)
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::MaxPool& pOperator)
 {
-  /**
+  auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
+  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+
+  const onnc::Tensor* inTensor = pOperator.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  int kh = pOperator.getKernelShape().vector()[0],
+      kw = pOperator.getKernelShape().vector()[1];
+
+  int padt = pOperator.getPads().vector()[0],
+      padl = pOperator.getPads().vector()[1],
+      padb = pOperator.getPads().vector()[2],
+      padr = pOperator.getPads().vector()[3];
+
+  int strh = pOperator.getStrides().vector()[0],
+      strw = pOperator.getStrides().vector()[1];
+
+  int rsWidth = pOperator.getRShiftWidth(),
+      xq = pOperator.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::AveragePool" << "\n"
+    << "  " << ifmap->start() << " " << ofmap->start()
+    << " " << n << " " << c << " " << h << " " << w << " "
+    << kh << " " << kw << " "
+    << padt << " " << padb << " " << padl << " " << padr << " "
+    << strh << " " << strw << " "
+    << rsWidth << " " << xq << " "
+    << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap_gaddr
-      m_MemOperands[1]->m_Addr,        // ofmap_gaddr
+      ifmap->start(),         // ifmap_gaddr
+      ofmap->start(),         // ofmap_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // index_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
-      m_N, m_C, m_H, m_W, m_KH, m_KW, m_PadT, m_PadB, m_PadL, m_PadR, m_StrideH,
-      m_StrideW,
+      n, c, h, w, kh, kw, padt, padb, padl, padr, strh, strw,
       0,                      // is_avg_pooling
       0.0f,                   // avg_const
       0,                      // do_relu
-      m_RShiftWidth,          // right_shift_width
-      &m_ThresholdXQuantized, // threshold_x_quantized
+      rsWidth,                // right_shift_width
+      &xq,                    // threshold_x_quantized
       0                       // ceil_mode
   );
-  **/
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::PRelu& pOperator)
