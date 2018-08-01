@@ -88,7 +88,7 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
 
 void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
 {
-  static BM188X::CodeEmitVisitor ceVisitor;
+  static BM188X::CodeEmitVisitor ceVisitor(this);
   TGBackend::addCodeEmit(pPM, pOutputFile);
   CreateEncodeInstructionsPass(&ceVisitor);
 }

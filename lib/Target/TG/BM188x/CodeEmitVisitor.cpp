@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "TGBackend.h"
+#include <onnc/Support/Debug.h>
 #include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 using namespace onnc;
@@ -17,6 +19,28 @@ using namespace onnc::BM188X;
 //===----------------------------------------------------------------------===//
 void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 {
+  auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
+  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+
+  const onnc::Tensor* inTensor = pOperator.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  int kh = pOperator.getKernelShape().vector()[0],
+      kw = pOperator.getKernelShape().vector()[1];
+
+  int padt = pOperator.getPads().vector()[0],
+      padb = pOperator.getPads().vector()[1],
+      padl = pOperator.getPads().vector()[2],
+      padr = pOperator.getPads().vector()[3];
+
+  outs() << "AveragePool:\n";
+  outs() << "  " << ifmap->start() << " " << ofmap->start()
+         << " " << n << " " << c << " " << h << " " << w << " "
+         << kh << " " << kw << " "
+         << padt << " " << padb << " " << padl << " " << padr << " " << "\n";
   /**
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr,        // ifmap_gaddr

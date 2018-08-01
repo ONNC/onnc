@@ -10,12 +10,20 @@
 #include "BM188xVisitor.h"
 
 namespace onnc {
+class TGBackend;
+
 namespace BM188X {
 
 class CodeEmitVisitor : public BM188xVisitor
 {
   using BM188X::BM188xVisitor::visit;
 public:
+  // [FIXME] Temporary workaround. For getting onnc::Value to
+  //         onnc::ComputeMemOperand mapping from TGBackend.
+  CodeEmitVisitor(TGBackend* pTGBackend)
+    : m_TGBackend(pTGBackend) {
+  }
+
   void visit(const BM188X::AveragePool& pAveragePool) override;
 
   void visit(const BM188X::Concat& pConcat) override;
@@ -49,6 +57,9 @@ public:
   void visit(const BM188X::Transpose& pTranspose) override;
 
   void visit(const onnc::Upsample& pUpsample) override;
+
+private:
+  TGBackend* m_TGBackend;
 };
 
 } // namespace BM188X
