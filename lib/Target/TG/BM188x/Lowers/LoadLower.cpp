@@ -52,7 +52,7 @@ BM188X::LoadLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
     return nullptr;
 
   // create operators
-  return pGraph.addOperator<onnc::BM188X::Load>(
+  onnc::BM188X::Load* op = pGraph.addOperator<onnc::BM188X::Load>(
       pNode.i(::onnx::Symbol("src_goffset")),
       pNode.i(::onnx::Symbol("dst_laddr")),
       pNode.i(::onnx::Symbol("do_transpose")),
@@ -61,4 +61,13 @@ BM188X::LoadLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
       pNode.is(::onnx::Symbol("local_dim")),
       pNode.is(::onnx::Symbol("global_dim")),
       pNode.s(::onnx::Symbol("op_name")));
+
+  // set input
+  ::onnx::Value* v = pNode.inputs()[0];
+  onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(v->uniqueName());
+  if (nullptr == tensor)
+    tensor = IRBuilder::CreateComputeTensor(pGraph, *v);
+  op->addInput(*tensor);
+
+  return op;
 }
