@@ -9,6 +9,7 @@
 #include "Compute/AveragePool.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
+#include "Compute/Store.h"
 #include "TGBackend.h"
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/TG/BM188x/bmkernel_api.h>
@@ -378,27 +379,47 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOperator)
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Store& pOperator)
 {
-  /**
-  // Calculate the address after Global Memory Allocation Pass
-  uint64_t gaddr = m_DstGOffset + m_MemOperands[0]->m_Addr;
+  int ln = pOperator.getLocalDim().vector()[0],
+      lc = pOperator.getLocalDim().vector()[1],
+      lh = pOperator.getLocalDim().vector()[2],
+      lw = pOperator.getLocalDim().vector()[3];
 
-  bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
+  int gc = pOperator.getGlobalDim().vector()[0],
+      gh = pOperator.getGlobalDim().vector()[1],
+      gw = pOperator.getGlobalDim().vector()[2];
+
+  // Calculate the address after Global Memory Allocation Pass
+  uint64_t gaddr =
+    pOperator.getDstGOffset() +
+    m_TGBackend->getMemOpndByValue(pOperator.getInput(0))->start();
+
+  uint64_t srcladdr = pOperator.getSrcLAddr();
+
+  bool doTranspose = pOperator.getDoTranspose(),
+       isAligned = pOperator.getIsAligned(),
+       isNeuron = pOperator.getIsNeuron();
+
+  const std::string splitName = pOperator.getSplitName();
+
+  DEBUG(dbgs()
+    << "BM188X::Store" << "\n"
+    << "  " << gaddr << " " << srcladdr << " "
+    << ln << "  " << lc << "  " << lh << "  " << lw << "  "
+    << gc << "  " << gh << "  " << gw << "  "
+    << doTranspose << "  " << isAligned << "  " << isNeuron << "\n");
+#if USE_NEW_CE
+  bmnet::bmnet_asm::asm_context::get_context().name = splitName;
   // TODO(arcbbb): only support 4d tensor for the moment
-  bmnet::bmnet_asm::bmnet_tl_store_stride_bmkernel(
-      gaddr,         // Dest global addr
-      m_SrcLAddr,    // Src  local addr
-      m_LocalN,      // Local N
-      m_LocalC,      // Local C
-      m_LocalH,      // Local H
-      m_LocalW,      // Local W
-      m_GlobalC,     // Global C
-      m_GlobalH,     // Global H
-      m_GlobalW,     // Global W
-      m_DoTranspose, // Do Transpose
-      m_IsAligned,   // Check alignment
-      m_IsNeuron     // MemSpace: Neuron or Weight
+  bmnet::bmnet_asm::bmnet_tl_load_stride_bmkernel(
+      gaddr,          // Src global addr
+      srcladdr,       // Dest local addr
+      ln, lc, lh, lw, // Local N C H W
+      gc, gh, gw,     // Global C H W
+      doTranspose,    // Do Transpose
+      isAligned,      // Check alignment
+      isNeuron        // MemSpace: Neuron or Weight
   );
-  **/
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Sum& pOperator)
