@@ -28,7 +28,7 @@ public:
 
   unsigned int getNumOfDimensions() const { return m_Dimensions.size(); }
 
-  unsigned int dimension(unsigned int pIdx) { return m_Dimensions[pIdx]; }
+  unsigned int dimension(unsigned int pIdx) const { return m_Dimensions[pIdx]; }
 
   void setDimensions(const Dimensions& pD) { m_Dimensions = pD; }
 
