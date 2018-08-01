@@ -61,6 +61,14 @@ TGAveragePool *TGAveragePool::addMemOperands(MemOperand *pInput,
 
 void TGAveragePool::emit() const
 {
+  DEBUG(dbgs()
+    << "TGAveragePool::emit" << "\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
+    << m_N << " " << m_C << " " << m_H << " " << m_W << " "
+    << m_KH << " " << m_KW << " " << m_PadT << " " << m_PadB << " "
+    << m_PadL << " " << m_PadR << " " << m_StrideH << " " << m_StrideW << " "
+    << m_EnableRelu << " " << m_RShiftWidth << " "
+    << m_ThresholdXQuantized << "\n");
 
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr,        // ifmap_gaddr
