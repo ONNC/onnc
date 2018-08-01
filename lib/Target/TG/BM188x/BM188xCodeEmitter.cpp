@@ -100,7 +100,6 @@ BM188xCodeEmitter::genOutputLayer(const std::string &pDefaultOnncLayerName,
 }
 
 static onnc::json::Object genFallbackPlan(const std::string &pONNCLast,
-                                          const std::string &pONNXLast,
                                           const ::onnx::Graph *pOnnxGraph)
 {
   bool is_find_fallback = false;
@@ -329,8 +328,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   jRoot.insert("output layer", jOutputLayer);
 
   // Generate fallback plan.
-  jFallback = genFallbackPlan(defaultOnncOutLayerName, defaultOnnxOutLayerName,
-                              pOnnxGraph);
+  jFallback = genFallbackPlan(defaultOnncOutLayerName, pOnnxGraph);
   jRoot.insert("cpu fallback", jFallback);
 
   // Insert all information to root.
