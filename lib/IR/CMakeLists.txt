@@ -18,6 +18,7 @@ add_libonnc_src(
     Compute/Value.cpp
     Compute/Scalar.cpp
     Compute/Tensor.cpp
+    Compute/Use.cpp
     Compute/ATen.cpp
     Compute/Abs.cpp
     Compute/Acos.cpp
