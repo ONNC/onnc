@@ -13,6 +13,7 @@
 #include "TLConv.h"
 #include <onnc/Support/DataTypes.h>
 #include <vector>
+#include <string>
 
 namespace onnc {
 namespace BM188X {
@@ -24,9 +25,9 @@ public:
   typedef std::vector<DataType> WeightType;
 
 public:
-  static void prepare8bitWeight(const onnx::Tensor &pT, WeightType& pThis);
+  static void append8bit(WeightType& pW, const std::string &pT);
 
-  static void prepare16bitWeight(const onnx::Tensor &pT, WeightType& pThis);
+  static void append16bit(WeightType& pW, const std::string &pT);
 
   void prepareWeight(TGBackend::Instructions& pInstructions,
                      TGBackend::MemOperands& pMemOperands);

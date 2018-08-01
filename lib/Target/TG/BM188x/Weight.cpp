@@ -15,27 +15,37 @@ using namespace onnc::BM188X;
 //===----------------------------------------------------------------------===//
 // Weight
 //===----------------------------------------------------------------------===//
-void
-BM188X::Weight::prepare8bitWeight(const onnx::Tensor &pTensor, WeightType& pThis)
+static void Convert(Weight::WeightType& pWeight, const std::string& pRaw,
+                    int pKS, int pIC, int pOC)
 {
-  assert(pTensor.is_raw_data());
-  const std::string &raw = pTensor.raw();
-  std::copy(raw.begin(), raw.end(), std::back_inserter(pThis));
+  // conv weight is arranged by (1, oc, kh*kw, ic)
+  // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+  for (int oc_i = 0; oc_i < pOC; ++oc_i) {
+    for (int k_i = 0; k_i < pKS; ++k_i) {
+      for (int ic_i = 0; ic_i < pIC; ++ic_i) {
+        int to   = oc_i*pKS*pIC + k_i  * pIC + ic_i;
+        int from = oc_i*pKS*pIC + ic_i * pKS + k_i;
+        pWeight[to] = (int8_t)pRaw[from];
+      }
+    }
+  }
 }
 
 void
-BM188X::Weight::prepare16bitWeight(const onnx::Tensor &pTensor, WeightType& pThis)
+BM188X::Weight::append8bit(WeightType& pThis, const std::string& pRaw)
 {
-  assert(pTensor.is_raw_data());
-  const std::string &raw = pTensor.raw();
-  size_t count = onnc::getTotalCount(pTensor.sizes());
-  std::vector<int16_t> int16_vector(count);
-  memcpy(int16_vector.data(), raw.data(), count * sizeof(int16_t));
+  std::copy(pRaw.begin(), pRaw.end(), std::back_inserter(pThis));
+}
+
+void
+BM188X::Weight::append16bit(WeightType& pThis, const std::string &pRaw)
+{
+  size_t count = pRaw.size();
   size_t offset = pThis.size();
   pThis.resize(offset + count * 2);
-  for (size_t i = 0; i < count; ++i) {
-    pThis[offset + i] = (int8_t)(int16_vector[i] & 0xff);
-    pThis[offset + i + count] = (int8_t)((int16_vector[i] >> 8) & 0xff);
+  for (size_t i = 0; i*2 < count; ++i) {
+    pThis[offset + i] = (int8_t)pRaw[i*2];
+    pThis[offset + i + count] = (int8_t)pRaw[i*2 + 1];
   }
 }
 
@@ -83,9 +93,9 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
         if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
-          prepare8bitWeight(tensor, m_Weight);
+          append8bit(m_Weight, tensor.raw());
         } else {
-          prepare16bitWeight(tensor, m_Weight);
+          append16bit(m_Weight, tensor.raw());
         }
       }
     } // for each mem operand
@@ -126,18 +136,10 @@ void Weight::prepareWeight(const TGConv& pTGConv)
 
   // conv weight is arranged by (1, oc, kh*kw, ic)
   // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
+  int ks =  pTGConv.getKH() * pTGConv.getKW();
   int ic = pTGConv.getInC() / pTGConv.getGroups();
-  for (int oc_i = 0; oc_i < pTGConv.getOutC(); ++oc_i) {
-    for (int k_i = 0; k_i < pTGConv.getKH() * pTGConv.getKW(); ++k_i) {
-      for (int ic_i = 0; ic_i < ic; ++ic_i) {
-        int to = oc_i * (pTGConv.getKH() * pTGConv.getKW() * ic) + k_i * ic +
-                 ic_i;
-        int from = oc_i * (pTGConv.getKH() * pTGConv.getKW() * ic) +
-                   ic_i * (pTGConv.getKH() * pTGConv.getKW()) + k_i;
-        weight[to] = (int8_t)raw[from];
-      }
-    }
-  }
+  int oc = pTGConv.getOutC();
+  Convert(weight, raw, ks, ic, oc);
 
   // 16bit bias
   if (pTGConv.getDoBias() == 1) {
@@ -145,7 +147,7 @@ void Weight::prepareWeight(const TGConv& pTGConv)
     const onnx::Tensor &tensor =
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
-    Weight::prepare16bitWeight(tensor, weight);
+    Weight::append16bit(weight, tensor.raw());
   }
 
   // 8bit scale bias
@@ -154,7 +156,7 @@ void Weight::prepareWeight(const TGConv& pTGConv)
     const onnx::Tensor &tensor =
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
-    Weight::prepare8bitWeight(tensor, weight);
+    Weight::append8bit(weight, tensor.raw());
   }
 
   // 16bit scale bias
@@ -163,7 +165,7 @@ void Weight::prepareWeight(const TGConv& pTGConv)
     const onnx::Tensor &tensor =
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
-    Weight::prepare16bitWeight(tensor, weight);
+    Weight::append16bit(weight, tensor.raw());
   }
 
   // update weight
@@ -183,21 +185,13 @@ void Weight::prepareWeight(const TLConv& pTLConv)
     const std::string &raw = tensor.raw();
     size_t count = onnc::getTotalCount(tensor.sizes());
     weight.resize(count);
-    int ic = pTLConv.getInC() / pTLConv.getGroups();
 
     // conv weight is arranged by (1, oc, kh*kw, ic)
     // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
-    for (int oc_i = 0; oc_i < pTLConv.getOutC(); ++oc_i) {
-      for (int k_i = 0; k_i < pTLConv.getKH() * pTLConv.getKW(); ++k_i) {
-        for (int ic_i = 0; ic_i < ic; ++ic_i) {
-          int to = oc_i * (pTLConv.getKH() * pTLConv.getKW() * ic) +
-              k_i * ic + ic_i;
-          int from = oc_i * (pTLConv.getKH() * pTLConv.getKW() * ic) +
-              ic_i * (pTLConv.getKH() * pTLConv.getKW()) + k_i;
-          weight[to] = (int8_t)raw[from];
-        }
-      }
-    }
+    int ks = pTLConv.getKH() * pTLConv.getKW();
+    int ic = pTLConv.getInC() / pTLConv.getGroups();
+    int oc = pTLConv.getOutC();
+    Convert(weight, raw, ks, ic, oc);
   }
 
   if (pTLConv.getDoBias() == 1) {
@@ -207,7 +201,7 @@ void Weight::prepareWeight(const TLConv& pTLConv)
       const onnx::Tensor &tensor =
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
-      Weight::prepare16bitWeight(tensor, weight);
+      Weight::append16bit(weight, tensor.raw());
     }
   }
 
