@@ -63,6 +63,13 @@ void TLLoad::emit() const
   // Calculate the address after Global Memory Allocation Pass
   uint64_t gaddr = m_SrcGOffset + m_MemOperands[0]->m_Addr;
 
+  DEBUG(dbgs()
+    << "TLLoad::emit" << "\n"
+    << "  " << gaddr << " " << m_DstLAddr << " "
+    << m_LocalN << "  " << m_LocalC << "  " << m_LocalH << "  " << m_LocalW
+    << "  " << m_GlobalC << "  " << m_GlobalH << "  " << m_GlobalW << "  "
+    << m_DoTranspose << "  " << m_IsAligned << "  " << m_IsNeuron << "\n");
+
   bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
   // TODO(arcbbb): only support 4d tensor for the moment
   bmnet::bmnet_asm::bmnet_tl_load_stride_bmkernel(
