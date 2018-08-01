@@ -72,7 +72,11 @@ public:
   unsigned int getNumOfOutputs() const { return m_Outputs.size(); }
 
   template<typename OpndType>
-  void addInput(OpndType& pOperand) { m_Inputs.push_back(&pOperand); }
+  void addInput(OpndType& pOperand) {
+    unsigned inputIdx = m_Inputs.size();
+    m_Inputs.push_back(&pOperand);
+    pOperand.getUses().emplace_back(*this, inputIdx);
+  }
 
   template<typename OpndType>
   void addOutput(OpndType& pOperand) { m_Outputs.push_back(&pOperand); }
