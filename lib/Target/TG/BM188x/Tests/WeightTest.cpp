@@ -34,7 +34,7 @@ SKYPAT_F(BM188xTest, weight_append)
   errs() << weight.size() << std::endl;
 
   errs() << "12345678901234567890" << std::endl;
-  for (int i = 0; i < weight.size(); ++i) {
+  for (unsigned i = 0; i < weight.size(); ++i) {
     if ('a' > weight[i] || 'z' < weight[i])
       errs() << '*';
     else
