@@ -178,8 +178,6 @@ void Weight::prepareWeight(const TLConv& pTLConv)
     const std::string &raw = tensor.raw();
     size_t count = onnc::getTotalCount(tensor.sizes());
     weight.resize(count);
-    std::vector<int8_t> data;
-    std::copy(raw.begin(), raw.end(), std::back_inserter(data));
     int ic = pTLConv.getInC() / pTLConv.getGroups();
 
     // conv weight is arranged by (1, oc, kh*kw, ic)
@@ -191,7 +189,7 @@ void Weight::prepareWeight(const TLConv& pTLConv)
               k_i * ic + ic_i;
           int from = oc_i * (pTLConv.getKH() * pTLConv.getKW() * ic) +
               ic_i * (pTLConv.getKH() * pTLConv.getKW()) + k_i;
-          weight[to] = data[from];
+          weight[to] = (int8_t)raw[from];
         }
       }
     }
