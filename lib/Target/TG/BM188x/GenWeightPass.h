@@ -27,7 +27,7 @@ public:
   typedef std::vector<DataType> WeightType;
 
 public:
-  GenWeightPass(const Path &pOutFile);
+  GenWeightPass(TGBackend* pBackend, const Path &pOutFile);
 
   Pass::ReturnType runOnModule(Module &pModule) override;
 
@@ -46,7 +46,12 @@ private:
 
   void setWritten(const ComputeMemOperand* pOpnd);
 
+  TGBackend *backend() { return m_pBackend; }
+
+  const TGBackend *backend() const { return m_pBackend; }
+
 private:
+  TGBackend *m_pBackend;
   Path m_OutFile;
   WeightType m_Weight;
   DoneOpndSet m_DoneOpndSet;
@@ -55,7 +60,7 @@ private:
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-ModulePass* CreateGenWeightPass(const Path& pOutFile);
+ModulePass* CreateGenWeightPass(TGBackend* pBackend, const Path& pOutFile);
 
 } // namespace BM188X
 } // namespace onnc
