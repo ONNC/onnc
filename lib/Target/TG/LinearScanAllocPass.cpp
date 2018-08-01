@@ -51,7 +51,7 @@ void LinearScanAlloc::linearScanAlloMem(
   // but currently CodeEmitter's prepareWeight function can't save the weight
   // on the address of MemOperand. So we need to sync the traverse order
   // between MemAlloc and prepareWeight now.
-  std::unordered_map<const onnc::Value *, ComputeMemOperand *> allocatedValue;
+  TGBackend::ValMemOpndMap& allocatedValue = m_pTarget->getValMemOpndMap();
   for (auto memOpVal : pMemOps) {
     ComputeMemOperand *memOp = memOpVal.first;
     onnc::Value *memVal = memOpVal.second;

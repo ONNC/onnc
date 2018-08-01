@@ -23,6 +23,7 @@
 #include <onnc/IR/ComputeOperator.h>
 #include <onnx/common/ir.h>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace onnc {
@@ -41,6 +42,8 @@ class TGBackend : public DLATargetBackend
 public:
   typedef std::vector<std::unique_ptr<ComputeOperator2> > Instructions;
   typedef std::vector<MemOperand *> MemOperands;
+  typedef std::unordered_map<const onnc::Value *, onnc::ComputeMemOperand *>
+    ValMemOpndMap;
 
 public:
   TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE, Instructions& pInsns,
@@ -96,9 +99,14 @@ public:
 
   Instructions& getInsts() { return m_Instructions; }
 
+  ValMemOpndMap& getValMemOpndMap() { return m_ValMemOpndMap; }
+
+  onnc::ComputeMemOperand* getMemOpndByValue(const onnc::Value* pVal);
+
 protected:
   Instructions& m_Instructions;
   MemOperands m_MemOperands;
+  ValMemOpndMap m_ValMemOpndMap;
 
 private:
   TargetLowering *m_pTLI; // NOLINT

@@ -129,6 +129,12 @@ MemOperand *TGBackend::getMemOperand(const ::onnx::Value *pValue,
   return memOp;
 }
 
+onnc::ComputeMemOperand* TGBackend::getMemOpndByValue(const onnc::Value* pVal)
+{
+  auto it = m_ValMemOpndMap.find(pVal);
+  return it != m_ValMemOpndMap.end() ? it->second : nullptr;
+}
+
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
