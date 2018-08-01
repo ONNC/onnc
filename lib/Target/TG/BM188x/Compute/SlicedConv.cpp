@@ -28,7 +28,7 @@ SlicedConv::SlicedConv(const IntAttr& pIFmapAddr,
     :  ComputeOperator("SlicedConv", ID), m_IFmapAddr(pIFmapAddr),
        m_OFmapAddr(pOFmapAddr), m_WeightAddr(pWeightAddr),
        m_InDim(pInDim), m_OutDim(pOutDim),
-       m_DoRelu(false), m_DoBias(false), m_BiasAddr(0),
+       m_DoRelu(false), m_DoBias(false), m_BiasAddr(0), m_BiasIdx(0),
        m_SplitName(pSpliteName), m_Groups(0), m_RShiftWidth(0)
 {
   m_DoResultAdd = pDoResultAdd.value() ? true : false;

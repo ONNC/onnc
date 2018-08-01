@@ -53,11 +53,15 @@ public:
 
   const IntAttr &getBiasAddr() const { return m_BiasAddr; }
 
-	void setBias(const IntAttr& pBiasAddr)
-	{
+	void setBias(const IntAttr& pBiasAddr) {
 		m_DoBias = true;
 		m_BiasAddr = pBiasAddr;
+    m_BiasIdx = 3;
 	}
+
+  int getBiasIdx() const { return m_BiasIdx; }
+
+  bool getDoBias() const { return m_DoBias; }
 
   bool getDoRelu() const { return m_DoRelu; }
 
@@ -90,6 +94,7 @@ private:
   bool m_DoRelu;
 	BoolAttr m_DoBias;
   IntAttr m_BiasAddr;
+  int m_BiasIdx;
   StringAttr m_SplitName;
 
   IntsAttr m_KernelShape;
