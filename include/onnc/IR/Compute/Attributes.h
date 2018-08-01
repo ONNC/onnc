@@ -83,6 +83,8 @@ public:
     return *this;
   }
 
+  operator ValueType() const { return m_Value; }
+
   /// return a copy
   ValueType value() { return m_Value; }
 
