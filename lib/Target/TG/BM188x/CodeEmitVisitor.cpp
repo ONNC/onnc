@@ -289,7 +289,7 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::MaxPool& pOperator)
       xq = pOperator.getThresholdXQuantized();
 
   DEBUG(dbgs()
-    << "BM188X::AveragePool" << "\n"
+    << "BM188X::MaxPool" << "\n"
     << "  " << ifmap->start() << " " << ofmap->start()
     << " " << n << " " << c << " " << h << " " << w << " "
     << kh << " " << kw << " "
