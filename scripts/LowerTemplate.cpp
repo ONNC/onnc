@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/${OperatorName}Lower.h>
 #include <onnc/IR/Compute/${OperatorName}.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ ${OperatorName}Lower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::${OperatorName}* op = pGraph.addOperator<onnc::${OperatorName}>(${CreateOperator});
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   ${SetOptionalAttributes}

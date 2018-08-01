@@ -9,6 +9,7 @@ add_libonnc_src(
     TensorSel.cpp
     TensorSel/Lower.cpp
     TensorSel/LowerRegistry.cpp
+    TensorSel/DefaultAttributes.cpp
     TensorSel/AddLower.cpp
     TensorSel/AcosLower.cpp
     TensorSel/AbsLower.cpp

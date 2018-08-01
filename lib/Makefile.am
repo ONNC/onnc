@@ -50,6 +50,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/Lower.cpp \
 	Transforms/TensorSel/LowerRegistry.cpp \
+	Transforms/TensorSel/DefaultAttributes.cpp \
 	Transforms/TensorSel/AddLower.cpp \
 	Transforms/TensorSel/AcosLower.cpp \
 	Transforms/TensorSel/AbsLower.cpp \
