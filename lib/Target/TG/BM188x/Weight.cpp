@@ -16,26 +16,19 @@ using namespace onnc::BM188X;
 // Weight
 //===----------------------------------------------------------------------===//
 void
-BM188X::Weight::prepare8bitWeight(const MemOperand &pMemOp, WeightType& pThis)
+BM188X::Weight::prepare8bitWeight(const onnx::Tensor &pTensor, WeightType& pThis)
 {
-  const onnx::Tensor &tensor = onnc::getTensor(pMemOp.m_Value->uniqueName(),
-                                               *pMemOp.m_Value->owningGraph());
-
-  assert(tensor.is_raw_data());
-  const std::string &raw = tensor.raw();
+  assert(pTensor.is_raw_data());
+  const std::string &raw = pTensor.raw();
   std::copy(raw.begin(), raw.end(), std::back_inserter(pThis));
 }
 
 void
-BM188X::Weight::prepare16bitWeight(const MemOperand &pMemOp, WeightType& pThis)
+BM188X::Weight::prepare16bitWeight(const onnx::Tensor &pTensor, WeightType& pThis)
 {
-  assert(pMemOp.m_Type == onnx::TensorProto_DataType_INT16);
-  const onnx::Tensor &tensor = onnc::getTensor(pMemOp.m_Value->uniqueName(),
-                                               *pMemOp.m_Value->owningGraph());
-
-  assert(tensor.is_raw_data());
-  const std::string &raw = tensor.raw();
-  size_t count = onnc::getTotalCount(tensor.sizes());
+  assert(pTensor.is_raw_data());
+  const std::string &raw = pTensor.raw();
+  size_t count = onnc::getTotalCount(pTensor.sizes());
   std::vector<int16_t> int16_vector(count);
   memcpy(int16_vector.data(), raw.data(), count * sizeof(int16_t));
   size_t offset = pThis.size();
@@ -86,10 +79,13 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
     // for those instruction not TLLoad and TLStore
     for (auto *mem_op : inst->getMemOperands()) {
       if (MemType::WEIGHT == mem_op->m_MemType) {
+        const onnx::Tensor &tensor =
+            onnc::getTensor(mem_op->m_Value->uniqueName(),
+                            *mem_op->m_Value->owningGraph());
         if (mem_op->m_Type == ::onnx::TensorProto_DataType_INT8) {
-          prepare8bitWeight(*mem_op, m_Weight);
+          prepare8bitWeight(tensor, m_Weight);
         } else {
-          prepare16bitWeight(*mem_op, m_Weight);
+          prepare16bitWeight(tensor, m_Weight);
         }
       }
     } // for each mem operand
@@ -146,19 +142,28 @@ void Weight::prepareWeight(const TGConv& pTGConv)
   // 16bit bias
   if (pTGConv.getDoBias() == 1) {
     auto *mem_op = pTGConv.getMemOperand(pTGConv.getBiasIdx());
-    Weight::prepare16bitWeight(*mem_op, weight);
+    const onnx::Tensor &tensor =
+            onnc::getTensor(mem_op->m_Value->uniqueName(),
+                            *mem_op->m_Value->owningGraph());
+    Weight::prepare16bitWeight(tensor, weight);
   }
 
   // 8bit scale bias
   if (pTGConv.getDoScale() == 1) {
     auto *mem_op = pTGConv.getMemOperand(pTGConv.getScaleIdx());
-    Weight::prepare8bitWeight(*mem_op, weight);
+    const onnx::Tensor &tensor =
+            onnc::getTensor(mem_op->m_Value->uniqueName(),
+                            *mem_op->m_Value->owningGraph());
+    Weight::prepare8bitWeight(tensor, weight);
   }
 
   // 16bit scale bias
   if (pTGConv.getDoScaleBias() == 1) {
     auto *mem_op = pTGConv.getMemOperand(pTGConv.getScaleBiasIdx());
-    Weight::prepare16bitWeight(*mem_op, weight);
+    const onnx::Tensor &tensor =
+            onnc::getTensor(mem_op->m_Value->uniqueName(),
+                            *mem_op->m_Value->owningGraph());
+    Weight::prepare16bitWeight(tensor, weight);
   }
 
   // update weight
@@ -199,7 +204,10 @@ void Weight::prepareWeight(const TLConv& pTLConv)
     auto *mem_op = pTLConv.getMemOperand(pTLConv.getBiasIdx());
     if (!isWritten(pTLConv.getMemOperand(pTLConv.getBiasIdx()))) {
       setWritten(pTLConv.getMemOperand(pTLConv.getBiasIdx()));
-      Weight::prepare16bitWeight(*mem_op, weight);
+      const onnx::Tensor &tensor =
+            onnc::getTensor(mem_op->m_Value->uniqueName(),
+                            *mem_op->m_Value->owningGraph());
+      Weight::prepare16bitWeight(tensor, weight);
     }
   }
 

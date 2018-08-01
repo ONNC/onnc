@@ -24,9 +24,9 @@ public:
   typedef std::vector<DataType> WeightType;
 
 public:
-  static void prepare8bitWeight(const MemOperand &pMemOp, WeightType& pThis);
+  static void prepare8bitWeight(const onnx::Tensor &pT, WeightType& pThis);
 
-  static void prepare16bitWeight(const MemOperand &pMemOp, WeightType& pThis);
+  static void prepare16bitWeight(const onnx::Tensor &pT, WeightType& pThis);
 
   void prepareWeight(TGBackend::Instructions& pInstructions,
                      TGBackend::MemOperands& pMemOperands);
