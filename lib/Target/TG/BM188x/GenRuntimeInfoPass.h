@@ -9,7 +9,7 @@
 #define ONNC_TARGET_TG_GEN_RUNTIME_INFO_PASS_H
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Support/Path.h>
-#include "../TGBackend.h"
+#include "BM188xBackend.h"
 
 namespace onnc {
 namespace BM188X {
@@ -20,24 +20,49 @@ public:
   static char ID;
 
 public:
-  GenRuntimeInfoPass(TGBackend* pBackend, const Path &pOutFile);
+  GenRuntimeInfoPass(BM1880Backend* pBackend, const Path &pOutFile);
 
   Pass::ReturnType runOnModule(Module &pModule) override;
 
 private:
-  TGBackend *backend() { return m_pBackend; }
-
-  const TGBackend *backend() const { return m_pBackend; }
+  struct LayerNames {
+    std::string onnc;
+    std::string onnx;
+  };
 
 private:
-  TGBackend *m_pBackend;
+  BM1880Backend *backend() { return m_pBackend; }
+
+  const BM1880Backend *backend() const { return m_pBackend; }
+
+  float getThreshold(const std::string &pName);
+
+  static std::string
+  FindOnncLayerName(const onnx::Graph& pG, const ::onnx::Value &pValue);
+
+  static void
+  GetDefaultLayerNames(LayerNames& pNames, const ::onnx::Graph& pG);
+
+  void GenOutputLayer(json::Object& pOutput, const LayerNames& pNames,
+                      const ::onnx::Graph& pG);
+
+  void GenFallbackPlan(json::Object& pOutput, const LayerNames& pNames,
+                       const ::onnx::Graph& pG);
+
+  void GenMemoryLayout(json::Object& pOutput, const ComputeGraph& pG);
+
+  void GenRest(json::Object& pOutput, const ::onnx::Graph& pG);
+
+private:
+  BM1880Backend *m_pBackend;
   Path m_OutFile;
 };
 
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-ModulePass* CreateGenRuntimeInfoPass(TGBackend* pBackend, const Path& pOutFile);
+ModulePass*
+CreateGenRuntimeInfoPass(BM1880Backend* pBackend, const Path& pOutFile);
 
 } // namespace BM188X
 } // namespace onnc
