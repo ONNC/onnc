@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConstantFillLower.h>
 #include <onnc/IR/Compute/ConstantFill.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ ConstantFillLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::ConstantFill* op = pGraph.addOperator<onnc::ConstantFill>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("dtype")))

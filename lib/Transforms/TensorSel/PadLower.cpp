@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/PadLower.h>
 #include <onnc/IR/Compute/Pad.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -58,6 +59,9 @@ PadLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::Pad* op = pGraph.addOperator<onnc::Pad>(
     pNode.is(::onnx::Symbol("pads")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("mode")))

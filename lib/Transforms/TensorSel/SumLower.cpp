@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/SumLower.h>
 #include <onnc/IR/Compute/Sum.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ SumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::Sum* op = pGraph.addOperator<onnc::Sum>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

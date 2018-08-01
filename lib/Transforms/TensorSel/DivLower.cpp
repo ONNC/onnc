@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/DivLower.h>
 #include <onnc/IR/Compute/Div.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ DivLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::Div* op = pGraph.addOperator<onnc::Div>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

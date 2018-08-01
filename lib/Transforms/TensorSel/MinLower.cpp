@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/MinLower.h>
 #include <onnc/IR/Compute/Min.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ MinLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::Min* op = pGraph.addOperator<onnc::Min>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

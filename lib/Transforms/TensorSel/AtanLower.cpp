@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/AtanLower.h>
 #include <onnc/IR/Compute/Atan.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ AtanLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::Atan* op = pGraph.addOperator<onnc::Atan>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/RandomUniformLikeLower.h>
 #include <onnc/IR/Compute/RandomUniformLike.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ RandomUniformLikeLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) cons
 
   // create operators
   onnc::RandomUniformLike* op = pGraph.addOperator<onnc::RandomUniformLike>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("dtype")))

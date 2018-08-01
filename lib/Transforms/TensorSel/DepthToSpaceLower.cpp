@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/DepthToSpaceLower.h>
 #include <onnc/IR/Compute/DepthToSpace.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -58,6 +59,9 @@ DepthToSpaceLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::DepthToSpace* op = pGraph.addOperator<onnc::DepthToSpace>(
     pNode.i(::onnx::Symbol("blocksize")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

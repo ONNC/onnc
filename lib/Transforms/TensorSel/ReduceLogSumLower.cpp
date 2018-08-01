@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceLogSumLower.h>
 #include <onnc/IR/Compute/ReduceLogSum.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ ReduceLogSumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   onnc::ReduceLogSum* op = pGraph.addOperator<onnc::ReduceLogSum>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("axes")))

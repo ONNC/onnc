@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
 #include <onnc/IR/Compute/LRN.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -58,6 +59,9 @@ LRNLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::LRN* op = pGraph.addOperator<onnc::LRN>(
     pNode.i(::onnx::Symbol("size")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("alpha")))

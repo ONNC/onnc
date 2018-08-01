@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConstantLower.h>
 #include <onnc/IR/Compute/Constant.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -58,6 +59,9 @@ ConstantLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::Constant* op = pGraph.addOperator<onnc::Constant>(
     pNode.t(::onnx::Symbol("value")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

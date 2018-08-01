@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/MeanVarianceNormalizationLower.h>
 #include <onnc/IR/Compute/MeanVarianceNormalization.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ MeanVarianceNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNo
 
   // create operators
   onnc::MeanVarianceNormalization* op = pGraph.addOperator<onnc::MeanVarianceNormalization>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("across_channels")))

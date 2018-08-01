@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 #include <onnc/IR/Compute/Unsqueeze.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -58,6 +59,9 @@ UnsqueezeLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::Unsqueeze* op = pGraph.addOperator<onnc::Unsqueeze>(
     pNode.is(::onnx::Symbol("axes")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/IfLower.h>
 #include <onnc/IR/Compute/If.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -61,6 +62,9 @@ IfLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   onnc::If* op = pGraph.addOperator<onnc::If>(
     pNode.g(::onnx::Symbol("else_branch"))
     pNode.g(::onnx::Symbol("then_branch")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   

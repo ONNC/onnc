@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/MaxRoiPoolLower.h>
 #include <onnc/IR/Compute/MaxRoiPool.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -58,6 +59,9 @@ MaxRoiPoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   // create operators
   onnc::MaxRoiPool* op = pGraph.addOperator<onnc::MaxRoiPool>(
     pNode.is(::onnx::Symbol("pooled_shape")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("spatial_scale")))

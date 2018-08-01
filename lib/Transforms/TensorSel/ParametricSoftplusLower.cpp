@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ParametricSoftplusLower.h>
 #include <onnc/IR/Compute/ParametricSoftplus.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ ParametricSoftplusLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) con
 
   // create operators
   onnc::ParametricSoftplus* op = pGraph.addOperator<onnc::ParametricSoftplus>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("alpha")))

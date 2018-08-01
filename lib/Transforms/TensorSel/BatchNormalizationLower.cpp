@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/IR/Compute/BatchNormalization.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ BatchNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) con
 
   // create operators
   onnc::BatchNormalization* op = pGraph.addOperator<onnc::BatchNormalization>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("epsilon")))

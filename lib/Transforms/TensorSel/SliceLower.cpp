@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/SliceLower.h>
 #include <onnc/IR/Compute/Slice.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -61,6 +62,9 @@ SliceLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   onnc::Slice* op = pGraph.addOperator<onnc::Slice>(
     pNode.is(::onnx::Symbol("ends"))
     pNode.is(::onnx::Symbol("starts")));
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("axes")))

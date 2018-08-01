@@ -8,6 +8,7 @@
 #include <onnc/Transforms/TensorSel/Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/InstanceNormalizationLower.h>
 #include <onnc/IR/Compute/InstanceNormalization.h>
+#include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
@@ -56,6 +57,9 @@ InstanceNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) 
 
   // create operators
   onnc::InstanceNormalization* op = pGraph.addOperator<onnc::InstanceNormalization>();
+
+  // set default attributes
+  SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("epsilon")))
