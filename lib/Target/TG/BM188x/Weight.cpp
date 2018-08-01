@@ -127,8 +127,6 @@ void Weight::prepareWeight(const TGConv& pTGConv)
 
   Weight::WeightType weight;
   weight.resize(count);
-  std::vector<int8_t> data;
-  std::copy(raw.begin(), raw.end(), std::back_inserter(data));
 
   // conv weight is arranged by (1, oc, kh*kw, ic)
   // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
@@ -140,7 +138,7 @@ void Weight::prepareWeight(const TGConv& pTGConv)
                  ic_i;
         int from = oc_i * (pTGConv.getKH() * pTGConv.getKW() * ic) +
                    ic_i * (pTGConv.getKH() * pTGConv.getKW()) + k_i;
-        weight[to] = data[from];
+        weight[to] = (int8_t)raw[from];
       }
     }
   }
