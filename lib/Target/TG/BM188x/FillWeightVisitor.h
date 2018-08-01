@@ -43,9 +43,9 @@ private:
 
   static void Append16bit(Weight& pW, const std::string &pData);
 
-  bool isWritten(const onnx::Tensor* pOpnd) const;
+  bool isWritten(const onnx::Tensor& pOpnd) const;
 
-  void setWritten(const onnx::Tensor* pOpnd);
+  void setWritten(const onnx::Tensor& pOpnd);
 
 private:
   Weight& m_Weight;

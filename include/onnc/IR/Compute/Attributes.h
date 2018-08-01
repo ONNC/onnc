@@ -137,6 +137,10 @@ public:
 
   const VectorType& vector() const { return m_Vector; }
 
+  ValueType& at(unsigned int pIdx) { return m_Vector.at(pIdx); }
+
+  const ValueType& at(unsigned int pIdx) const { return m_Vector.at(pIdx); }
+
 private:
   VectorType m_Vector;
 };
