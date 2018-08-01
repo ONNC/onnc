@@ -52,14 +52,14 @@ float BM188xCodeEmitter::getThreshold(const std::string &pOnncLayerName)
 std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
                                                  const onnx::Value *pValue)
 {
-  std::string onnx_layer_name = pValue->uniqueName();
   for (auto inst = m_Instructions.rbegin();
        inst != m_Instructions.rend();
        ++inst) {
-    if (inst->get()->getLayerName() == onnx_layer_name) {
-      return onnx_layer_name;
+    if (inst->get()->getLayerName() == pValue->uniqueName()) {
+      return pValue->uniqueName();
     }
   }
+
   const onnx::Value *input = pValue->node()->inputs()[0];
   auto graph_inputs = pOnnxGraph->inputs();
   if (std::find(graph_inputs.begin(), graph_inputs.end(), input) !=
@@ -71,17 +71,14 @@ std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
 }
 
 onnc::json::Object
-BM188xCodeEmitter::genOutputLayer(std::string &pDefaultOnncLayerName,
-                                  std::string &pDefaultOnnxLayerName,
+BM188xCodeEmitter::genOutputLayer(const std::string &pDefaultOnncLayerName,
+                                  const std::string &pDefaultOnnxLayerName,
                                   const ::onnx::Graph *pOnnxGraph)
 {
   size_t step = 0;
   onnc::json::Object jExeSteps;
 
   // generate default output layer
-  const onnx::Value *onnx_layer = pOnnxGraph->outputs()[step];
-  pDefaultOnncLayerName = findOnncLayerName(pOnnxGraph, onnx_layer);
-  pDefaultOnnxLayerName = onnx_layer->uniqueName();
   onnc::json::Object layer_info;
   layer_info.insert("onnx output", pDefaultOnnxLayerName);
   layer_info.insert("onnc output", pDefaultOnncLayerName);
@@ -102,8 +99,8 @@ BM188xCodeEmitter::genOutputLayer(std::string &pDefaultOnncLayerName,
   return jExeSteps;
 }
 
-static onnc::json::Object genFallbackPlan(std::string pONNCLast,
-                                          std::string pONNXLast,
+static onnc::json::Object genFallbackPlan(const std::string &pONNCLast,
+                                          const std::string &pONNXLast,
                                           const ::onnx::Graph *pOnnxGraph)
 {
   bool is_find_fallback = false;
@@ -323,14 +320,16 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   jBatch.insert("size", batchSize);
 
   // Generate output layer info
-  std::string defalutOnnxOutLayerName;
-  std::string defaultOnncOutLayerName;
+  const onnx::Value* onnx_layer = pOnnxGraph->outputs()[0];
+  std::string defaultOnnxOutLayerName = onnx_layer->uniqueName();
+  std::string defaultOnncOutLayerName =
+      findOnncLayerName(pOnnxGraph, onnx_layer);
   jOutputLayer = genOutputLayer(defaultOnncOutLayerName,
-                                defalutOnnxOutLayerName, pOnnxGraph);
+                                defaultOnnxOutLayerName, pOnnxGraph);
   jRoot.insert("output layer", jOutputLayer);
 
   // Generate fallback plan.
-  jFallback = genFallbackPlan(defaultOnncOutLayerName, defalutOnnxOutLayerName,
+  jFallback = genFallbackPlan(defaultOnncOutLayerName, defaultOnnxOutLayerName,
                               pOnnxGraph);
   jRoot.insert("cpu fallback", jFallback);
 

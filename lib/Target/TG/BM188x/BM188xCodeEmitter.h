@@ -45,9 +45,10 @@ public:
   void genWeightBin(const std::string &pOutputFilename) override;
 
 private:
-  json::Object genOutputLayer(std::string &pDefaultOnncLayerName,
-                              std::string &pDefaultOnnxLayerName,
+  json::Object genOutputLayer(const std::string &pDefaultOnncLayerName,
+                              const std::string &pDefaultOnnxLayerName,
                               const ::onnx::Graph *pOnnxGraph);
+
   float getThreshold(const std::string &pOnncLayerName);
 
   std::string findOnncLayerName(const onnx::Graph *pOnnxGraph,
