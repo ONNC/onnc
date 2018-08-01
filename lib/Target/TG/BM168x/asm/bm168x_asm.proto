@@ -1,4 +1,4 @@
-// version: v1.0-8-gdfb3af4
+// version: v1.0-11-g9b97542
 // clang-format off
 syntax = "proto2";
 package bmnet.bm1680;
