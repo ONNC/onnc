@@ -62,5 +62,14 @@ BM188X::StoreLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
       pNode.is(::onnx::Symbol("global_dim")),
       pNode.s(::onnx::Symbol("op_name")));
 
+  // Comment copy from BM188xISelLowering.cpp:
+  //   FIXME(arcbbb): It's a workaround.
+  //   not to violate SSA, we add output value as input.
+  ::onnx::Value* v = pNode.inputs()[0];
+  onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(v->uniqueName());
+  if (nullptr == tensor)
+    tensor = IRBuilder::CreateComputeTensor(pGraph, *v);
+  op->addInput(*tensor);
+
   return op;
 }
