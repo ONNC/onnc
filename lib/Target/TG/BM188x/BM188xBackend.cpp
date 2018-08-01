@@ -39,7 +39,13 @@
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
+#include <onnc/Transforms/BookONNXGraphs.h>
+#include <onnc/Transforms/BuildInputOperators.h>
+#include <onnc/Transforms/BuildInitializers.h>
+#include <onnc/Transforms/BuildOutputOperators.h>
+#include <onnc/Transforms/DeadNodeElimination.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
+#include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
 #ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
@@ -84,14 +90,21 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   }
 
   pPM.add(createUpdateCtablePass(this));
+  pPM.add(CreateDeadNodeEliminationPass());
+  pPM.add(CreateBookONNXGraphs());
+  pPM.add(CreateBuildInitializers());
+  pPM.add(CreateBuildInputOperators());
+  pPM.add(CreateTensorSel(this));
+  pPM.add(CreateBuildOutputOperators());
+
   return;
 }
 
 void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
 {
   static BM188X::CodeEmitVisitor ceVisitor(this);
+  pPM.add(CreateEncodeInstructionsPass(&ceVisitor));
   TGBackend::addCodeEmit(pPM, pOutputFile);
-  CreateEncodeInstructionsPass(&ceVisitor);
 }
 
 bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)

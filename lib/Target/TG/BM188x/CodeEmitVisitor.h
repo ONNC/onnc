@@ -21,7 +21,7 @@ public:
   // [FIXME] Temporary workaround. For getting onnc::Value to
   //         onnc::ComputeMemOperand mapping from TGBackend.
   CodeEmitVisitor(TGBackend* pTGBackend)
-    : m_TGBackend(pTGBackend) {
+    : BM188xVisitor(), m_TGBackend(pTGBackend) {
   }
 
   void visit(const BM188X::AveragePool& pAveragePool) override;
