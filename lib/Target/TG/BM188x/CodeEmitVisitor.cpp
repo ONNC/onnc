@@ -10,6 +10,7 @@
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
 #include "Compute/Store.h"
+#include "Compute/Sum.h"
 #include "Compute/Transpose.h"
 #include "Compute/Upsample.h"
 #include "TGBackend.h"
@@ -426,25 +427,44 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Store& pOperator)
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Sum& pOperator)
 {
-  /**
-  int in_size = m_MemOperands.size() - 1;
-  uint64_t *input = new uint64_t[in_size];
-  for (int i = 0; i < in_size; ++i)
-    input[i] = m_MemOperands[i]->m_Addr;
+  std::vector<uint64_t> inAddrs(pOperator.getNumOfInputs());
+  for (unsigned i = 0; i < inAddrs.size(); ++i)
+    inAddrs[i] = m_TGBackend->getMemOpndByValue(pOperator.getInput(i))->start();
 
+  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+  const onnc::Tensor* inTensor = pOperator.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+  bool doRelu = pOperator.getDoRelu();
+  int rswidth = pOperator.getRShiftWidth();
+  const std::vector<int>& xq = pOperator.getThresholdXQuantized();
+
+  DEBUG(dbgs() << "BM188X::Sum\n";
+    dbgs() << "  inputs = ";
+    for (auto i : inAddrs) dbgs() << i << " ";
+    dbgs() << "\n";
+    dbgs() << "  " << ofmap->start()
+           << n << " " << c << " " << h << " " << w << " "
+           << doRelu << " " << rswidth << "\n";
+    dbgs() << "  xq = ";
+    for (auto i : xq) dbgs() << i << " ";
+    dbgs() << "\n";
+  );
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_eltwise_fixed_forward_bmkernel(
-      input,                        // inputs
-      m_MemOperands.back()->m_Addr, // ouput
-      m_InputNum,
-      1, // op: SUM
-      m_InN, m_InC, m_InH, m_InW,
-      m_DoRelu,      // do_relu
-      0.0,           // relu_slope,
-      m_RShiftWidth, // right_shift_width
-      m_ThresholdXQuantized.data());
-
-  delete[] input;
-  **/
+      inAddrs.data(), // inputs
+      ofmap->start(), // ouput
+      inAddrs.size(),
+      1,              // op: SUM
+      n, c, h, w,
+      doRelu,         // do_relu
+      0.0,            // relu_slope,
+      rswidth,        // right_shift_width
+      xq.data());
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Transpose& pOperator)

@@ -53,6 +53,9 @@ BM188X::SumLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
   // create operators
   BM188X::Sum* op = pGraph.addOperator<BM188X::Sum>();
 
+  // init xquant with zero values.
+  op->setThresholdXQuantized(std::vector<int>(pNode.inputs().size()));
+
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());

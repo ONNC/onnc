@@ -26,7 +26,7 @@ public:
 
   const IntAttr &getDoRelu() const { return m_DoRelu; }
 
-  const IntsAttr &getThresholdXQuantized() const {
+  const std::vector<int> &getThresholdXQuantized() const {
     return m_ThresholdXQuantized;
   }
 
@@ -34,7 +34,7 @@ public:
 
   void setDoRelu(const IntAttr &pDoRelu) { m_DoRelu = pDoRelu; }
 
-  void setThresholdXQuantized(const IntsAttr &pT ) {
+  void setThresholdXQuantized(const std::vector<int> &pT ) {
     m_ThresholdXQuantized = pT;
   }
 
@@ -49,7 +49,7 @@ public:
 private:
   IntAttr m_RShiftWidth;
   IntAttr m_DoRelu;
-  IntsAttr m_ThresholdXQuantized;
+  std::vector<int> m_ThresholdXQuantized;
 };
 
 } // namespace BM188X

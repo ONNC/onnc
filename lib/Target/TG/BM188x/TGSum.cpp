@@ -52,6 +52,18 @@ void TGSum::emit() const
   for (int i = 0; i < in_size; ++i)
     input[i] = m_MemOperands[i]->m_Addr;
 
+  DEBUG(dbgs() << "TGSum::emit\n";
+    dbgs() << "  inputs = ";
+    for (int i = 0; i < in_size; ++i) dbgs() << input[i] << " ";
+    dbgs() << "\n";
+    dbgs() << "  " << m_MemOperands.back()->m_Addr
+           << m_InN << " " <<  m_InC << " " <<  m_InH << " " <<  m_InW << " "
+           << m_DoRelu << " " << m_RShiftWidth << "\n";
+    dbgs() << "  xq = ";
+    for (auto i : m_ThresholdXQuantized) dbgs() << i << " ";
+    dbgs() << "\n";
+  );
+
   bmnet::bmnet_asm::bmnet_eltwise_fixed_forward_bmkernel(
       input,                        // inputs
       m_MemOperands.back()->m_Addr, // ouput
