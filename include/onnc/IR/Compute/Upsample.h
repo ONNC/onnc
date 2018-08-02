@@ -27,11 +27,9 @@ public:
 public:
   Upsample(const FloatsAttr& pScales);
 
-  // clang-format off
-  Upsample(const StringAttr& pMode,
-           const FloatsAttr& pScales);
+  Upsample(const StringAttr& pMode, const FloatsAttr& pScales);
 
-  // clang-format on
+  Upsample(const FloatAttr& pHScale, const FloatAttr& pWScale);
 
   // shallow copy constructor.
   Upsample(const Upsample &pCopy);

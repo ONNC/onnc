@@ -27,6 +27,15 @@ Upsample::Upsample(const StringAttr& pMode,
     m_Scales(pScales) {
 }
 
+Upsample::Upsample(const FloatAttr& pHScale,
+                   const FloatAttr& pWScale)
+  : ComputeOperator("Upsample", ID),
+    m_Mode("nearest"),
+    m_Scales() {
+  m_Scales.vector().push_back(pHScale);
+  m_Scales.vector().push_back(pWScale);
+}
+
 Upsample::Upsample(const Upsample& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */,
     m_Mode(pCopy.getMode()),
