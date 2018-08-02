@@ -97,8 +97,8 @@ static void updateReshapeOpDestDimension(onnx::Graph *pGraph, onnx::Node *pNode,
   onnx::Tensor dest_dims;
   dest_dims.sizes().push_back(new_shape_dims.size());
   dest_dims.elem_type() = onnx::TensorProto_DataType_INT64;
-  dest_dims.set_raw_data((char *)new_shape_dims.data(),
-                         new_shape_dims.size() * sizeof(int64_t));
+  dest_dims.set_raw_data(std::string((char *)new_shape_dims.data(),
+                         new_shape_dims.size() * sizeof(int64_t)));
   std::string name = pNode->inputs()[0]->uniqueName() + "reshape";
   onnx::Value *new_dest_dims_value =
       pGraph->addInitializerAndInput(dest_dims, name);
