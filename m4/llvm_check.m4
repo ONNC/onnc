@@ -13,7 +13,7 @@ AC_DEFUN([CHECK_LLVM],
 AC_ARG_WITH([llvm],
   [AC_HELP_STRING([--with-llvm=PREFIX],
     [use LLVM on the given path PREFIX])],
-  [llvm_dir="${withval}"],
+  [llvm_dir="$(realpath ${withval})"],
   [llvm_dir="${prefix}"])
 
 AC_MSG_CHECKING(LLVM)

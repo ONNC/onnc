@@ -13,7 +13,7 @@ AC_DEFUN([CHECK_SKYPAT],
 AC_ARG_WITH([skypat],
   [AS_HELP_STRING([--with-skypat@<:@=DIR@:>@],
     [use SkyPat on DIR, or PREFIX if not given])],
-  [skypat_dir="${withval}"],
+  [skypat_dir="$(realpath ${withval})"],
   [skypat_dir="${prefix}"])
 
 AC_MSG_CHECKING(SkyPat)

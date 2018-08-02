@@ -12,7 +12,7 @@ AC_DEFUN([CHECK_ONNX],
 AC_ARG_WITH([onnx],
   [AS_HELP_STRING([--with-onnx@<:@=DIR@:>@],
     [use ONNX on DIR, or PREFIX if not given])],
-  [onnx_dir="${withval}"],
+  [onnx_dir="$(realpath ${withval})"],
   [onnx_dir="${prefix}"])
 
 AC_MSG_CHECKING(ONNX)
