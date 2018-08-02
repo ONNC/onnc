@@ -32,8 +32,8 @@ int BM188X::UpsampleLower::isMe(const ::onnx::Node& pNode) const
 
 static bool isValidSize(const IntsAttr& pSize)
 {
-  return (pSize[0] == 1 && pSize[1] == 1 &&
-          (pSize[2] == pSize[3]));
+  return (pSize.vector()[0] == 1 && pSize.vector()[1] == 1 &&
+          (pSize.vector()[2] == pSize.vector()[3]));
 }
 
 ComputeOperator*
@@ -68,7 +68,7 @@ BM188X::UpsampleLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
 
   // create operators
   BM188X::Upsample* op = pGraph.addOperator<BM188X::Upsample>(
-      sizes[3],
+      sizes.vector()[3],
       pNode.f(::onnx::Symbol("height_scale")),
       pNode.f(::onnx::Symbol("width_scale")));
 
