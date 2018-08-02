@@ -9,6 +9,7 @@
 #include "Compute/AveragePool.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
+#include "Compute/Scale.h"
 #include "Compute/Store.h"
 #include "Compute/Sum.h"
 #include "Compute/Transpose.h"
@@ -368,16 +369,36 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Relu& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOp)
 {
-  /**
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+  int rswidth = pOp.getRShiftWidth();
+  int scaleDim = c;
+  int minnerDim = h * w;
+
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start();
+  uint64_t scaleAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start();
+  uint64_t biasAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(2))->start();
+  uint64_t oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  DEBUG(dbgs()
+    << "BM188X::Scale\n" << "  "
+    << inAddr << " " << scaleAddr << " " << biasAddr << " " << oAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << scaleDim << "  " << minnerDim << "  " << rswidth << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_scale_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input
-      m_MemOperands[1]->m_Addr, // scale
-      m_MemOperands[2]->m_Addr, // bias
-      m_MemOperands[3]->m_Addr, // outpur,
-      m_N, m_C, m_H, m_W, m_MScaleDim, m_MInnerDim, m_RShiftWidth);
-  **/
+      inAddr,     // input
+      scaleAddr,  // scale
+      biasAddr,   // bias
+      oAddr,      // output
+      n, c, h, w, scaleDim, minnerDim, rswidth);
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Store& pOperator)
