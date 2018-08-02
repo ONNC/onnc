@@ -35,6 +35,14 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
+  int getCorrectW() const { return m_W; }
+
+  const std::vector<int>& getOrder() const { return m_Order; }
+
+  const std::vector<int>& getOutputShape() const { return m_OutputShape; }
+
+  bool needPermute() const { return m_NeedPermute; }
+
 private:
   int m_W;
   std::vector<int> m_Order;

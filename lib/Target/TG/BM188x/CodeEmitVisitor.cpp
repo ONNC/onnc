@@ -10,6 +10,7 @@
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
 #include "Compute/Store.h"
+#include "Compute/Transpose.h"
 #include "Compute/Upsample.h"
 #include "TGBackend.h"
 #include <onnc/Support/Debug.h>
@@ -448,12 +449,32 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Sum& pOperator)
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Transpose& pOperator)
 {
-  /**
+  auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
+  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+  const onnc::Tensor* inTensor = pOperator.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = pOperator.getCorrectW();
+  const std::vector<int>& order = pOperator.getOrder(),
+                          oshape = pOperator.getOutputShape();
+  bool needPerm = pOperator.needPermute();
+  DEBUG(dbgs()
+    << "BM188X::Transpose\n" << "  "
+    << ifmap->start() << " " << ofmap->start() << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << oshape[0] << " " << oshape[1] << " "
+    << oshape[2] << " " << oshape[3] << " "
+    << order[0] << " " << order[1] << " " << order[2] << " " << order[3] << " "
+    << needPerm << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_permute_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W,
-      m_OutputShape[0], m_OutputShape[1], m_OutputShape[2], m_OutputShape[3],
-      m_Order[0], m_Order[1], m_Order[2], m_Order[3], m_NeedPermute);
-  **/
+      ifmap->start(), ofmap->start(),
+       n, c, h, w,
+      oshape[0], oshape[1], oshape[2], oshape[3],
+      order[0], order[1], order[2], order[3], needPerm);
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Upsample& pOperator)

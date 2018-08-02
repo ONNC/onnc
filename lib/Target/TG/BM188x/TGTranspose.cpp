@@ -74,6 +74,16 @@ TGTranspose *TGTranspose::addMemOperands(MemOperand *pInput,
 
 void TGTranspose::emit() const
 {
+  DEBUG(dbgs()
+    << "TGTranspose::emit\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
+    << m_N << " " <<  m_C << " " <<  m_H << " " <<  m_W << " "
+    << m_OutputShape[0] << " " << m_OutputShape[1] << " "
+    << m_OutputShape[2] << " " << m_OutputShape[3] << " "
+    << m_Order[0] << " " << m_Order[1] << " "
+    << m_Order[2] << " " << m_Order[3] << " "
+    << m_NeedPermute << "\n");
+
   bmnet::bmnet_asm::bmnet_permute_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, m_MemOperands[1]->m_Addr, m_N, m_C, m_H, m_W,
       m_OutputShape[0], m_OutputShape[1], m_OutputShape[2], m_OutputShape[3],
