@@ -32,7 +32,7 @@
 #include "Lowers/StoreLower.h"
 #include "Lowers/SumLower.h"
 #include "Lowers/TransposeLower.h"
-#include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
+#include "Lowers/UpsampleLower.h"
 #include "CodeEmitVisitor.h"
 #include "EncodeInstructionsPass.h"
 #include "TG.h"
@@ -175,5 +175,5 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::TransposeLower>();
-  pRegistry.emplace<onnc::UpsampleLower>();
+  pRegistry.emplace<BM188X::UpsampleLower>();
 }
