@@ -9,6 +9,7 @@
 #include "Compute/AveragePool.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
+#include "Compute/Pool.h"
 #include "Compute/Relu.h"
 #include "Compute/Scale.h"
 #include "Compute/Store.h"
@@ -340,19 +341,57 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::PRelu& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Pool& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Pool& pOp)
 {
-  /**
-  bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
+  const StringAttr& splitName = pOp.getSplitName();
+  uint64_t inAddr = pOp.getIFmapAddr(),
+           oAddr = pOp.getOFmapAddr();
+  int in = pOp.getInDim().vector()[0],
+      ic = pOp.getInDim().vector()[1],
+      ih = pOp.getInDim().vector()[2],
+      iw = pOp.getInDim().vector()[3];
+
+  int on = pOp.getOutDim().vector()[0],
+      oc = pOp.getOutDim().vector()[1],
+      oh = pOp.getOutDim().vector()[2],
+      ow = pOp.getOutDim().vector()[3];
+
+  int kh = pOp.getKernelShape().vector()[0],
+      kw = pOp.getKernelShape().vector()[1];
+
+  int padt = pOp.getSlidePads().vector()[0],
+      padl = pOp.getSlidePads().vector()[1],
+      padb = pOp.getSlidePads().vector()[2],
+      padr = pOp.getSlidePads().vector()[3];
+
+  int strh = pOp.getStrides().vector()[0],
+      strw = pOp.getStrides().vector()[1];
+
+  bool isavgpooling = pOp.getIsAvgPooling();
+  int rswidth = pOp.getRShiftWidth(),
+      xq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::Pool\n" << "  " << splitName << " "
+    << inAddr << " " << oAddr << " "
+    << in << " " << ic << " " << ih << " " << iw << " "
+    << on << " " << oc << " " << oh << " " << ow << " "
+    << kh << " " << kw << " "
+    << strh << " " << strw << " "
+    << padt << " " << padb << " " << padl << " " << padr << " "
+    << isavgpooling << " " << rswidth << " " << xq << "\n");
+
+#if USE_NEW_CE
+  bmnet::bmnet_asm::asm_context::get_context().name = splitName;
   bmnet::bmnet_asm::bmnet_tl_pooling_forward_bmkernel(
-      m_IFmapAddr, // ifmap
-      m_OFmapAddr, // ofmap
-      m_InN, m_InC, m_InH, m_InW, m_OutN, m_OutC, m_OutH, m_OutW, m_KH, m_KW,
-      m_StrideH, m_StrideW,                          // stride
-      m_PadHTop, m_PadHBot, m_PadWLeft, m_PadWRight, // padding
-      m_IsAvgPooling,                                // is_avg_pooling
-      m_RShiftWidth, m_ThresholdXQuantized);
-  **/
+      inAddr, // ifmap
+      oAddr, // ofmap
+      in, ic, ih, iw, on, oc, oh, ow, kh, kw,
+      strh, strw,              // stride
+      padt, padb, padl, padr,  // padding
+      isavgpooling,          // is_avg_pooling
+      rswidth, xq);
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Relu& pOp)

@@ -91,6 +91,18 @@ TLPool *TLPool::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
 
 void TLPool::emit() const
 {
+  DEBUG(dbgs()
+    << "BM188X::Pool\n" << "  " << m_SplitName << " "
+    << m_IFmapAddr << " " << m_OFmapAddr << " "
+    << m_InN << " " << m_InC << " " << m_InH << " " << m_InW << " "
+    << m_OutN << " " << m_OutC << " " << m_OutH << " " << m_OutW << " "
+    << m_KH << " " << m_KW << " "
+    << m_StrideH << " " << m_StrideW << " "
+    << m_PadHTop << " " << m_PadHBot << " "
+    << m_PadWLeft << " " << m_PadWRight << " "
+    << m_IsAvgPooling << " " << m_RShiftWidth << " "
+    << m_ThresholdXQuantized << "\n");
+
   bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
   bmnet::bmnet_asm::bmnet_tl_pooling_forward_bmkernel(
       m_IFmapAddr, // ifmap
