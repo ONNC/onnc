@@ -40,7 +40,7 @@ CXXFLAGS="${orig_CXXFLAGS}"
 AC_LANG_POP([C++])
 
 ONNX_INCLUDES="-I${onnx_dir}/include -DONNX_NAMESPACE=onnx"
-ONNX_LIBS="${onnx_dir}/lib/libonnx.a ${onnx_dir}/lib/libonnx_proto.a -lprotobuf -lpython2.7"
+ONNX_LIBS="${onnx_dir}/lib/libonnx.a ${onnx_dir}/lib/libonnx_proto.a"
 
 AC_SUBST(ONNX_INCLUDES)
 AC_SUBST(ONNX_LIBS)

@@ -59,6 +59,7 @@ ONNC_TARGET_SOURCES += \
   Target/TG/BM188x/Compute/Store.cpp \
   Target/TG/BM188x/Compute/Sum.cpp \
   Target/TG/BM188x/Compute/Transpose.cpp \
+  Target/TG/BM188x/Compute/Upsample.cpp \
   Target/TG/BM188x/Lowers/AveragePoolLower.cpp \
   Target/TG/BM188x/Lowers/ConcatLower.cpp \
   Target/TG/BM188x/Lowers/ConvLower.cpp \
@@ -70,6 +71,7 @@ ONNC_TARGET_SOURCES += \
   Target/TG/BM188x/Lowers/MaxPoolLower.cpp \
   Target/TG/BM188x/Lowers/PReluLower.cpp \
   Target/TG/BM188x/Lowers/PoolLower.cpp \
+  Target/TG/BM188x/Lowers/UpsampleLower.cpp \
   Target/TG/BM188x/Lowers/ReluLower.cpp \
   Target/TG/BM188x/Lowers/ScaleLower.cpp \
   Target/TG/BM188x/Lowers/StoreLower.cpp \

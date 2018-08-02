@@ -2,6 +2,8 @@ INCDIR=../include/onnc
 
 ONNC_SOURCES = \
 	IRReader/ONNXReader.cpp \
+	IR/ComputeRegOperand.cpp \
+	IR/ComputeMemOperand.cpp \
 	IR/ComputeOperand.cpp \
 	IR/ComputeOperator.cpp \
 	IR/ComputeGraph.cpp \
@@ -16,7 +18,9 @@ ONNC_SOURCES = \
 	IR/ONNCModulePrinter.cpp \
 	IR/Compute/Value.cpp \
 	IR/Compute/Scalar.cpp \
+	IR/Compute/Scale.cpp \
 	IR/Compute/Tensor.cpp \
+	IR/Compute/Use.cpp \
 	IR/Compute/ATen.cpp \
 	IR/Compute/Abs.cpp \
 	IR/Compute/Acos.cpp \
@@ -28,13 +32,17 @@ ONNC_SOURCES = \
 	IR/Compute/Conv.cpp \
 	IR/Compute/Concat.cpp \
 	IR/Compute/Gemm.cpp \
+	IR/Compute/GlobalAveragePool.cpp \
 	IR/Compute/LRN.cpp \
+	IR/Compute/LeakyRelu.cpp \
 	IR/Compute/MaxPool.cpp \
+	IR/Compute/PRelu.cpp \
 	IR/Compute/Upsample.cpp \
 	IR/Compute/Relu.cpp \
 	IR/Compute/Reshape.cpp \
 	IR/Compute/Softmax.cpp \
 	IR/Compute/Sum.cpp \
+	IR/Compute/Transpose.cpp \
 	IR/Compute/Xor.cpp \
 	IR/Compute/Initializer.cpp \
 	IR/Compute/InputOperator.cpp \
@@ -168,7 +176,7 @@ ONNC_SOURCES = \
 
 ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ -I${srcdir}/Target
 
-ONNC_LIBS = -lz @ONNX_LIBS@
+ONNC_LIBS = @ONNX_LIBS@
 
 ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
@@ -209,12 +217,12 @@ endif
 
 #####################################
 # Build shared libraries
-lib_LTLIBRARIES = libonnc.la
+lib_LIBRARIES = libonnc.a
 
-libonnc_la_SOURCES = ${ONNC_SOURCES} ${ONNC_TARGET_SOURCES}
+libonnc_a_SOURCES = ${ONNC_SOURCES} ${ONNC_TARGET_SOURCES}
 
-libonnc_la_LIBADD = ${ONNC_LIBS}
+libonnc_a_LIBADD = ${ONNC_LIBS}
 
 if HAVE_PTHREADS
-libonnc_la_LDFLAGS = -lpthread
+libonnc_a_LDFLAGS = -lpthread
 endif

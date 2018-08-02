@@ -94,8 +94,8 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());
   pPM.add(CreateBuildInputOperators());
-  pPM.add(CreateTensorSel(this));
   pPM.add(CreateBuildOutputOperators());
+//  pPM.add(CreateTensorSel(this));
 
   return;
 }
