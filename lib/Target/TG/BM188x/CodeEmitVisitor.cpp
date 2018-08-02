@@ -10,6 +10,7 @@
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
 #include "Compute/Store.h"
+#include "Compute/Upsample.h"
 #include "TGBackend.h"
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/TG/BM188x/bmkernel_api.h>
@@ -455,12 +456,27 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Transpose& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const onnc::Upsample& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Upsample& pOperator)
 {
-  /**
+  auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
+  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+
+  const onnc::Tensor* inTensor = pOperator.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+  int scale = pOperator.getScale();
+
+  DEBUG(dbgs()
+    << "BM188X::Upsample\n" << "  "
+    << ifmap->start() << " " << ofmap->start() << " "
+    << n << " " << c << " " << h << " " << w << " " << scale << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_upsample_fixed_bmkernel(
-      m_MemOperands[0]->m_Addr, // ifmap_gaddr
-      m_MemOperands[1]->m_Addr, // ofmap_gaddr
-      m_N, m_C, m_H, m_W, m_Scale);
-  **/
+      ifmap->start(), // ifmap_gaddr
+      ofmap->start(), // ofmap_gaddr
+      n, c, h, w, scale);
+#endif
 }

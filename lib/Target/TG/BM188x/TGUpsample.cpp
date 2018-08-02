@@ -43,6 +43,12 @@ TGUpsample *TGUpsample::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
 
 void TGUpsample::emit() const
 {
+  DEBUG(dbgs()
+    << "TGUpsample::emit\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
+    << m_N << " " <<  m_C << " " <<  m_H << " " <<  m_W << " "
+    << m_Scale << "\n");
+
   bmnet::bmnet_asm::bmnet_upsample_fixed_bmkernel(
       m_MemOperands[0]->m_Addr, // ifmap_gaddr
       m_MemOperands[1]->m_Addr, // ofmap_gaddr

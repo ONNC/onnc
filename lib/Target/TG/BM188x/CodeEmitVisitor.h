@@ -56,7 +56,7 @@ public:
 
   void visit(const BM188X::Transpose& pTranspose) override;
 
-  void visit(const onnc::Upsample& pUpsample) override;
+  void visit(const BM188X::Upsample& pUpsample) override;
 
 private:
   TGBackend* m_TGBackend;

@@ -32,7 +32,8 @@ class SlicedConv;
 class Store;
 class Sum;
 class Transpose;
- 
+class Upsample;
+
 class BM188xVisitor : public ComputeVisitor
 {
 public:
@@ -75,6 +76,8 @@ public:
   virtual void visit(const BM188X::Sum& pSum) { }
 
   virtual void visit(const BM188X::Transpose& pTranspose) { }
+
+  virtual void visit(const BM188X::Upsample& pTranspose) { }
   /// }@
 
   /// non-const version @{
@@ -111,6 +114,8 @@ public:
   virtual void visit(BM188X::Sum& pSum) { }
 
   virtual void visit(BM188X::Transpose& pTranspose) { }
+
+  virtual void visit(BM188X::Upsample& pTranspose) { }
   /// }@
 
   BM188xVisitor();
