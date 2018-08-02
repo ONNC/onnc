@@ -207,10 +207,6 @@ if ENABLE_SOPHON_TARGET
 include $(srcdir)/Target/Sophon/Makefile.am
 endif
 
-if ENABLE_TG_TARGET
-include $(srcdir)/Target/TG/Makefile.am
-endif
-
 if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
 endif

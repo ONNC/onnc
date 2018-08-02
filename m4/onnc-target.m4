@@ -15,7 +15,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_ARG_ENABLE([targets],
     [AS_HELP_STRING([--enable-targets],
               [Build specific host targets: all or target1,target2,... Valid targets are:
-       host, vanilla, sophon, tg, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
+       host, vanilla, sophon, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
        arm64, mips, spu, hexagon, xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
     [],
     [enableval=all])
@@ -65,10 +65,6 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
         TARGETS_TO_BUILD="Sophon $TARGETS_TO_BUILD"
         AC_DEFINE(ENABLE_SOPHON_TARGET, 1, [define sohpon target])
         ;;
-    tg)
-        TARGETS_TO_BUILD="TG $TARGETS_TO_BUILD"
-        AC_DEFINE(ENABLE_TG_TARGET, 1, [define tg target])
-        ;;
     *) AC_MSG_ERROR([Unrecognized target $a_target]) ;;
         esac
     done
@@ -105,5 +101,5 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
 
   dnl include target-dependent autoconf function calls.
   AM_COND_IF([ENABLE_X86_TARGET],     [m4_include(m4/targets/x86.m4)])
-  AM_COND_IF([ENABLE_TG_TARGET],      [m4_include(m4/targets/tg.m4)])
+  AM_COND_IF([ENABLE_TG_TARGET],      [m4_include(m4/targets/sophon.m4)])
 ])

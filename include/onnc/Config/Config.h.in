@@ -36,9 +36,6 @@
 /* define sohpon target */
 #undef ENABLE_SOPHON_TARGET
 
-/* define tg target */
-#undef ENABLE_TG_TARGET
-
 /* Enable unittest */
 #undef ENABLE_UNITTEST
 
