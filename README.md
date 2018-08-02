@@ -1,6 +1,6 @@
 # Introduction
 
-                     ONNC (Open Neural Network Compiler)
+**ONNC (Open Neural Network Compiler)**
 
 A compiler specifically designed for Deep Learning Accelerator (DLA).
 Based on Open Neural Network Exchange (ONNX), ONNC transforms ONNX models into
