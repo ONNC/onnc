@@ -10,8 +10,7 @@ ONNC increases DLA ASIC performance and shorten production time for DLA ASIC.
 
 ## Lastest release
 
-* v0.9
-  - Tarball:
+* [v0.9](https://github.com/ONNC/onnc/releases)
  
 ## Directory Structure
 * README.md - This document
