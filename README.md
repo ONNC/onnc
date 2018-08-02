@@ -1,22 +1,38 @@
 # Introduction
-ONNC (Open Neural Network Compiler)
 
-# Test
+                     ONNC (Open Neural Network Compiler)
 
-## Add or Remove a Unit-Test
+A compiler specifically designed for Deep Learning Accelerator (DLA).
+Based on Open Neural Network Exchange (ONNX), ONNC transforms ONNX models into
+binary machine code for DLA ASIC. ONNC leverages the IR design of ONNX and
+provides effective algorithms to eliminate the overhead of data movement.
+ONNC increases DLA ASIC performance and shorten production time for DLA ASIC.
 
-From CI pipeline:
-0. ci/.gitlab-ci.yml
-1. docker/common.sh
+## Lastest release
 
-From docker development environment:
-0. docker/in-container/testall
-
-# Directory Structure
-* README    - This document
+* v0.9
+  - Tarball:
+ 
+## Directory Structure
+* README.md - This document
 * docs      - documents
-* externals - The 3rd-party projects
 * include   - header files for libonnc
 * lib       - implementation for libonnc
-* test      - Quick regression tests for ONNC.
 * tools     - tools based on libonnc
+
+## Supported platforms
+
+ONNC supports Ubuntu/x86_64 and MacOSX.
+
+Here is a list of verified versions:
+* Ubuntu/x86_64
+  - 16.04
+
+* MacOSX
+  - High Sierra
+
+## Getting Started
+
+## Download and build ONNC.
+For now, the simplest way to download and build ONNC is follow the
+instructions of README.md in **onnc-umbrella**.

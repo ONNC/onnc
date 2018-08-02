@@ -1,0 +1,31 @@
+This file is a list of the people responsible for ensuring that patches for a
+particular part of ONNC are reviewed. They are also the gatekeepers for their
+part of ONNC, with the final word on what goes in or not.
+
+luba@skymizer.com     - ADT, Core, IR, JSON, Option, Analysis,
+                        Diagnostic, Support, Transforms
+a127127@skymizer.com  - IR, IRReader, Support, lib/Target
+cycheng@skymizer.com  - IR, Target, Analysis, Transforms
+luishsu@skymizer.com  - umbrella, TravisCI
+pine0113@skymizer.com - github, TravisCI
+issue.hsu@bitmain.com - lib/Target/Sophon
+zakk.chen@bitmain.com - lib/Target/Sophon
+
+Here is a list of contributors.
+  evanli@skymizer.com
+  luishsu@skymizer.com
+  max@skymizer.com
+  peter@skymizer.com
+  kttt@skymizer.com
+  dm4@skymizer.com
+  catcatcatcat@skymizer.com
+  katy@skymizer.com
+  eric.yu@bitmain.com
+  shihpo.hung@bitmain.com
+  hr.hsu@bitmain.com
+  min.chen@bitmain.com
+  yuming@bitmain.com
+  changsheng.yin@bitmain.com
+  frank.lin@bitmain.com
+  fp.tsai@bitmain.com
+  wanwei.cai@bitmain.com

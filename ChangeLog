@@ -1,3 +1,12 @@
+2018-8-3  Luba Tang <luba@skymizer.com>
+  * First open source release: 0.9.0
+	* Executive Summary:
+	1. Finish basic infrastructure of ONNC, including IR, Core, ADT, Support,
+	   Diagnostic and backends.
+	2. Enable Sophon backend. Now Sophon backend still use old form of compute
+	   operators.
+  3. Provides onnc, onnx2tg and some utilities.
+
 2018-1-17	Luba Tang <luba@skymizer.com>
 	* Initialization: create all directory structures and auto-tool building
 	system.
