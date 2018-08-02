@@ -54,6 +54,7 @@ add_libonnc_src(
     Compute/SlicedConv.cpp
     Compute/Relu.cpp
     Compute/Transpose.cpp
+    Compute/Upsample.cpp
     Lowers/AveragePoolLower.cpp
     Lowers/ConcatLower.cpp
     Lowers/ConvLower.cpp
@@ -70,7 +71,8 @@ add_libonnc_src(
     Lowers/SumLower.cpp
     Lowers/TransposeLower.cpp
     Lowers/ScaleLower.cpp
-    Lowers/ReluLower.cpp)
+    Lowers/ReluLower.cpp
+    Lowers/UpsampleLower.cpp)
 
 add_subdirectory(asm)
 add_subdirectory(Tests)
