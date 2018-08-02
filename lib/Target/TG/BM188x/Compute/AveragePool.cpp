@@ -22,6 +22,8 @@ BM188X::AveragePool::AveragePool(const IntsAttr& pKernelShape)
       m_ThresholdXQuantized(0)
 {
   setID(ID);
+  m_Pads = IntsAttr(4, 0); //< fill constructor {0, 0, 0, 0}
+  m_Strides = IntsAttr(2, 1); //< fill constructor {1, 1}
 }
 
 void BM188X::AveragePool::print(std::ostream& pOS) const
