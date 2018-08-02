@@ -19,8 +19,8 @@ AveragePool::AveragePool(const IntsAttr& pKernelShape)
     m_AutoPad("NOTSET"),
     m_CountIncludePad(0),
     m_KernelShape(pKernelShape),
-    m_Pads(IntsAttr(4, 0)), //< fill constructor {0, 0, 0, 0}
-    m_Strides(IntsAttr(2, 1)) { //< fill constructor {1, 1}
+    m_Pads(),
+    m_Strides() {
 }
 
 AveragePool::AveragePool(const StringAttr& pAutoPad,
