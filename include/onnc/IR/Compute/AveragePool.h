@@ -39,7 +39,7 @@ public:
   // shallow copy constructor.
   AveragePool(const AveragePool &pCopy);
 
-  ~AveragePool() { }
+  virtual ~AveragePool() { }
 
   // clang-format off
   // Attributes getters
@@ -101,7 +101,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   StringAttr m_AutoPad;
   IntAttr m_CountIncludePad;
