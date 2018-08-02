@@ -9,9 +9,9 @@ AC_DEFUN([PROTO_CONFIG_FILES],
       --cpp_out=$SEARCHPATH \
       $srcdir/$1
   if test -f "$SEARCHPATH/$FILENAME.pb.h" && test "$SEARCHPATH/$FILENAME.pb.h" != "$2"; then
-    mv "$SEARCHPATH/$FILENAME.pb.h" $2
+    mv "$SEARCHPATH/$FILENAME.pb.h" $srcdir/$2
   fi
   if test -f "$SEARCHPATH/$FILENAME.pb.cc" && test "$SEARCHPATH/$FILENAME.pb.cc" != "$3"; then
-    mv "$SEARCHPATH/$FILENAME.pb.cc" $3
+    mv "$SEARCHPATH/$FILENAME.pb.cc" $srcdir/$3
   fi
 ])
