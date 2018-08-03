@@ -71,7 +71,8 @@ private:
 //===----------------------------------------------------------------------===//
 ModulePass *createPrepareCtablePass(BM1880Backend *pBackend);
 ModulePass *createUpdateCtablePass(BM1880Backend *pBackend);
-ModulePass *CreateAddDummyWeightPass();
+ModulePass *createAddDummyWeightPass(BM1880Backend *pBackend);
+ModulePass *createONNXDumpOptPass(BM1880Backend *pBackend);
 
 } // namespace onnc
 
