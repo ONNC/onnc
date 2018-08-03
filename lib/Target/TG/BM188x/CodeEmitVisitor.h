@@ -52,6 +52,8 @@ public:
 
   void visit(const BM188X::Scale& pScale) override;
 
+  void visit(const BM188X::SlicedConv& pSlicedConv) override;
+
   void visit(const BM188X::Store& pStore) override;
 
   void visit(const BM188X::Sum& pSum) override;

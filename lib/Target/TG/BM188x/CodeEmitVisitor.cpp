@@ -19,6 +19,7 @@
 #include "Compute/PRelu.h"
 #include "Compute/Relu.h"
 #include "Compute/Scale.h"
+#include "Compute/SlicedConv.h"
 #include "Compute/Store.h"
 #include "Compute/Sum.h"
 #include "Compute/Transpose.h"
@@ -631,6 +632,86 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOp)
       biasAddr,   // bias
       oAddr,      // output
       n, c, h, w, scaleDim, minnerDim, rswidth);
+#endif
+}
+
+void BM188X::CodeEmitVisitor::visit(const BM188X::SlicedConv& pOp)
+{
+  int groups = pOp.getGroups();
+  // FIXME(arcbbb): Support Group == 1 for the moment
+  assert(groups == 1);
+
+  uint64_t inAddr = pOp.getIFmapAddr(),
+           oAddr = pOp.getOFmapAddr(),
+           wAddr = pOp.getWeightAddr(),
+           bAddr = pOp.getBiasAddr();
+
+  int in = pOp.getInDim().vector()[0],
+      ic = pOp.getInDim().vector()[1],
+      ih = pOp.getInDim().vector()[2],
+      iw = pOp.getInDim().vector()[3];
+
+  int //on = pOp.getOutDim().vector()[0],
+      oc = pOp.getOutDim().vector()[1],
+      oh = pOp.getOutDim().vector()[2],
+      ow = pOp.getOutDim().vector()[3];
+
+  int kh = pOp.getKernelShape().vector()[0],
+      kw = pOp.getKernelShape().vector()[1];
+
+  int dilaH = pOp.getDilations().vector()[0],
+      dilaW = pOp.getDilations().vector()[1];
+
+  int padt = pOp.getSlidePads().vector()[0],
+      padl = pOp.getSlidePads().vector()[1],
+      padb = pOp.getSlidePads().vector()[2],
+      padr = pOp.getSlidePads().vector()[3];
+
+  int strh = pOp.getStrides().vector()[0],
+      strw = pOp.getStrides().vector()[1];
+
+  bool isDoResultAdd = pOp.isDoResultAdd(),
+       idDoBias = pOp.getDoBias(),
+       doRelu = pOp.getDoRelu();
+
+  int rsWidth = pOp.getRShiftWidth();
+
+  const StringAttr& splitName = pOp.getSplitName();
+
+  DEBUG(dbgs()
+    << "BM188X::SlicedConv\n" << "  " << splitName << " "
+    << inAddr << " " << oAddr << " " << wAddr << " " << bAddr << " "
+    << in << " " << ic << " " << ih << " " << iw << " "
+    << groups << " " << oc << " " << oh << " " << ow << " "
+    << kh << " " << kw << " " << dilaH << " " << dilaW << " "
+    << padt << " " << padb << " " << padl << " " << padr << " "
+    << strh << " " << strw << " "
+    << isDoResultAdd << " " << rsWidth << " "
+    << idDoBias << " " << doRelu << "\n");
+
+#if USE_NEW_CE
+  bmnet::bmnet_asm::u32 weight_array[groups];
+  bmnet::bmnet_asm::u32 bias_array[groups];
+  weight_array[0] = wAddr;
+  bias_array[0] = bAddr;
+
+  bool isUseWinograd = false;
+  int ctrl = 0;
+  bmnet::bmnet_asm::asm_context::get_context().name = splitName;
+  bmnet::bmnet_asm::bmnet_tl_conv_forward_bmkernel(
+      inAddr,   // ifmap
+      oAddr,    // ofmap
+      wAddr,    // weight
+      bAddr,    // bias
+      weight_array, // weight addr for each group
+      bias_array,   // bias addr for each group
+      in, ic, ih, iw, groups, oc, oh, ow, kh, kw,
+      dilaH, dilaW,                      // Dilation
+      padt, padb, padl, padr, // padding
+      strh, strw,,                          // stride
+      isDoResultAdd,                                 // result_add
+      ctrl, // FIXME(arcbbb): DoRelu should be a hint here
+      rsWidth, idDoBias, isUseWinograd, doRelu);
 #endif
 }
 

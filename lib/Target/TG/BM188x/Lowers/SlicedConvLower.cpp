@@ -91,6 +91,11 @@ BM188X::SlicedConvLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) con
   else
     op->setStrides(IntsAttr(2, 1)); //< fill constructor {1, 1}
 
+  if (pNode.hasAttribute(::onnx::Symbol("dilations")))
+    op->setDilations(pNode.is(::onnx::Symbol("dilations")));
+  else
+    op->setDilations(IntsAttr(2, 1)); // {1, 1}
+
   if (pNode.hasAttribute(::onnx::Symbol("do_relu")))
     op->setDoRelu();
 
