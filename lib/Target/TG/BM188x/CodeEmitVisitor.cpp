@@ -8,6 +8,7 @@
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
 #include "Compute/Concat.h"
+#include "Compute/Conv.h"
 #include "Compute/Gemm.h"
 #include "Compute/GlobalAveragePool.h"
 #include "Compute/LRN.h"
@@ -36,6 +37,11 @@ using namespace onnc::BM188X;
 //===----------------------------------------------------------------------===//
 // CodeEmitVisitor
 //===----------------------------------------------------------------------===//
+uint64_t CodeEmitVisitor::getMemAddr(const onnc::Tensor *pT)
+{
+  return m_TGBackend->getMemOpndByValue(pT)->start();
+}
+
 void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 {
   auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
@@ -135,32 +141,80 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOp)
 #endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOp)
 {
-  /**
+  uint64_t biasAddr = bmnet::bmnet_asm::GADDR_INVALID;
+  uint64_t scale_addr = bmnet::bmnet_asm::GADDR_INVALID;
+  uint64_t scale_bias_addr = bmnet::bmnet_asm::GADDR_INVALID;
+
+  if (pOp.getBias()) biasAddr = getMemAddr(pOp.getBias());
+  if (pOp.getScale()) scale_addr = getMemAddr(pOp.getScale());
+  if (pOp.getScaleBias()) scale_bias_addr = getMemAddr(pOp.getScaleBias());
+
+  uint64_t inAddr = getMemAddr(pOp.getInput(0)),
+           oAddr = getMemAddr(pOp.getOutput(0)),
+           wAddr = getMemAddr(pOp.getInput(1));
+
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  const onnc::Tensor* wTensor = pOp.getInput(1);
+  int oc = wTensor->dimension(0);
+
+  int kh = pOp.getKernelShape().vector()[0],
+      kw = pOp.getKernelShape().vector()[1];
+
+  int dilaH = pOp.getDilations().vector()[0],
+      dilaW = pOp.getDilations().vector()[1];
+
+  // NOTE: It is for bmkernel only padding on both ends
+  int padh = pOp.getPads().vector()[0],
+      padw = pOp.getPads().vector()[1];
+
+  int strh = pOp.getStrides().vector()[0],
+      strw = pOp.getStrides().vector()[1];
+
+  int rsWidth = pOp.getRShiftWidth();
+
+  int groups = pOp.getGroup();
+
+  bool doRelu = pOp.isDoRelu();
+  int scaleRSWidth = pOp.getScaleRShiftWidth();
+
+  DEBUG(dbgs()
+    << "BM188X::Conv\n" << "  "
+    << inAddr << " " << oAddr << " " << wAddr << " " << "\n  "
+    << biasAddr << " " << scale_addr << " " << scale_bias_addr << "\n  "
+    << n << " " << c << " " << h << " " << w << " "
+    << groups << " " << oc << " " << kh << " " << kw << " "
+    << dilaH << " " << dilaW << " " << padh << " " << padw << " "
+    << strh << " " << strw << " "
+    << doRelu << " " << rsWidth << " " << scaleRSWidth << "\n");
+
+#if USE_NEW_CE
   float activation_arg[1] = { 0.0f };
 
-  uint64_t biasAddr = m_DoBias ? m_MemOperands[m_BiasIdx]->m_Addr
-                               : bmnet::bmnet_asm::GADDR_INVALID;
-  uint64_t scale_addr = m_DoScale ? m_MemOperands[m_ScaleIdx]->m_Addr
-                                  : bmnet::bmnet_asm::GADDR_INVALID;
-  uint64_t scale_bias_addr = m_DoScaleBias
-                                 ? m_MemOperands[m_ScaleBiasIdx]->m_Addr
-                                 : bmnet::bmnet_asm::GADDR_INVALID;
+  bool doBias = pOp.isDoBias(),
+       doScale = pOp.isDoScale(),
+       doScaleBias = pOp.isDoScaleBias();
+
   bmnet::bmnet_asm::bmnet_conv_parallel_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap
-      m_MemOperands[2]->m_Addr,        // ofmap
-      m_MemOperands[1]->m_Addr,        // weight
-      biasAddr,                        // bias
-      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_mean,
-      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_variance,
-      scale_addr,                      // ga_scale,
-      scale_bias_addr,                 // ga_scale_bias,
-      m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
-      m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
-      m_DoBias,                                                 // do_bias,
-      0,                                                        // do_bn,
-      m_DoScale, m_DoScaleBias, pm::match(m_pNode, pm::mTrueAttr("do_relu")),
+      inAddr,       // ifmap
+      oAddr,        // ofmap
+      wAddr,        // weight
+      biasAddr,                         // bias
+      bmnet::bmnet_asm::GADDR_INVALID,  // ga_bn_mean,
+      bmnet::bmnet_asm::GADDR_INVALID,  // ga_bn_variance,
+      scale_addr,                       // ga_scale,
+      scale_bias_addr,                  // ga_scale_bias,
+      n, c, h, w, groups, oc, kh, kw, dilaH, dilaW,
+      padh, padw, strh, strw, false,    // result_add
+      doBias,                           // do_bias,
+      0,                                // do_bn,
+      doScale, doScaleBias, doRelu,
       0,                  // bn_scale,
       0,                  // bn_eps,
       0,                  // activation_method,
@@ -171,12 +225,12 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOperator)
       0,                  // activation_gt_rshift
       0,                  // activation_le_scale
       0,                  // activation_le_rshift
-      m_RShiftWidth,      // right_shift_width
+      rsWidth,            // right_shift_width
       0,                  // bn_right_shift_width
-      m_ScaleRShiftWidth, // scale_right_shift_width
+      scaleRSWidth,       // scale_right_shift_width
       0                   // use_winograd
   );
-  **/
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOp)
