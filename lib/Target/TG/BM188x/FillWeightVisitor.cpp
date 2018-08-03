@@ -16,17 +16,9 @@ using namespace onnc::BM188X;
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-static const std::string *GetRaw(const BM188X::Conv& pConv, unsigned int pIdx)
+static const std::string *GetRaw(const onnc::Tensor* pT)
 {
-  switch (pIdx) {
-    case 0: return &pConv.getInput(0)->adaptee()->raw();
-    case 1: return &pConv.getInput(1)->adaptee()->raw();
-    case 2: return &pConv.getOutput(0)->adaptee()->raw();
-    case 3: return &pConv.getInput(2)->adaptee()->raw();
-    case 4: return &pConv.getInput(3)->adaptee()->raw();
-    case 5: return &pConv.getInput(4)->adaptee()->raw();
-  }
-  return nullptr;
+  return &pT->adaptee()->raw();
 }
 
 static const onnx::Tensor *
@@ -73,16 +65,16 @@ void FillWeightVisitor::visit(const BM188X::Conv& pConv)
   Convert(weight, raw, ks, ic, oc);
 
   // 16bit bias
-  if (1 == pConv.getDoBias())
-    Append16bit(weight, *GetRaw(pConv, pConv.getBiasIdx()));
+  if (pConv.isDoBias())
+    Append16bit(weight, *GetRaw(pConv.getBias()));
 
   // 8bit scale bias
-  if (1 == pConv.getDoScale())
-    Append8bit(weight, *GetRaw(pConv, pConv.getScaleIdx()));
+  if (pConv.isDoScale())
+    Append8bit(weight, *GetRaw(pConv.getScale()));
 
   // 16bit scale bias
-  if (1 == pConv.getDoScaleBias())
-    Append16bit(weight, *GetRaw(pConv, pConv.getScaleBiasIdx()));
+  if (pConv.isDoScaleBias())
+    Append16bit(weight, *GetRaw(pConv.getScaleBias()));
 
   // update weight
   m_Weight.insert(m_Weight.end(), weight.begin(), weight.end());

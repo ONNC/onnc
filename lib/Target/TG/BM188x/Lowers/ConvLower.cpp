@@ -37,7 +37,7 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
                                                    ::onnx::Node &pNode) const
 {
   // check input/output name
-  if (1 > pNode.inputs().size() || pNode.inputs().size() > 4)
+  if (1 > pNode.inputs().size())
     return nullptr;
 
   for (::onnx::Value* xv : pNode.inputs()) {
@@ -56,7 +56,6 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
   // create operators
   BM188X::Conv* op = pGraph.addOperator<onnc::BM188X::Conv>();
 
-
   // set optional attributes
   if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
     op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
@@ -73,32 +72,51 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
   if (pNode.hasAttribute(::onnx::Symbol("strides")))
     op->setStrides(pNode.is(::onnx::Symbol("strides")));
 
+  op->setDoRelu(pm::match(&pNode, pm::mTrueAttr("do_relu")));
+
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs())
-    op->addInput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
-
-  for (::onnx::Value* xv : pNode.outputs())
-    op->addOutput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
-
-  if (pm::match(&pNode, pm::mTrueAttr("do_scale")))
-    op->setDoScale(1);
-
-  if (pm::match(&pNode, pm::mTrueAttr("do_scale_bias")))
-    op->setDoScaleBias(1);
-
-  int idx = 3;
-  if (pNode.inputs().size() - op->getDoScale() - op->getDoScaleBias() == 3) {
-    op->setDoBias(1);
-    op->setBiasIdx(idx++);
+  for (::onnx::Value* xv : pNode.inputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addInput(*tensor);
   }
 
-  if (op->isDoScale()) {
-    op->setScaleIdx(idx++);
+  for (::onnx::Value* xv : pNode.outputs()) {
+    onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
+    if (nullptr == tensor)
+      tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
+    op->addOutput(*tensor);
+  }
+
+  unsigned inputCnt = 2; // input, weight.
+  bool doScale = pm::match(&pNode, pm::mTrueAttr("do_scale"));
+  bool doScaleBias = pm::match(&pNode, pm::mTrueAttr("do_scale_bias"));
+
+  if (doScale) ++inputCnt;
+  if (doScaleBias) ++inputCnt;
+
+  bool doBias = false;
+  if (pNode.inputs().size() != inputCnt) {
+    assert((pNode.inputs().size() - inputCnt == 1) &&
+           "[BM188X::ConvLower] unexpected input cnt.");
+    doBias = true;
+  }
+
+  // get input tensor.
+  onnc::Tensor *bias = nullptr, *scale = nullptr,
+               *scaleBias = nullptr;
+  int inputIdx = 2;
+  if (doBias) bias = op->getInput(inputIdx++);
+  if (doScale) scale = op->getInput(inputIdx++);
+  if (doScaleBias) scaleBias = op->getInput(inputIdx++);
+
+  op->setBias(bias);
+  op->setScale(scale);
+  op->setScaleBias(scaleBias);
+
+  if (doScale)
     op->setConvOutputThreshold(pNode.f(onnx::Symbol("conv_output_threshold")));
-  }
-
-  if (op->isDoScaleBias())
-    op->setScaleBiasIdx(idx++);
 
   return op;
 }
