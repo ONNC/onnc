@@ -10,6 +10,7 @@
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
 #include "Compute/Pool.h"
+#include "Compute/PRelu.h"
 #include "Compute/Relu.h"
 #include "Compute/Scale.h"
 #include "Compute/Store.h"
@@ -322,23 +323,42 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::MaxPool& pOperator)
 #endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::PRelu& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::PRelu& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           slopeAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+  bool channelShared = pOp.getChannelShared();
+  float slope = pOp.getSlope();
+
+  int n = pOp.getDims().vector()[0],
+      c = pOp.getDims().vector()[1],
+      h = pOp.getDims().vector()[2],
+      w = pOp.getDims().vector()[3];
+
+  int gtscale = pOp.getGTScale(),
+      gtrswidth = pOp.getGTRShiftWidth(),
+      lerswidth = pOp.getLERShiftWidth();
+
+  DEBUG(dbgs()
+    << "BM188X::PRelu\n" << "  "
+    << inAddr << " " << slopeAddr << " " << oAddr << " "
+    << channelShared << slope
+    << n << " " << c << " " << h << " " << w << " "
+    << gtscale << " " << gtrswidth << " " << lerswidth << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_prelu_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input_gaddr
-      m_MemOperands[1]->m_Addr, // slope_gaddr
-      m_MemOperands[2]->m_Addr, // output_gaddr
-      m_ChannelShared,          // channel_shared
-      m_Slope,                  // slope
-      m_N,                      // input_n
-      m_C,                      // input_c
-      m_H,                      // input_h
-      m_W,                      // input_w
-      m_GTScale,                // GT_scale
-      m_GTRShiftWidth,          // GT_right_shift_width
-      m_LERShiftWidth);         // LE_right_shift_width
-  **/
+      inAddr,         // input_gaddr
+      slopeAddr,      // slope_gaddr
+      oAddr,          // output_gaddr
+      channelShared,  // channel_shared
+      slope,          // slope
+      n, c, h, w,
+      gtscale,        // GT_scale
+      gtrswidth,      // GT_right_shift_width
+      lerswidth);     // LE_right_shift_width
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Pool& pOp)

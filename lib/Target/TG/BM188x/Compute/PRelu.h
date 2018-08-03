@@ -44,10 +44,25 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
+  void setDims(const IntsAttr& pDims) { m_InputDims = pDims; }
+
+  const IntsAttr& getDims() const { return m_InputDims; }
+
+  float getSlope() const { return m_Slope; }
+
+  void setSlope(float pV) { m_Slope = pV; }
+
+  bool getChannelShared() const { return m_ChannelShared; }
+
+  void setChannelShared(bool pShared) { m_ChannelShared = pShared; }
+
 private:
   IntAttr m_GTRShiftWidth;
   IntAttr m_LERShiftWidth;
   IntAttr m_GTScale;
+  float m_Slope;
+  IntsAttr m_InputDims;
+  bool m_ChannelShared;
 };
 
 } // namespace BM188X

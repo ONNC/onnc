@@ -50,6 +50,13 @@ TGPRelu *TGPRelu::addMemOperands(MemOperand *pInput, MemOperand *pSlope,
 
 void TGPRelu::emit() const
 {
+  DEBUG(dbgs()
+    << "TGPRelu::emit\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
+    << m_MemOperands[2]->m_Addr << " "
+    << m_ChannelShared << " " << m_Slope << " "
+    << m_N << " " << m_C << " " << m_H << " " << m_W << " "
+    << m_GTScale << " " << m_GTRShiftWidth << " " << m_LERShiftWidth << "\n");
 
   bmnet::bmnet_asm::bmnet_prelu_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input_gaddr
