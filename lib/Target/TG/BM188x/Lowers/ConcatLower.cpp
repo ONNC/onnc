@@ -34,7 +34,7 @@ int BM188X::ConcatLower::isMe(const ::onnx::Node &pNode) const
 }
 
 onnc::ComputeOperator *BM188X::ConcatLower::activate(ComputeGraph& pGraph,
-                                                   ::onnx::Node &pNode) const
+                                                     ::onnx::Node &pNode) const
 {
   // check input/output name
   if (pNode.inputs().empty())
@@ -60,6 +60,20 @@ onnc::ComputeOperator *BM188X::ConcatLower::activate(ComputeGraph& pGraph,
   // create operators
   BM188X::Concat* op = pGraph.addOperator<onnc::BM188X::Concat>(
     pNode.i(::onnx::Symbol("axis")));
+
+  const unsigned numInputs = pNode.inputs().size();
+  std::vector<int> inDims(numInputs);
+  int axis = op->getAxis();
+  for (unsigned i = 0; i < numInputs; i++)
+    inDims[i] = pNode.inputs()[i]->sizes()[axis].dim;
+
+  std::vector<int> oDims;
+  oDims.reserve(numInputs);
+  for (auto dim : pNode.outputs()[0]->sizes())
+    oDims.push_back(dim.dim);
+
+  op->setInputDims(inDims);
+  op->setOutputDims(oDims);
 
   // set input/output
   for (::onnx::Value* xv : pNode.inputs()) {

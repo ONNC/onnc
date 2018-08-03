@@ -30,11 +30,19 @@ public:
 
   void setRShiftWidth(unsigned int pIdx, int pValue);
 
-  const int* getRShiftWidth() const;
+  const std::vector<int>& getRShiftWidth() const;
 
   void setThresholdXQuantized(unsigned int pIdx, int pValue);
 
-  const int* getThresholdXQuantized() const;
+  const std::vector<int>& getThresholdXQuantized() const;
+
+  void setInputDims(const std::vector<int>& pInDims) { m_InputDims = pInDims;}
+
+  void setOutputDims(const std::vector<int>& pODims) { m_OutputDims = pODims;}
+
+  const std::vector<int>& getInputDims() const { return m_InputDims; }
+
+  const std::vector<int>& getOutputDims() const { return m_OutputDims; }
 
   void print(std::ostream& pOS) const override;
 
@@ -45,6 +53,8 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  std::vector<int> m_InputDims;
+  std::vector<int> m_OutputDims;
   int m_NeedQuantizeNum;
   std::vector<int> m_RShiftWidth;
   std::vector<int> m_ThresholdXQuantized;

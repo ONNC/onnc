@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/Concat.h"
 #include "Compute/Gemm.h"
 #include "Compute/GlobalAveragePool.h"
 #include "Compute/LRN.h"
@@ -88,23 +89,50 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 #endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOp)
 {
-  /**
-  // Need to modify the api to use const.
-  std::vector<uint64_t> input_addr;
-  for (size_t i = 0; i < m_InputDims.size(); i++)
-    input_addr.push_back(m_MemOperands[i]->m_Addr);
+  std::vector<uint64_t> inAddrs(pOp.getNumOfInputs());
+  for (unsigned i = 0; i < inAddrs.size(); ++i)
+    inAddrs[i] = m_TGBackend->getMemOpndByValue(pOp.getInput(i))->start();
 
-  bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
-      input_addr.data(), m_MemOperands.back()->m_Addr,
-      const_cast<int *>(m_InputDims.data()), m_InputDims.size(), m_ConcatAxis,
-      m_OutputDim.size(), const_cast<int *>(m_OutputDim.data()),
-      m_NeedQuantizeNum,
-      m_RShiftWidth.data(),        // right_shift_width
-      m_ThresholdXQuantized.data() // threshold_x_quantized
+  uint64_t oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  const auto& inDims = pOp.getInputDims();
+  const auto& oDims = pOp.getOutputDims();
+
+  // int axis = pOp.getAxis();
+  int needQuanNum = pOp.getNeedQuantizeNum();
+  auto& rsWidth = pOp.getRShiftWidth();
+  auto& xq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs() << "BM188X::Concat\n";
+    dbgs() << "  inputs = ";
+    for (auto i : inAddrs) dbgs() << i << " ";
+    dbgs() << "\n";
+    dbgs() << "  " << oAddr << "\n  ";
+    for (auto i : inDims) dbgs() << i << " ";
+    dbgs() << "\n  ";
+    for (auto i : oDims) dbgs() << i << " ";
+    dbgs() << "\n  "
+           << needQuanNum << "\n";
+    dbgs() << "  rswidth = ";
+    for (auto i : rsWidth) dbgs() << i << " ";
+    dbgs() << "\n  xq = ";
+    for (auto i : xq) dbgs() << i << " ";
+    dbgs() << "\n";
   );
-  **/
+
+#if USE_NEW_CE
+  bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
+      inAddrs.data(), oAddr,
+      const_cast<int *>(inDims.data()), inDims.size(),
+      axis,
+      oDims.size(), const_cast<int *>(oDims.data()),
+      needQuanNum,
+      rsWidth,      // right_shift_width
+      xq            // threshold_x_quantized
+  );
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOperator)
