@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/GlobalAveragePool.h"
 #include "Compute/LRN.h"
 #include "Compute/LeakyRelu.h"
 #include "Compute/Load.h"
@@ -179,23 +180,43 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::GlobalAveragePool& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::GlobalAveragePool& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  int enRelu = pOp.getEnableRelu(),
+      rsWidth = pOp.getRShiftWidth(),
+      xq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::GlobalAveragePool\n" << "  "
+    << inAddr << " " << oAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << enRelu << " " << rsWidth << " " << xq << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap_gaddr
-      m_MemOperands[1]->m_Addr,        // ofmap_gaddr
+      inAddr,         // ifmap_gaddr
+      oAddr,          // ofmap_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // index_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
-      m_N, m_C, m_H, m_W, m_H, m_W, 0, 0, 0, 0, 1, 1,
-      1,                      // is_avg_pooling
-      0.0f,                   // avg_const
-      m_EnableRelu,           // do_relu
-      m_RShiftWidth,          // right_shift_width
-      &m_ThresholdXQuantized, // threshold_x_quantized
-      0                       // ceil_mode
+      n, c, h, w, h, w,
+      0, 0, 0, 0, 1, 1,
+      1,                // is_avg_pooling
+      0.0f,             // avg_const
+      enRelu,           // do_relu
+      rsWidth,          // right_shift_width
+      &xq,              // threshold_x_quantized
+      0                 // ceil_mode
   );
-  **/
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOp)
