@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/LeakyRelu.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
 #include "Compute/Pool.h"
@@ -209,21 +210,38 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::LeakyRelu& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::LeakyRelu& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  int n = pOp.getDims().vector()[0],
+      c = pOp.getDims().vector()[1],
+      h = pOp.getDims().vector()[2],
+      w = pOp.getDims().vector()[3];
+
+  int gtscale = pOp.getGTScale(),
+      gtrswidth = pOp.getGTRShiftWidth(),
+      lerswidth = pOp.getLERShiftWidth(),
+      lescale = pOp.getLEScale();
+
+  DEBUG(dbgs()
+    << "BM188X::PRelu\n" << "  "
+    << inAddr << " " << oAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << gtrswidth << " " << lerswidth << " "
+    << gtscale << " " << lescale << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_leakyrelu_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input_gaddr
-      m_MemOperands[1]->m_Addr, // output_gaddr
-      m_N,                      // input_n
-      m_C,                      // input_c
-      m_H,                      // input_h
-      m_W,                      // input_w
-      m_GTRShiftWidth,          // GT_right_shift_width
-      m_LERShiftWidth,          // LE_right_shift_width
-      m_GTScale,                // GT_scale
-      m_LEScale);               // LE_scale
-  **/
+      inAddr,         // input_gaddr
+      oAddr,          // output_gaddr
+      n, c, h, w,
+      gtrswidth,      // GT_right_shift_width
+      lerswidth,      // LE_right_shift_width
+      gtscale,        // GT_scale
+      lescale);       // LE_scale
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Load& pOperator)
