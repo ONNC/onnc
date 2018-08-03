@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/LRN.h"
 #include "Compute/LeakyRelu.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
@@ -197,17 +198,41 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::GlobalAveragePool& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           sLutAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start(),
+           pLutAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(2))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  int size = pOp.getSize(),
+      sumRSWidth = pOp.getSumRightShftWidth(),
+      lrnRSwidth = pOp.getLrnRightShiftWidth();
+
+  const int* pxq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::LRN\n" << "  "
+    << inAddr << " " << oAddr << " " << sLutAddr << " " << pLutAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << size << " " << sumRSWidth << " " << lrnRSwidth
+    << pxq[0] << " " << pxq[1] << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_lrn_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input
-      m_MemOperands[3]->m_Addr, // output
-      m_MemOperands[1]->m_Addr, // sqr_lut
-      m_MemOperands[2]->m_Addr, // power_lut,
-      m_N, m_C, m_H, m_W, m_LocalSize, m_SumRightShiftWidth,
-      m_LrnRightShiftWidth, m_ThresholdXQuantized);
-  **/
+      inAddr, // input
+      oAddr, // output
+      sLutAddr, // sqr_lut
+      pLutAddr, // power_lut,
+      n, c, h, w,
+      size, sumRSWidth, lrnRSwidth, pxq);
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::LeakyRelu& pOp)
