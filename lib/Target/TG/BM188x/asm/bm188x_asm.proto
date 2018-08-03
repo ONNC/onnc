@@ -1,4 +1,3 @@
-// version: v1.0-11-g9b97542
 // clang-format off
 syntax = "proto2";
 package bmnet.bm1880;
@@ -49,6 +48,7 @@ message Inst {
     optional bmnet_tl_load_bmkernel                           tl_layer_load         = 31;
     optional bmnet_tl_store_stride_bmkernel                   tl_layer_store_stride = 32;
     optional bmnet_tl_store_bmkernel                          tl_layer_store        = 33;
+    optional bmnet_tl_relu_forward_bmkernel                   tl_relu               = 34;
 
     message bmnet_pooling_fixed_forward_bmkernel {
         optional uint64 ifmap_gaddr = 1;
@@ -547,6 +547,14 @@ message Inst {
         optional bool DoTranspose = 10;
         optional bool DoAligned = 11;
         optional bool isNeuron = 12;
+    }
+    message bmnet_tl_relu_forward_bmkernel {
+        optional uint64 input_laddr = 1;
+        optional uint64 output_laddr = 2;
+        optional int32 input_n = 3;
+        optional int32 input_c = 4;
+        optional int32 input_h = 5;
+        optional int32 input_w = 6;
     }
 
 }
