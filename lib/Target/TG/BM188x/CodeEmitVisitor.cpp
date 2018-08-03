@@ -45,8 +45,8 @@ uint64_t CodeEmitVisitor::getMemAddr(const onnc::Tensor *pT)
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 {
-  auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
-  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+  uint64_t inAddr = getMemAddr(pOperator.getInput(0)),
+           oAddr = getMemAddr(pOperator.getOutput(0));
 
   const onnc::Tensor* inTensor = pOperator.getInput(0);
   int n = inTensor->dimension(0),
@@ -71,7 +71,7 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 
   DEBUG(dbgs()
     << "BM188X::AveragePool" << "\n"
-    << "  " << ifmap->start() << " " << ofmap->start()
+    << "  " << inAddr << " " << oAddr
     << " " << n << " " << c << " " << h << " " << w << " "
     << kh << " " << kw << " "
     << padt << " " << padb << " " << padl << " " << padr << " "
@@ -81,8 +81,8 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 
 #if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap_gaddr
-      m_MemOperands[1]->m_Addr,        // ofmap_gaddr
+      inAddr,                          // ifmap_gaddr
+      oAddr,                           // ofmap_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // index_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
       n, c, h, w, kh, kw, padt, padb, padl, padr, strh, strw,
@@ -107,7 +107,6 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOp)
   const auto& inDims = pOp.getInputDims();
   const auto& oDims = pOp.getOutputDims();
 
-  // int axis = pOp.getAxis();
   int needQuanNum = pOp.getNeedQuantizeNum();
   auto& rsWidth = pOp.getRShiftWidth();
   auto& xq = pOp.getThresholdXQuantized();
@@ -133,11 +132,11 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOp)
   bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
       inAddrs.data(), oAddr,
       const_cast<int *>(inDims.data()), inDims.size(),
-      axis,
+      pOp.getAxis(),
       oDims.size(), const_cast<int *>(oDims.data()),
       needQuanNum,
-      rsWidth,      // right_shift_width
-      xq            // threshold_x_quantized
+      rsWidth.data(), // right_shift_width
+      xq.data()       // threshold_x_quantized
   );
 #endif
 }
@@ -259,7 +258,7 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOp)
 #if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_fc_fixed_forward_bmkernel(
       inAddr,         // input_data_gaddr
-      wAddr           // weight_data_gaddr
+      wAddr,          // weight_data_gaddr
       bAddr,          // bias_data_gaddr
       oAddr,          // output_data_gaddr
       inRowN,                          // input_row_num
@@ -706,10 +705,10 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::SlicedConv& pOp)
       weight_array, // weight addr for each group
       bias_array,   // bias addr for each group
       in, ic, ih, iw, groups, oc, oh, ow, kh, kw,
-      dilaH, dilaW,                      // Dilation
-      padt, padb, padl, padr, // padding
-      strh, strw,,                          // stride
-      isDoResultAdd,                                 // result_add
+      dilaH, dilaW,               // Dilation
+      padt, padb, padl, padr,     // padding
+      strh, strw,                 // stride
+      isDoResultAdd,              // result_add
       ctrl, // FIXME(arcbbb): DoRelu should be a hint here
       rsWidth, idDoBias, isUseWinograd, doRelu);
 #endif
