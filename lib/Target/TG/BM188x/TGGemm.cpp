@@ -67,6 +67,14 @@ void TGGemm::emit() const
   int do_activation = m_EnableRelu;
   int activation_method = RELU;
 
+  DEBUG(dbgs()
+    << "TGGemm::emit\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
+    << m_MemOperands[2]->m_Addr << " " << m_MemOperands[3]->m_Addr << " "
+    << m_InRowNum << " " << m_InColNum << " " << m_OutColNum << " "
+    << m_HaveBias << " " << do_activation << " " << activation_method << " "
+    << m_WeightTp << " " << m_RShiftWidth << " " << "\n");
+
   bmnet::bmnet_asm::bmnet_fc_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr,        // input_data_gaddr
       m_MemOperands[1]->m_Addr,        // weight_data_gaddr

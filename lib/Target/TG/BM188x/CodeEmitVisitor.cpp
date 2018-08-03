@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/Gemm.h"
 #include "Compute/GlobalAveragePool.h"
 #include "Compute/LRN.h"
 #include "Compute/LeakyRelu.h"
@@ -150,21 +151,38 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOperator)
   **/
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOp)
 {
-  /**
-  int do_activation = m_EnableRelu;
-  int activation_method = RELU;
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           wAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start(),
+           bAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(2))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+  int inRowN = pOp.getInRowNum(),
+      inColN = pOp.getInColNum(),
+      outColN = pOp.getOutColNum();
+  bool haveBias = pOp.haveBias();
+  bool do_activation = pOp.isEnableRelu();
+  int activation_method = BM188X::Gemm::RELU;
+  bool isWeightTp = pOp.isWeightTp();
+  int rsWidth = pOp.getRShiftWidth();
 
+  DEBUG(dbgs()
+    << "BM188X::Gemm\n" << "  "
+    << inAddr << " " << wAddr << " " << bAddr << " " << oAddr << " "
+    << inRowN << " " << inColN << " " << outColN << " "
+    << haveBias << " " << do_activation << " " << activation_method
+    << isWeightTp << " " << rsWidth << " " << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_fc_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // input_data_gaddr
-      m_MemOperands[1]->m_Addr,        // weight_data_gaddr
-      m_MemOperands[2]->m_Addr,        // bias_data_gaddr
-      m_MemOperands[3]->m_Addr,        // output_data_gaddr
-      m_InRowNum,                      // input_row_num
-      m_InColNum,                      // input_col_num
-      m_OutColNum,                     // weight_col_num
-      m_HaveBias,                      // have_bias
+      inAddr,         // input_data_gaddr
+      wAddr           // weight_data_gaddr
+      bAddr,          // bias_data_gaddr
+      oAddr,          // output_data_gaddr
+      inRowN,                          // input_row_num
+      inColN,                          // input_col_num
+      outColN,                         // weight_col_num
+      haveBias,                        // have_bias
       do_activation,                   // do_activation
       activation_method,               // activation_method
       bmnet::bmnet_asm::GADDR_INVALID, // activation_ga_slope
@@ -173,11 +191,11 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOperator)
       0,                               // activation_gt_rshift
       0,                               // activation_le_scale
       0,                               // activation_le_rshift
-      m_WeightTp,                      // weight_transpose
+      isWeightTp,                      // weight_transpose
       0,                               // left_shift_width //TODO
-      m_RShiftWidth                    // right_shift_width
+      rsWidth                          // right_shift_width
   );
-  **/
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::GlobalAveragePool& pOp)
