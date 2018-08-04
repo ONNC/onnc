@@ -21,6 +21,8 @@ public:
 public:
   EncodeInstructions(ComputeVisitor *pInstVisitor);
 
+  EncodeInstructions(ComputeVisitor *pInstVisitor, char& pPassID);
+
   StringRef getPassName() const override { return "EncodeInstructions"; }
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;

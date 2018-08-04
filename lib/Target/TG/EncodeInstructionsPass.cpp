@@ -20,6 +20,12 @@ EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor)
 {
 }
 
+EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor,
+                                       char& pPassID)
+    : ModulePass(pPassID), m_InstEmitVisitors(pInstVisitor)
+{
+}
+
 Pass::ReturnType EncodeInstructions::runOnModule(::onnc::Module &pModule)
 {
   unsigned result = Pass::kModuleNoChanged;
