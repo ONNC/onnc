@@ -62,6 +62,8 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
 
   if (pNode.hasAttribute(::onnx::Symbol("dilations")))
     op->setDilations(pNode.is(::onnx::Symbol("dilations")));
+  else
+    op->setDilations(IntsAttr(2, 1)); // {1, 1}
 
   if (pNode.hasAttribute(::onnx::Symbol("group")))
     op->setGroup(pNode.i(::onnx::Symbol("group")));
@@ -69,8 +71,13 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
     op->setKernelShape(pNode.is(::onnx::Symbol("kernel_shape")));
   if (pNode.hasAttribute(::onnx::Symbol("pads")))
     op->setPads(pNode.is(::onnx::Symbol("pads")));
+  else
+    op->setPads(IntsAttr(2, 0)); // {0, 0}
+
   if (pNode.hasAttribute(::onnx::Symbol("strides")))
     op->setStrides(pNode.is(::onnx::Symbol("strides")));
+  else
+    op->setStrides(IntsAttr(2, 1)); // {1, 1}
 
   op->setDoRelu(pm::match(&pNode, pm::mTrueAttr("do_relu")));
 
