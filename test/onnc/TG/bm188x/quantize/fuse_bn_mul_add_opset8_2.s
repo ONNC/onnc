@@ -1,5 +1,5 @@
 # RUN: onnx-as %s | onnx2tg -march bm1880 -print-module-before-isel -add-dummy-ctable -add-dummy-weight -o=- |  FileCheck %s
-#; CHECK: FLOAT tensor <1, 64, 112, 112> %scale_conv1_1 = Conv <pads:INTS [3,3,3,3], strides:INTS [2,2], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 1> (FLOAT tensor <1, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_w_0, FLOAT tensor <64> %21, FLOAT tensor <64> %23)
+#; CHECK: FLOAT tensor <1, 64, 112, 112> %scale_conv1_1 = Conv <pads:INTS [3,3,3,3], strides:INTS [2,2], kernel_shape:INTS [7,7], do_scale:INT 1, do_scale_bias:INT 1, conv_output_threshold:FLOAT 1> (FLOAT tensor <1, 3, 224, 224> %data_0, FLOAT tensor <64, 3, 7, 7> %conv1_w_0, FLOAT tensor <64> %19, FLOAT tensor <64> %21)
 
 ir_version: 3
 producer_name: "caffe2"

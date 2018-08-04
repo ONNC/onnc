@@ -350,7 +350,7 @@ bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
       return false;
     }
     // tensor =  (C, 1, 1)
-    FuseBNMulTensor(pGraph, pNode, next(pNode));
+    FuseBNAddTensor(pGraph, pNode, next(pNode));
     return true;
   }
 
