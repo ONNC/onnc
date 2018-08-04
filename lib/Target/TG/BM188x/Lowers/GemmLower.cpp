@@ -37,7 +37,7 @@ onnc::ComputeOperator *BM188X::GemmLower::activate(ComputeGraph& pGraph,
                                                    ::onnx::Node &pNode) const
 {
   // check input/output name
-  if (3 == pNode.inputs().size())
+  if (3 != pNode.inputs().size())
     return nullptr;
 
   for (::onnx::Value* xv : pNode.inputs()) {
