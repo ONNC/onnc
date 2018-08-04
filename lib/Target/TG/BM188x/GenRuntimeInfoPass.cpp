@@ -75,8 +75,13 @@ Pass::ReturnType BM188X::GenRuntimeInfoPass::runOnModule(Module &pModule)
   GenMemoryLayout(document, *pModule.getRootComputeGraph());
   GenRest(document, *pModule.getRootTensorGraph());
 
-  OFStream os(m_OutFile, std::ios::out | std::ios::binary);
-  IndentOStream oss(os);
+  OFStream ofs;
+  std::ostream* os = &onnc::outs();
+  if (m_OutFile != "-") {
+    ofs.open(m_OutFile + ".rt.json", std::ios::out | std::ios::binary);
+    os = &ofs;
+  }
+  IndentOStream oss(*os);
   document.print(oss);
   return kModuleNoChanged;
 }
