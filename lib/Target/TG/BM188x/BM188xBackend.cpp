@@ -39,6 +39,8 @@
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
+#include <onnc/Support/OFStream.h>
+#include <onnc/Target/TG/BM188x/bmkernel_api.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
 #include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Transforms/BuildInitializers.h>
@@ -52,6 +54,36 @@
 #endif
 
 using namespace onnc;
+
+class BM188xEncodeInstructions : public EncodeInstructions
+{
+public:
+  static char ID;
+
+public:
+  BM188xEncodeInstructions(ComputeVisitor *pInstVisitor,
+                           const std::string &pFilename)
+    : EncodeInstructions(pInstVisitor, ID),
+      m_FileName(pFilename) {
+  }
+
+  Pass::ReturnType runOnModule(::onnc::Module &pModule)
+  {
+    OFStream ofs;
+    std::ostream* os = &onnc::outs();
+    if (m_FileName != "-") {
+      ofs.open(m_FileName + ".s", std::ios::out);
+      os = &ofs;
+    }
+    ::bmnet::bmnet_asm::asm_context::get_context().set_fp(*os);
+    return EncodeInstructions::runOnModule(pModule);
+  }
+
+private:
+  const std::string m_FileName;
+};
+
+char BM188xEncodeInstructions::ID = 0;
 
 //===----------------------------------------------------------------------===//
 // BM1880
