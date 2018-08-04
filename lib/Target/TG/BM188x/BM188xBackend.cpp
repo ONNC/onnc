@@ -51,6 +51,7 @@
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
+#include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
 #ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
 #endif
@@ -207,6 +208,7 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::PReluLower>();
   pRegistry.emplace<BM188X::PoolLower>();
   pRegistry.emplace<BM188X::ReluLower>();
+  pRegistry.emplace<onnc::ReshapeLower>();
   pRegistry.emplace<BM188X::ScaleLower>();
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::SumLower>();
