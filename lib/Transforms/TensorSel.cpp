@@ -46,7 +46,12 @@ Pass::ReturnType TensorSel::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
         fatal(no_corre_lower) << tg_node->kind().toString();
       return Pass::kPassFailure;
     }
-    lower->activate(pCG, **tg_node);
+    if (nullptr == lower->activate(pCG, **tg_node)) {
+      errs() << "Failed to lowering: ";
+      if (tg_node->has_name())
+        errs() << tg_node->name() << ", ";
+      errs() << "node type = " << tg_node->kind().toString() << "\n";
+    }
   }
   return Pass::kModuleChanged;
 }
