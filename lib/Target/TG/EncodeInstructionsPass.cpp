@@ -41,6 +41,7 @@ EncodeInstructions::runOnComputeGraph(::onnc::ComputeGraph &pCG)
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
     const onnc::ComputeOperator *node = nodeIt;
+    beforeEmit(node);
     node->accept(*m_InstEmitVisitors);
   }
   return Pass::kModuleNoChanged;

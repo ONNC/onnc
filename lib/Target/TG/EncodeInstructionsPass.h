@@ -29,6 +29,9 @@ public:
 
   Pass::ReturnType runOnComputeGraph(::onnc::ComputeGraph &pCG);
 
+protected:
+  virtual void beforeEmit(const ::onnc::ComputeOperator* pOp) {}
+
 private:
   ComputeVisitor *m_InstEmitVisitors;
 };

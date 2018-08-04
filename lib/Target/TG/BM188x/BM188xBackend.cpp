@@ -40,7 +40,11 @@
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/ONNCModulePrinter.h>
+#include <onnc/Support/Casting.h>
 #include <onnc/Support/OFStream.h>
 #include <onnc/Target/TG/BM188x/bmkernel_api.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
@@ -80,6 +84,17 @@ public:
     }
     ::bmnet::bmnet_asm::asm_context::get_context().set_fp(*os);
     return EncodeInstructions::runOnModule(pModule);
+  }
+
+protected:
+  void beforeEmit(const ::onnc::ComputeOperator* pOp) override
+  {
+    if (isa<OutputOperator>(pOp) || isa<InputOperator>(pOp) ||
+        isa<Initializer>(pOp))
+      return;
+
+    ::bmnet::bmnet_asm::asm_context::get_context().name =
+      pOp->getOutput(0)->getName();
   }
 
 private:
