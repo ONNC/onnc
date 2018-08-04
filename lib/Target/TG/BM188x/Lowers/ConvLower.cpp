@@ -67,6 +67,9 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
 
   if (pNode.hasAttribute(::onnx::Symbol("group")))
     op->setGroup(pNode.i(::onnx::Symbol("group")));
+  else
+    op->setGroup(IntAttr(1)); // {1}
+
   if (pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
     op->setKernelShape(pNode.is(::onnx::Symbol("kernel_shape")));
   if (pNode.hasAttribute(::onnx::Symbol("pads")))
