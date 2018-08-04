@@ -35,6 +35,8 @@
 #include "Lowers/UpsampleLower.h"
 #include "CodeEmitVisitor.h"
 #include "EncodeInstructionsPass.h"
+#include "GenRuntimeInfoPass.h"
+#include "GenWeightPass.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -135,8 +137,10 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
 void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
 {
   static BM188X::CodeEmitVisitor ceVisitor(this);
-  pPM.add(CreateEncodeInstructionsPass(&ceVisitor));
-  TGBackend::addCodeEmit(pPM, pOutputFile);
+  pPM.add(BM188X::CreateGenRuntimeInfoPass(this, pOutputFile));
+  //pPM.add(BM188X::CreateGenWeightPass(this, pOutputFile));
+  pPM.add(new BM188xEncodeInstructions(&ceVisitor, pOutputFile.native()));
+  //TGBackend::addCodeEmit(pPM, pOutputFile);
 }
 
 bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
