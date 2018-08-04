@@ -6,9 +6,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include "GenRuntimeInfoPass.h"
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/JSON/Object.h>
 #include <onnc/JSON/Reader.h>
 #include <onnc/JSON/Value.h>
+#include <onnc/Support/Casting.h>
 #include <onnc/Support/IndentOStream.h>
 #include <onnc/Support/OFStream.h>
 #include <onnx/common/ir.h>
@@ -259,9 +263,15 @@ void GenRuntimeInfoPass::GenMemoryLayout(json::Object& pOutput,
                                          const ComputeGraph& pG)
 {
   onnc::json::Object jMemLayout;
-  ComputeGraph::const_iterator inst, iEnd = pG.end();
-  for (inst = pG.begin(); inst != iEnd; ++inst) {
+  ComputeGraph::const_iterator instIt, iEnd = pG.end();
+  for (instIt = pG.begin(); instIt != iEnd; ++instIt) {
     onnc::json::Object jLayer;
+    const ComputeOperator *inst = instIt;
+
+    if (isa<OutputOperator>(inst) || isa<InputOperator>(inst) ||
+        isa<Initializer>(inst))
+      continue;
+
     // inputs of inst
     unsigned int ins = inst->getNumOfInputs();
     for (unsigned int i = 0; i < ins; ++i) {
