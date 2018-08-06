@@ -33,7 +33,7 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
-#define USE_NEW_CE 0
+#define USE_NEW_CE 1
 
 //===----------------------------------------------------------------------===//
 // CodeEmitVisitor

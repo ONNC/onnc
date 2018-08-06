@@ -136,12 +136,6 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   if (options().shouldPrintBeforeTensorSel())
     pPM.add(createONNCModulePrinterPass());
 
-  if (getTargetLower() == nullptr) {
-    pPM.add(createTargetLoweringPass(this));
-  } else {
-    pPM.add(getTargetLower()(this));
-  }
-
   pPM.add(CreateDeadNodeEliminationPass());
   pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateBookONNXGraphs());
