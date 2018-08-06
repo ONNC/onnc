@@ -24,15 +24,15 @@ CastLower::~CastLower()
 {
 }
 
-int CastLower::isMe(const ::onnx::Node& pNode) const
+int CastLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Cast"))
+  if (pNode.kind() == xSymbol("Cast"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-CastLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+CastLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,23 +42,23 @@ CastLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check default attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("to")))
+  if (!pNode.hasAttribute(xSymbol("to")))
     return nullptr;
 
   // create operators
   onnc::Cast* op = pGraph.addOperator<onnc::Cast>(
-    pNode.i(::onnx::Symbol("to")));
+    pNode.i(xSymbol("to")));
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
@@ -67,14 +67,14 @@ CastLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

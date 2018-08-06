@@ -7,12 +7,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TARGET_MEMORY_INFO_H
 #define ONNC_TARGET_TARGET_MEMORY_INFO_H
-#include <onnx/common/ir.h>
 #include <onnc/IR/Quadruple.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
-typedef ::onnx::TensorProto_DataType TP_DataTy;
+typedef xTensorProtoDataType TP_DataTy;
 
 /** \struct MemSize
  *
@@ -38,14 +38,14 @@ public:
 
   virtual uint64_t getLocalMemSize() const { return 0; }
 
-  virtual uint64_t getElemSize(::onnx::TensorProto_DataType pTy) const {
+  virtual uint64_t getElemSize(xTensorProtoDataType pTy) const {
     return 0;
   }
 
   virtual uint64_t getAlignment(TP_DataTy pTy) const { return 0; }
 
   /// Return actual memory size and alignment requirement of onnx::Value.
-  virtual MemSize getValueMemorySize(::onnx::Value *pValue) {
+  virtual MemSize getValueMemorySize(xValue *pValue) {
     return MemSize();
   }
 };

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
 #include "../Weight.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include "../io.hpp"
 #include <string>
 

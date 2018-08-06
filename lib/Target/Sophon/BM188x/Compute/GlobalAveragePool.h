@@ -24,7 +24,7 @@ public:
 
   ~GlobalAveragePool();
 
-  void init(const ::onnx::Node &pNode);
+  void init(const xNode &pNode);
 
   int getRShiftWidth() const { return m_RShiftWidth; }
 

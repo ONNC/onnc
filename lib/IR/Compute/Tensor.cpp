@@ -24,6 +24,6 @@ Tensor::Tensor(const std::string& pName, onnc::Value::Type pKind)
   : onnc::Value(pName, pKind) {
 }
 
-Tensor::Tensor(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee)
+Tensor::Tensor(onnc::Value::Type pKind, xTensor& pAdaptee)
   : onnc::Value(pKind, pAdaptee) {
 }

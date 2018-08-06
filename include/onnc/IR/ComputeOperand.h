@@ -7,10 +7,10 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_COMPUTE_OPERAND_H
 #define ONNC_IR_COMPUTE_OPERAND_H
-#include <ostream>
-#include <onnx/common/ir.h>
 #include <onnc/ADT/Bits/DigraphArc.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/Compute/Value.h>
+#include <ostream>
 
 namespace onnc {
 

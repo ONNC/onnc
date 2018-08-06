@@ -19,30 +19,30 @@
 namespace onnc {
 namespace BM188X {
 
-TGMaxPool::TGMaxPool(const ::onnx::Node &pNode)
+TGMaxPool::TGMaxPool(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("MaxPool")), m_PadT(0),
       m_PadB(0), m_PadL(0), m_PadR(0), m_StrideH(1), m_StrideW(1),
       m_RShiftWidth(0), m_ThresholdXQuantized(0)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
-  m_KH = pNode.is(::onnx::Symbol("kernel_shape"))[0];
-  m_KW = pNode.is(::onnx::Symbol("kernel_shape"))[1];
+  m_KH = pNode.is(xSymbol("kernel_shape"))[0];
+  m_KW = pNode.is(xSymbol("kernel_shape"))[1];
 
   // [leftPad, downPad, rightPad, upPad]
-  if (pNode.hasAttribute(::onnx::Symbol("pads"))) {
-    auto &i = pNode.is(::onnx::Symbol("pads"));
+  if (pNode.hasAttribute(xSymbol("pads"))) {
+    auto &i = pNode.is(xSymbol("pads"));
     // NOTE: It is for bmkernel padding on both ends
     m_PadT = i[0];
     m_PadL = i[1];
     m_PadB = i[2];
     m_PadR = i[3];
   }
-  if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
-    auto &i = pNode.is(::onnx::Symbol("strides"));
+  if (pNode.hasAttribute(xSymbol("strides"))) {
+    auto &i = pNode.is(xSymbol("strides"));
     m_StrideH = i[0];
     m_StrideW = i[1];
   }

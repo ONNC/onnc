@@ -24,6 +24,6 @@ Scalar::Scalar(const std::string& pName, onnc::Value::Type pKind)
   : onnc::Value(pName, pKind) {
 }
 
-Scalar::Scalar(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee)
+Scalar::Scalar(onnc::Value::Type pKind, xTensor& pAdaptee)
   : onnc::Value(pKind, pAdaptee) {
 }

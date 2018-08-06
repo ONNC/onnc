@@ -15,9 +15,10 @@
 #include "BM188xBackend.h"
 #include "TGCodeEmitter.h"
 #include "Weight.h"
-#include <memory>
 #include <onnc/JSON/Object.h>
 #include <onnc/Support/Path.h>
+#include <onnc/Config/ONNX.h>
+#include <memory>
 #include <vector>
 
 namespace bmnet {
@@ -37,7 +38,7 @@ public:
 
   ~BM188xCodeEmitter() override = default;
 
-  void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+  void genRuntimeInfo(const xGraph *pOnnxGraph,
                       std::ostream &pOS) override;
 
   void encodeInstructions(std::ostream &pOS) override;
@@ -47,12 +48,12 @@ public:
 private:
   json::Object genOutputLayer(const std::string &pDefaultOnncLayerName,
                               const std::string &pDefaultOnnxLayerName,
-                              const ::onnx::Graph *pOnnxGraph);
+                              const xGraph *pOnnxGraph);
 
   float getThreshold(const std::string &pOnncLayerName);
 
-  std::string findOnncLayerName(const onnx::Graph *pOnnxGraph,
-                                const onnx::Value *pValue);
+  std::string findOnncLayerName(const xGraph *pOnnxGraph,
+                                const xValue *pValue);
 
 private:
   // void *m_BmkernelHandle;

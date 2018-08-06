@@ -23,29 +23,29 @@ BM188X::PReluLower::~PReluLower()
 {
 }
 
-int BM188X::PReluLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::PReluLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("PRelu"))
+  if (pNode.kind() == xSymbol("PRelu"))
     return kTargetNormal;
   return kNotMe;
 }
 
 onnc::ComputeOperator *BM188X::PReluLower::activate(ComputeGraph& pGraph,
-                                                    ::onnx::Node &pNode) const
+                                                    xNode &pNode) const
 {
   // check input/output name
   if (2 != pNode.inputs().size())
     return nullptr;
 
-  ::onnx::Value* ox = pNode.inputs()[0];
-  ::onnx::Value* slope = pNode.inputs()[1];
+  xValue* ox = pNode.inputs()[0];
+  xValue* slope = pNode.inputs()[1];
   if (!ox->has_unique_name() ||
       !slope->has_unique_name())
     return nullptr;
 
   if (1 != pNode.outputs().size())
     return nullptr;
-  ::onnx::Value* oy = pNode.outputs()[0];
+  xValue* oy = pNode.outputs()[0];
   if (!oy->has_unique_name())
     return nullptr;
 
@@ -57,14 +57,14 @@ onnc::ComputeOperator *BM188X::PReluLower::activate(ComputeGraph& pGraph,
   BM188X::PRelu *op = pGraph.addOperator<onnc::BM188X::PRelu>();
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

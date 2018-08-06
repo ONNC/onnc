@@ -12,28 +12,28 @@
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Support/IOStream.h>
 
-typedef std::vector<::onnx::Dimension> TensorSizes;
-typedef ::onnx::TensorProto_DataType TP_DataTy;
-
 using namespace onnc;
+
+typedef std::vector<xDimension> TensorSizes;
+typedef xTensorProtoDataType TP_DataTy;
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-static void UpdateOutputInfo(onnx::Node *pNode, const TensorSizes &pSize,
+static void UpdateOutputInfo(xNode *pNode, const TensorSizes &pSize,
                              TP_DataTy pTy)
 {
-  for (::onnx::Value* out : pNode->outputs()) {
+  for (::xValue* out : pNode->outputs()) {
     out->setElemType(pTy);
     out->setSizes(pSize);
   }
 }
 
-static std::vector<int64_t> getReshapeOpDestDims(onnx::Node *pReshapeOp)
+static std::vector<int64_t> getReshapeOpDestDims(xNode *pReshapeOp)
 {
   // second input is a shape tensor
-  const onnx::Value *input1 = pReshapeOp->inputs()[1];
-  const onnx::Tensor &shapeTensor =
+  const xValue *input1 = pReshapeOp->inputs()[1];
+  const xTensor &shapeTensor =
       getTensor(input1->uniqueName(), *pReshapeOp->owningGraph());
   std::vector<int64_t> dims;
   // tensor is raw data
@@ -49,7 +49,7 @@ static std::vector<int64_t> getReshapeOpDestDims(onnx::Node *pReshapeOp)
   return dims;
 }
 
-static int64_t getDimensionTotalCount(std::vector<onnx::Dimension> &pDims)
+static int64_t getDimensionTotalCount(std::vector<xDimension> &pDims)
 {
   int64_t count = 1;
   for (auto &i : pDims) {
@@ -59,11 +59,11 @@ static int64_t getDimensionTotalCount(std::vector<onnx::Dimension> &pDims)
   return count;
 }
 
-static void updateReshapeOpDestDimension(onnx::Graph *pGraph, onnx::Node *pNode,
+static void updateReshapeOpDestDimension(xGraph *pGraph, xNode *pNode,
                                          std::vector<int64_t> &pDestDims)
 {
   // calculate new shape dims
-  std::vector<onnx::Dimension> input_dims = pNode->inputs()[0]->sizes();
+  std::vector<xDimension> input_dims = pNode->inputs()[0]->sizes();
   std::vector<int64_t> new_shape_dims;
   int remaining_idx = -1;
   size_t cur_total_count = 1;
@@ -94,13 +94,13 @@ static void updateReshapeOpDestDimension(onnx::Graph *pGraph, onnx::Node *pNode,
   pDestDims = new_shape_dims;
 
   // update reshape's shape tensor
-  onnx::Tensor dest_dims;
+  xTensor dest_dims;
   dest_dims.sizes().push_back(new_shape_dims.size());
-  dest_dims.elem_type() = onnx::TensorProto_DataType_INT64;
+  dest_dims.elem_type() = (xTensorProtoDataType)onnc::Value::kInt64;
   dest_dims.set_raw_data(std::string((char *)new_shape_dims.data(),
                          new_shape_dims.size() * sizeof(int64_t)));
   std::string name = pNode->inputs()[0]->uniqueName() + "reshape";
-  onnx::Value *new_dest_dims_value =
+  xValue *new_dest_dims_value =
       pGraph->addInitializerAndInput(dest_dims, name);
   auto *old_dest_dims_value = pNode->inputs()[1];
   pNode->replaceInput(1, new_dest_dims_value);
@@ -124,12 +124,12 @@ static unsigned int getBatchSize()
 // UpdateGraphOutputSize
 //===----------------------------------------------------------------------===//
 
-bool UpdateGraphOutputSize::updateReshapeOutputInfo(onnx::Graph *pGraph)
+bool UpdateGraphOutputSize::updateReshapeOutputInfo(xGraph *pGraph)
 {
   bool require_onnxInferShape = false;
-  for (onnx::Node *node : pGraph->nodes()) {
+  for (xNode *node : pGraph->nodes()) {
     const auto kind = node->kind();
-    if (kind != onnx::kReshape)
+    if (kind != xBuiltinSymbol::kReshape)
       continue;
 
     // check special case, the output dimension(shape) can be 0 or -1
@@ -141,7 +141,7 @@ bool UpdateGraphOutputSize::updateReshapeOutputInfo(onnx::Graph *pGraph)
     std::vector<int64_t> dest_dims = getReshapeOpDestDims(node);
     if (std::find(dest_dims.begin(), dest_dims.end(), 0) != dest_dims.end() or
         std::find(dest_dims.begin(), dest_dims.end(), -1) != dest_dims.end()) {
-      onnx::Value *input0 = node->inputs()[0];
+      xValue *input0 = node->inputs()[0];
       if (input0->sizes().size() == 0) {
         // input tensor dimension is empty, need to run onnx shape inference
         // first
@@ -157,10 +157,10 @@ bool UpdateGraphOutputSize::updateReshapeOutputInfo(onnx::Graph *pGraph)
       dest_dims[0] = m_BatchSize;
 
     // First input is the data tensor
-    const onnx::Value *in = node->inputs()[0];
+    const xValue *in = node->inputs()[0];
     TensorSizes dims;
     for (auto &i : dest_dims) {
-      dims.push_back(onnx::Dimension(i));
+      dims.push_back(xDimension(i));
     }
     UpdateOutputInfo(node, dims, in->elemType());
   }
@@ -175,13 +175,13 @@ UpdateGraphOutputSize::UpdateGraphOutputSize()
   m_BatchSize = getBatchSize();
 }
 
-void UpdateGraphOutputSize::updateInputBatchSize(onnx::Graph *pGraph)
+void UpdateGraphOutputSize::updateInputBatchSize(xGraph *pGraph)
 {
   // update input batch size
   std::unordered_set<std::string> initializer_names(
       pGraph->initializer_names().begin(), pGraph->initializer_names().end());
   for (int i = 0; i < pGraph->inputs().size(); ++i) {
-    onnx::Value *v = pGraph->inputs()[i];
+    xValue *v = pGraph->inputs()[i];
     // ignore weight
     if (0 != initializer_names.count(v->uniqueName()))
       continue;
@@ -192,25 +192,25 @@ void UpdateGraphOutputSize::updateInputBatchSize(onnx::Graph *pGraph)
   }
 }
 
-void UpdateGraphOutputSize::updateOutputValueInfo(onnx::Graph *pGraph)
+void UpdateGraphOutputSize::updateOutputValueInfo(xGraph *pGraph)
 {
   auto outputs = pGraph->outputs();
-  std::unordered_set<onnx::Value *> output_set(outputs.begin(), outputs.end());
+  std::unordered_set<xValue *> output_set(outputs.begin(), outputs.end());
   // reset output valueInfo
-  for (onnx::Node *n : pGraph->nodes()) {
-    for (onnx::Value *out : n->outputs()) {
+  for (xNode *n : pGraph->nodes()) {
+    for (xValue *out : n->outputs()) {
       // do not reset graph's outputs valueInfo
       if (output_set.count(out))
         continue;
       // reset dimension and elemType
-      std::vector<onnx::Dimension> sizes;
+      std::vector<xDimension> sizes;
       out->setSizes(sizes);
-      out->setElemType(onnx::TensorProto_DataType_UNDEFINED);
+      out->setElemType((xTensorProtoDataType)onnc::Value::kUndefined);
     }
   }
 
   // update graph's outputs valueInfo
-  for (onnx::Value *out : outputs) {
+  for (xValue *out : outputs) {
     auto sizes = out->sizes();
     sizes[0] = m_BatchSize;
     out->setSizes(sizes);
@@ -219,7 +219,7 @@ void UpdateGraphOutputSize::updateOutputValueInfo(onnx::Graph *pGraph)
 
 Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
 {
-  onnx::Graph *graph = pModule.getRootTensorGraph();
+  xGraph *graph = pModule.getRootTensorGraph();
 
   // update input batch size and reset old output valueInfo
   if (m_BatchSize > 0) {

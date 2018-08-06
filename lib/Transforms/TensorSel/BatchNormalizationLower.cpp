@@ -24,15 +24,15 @@ BatchNormalizationLower::~BatchNormalizationLower()
 {
 }
 
-int BatchNormalizationLower::isMe(const ::onnx::Node& pNode) const
+int BatchNormalizationLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("BatchNormalization"))
+  if (pNode.kind() == xSymbol("BatchNormalization"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-BatchNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+BatchNormalizationLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 5)
@@ -42,12 +42,12 @@ BatchNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) con
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,22 +62,22 @@ BatchNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) con
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("epsilon")))
-    op->setEpsilon(pNode.f(::onnx::Symbol("epsilon")));
-  if (pNode.hasAttribute(::onnx::Symbol("momentum")))
-    op->setMomentum(pNode.f(::onnx::Symbol("momentum")));
-  if (pNode.hasAttribute(::onnx::Symbol("spatial")))
-    op->setSpatial(pNode.i(::onnx::Symbol("spatial")));
+  if (pNode.hasAttribute(xSymbol("epsilon")))
+    op->setEpsilon(pNode.f(xSymbol("epsilon")));
+  if (pNode.hasAttribute(xSymbol("momentum")))
+    op->setMomentum(pNode.f(xSymbol("momentum")));
+  if (pNode.hasAttribute(xSymbol("spatial")))
+    op->setSpatial(pNode.i(xSymbol("spatial")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

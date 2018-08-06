@@ -16,7 +16,7 @@
 
 using namespace onnc;
 
-TGSoftmax::TGSoftmax(const ::onnx::Node &pNode)
+TGSoftmax::TGSoftmax(const xNode &pNode)
     : ComputeOperator2(pNode, "Softmax")
 {
 
@@ -33,7 +33,7 @@ TGSoftmax::TGSoftmax(const ::onnx::Node &pNode)
   //                                   outputs[0]->elemType(),
   //                                   MemType::NEURON));
 
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;

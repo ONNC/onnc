@@ -23,20 +23,20 @@
 
 using namespace onnc;
 
-ComputeOperator2 *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
+ComputeOperator2 *BM168xTargetLowering::LowerHelper(const xNode &pNode)
 {
   uint32_t symbol = pNode.kind();
-  if (symbol == ::onnx::Symbol("Conv"))
+  if (symbol == xSymbol("Conv"))
     return new TGConv(pNode);
-  else if (symbol == ::onnx::Symbol("Relu"))
+  else if (symbol == xSymbol("Relu"))
     return new TGRelu(pNode);
-  else if (symbol == ::onnx::Symbol("LRN"))
+  else if (symbol == xSymbol("LRN"))
     return new TGLRN(pNode);
-  else if (symbol == ::onnx::Symbol("MaxPool"))
+  else if (symbol == xSymbol("MaxPool"))
     return new TGMaxPool(pNode);
-  else if (symbol == ::onnx::Symbol("Gemm"))
+  else if (symbol == xSymbol("Gemm"))
     return new TGGemm(pNode);
-  else if (symbol == ::onnx::Symbol("Softmax"))
+  else if (symbol == xSymbol("Softmax"))
     return new TGSoftmax(pNode);
   DEBUG(dbgs() << "unsupported node type: " << pNode.kind().toString()
                << std::endl;);
@@ -44,7 +44,7 @@ ComputeOperator2 *BM168xTargetLowering::LowerHelper(const ::onnx::Node &pNode)
 }
 
 ComputeOperator2 *BM168xTargetLowering::LowerOperation(
-    const ::onnx::Node &pNode,
+    const xNode &pNode,
     std::vector<std::unique_ptr<ComputeOperator2> > &pInstList)
 {
   ComputeOperator2 *oper = LowerHelper(pNode);

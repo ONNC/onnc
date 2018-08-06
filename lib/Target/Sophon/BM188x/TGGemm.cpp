@@ -27,14 +27,14 @@ namespace BM188X {
 // Y = alpha * A * B + beta * C
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K
 // X N), input tensor C and output tensor Y have dimension (M X N).
-TGGemm::TGGemm(const ::onnx::Node &pNode)
+TGGemm::TGGemm(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Gemm")), m_InRowNum(0),
       m_InColNum(0), m_OutColNum(0), m_HaveBias(0), m_WeightTp(false),
       m_EnableRelu(false), m_RShiftWidth(0)
 {
 
-  const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
-  const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();
+  const std::vector< xDimension> aDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> bDim = pNode.outputs()[0]->sizes();
   m_InRowNum = aDim[0].dim;
   m_InColNum = aDim[1].dim;
   if (aDim.size() == 4) {
@@ -43,8 +43,8 @@ TGGemm::TGGemm(const ::onnx::Node &pNode)
   m_OutColNum = bDim[1].dim;
   m_HaveBias = true;
 
-  if (pNode.hasAttribute(::onnx::Symbol("transB"))) {
-    auto transB = pNode.i(::onnx::Symbol("transB"));
+  if (pNode.hasAttribute(xSymbol("transB"))) {
+    auto transB = pNode.i(xSymbol("transB"));
     DEBUG(dbgs() << "transB:" << transB << std::endl;);
     m_WeightTp = true;
   }

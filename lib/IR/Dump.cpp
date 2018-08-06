@@ -9,11 +9,11 @@
 #include <onnc/IR/Dump.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/onnx_pb.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
-static void PrintValue(OStream &pOS, const ::onnx::Value *pValue)
+static void PrintValue(OStream &pOS, const xValue *pValue)
 {
   pOS << TensorProto_DataType_Name(pValue->elemType()) << " tensor ";
   // print dimension
@@ -33,7 +33,7 @@ static void PrintValue(OStream &pOS, const ::onnx::Value *pValue)
   pOS << '%' << pValue->uniqueName();
 }
 
-static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
+static void PrtinAttribute(OStream &pOS, const xNode &pNode)
 {
   auto attrNames = pNode.attributeNames();
   if (attrNames.size() != 0)
@@ -42,13 +42,13 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
     if (i != 0) {
       pOS << ", ";
     }
-    ::onnx::Symbol name = attrNames[i];
+    xSymbol name = attrNames[i];
     pOS << name.toString() << ":";
     switch (pNode.kindOf(name)) {
-    case ::onnx::AttributeKind::f:
+    case xAttributeKind::f:
       pOS << "FLOAT " << static_cast<float>(pNode.f(name));
       break;
-    case ::onnx::AttributeKind::fs: {
+    case xAttributeKind::fs: {
       pOS << "FLOATS [";
       auto fs = pNode.fs(name);
       for (int i = 0; i < fs.size(); ++i) {
@@ -59,10 +59,10 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
       pOS << "]";
       break;
     }
-    case ::onnx::AttributeKind::i:
+    case xAttributeKind::i:
       pOS << "INT " << pNode.i(name);
       break;
-    case ::onnx::AttributeKind::is: {
+    case xAttributeKind::is: {
       pOS << "INTS [";
       auto is = pNode.is(name);
       for (int i = 0; i < is.size(); ++i) {
@@ -73,11 +73,11 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
       pOS << "]";
       break;
     }
-    case ::onnx::AttributeKind::s:
+    case xAttributeKind::s:
       pOS << "STRING ";
       pOS << pNode.s(name);
       break;
-    case ::onnx::AttributeKind::ss: {
+    case xAttributeKind::ss: {
       pOS << "STRINGS [";
       auto ss = pNode.ss(name);
       for (int i = 0; i < ss.size(); ++i) {
@@ -88,10 +88,10 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
       pOS << "]";
       break;
     }
-    case ::onnx::AttributeKind::t: {
+    case xAttributeKind::t: {
       pOS << "TENSOR " << pNode.t(name).name();
     } break;
-    case ::onnx::AttributeKind::ts: {
+    case xAttributeKind::ts: {
       pOS << "TENSORS [";
       auto ts = pNode.ts(name);
       for (int i = 0; i < ts.size(); ++i) {
@@ -102,10 +102,10 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
       pOS << "]";
       break;
     }
-    case ::onnx::AttributeKind::g: {
+    case xAttributeKind::g: {
       pOS << "GRAPH " << pNode.g(name).get()->name();
     } break;
-    case ::onnx::AttributeKind::gs: {
+    case xAttributeKind::gs: {
       pOS << "GRAPHS [";
       auto gs = pNode.gs(name);
       for (int i = 0; i < gs.size(); ++i) {
@@ -122,7 +122,7 @@ static void PrtinAttribute(OStream &pOS, const ::onnx::Node &pNode)
     pOS << "> ";
 }
 
-void onnc::PrintNode(OStream &pOS, ::onnx::Node &pNode)
+void onnc::PrintNode(OStream &pOS, xNode &pNode)
 {
   pOS << "  ";
 
@@ -131,7 +131,7 @@ void onnc::PrintNode(OStream &pOS, ::onnx::Node &pNode)
     if (i != 0) {
       pOS << ", ";
     }
-    ::onnx::Value *v = pNode.outputs()[i];
+    xValue *v = pNode.outputs()[i];
     PrintValue(pOS, v);
   }
   pOS << " = " << pNode.kind().toString();
@@ -145,13 +145,13 @@ void onnc::PrintNode(OStream &pOS, ::onnx::Node &pNode)
     if (i != 0) {
       pOS << ", ";
     }
-    ::onnx::Value *v = pNode.inputs()[i];
+    xValue *v = pNode.inputs()[i];
     PrintValue(pOS, v);
   }
   pOS << ")\n";
 }
 
-void onnc::PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
+void onnc::PrintGraph(OStream &pOS, xGraph &pGraph)
 {
   pOS << "graph " << pGraph.name() << " (";
   std::unordered_set<std::string> initializerNames(
@@ -170,8 +170,8 @@ void onnc::PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
   }
   pOS << ")\n";
 
-  for (::onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == ::onnx::kUndefined)
+  for (xNode *n : pGraph.nodes()) {
+    if (n->kind() == xValueType::kUndefined)
       continue;
 
     PrintNode(pOS, *n);
@@ -183,13 +183,13 @@ void onnc::PrintGraph(OStream &pOS, ::onnx::Graph &pGraph)
       pOS << ", ";
     }
 
-    ::onnx::Value *v = pGraph.outputs()[i];
+    xValue *v = pGraph.outputs()[i];
     PrintValue(pOS, v);
   }
   pOS << "\n";
 }
 
-void onnc::DumpGraph(::onnx::Graph &pGraph) { PrintGraph(outs(), pGraph); }
+void onnc::DumpGraph(xGraph &pGraph) { PrintGraph(outs(), pGraph); }
 
 void onnc::DumpGraph(Module &pModule)
 {

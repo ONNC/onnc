@@ -107,11 +107,11 @@ void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
   TGBackend::addCodeEmit(pPM, pOutputFile);
 }
 
-bool BM1880Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
+bool BM1880Backend::isNativeTensorType(xTensorProtoDataType pType)
 {
   switch (pType) {
-  case ::onnx::TensorProto_DataType_INT8:
-  case ::onnx::TensorProto_DataType_INT16:
+  case xValueType::kInt8:
+  case xValueType::kInt16:
     return true;
   default:
     return false;

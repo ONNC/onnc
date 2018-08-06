@@ -190,6 +190,9 @@
 /* Define if this is Win32ish platform */
 #undef ONNC_ON_WIN32
 
+/* default onnx namespace */
+#undef ONNX_NAMESPACE
+
 /* Name of package */
 #undef PACKAGE
 

@@ -24,15 +24,15 @@ TopKLower::~TopKLower()
 {
 }
 
-int TopKLower::isMe(const ::onnx::Node& pNode) const
+int TopKLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("TopK"))
+  if (pNode.kind() == xSymbol("TopK"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-TopKLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+TopKLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,40 +42,40 @@ TopKLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check default attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("k")))
+  if (!pNode.hasAttribute(xSymbol("k")))
     return nullptr;
 
   // create operators
   onnc::TopK* op = pGraph.addOperator<onnc::TopK>(
-    pNode.i(::onnx::Symbol("k")));
+    pNode.i(xSymbol("k")));
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("axis")))
-    op->setAxis(pNode.i(::onnx::Symbol("axis")));
+  if (pNode.hasAttribute(xSymbol("axis")))
+    op->setAxis(pNode.i(xSymbol("axis")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

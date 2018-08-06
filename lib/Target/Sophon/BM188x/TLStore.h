@@ -12,11 +12,10 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TLSTORE_H
 #define ONNX_BM1880_TLSTORE_H
-
 #include "BM188xComputeOperator.h"
 #include "TGBackend.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -24,7 +23,7 @@ namespace BM188X {
 class TLStore : public BM188xComputeOperator
 {
 public:
-  TLStore(const ::onnx::Node &pNode);
+  TLStore(const xNode &pNode);
 
   void emit() const override;
   TLStore *addMemOperands(MemOperand *pOutput);

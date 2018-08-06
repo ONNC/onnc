@@ -9,7 +9,7 @@
 #define ONNC_TRANSFORM_GRAPH_BUILDING_H
 #include <onnc/Core/ModulePass.h>
 #include <onnc/IR/ComputeGraph.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -28,7 +28,7 @@ public:
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
-  virtual Pass::ReturnType runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG) = 0;
+  virtual Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) = 0;
 };
 
 } // namespace of onnc

@@ -15,7 +15,7 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Dump.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -43,7 +43,7 @@ Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
 {
   auto TFO = m_pTarget->getFuseOptimizr();
   TFO->PrepareFuseOptimizer(pModule);
-  onnx::Graph *graph = pModule.getGraphIR().get();
+  xGraph *graph = pModule.getGraphIR().get();
   bool changed = TFO->FuseOptimization(graph, pModule.getSetId()[""]);
   return changed ? Pass::kModuleChanged : Pass::kModuleNoChanged;
 }

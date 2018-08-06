@@ -8,8 +8,8 @@
 #ifndef ONNC_IR_COMPUTE_REGISTER_OPERAND_H
 #define ONNC_IR_COMPUTE_REGISTER_OPERAND_H
 #include <ostream>
-#include <onnx/common/ir.h>
 #include <onnc/IR/ComputeOperand.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 

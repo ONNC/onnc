@@ -72,7 +72,7 @@ static bool HasConflict(size_t pStartA, size_t pSizeA,
   return !(endA <= pStartB || endB <= pStartA);
 }
 
-uint64_t MemoryAllocation::allocByLiveness(::onnx::Graph &pGraph,
+uint64_t MemoryAllocation::allocByLiveness(xGraph &pGraph,
                                            ValMemSizeMap &pValMemSizeMap,
                                            GraphLivenessAnalysis &pLiveAnaly)
 {
@@ -84,7 +84,7 @@ uint64_t MemoryAllocation::allocByLiveness(::onnx::Graph &pGraph,
   // allocate memory considering liveness.
   auto &livesInfo = pLiveAnaly.getLiveIntervals();
   for (const LiveInterval* li : livesInfo) {
-    const ::onnx::Value *v = &li->getValue();
+    const xValue *v = &li->getValue();
     if (!pValMemSizeMap.count(v))
       continue;
 
@@ -189,9 +189,9 @@ void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
 }
 
 void MemoryAllocation::printGraphAlloc(OStream &pOS,
-                                       const ::onnx::Graph *pGraph) const
+                                       const xGraph *pGraph) const
 {
-  const auto &it = m_GraphMemAllocList.find(const_cast<::onnx::Graph*>(pGraph));
+  const auto &it = m_GraphMemAllocList.find(const_cast<xGraph*>(pGraph));
   assert(it != m_GraphMemAllocList.end() &&
          "No memory allocation info for Graph");
 
@@ -215,7 +215,7 @@ void MemoryAllocation::print(OStream& pOS) const
     printGraphAlloc(pOS, it.first);
 }
 
-void MemoryAllocation::clearGraphAlloc(::onnx::Graph *pGraph)
+void MemoryAllocation::clearGraphAlloc(xGraph *pGraph)
 {
   for (MemAllocEntry* entry : m_GraphMemAllocList[pGraph])
     delete entry;

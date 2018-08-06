@@ -7,11 +7,12 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Transforms/DeadNodeElimination.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
-
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/ONNXUtils.h>
-using namespace onnc;
 #include <iostream>
+
+using namespace onnc;
+
 //===----------------------------------------------------------------------===//
 // DeadNodeElimination
 //===----------------------------------------------------------------------===//
@@ -21,12 +22,12 @@ DeadNodeElimination::DeadNodeElimination()
 
 Pass::ReturnType DeadNodeElimination::runOnModule(::onnc::Module &pModule)
 {
-  ::onnx::Graph* graph = pModule.getRootTensorGraph();
+  xGraph* graph = pModule.getRootTensorGraph();
 
   for (auto it = graph->begin(); it != graph->end(); ++it) {
-    ::onnx::Node* n = *it;
+    xNode* n = *it;
     // Remove 'undefined' node.
-    if (n->kind() == ::onnx::kUndefined)
+    if (n->kind() == xBuiltinSymbol::kUndefined)
       it.destroyCurrent();
   }
 

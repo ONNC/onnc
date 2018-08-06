@@ -12,10 +12,9 @@
 //===---------------------------------------------------------------------===//
 #ifndef COMPUTE_OPERATOR_H
 #define COMPUTE_OPERATOR_H
-
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <string>
 
 namespace onnc {
@@ -29,10 +28,10 @@ struct MemOperand {
   uint64_t m_Addr;
   size_t m_Count;
   size_t m_Size;
-  ::onnx::TensorProto_DataType m_Type;
+  xTensorProtoDataType m_Type;
   MemType m_MemType;
-  const ::onnx::Value *m_Value;
-  MemOperand(std::string pName, const ::onnx::Value *pValue, MemType pMemType);
+  const xValue *m_Value;
+  MemOperand(std::string pName, const xValue *pValue, MemType pMemType);
 };
 
 std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem);
@@ -40,7 +39,7 @@ std::ostream &operator<<(std::ostream &pOS, const MemOperand &pMem);
 class ComputeOperator2
 {
 public:
-  ComputeOperator2(const ::onnx::Node &pNode, const std::string &pTypeName);
+  ComputeOperator2(const xNode &pNode, const std::string &pTypeName);
 
   virtual ~ComputeOperator2() = default;
 

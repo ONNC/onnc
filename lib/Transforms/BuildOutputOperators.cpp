@@ -9,7 +9,7 @@
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/IRBuilder.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -19,9 +19,9 @@ char BuildOutputOperators::ID = 0;
 // BuildOutputOperators
 //===----------------------------------------------------------------------===//
 Pass::ReturnType
-BuildOutputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+BuildOutputOperators::runOnGraphs(xGraph& pTG, ComputeGraph& pCG)
 {
-  for (::onnx::Value* v : pTG.outputs()) {
+  for (xValue* v : pTG.outputs()) {
     OutputOperator* op = pCG.addOperator<onnc::OutputOperator>(v->uniqueName());
     // add v as an input.
     onnc::Tensor* tensor = pCG.getValue<onnc::Tensor>(v->uniqueName());

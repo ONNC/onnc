@@ -24,7 +24,7 @@ public:
 
   Scalar(const std::string& pName, onnc::Value::Type pKind);
 
-  Scalar(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee);
+  Scalar(onnc::Value::Type pKind, xTensor& pAdaptee);
 };
 
 template<typename ValueType, Value::Type Kind, bool IsClass>
@@ -42,7 +42,7 @@ public:
     : onnc::Scalar(pName, Kind), m_Value(0) {
   }
 
-  ScalarT(::onnx::Tensor& pAdaptee)
+  ScalarT(xTensor& pAdaptee)
     : onnc::Scalar(Kind, pAdaptee), m_Value(0) {
   }
 
@@ -70,7 +70,7 @@ public:
     : onnc::Scalar(pName, Kind), ValueType() {
   }
 
-  ScalarT(::onnx::Tensor& pAdaptee)
+  ScalarT(xTensor& pAdaptee)
     : onnc::Scalar(Kind, pAdaptee), ValueType() {
   }
 

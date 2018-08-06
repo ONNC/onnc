@@ -19,19 +19,19 @@
 namespace onnc {
 namespace BM188X {
 
-TGConcat::TGConcat(const ::onnx::Node &pNode)
+TGConcat::TGConcat(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Concat")), m_NeedQuantizeNum(0),
       m_RShiftWidth(pNode.inputs().size(), 0),
       m_ThresholdXQuantized(pNode.inputs().size(), 1)
 {
-  m_ConcatAxis = pNode.i(::onnx::Symbol("axis"));
+  m_ConcatAxis = pNode.i(xSymbol("axis"));
   for (size_t i = 0; i < pNode.inputs().size(); i++) {
-    const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[i]->sizes();
+    const std::vector< xDimension> inDim = pNode.inputs()[i]->sizes();
     m_InputDims.push_back(inDim[m_ConcatAxis].dim);
   }
 
   for (size_t i = 0; i < pNode.outputs()[0]->sizes().size(); i++) {
-    const std::vector< ::onnx::Dimension> outDim = pNode.outputs()[0]->sizes();
+    const std::vector< xDimension> outDim = pNode.outputs()[0]->sizes();
     m_OutputDim.push_back(outDim[i].dim);
   }
 }

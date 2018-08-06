@@ -10,11 +10,10 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNX_BM_TGRELU_H
-#define ONNX_BM_TGRELU_H
-
+#ifndef ONNC_TARGET_BM168X_TGRELU_H
+#define ONNC_TARGET_BM168X_TGRELU_H
 #include "ComputeOperator.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -22,7 +21,7 @@ namespace onnc {
 class TGRelu : public ComputeOperator2
 {
 public:
-  TGRelu(const ::onnx::Node &pNode);
+  TGRelu(const xNode &pNode);
 
   void emit() const override;
 

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -15,12 +15,12 @@ RemoveTrainingNodes::RemoveTrainingNodes() : ModulePass(ID) {}
 
 Pass::ReturnType RemoveTrainingNodes::runOnModule(::onnc::Module &pModule)
 {
-  ::onnx::Graph *graph = pModule.getRootTensorGraph();
+  xGraph *graph = pModule.getRootTensorGraph();
   Pass::ReturnType isChanged = Pass::kModuleNoChanged;
   for (auto it = graph->begin(), ie = graph->end(); it != ie; ++it) {
     auto *node = *it;
     auto symbol = node->kind();
-    if (symbol == ::onnx::Symbol("Dropout")) {
+    if (symbol == xSymbol("Dropout")) {
       // Dropout has multiple outputs
       node->outputs()[0]->replaceAllUsesWith(node->input());
       it.destroyCurrent();

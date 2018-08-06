@@ -13,7 +13,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // Value
 //===----------------------------------------------------------------------===//
-void Value::adapt(::onnx::Tensor& pAdaptee)
+void Value::adapt(xTensor& pAdaptee)
 {
   m_pAdaptee = &pAdaptee;
   m_Name = pAdaptee.name();

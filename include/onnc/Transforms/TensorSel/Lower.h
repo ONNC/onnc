@@ -9,7 +9,7 @@
 #define ONNC_TRANSFORM_LOWER_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeGraph.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <string>
 
 namespace onnc {
@@ -20,7 +20,7 @@ namespace onnc {
 class Lower
 {
 public:
-  typedef int (*QualityMatchFnTy)(const ::onnx::Node&);
+  typedef int (*QualityMatchFnTy)(const xNode&);
 
   enum Score : int {
     kUndefined = -1,
@@ -36,7 +36,7 @@ public:
 
   /// If a backend doesn't want to use single quailty-match function, then
   /// we shall allow them to override this function.
-  virtual int isMe(const ::onnx::Node& pNode) const { return m_MatchFn(pNode); }
+  virtual int isMe(const xNode& pNode) const { return m_MatchFn(pNode); }
 
   /// In case a backend defines a single quality-match function.
   void setQualityMatchFn(QualityMatchFnTy pFn) { m_MatchFn = pFn; }
@@ -47,7 +47,7 @@ public:
   ///
   /// @return The created ComputeOperator.
   /// @retval nullptr failed
-  virtual ComputeOperator* activate(ComputeGraph& pCG, ::onnx::Node& pNode) const = 0;
+  virtual ComputeOperator* activate(ComputeGraph& pCG, xNode& pNode) const = 0;
 
   std::string name() { return m_Name; }
 

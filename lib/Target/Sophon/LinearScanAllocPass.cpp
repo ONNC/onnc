@@ -61,8 +61,7 @@ void LinearScanAlloc::linearScanAlloMem(
       continue;
     }
 
-    ::onnx::TensorProto_DataType ty =
-      (::onnx::TensorProto_DataType)memVal->kind();
+    xTensorProtoDataType ty = (xTensorProtoDataType)memVal->kind();
 
     int tensor_size = m_pTarget->sizeOfTensorType(ty) * getNumElems(memVal);
 

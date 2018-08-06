@@ -60,7 +60,7 @@ void LowerRegistry::clear()
   m_LowerList.clear();
 }
 
-Lower* LowerRegistry::lookup(const ::onnx::Node& pNode)
+Lower* LowerRegistry::lookup(const xNode& pNode)
 {
   int max = 0;
   Lower* target = nullptr;
@@ -72,7 +72,7 @@ Lower* LowerRegistry::lookup(const ::onnx::Node& pNode)
   return target;
 }
 
-const Lower* LowerRegistry::lookup(const ::onnx::Node& pNode) const
+const Lower* LowerRegistry::lookup(const xNode& pNode) const
 {
   int max = 0;
   const Lower* target = nullptr;

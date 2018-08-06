@@ -46,9 +46,9 @@ public:
 
   void clear();
 
-  Lower* lookup(const ::onnx::Node& pNode);
+  Lower* lookup(const xNode& pNode);
 
-  const Lower* lookup(const ::onnx::Node& pNode) const;
+  const Lower* lookup(const xNode& pNode) const;
 
 private:
   LowerList m_LowerList;

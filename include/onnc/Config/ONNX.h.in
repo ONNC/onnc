@@ -1,0 +1,85 @@
+//===- onnc/Config/Namespace.h --------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef ONNC_CONFIG_NAMESPACE_DEFINITION_H
+#define ONNC_CONFIG_NAMESPACE_DEFINITION_H
+#include <onnc/Config/Config.h>
+#include <onnx/common/ir.h>
+#include <onnx/common/ir_pb_converter.h>
+#include <onnx/onnx_pb.h>
+#include <onnx/checker.h>
+#include <onnx/shape_inference/implementation.h>
+#include <onnx/defs/schema.h>
+
+namespace onnc {
+
+typedef ::@ONNX_NAMESPACE@::TensorProto_DataType xTensorProtoDataType;
+typedef ::@ONNX_NAMESPACE@::BuiltinSymbol        xBuiltinSymbol;
+typedef ::@ONNX_NAMESPACE@::Symbol               xSymbol;
+typedef ::@ONNX_NAMESPACE@::Dimension            xDimension;
+typedef ::@ONNX_NAMESPACE@::AttributeKind        xAttributeKind;
+typedef ::@ONNX_NAMESPACE@::Tensor               xTensor;
+typedef ::@ONNX_NAMESPACE@::Value                xValue;
+typedef ::@ONNX_NAMESPACE@::NodeKind             xNodeKind;
+typedef ::@ONNX_NAMESPACE@::Node                 xNode;
+typedef ::@ONNX_NAMESPACE@::Graph                xGraph;
+typedef ::@ONNX_NAMESPACE@::ModelProto           xProto;
+typedef ::@ONNX_NAMESPACE@::graph_node_list_iterator xGraphNodeListIterator;
+typedef ::@ONNX_NAMESPACE@::const_graph_node_list_iterator
+    ConstxGraphNodeListIterator;
+typedef ::@ONNX_NAMESPACE@::checker::ValidationError xValidationError;
+
+template<typename Derived>
+using xAttributes = ::@ONNX_NAMESPACE@::Attributes<Derived>;
+
+typedef ::@ONNX_NAMESPACE@::FloatAttr   xFloatAttr;
+typedef ::@ONNX_NAMESPACE@::FloatsAttr  xFloatsAttr;
+typedef ::@ONNX_NAMESPACE@::IntAttr     xIntAttr;
+typedef ::@ONNX_NAMESPACE@::IntsAttr    xIntsAttr;
+typedef ::@ONNX_NAMESPACE@::StringAttr  xStringAttr;
+typedef ::@ONNX_NAMESPACE@::StringsAttr xStringsAttr;
+typedef ::@ONNX_NAMESPACE@::TensorAttr  xTensorAttr;
+typedef ::@ONNX_NAMESPACE@::TensorsAttr xTensorsAttr;
+typedef ::@ONNX_NAMESPACE@::GraphAttr   xGraphAttr;
+typedef ::@ONNX_NAMESPACE@::GraphsAttr  xGraphsAttr;
+typedef ::@ONNX_NAMESPACE@::OpSchemaRegistry xOpSchemaRegistry;
+
+const static auto& xExportModelProto = ::@ONNX_NAMESPACE@::ExportModelProto;
+const static auto& xImportModelProto = ::@ONNX_NAMESPACE@::ImportModelProto;
+const static auto& xcheck_model = ::@ONNX_NAMESPACE@::checker::check_model;
+const static auto& xInferShapes =
+    ::@ONNX_NAMESPACE@::shape_inference::InferShapes;
+
+enum xValueType {
+  kUndefined = ::@ONNX_NAMESPACE@::TensorProto_DataType_UNDEFINED,
+
+  // Basic types.
+  kFloat     = ::@ONNX_NAMESPACE@::TensorProto_DataType_FLOAT,   // float
+  kUint8     = ::@ONNX_NAMESPACE@::TensorProto_DataType_UINT8,   // uint8_t
+  kInt8      = ::@ONNX_NAMESPACE@::TensorProto_DataType_INT8,    // int8_t
+  kUint16    = ::@ONNX_NAMESPACE@::TensorProto_DataType_UINT16,  // uint16_t
+  kInt16     = ::@ONNX_NAMESPACE@::TensorProto_DataType_INT16,   // int16_t
+  kInt32     = ::@ONNX_NAMESPACE@::TensorProto_DataType_INT32,   // int32_t
+  kInt64     = ::@ONNX_NAMESPACE@::TensorProto_DataType_INT64,   // int64_t
+  kString    = ::@ONNX_NAMESPACE@::TensorProto_DataType_STRING,  // string
+  kBoolean   = ::@ONNX_NAMESPACE@::TensorProto_DataType_BOOL,    // bool
+
+  // Advanced types
+  kFloat16   = ::@ONNX_NAMESPACE@::TensorProto_DataType_FLOAT16,
+  kDouble    = ::@ONNX_NAMESPACE@::TensorProto_DataType_DOUBLE,
+  kUint32    = ::@ONNX_NAMESPACE@::TensorProto_DataType_UINT32,
+  kUint64    = ::@ONNX_NAMESPACE@::TensorProto_DataType_UINT64,
+
+  // complex with float32 real and imaginary components
+  kComplex64  = ::@ONNX_NAMESPACE@::TensorProto_DataType_COMPLEX64,
+  // complex with float64 real and imaginary components
+  kComplex128 = ::@ONNX_NAMESPACE@::TensorProto_DataType_COMPLEX128
+};
+
+} // namespace onnc
+
+#endif

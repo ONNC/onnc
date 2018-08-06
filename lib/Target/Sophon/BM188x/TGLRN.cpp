@@ -17,21 +17,21 @@
 namespace onnc {
 namespace BM188X {
 
-TGLRN::TGLRN(const ::onnx::Node &pNode)
+TGLRN::TGLRN(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("LRN")), m_K(1)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
 
-  m_Alpha = pNode.f(::onnx::Symbol("alpha"));
-  m_Beta = pNode.f(::onnx::Symbol("beta"));
-  if (pNode.hasAttribute(::onnx::Symbol("bias"))) {
-    m_K = pNode.f(::onnx::Symbol("bias"));
+  m_Alpha = pNode.f(xSymbol("alpha"));
+  m_Beta = pNode.f(xSymbol("beta"));
+  if (pNode.hasAttribute(xSymbol("bias"))) {
+    m_K = pNode.f(xSymbol("bias"));
   }
-  m_LocalSize = pNode.i(::onnx::Symbol("size"));
+  m_LocalSize = pNode.i(xSymbol("size"));
 }
 
 TGLRN *TGLRN::addMemOperands(MemOperand *pInput, MemOperand *pSquLut,

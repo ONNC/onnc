@@ -37,7 +37,7 @@ public:
 
   void encodeInstructions(std::ostream &pOS) override;
 
-  void genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+  void genRuntimeInfo(const xGraph *pOnnxGraph,
                       std::ostream &pOS) override;
 
 private:

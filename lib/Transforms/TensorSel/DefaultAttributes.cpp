@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "DefaultAttributes.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Conv.h>
@@ -21,7 +21,7 @@ namespace {
 
 class DefaultAttributes : public ComputeVisitor {
 public:
-  DefaultAttributes(::onnx::Node &pNode) : m_Node(pNode) {}
+  DefaultAttributes(xNode &pNode) : m_Node(pNode) {}
 
   virtual void visit(Conv &pConv) override {
     this->setDilations(pConv);
@@ -46,10 +46,10 @@ public:
   }
 
   virtual void visit(Transpose &pTranspose) override {
-    if (m_Node.hasAttribute(::onnx::Symbol("perm"))) {
-      pTranspose.setPerm(m_Node.is(::onnx::Symbol("perm")));
+    if (m_Node.hasAttribute(xSymbol("perm"))) {
+      pTranspose.setPerm(m_Node.is(xSymbol("perm")));
     } else {
-      ::onnx::Value &input = *m_Node.inputs()[0];
+      xValue &input = *m_Node.inputs()[0];
       std::vector<int64_t> v(input.sizes().size());
       for (int i = 0; i < v.size(); ++i) {
         v[i] = v.size() - i - 1;
@@ -61,10 +61,10 @@ public:
 private:
   template<typename T>
   void setDilations(T &pOp) {
-    if (m_Node.hasAttribute(::onnx::Symbol("dilations"))) {
-      pOp.setDilations(m_Node.is(::onnx::Symbol("dilations")));
+    if (m_Node.hasAttribute(xSymbol("dilations"))) {
+      pOp.setDilations(m_Node.is(xSymbol("dilations")));
     } else {
-      ::onnx::Value &input = *m_Node.inputs()[0];
+      xValue &input = *m_Node.inputs()[0];
       std::vector<int64_t> v(input.sizes().size() - 2, 1);
       pOp.setDilations(std::move(v));
     }
@@ -72,10 +72,10 @@ private:
 
   template<typename T>
   void setKernelShape(T &pOp) {
-    if (m_Node.hasAttribute(::onnx::Symbol("kernel_shape"))) {
-      pOp.setKernelShape(m_Node.is(::onnx::Symbol("kernel_shape")));
+    if (m_Node.hasAttribute(xSymbol("kernel_shape"))) {
+      pOp.setKernelShape(m_Node.is(xSymbol("kernel_shape")));
     } else {
-      ::onnx::Value &weight = *m_Node.inputs()[1];
+      xValue &weight = *m_Node.inputs()[1];
       std::vector<int64_t> v(weight.sizes().size() - 2);
       for (int i = 0; i < v.size(); ++i) {
         v[i] = weight.sizes()[i + 2].dim;
@@ -86,10 +86,10 @@ private:
 
   template<typename T>
   void setPads(T &pOp) {
-    if (m_Node.hasAttribute(::onnx::Symbol("pads"))) {
-      pOp.setPads(m_Node.is(::onnx::Symbol("pads")));
+    if (m_Node.hasAttribute(xSymbol("pads"))) {
+      pOp.setPads(m_Node.is(xSymbol("pads")));
     } else {
-      ::onnx::Value &input = *m_Node.inputs()[0];
+      xValue &input = *m_Node.inputs()[0];
       std::vector<int64_t> v((input.sizes().size() - 2) * 2, 0);
       pOp.setPads(std::move(v));
     }
@@ -97,24 +97,24 @@ private:
 
   template<typename T>
   void setStrides(T &pOp) {
-    if (m_Node.hasAttribute(::onnx::Symbol("strides"))) {
-      pOp.setStrides(m_Node.is(::onnx::Symbol("strides")));
+    if (m_Node.hasAttribute(xSymbol("strides"))) {
+      pOp.setStrides(m_Node.is(xSymbol("strides")));
     } else {
-      ::onnx::Value &input = *m_Node.inputs()[0];
+      xValue &input = *m_Node.inputs()[0];
       std::vector<int64_t> v(input.sizes().size() - 2, 1);
       pOp.setStrides(std::move(v));
     }
   }
 
 private:
-  ::onnx::Node &m_Node;
+  xNode &m_Node;
 };
 
 } // anonymous namespace
 
 namespace onnc {
 
-void SetDefaultAttributes(::onnx::Node &pNode, ComputeOperator& pOp) {
+void SetDefaultAttributes(xNode &pNode, ComputeOperator& pOp) {
   DefaultAttributes da(pNode);
   pOp.accept(da);
 }

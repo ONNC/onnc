@@ -14,7 +14,7 @@
 #include "BM188xComputeOperator.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 

@@ -10,12 +10,12 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#pragma once
-
+#ifndef ONNC_TARGET_SOPHON_BM188X_ISELLOWERING_H
+#define ONNC_TARGET_SOPHON_BM188X_ISELLOWERING_H
 #include "BM188xBackend.h"
 #include "TargetLowering.h"
 #include <memory>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -30,44 +30,36 @@ public:
   }
 
   ComputeOperator2 *LowerOperation(
-      const ::onnx::Node &pNode,
+      const xNode &pNode,
       std::vector<std::unique_ptr<ComputeOperator2> > &pInstList) override;
 
 private:
-  ComputeOperator2 *LowerConv(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLConv(const ::onnx::Node &pNode,
-                                ComputeGraph &pGraph);
-  ComputeOperator2 *LowerRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerPRelu(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerLeakyRelu(const ::onnx::Node &pNode,
-                                   ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLPool(const ::onnx::Node &pNode,
-                                ComputeGraph &pGraph);
-  ComputeOperator2 *LowerMaxPool(const ::onnx::Node &pNode,
-                                 ComputeGraph &pGraph);
-  ComputeOperator2 *LowerAveragePool(const ::onnx::Node &pNode,
-                                     ComputeGraph &pGraph);
-  ComputeOperator2 *LowerGlobalAveragePool(const ::onnx::Node &pNode,
+  ComputeOperator2 *LowerConv(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLConv(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerRelu(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerPRelu(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerLeakyRelu(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLPool(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerMaxPool(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerAveragePool(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerGlobalAveragePool(const xNode &pNode,
                                            ComputeGraph &pGraph);
-  ComputeOperator2 *LowerGemm(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *Lower2NopInst(const ::onnx::Node &pNode);
-  ComputeOperator2 *LowerFlatten(const ::onnx::Node &pNode);
-  ComputeOperator2 *LowerSum(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerUpsample(const ::onnx::Node &pNode,
-                                  ComputeGraph &pGraph);
-  ComputeOperator2 *LowerLRN(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerConcat(const ::onnx::Node &pNode,
-                                ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTranspose(const ::onnx::Node &pNode,
-                                   ComputeGraph &pGraph);
-  ComputeOperator2 *LowerScale(const ::onnx::Node &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLLoad(const ::onnx::Node &pNode,
-                                ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLStore(const ::onnx::Node &pNode,
-                                 ComputeGraph &pGraph);
+  ComputeOperator2 *LowerGemm(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *Lower2NopInst(const xNode &pNode);
+  ComputeOperator2 *LowerFlatten(const xNode &pNode);
+  ComputeOperator2 *LowerSum(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerUpsample(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerLRN(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerConcat(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTranspose(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerScale(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLLoad(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTLStore(const xNode &pNode, ComputeGraph &pGraph);
 
 private:
   BM1880Backend *m_p1880backend; // NOLINT
 };
 
 } // namespace onnc
+
+#endif

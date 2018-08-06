@@ -29,12 +29,12 @@ Pass::ReturnType BookONNXGraphs::runOnModule(::onnc::Module &pModule)
 {
   IRBuilder builder(pModule);
 
-  std::vector<::onnx::Graph*> worklist;
+  std::vector<xGraph*> worklist;
   worklist.push_back(pModule.getRootTensorGraph());
   int graphCnt = 0;
 
   while (!worklist.empty()) {
-    ::onnx::Graph* graph = worklist.back();
+    xGraph* graph = worklist.back();
     worklist.pop_back();
 
     // Don't go further if the graph has been added.
@@ -48,12 +48,12 @@ Pass::ReturnType BookONNXGraphs::runOnModule(::onnc::Module &pModule)
     else
       builder.CreateComputeGraph("onnc-graph-" + std::to_string(graphCnt));
 
-    for (::onnx::Node *n : graph->nodes()) {
-      if (n->kind() == ::onnx::kUndefined)
+    for (xNode *n : graph->nodes()) {
+      if (n->kind() == xValueType::kUndefined)
         continue;
 
-      if (n->hasAttribute(::onnx::kSubgraph)) {
-        worklist.push_back(&*n->g(::onnx::kSubgraph));
+      if (n->hasAttribute(xBuiltinSymbol::kSubgraph)) {
+        worklist.push_back(&*n->g(xBuiltinSymbol::kSubgraph));
       }
     } // end of for each onnx node
   } // end of stack empty checking

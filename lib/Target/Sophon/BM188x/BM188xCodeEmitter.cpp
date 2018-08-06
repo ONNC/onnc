@@ -49,8 +49,8 @@ float BM188xCodeEmitter::getThreshold(const std::string &pOnncLayerName)
   return threshold;
 }
 
-std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
-                                                 const onnx::Value *pValue)
+std::string BM188xCodeEmitter::findOnncLayerName(const xGraph *pOnnxGraph,
+                                                 const xValue *pValue)
 {
   for (auto inst = m_Instructions.rbegin();
        inst != m_Instructions.rend();
@@ -60,7 +60,7 @@ std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
     }
   }
 
-  const onnx::Value *input = pValue->node()->inputs()[0];
+  const xValue *input = pValue->node()->inputs()[0];
   auto graph_inputs = pOnnxGraph->inputs();
   if (std::find(graph_inputs.begin(), graph_inputs.end(), input) !=
       graph_inputs.end()) {
@@ -73,7 +73,7 @@ std::string BM188xCodeEmitter::findOnncLayerName(const onnx::Graph *pOnnxGraph,
 onnc::json::Object
 BM188xCodeEmitter::genOutputLayer(const std::string &pDefaultOnncLayerName,
                                   const std::string &pDefaultOnnxLayerName,
-                                  const ::onnx::Graph *pOnnxGraph)
+                                  const xGraph *pOnnxGraph)
 {
   size_t step = 0;
   onnc::json::Object jExeSteps;
@@ -87,7 +87,7 @@ BM188xCodeEmitter::genOutputLayer(const std::string &pDefaultOnncLayerName,
 
   // generate the other output layer info
   while (step < pOnnxGraph->outputs().size()) {
-    const onnx::Value *onnx_layer = pOnnxGraph->outputs()[step];
+    const xValue *onnx_layer = pOnnxGraph->outputs()[step];
     std::string onnc_layer_name = findOnncLayerName(pOnnxGraph, onnx_layer);
     std::string onnx_layer_name = onnx_layer->uniqueName();
     onnc::json::Object layer_info;
@@ -100,7 +100,7 @@ BM188xCodeEmitter::genOutputLayer(const std::string &pDefaultOnncLayerName,
 }
 
 static onnc::json::Object genFallbackPlan(const std::string &pONNCLast,
-                                          const ::onnx::Graph *pOnnxGraph)
+                                          const xGraph *pOnnxGraph)
 {
   bool is_find_fallback = false;
   int step = 0;
@@ -147,7 +147,7 @@ static onnc::json::Object genFallbackPlan(const std::string &pONNCLast,
     }
   }
 
-  std::vector<onnx::Dimension> onncOutDim;
+  std::vector<xDimension> onncOutDim;
   for (auto n : pOnnxGraph->nodes()) {
     for (size_t i = 0; i < n->outputs().size(); ++i) {
       if (n->outputs()[i]->uniqueName() == pONNCLast) {
@@ -257,7 +257,7 @@ void BM188xCodeEmitter::encodeInstructions(std::ostream &pOS)
   }
 }
 
-void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+void BM188xCodeEmitter::genRuntimeInfo(const xGraph *pOnnxGraph,
                                        std::ostream &pOS)
 {
   if (m_Instructions.empty())
@@ -285,9 +285,9 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
 
   // Find the input of network.
   // The input of network should be in input list but not in initializers.
-  const onnx::Value *input;
-  auto *pGraph = const_cast< ::onnx::Graph *>(pOnnxGraph);
-  for (const onnx::Value *in : pOnnxGraph->inputs()) {
+  const xValue *input;
+  auto *pGraph = const_cast<xGraph *>(pOnnxGraph);
+  for (const xValue *in : pOnnxGraph->inputs()) {
     const auto &initNames = pGraph->initializer_names();
     auto found =
         std::find(initNames.begin(), initNames.end(), in->uniqueName());
@@ -319,7 +319,7 @@ void BM188xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
   jBatch.insert("size", batchSize);
 
   // Generate output layer info
-  const onnx::Value* onnx_layer = pOnnxGraph->outputs()[0];
+  const xValue* onnx_layer = pOnnxGraph->outputs()[0];
   std::string defaultOnnxOutLayerName = onnx_layer->uniqueName();
   std::string defaultOnncOutLayerName =
       findOnncLayerName(pOnnxGraph, onnx_layer);

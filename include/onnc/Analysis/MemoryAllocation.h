@@ -10,7 +10,7 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/TargetMemInfo.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 
 namespace onnc {
@@ -30,7 +30,7 @@ public:
 };
 
 typedef std::vector<MemAllocEntry*> MemAllocList;
-typedef std::unordered_map<const ::onnx::Value *, MemSize> ValMemSizeMap;
+typedef std::unordered_map<const xValue *, MemSize> ValMemSizeMap;
 
 /** \class MemoryAllocation
  *  Perform memory allocation and generate allocation map.
@@ -38,7 +38,7 @@ typedef std::unordered_map<const ::onnx::Value *, MemSize> ValMemSizeMap;
 class MemoryAllocation : public ModulePass
 {
 public:
-  typedef std::unordered_map<::onnx::Graph *, MemAllocList> GraphMemAllocList;
+  typedef std::unordered_map<xGraph *, MemAllocList> GraphMemAllocList;
 
   static char ID;
 
@@ -51,18 +51,18 @@ public:
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
-  void printGraphAlloc(OStream &pOS, const ::onnx::Graph *pGraph) const;
+  void printGraphAlloc(OStream &pOS, const xGraph *pGraph) const;
 
   void print(OStream& pOS) const;
 
 private:
   /// Return total size of this allocation.
-  uint64_t allocByLiveness(::onnx::Graph &pGraph,
+  uint64_t allocByLiveness(xGraph &pGraph,
                            ValMemSizeMap &pValMemSizeMap,
                            GraphLivenessAnalysis &pLiveAnaly);
 
   /// delete MemAllocEntries of graph.
-  void clearGraphAlloc(::onnx::Graph *pGraph);
+  void clearGraphAlloc(xGraph *pGraph);
 
   void clear();
 

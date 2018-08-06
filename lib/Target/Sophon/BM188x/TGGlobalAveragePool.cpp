@@ -19,18 +19,18 @@
 namespace onnc {
 namespace BM188X {
 
-TGGlobalAveragePool::TGGlobalAveragePool(const ::onnx::Node &pNode)
+TGGlobalAveragePool::TGGlobalAveragePool(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("AveragePool")), m_EnableRelu(0),
       m_RShiftWidth(0), m_ThresholdXQuantized(0)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
 
-  if (pNode.hasAttribute(::onnx::Symbol("enable_relu"))) {
-    m_EnableRelu = pNode.i(::onnx::Symbol("enable_relu"));
+  if (pNode.hasAttribute(xSymbol("enable_relu"))) {
+    m_EnableRelu = pNode.i(xSymbol("enable_relu"));
   }
 }
 

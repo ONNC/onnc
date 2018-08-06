@@ -12,11 +12,10 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TLPOOL_H
 #define ONNX_BM1880_TLPOOL_H
-
 #include "BM188xComputeOperator.h"
 #include "TGBackend.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -25,7 +24,7 @@ namespace BM188X {
 class TLPool : public BM188xComputeOperator
 {
 public:
-  TLPool(const ::onnx::Node &pNode);
+  TLPool(const xNode &pNode);
 
   void emit() const override;
   TLPool *addMemOperands(MemOperand *pInput, MemOperand *pOutput);

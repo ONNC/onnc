@@ -10,11 +10,10 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNX_BM_TGLRN_H
-#define ONNX_BM_TGLRN_H
-
+#ifndef ONNC_TARGET_BM168X_TGLRN_H
+#define ONNC_TARGET_BM168X_TGLRN_H
 #include "ComputeOperator.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 // m_MemOperands: input, output
 namespace onnc {
@@ -22,7 +21,7 @@ namespace onnc {
 class TGLRN : public ComputeOperator2
 {
 public:
-  TGLRN(const ::onnx::Node &pNode);
+  TGLRN(const xNode &pNode);
 
   void emit() const override;
 

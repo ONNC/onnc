@@ -13,7 +13,7 @@
 
 namespace onnc {
 
-typedef std::unordered_map<const onnx::Value *, MemSize> ValMemSizeMap;
+typedef std::unordered_map<const xValue *, MemSize> ValMemSizeMap;
 
 /** \class SplitNode
  *  Represent a node, encapsulate the knowledge of inferring new input sizes
@@ -22,7 +22,7 @@ typedef std::unordered_map<const onnx::Value *, MemSize> ValMemSizeMap;
 class SplitNode
 {
 public:
-  SplitNode(onnx::Node& pN, bool pSizeDecideByUser = false);
+  SplitNode(xNode& pN, bool pSizeDecideByUser = false);
 
   virtual ~SplitNode() {}
 
@@ -36,13 +36,13 @@ public:
 
   virtual LongInts getNewOutputSize(unsigned pIdx) const;
 
-  onnx::NodeKind kind() const { return m_Node.kind(); }
+  xNodeKind kind() const { return m_Node.kind(); }
 
   void resetSize() { m_NewOutSizes = m_OutSizes; }
 
-  const onnx::Node &getNode() const { return m_Node; }
+  const xNode &getNode() const { return m_Node; }
 
-  onnx::Node &getNode() { return m_Node; }
+  xNode &getNode() { return m_Node; }
 
   /// Should SplitGraph skip this node when calculating memory usage?
   /// For example:
@@ -59,16 +59,16 @@ protected:
 
   /// The input and output size is calculated by other nodes.
   bool m_SizeCalByOtherNode;
-  onnx::Node& m_Node;
+  xNode& m_Node;
 };
 
 class SplitGraphManager;
 class SplitGraph
 {
 public:
-  typedef std::unordered_map<onnx::Node*, SplitNode*> SplitNodeHash;
+  typedef std::unordered_map<xNode*, SplitNode*> SplitNodeHash;
 
-  SplitGraph(SplitGraphManager &pSgMgr, onnx::Graph &pGraph);
+  SplitGraph(SplitGraphManager &pSgMgr, xGraph &pGraph);
 
   ~SplitGraph();
 
@@ -79,13 +79,13 @@ public:
   /// Reduce size of all values in a group to meet memory size constraint.
   void shrinkSize();
 
-  onnx::Graph & getGraph() { return m_Graph; }
+  xGraph & getGraph() { return m_Graph; }
 
-  SplitNode* getSplitNode(onnx::Node* pN);
+  SplitNode* getSplitNode(xNode* pN);
 
-  const SplitNode* getSplitNode(onnx::Node* pN) const;
+  const SplitNode* getSplitNode(xNode* pN) const;
 
-  bool hasSplitNode(onnx::Node *pN) const;
+  bool hasSplitNode(xNode *pN) const;
 
   void rebuildSplitNodes();
 
@@ -98,21 +98,21 @@ private:
 
   /// @param pN Split from node pN.
   /// @param pUpdateUpper Propagate new size to upper levels.
-  void splitNodeByFactor(onnx::Node* pN, unsigned pAxis, unsigned pFactor,
+  void splitNodeByFactor(xNode* pN, unsigned pAxis, unsigned pFactor,
                          bool pUpdateUpper = true);
 
-  bool splitNodeBySize(onnx::Node* pN, const LongInts& pNewOutSize,
+  bool splitNodeBySize(xNode* pN, const LongInts& pNewOutSize,
                        bool pUpdateUpper = true);
 
 private:
   SplitGraphManager &m_SgMgr;
 
-  onnx::Graph &m_Graph;
+  xGraph &m_Graph;
 
   SplitNodeHash m_SplitNodes;
 
   /// split parameters for each output value.
-  std::vector<onnx::Node *> m_Stores;
+  std::vector<xNode *> m_Stores;
   std::vector<unsigned> m_CurSplitAxis;
   std::vector<unsigned> m_CurSplitFactor;
 
@@ -130,7 +130,7 @@ class SplitGraphManager
 public:
   typedef std::vector<SplitGraph*> SplitGraphs;
 
-  SplitGraphManager(onnx::Graph& pGraph, DLATargetBackend& pDLATB);
+  SplitGraphManager(xGraph& pGraph, DLATargetBackend& pDLATB);
   ~SplitGraphManager();
 
   SplitGraphs &getSplitGraphs() { return m_SubGraphs; }

@@ -21,7 +21,7 @@
 namespace onnc {
 namespace BM188X {
 
-TLPool::TLPool(const ::onnx::Node &pNode)
+TLPool::TLPool(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("TLPool"))
 {
   // Default value
@@ -31,52 +31,52 @@ TLPool::TLPool(const ::onnx::Node &pNode)
   m_ThresholdXQuantized = 0;
 
   // ONNC extension attribute
-  assert(pNode.hasAttribute(::onnx::Symbol("op_name")));
-  m_SplitName = pNode.s(::onnx::Symbol("op_name"));
+  assert(pNode.hasAttribute(xSymbol("op_name")));
+  m_SplitName = pNode.s(xSymbol("op_name"));
 
-  assert(pNode.hasAttribute(::onnx::Symbol("input_dim")));
-  assert(pNode.hasAttribute(::onnx::Symbol("output_dim")));
+  assert(pNode.hasAttribute(xSymbol("input_dim")));
+  assert(pNode.hasAttribute(xSymbol("output_dim")));
 
-  auto &inDim = pNode.is(::onnx::Symbol("input_dim"));
+  auto &inDim = pNode.is(xSymbol("input_dim"));
   m_InN = inDim[0];
   m_InC = inDim[1];
   m_InH = inDim[2];
   m_InW = inDim[3];
 
-  auto &outDim = pNode.is(::onnx::Symbol("output_dim"));
+  auto &outDim = pNode.is(xSymbol("output_dim"));
   m_OutN = outDim[0];
   m_OutC = outDim[1];
   m_OutH = outDim[2];
   m_OutW = outDim[3];
 
-  assert(pNode.hasAttribute(::onnx::Symbol("ifmap_laddr")));
-  assert(pNode.hasAttribute(::onnx::Symbol("ofmap_laddr")));
+  assert(pNode.hasAttribute(xSymbol("ifmap_laddr")));
+  assert(pNode.hasAttribute(xSymbol("ofmap_laddr")));
 
-  m_IFmapAddr = pNode.i(::onnx::Symbol("ifmap_laddr"));
-  m_OFmapAddr = pNode.i(::onnx::Symbol("ofmap_laddr"));
+  m_IFmapAddr = pNode.i(xSymbol("ifmap_laddr"));
+  m_OFmapAddr = pNode.i(xSymbol("ofmap_laddr"));
 
-  assert(pNode.hasAttribute(::onnx::Symbol("is_avg_pooling")));
-  m_IsAvgPooling = pNode.i(::onnx::Symbol("is_avg_pooling"));
+  assert(pNode.hasAttribute(xSymbol("is_avg_pooling")));
+  m_IsAvgPooling = pNode.i(xSymbol("is_avg_pooling"));
   // End extension
 
-  if (pNode.hasAttribute(::onnx::Symbol("kernel_shape"))) {
-    auto &i = pNode.is(::onnx::Symbol("kernel_shape"));
+  if (pNode.hasAttribute(xSymbol("kernel_shape"))) {
+    auto &i = pNode.is(xSymbol("kernel_shape"));
     assert(i.size() == 2);
     m_KH = i[0];
     m_KW = i[1];
   }
 
   // [upPad, leftPad, downPad, rightPad]
-  if (pNode.hasAttribute(::onnx::Symbol("slice_pads"))) {
-    auto &i = pNode.is(::onnx::Symbol("slice_pads"));
+  if (pNode.hasAttribute(xSymbol("slice_pads"))) {
+    auto &i = pNode.is(xSymbol("slice_pads"));
     m_PadHTop = i[0];
     m_PadWLeft = i[1];
     m_PadHBot = i[2];
     m_PadWRight = i[3];
   }
 
-  if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
-    auto &i = pNode.is(::onnx::Symbol("strides"));
+  if (pNode.hasAttribute(xSymbol("strides"))) {
+    auto &i = pNode.is(xSymbol("strides"));
     m_StrideH = i[0];
     m_StrideW = i[1];
   }

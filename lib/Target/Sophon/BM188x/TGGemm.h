@@ -15,7 +15,7 @@
 
 #include "BM188xComputeOperator.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -25,7 +25,7 @@ class TGGemm : public BM188xComputeOperator
 {
 public:
   enum ActivationMethod { RELU = 0, SIGMOID, TANH, ELU, PRELU };
-  TGGemm(const ::onnx::Node &pNode);
+  TGGemm(const xNode &pNode);
   void emit() const override;
   TGGemm *addMemOperands(MemOperand *pInput, MemOperand *pOutput,
                          MemOperand *pWeight, MemOperand *pBias);

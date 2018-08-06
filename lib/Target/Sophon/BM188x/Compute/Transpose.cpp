@@ -29,11 +29,11 @@ BM188X::Transpose::~Transpose()
 {
 }
 
-void BM188X::Transpose::init(const ::onnx::Node &pNode)
+void BM188X::Transpose::init(const xNode &pNode)
 {
   // error check in TransposeLower.cpp
   auto inDim = pNode.inputs()[0]->sizes();
-  auto &orders = pNode.is(::onnx::Symbol("perm"));
+  auto &orders = pNode.is(xSymbol("perm"));
 
   m_W = inDim[3].dim;
   m_Order.resize(orders.size());

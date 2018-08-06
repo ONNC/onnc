@@ -12,11 +12,10 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGSUM_H
 #define ONNX_BM1880_TGSUM_H
-
 #include "BM188xComputeOperator.h"
 #include "TGBackend.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -24,7 +23,7 @@ namespace BM188X {
 class TGSum : public BM188xComputeOperator
 {
 public:
-  TGSum(const ::onnx::Node &pNode);
+  TGSum(const xNode &pNode);
 
   void emit() const override;
   TGSum *addMemOperands(std::vector<MemOperand *> pVInput, MemOperand *pOutput);

@@ -12,11 +12,10 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGCONV_H
 #define ONNX_BM1880_TGCONV_H
-
 #include "BM188xComputeOperator.h"
 #include "TGBackend.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -25,7 +24,7 @@ namespace BM188X {
 class TGConv : public BM188xComputeOperator
 {
 public:
-  TGConv(const ::onnx::Node &pNode);
+  TGConv(const xNode &pNode);
 
   void emit() const override;
   void prepareWeight(std::vector<int8_t> &pWeight);

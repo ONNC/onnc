@@ -7,7 +7,7 @@
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([ONNC],[dev],[bugs@onnc.org])
+AC_INIT([ONNC],[dev],[bugs@onnc.ai])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([LICENSE.TXT])
@@ -93,6 +93,7 @@ AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([include/onnc/Makefile])
 AC_CONFIG_FILES([include/onnc/Config/Platforms.def])
 AC_CONFIG_FILES([include/onnc/Config/Backends.def])
+AC_CONFIG_FILES([include/onnc/Config/ONNX.h])
 AC_CONFIG_FILES([lib/Makefile])
 AC_CONFIG_FILES([tools/Makefile])
 AC_CONFIG_FILES([tools/unittests/Makefile])

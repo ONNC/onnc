@@ -24,15 +24,15 @@ RandomUniformLikeLower::~RandomUniformLikeLower()
 {
 }
 
-int RandomUniformLikeLower::isMe(const ::onnx::Node& pNode) const
+int RandomUniformLikeLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("RandomUniformLike"))
+  if (pNode.kind() == xSymbol("RandomUniformLike"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-RandomUniformLikeLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+RandomUniformLikeLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ RandomUniformLikeLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) cons
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,24 +62,24 @@ RandomUniformLikeLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) cons
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("dtype")))
-    op->setDtype(pNode.i(::onnx::Symbol("dtype")));
-  if (pNode.hasAttribute(::onnx::Symbol("high")))
-    op->setHigh(pNode.f(::onnx::Symbol("high")));
-  if (pNode.hasAttribute(::onnx::Symbol("low")))
-    op->setLow(pNode.f(::onnx::Symbol("low")));
-  if (pNode.hasAttribute(::onnx::Symbol("seed")))
-    op->setSeed(pNode.f(::onnx::Symbol("seed")));
+  if (pNode.hasAttribute(xSymbol("dtype")))
+    op->setDtype(pNode.i(xSymbol("dtype")));
+  if (pNode.hasAttribute(xSymbol("high")))
+    op->setHigh(pNode.f(xSymbol("high")));
+  if (pNode.hasAttribute(xSymbol("low")))
+    op->setLow(pNode.f(xSymbol("low")));
+  if (pNode.hasAttribute(xSymbol("seed")))
+    op->setSeed(pNode.f(xSymbol("seed")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

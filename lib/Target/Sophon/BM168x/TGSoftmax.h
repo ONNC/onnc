@@ -10,11 +10,10 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNX_BM_TGSOFTMAX
-#define ONNX_BM_TGSOFTMAX
-
+#ifndef ONNC_TARGET_BM168X_TGSOFTMAX_H
+#define ONNC_TARGET_BM168X_TGSOFTMAX_H
 #include "ComputeOperator.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -22,7 +21,7 @@ namespace onnc {
 class TGSoftmax : public ComputeOperator2
 {
 public:
-  TGSoftmax(const ::onnx::Node &pNode);
+  TGSoftmax(const xNode &pNode);
 
   void emit() const override;
 

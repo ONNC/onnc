@@ -10,8 +10,8 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNC_BM188x_MEM_INFO_H
-#define ONNC_BM188x_MEM_INFO_H
+#ifndef ONNC_TARGET_BM188X_MEM_INFO_H
+#define ONNC_TARGET_BM188X_MEM_INFO_H
 #include "TGBackend.h"
 #include <onnc/Target/TargetMemInfo.h>
 
@@ -26,8 +26,8 @@ public:
 
   uint64_t getLocalMemSize() const override;
 
-  uint64_t getElemSize(::onnx::TensorProto_DataType pTy) const override;
-  MemSize getValueMemorySize(::onnx::Value *pValue) override;
+  uint64_t getElemSize(xTensorProtoDataType pTy) const override;
+  MemSize getValueMemorySize(xValue *pValue) override;
 
 private:
   TGBackend *m_pTGBackend; // NOLINT

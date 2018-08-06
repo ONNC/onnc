@@ -24,18 +24,18 @@ const int NPU_NUM = 32;
 const int EU_NUM = 16;
 const int BUS_BITWIDTH = 128;
 
-using CostFunction = int (*)(TGBackend *, const onnx::Node *pNode);
-using CostModelMap = std::unordered_map<onnx::NodeKind, CostFunction>;
+using CostFunction = int (*)(TGBackend *, const xNode *pNode);
+using CostModelMap = std::unordered_map<xNodeKind, CostFunction>;
 
 inline int idiv_round(int pNumerator, int pDenominator)
 {
   return (pNumerator + pDenominator - 1) / pDenominator;
 }
 
-size_t getNumNeuron(const onnx::Value &pValue)
+size_t getNumNeuron(const xValue &pValue)
 {
   size_t total = 1;
-  for (const onnx::Dimension &dim : pValue.sizes())
+  for (const xDimension &dim : pValue.sizes())
     total *= dim.dim;
   return total;
 }
@@ -52,9 +52,9 @@ size_t getNumElems(const onnx::Node &pNode)
 }
 #endif
 
-int ZeroCost(TGBackend *pTGBackend, const onnx::Node *pNode) { return 0; }
+int ZeroCost(TGBackend *pTGBackend, const xNode *pNode) { return 0; }
 
-int countHWStepsFromOutputValue(const onnx::Value *pValue)
+int countHWStepsFromOutputValue(const xValue *pValue)
 {
   auto ResultDim = pValue->sizes();
   int DimNum = ResultDim.size();
@@ -73,7 +73,7 @@ int countHWStepsFromOutputValue(const onnx::Value *pValue)
 }
 
 template <int m_Factor8Bit, int m_Factor16Bit>
-int TensorOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
+int TensorOpCost(TGBackend *pTGBackend, const xNode *pNode)
 {
   auto *Value = pNode->outputs().at(0);
   int HWSteps = countHWStepsFromOutputValue(Value);
@@ -81,7 +81,7 @@ int TensorOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   return TotalCycles;
 }
 
-int ConvOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
+int ConvOpCost(TGBackend *pTGBackend, const xNode *pNode)
 {
   /* From wiki
      RES_N * idiv_round((RES_C_START + RES_C), LANE_NUM)
@@ -124,7 +124,7 @@ int ConvOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   return TotalCycles;
 }
 
-int GemmOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
+int GemmOpCost(TGBackend *pTGBackend, const xNode *pNode)
 {
   /* From wiki
      RES_N * idiv_round(RES_C_START+RES_C, LANE_NUM)
@@ -144,15 +144,15 @@ int GemmOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   // A: M x K
   int64_t DimM = ADim[0].dim;
   int64_t DimK = ADim[1].dim;
-  if (pNode->hasAttribute(onnx::Symbol("transA"))) {
-    auto transA = pNode->i(onnx::Symbol("transA"));
+  if (pNode->hasAttribute(xSymbol("transA"))) {
+    auto transA = pNode->i(xSymbol("transA"));
     DimM = transA ? ADim[1].dim : ADim[0].dim;
     DimK = transA ? ADim[0].dim : ADim[1].dim;
   }
   // B: DimK x N
   int64_t DimN = BDim[1].dim;
-  if (pNode->hasAttribute(onnx::Symbol("transB"))) {
-    auto transB = pNode->i(onnx::Symbol("transB"));
+  if (pNode->hasAttribute(xSymbol("transB"))) {
+    auto transB = pNode->i(xSymbol("transB"));
     DimN = transB ? BDim[0].dim : BDim[1].dim;
   }
   int HWSteps = idiv_round(DimM, NPU_NUM) * idiv_round(DimN, EU_NUM);
@@ -161,7 +161,7 @@ int GemmOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   return TotalCycles;
 }
 
-int MaxPoolOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
+int MaxPoolOpCost(TGBackend *pTGBackend, const xNode *pNode)
 {
   /* From 1682
   int ActiveEUNum = idiv_round(EU_NUM/stride_w);
@@ -172,10 +172,10 @@ int MaxPoolOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   auto OutputDim = OutputValue->sizes();
   assert(OutputDim.size() == 4);
 
-  auto &KernelShape = pNode->is(onnx::Symbol("kernel_shape"));
+  auto &KernelShape = pNode->is(xSymbol("kernel_shape"));
   int KHeight = KernelShape.at(0);
   int KWidth = KernelShape.at(1);
-  auto &StrideShape = pNode->is(onnx::Symbol("strides"));
+  auto &StrideShape = pNode->is(xSymbol("strides"));
   int StrideW = StrideShape.at(1);
 
   int OutputN = OutputDim[0].dim;
@@ -190,9 +190,9 @@ int MaxPoolOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   return TotalCycles;
 }
 
-int LoadOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
+int LoadOpCost(TGBackend *pTGBackend, const xNode *pNode)
 {
-  const onnx::Value *OutputValue = pNode->outputs().at(0);
+  const xValue *OutputValue = pNode->outputs().at(0);
   int NumNeuron = getNumNeuron(*OutputValue);
   TargetMemInfo *MemInfo = pTGBackend->getMemInfo();
   int Bytes = NumNeuron * MemInfo->getElemSize(OutputValue->elemType());
@@ -200,7 +200,7 @@ int LoadOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
   return TotalCycles;
 }
 
-int StoreOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
+int StoreOpCost(TGBackend *pTGBackend, const xNode *pNode)
 {
   auto *InputValue = pNode->inputs().at(0);
   int NumNeuron = getNumNeuron(*InputValue);
@@ -209,32 +209,32 @@ int StoreOpCost(TGBackend *pTGBackend, const onnx::Node *pNode)
 }
 
 CostModelMap g_NodeCostModels = {
-  { onnx::Symbol("Conv"), ConvOpCost },
-  { onnx::Symbol("MaxPool"), MaxPoolOpCost },
-  { onnx::Symbol("Gemm"), GemmOpCost },
+  { xSymbol("Conv"), ConvOpCost },
+  { xSymbol("MaxPool"), MaxPoolOpCost },
+  { xSymbol("Gemm"), GemmOpCost },
 
-  { onnx::Symbol("Add"), TensorOpCost<6, 7> },
-  { onnx::Symbol("Mul"), TensorOpCost<5, 3> },
-  { onnx::Symbol("Sub"), TensorOpCost<6, 7> },
-  { onnx::Symbol("Max"), TensorOpCost<2, 2> },
-  { onnx::Symbol("Relu"), TensorOpCost<2, 2> },
-  { onnx::Symbol("Min"), TensorOpCost<2, 2> },
-  { onnx::Symbol("And"), TensorOpCost<2, 5> },
-  { onnx::Symbol("Or"), TensorOpCost<2, 5> },
-  { onnx::Symbol("Xor"), TensorOpCost<2, 5> },
+  { xSymbol("Add"), TensorOpCost<6, 7> },
+  { xSymbol("Mul"), TensorOpCost<5, 3> },
+  { xSymbol("Sub"), TensorOpCost<6, 7> },
+  { xSymbol("Max"), TensorOpCost<2, 2> },
+  { xSymbol("Relu"), TensorOpCost<2, 2> },
+  { xSymbol("Min"), TensorOpCost<2, 2> },
+  { xSymbol("And"), TensorOpCost<2, 5> },
+  { xSymbol("Or"), TensorOpCost<2, 5> },
+  { xSymbol("Xor"), TensorOpCost<2, 5> },
 
-  { onnx::Symbol("Softmax"), ZeroCost },
-  { onnx::Symbol("Dropout"), ZeroCost },
-  { onnx::Symbol("Undefined"), ZeroCost },
+  { xSymbol("Softmax"), ZeroCost },
+  { xSymbol("Dropout"), ZeroCost },
+  { xSymbol("Undefined"), ZeroCost },
 
   // ONNC Extension
-  { onnx::Symbol("Load"), LoadOpCost },
-  { onnx::Symbol("Store"), StoreOpCost },
+  { xSymbol("Load"), LoadOpCost },
+  { xSymbol("Store"), StoreOpCost },
 };
 
 } // namespace
 
-uint64_t BM188xTargetTransformInfo::getOperatorCost(const onnx::Node *pNode,
+uint64_t BM188xTargetTransformInfo::getOperatorCost(const xNode *pNode,
                                                     unsigned pKind) const
 {
   auto it = g_NodeCostModels.find(pNode->kind());

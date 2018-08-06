@@ -10,6 +10,7 @@
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/Dump.h>
 #include <tuple>
 #include <stack>
@@ -33,9 +34,9 @@ TensorSel::~TensorSel()
   m_LowerRegistry.clear();
 }
 
-Pass::ReturnType TensorSel::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+Pass::ReturnType TensorSel::runOnGraphs(xGraph& pTG, ComputeGraph& pCG)
 {
-  ::onnx::graph_node_list_iterator tg_node, tg_end = pTG.end();
+  xGraphNodeListIterator tg_node, tg_end = pTG.end();
   for (tg_node = pTG.begin(); tg_node != tg_end; ++tg_node) {
     // lower creates corresponding compute operator and values
     Lower* lower = m_LowerRegistry.lookup(**tg_node);

@@ -15,7 +15,7 @@
 #include "TGBackend.h"
 #include <memory>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <string>
 
 namespace onnc {
@@ -39,14 +39,14 @@ public:
 
   void addCodeEmit(PassManager &pPM, const Path &pOutputFile) override;
 
-  bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
+  bool isNativeTensorType(xTensorProtoDataType pType) override;
 
   std::string getBackendName() override
   {
     return std::string("BM1880Backend");
   };
 
-  std::string getCtableName() override { return std::string("bm1880_ctable"); }
+  std::string getCtableName() override { return "bm1880_ctable"; }
 
   void setCtableProto(const std::string &pTextString) override;
 

@@ -15,13 +15,19 @@ AC_ARG_WITH([onnx],
   [onnx_dir="$(realpath ${withval})"],
   [onnx_dir="${prefix}"])
 
+AC_ARG_WITH([onnx-namespace],
+  [AS_HELP_STRING([--with-onnx-namespace=DEFINE],
+    [define ONNX_NAMESPACE=DEFINE])],
+  [onnx_namespace=${withval}],
+  [onnx_namespace="onnx"])
+
 AC_MSG_CHECKING(ONNX)
 
 HAVE_ONNX=0
 
 AC_LANG_PUSH([C++])
 orig_CXXFLAGS="${CXXFLAGS}"
-CXXFLAGS="-I${onnx_dir}/include -DONNX_NAMESPACE=onnx"
+CXXFLAGS="-I${onnx_dir}/include"
 
 AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM([[
@@ -39,11 +45,14 @@ AC_COMPILE_IFELSE(
 CXXFLAGS="${orig_CXXFLAGS}"
 AC_LANG_POP([C++])
 
-ONNX_INCLUDES="-I${onnx_dir}/include -DONNX_NAMESPACE=onnx"
+ONNX_NAMESPACE=$onnx_namespace
+ONNX_INCLUDES="-I${onnx_dir}/include"
 ONNX_LIBS="${onnx_dir}/lib/libonnx.a ${onnx_dir}/lib/libonnx_proto.a"
 
+AC_SUBST(ONNX_NAMESPACE)
 AC_SUBST(ONNX_INCLUDES)
 AC_SUBST(ONNX_LIBS)
 
+AC_DEFINE_UNQUOTED([ONNX_NAMESPACE], [$onnx_namespace], [default onnx namespace])
 AM_CONDITIONAL([HAVE_ONNX], [test ${HAVE_ONNX} = 1])
 ])

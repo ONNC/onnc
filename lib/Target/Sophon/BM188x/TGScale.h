@@ -12,10 +12,9 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGSCALE_H
 #define ONNX_BM1880_TGSCALE_H
-
 #include "BM188xComputeOperator.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -24,7 +23,7 @@ namespace BM188X {
 class TGScale : public BM188xComputeOperator
 {
 public:
-  TGScale(const ::onnx::Node &pNode);
+  TGScale(const xNode &pNode);
 
   TGScale *addMemOperands(MemOperand *pInput, MemOperand *pScale,
                           MemOperand *pBias, MemOperand *pOutput);

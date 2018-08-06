@@ -10,11 +10,10 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNX_BM_TGMAXPOOL_H
-#define ONNX_BM_TGMAXPOOL_H
-
+#ifndef ONNC_TARGET_BM168X_TGMAXPOOL_H
+#define ONNC_TARGET_BM168X_TGMAXPOOL_H
 #include "ComputeOperator.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -22,7 +21,7 @@ namespace onnc {
 class TGMaxPool : public ComputeOperator2
 {
 public:
-  TGMaxPool(const ::onnx::Node &pNode);
+  TGMaxPool(const xNode &pNode);
 
   void emit() const override;
 

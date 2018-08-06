@@ -16,7 +16,7 @@
 
 using namespace onnc;
 
-TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperator2(pNode, "LRN"), m_K(1)
+TGLRN::TGLRN(const xNode &pNode) : ComputeOperator2(pNode, "LRN"), m_K(1)
 {
 
   // auto inputs = pNode.inputs();
@@ -31,18 +31,18 @@ TGLRN::TGLRN(const ::onnx::Node &pNode) : ComputeOperator2(pNode, "LRN"), m_K(1)
   //    MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
   //               outputs[0]->elemType(), MemType::NEURON));
 
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
 
-  m_Alpha = pNode.f(::onnx::Symbol("alpha"));
-  m_Beta = pNode.f(::onnx::Symbol("beta"));
-  if (pNode.hasAttribute(::onnx::Symbol("bias"))) {
-    m_K = pNode.f(::onnx::Symbol("bias"));
+  m_Alpha = pNode.f(xSymbol("alpha"));
+  m_Beta = pNode.f(xSymbol("beta"));
+  if (pNode.hasAttribute(xSymbol("bias"))) {
+    m_K = pNode.f(xSymbol("bias"));
   }
-  m_LocalSize = pNode.i(::onnx::Symbol("size"));
+  m_LocalSize = pNode.i(xSymbol("size"));
 }
 
 void TGLRN::TGLRN::emit() const

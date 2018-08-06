@@ -10,20 +10,20 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/Support/OStrStream.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/common/ir_pb_converter.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 using namespace std;
 
 namespace {
-  using TP_DataType = ::onnx::TensorProto_DataType;
-  const TP_DataType TP_FLOAT = ::onnx::TensorProto_DataType_FLOAT;
+  using TP_DataType = xTensorProtoDataType;
+  const TP_DataType TP_FLOAT = (xTensorProtoDataType)xValueType::kFloat;
 
-  vector<::onnx::Dimension> intSizeToDim(const vector<int> &pSizes)
+  vector<xDimension> intSizeToDim(const vector<int> &pSizes)
   {
-    vector<::onnx::Dimension> dims;
+    vector<xDimension> dims;
     for (int d : pSizes)
-      dims.push_back(::onnx::Dimension(d));
+      dims.push_back(xDimension(d));
     return dims;
   }
 
@@ -32,7 +32,7 @@ namespace {
   class NodeHelper
   {
   public:
-    NodeHelper(GraphHelper *pParent, ::onnx::Node *pNode)
+    NodeHelper(GraphHelper *pParent, xNode *pNode)
       : m_Parent(pParent), m_Node(pNode), m_HasInitFirstOutput(false) {}
     NodeHelper()
       : m_Parent(nullptr), m_Node(nullptr), m_HasInitFirstOutput(false) {}
@@ -41,20 +41,20 @@ namespace {
                            TP_DataType pElemTy = TP_FLOAT);
   private:
     GraphHelper *m_Parent;
-    ::onnx::Node *m_Node;
+    xNode *m_Node;
     bool m_HasInitFirstOutput;
   };
 
   class GraphHelper
   {
   public:
-    GraphHelper(::onnx::Graph *pGraph = nullptr)
+    GraphHelper(xGraph *pGraph = nullptr)
     {
       m_Graph = pGraph;
       m_NeedDeleteGraph = false;
       if (!pGraph) {
         m_NeedDeleteGraph = true;
-        m_Graph = new ::onnx::Graph;
+        m_Graph = new xGraph;
       }
     }
     virtual ~GraphHelper()
@@ -63,11 +63,11 @@ namespace {
         delete m_Graph;
     }
 
-    ::onnx::Value & addInput(const string pName,
+    xValue & addInput(const string pName,
                            const vector<int> &pSizes /* nchw */,
                            TP_DataType pElemType = TP_FLOAT)
     {
-      ::onnx::Value *val = m_Graph->addInput();
+      xValue *val = m_Graph->addInput();
       val->setUniqueName(pName)
          ->setSizes(intSizeToDim(pSizes))
          ->setElemType(pElemType);
@@ -79,7 +79,7 @@ namespace {
     // returned Node is only valid before another addNode().
     NodeHelper & addNode(const string &pName, const vector<string> pInputs)
     {
-      ::onnx::Node *n = m_Graph->create(::onnx::Symbol(pName));
+      xNode *n = m_Graph->create(xSymbol(pName));
       for (auto & input : pInputs) {
         assert(m_Values.find(input) != m_Values.end() &&
                "Value is not found.");
@@ -93,13 +93,13 @@ namespace {
     void addInitializer(const string &pName,
                         TP_DataType pElemType = TP_FLOAT)
     {
-      ::onnx::Tensor t;
-      t.elem_type() = ::onnx::TensorProto_DataType_FLOAT;
+      xTensor t;
+      t.elem_type() = (xTensorProtoDataType)xValueType::kFloat;
       t.setName(pName);
       m_Graph->addInitializer(t, pName);
     }
 
-    void addValue(::onnx::Value *pValue)
+    void addValue(xValue *pValue)
     {
       auto it = m_Values.find(pValue->uniqueName());
       assert((it == m_Values.end() || it->second == pValue) &&
@@ -118,13 +118,13 @@ namespace {
       }
     }
 
-    ::onnx::Graph *getGraph() { return m_Graph; }
+    xGraph *getGraph() { return m_Graph; }
 
   private:
     unordered_map<string, NodeHelper> m_Nodes;
-    unordered_map<string, ::onnx::Value *> m_Values; 
+    unordered_map<string, xValue *> m_Values; 
     bool m_NeedDeleteGraph;
-    ::onnx::Graph *m_Graph;
+    xGraph *m_Graph;
   };
 
   NodeHelper & NodeHelper::addOutput(
@@ -132,7 +132,7 @@ namespace {
     TP_DataType pElemTy)
   {
     assert(m_Node && "onnx::Node should be created before any operation.");
-    ::onnx::Value *out;
+    xValue *out;
     if (m_HasInitFirstOutput)
       out = m_Node->addOutput();
     else {
@@ -169,7 +169,7 @@ static const char *testAlexNetAnswer =
   "prob_1 [22, 22]\n";
 
 SKYPAT_F(LivenessAnalysisTest, testAlexNet){
-  GraphHelper graph(new ::onnx::Graph());
+  GraphHelper graph(new xGraph());
 
   // add inputs.
   graph.addInput("data_0", {10, 3, 227, 227});
@@ -253,7 +253,7 @@ SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   // set graph output value(s).
   graph.finish({"prob_1"});
 
-  Module module(std::unique_ptr<::onnx::Graph>(graph.getGraph()));
+  Module module(std::unique_ptr<xGraph>(graph.getGraph()));
 
   GraphLivenessAnalysis *liveAnalPass = CreateLivenessAnalysisPass();
   PassManager pm;

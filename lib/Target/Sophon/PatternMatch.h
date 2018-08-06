@@ -10,10 +10,9 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef PATTERNMATCH_H
-#define PATTERNMATCH_H
-
-#include <onnx/common/ir.h>
+#ifndef ONNC_TARGET_SOPHON_PATTERNMATCH_H
+#define ONNC_TARGET_SOPHON_PATTERNMATCH_H
+#include <onnc/Config/ONNX.h>
 #include <string>
 #include <type_traits>
 
@@ -35,13 +34,13 @@ bool match(const Val *pV, const Pattern &pP, const Patterns &... pPs)
 }
 
 struct matchSymbol {
-  onnx::Symbol m_Symbol;
+  xSymbol m_Symbol;
   matchSymbol(const std::string &pSym) : m_Symbol(pSym) {}
-  bool match(const onnx::Node *pN) { return pN->kind() == m_Symbol; }
+  bool match(const xNode *pN) { return pN->kind() == m_Symbol; }
 };
 inline matchSymbol mSymbol(const std::string &pSym) { return pSym; }
 
-inline onnx::Node *next(onnx::Node *pN)
+inline xNode *next(xNode *pN)
 {
   if (pN->outputs().size() != 1)
     return nullptr;
@@ -50,7 +49,7 @@ inline onnx::Node *next(onnx::Node *pN)
   return pN->output()->uses()[0].user;
 }
 
-inline onnx::Node *input(onnx::Node *pN, size_t pIndex)
+inline xNode *input(xNode *pN, size_t pIndex)
 {
   if (pN->inputs()[pIndex]->uses().size() != 1)
     return nullptr;
@@ -110,14 +109,14 @@ template <typename T> struct matchAttr {
 #define CREATE_ACCESSOR_BASE(Kind, method, Kind_T)                             \
   template <> struct matchAttr<Kind_T> {                                       \
     std::string m_Name;                                                        \
-    onnx::Kind##Attr::ValueType m_Value;                                       \
+    x##Kind##Attr::ValueType m_Value;                                          \
     matchAttr(const std::string &pName, Kind_T pV)                             \
         : m_Name(pName), m_Value(pV)                                           \
     {                                                                          \
     }                                                                          \
-    bool match(const onnx::Node *pN) const                                     \
+    bool match(const xNode *pN) const                                          \
     {                                                                          \
-      auto s = onnx::Symbol(m_Name);                                           \
+      auto s = xSymbol(m_Name);                                                \
       if (not pN->hasAttribute(s))                                             \
         return false;                                                          \
       if (pN->method(s) != m_Value)                                            \
@@ -126,7 +125,7 @@ template <typename T> struct matchAttr {
     }                                                                          \
   };
 #define CREATE_ACCESSOR(Kind, method)                                          \
-  CREATE_ACCESSOR_BASE(Kind, method, onnx::Kind##Attr::ValueType)
+  CREATE_ACCESSOR_BASE(Kind, method, x##Kind##Attr::ValueType)
 CREATE_ACCESSOR(Float, f)
 CREATE_ACCESSOR(Floats, fs)
 CREATE_ACCESSOR(String, s)
@@ -149,9 +148,9 @@ template <typename T> matchAttr<T> mAttr(const std::string &pName, T pV)
 struct matchNoAttr {
   std::string m_Name;
   matchNoAttr(const std::string &pName) : m_Name(pName) {}
-  bool match(const onnx::Node *pN) const
+  bool match(const xNode *pN) const
   {
-    return not pN->hasAttribute(onnx::Symbol(m_Name));
+    return not pN->hasAttribute(xSymbol(m_Name));
   }
 };
 inline matchNoAttr mNoAttr(const std::string &pName)
@@ -159,14 +158,14 @@ inline matchNoAttr mNoAttr(const std::string &pName)
   return matchNoAttr(pName);
 }
 
-inline match_combine_or<matchNoAttr, matchAttr<onnx::IntAttr::ValueType> >
+inline match_combine_or<matchNoAttr, matchAttr<xIntAttr::ValueType> >
 mFalseAttr(const std::string &pName)
 {
-  return m_CombineOr(mNoAttr(pName), mAttr<onnx::IntAttr::ValueType>(pName, 0));
+  return m_CombineOr(mNoAttr(pName), mAttr<xIntAttr::ValueType>(pName, 0));
 }
-inline matchAttr<onnx::IntAttr::ValueType> mTrueAttr(const std::string &pName)
+inline matchAttr<xIntAttr::ValueType> mTrueAttr(const std::string &pName)
 {
-  return mAttr<onnx::IntAttr::ValueType>(pName, 1);
+  return mAttr<xIntAttr::ValueType>(pName, 1);
 }
 
 } // namespace PatternMatch

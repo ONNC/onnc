@@ -23,49 +23,49 @@ BM188X::StoreLower::~StoreLower()
 {
 }
 
-int BM188X::StoreLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::StoreLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("TLStore"))
+  if (pNode.kind() == xSymbol("TLStore"))
     return kTargetNormal;
   return kNotMe;
 }
 
 onnc::ComputeOperator *
-BM188X::StoreLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
+BM188X::StoreLower::activate(ComputeGraph& pGraph, xNode &pNode) const
 {
   // check required attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("dst_goffset")))
+  if (!pNode.hasAttribute(xSymbol("dst_goffset")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("src_laddr")))
+  if (!pNode.hasAttribute(xSymbol("src_laddr")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("local_dim")))
+  if (!pNode.hasAttribute(xSymbol("local_dim")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("global_dim")))
+  if (!pNode.hasAttribute(xSymbol("global_dim")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("do_transpose")))
+  if (!pNode.hasAttribute(xSymbol("do_transpose")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("is_aligned")))
+  if (!pNode.hasAttribute(xSymbol("is_aligned")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("is_neuron")))
+  if (!pNode.hasAttribute(xSymbol("is_neuron")))
     return nullptr;
-  if (!pNode.hasAttribute(::onnx::Symbol("op_name")))
+  if (!pNode.hasAttribute(xSymbol("op_name")))
     return nullptr;
 
   // create operators
   BM188X::Store* op = pGraph.addOperator<onnc::BM188X::Store>(
-      pNode.i(::onnx::Symbol("dst_goffset")),
-      pNode.i(::onnx::Symbol("src_laddr")),
-      pNode.i(::onnx::Symbol("do_transpose")),
-      pNode.i(::onnx::Symbol("is_aligned")),
-      pNode.i(::onnx::Symbol("is_neuron")),
-      pNode.is(::onnx::Symbol("local_dim")),
-      pNode.is(::onnx::Symbol("global_dim")),
-      pNode.s(::onnx::Symbol("op_name")));
+      pNode.i(xSymbol("dst_goffset")),
+      pNode.i(xSymbol("src_laddr")),
+      pNode.i(xSymbol("do_transpose")),
+      pNode.i(xSymbol("is_aligned")),
+      pNode.i(xSymbol("is_neuron")),
+      pNode.is(xSymbol("local_dim")),
+      pNode.is(xSymbol("global_dim")),
+      pNode.s(xSymbol("op_name")));
 
   // Comment copy from BM188xISelLowering.cpp:
   //   FIXME(arcbbb): It's a workaround.
   //   not to violate SSA, we add output value as input.
-  ::onnx::Value* v = pNode.inputs()[0];
+  xValue* v = pNode.inputs()[0];
   onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(v->uniqueName());
   if (nullptr == tensor)
     tensor = IRBuilder::CreateComputeTensor(pGraph, *v);

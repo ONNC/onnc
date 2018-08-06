@@ -22,7 +22,7 @@
 
 namespace onnc {
 
-typedef std::vector<::onnx::Node *> Nodes;
+typedef std::vector<xNode *> Nodes;
 
 /** \class NodeIRScheduler
  *  \brief onnx Graph IR scheduler. Reorder IR, especially load/store for
@@ -33,19 +33,19 @@ class NodeIRScheduler : public ModulePass
 public:
   struct ExeResUser
   {
-    ::onnx::Node *user;
+    xNode *user;
     uint64_t remainCycles;  /// Remaining cycles to finish executing the user.
 
-    ExeResUser(::onnx::Node *user, uint64_t rcycles)
+    ExeResUser(xNode *user, uint64_t rcycles)
       : user(user), remainCycles(rcycles) {}
   };
 
   struct ExeCycle
   {
-    ::onnx::Node *node;
+    xNode *node;
     uint64_t begin, end;  /// Execution time: [begin, end)
 
-    ExeCycle(::onnx::Node *pNode, uint64_t pBegin, uint64_t pEnd)
+    ExeCycle(xNode *pNode, uint64_t pBegin, uint64_t pEnd)
       : node(pNode), begin(pBegin), end(pEnd) {}
   };
 
@@ -62,7 +62,7 @@ public:
 
   ReturnType runOnModule(Module& pModule) override;
 
-  ReturnType runOnGraph(::onnx::Graph &pGraph);
+  ReturnType runOnGraph(xGraph &pGraph);
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
@@ -77,7 +77,7 @@ private:
 
   bool isAllExeResEmpty() const;
 
-  void addExeResUser(const ExeResource *pExeRes, ::onnx::Node *pUser);
+  void addExeResUser(const ExeResource *pExeRes, xNode *pUser);
 
   Nodes issue();
 

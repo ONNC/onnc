@@ -12,10 +12,9 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGRELU_H
 #define ONNX_BM1880_TGRELU_H
-
 #include "BM188xComputeOperator.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -24,7 +23,7 @@ namespace BM188X {
 class TGRelu : public BM188xComputeOperator
 {
 public:
-  TGRelu(const ::onnx::Node &pNode);
+  TGRelu(const xNode &pNode);
 
   void emit() const override;
   TGRelu *addMemOperands(MemOperand *pInput, MemOperand *pOutput);

@@ -22,10 +22,10 @@ namespace pm = onnc::PatternMatch;
 namespace onnc {
 namespace BM188X {
 
-TGSum::TGSum(const ::onnx::Node &pNode)
+TGSum::TGSum(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Sum"))
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector<xDimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;
   m_InC = inDim[1].dim;
   m_InH = inDim[2].dim;

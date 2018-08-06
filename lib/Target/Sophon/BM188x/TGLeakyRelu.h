@@ -12,10 +12,9 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGLEAKYRELU_H
 #define ONNX_BM1880_TGLEAKYRELU_H
-
 #include "BM188xComputeOperator.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -23,7 +22,7 @@ namespace BM188X {
 class TGLeakyRelu : public BM188xComputeOperator
 {
 public:
-  TGLeakyRelu(const ::onnx::Node &pNode);
+  TGLeakyRelu(const xNode &pNode);
 
   void emit() const override;
   TGLeakyRelu *addMemOperands(MemOperand *pInput, MemOperand *pOutput);

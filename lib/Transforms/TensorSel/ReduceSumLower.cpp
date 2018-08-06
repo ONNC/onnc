@@ -24,15 +24,15 @@ ReduceSumLower::~ReduceSumLower()
 {
 }
 
-int ReduceSumLower::isMe(const ::onnx::Node& pNode) const
+int ReduceSumLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("ReduceSum"))
+  if (pNode.kind() == xSymbol("ReduceSum"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-ReduceSumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+ReduceSumLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ ReduceSumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,20 +62,20 @@ ReduceSumLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("axes")))
-    op->setAxes(pNode.is(::onnx::Symbol("axes")));
-  if (pNode.hasAttribute(::onnx::Symbol("keepdims")))
-    op->setKeepdims(pNode.i(::onnx::Symbol("keepdims")));
+  if (pNode.hasAttribute(xSymbol("axes")))
+    op->setAxes(pNode.is(xSymbol("axes")));
+  if (pNode.hasAttribute(xSymbol("keepdims")))
+    op->setKeepdims(pNode.i(xSymbol("keepdims")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

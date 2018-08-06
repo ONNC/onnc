@@ -7,8 +7,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TRANSFORM_INFO_H
 #define ONNC_TARGET_TRANSFORM_INFO_H
-#include <onnx/common/ir.h>
 #include <onnc/Target/TargetMemInfo.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 
 namespace onnc {
@@ -29,7 +29,8 @@ struct ExeResource
  *  \brief TargetTransformInfo provides interfaces to explore target
  *         information which is used by target dependent passes.
  */
-class TargetTransformInfo {
+class TargetTransformInfo
+{
 public:
   enum TargetCostKind : unsigned {
     kCycleCount, ///< Get graph (or compute) IR cycle count.
@@ -37,9 +38,7 @@ public:
   };
 
   /// Get coarse-grained (approximately) cost of onnx node.
-  virtual uint64_t getOperatorCost(const ::onnx::Node *pNode,
-                                   unsigned kind) const
-  {
+  virtual uint64_t getOperatorCost(const xNode *pNode, unsigned pKind) const {
     return 0;
   }
 
@@ -50,38 +49,35 @@ public:
   /// (N * K + K * N + N * M) * (Element Size), however, target's might
   /// choose to load part of rows and columns to compute a tile, so its
   /// real memory usage will be reduced a lot.
-  virtual MemSize getOperatorMemUsage(const ::onnx::Node *pNode) const
-  {
+  virtual MemSize getOperatorMemUsage(const xNode *pNode) const {
     return MemSize();
   }
 
-  virtual MemSize getOperatorMemUsage(const ::onnx::Node *pNode,
-                                const std::vector<LongInts> &pInputSizes,
-                                const std::vector<LongInts> &pOutputSizes) const
-  {
+  virtual MemSize
+  getOperatorMemUsage(const xNode *pNode,
+                      const std::vector<LongInts> &pInputSizes,
+                      const std::vector<LongInts> &pOutputSizes) const {
     return MemSize();
   }
 
   /// @param pIdx Get required memory size of input[pIdx].
   /// @param pNewInputSize Based on new input size, get actual required size.
-  virtual MemSize getOperatorInputMemUsage(const ::onnx::Node *pNode,
-                                unsigned pIdx,
-                                const LongInts &pNewInputSize) const
+  virtual MemSize getOperatorInputMemUsage(const xNode *pNode,
+                                           unsigned pIdx,
+                                           const LongInts &pNewInputSize) const
   {
     return MemSize();
   }
 
-  virtual MemSize getOperatorOutputMemUsage(const ::onnx::Node *pNode,
+  virtual MemSize getOperatorOutputMemUsage(const xNode *pNode,
                                 unsigned pIdx,
-                                const LongInts &pNewOutputSize) const
-  {
+                                const LongInts &pNewOutputSize) const {
     return MemSize();
   }
 
   /// Expose coarse grained execution units infomation, so scheduler can use
   /// it to scheduling graph IR.
-  virtual const ExeResource *queryExeResType(const ::onnx::Node *pNode) const
-  {
+  virtual const ExeResource *queryExeResType(const xNode *pNode) const {
     return nullptr;
   }
 

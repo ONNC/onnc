@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_CODE_EMITTER_H
 #define ONNC_TARGET_TG_CODE_EMITTER_H
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 #include <string>
 #include <ostream>
@@ -28,7 +28,7 @@ public:
 
   virtual void genWeightBin(const ::std::string &pOutputFilename) { return; }
 
-  virtual void genRuntimeInfo(const ::onnx::Graph *pOnnxGraph,
+  virtual void genRuntimeInfo(const xGraph *pOnnxGraph,
                               std::ostream &pOS) = 0;
 };
 

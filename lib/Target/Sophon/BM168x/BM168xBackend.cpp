@@ -38,9 +38,9 @@ void BM1680Backend::addTensorSel(PassManager &pPM)
 #endif
 }
 
-bool BM1680Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
+bool BM1680Backend::isNativeTensorType(xTensorProtoDataType pType)
 {
-  if (pType == ::onnx::TensorProto_DataType_FLOAT) {
+  if (pType == (xTensorProtoDataType)onnc::Value::kFloat) {
     return true;
   }
   return false;
@@ -61,11 +61,10 @@ BM1682Backend::BM1682Backend(Instructions& pIns, const TargetOptions &pOptions)
 
 BM1682Backend::~BM1682Backend() = default;
 
-bool BM1682Backend::isNativeTensorType(::onnx::TensorProto_DataType pType)
+bool BM1682Backend::isNativeTensorType(xTensorProtoDataType pType)
 {
-  if (pType == ::onnx::TensorProto_DataType_FLOAT) {
+  if (pType == (xTensorProtoDataType)onnc::Value::kFloat)
     return true;
-  }
   return false;
 }
 std::unique_ptr<TGFuseOptimizer> BM1682Backend::getFuseOptimizr()

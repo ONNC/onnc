@@ -38,7 +38,7 @@ InsertionPoint& InsertionPoint::operator=(const InsertionPoint& pCopy)
   return *this;
 }
 
-InsertionPoint& InsertionPoint::setTensorGraph(::onnx::Graph& pGraph)
+InsertionPoint& InsertionPoint::setTensorGraph(xGraph& pGraph)
 {
   m_pTensorGraph = &pGraph;
   return *this;

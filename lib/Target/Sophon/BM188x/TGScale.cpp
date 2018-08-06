@@ -19,11 +19,11 @@
 namespace onnc {
 namespace BM188X {
 
-TGScale::TGScale(const ::onnx::Node &pNode)
+TGScale::TGScale(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Scale")), m_MScaleDim(0),
       m_MInnerDim(0), m_RShiftWidth(0)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector<xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;

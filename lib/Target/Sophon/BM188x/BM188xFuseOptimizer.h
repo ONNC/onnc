@@ -12,27 +12,27 @@
 //===---------------------------------------------------------------------===//
 #ifndef BM188X_FUSE_OPTIMIZER_H
 #define BM188X_FUSE_OPTIMIZER_H
-
 #include "BM188xBackend.h"
 #include "TGFuseOptimizer.h"
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
 class BM188xFuseOptimizer : public TGFuseOptimizer
 {
 public:
-  BM188xFuseOptimizer(TGBackend *pBackend) : TGFuseOptimizer(pBackend)
+  BM188xFuseOptimizer(TGBackend *pBackend)
+      : TGFuseOptimizer(pBackend)
   {
     m_p1880backend = static_cast<BM1880Backend *>(pBackend);
   }
 
   ~BM188xFuseOptimizer() override = default;
 
-  onnx::Node *FuseConvScale(onnx::Graph *pGraph, onnx::Node *pConvNode,
-                            onnx::Node *pScaleNode) override;
+  xNode *
+  FuseConvScale(xGraph *pGraph, xNode *pConvNode, xNode *pScaleNode) override;
 
-  onnx::Node *FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
-                       onnx::Node *pReluNode) override;
+  xNode *FuseRelu(xGraph *pGraph, xNode *pNode, xNode *pReluNode) override;
 
 private:
   BM1880Backend *m_p1880backend; // NOLINT

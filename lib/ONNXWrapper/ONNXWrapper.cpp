@@ -10,24 +10,22 @@
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/ONNXWrapper/ONNXWrapper.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/checker.h>
-#include <onnx/shape_inference/implementation.h>
 
 using namespace onnc;
 
 bool onnc::onnxInferShape(Module &pModule)
 {
   // use onnx official shape inference implementation
-  ::onnx::ModelProto modelProto;
-  ::onnc::ExportModelProto(modelProto, pModule);
+  xProto modelProto;
+  onnc::ExportModelProto(modelProto, pModule);
   try {
-    ::onnx::checker::check_model(modelProto);
-  } catch (::onnx::checker::ValidationError &e) {
+    xcheck_model(modelProto);
+  } catch (xValidationError &e) {
     errs() << e.what() << "\n"
               << "ONNXShapeInference pass is not workable!!" << "\n";
     return false;
   }
-  ::onnx::shape_inference::InferShapes(modelProto);
+  xInferShapes(modelProto, xOpSchemaRegistry::Instance());
   ::onnc::IRBuilder ir_b(pModule);
   ir_b.update(modelProto);
   return true;

@@ -19,19 +19,19 @@
 namespace onnc {
 namespace BM188X {
 
-TGUpsample::TGUpsample(const ::onnx::Node &pNode)
+TGUpsample::TGUpsample(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Upsample"))
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector<xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
-  assert(pNode.is(::onnx::Symbol("size"))[0] == 1.0);
-  assert(pNode.is(::onnx::Symbol("size"))[1] == 1.0);
-  assert(pNode.is(::onnx::Symbol("size"))[2] ==
-         pNode.is(::onnx::Symbol("size"))[3]);
-  m_Scale = pNode.is(::onnx::Symbol("size"))[3];
+  assert(pNode.is(xSymbol("size"))[0] == 1.0);
+  assert(pNode.is(xSymbol("size"))[1] == 1.0);
+  assert(pNode.is(xSymbol("size"))[2] ==
+         pNode.is(xSymbol("size"))[3]);
+  m_Scale = pNode.is(xSymbol("size"))[3];
 }
 
 TGUpsample *TGUpsample::addMemOperands(MemOperand *pInput, MemOperand *pOutput)

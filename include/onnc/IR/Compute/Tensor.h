@@ -8,6 +8,7 @@
 #ifndef ONNC_IR_COMPUTE_TENSOR_H
 #define ONNC_IR_COMPUTE_TENSOR_H
 #include <onnc/IR/Compute/Value.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 
 namespace onnc {
@@ -24,7 +25,7 @@ public:
 
   Tensor(const std::string& pName, onnc::Value::Type pKind);
 
-  Tensor(onnc::Value::Type pKind, ::onnx::Tensor& pAdaptee);
+  Tensor(onnc::Value::Type pKind, xTensor& pAdaptee);
 
   unsigned int getNumOfDimensions() const { return m_Dimensions.size(); }
 
@@ -58,7 +59,7 @@ public:
     : onnc::Tensor(pName, Kind), m_Values() {
   }
 
-  TensorT(::onnx::Tensor& pAdaptee)
+  TensorT(xTensor& pAdaptee)
     : onnc::Tensor(Kind, pAdaptee), m_Values() {
   }
 

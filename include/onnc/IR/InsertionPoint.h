@@ -10,8 +10,7 @@
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeGraph.h>
 #include <onnc/ADT/StringMap.h>
-#include <onnx/common/ir_pb_converter.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -20,7 +19,7 @@ namespace onnc {
 class InsertionPoint
 {
 public:
-  typedef StringMap<::onnx::Value*> CreatedValues;
+  typedef StringMap<xValue*> CreatedValues;
 
 public:
   InsertionPoint();
@@ -31,7 +30,7 @@ public:
 
   InsertionPoint(const InsertionPoint& pCopy);
 
-  InsertionPoint& setTensorGraph(::onnx::Graph& pGraph);
+  InsertionPoint& setTensorGraph(xGraph& pGraph);
 
   /// Get the target module
   Module* getModule() { return m_pModule; }
@@ -45,19 +44,19 @@ public:
 
   /// get current insertion point of tensor graph.
   /// @retval nullptr not set
-  ::onnx::Graph* getTensorGraph() { return m_pTensorGraph; }
+  xGraph* getTensorGraph() { return m_pTensorGraph; }
 
   /// get current insertion point of tensor graph.
   /// @retval nullptr not set
-  const ::onnx::Graph* getTensorGraph() const { return m_pTensorGraph; }
+  const xGraph* getTensorGraph() const { return m_pTensorGraph; }
 
   bool hasTensorGraph() const { return (nullptr != m_pTensorGraph); }
 
-  ::onnx::Node* getTensorNode() { return m_pTensorNode; }
+  xNode* getTensorNode() { return m_pTensorNode; }
 
-  const ::onnx::Node* getTensorNode() const { return m_pTensorNode; }
+  const xNode* getTensorNode() const { return m_pTensorNode; }
 
-  void setTensorNode(::onnx::Node& pNode) { m_pTensorNode = &pNode; }
+  void setTensorNode(xNode& pNode) { m_pTensorNode = &pNode; }
 
   bool hasTensorNode() const { return (nullptr != m_pTensorNode); }
 
@@ -88,10 +87,10 @@ private:
   Module* m_pModule;
 
   /// current target tensor graph
-  ::onnx::Graph* m_pTensorGraph;
+  xGraph* m_pTensorGraph;
 
   /// current target tensor graph node
-  ::onnx::Node* m_pTensorNode;
+  xNode* m_pTensorNode;
 
   /// current target compute graph
   ComputeGraph* m_pComputeGraph;
@@ -99,7 +98,7 @@ private:
   /// current target compute operator
   ComputeOperator* m_pComputeNode;
 
-  /// all ::onnx::Value created
+  /// all xValue created
   CreatedValues m_CreatedValues;
 };
 

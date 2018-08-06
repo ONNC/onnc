@@ -12,10 +12,9 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGLRN_H
 #define ONNX_BM1880_TGLRN_H
-
 #include "BM188xComputeOperator.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -24,7 +23,7 @@ namespace BM188X {
 class TGLRN : public BM188xComputeOperator
 {
 public:
-  TGLRN(const ::onnx::Node &pNode);
+  TGLRN(const xNode &pNode);
 
   TGLRN *addMemOperands(MemOperand *pInput, MemOperand *pSquLut,
                         MemOperand *pPowerLut, MemOperand *pOutput);

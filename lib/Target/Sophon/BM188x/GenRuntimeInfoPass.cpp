@@ -11,7 +11,7 @@
 #include <onnc/JSON/Value.h>
 #include <onnc/Support/IndentOStream.h>
 #include <onnc/Support/OFStream.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/Target/TG/BM188x/bmkernel_api.h>
 
 using namespace onnc;

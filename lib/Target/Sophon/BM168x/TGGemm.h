@@ -21,7 +21,7 @@ namespace onnc {
 class TGGemm : public ComputeOperator2
 {
 public:
-  TGGemm(const ::onnx::Node &pNode);
+  TGGemm(const xNode &pNode);
   void emit() const override;
 
 private:

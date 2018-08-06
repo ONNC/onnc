@@ -24,15 +24,15 @@ CosLower::~CosLower()
 {
 }
 
-int CosLower::isMe(const ::onnx::Node& pNode) const
+int CosLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Cos"))
+  if (pNode.kind() == xSymbol("Cos"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-CosLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+CosLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ CosLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -65,14 +65,14 @@ CosLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

@@ -17,7 +17,7 @@
 #include "TGBackend.h"
 #include <memory>
 #include <onnc/IR/Module.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -38,9 +38,9 @@ public:
 
   // Lowering ONNX IR to Compute IR
   virtual void
-  ISelLowering(const ::onnx::Graph *pOnnxGraph, TGBackend::Instructions& pInsns);
+  ISelLowering(const xGraph *pOnnxGraph, TGBackend::Instructions& pInsns);
 
-  virtual ComputeOperator2 *LowerOperation(const ::onnx::Node &pNode,
+  virtual ComputeOperator2 *LowerOperation(const xNode &pNode,
                                            ComputeGraph &pGraph) = 0;
 
 protected:

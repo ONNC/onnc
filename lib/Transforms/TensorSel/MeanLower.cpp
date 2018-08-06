@@ -24,15 +24,15 @@ MeanLower::~MeanLower()
 {
 }
 
-int MeanLower::isMe(const ::onnx::Node& pNode) const
+int MeanLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Mean"))
+  if (pNode.kind() == xSymbol("Mean"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-MeanLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+MeanLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() < 1)
@@ -42,12 +42,12 @@ MeanLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -65,14 +65,14 @@ MeanLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

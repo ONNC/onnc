@@ -6,8 +6,7 @@ ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -W
 ONNC_CPPFLAGS = -O0 -g3 \
 	-DUNITTEST=1 \
 	-DTOPDIR=\"${abs_top_srcdir}\" \
-	-DBUILDDIR=\"${abs_top_builddir}\" \
-	-DONNX_NAMESPACE=onnx
+	-DBUILDDIR=\"${abs_top_builddir}\"
 
 if ENABLE_WERROR
 ONNC_CPPFLAGS += -Werror

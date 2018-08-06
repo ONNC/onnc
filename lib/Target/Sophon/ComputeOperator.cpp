@@ -29,7 +29,7 @@ std::ostream &onnc::operator<<(std::ostream &pOS, const MemOperand &pMem)
 //===---------------------------------------------------------------------===//
 // MemOperand
 //===---------------------------------------------------------------------===//
-MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
+MemOperand::MemOperand(std::string pName, const xValue *pValue,
                        MemType pMemType)
     : m_Name(pName), m_Addr(0x0), m_Size(0), m_Type(pValue->elemType()),
       m_MemType(pMemType), m_Value(pValue)
@@ -44,11 +44,11 @@ MemOperand::MemOperand(std::string pName, const ::onnx::Value *pValue,
 //===---------------------------------------------------------------------===//
 // ComputeOperator2
 //===---------------------------------------------------------------------===//
-ComputeOperator2::ComputeOperator2(const ::onnx::Node &pNode,
+ComputeOperator2::ComputeOperator2(const xNode &pNode,
                                    const std::string &pTypeName)
     : m_TypeName(pTypeName)
 {
-  m_LayerName = const_cast< ::onnx::Node &>(pNode).output()->uniqueName();
+  m_LayerName = const_cast<xNode &>(pNode).output()->uniqueName();
 }
 
 void ComputeOperator2::memAlloc(MemTable &pPMemLayout)

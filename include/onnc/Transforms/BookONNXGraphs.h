@@ -8,7 +8,6 @@
 #ifndef ONNC_BOOK_ONNX_GRAPHS_H
 #define ONNC_BOOK_ONNX_GRAPHS_H
 #include <onnc/Core/ModulePass.h>
-#include <onnx/common/ir.h>
 
 namespace onnc {
 

@@ -24,15 +24,15 @@ GRUUnitLower::~GRUUnitLower()
 {
 }
 
-int GRUUnitLower::isMe(const ::onnx::Node& pNode) const
+int GRUUnitLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("GRUUnit"))
+  if (pNode.kind() == xSymbol("GRUUnit"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-GRUUnitLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+GRUUnitLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 4)
@@ -42,12 +42,12 @@ GRUUnitLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,18 +62,18 @@ GRUUnitLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("drop_states")))
-    op->setDropStates(pNode.i(::onnx::Symbol("drop_states")));
+  if (pNode.hasAttribute(xSymbol("drop_states")))
+    op->setDropStates(pNode.i(xSymbol("drop_states")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

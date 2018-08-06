@@ -23,34 +23,34 @@ const uint64_t KB = 1024;
 // const uint64_t EU_NUM = 32;
 } // namespace
 
-using TP_DataTy = onnx::TensorProto_DataType;
+using TP_DataTy = xTensorProtoDataType;
 
 uint64_t BM188xTargetMemInfo::getElemSize(TP_DataTy pTy) const
 {
   switch (pTy) {
-  case onnx::TensorProto_DataType_FLOAT:
+  case xValueType::kFloat:
     // After Quantization, assume FLOAT should be transformed to INT8
-  case onnx::TensorProto_DataType_BOOL:
-  case onnx::TensorProto_DataType_INT8:
-  case onnx::TensorProto_DataType_UINT8:
+  case xValueType::kBoolean:
+  case xValueType::kInt8:
+  case xValueType::kUint8:
     return 1;
     break;
 
-  case onnx::TensorProto_DataType_UINT16:
-  case onnx::TensorProto_DataType_INT16:
+  case xValueType::kUint16:
+  case xValueType::kInt16:
     return 2;
     break;
 
-  case onnx::TensorProto_DataType_COMPLEX64:
-  case onnx::TensorProto_DataType_FLOAT16:
-  case onnx::TensorProto_DataType_INT32:
-  case onnx::TensorProto_DataType_UINT32:
-  case onnx::TensorProto_DataType_INT64:
-  case onnx::TensorProto_DataType_UINT64:
-  case onnx::TensorProto_DataType_DOUBLE:
-  case onnx::TensorProto_DataType_COMPLEX128:
-  case onnx::TensorProto_DataType_STRING:
-  case onnx::TensorProto_DataType_UNDEFINED:
+  case xValueType::kComplex64:
+  case xValueType::kFloat16:
+  case xValueType::kInt32:
+  case xValueType::kUint32:
+  case xValueType::kInt64:
+  case xValueType::kUint64:
+  case xValueType::kDouble:
+  case xValueType::kComplex128:
+  case xValueType::kString:
+  case xValueType::kUndefined:
     break;
   }
   errs() << "Unsupport element size: " << TensorProto_DataType_Name(pTy)
@@ -62,12 +62,12 @@ uint64_t BM188xTargetMemInfo::getGlobalMemSize() const { return 1024 * MB; }
 
 uint64_t BM188xTargetMemInfo::getLocalMemSize() const { return 64 * KB; }
 
-MemSize BM188xTargetMemInfo::getValueMemorySize(onnx::Value *pValue)
+MemSize BM188xTargetMemInfo::getValueMemorySize(xValue *pValue)
 {
   uint64_t sum = getElemSize(pValue->elemType());
   uint64_t eu_num = m_pTGBackend->getTTI()->getProcessingUnitCount();
 
-  for (const onnx::Dimension &dim : pValue->sizes())
+  for (const xDimension &dim : pValue->sizes())
     sum *= dim.dim;
 
   return { eu_num, sum };

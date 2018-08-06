@@ -71,12 +71,12 @@ void TGBackend::addCodeEmit(PassManager &pPM, const Path &pOutput)
   pPM.add(CreateTGCodeEmitPass(this, pOutput.native()));
 }
 
-bool TGBackend::isNativeTensorType(::onnx::TensorProto_DataType pType)
+bool TGBackend::isNativeTensorType(xTensorProtoDataType pType)
 {
   return true;
 }
 
-size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType pType)
+size_t TGBackend::sizeOfTensorType(xTensorProtoDataType pType)
 {
   if (!isNativeTensorType(pType)) {
     std::cerr << "unsupported pType " << TensorProto_DataType_Name(pType)
@@ -84,11 +84,11 @@ size_t TGBackend::sizeOfTensorType(::onnx::TensorProto_DataType pType)
     return 0;
   }
   switch (pType) {
-  case ::onnx::TensorProto_DataType_FLOAT:
+  case xValueType::kFloat:
     return sizeof(float);
-  case ::onnx::TensorProto_DataType_INT8:
+  case xValueType::kInt8:
     return sizeof(int8_t);
-  case ::onnx::TensorProto_DataType_INT16:
+  case xValueType::kInt16:
     return sizeof(int16_t);
   default:
     assert(0 && "unimplemented size of pType!");
@@ -112,7 +112,7 @@ void TGBackend::setCtableProto(const std::string &pTextString)
   }
 }
 
-MemOperand *TGBackend::getMemOperand(const ::onnx::Value *pValue,
+MemOperand *TGBackend::getMemOperand(const xValue *pValue,
                                      MemType pMemType, const std::string &pName)
 {
   std::string name = pName;

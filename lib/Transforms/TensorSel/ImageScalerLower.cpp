@@ -24,15 +24,15 @@ ImageScalerLower::~ImageScalerLower()
 {
 }
 
-int ImageScalerLower::isMe(const ::onnx::Node& pNode) const
+int ImageScalerLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("ImageScaler"))
+  if (pNode.kind() == xSymbol("ImageScaler"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-ImageScalerLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+ImageScalerLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ ImageScalerLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,20 +62,20 @@ ImageScalerLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("bias")))
-    op->setBias(pNode.fs(::onnx::Symbol("bias")));
-  if (pNode.hasAttribute(::onnx::Symbol("scale")))
-    op->setScale(pNode.f(::onnx::Symbol("scale")));
+  if (pNode.hasAttribute(xSymbol("bias")))
+    op->setBias(pNode.fs(xSymbol("bias")));
+  if (pNode.hasAttribute(xSymbol("scale")))
+    op->setScale(pNode.f(xSymbol("scale")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

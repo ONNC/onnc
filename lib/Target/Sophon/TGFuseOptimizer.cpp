@@ -13,15 +13,16 @@
 #include "TGFuseOptimizer.h"
 #include "PatternMatch.h"
 #include <onnc/IR/ONNXUtils.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 using namespace PatternMatch;
 
-static std::vector<float> getTensorData(onnx::Graph *pGraph,
+static std::vector<float> getTensorData(xGraph *pGraph,
                                         const std::string &pName)
 {
-  const onnx::Tensor &tensor = *pGraph->getInitializer(pName);
-  assert(tensor.elem_type() == onnx::TensorProto_DataType_FLOAT);
+  const xTensor &tensor = *pGraph->getInitializer(pName);
+  assert(tensor.elem_type() == (xTensorProtoDataType)xValueType::kFloat);
   if (tensor.is_raw_data()) {
     size_t count = onnc::getTotalCount(tensor.sizes());
     const std::string &raw = tensor.raw();
@@ -32,9 +33,9 @@ static std::vector<float> getTensorData(onnx::Graph *pGraph,
   return tensor.floats();
 }
 
-static inline bool isTensor(onnx::Value *pValue)
+static inline bool isTensor(xValue *pValue)
 {
-  onnx::Graph *graph = pValue->owningGraph();
+  xGraph *graph = pValue->owningGraph();
   std::unordered_set<std::string> init_names(graph->initializer_names().begin(),
                                              graph->initializer_names().end());
   if (init_names.count(pValue->uniqueName()))
@@ -42,9 +43,9 @@ static inline bool isTensor(onnx::Value *pValue)
   return false;
 }
 
-static bool isNeuronInputs(onnx::Node *pAddNode)
+static bool isNeuronInputs(xNode *pAddNode)
 {
-  onnx::Graph *graph = pAddNode->owningGraph();
+  xGraph *graph = pAddNode->owningGraph();
   std::unordered_set<std::string> init_names(graph->initializer_names().begin(),
                                              graph->initializer_names().end());
   auto input0 = pAddNode->inputs()[0]->uniqueName();
@@ -54,7 +55,7 @@ static bool isNeuronInputs(onnx::Node *pAddNode)
   return true;
 }
 
-bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
+bool TGFuseOptimizer::FuseOpset6Nodes(xGraph *pGraph, xNode *pNode)
 {
   if (match(pNode, mSymbol("BatchNormalization")) and
       match(next(pNode), mSymbol("Mul"), mAttr("axis", 1),
@@ -71,12 +72,12 @@ bool TGFuseOptimizer::FuseOpset6Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
   return false;
 }
 
-static void replaceInput(onnx::Tensor &pTensor, size_t pIndex,
-                         onnx::Node *pNode, onnx::Graph *pGraph)
+static void replaceInput(xTensor &pTensor, size_t pIndex,
+                         xNode *pNode, xGraph *pGraph)
 {
   assert(pIndex < pNode->inputs().size());
-  onnx::Value *new_value = pGraph->addInitializerAndInput(pTensor);
-  onnx::Value *old_value = pNode->inputs()[pIndex];
+  xValue *new_value = pGraph->addInitializerAndInput(pTensor);
+  xValue *old_value = pNode->inputs()[pIndex];
   pNode->replaceInput(pIndex, new_value);
   if (old_value->uses().size() == 0) {
     pGraph->eraseInitializerAndInput(old_value);
@@ -89,9 +90,8 @@ static void replaceInput(onnx::Tensor &pTensor, size_t pIndex,
 // into
 // Y = BN (X, new_scale, new_bias, mean, var)
 // with new scale = scale * mul, new bias = bias * mul
-onnx::Node *TGFuseOptimizer::FuseBNMulV6(onnx::Graph *pGraph,
-                                         onnx::Node *pBNNode,
-                                         onnx::Node *pMulNode)
+xNode *
+TGFuseOptimizer::FuseBNMulV6(xGraph *pGraph, xNode *pBNNode, xNode *pMulNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto mul_inputs = pMulNode->inputs();
@@ -99,9 +99,9 @@ onnx::Node *TGFuseOptimizer::FuseBNMulV6(onnx::Graph *pGraph,
   const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &mul_name = mul_inputs[1]->uniqueName();
 
-  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
+  xTensor scale = *pGraph->getInitializer(scale_name);
+  xTensor bias = *pGraph->getInitializer(bias_name);
+  xTensor mul = *pGraph->getInitializer(mul_name);
 
   scale.multiply(mul);
   bias.multiply(mul);
@@ -126,17 +126,17 @@ onnx::Node *TGFuseOptimizer::FuseBNMulV6(onnx::Graph *pGraph,
 // into
 // Y = BN (X, scale, new_bias, mean, var)
 // with new bias = bias + add
-onnx::Node *TGFuseOptimizer::FuseBNAddV6(onnx::Graph *pGraph,
-                                         onnx::Node *pBNNode,
-                                         onnx::Node *pAddNode)
+xNode *TGFuseOptimizer::FuseBNAddV6(xGraph *pGraph,
+                                    xNode *pBNNode,
+                                    xNode *pAddNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto add_inputs = pAddNode->inputs();
   const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &add_name = add_inputs[1]->uniqueName();
 
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor add = *pGraph->getInitializer(add_name);
+  xTensor bias = *pGraph->getInitializer(bias_name);
+  xTensor add = *pGraph->getInitializer(add_name);
 
   bias.add(add);
   replaceInput(bias, 2, pBNNode, pGraph);
@@ -160,9 +160,9 @@ onnx::Node *TGFuseOptimizer::FuseBNAddV6(onnx::Graph *pGraph,
 // Y = BN (X, new_scale, new_bias, mean, var)
 // with new scale = scale * mul_tensor_tensor, new bias = bias *
 // mul_tensor_tensor
-onnx::Node *TGFuseOptimizer::FuseBNMulTensor(onnx::Graph *pGraph,
-                                             onnx::Node *pBNNode,
-                                             onnx::Node *pMulNode)
+xNode *TGFuseOptimizer::FuseBNMulTensor(xGraph *pGraph,
+                                        xNode *pBNNode,
+                                        xNode *pMulNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto mul_inputs = pMulNode->inputs();
@@ -170,9 +170,9 @@ onnx::Node *TGFuseOptimizer::FuseBNMulTensor(onnx::Graph *pGraph,
   const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &mul_name = mul_inputs[1]->uniqueName();
 
-  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
+  xTensor scale = *pGraph->getInitializer(scale_name);
+  xTensor bias = *pGraph->getInitializer(bias_name);
+  xTensor mul = *pGraph->getInitializer(mul_name);
   mul.sizes() = scale.sizes();
 
   scale.multiply(mul);
@@ -199,8 +199,8 @@ onnx::Node *TGFuseOptimizer::FuseBNMulTensor(onnx::Graph *pGraph,
 // into
 // Y = BN (X, new_scale, new_bias, mean, var)
 // with new scale = scale * mul_tensor, new bias = bias * mul_tensor
-onnx::Node *TGFuseOptimizer::FuseBNMul(onnx::Graph *pGraph, onnx::Node *pBNNode,
-                                       onnx::Node *pMulNode)
+xNode *
+TGFuseOptimizer::FuseBNMul(xGraph *pGraph, xNode *pBNNode, xNode *pMulNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto mul_inputs = pMulNode->inputs();
@@ -210,9 +210,9 @@ onnx::Node *TGFuseOptimizer::FuseBNMul(onnx::Graph *pGraph, onnx::Node *pBNNode,
   const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &mul_name = unsque_inputs[0]->uniqueName();
 
-  onnx::Tensor scale = *pGraph->getInitializer(scale_name);
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor mul = *pGraph->getInitializer(mul_name);
+  xTensor scale = *pGraph->getInitializer(scale_name);
+  xTensor bias = *pGraph->getInitializer(bias_name);
+  xTensor mul = *pGraph->getInitializer(mul_name);
   mul.sizes() = scale.sizes();
 
   scale.multiply(mul);
@@ -241,17 +241,17 @@ onnx::Node *TGFuseOptimizer::FuseBNMul(onnx::Graph *pGraph, onnx::Node *pBNNode,
 // into
 // Y = BN (X, scale, new_bias, mean, var)
 // with new bias = bias + add_tensor
-onnx::Node *TGFuseOptimizer::FuseBNAddTensor(onnx::Graph *pGraph,
-                                             onnx::Node *pBNNode,
-                                             onnx::Node *pAddNode)
+xNode *TGFuseOptimizer::FuseBNAddTensor(xGraph *pGraph,
+                                        xNode *pBNNode,
+                                        xNode *pAddNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto add_inputs = pAddNode->inputs();
   const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &add_name = add_inputs[1]->uniqueName();
 
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor add = *pGraph->getInitializer(add_name);
+  xTensor bias = *pGraph->getInitializer(bias_name);
+  xTensor add = *pGraph->getInitializer(add_name);
   add.sizes() = bias.sizes();
 
   bias.add(add);
@@ -276,8 +276,8 @@ onnx::Node *TGFuseOptimizer::FuseBNAddTensor(onnx::Graph *pGraph,
 // into
 // Y = BN (X, scale, new_bias, mean, var)
 // with new bias = bias + add_tensor
-onnx::Node *TGFuseOptimizer::FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
-                                       onnx::Node *pAddNode)
+xNode *TGFuseOptimizer::FuseBNAdd(xGraph *pGraph, xNode *pBNNode,
+                                       xNode *pAddNode)
 {
   auto bn_inputs = pBNNode->inputs();
   auto add_inputs = pAddNode->inputs();
@@ -286,8 +286,8 @@ onnx::Node *TGFuseOptimizer::FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
   const std::string &bias_name = bn_inputs[2]->uniqueName();
   const std::string &add_name = unsque_inputs[0]->uniqueName();
 
-  onnx::Tensor bias = *pGraph->getInitializer(bias_name);
-  onnx::Tensor add = *pGraph->getInitializer(add_name);
+  xTensor bias = *pGraph->getInitializer(bias_name);
+  xTensor add = *pGraph->getInitializer(add_name);
   add.sizes() = bias.sizes();
 
   bias.add(add);
@@ -308,7 +308,7 @@ onnx::Node *TGFuseOptimizer::FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
   return pBNNode;
 }
 
-bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
+bool TGFuseOptimizer::FuseOpset7Nodes(xGraph *pGraph, xNode *pNode)
 {
   if (match(pNode, mSymbol("BatchNormalization")) &&
       match(next(pNode), mSymbol("Mul")) &&
@@ -363,7 +363,7 @@ bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
   return false;
 }
 
-bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph,
+bool TGFuseOptimizer::FuseNodes(xGraph *pGraph,
                                 const int64_t &pOpsetVersion)
 {
   // WARNING: change iteration order will impact the optimization result
@@ -403,7 +403,7 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph,
   return false;
 }
 
-bool TGFuseOptimizer::FuseOptimization(onnx::Graph *pGraph,
+bool TGFuseOptimizer::FuseOptimization(xGraph *pGraph,
                                        const int64_t &pOpsetVersion)
 {
   bool is_changed = false, local_changed;
@@ -414,7 +414,7 @@ bool TGFuseOptimizer::FuseOptimization(onnx::Graph *pGraph,
   return is_changed;
 }
 
-onnx::Node *TGFuseOptimizer::Fuse(::onnx::Node *pA, ::onnx::Node *pB)
+xNode *TGFuseOptimizer::Fuse(xNode *pA, xNode *pB)
 {
   pB->replaceAllUsesWith(pA);
   pA->output()->copyMetadata(pB->output());
@@ -422,28 +422,27 @@ onnx::Node *TGFuseOptimizer::Fuse(::onnx::Node *pA, ::onnx::Node *pB)
   return pA;
 }
 
-onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
-                                           onnx::Node *pConvNode,
-                                           onnx::Node *pScaleNode)
+xNode *TGFuseOptimizer::FuseConvScale(xGraph *pGraph,
+                                           xNode *pConvNode,
+                                           xNode *pScaleNode)
 {
   pConvNode->addInput(pScaleNode->inputs()[1]);
   pConvNode->addInput(pScaleNode->inputs()[2]);
-  pConvNode->i_(onnx::Symbol("do_scale"), 1)
-      ->i_(onnx::Symbol("do_scale_bias"), 1);
+  pConvNode->i_(xSymbol("do_scale"), 1)->i_(xSymbol("do_scale_bias"), 1);
   pConvNode->output()->copyMetadata(pScaleNode->output());
   pScaleNode->replaceAllUsesWith(pConvNode);
   pScaleNode->destroy();
   return pConvNode;
 }
 
-onnx::Node *TGFuseOptimizer::FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
-                                      onnx::Node *pReluNode)
+xNode *
+TGFuseOptimizer::FuseRelu(xGraph *pGraph, xNode *pNode, xNode *pReluNode)
 {
-  Fuse(pNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
+  Fuse(pNode, pReluNode)->i_(xSymbol("do_relu"), 1);
   return pNode;
 }
 
-onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
+xNode *TGFuseOptimizer::FuseBN(xGraph *pGraph, xNode *pBNNode)
 {
   // We can fuse the output computation as follows:
   //   ((x - mean) * (inv_var) * scale + bias
@@ -488,26 +487,26 @@ onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
     }
   }
 
-  onnx::Tensor new_scale_tensor = *pGraph->getInitializer(scale_name);
+  xTensor new_scale_tensor = *pGraph->getInitializer(scale_name);
   if (new_scale_tensor.is_raw_data()) {
     new_scale_tensor.set_raw_data((const char *)new_scale.data());
   } else {
     new_scale_tensor.floats() = new_scale;
   }
 
-  onnx::Tensor new_bias_tensor = *pGraph->getInitializer(bias_name);
+  xTensor new_bias_tensor = *pGraph->getInitializer(bias_name);
   if (new_bias_tensor.is_raw_data()) {
     new_bias_tensor.set_raw_data((const char *)new_bias.data());
   } else {
     new_bias_tensor.floats() = new_bias;
   }
 
-  onnx::Value *new_scalar_value =
+  xValue *new_scalar_value =
       pGraph->addInitializerAndInput(new_scale_tensor);
-  onnx::Value *new_bias_value = pGraph->addInitializerAndInput(new_bias_tensor);
+  xValue *new_bias_value = pGraph->addInitializerAndInput(new_bias_tensor);
 
   // create Scale node
-  onnx::Node *scale_node = pGraph->create(onnx::Symbol("Scale"));
+  xNode *scale_node = pGraph->create(xSymbol("Scale"));
   scale_node->addInput(pBNNode->inputs()[0]);
   scale_node->addInput(new_scalar_value);
   scale_node->addInput(new_bias_value);
@@ -527,10 +526,10 @@ onnx::Node *TGFuseOptimizer::FuseBN(onnx::Graph *pGraph, onnx::Node *pBNNode)
   return scale_node;
 }
 
-onnx::Node *TGFuseOptimizer::AliasSumOperator(onnx::Graph *pGraph,
-                                              onnx::Node *pAddNode)
+xNode *TGFuseOptimizer::AliasSumOperator(xGraph *pGraph,
+                                              xNode *pAddNode)
 {
-  onnx::Node *sum_node = pGraph->create(onnx::Symbol("Sum"));
+  xNode *sum_node = pGraph->create(xSymbol("Sum"));
   sum_node->addInput(pAddNode->inputs()[0]);
   sum_node->addInput(pAddNode->inputs()[1]);
   sum_node->output()->copyMetadata(pAddNode->output());

@@ -24,15 +24,15 @@ RandomNormalLower::~RandomNormalLower()
 {
 }
 
-int RandomNormalLower::isMe(const ::onnx::Node& pNode) const
+int RandomNormalLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("RandomNormal"))
+  if (pNode.kind() == xSymbol("RandomNormal"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-RandomNormalLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+RandomNormalLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 0)
@@ -42,46 +42,46 @@ RandomNormalLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check default attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("shape")))
+  if (!pNode.hasAttribute(xSymbol("shape")))
     return nullptr;
 
   // create operators
   onnc::RandomNormal* op = pGraph.addOperator<onnc::RandomNormal>(
-    pNode.is(::onnx::Symbol("shape")));
+    pNode.is(xSymbol("shape")));
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("dtype")))
-    op->setDtype(pNode.i(::onnx::Symbol("dtype")));
-  if (pNode.hasAttribute(::onnx::Symbol("mean")))
-    op->setMean(pNode.f(::onnx::Symbol("mean")));
-  if (pNode.hasAttribute(::onnx::Symbol("scale")))
-    op->setScale(pNode.f(::onnx::Symbol("scale")));
-  if (pNode.hasAttribute(::onnx::Symbol("seed")))
-    op->setSeed(pNode.f(::onnx::Symbol("seed")));
+  if (pNode.hasAttribute(xSymbol("dtype")))
+    op->setDtype(pNode.i(xSymbol("dtype")));
+  if (pNode.hasAttribute(xSymbol("mean")))
+    op->setMean(pNode.f(xSymbol("mean")));
+  if (pNode.hasAttribute(xSymbol("scale")))
+    op->setScale(pNode.f(xSymbol("scale")));
+  if (pNode.hasAttribute(xSymbol("seed")))
+    op->setSeed(pNode.f(xSymbol("seed")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

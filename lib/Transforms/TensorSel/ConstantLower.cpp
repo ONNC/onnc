@@ -24,15 +24,15 @@ ConstantLower::~ConstantLower()
 {
 }
 
-int ConstantLower::isMe(const ::onnx::Node& pNode) const
+int ConstantLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Constant"))
+  if (pNode.kind() == xSymbol("Constant"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-ConstantLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+ConstantLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 0)
@@ -42,23 +42,23 @@ ConstantLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check default attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("value")))
+  if (!pNode.hasAttribute(xSymbol("value")))
     return nullptr;
 
   // create operators
   onnc::Constant* op = pGraph.addOperator<onnc::Constant>(
-    pNode.t(::onnx::Symbol("value")));
+    pNode.t(xSymbol("value")));
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
@@ -67,14 +67,14 @@ ConstantLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

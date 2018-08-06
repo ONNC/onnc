@@ -28,22 +28,22 @@ BM188X::AveragePoolLower::~AveragePoolLower()
 {
 }
 
-int BM188X::AveragePoolLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::AveragePoolLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("AveragePool"))
+  if (pNode.kind() == xSymbol("AveragePool"))
     return kTargetNormal;
   return kNotMe;
 }
 
 onnc::ComputeOperator *
 BM188X::AveragePoolLower::activate(ComputeGraph& pGraph,
-                                   ::onnx::Node &pNode) const
+                                   xNode &pNode) const
 {
   // check input/output name
   if (1 != pNode.inputs().size())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -51,44 +51,44 @@ BM188X::AveragePoolLower::activate(ComputeGraph& pGraph,
   if (1 != pNode.outputs().size())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check required attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
+  if (!pNode.hasAttribute(xSymbol("kernel_shape")))
     return nullptr;
 
   // create operators
   BM188X::AveragePool* op = pGraph.addOperator<onnc::BM188X::AveragePool>(
-      pNode.is(::onnx::Symbol("kernel_shape")));
+      pNode.is(xSymbol("kernel_shape")));
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
-    op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
+  if (pNode.hasAttribute(xSymbol("auto_pad")))
+    op->setAutoPad(pNode.s(xSymbol("auto_pad")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("count_include_pad")))
-    op->setCountIncludePad(pNode.i(::onnx::Symbol("count_include_pad")));
+  if (pNode.hasAttribute(xSymbol("count_include_pad")))
+    op->setCountIncludePad(pNode.i(xSymbol("count_include_pad")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("pads")))
-    op->setPads(pNode.is(::onnx::Symbol("pads")));
+  if (pNode.hasAttribute(xSymbol("pads")))
+    op->setPads(pNode.is(xSymbol("pads")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("strides")))
-    op->setStrides(pNode.is(::onnx::Symbol("strides")));
+  if (pNode.hasAttribute(xSymbol("strides")))
+    op->setStrides(pNode.is(xSymbol("strides")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("enable_relu")))
-    op->setEnableRelu(pNode.i(::onnx::Symbol("enable_relu")));
+  if (pNode.hasAttribute(xSymbol("enable_relu")))
+    op->setEnableRelu(pNode.i(xSymbol("enable_relu")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

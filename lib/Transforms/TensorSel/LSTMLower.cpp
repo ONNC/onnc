@@ -24,15 +24,15 @@ LSTMLower::~LSTMLower()
 {
 }
 
-int LSTMLower::isMe(const ::onnx::Node& pNode) const
+int LSTMLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("LSTM"))
+  if (pNode.kind() == xSymbol("LSTM"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-LSTMLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+LSTMLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() < 3 || 8 < pNode.inputs().size())
@@ -42,12 +42,12 @@ LSTMLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,30 +62,30 @@ LSTMLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("activation_alpha")))
-    op->setActivationAlpha(pNode.fs(::onnx::Symbol("activation_alpha")));
-  if (pNode.hasAttribute(::onnx::Symbol("activation_beta")))
-    op->setActivationBeta(pNode.fs(::onnx::Symbol("activation_beta")));
-  if (pNode.hasAttribute(::onnx::Symbol("activations")))
-    op->setActivations(pNode.ss(::onnx::Symbol("activations")));
-  if (pNode.hasAttribute(::onnx::Symbol("clip")))
-    op->setClip(pNode.f(::onnx::Symbol("clip")));
-  if (pNode.hasAttribute(::onnx::Symbol("direction")))
-    op->setDirection(pNode.s(::onnx::Symbol("direction")));
-  if (pNode.hasAttribute(::onnx::Symbol("hidden_size")))
-    op->setHiddenSize(pNode.i(::onnx::Symbol("hidden_size")));
-  if (pNode.hasAttribute(::onnx::Symbol("input_forget")))
-    op->setInputForget(pNode.i(::onnx::Symbol("input_forget")));
+  if (pNode.hasAttribute(xSymbol("activation_alpha")))
+    op->setActivationAlpha(pNode.fs(xSymbol("activation_alpha")));
+  if (pNode.hasAttribute(xSymbol("activation_beta")))
+    op->setActivationBeta(pNode.fs(xSymbol("activation_beta")));
+  if (pNode.hasAttribute(xSymbol("activations")))
+    op->setActivations(pNode.ss(xSymbol("activations")));
+  if (pNode.hasAttribute(xSymbol("clip")))
+    op->setClip(pNode.f(xSymbol("clip")));
+  if (pNode.hasAttribute(xSymbol("direction")))
+    op->setDirection(pNode.s(xSymbol("direction")));
+  if (pNode.hasAttribute(xSymbol("hidden_size")))
+    op->setHiddenSize(pNode.i(xSymbol("hidden_size")));
+  if (pNode.hasAttribute(xSymbol("input_forget")))
+    op->setInputForget(pNode.i(xSymbol("input_forget")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

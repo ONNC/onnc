@@ -17,7 +17,7 @@
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 
 using namespace onnc;
@@ -43,13 +43,13 @@ public:
 
 } // namespace
 
-static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
+static void addInitializerBase(xGraph *pGraph, const xValue *pValue)
 {
   std::string name = pValue->uniqueName();
   auto &names = pGraph->initializer_names();
   if (std::find(names.begin(), names.end(), name) == names.end()) {
     auto count = 1;
-    onnx::Tensor newTensor;
+    xTensor newTensor;
     for (auto dim : pValue->sizes()) {
       count *= dim.dim;
       newTensor.sizes().push_back(dim.dim);
@@ -61,8 +61,8 @@ static void addInitializerBase(onnx::Graph *pGraph, const onnx::Value *pValue)
       newTensor.set_raw_data(rawData);
     }
     newTensor.setName(name);
-    assert(pValue->elemType() == onnx::TensorProto_DataType_FLOAT);
-    newTensor.elem_type() = onnx::TensorProto_DataType_FLOAT;
+    assert(pValue->elemType() == (xTensorProtoDataType)onnc::Value::kFloat);
+    newTensor.elem_type() = (xTensorProtoDataType)onnc::Value::kFloat;
     pGraph->addInitializer(newTensor, name);
   }
 }
@@ -78,10 +78,10 @@ Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 
   std::vector<StringRef> inits;
   StringRef(it->second).split(inits, ',');
-  onnx::Graph *graph = pModule.getGraphIR().get();
+  xGraph *graph = pModule.getGraphIR().get();
   for (auto init : inits) {
     bool found = false;
-    for (const onnx::Value *val : graph->inputs())
+    for (const xValue *val : graph->inputs())
       if (val->uniqueName() == init) {
         addInitializerBase(graph, val);
         found = true;

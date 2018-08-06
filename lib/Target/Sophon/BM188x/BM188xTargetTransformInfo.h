@@ -28,7 +28,7 @@ public:
   };
 
   BM188xTargetTransformInfo(TGBackend *pTGBackend) : m_pTGBackend(pTGBackend){};
-  uint64_t getOperatorCost(const onnx::Node *pNode,
+  uint64_t getOperatorCost(const xNode *pNode,
                            unsigned pKind) const override;
 
   int getWarpSize() const override;

@@ -23,9 +23,9 @@ BM188X::TransposeLower::~TransposeLower()
 {
 }
 
-int BM188X::TransposeLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::TransposeLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Transpose"))
+  if (pNode.kind() == xSymbol("Transpose"))
     return kTargetNormal;
   return kNotMe;
 }
@@ -48,21 +48,21 @@ static bool isValidOrder(const std::vector<int64_t> &pOrders)
 }
 
 onnc::ComputeOperator *BM188X::TransposeLower::activate(ComputeGraph& pGraph,
-                                                      ::onnx::Node &pNode) const
+                                                      xNode &pNode) const
 {
   // check input/output name
   if (1 != pNode.inputs().size() ||
       1 != pNode.outputs().size())
     return nullptr;
 
-  ::onnx::Value* ox = pNode.inputs()[0];
-  ::onnx::Value* oy = pNode.outputs()[0];
+  xValue* ox = pNode.inputs()[0];
+  xValue* oy = pNode.outputs()[0];
 
   if (!ox->has_unique_name() ||
       !oy->has_unique_name())
     return nullptr;
 
-  auto &orders = pNode.is(::onnx::Symbol("perm"));
+  auto &orders = pNode.is(xSymbol("perm"));
   if ((orders.size() != 4) && (orders.size() != 5)) {
     errs() << "BM188X::TransposeLower: Invalid perm\n";
     return nullptr;
@@ -79,14 +79,14 @@ onnc::ComputeOperator *BM188X::TransposeLower::activate(ComputeGraph& pGraph,
   op->init(pNode);
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

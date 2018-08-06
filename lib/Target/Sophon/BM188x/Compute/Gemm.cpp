@@ -33,7 +33,7 @@ BM188X::Gemm::~Gemm()
 {
 }
 
-void BM188X::Gemm::init(const ::onnx::Node &pNode)
+void BM188X::Gemm::init(const xNode &pNode)
 {
   auto &aDim = pNode.inputs()[0]->sizes();
   auto &bDim = pNode.outputs()[0]->sizes();
@@ -44,8 +44,8 @@ void BM188X::Gemm::init(const ::onnx::Node &pNode)
   m_OutColNum = bDim[1].dim;
   m_HaveBias = true;
 
-  if (pNode.hasAttribute(::onnx::Symbol("transB"))) {
-    auto transB = pNode.i(::onnx::Symbol("transB"));
+  if (pNode.hasAttribute(xSymbol("transB"))) {
+    auto transB = pNode.i(xSymbol("transB"));
     DEBUG(dbgs() << "transB:" << transB << std::endl;);
     m_WeightTp = true;
   }

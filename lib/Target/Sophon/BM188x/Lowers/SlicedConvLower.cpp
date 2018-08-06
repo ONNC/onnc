@@ -24,10 +24,10 @@ BM188X::SlicedConvLower::~SlicedConvLower()
 {
 }
 
-int BM188X::SlicedConvLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::SlicedConvLower::isMe(const xNode &pNode) const
 {
-  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
-    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
+    auto is_sliced = pNode.i(xSymbol("is_sliced"));
     if (is_sliced) {
       // higher than BM188X::Conv
       return kTargetHigh;
@@ -37,7 +37,7 @@ int BM188X::SlicedConvLower::isMe(const ::onnx::Node &pNode) const
 }
 
 onnc::ComputeOperator *
-BM188X::SlicedConvLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
+BM188X::SlicedConvLower::activate(ComputeGraph& pGraph, xNode &pNode) const
 {
   // check input/output name
   if (!pNode.inputs().empty() ||
@@ -45,53 +45,53 @@ BM188X::SlicedConvLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) con
     return nullptr;
 
   // check required attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("ifmap_laddr"))  ||
-      !pNode.hasAttribute(::onnx::Symbol("ofmap_laddr"))  ||
-      !pNode.hasAttribute(::onnx::Symbol("weight_laddr")) ||
-      !pNode.hasAttribute(::onnx::Symbol("result_add"))   ||
-      !pNode.hasAttribute(::onnx::Symbol("input_dim"))    ||
-      !pNode.hasAttribute(::onnx::Symbol("output_dim"))   ||
-      !pNode.hasAttribute(::onnx::Symbol("op_name")))
+  if (!pNode.hasAttribute(xSymbol("ifmap_laddr"))  ||
+      !pNode.hasAttribute(xSymbol("ofmap_laddr"))  ||
+      !pNode.hasAttribute(xSymbol("weight_laddr")) ||
+      !pNode.hasAttribute(xSymbol("result_add"))   ||
+      !pNode.hasAttribute(xSymbol("input_dim"))    ||
+      !pNode.hasAttribute(xSymbol("output_dim"))   ||
+      !pNode.hasAttribute(xSymbol("op_name")))
     return nullptr;
 
   // create operators
   BM188X::SlicedConv* op = pGraph.addOperator<onnc::BM188X::SlicedConv>(
-      pNode.i(::onnx::Symbol("ifmap_laddr")),
-      pNode.i(::onnx::Symbol("ofmap_laddr")),
-      pNode.i(::onnx::Symbol("weight_laddr")),
-      pNode.i(::onnx::Symbol("result_add")),
-      pNode.is(::onnx::Symbol("input_dim")),
-      pNode.is(::onnx::Symbol("output_dim")),
-      pNode.s(::onnx::Symbol("op_name"))
+      pNode.i(xSymbol("ifmap_laddr")),
+      pNode.i(xSymbol("ofmap_laddr")),
+      pNode.i(xSymbol("weight_laddr")),
+      pNode.i(xSymbol("result_add")),
+      pNode.is(xSymbol("input_dim")),
+      pNode.is(xSymbol("output_dim")),
+      pNode.s(xSymbol("op_name"))
   );
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("bias_laddr")))
-    op->setBias(pNode.i(::onnx::Symbol("bias_laddr")));
+  if (pNode.hasAttribute(xSymbol("bias_laddr")))
+    op->setBias(pNode.i(xSymbol("bias_laddr")));
 
-  auto &weightDim = pNode.is(::onnx::Symbol("weight_dim"));
+  auto &weightDim = pNode.is(xSymbol("weight_dim"));
   IntsAttr kShape(2, 0); //< fill constructor {0, 0}
   kShape.vector()[0] = weightDim[2];
   kShape.vector()[1] = weightDim[3];
   op->setKernelShape(kShape);
 
-  if (pNode.hasAttribute(::onnx::Symbol("group")))
-    op->setGroups(pNode.i(::onnx::Symbol("group")));
+  if (pNode.hasAttribute(xSymbol("group")))
+    op->setGroups(pNode.i(xSymbol("group")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
-    op->setKernelShape(pNode.is(::onnx::Symbol("kernel_shape")));
+  if (pNode.hasAttribute(xSymbol("kernel_shape")))
+    op->setKernelShape(pNode.is(xSymbol("kernel_shape")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("slice_pads")))
-    op->setSlidePads(pNode.is(::onnx::Symbol("slice_pads")));
+  if (pNode.hasAttribute(xSymbol("slice_pads")))
+    op->setSlidePads(pNode.is(xSymbol("slice_pads")));
   else
     op->setSlidePads(IntsAttr(4, 0)); //< fill constructor {0, 0, 0, 0}
 
-  if (pNode.hasAttribute(::onnx::Symbol("strides")))
-    op->setStrides(pNode.is(::onnx::Symbol("strides")));
+  if (pNode.hasAttribute(xSymbol("strides")))
+    op->setStrides(pNode.is(xSymbol("strides")));
   else
     op->setStrides(IntsAttr(2, 1)); //< fill constructor {1, 1}
 
-  if (pNode.hasAttribute(::onnx::Symbol("do_relu")))
+  if (pNode.hasAttribute(xSymbol("do_relu")))
     op->setDoRelu();
 
   return op;

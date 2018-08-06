@@ -12,12 +12,11 @@
 //===---------------------------------------------------------------------===//
 #ifndef BM188X_COMPUTE_OPERATOR_H
 #define BM188X_COMPUTE_OPERATOR_H
-
 #include "ComputeOperator.h"
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <string>
 
 namespace onnc {
@@ -25,7 +24,7 @@ namespace onnc {
 class BM188xComputeOperator : public ComputeOperator2
 {
 public:
-  BM188xComputeOperator(const ::onnx::Node &pNode, const std::string &pTypeName)
+  BM188xComputeOperator(const xNode &pNode, const std::string &pTypeName)
       : ComputeOperator2(pNode, pTypeName), m_pNode(&pNode)
   {
   }
@@ -41,7 +40,7 @@ public:
   }
 
 protected:
-  const ::onnx::Node *m_pNode; // NOLINT
+  const xNode *m_pNode; // NOLINT
 };
 
 } // namespace onnc

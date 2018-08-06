@@ -9,7 +9,7 @@
 #define ONNC_UPDATE_GRAPH_OUTPUT_SIZE_H
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -32,9 +32,9 @@ public:
   void setBatchSize(unsigned pBatchSize) { m_BatchSize = pBatchSize; }
 
 private:
-  void updateInputBatchSize(onnx::Graph *pGraph);
-  void updateOutputValueInfo(onnx::Graph *pGraph);
-  bool updateReshapeOutputInfo(onnx::Graph *pGraph);
+  void updateInputBatchSize(xGraph *pGraph);
+  void updateOutputValueInfo(xGraph *pGraph);
+  bool updateReshapeOutputInfo(xGraph *pGraph);
 
 private:
   unsigned m_BatchSize;

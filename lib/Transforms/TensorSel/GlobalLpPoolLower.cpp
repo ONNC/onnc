@@ -24,15 +24,15 @@ GlobalLpPoolLower::~GlobalLpPoolLower()
 {
 }
 
-int GlobalLpPoolLower::isMe(const ::onnx::Node& pNode) const
+int GlobalLpPoolLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("GlobalLpPool"))
+  if (pNode.kind() == xSymbol("GlobalLpPool"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-GlobalLpPoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+GlobalLpPoolLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ GlobalLpPoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,18 +62,18 @@ GlobalLpPoolLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("p")))
-    op->setP(pNode.i(::onnx::Symbol("p")));
+  if (pNode.hasAttribute(xSymbol("p")))
+    op->setP(pNode.i(xSymbol("p")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

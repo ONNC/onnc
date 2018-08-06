@@ -41,7 +41,7 @@ void BM168xCodeEmitter::encodeInstructions(std::ostream &pOS)
   assert(0);
 }
 
-void BM168xCodeEmitter::genRuntimeInfo(const onnx::Graph *pOnnxGraph,
+void BM168xCodeEmitter::genRuntimeInfo(const xGraph *pOnnxGraph,
                                        std::ostream &pOS)
 {
   // TODO: Generate runtime info for BM168x.

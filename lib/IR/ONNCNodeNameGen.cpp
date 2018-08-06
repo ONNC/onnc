@@ -1,11 +1,16 @@
-
-#include <algorithm>
-#include <map>
+//===- ONNCNodeNameGen.cpp ------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include <onnc/IR/Module.h>
 #include <onnc/IR/ONNCNodeNameGen.h>
-#include <onnx/common/ir.h>
-#include <onnx/onnx_pb.h>
+#include <onnc/Config/ONNX.h>
 #include <string>
+#include <algorithm>
+#include <map>
 
 class NodeNameGenerator
 {

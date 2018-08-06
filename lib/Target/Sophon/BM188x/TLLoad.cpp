@@ -20,37 +20,37 @@
 
 namespace onnc {
 namespace BM188X {
-TLLoad::TLLoad(const ::onnx::Node &pNode)
+TLLoad::TLLoad(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("TLLoad"))
 {
   // ONNC extension attribute
-  assert(pNode.hasAttribute(::onnx::Symbol("src_goffset")));
-  assert(pNode.hasAttribute(::onnx::Symbol("dst_laddr")));
+  assert(pNode.hasAttribute(xSymbol("src_goffset")));
+  assert(pNode.hasAttribute(xSymbol("dst_laddr")));
 
-  assert(pNode.hasAttribute(::onnx::Symbol("local_dim")));
-  assert(pNode.hasAttribute(::onnx::Symbol("global_dim")));
+  assert(pNode.hasAttribute(xSymbol("local_dim")));
+  assert(pNode.hasAttribute(xSymbol("global_dim")));
 
-  assert(pNode.hasAttribute(::onnx::Symbol("do_transpose")));
-  assert(pNode.hasAttribute(::onnx::Symbol("is_aligned")));
-  assert(pNode.hasAttribute(::onnx::Symbol("is_neuron")));
-  assert(pNode.hasAttribute(::onnx::Symbol("op_name")));
-  m_SplitName = pNode.s(::onnx::Symbol("op_name"));
+  assert(pNode.hasAttribute(xSymbol("do_transpose")));
+  assert(pNode.hasAttribute(xSymbol("is_aligned")));
+  assert(pNode.hasAttribute(xSymbol("is_neuron")));
+  assert(pNode.hasAttribute(xSymbol("op_name")));
+  m_SplitName = pNode.s(xSymbol("op_name"));
 
-  m_SrcGOffset = pNode.i(::onnx::Symbol("src_goffset"));
-  m_DstLAddr = pNode.i(::onnx::Symbol("dst_laddr"));
+  m_SrcGOffset = pNode.i(xSymbol("src_goffset"));
+  m_DstLAddr = pNode.i(xSymbol("dst_laddr"));
 
-  m_DoTranspose = pNode.i(::onnx::Symbol("do_transpose"));
-  m_IsAligned = pNode.i(::onnx::Symbol("is_aligned"));
-  m_IsNeuron = pNode.i(::onnx::Symbol("is_neuron"));
+  m_DoTranspose = pNode.i(xSymbol("do_transpose"));
+  m_IsAligned = pNode.i(xSymbol("is_aligned"));
+  m_IsNeuron = pNode.i(xSymbol("is_neuron"));
 
-  auto &local_dim = pNode.is(::onnx::Symbol("local_dim"));
+  auto &local_dim = pNode.is(xSymbol("local_dim"));
   assert(local_dim.size() == 4);
   m_LocalN = local_dim[0];
   m_LocalC = local_dim[1];
   m_LocalH = local_dim[2];
   m_LocalW = local_dim[3];
 
-  auto &global_dim = pNode.is(::onnx::Symbol("global_dim"));
+  auto &global_dim = pNode.is(xSymbol("global_dim"));
   assert(global_dim.size() == 4);
   m_GlobalC = global_dim[1];
   m_GlobalH = global_dim[2];

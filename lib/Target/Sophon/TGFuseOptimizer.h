@@ -12,8 +12,7 @@
 //===---------------------------------------------------------------------===//
 #ifndef TG_FUSE_OPTIMIZER_H
 #define TG_FUSE_OPTIMIZER_H
-
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -30,45 +29,38 @@ public:
 
   virtual void PrepareFuseOptimizer(Module &pModule) { return; };
 
-  bool FuseOptimization(::onnx::Graph *pGraph, const int64_t &pOpsetVersion);
+  bool FuseOptimization(xGraph *pGraph, const int64_t &pOpsetVersion);
 
-  static ::onnx::Node *Fuse(::onnx::Node *pA, ::onnx::Node *pB);
+  static xNode *Fuse(xNode *pA, xNode *pB);
 
 protected:
-  bool FuseOpset6Nodes(::onnx::Graph *pGraph, ::onnx::Node *pNode);
-  bool FuseOpset7Nodes(::onnx::Graph *pGraph, ::onnx::Node *pNode);
+  bool FuseOpset6Nodes(xGraph *pGraph, xNode *pNode);
+  bool FuseOpset7Nodes(xGraph *pGraph, xNode *pNode);
 
-  virtual ::onnx::Node *FuseConvScale(::onnx::Graph *pGraph, ::onnx::Node *pConvNode,
-                                      ::onnx::Node *pScaleNode);
+  virtual xNode *FuseConvScale(xGraph *pGraph, xNode *pConvNode,
+                               xNode *pScaleNode);
 
-  virtual ::onnx::Node *FuseRelu(::onnx::Graph *pGraph, ::onnx::Node *pNode,
-                                 ::onnx::Node *pReluNode);
+  virtual xNode *FuseRelu(xGraph *pGraph, xNode *pNode, xNode *pReluNode);
 
-  virtual ::onnx::Node *FuseBNMulV6(::onnx::Graph *pGraph, ::onnx::Node *pBNNode,
-                                    ::onnx::Node *pMul);
+  virtual xNode *FuseBNMulV6(xGraph *pGraph, xNode *pBNNode, xNode *pMul);
 
-  virtual ::onnx::Node *FuseBNAddV6(::onnx::Graph *pGraph, ::onnx::Node *pBNNode,
-                                    ::onnx::Node *pAddNode);
+  virtual xNode *FuseBNAddV6(xGraph *pGraph, xNode *pBNNode, xNode *pAddNode);
 
-  virtual ::onnx::Node *FuseBNMul(::onnx::Graph *pGraph, ::onnx::Node *pBNNode,
-                                  ::onnx::Node *pMul);
+  virtual xNode *FuseBNMul(xGraph *pGraph, xNode *pBNNode, xNode *pMul);
 
-  virtual ::onnx::Node *FuseBNAdd(::onnx::Graph *pGraph, ::onnx::Node *pBNNode,
-                                  ::onnx::Node *pAddNode);
+  virtual xNode *FuseBNAdd(xGraph *pGraph, xNode *pBNNode, xNode *pAddNode);
 
-  virtual ::onnx::Node *FuseBNMulTensor(::onnx::Graph *pGraph, ::onnx::Node *pBNNode,
-                                        ::onnx::Node *pMul);
+  virtual xNode *FuseBNMulTensor(xGraph *pGraph, xNode *pBNNode, xNode *pMul);
 
-  virtual ::onnx::Node *FuseBNAddTensor(::onnx::Graph *pGraph, ::onnx::Node *pBNNode,
-                                        ::onnx::Node *pAddNode);
+  virtual xNode *
+  FuseBNAddTensor(xGraph *pGraph, xNode *pBNNode, xNode *pAddNode);
 
-  virtual ::onnx::Node *FuseBN(::onnx::Graph *pGraph, ::onnx::Node *pNode);
+  virtual xNode *FuseBN(xGraph *pGraph, xNode *pNode);
 
-  virtual ::onnx::Node *AliasSumOperator(::onnx::Graph *pGraph,
-                                         ::onnx::Node *pAddNode);
+  virtual xNode *AliasSumOperator(xGraph *pGraph, xNode *pAddNode);
 
 private:
-  bool FuseNodes(::onnx::Graph *pGraph, const int64_t &pOpsetVersion);
+  bool FuseNodes(xGraph *pGraph, const int64_t &pOpsetVersion);
 
 protected:
   TGBackend *m_pBackend; // NOLINT

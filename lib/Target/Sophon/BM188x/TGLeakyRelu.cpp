@@ -19,10 +19,10 @@
 namespace onnc {
 namespace BM188X {
 
-TGLeakyRelu::TGLeakyRelu(const ::onnx::Node &pNode)
+TGLeakyRelu::TGLeakyRelu(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("LeakyRelu"))
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;
@@ -37,7 +37,7 @@ TGLeakyRelu::TGLeakyRelu(const ::onnx::Node &pNode)
     assert(0 && "inDim.size() != 4 & !=2");
   }
 
-  m_Alpha = pNode.f(::onnx::Symbol("alpha"));
+  m_Alpha = pNode.f(xSymbol("alpha"));
 }
 
 TGLeakyRelu *TGLeakyRelu::addMemOperands(MemOperand *pInput,

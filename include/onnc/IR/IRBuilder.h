@@ -10,8 +10,7 @@
 #include <onnc/IR/Module.h>
 #include <onnc/IR/InsertionPoint.h>
 #include <onnc/IR/Tensor/InitializerProxy.h>
-#include <onnx/common/ir_pb_converter.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/ADT/StringMap.h>
 #include <onnc/ADT/StringList.h>
 #include <vector>
@@ -33,7 +32,7 @@ public:
 
   /// update @ref pModule by @ref pProto
   /// This constructor calls update.
-  IRBuilder(Module& pModule, const ::onnx::ModelProto& pProto);
+  IRBuilder(Module& pModule, const xProto& pProto);
 
   InsertionPoint& getInsertionPoint() { return m_InsertionPoint; }
 
@@ -48,35 +47,35 @@ public:
   const Module& getModule() const { return *getInsertionPoint().getModule(); }
 
   /// update the inserted module by @ref pProto
-  void update(const ::onnx::ModelProto& pProto);
+  void update(const xProto& pProto);
 
   /// change the insertion point to @ref pCG
   void setComputeGraph(ComputeGraph* pCG);
 
   /// create a tensor graph
-  ::onnx::Graph* CreateTensorGraph();
+  xGraph* CreateTensorGraph();
 
   /// create a tensor graph whose name is @ref pName
-  ::onnx::Graph* CreateTensorGraph(StringRef pName);
+  xGraph* CreateTensorGraph(StringRef pName);
 
   /// get current insertion point of tensor graph.
   /// @retval nullptr not set
-  ::onnx::Graph* getTensorGraph() { return getInsertionPoint().getTensorGraph(); }
+  xGraph* getTensorGraph() { return getInsertionPoint().getTensorGraph(); }
 
   bool hasTensorGraph() const { return getInsertionPoint().hasTensorGraph(); }
 
   /// Add an input in tensor graph.
   /// @param[in] pSizes a list of onnx::Dimension
   /// @param[in] pKind  hide onnx::TensorProto_DataType
-  ::onnx::Value* AddInput(const std::string& pName,
-                          const std::vector<::onnx::Dimension>& pSizes,
-                          onnc::Value::Type pKind = onnc::Value::kFloat);
+  xValue* AddInput(const std::string& pName,
+                   const std::vector<xDimension>& pSizes,
+                   onnc::Value::Type pKind = onnc::Value::kFloat);
 
   /// Add a node in tensor graph
   /// @param[in] pInputs a list of input names for this node
-  ::onnx::Node* AddNode(const std::string& pName, const StringList& pInputNames);
+  xNode* AddNode(const std::string& pName, const StringList& pInputNames);
 
-  ::onnx::Node*
+  xNode*
   AddTensorOp(const std::string& pName, const StringList& pInputNames) {
     return AddNode(pName, pInputNames);
   }
@@ -95,25 +94,24 @@ public:
   /// Graph::prependNode functions to insert the node.
   /// This function also set target node to the cloned node.
   /// @param[in] pName The name of the new node
-  ::onnx::Node*
-  CloneNode(::onnx::Node& pNode, const std::string& pName = std::string());
+  xNode* CloneNode(xNode& pNode, const std::string& pName = std::string());
 
   /// Add an initializer. If @ref pSizes is empty, find dimensions in inputs.
   /// @return The appended Initializer. If it fails, the function return an
   /// invalid Initializer
   onnc::InitializerProxy
   AddInitializer(const std::string& pName,
-                 const std::vector<::onnx::Dimension>& pSizes = { },
+                 const std::vector<xDimension>& pSizes = { },
                  onnc::Value::Type pKind = onnc::Value::kFloat);
 
-  ::onnx::Node* getTensorNode() { return getInsertionPoint().getTensorNode(); }
+  xNode* getTensorNode() { return getInsertionPoint().getTensorNode(); }
 
   bool hasTensorNode() const { return getInsertionPoint().hasTensorNode(); }
 
   /// Add an output in the target node.
-  ::onnx::Value* AddOutput(const std::string& pName,
-                           const std::vector<::onnx::Dimension>& pSizes,
-                           onnc::Value::Type pKind = onnc::Value::kFloat);
+  xValue* AddOutput(const std::string& pName,
+                    const std::vector<xDimension>& pSizes,
+                    onnc::Value::Type pKind = onnc::Value::kFloat);
 
   /// Finalize tensor graph
   bool FinalizeTensorGraph(const StringList& pOutputList);
@@ -146,7 +144,7 @@ public:
 
   /// Create and add an compute operator in the compute graph.
   template<typename OpType, typename ... CtorParams>
-  OpType* AddComputeOp(const ::onnx::Node& pNode, CtorParams&& ... pParams);
+  OpType* AddComputeOp(const xNode& pNode, CtorParams&& ... pParams);
 
   /// Create and add an comute operand in the compute graph.
   /// Two operators are connected as well.
@@ -162,20 +160,20 @@ public:
   /// Create tensor from onnx value. The method is used when creating
   /// compute tensor for all of onnx graph inputs.
   /// @param pTensor The tensor from an initializer.
-  Tensor* CreateComputeTensor(const ::onnx::Value& pValue,
-                              const ::onnx::Tensor& pTensor);
+  Tensor* CreateComputeTensor(const xValue& pValue,
+                              const xTensor& pTensor);
 
   /// Create tensor from onnx value. The method is used when creating
   /// compute tensor for all of onnx graph inputs.
-  static Tensor* CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue);
+  static Tensor* CreateComputeTensor(ComputeGraph& pCG, const xValue& pValue);
 
   static Tensor* CreateComputeTensor(ComputeGraph& pCG,
-                                     const ::onnx::Value& pValue,
-                                     const ::onnx::Tensor& pTensor);
+                                     const xValue& pValue,
+                                     const xTensor& pTensor);
 
   /// Create tensor from onnx value. The method is used when creating
   /// compute tensor for all of onnx graph inputs.
-  Tensor* CreateComputeTensor(const ::onnx::Value& pValue);
+  Tensor* CreateComputeTensor(const xValue& pValue);
 
 private:
   InsertionPoint m_InsertionPoint;

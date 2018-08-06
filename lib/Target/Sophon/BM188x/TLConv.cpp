@@ -21,7 +21,7 @@
 namespace onnc {
 namespace BM188X {
 
-TLConv::TLConv(const ::onnx::Node &pNode)
+TLConv::TLConv(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("TLConv"))
 {
   // Default value
@@ -36,79 +36,79 @@ TLConv::TLConv(const ::onnx::Node &pNode)
   m_RShiftWidth = 0;
 
   // ONNC extension attribute
-  assert(pNode.hasAttribute(::onnx::Symbol("op_name")));
-  m_SplitName = pNode.s(::onnx::Symbol("op_name"));
+  assert(pNode.hasAttribute(xSymbol("op_name")));
+  m_SplitName = pNode.s(xSymbol("op_name"));
 
-  assert(pNode.hasAttribute(::onnx::Symbol("input_dim")));
-  assert(pNode.hasAttribute(::onnx::Symbol("weight_dim")));
-  assert(pNode.hasAttribute(::onnx::Symbol("output_dim")));
+  assert(pNode.hasAttribute(xSymbol("input_dim")));
+  assert(pNode.hasAttribute(xSymbol("weight_dim")));
+  assert(pNode.hasAttribute(xSymbol("output_dim")));
 
-  auto &inDim = pNode.is(::onnx::Symbol("input_dim"));
+  auto &inDim = pNode.is(xSymbol("input_dim"));
   m_InN = inDim[0];
   m_InC = inDim[1];
   m_InH = inDim[2];
   m_InW = inDim[3];
 
-  auto &weightDim = pNode.is(::onnx::Symbol("weight_dim"));
+  auto &weightDim = pNode.is(xSymbol("weight_dim"));
   // Weight Dim: <ic, oc, kh, kw>
   m_KH = weightDim[2];
   m_KW = weightDim[3];
 
-  auto &outDim = pNode.is(::onnx::Symbol("output_dim"));
+  auto &outDim = pNode.is(xSymbol("output_dim"));
   m_OutC = outDim[1];
   m_OutH = outDim[2];
   m_OutW = outDim[3];
 
-  assert(pNode.hasAttribute(::onnx::Symbol("result_add")));
-  assert(pNode.hasAttribute(::onnx::Symbol("ifmap_laddr")));
-  assert(pNode.hasAttribute(::onnx::Symbol("ofmap_laddr")));
-  assert(pNode.hasAttribute(::onnx::Symbol("weight_laddr")));
+  assert(pNode.hasAttribute(xSymbol("result_add")));
+  assert(pNode.hasAttribute(xSymbol("ifmap_laddr")));
+  assert(pNode.hasAttribute(xSymbol("ofmap_laddr")));
+  assert(pNode.hasAttribute(xSymbol("weight_laddr")));
 
-  m_DoResultAdd = pNode.i(::onnx::Symbol("result_add"));
-  m_IFmapAddr = pNode.i(::onnx::Symbol("ifmap_laddr"));
-  m_OFmapAddr = pNode.i(::onnx::Symbol("ofmap_laddr"));
-  m_WeightAddr = pNode.i(::onnx::Symbol("weight_laddr"));
+  m_DoResultAdd = pNode.i(xSymbol("result_add"));
+  m_IFmapAddr = pNode.i(xSymbol("ifmap_laddr"));
+  m_OFmapAddr = pNode.i(xSymbol("ofmap_laddr"));
+  m_WeightAddr = pNode.i(xSymbol("weight_laddr"));
 
-  if (pNode.hasAttribute(::onnx::Symbol("bias_laddr"))) {
-    m_BiasAddr = pNode.i(::onnx::Symbol("bias_laddr"));
+  if (pNode.hasAttribute(xSymbol("bias_laddr"))) {
+    m_BiasAddr = pNode.i(xSymbol("bias_laddr"));
     m_DoBias = true;
   }
 
   // End extension
 
-  if (pNode.hasAttribute(::onnx::Symbol("group"))) {
-    m_Groups = pNode.i(::onnx::Symbol("group"));
+  if (pNode.hasAttribute(xSymbol("group"))) {
+    m_Groups = pNode.i(xSymbol("group"));
   }
 
-  if (pNode.hasAttribute(::onnx::Symbol("kernel_shape"))) {
-    auto &i = pNode.is(::onnx::Symbol("kernel_shape"));
+  if (pNode.hasAttribute(xSymbol("kernel_shape"))) {
+    auto &i = pNode.is(xSymbol("kernel_shape"));
     m_KH = i[0];
     m_KW = i[1];
   }
 
-  if (pNode.hasAttribute(::onnx::Symbol("dilations"))) {
-    auto &i = pNode.is(::onnx::Symbol("dilations"));
+  if (pNode.hasAttribute(xSymbol("dilations"))) {
+    auto &i = pNode.is(xSymbol("dilations"));
     m_DilationH = i[0];
     m_DilationW = i[1];
   }
 
   // [upPad, leftPad, downPad, rightPad]
-  if (pNode.hasAttribute(::onnx::Symbol("slice_pads"))) {
-    auto &i = pNode.is(::onnx::Symbol("slice_pads"));
+  if (pNode.hasAttribute(xSymbol("slice_pads"))) {
+    auto &i = pNode.is(xSymbol("slice_pads"));
     m_PadHTop = i[0];
     m_PadWLeft = i[1];
     m_PadHBot = i[2];
     m_PadWRight = i[3];
   }
 
-  if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
-    auto &i = pNode.is(::onnx::Symbol("strides"));
+  if (pNode.hasAttribute(xSymbol("strides"))) {
+    auto &i = pNode.is(xSymbol("strides"));
     m_StrideH = i[0];
     m_StrideW = i[1];
   }
 
   // Support FuseRelu
-  if (pNode.hasAttribute(::onnx::Symbol("do_relu"))) {
+  if (pNode.hasAttribute(xSymbol("do_relu"))) {
     m_DoRelu = true;
   }
 }

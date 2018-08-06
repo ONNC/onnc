@@ -24,15 +24,15 @@ MeanVarianceNormalizationLower::~MeanVarianceNormalizationLower()
 {
 }
 
-int MeanVarianceNormalizationLower::isMe(const ::onnx::Node& pNode) const
+int MeanVarianceNormalizationLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("MeanVarianceNormalization"))
+  if (pNode.kind() == xSymbol("MeanVarianceNormalization"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-MeanVarianceNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+MeanVarianceNormalizationLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ MeanVarianceNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNo
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,20 +62,20 @@ MeanVarianceNormalizationLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNo
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("across_channels")))
-    op->setAcrossChannels(pNode.i(::onnx::Symbol("across_channels")));
-  if (pNode.hasAttribute(::onnx::Symbol("normalize_variance")))
-    op->setNormalizeVariance(pNode.i(::onnx::Symbol("normalize_variance")));
+  if (pNode.hasAttribute(xSymbol("across_channels")))
+    op->setAcrossChannels(pNode.i(xSymbol("across_channels")));
+  if (pNode.hasAttribute(xSymbol("normalize_variance")))
+    op->setNormalizeVariance(pNode.i(xSymbol("normalize_variance")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

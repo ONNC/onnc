@@ -32,10 +32,10 @@ BM188X::GlobalAveragePool::~GlobalAveragePool()
 {
 }
 
-void BM188X::GlobalAveragePool::init(const ::onnx::Node &pNode)
+void BM188X::GlobalAveragePool::init(const xNode &pNode)
 {
-  if (pNode.hasAttribute(::onnx::Symbol("enable_relu")))
-    m_EnableRelu = pNode.i(::onnx::Symbol("enable_relu"));
+  if (pNode.hasAttribute(xSymbol("enable_relu")))
+    m_EnableRelu = pNode.i(xSymbol("enable_relu"));
 }
 
 void BM188X::GlobalAveragePool::print(std::ostream &pOS) const

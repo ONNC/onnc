@@ -19,18 +19,18 @@
 namespace onnc {
 namespace BM188X {
 
-TGTranspose::TGTranspose(const ::onnx::Node &pNode)
+TGTranspose::TGTranspose(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Transpose")),
       m_NeedPermute(false)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector<xDimension> inDim = pNode.inputs()[0]->sizes();
   m_N = inDim[0].dim;
   m_C = inDim[1].dim;
   m_H = inDim[2].dim;
   m_W = inDim[3].dim;
   m_OutputShape.resize(inDim.size());
 
-  auto &orders = pNode.is(::onnx::Symbol("perm"));
+  auto &orders = pNode.is(xSymbol("perm"));
   assert((orders.size() == 4) || (orders.size() == 5));
   m_Order.resize(orders.size());
   assert(((orders[0] == 0) && (orders[1] == 2) && (orders[2] == 3) &&

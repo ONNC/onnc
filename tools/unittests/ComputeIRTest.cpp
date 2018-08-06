@@ -6,11 +6,11 @@
 //
 //===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/OStrStream.h>
 #include <onnc/IR/Compute/Attributes.h>
 #include <onnc/IR/Compute/Scalar.h>
-#include <onnx/common/tensor.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Relu.h>
@@ -50,7 +50,7 @@ SKYPAT_F(ComputeIRTest, scalar_test)
   ASSERT_EQ(c.kind(), Value::kInt64);
 
   // string
-  ::onnx::Tensor tensor2;
+  xTensor tensor2;
   StringScalar e(tensor2);
   ASSERT_TRUE(e.empty());
   ASSERT_EQ(e.kind(), Value::kString);
@@ -246,7 +246,7 @@ SKYPAT_F(ComputeIRTest, deep_clone)
   builder.AddInitializer("fc8_b_0");
 
   // create nodes (layers)
-  ::onnx::Node* conv = builder.AddNode("Conv",    {"data_0", "conv1_w_0", "conv1_b_0"});
+  xNode* conv = builder.AddNode("Conv",    {"data_0", "conv1_w_0", "conv1_b_0"});
   builder.AddOutput("conv1_1", {1});
 
   builder.AddNode("Relu",    {"conv1_1"});

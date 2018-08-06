@@ -19,10 +19,10 @@
 namespace onnc {
 namespace BM188X {
 
-TGRelu::TGRelu(const ::onnx::Node &pNode)
+TGRelu::TGRelu(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Relu")), m_NegativeSlope(0)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector<xDimension> inDim = pNode.inputs()[0]->sizes();
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;

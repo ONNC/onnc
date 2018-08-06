@@ -9,7 +9,7 @@
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/IRBuilder.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -19,11 +19,11 @@ char BuildInputOperators::ID = 0;
 // BuildInputOperators
 //===----------------------------------------------------------------------===//
 Pass::ReturnType
-BuildInputOperators::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+BuildInputOperators::runOnGraphs(xGraph& pTG, ComputeGraph& pCG)
 {
   const std::vector<std::string>& names = pTG.initializer_names();
 
-  for (::onnx::Value* v : pTG.inputs()) {
+  for (xValue* v : pTG.inputs()) {
     auto it = find(names.begin(), names.end(), v->uniqueName());
     if (names.end() == it) {
       // The value appears in an initializer, we should create corresponding

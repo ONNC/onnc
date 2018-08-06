@@ -18,9 +18,9 @@ public:
 
   ~RandomNormalLikeLower();
 
-  int isMe(const ::onnx::Node& pNode) const override;
+  int isMe(const xNode& pNode) const override;
 
-  ComputeOperator* activate(ComputeGraph& pC, ::onnx::Node& pN) const override;
+  ComputeOperator* activate(ComputeGraph& pC, xNode& pN) const override;
 };
 
 } // namespace of onnc

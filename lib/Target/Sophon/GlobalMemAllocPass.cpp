@@ -20,7 +20,7 @@
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/Support/Debug.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 #define DEBUG_TYPE "tg_mem_alloc"
 
@@ -56,7 +56,7 @@ void GlobalMemAlloc::allocGlobalMem()
   // but currently CodeEmitter's prepareWeight function can't save the weight
   // on the address of MemOperand. So we need to sync the traverse order
   // between MemAlloc and prepareWeight now.
-  std::unordered_map<const ::onnx::Value *, MemOperand *> allocatedValue;
+  std::unordered_map<const xValue *, MemOperand *> allocatedValue;
   for (auto &inst : m_pTarget->getInsts()) {
     for (auto &mem : inst->getMemOperands()) {
       int tensor_size = 0;

@@ -8,9 +8,9 @@
 #ifndef ONNC_IR_COMPUTE_OPERATOR_H
 #define ONNC_IR_COMPUTE_OPERATOR_H
 #include <ostream>
-#include <onnx/common/ir.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/ADT/Bits/DigraphNode.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/Compute/Define.h>
 #include <onnc/IR/ComputeOperand.h>
 #include <onnc/IR/ComputeMemOperand.h>
@@ -34,7 +34,7 @@ class ComputeOperator : public onnc::Define,
                         public DigraphNode<ComputeOperator, ComputeOperand>
 {
 public:
-  using GraphOperator = ::onnx::Node;
+  using GraphOperator = xNode;
 
   typedef int64_t Opcode;
 

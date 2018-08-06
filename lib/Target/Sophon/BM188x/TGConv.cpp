@@ -24,42 +24,42 @@ namespace onnc {
 namespace BM188X {
 
 // TGConv
-TGConv::TGConv(const ::onnx::Node &pNode)
+TGConv::TGConv(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("Conv")), m_Groups(1),
       m_DilationH(1), m_DilationW(1), m_PadH(0), m_PadW(0), m_StrideH(1),
       m_StrideW(1), m_DoBias(0), /* m_DoRelu(0),*/ m_DoScale(0),
       m_DoScaleBias(0), m_RShiftWidth(0), m_ScaleRShiftWidth(0),
       m_ConvOutputThreshold(0)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector<xDimension> inDim = pNode.inputs()[0]->sizes();
   m_InN = inDim[0].dim;
   m_InC = inDim[1].dim;
   m_InH = inDim[2].dim;
   m_InW = inDim[3].dim;
-  const std::vector< ::onnx::Dimension> weightDim = pNode.inputs()[1]->sizes();
+  const std::vector<xDimension> weightDim = pNode.inputs()[1]->sizes();
   m_OutC = weightDim[0].dim;
-  if (pNode.hasAttribute(::onnx::Symbol("group"))) {
-    m_Groups = pNode.i(::onnx::Symbol("group"));
+  if (pNode.hasAttribute(xSymbol("group"))) {
+    m_Groups = pNode.i(xSymbol("group"));
   }
-  if (pNode.hasAttribute(::onnx::Symbol("kernel_shape"))) {
-    auto &i = pNode.is(::onnx::Symbol("kernel_shape"));
+  if (pNode.hasAttribute(xSymbol("kernel_shape"))) {
+    auto &i = pNode.is(xSymbol("kernel_shape"));
     m_KH = i[0];
     m_KW = i[1];
   }
-  if (pNode.hasAttribute(::onnx::Symbol("dilations"))) {
-    auto &i = pNode.is(::onnx::Symbol("dilations"));
+  if (pNode.hasAttribute(xSymbol("dilations"))) {
+    auto &i = pNode.is(xSymbol("dilations"));
     m_DilationH = i[0];
     m_DilationW = i[1];
   }
   // [leftPad, downPad, rightPad, upPad]
-  if (pNode.hasAttribute(::onnx::Symbol("pads"))) {
-    auto &i = pNode.is(::onnx::Symbol("pads"));
+  if (pNode.hasAttribute(xSymbol("pads"))) {
+    auto &i = pNode.is(xSymbol("pads"));
     // NOTE: It is for bmkernel only padding on both ends
     m_PadH = i[0];
     m_PadW = i[1];
   }
-  if (pNode.hasAttribute(::onnx::Symbol("strides"))) {
-    auto &i = pNode.is(::onnx::Symbol("strides"));
+  if (pNode.hasAttribute(xSymbol("strides"))) {
+    auto &i = pNode.is(xSymbol("strides"));
     m_StrideH = i[0];
     m_StrideW = i[1];
   }
@@ -79,7 +79,7 @@ TGConv::TGConv(const ::onnx::Node &pNode)
   }
   if (m_DoScale) {
     m_ScaleIdx = idx++;
-    m_ConvOutputThreshold = pNode.f(onnx::Symbol("conv_output_threshold"));
+    m_ConvOutputThreshold = pNode.f(xSymbol("conv_output_threshold"));
   }
   if (m_DoScaleBias)
     m_ScaleBiasIdx = idx++;

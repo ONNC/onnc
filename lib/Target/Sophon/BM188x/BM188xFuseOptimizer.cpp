@@ -34,9 +34,9 @@ getTensorThreshold(const tg::bm1880::LayerCalibrationParameter *pLayerCtable,
   return is_find_thres;
 }
 
-onnx::Node *BM188xFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
-                                               onnx::Node *pConvNode,
-                                               onnx::Node *pScaleNode)
+xNode *BM188xFuseOptimizer::FuseConvScale(xGraph *pGraph,
+                                          xNode *pConvNode,
+                                          xNode *pScaleNode)
 {
   // keep conv layer's output threshold because FuseConvScale will change output
   // name
@@ -49,16 +49,16 @@ onnx::Node *BM188xFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
     errs() << "count not find threshold in: " << conv_output_name << "\n";
     assert(0);
   }
-  onnx::Node *new_conv =
+  xNode *new_conv =
       TGFuseOptimizer::FuseConvScale(pGraph, pConvNode, pScaleNode);
   // append conv layer's output threshold as attribute
-  new_conv->f_(onnx::Symbol("conv_output_threshold"), conv_output_threshold);
+  new_conv->f_(xSymbol("conv_output_threshold"), conv_output_threshold);
   return new_conv;
 }
 
-onnx::Node *BM188xFuseOptimizer::FuseRelu(onnx::Graph *pGraph,
-                                          onnx::Node *pSumNode,
-                                          onnx::Node *pReluNode)
+xNode *BM188xFuseOptimizer::FuseRelu(xGraph *pGraph,
+                                          xNode *pSumNode,
+                                          xNode *pReluNode)
 {
   std::vector<int> threshold_x_quantized;
   {
@@ -69,7 +69,7 @@ onnx::Node *BM188xFuseOptimizer::FuseRelu(onnx::Graph *pGraph,
           sum_output_ctable->threshold_x_quantized(i));
   }
 
-  onnx::Node *new_sum = TGFuseOptimizer::FuseRelu(pGraph, pSumNode, pReluNode);
+  xNode *new_sum = TGFuseOptimizer::FuseRelu(pGraph, pSumNode, pReluNode);
 
   auto *new_sum_output_ctable =
       m_p1880backend->getMutableLayerCtable(new_sum->output()->uniqueName());

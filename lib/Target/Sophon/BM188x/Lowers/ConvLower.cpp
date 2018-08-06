@@ -26,21 +26,21 @@ BM188X::ConvLower::~ConvLower()
 {
 }
 
-int BM188X::ConvLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::ConvLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Conv"))
+  if (pNode.kind() == xSymbol("Conv"))
     return kTargetNormal;
   return kNotMe;
 }
 
 onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
-                                                   ::onnx::Node &pNode) const
+                                                   xNode &pNode) const
 {
   // check input/output name
   if (1 > pNode.inputs().size() || pNode.inputs().size() > 4)
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -48,7 +48,7 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
   if (1 != pNode.outputs().size())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -58,26 +58,26 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
 
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("auto_pad")))
-    op->setAutoPad(pNode.s(::onnx::Symbol("auto_pad")));
+  if (pNode.hasAttribute(xSymbol("auto_pad")))
+    op->setAutoPad(pNode.s(xSymbol("auto_pad")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("dilations")))
-    op->setDilations(pNode.is(::onnx::Symbol("dilations")));
+  if (pNode.hasAttribute(xSymbol("dilations")))
+    op->setDilations(pNode.is(xSymbol("dilations")));
 
-  if (pNode.hasAttribute(::onnx::Symbol("group")))
-    op->setGroup(pNode.i(::onnx::Symbol("group")));
-  if (pNode.hasAttribute(::onnx::Symbol("kernel_shape")))
-    op->setKernelShape(pNode.is(::onnx::Symbol("kernel_shape")));
-  if (pNode.hasAttribute(::onnx::Symbol("pads")))
-    op->setPads(pNode.is(::onnx::Symbol("pads")));
-  if (pNode.hasAttribute(::onnx::Symbol("strides")))
-    op->setStrides(pNode.is(::onnx::Symbol("strides")));
+  if (pNode.hasAttribute(xSymbol("group")))
+    op->setGroup(pNode.i(xSymbol("group")));
+  if (pNode.hasAttribute(xSymbol("kernel_shape")))
+    op->setKernelShape(pNode.is(xSymbol("kernel_shape")));
+  if (pNode.hasAttribute(xSymbol("pads")))
+    op->setPads(pNode.is(xSymbol("pads")));
+  if (pNode.hasAttribute(xSymbol("strides")))
+    op->setStrides(pNode.is(xSymbol("strides")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs())
+  for (xValue* xv : pNode.inputs())
     op->addInput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
 
-  for (::onnx::Value* xv : pNode.outputs())
+  for (xValue* xv : pNode.outputs())
     op->addOutput(*pGraph.getValue<onnc::Tensor>(xv->uniqueName()));
 
   if (pm::match(&pNode, pm::mTrueAttr("do_scale")))
@@ -94,7 +94,7 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
 
   if (op->isDoScale()) {
     op->setScaleIdx(idx++);
-    op->setConvOutputThreshold(pNode.f(onnx::Symbol("conv_output_threshold")));
+    op->setConvOutputThreshold(pNode.f(xSymbol("conv_output_threshold")));
   }
 
   if (op->isDoScaleBias())

@@ -25,7 +25,7 @@ public:
 
   ~Transpose();
 
-  void init(const ::onnx::Node &pNode);
+  void init(const xNode &pNode);
 
   void print(std::ostream &pOS) const override;
 

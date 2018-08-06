@@ -24,15 +24,15 @@ ClipLower::~ClipLower()
 {
 }
 
-int ClipLower::isMe(const ::onnx::Node& pNode) const
+int ClipLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Clip"))
+  if (pNode.kind() == xSymbol("Clip"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-ClipLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+ClipLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ ClipLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,20 +62,20 @@ ClipLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("max")))
-    op->setMax(pNode.f(::onnx::Symbol("max")));
-  if (pNode.hasAttribute(::onnx::Symbol("min")))
-    op->setMin(pNode.f(::onnx::Symbol("min")));
+  if (pNode.hasAttribute(xSymbol("max")))
+    op->setMax(pNode.f(xSymbol("max")));
+  if (pNode.hasAttribute(xSymbol("min")))
+    op->setMin(pNode.f(xSymbol("min")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

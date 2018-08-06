@@ -12,7 +12,6 @@
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/Support/Debug.h>
 #include <onnc/Support/IOStream.h>
-#include <onnx/common/ir.h>
 
 using namespace onnc;
 

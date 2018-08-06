@@ -7,15 +7,15 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_MODULE_H
 #define ONNC_IR_MODULE_H
-#include <map>
-#include <memory>
 #include <onnc/IR/ComputeGraph.h>
 #include <onnc/IR/Compute/Define.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/ADT/StringMap.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 #include <ostream>
+#include <memory>
+#include <map>
 
 namespace onnc {
 
@@ -25,9 +25,9 @@ namespace onnc {
 class Module
 {
 public:
-  typedef ::onnx::Graph TensorGraph;
+  typedef xGraph TensorGraph;
 
-  typedef StringMap<::onnx::Graph*> TensorGraphList;
+  typedef StringMap<xGraph*> TensorGraphList;
   typedef TensorGraphList::iterator tg_iterator;
   typedef TensorGraphList::const_iterator const_tg_iterator;
 
@@ -91,30 +91,30 @@ public:
     std::string m_DocString;
   };
 
-  using GraphIR = ::onnx::Graph;
+  using GraphIR = xGraph;
 
 public:
   /// default constructor. No graph IR is set.
   Module();
 
   /// delegation constructor.
-  Module(std::unique_ptr< ::onnx::Graph> pGraph);
+  Module(std::unique_ptr<xGraph> pGraph);
 
   /// Destructor. Check and delete IRs.
   /// Module responses for the life cycle of the delegated ::onnx::Graph.
   ~Module();
 
   // move @ref pGraph from outside.
-  Module& delegate(std::unique_ptr< ::onnx::Graph> pGraph);
+  Module& delegate(std::unique_ptr<xGraph> pGraph);
 
   // move @ref pGraph from outside.
-  Module& delegate(::onnx::Graph& pGraph);
+  Module& delegate(xGraph& pGraph);
 
   /// obsolete function. Use getRootTensorGraph instead
-  std::shared_ptr< ::onnx::Graph> getGraphIR() { return m_RootTensorGraph; }
+  std::shared_ptr<xGraph> getGraphIR() { return m_RootTensorGraph; }
 
   /// obsolete function. Use getRootTensorGraph instead
-  std::shared_ptr<const ::onnx::Graph>
+  std::shared_ptr<const xGraph>
   getGraphIR() const { return m_RootTensorGraph; }
 
   /// obsolete function. Use hasRootTensorGraph instead
@@ -124,17 +124,17 @@ public:
     return (0 != m_RootTensorGraph.use_count());
   }
 
-  ::onnx::Graph* getRootTensorGraph() { return m_RootTensorGraph.get(); }
+  xGraph* getRootTensorGraph() { return m_RootTensorGraph.get(); }
 
-  const ::onnx::Graph* getRootTensorGraph() const { return m_RootTensorGraph.get(); }
-
-  /// get the graph named @ref pName
-  /// @retval nullptr not found
-  ::onnx::Graph* getTensorGraph(StringRef pName);
+  const xGraph* getRootTensorGraph() const { return m_RootTensorGraph.get(); }
 
   /// get the graph named @ref pName
   /// @retval nullptr not found
-  const ::onnx::Graph* getTensorGraph(StringRef pName) const;
+  xGraph* getTensorGraph(StringRef pName);
+
+  /// get the graph named @ref pName
+  /// @retval nullptr not found
+  const xGraph* getTensorGraph(StringRef pName) const;
 
   tg_iterator tgBegin() { return m_TensorGraphs.begin(); }
 
@@ -147,7 +147,7 @@ public:
   /// record a sub graph ::onnx::Graph.
   /// @retval false failed to record. The subgraph has existed
   /// @retval true  success to record.
-  bool recordSubgraph(::onnx::Graph& pSubgraph);
+  bool recordSubgraph(xGraph& pSubgraph);
 
   MetaDataMap &getMetaData() { return m_OnnxMetaData; }
 
@@ -222,7 +222,7 @@ public:
 
 private:
   // Graph IR field
-  std::shared_ptr< ::onnx::Graph> m_RootTensorGraph;
+  std::shared_ptr<xGraph> m_RootTensorGraph;
   TensorGraphList m_TensorGraphs;
 
   OnnxInfo m_OnnxInfo;
@@ -242,10 +242,10 @@ template<> void Module::print<Module::OpsetImport>(std::ostream& pOS) const;
 template<> void Module::print<Module::MetaDataMap>(std::ostream& pOS) const;
 
 template<> void
-Module::print(std::ostream& pOS, const ::onnx::Value& pValue) const;
+Module::print(std::ostream& pOS, const xValue& pValue) const;
 
 template<> void
-Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const;
+Module::print(std::ostream& pOS, const xNode& pNode) const;
 
 } // namespace onnc
 

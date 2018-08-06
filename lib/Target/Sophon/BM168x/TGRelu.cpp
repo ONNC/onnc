@@ -16,10 +16,10 @@
 
 using namespace onnc;
 
-TGRelu::TGRelu(const ::onnx::Node &pNode)
+TGRelu::TGRelu(const xNode &pNode)
     : ComputeOperator2(pNode, "Relu"), m_NegativeSlope(0)
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
 
   // auto inputs = pNode.inputs();
   // auto outputs = pNode.outputs();

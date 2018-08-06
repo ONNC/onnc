@@ -24,15 +24,15 @@ AffineLower::~AffineLower()
 {
 }
 
-int AffineLower::isMe(const ::onnx::Node& pNode) const
+int AffineLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Affine"))
+  if (pNode.kind() == xSymbol("Affine"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-AffineLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+AffineLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,12 +42,12 @@ AffineLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -62,20 +62,20 @@ AffineLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("alpha")))
-    op->setAlpha(pNode.f(::onnx::Symbol("alpha")));
-  if (pNode.hasAttribute(::onnx::Symbol("beta")))
-    op->setBeta(pNode.f(::onnx::Symbol("beta")));
+  if (pNode.hasAttribute(xSymbol("alpha")))
+    op->setAlpha(pNode.f(xSymbol("alpha")));
+  if (pNode.hasAttribute(xSymbol("beta")))
+    op->setBeta(pNode.f(xSymbol("beta")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

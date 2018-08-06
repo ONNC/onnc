@@ -23,7 +23,7 @@ using namespace onnc;
 // Y = alpha * A * B + beta * C
 // where input tensor A has dimension (M X K) , input tensor B has dimension (K
 // X N), input tensor C and output tensor Y have dimension (M X N).
-TGGemm::TGGemm(const ::onnx::Node &pNode)
+TGGemm::TGGemm(const xNode &pNode)
     : ComputeOperator2(pNode, "Gemm"), m_InRowNum(0), m_InColNum(0),
       m_OutColNum(0), m_HaveBias(0), m_UsingRelu(0), m_WeightTp(false)
 {
@@ -47,8 +47,8 @@ TGGemm::TGGemm(const ::onnx::Node &pNode)
   //    MemOperand(outputs[0]->uniqueName(), outputs[0]->sizes(),
   //               outputs[0]->elemType(), MemType::NEURON));
 
-  const std::vector< ::onnx::Dimension> aDim = pNode.inputs()[0]->sizes();
-  const std::vector< ::onnx::Dimension> bDim = pNode.outputs()[0]->sizes();
+  const std::vector< xDimension> aDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> bDim = pNode.outputs()[0]->sizes();
   m_InRowNum = aDim[0].dim;
   m_InColNum = aDim[1].dim;
   if (aDim.size() == 4) {
@@ -58,8 +58,8 @@ TGGemm::TGGemm(const ::onnx::Node &pNode)
   m_HaveBias = true;
   m_UsingRelu = false;
 
-  if (pNode.hasAttribute(::onnx::Symbol("transB"))) {
-    auto transB = pNode.i(::onnx::Symbol("transB"));
+  if (pNode.hasAttribute(xSymbol("transB"))) {
+    auto transB = pNode.i(xSymbol("transB"));
     DEBUG(dbgs() << "transB:" << transB << std::endl;);
     m_WeightTp = true;
   }

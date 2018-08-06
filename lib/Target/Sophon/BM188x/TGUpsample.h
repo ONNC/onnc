@@ -12,10 +12,9 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNX_BM1880_TGUPSAMPLE_H
 #define ONNX_BM1880_TGUPSAMPLE_H
-
 #include "BM188xComputeOperator.h"
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -24,7 +23,7 @@ namespace BM188X {
 class TGUpsample : public BM188xComputeOperator
 {
 public:
-  TGUpsample(const ::onnx::Node &pNode);
+  TGUpsample(const xNode &pNode);
 
   void emit() const override;
   TGUpsample *addMemOperands(MemOperand *pInput, MemOperand *pOutput);

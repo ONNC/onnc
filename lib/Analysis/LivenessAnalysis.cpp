@@ -18,13 +18,13 @@
 
 using namespace onnc;
 
-typedef std::unordered_map< ::onnx::Value *, unsigned> ValueIdxMap;
-typedef std::unordered_map< ::onnx::Node *, unsigned> NodeIdxMap;
+typedef std::unordered_map<xValue *, unsigned> ValueIdxMap;
+typedef std::unordered_map<xNode *, unsigned> NodeIdxMap;
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
 //===----------------------------------------------------------------------===//
-static void BuildVirtualIndex(::onnx::Graph &pGraph,
+static void BuildVirtualIndex(xGraph &pGraph,
                               ValueIdxMap &pValueVirIdxMap,
                               NodeIdxMap &pNodeVirIdxMap)
 {
@@ -42,11 +42,11 @@ static void BuildVirtualIndex(::onnx::Graph &pGraph,
   unsigned virIdx = 0;
 
   // assign virtual index to each node's output.
-  for (::onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == ::onnx::kUndefined)
+  for (xNode *n : pGraph.nodes()) {
+    if (n->kind() == xBuiltinSymbol::kUndefined)
       continue;
 
-    for (::onnx::Value *v : n->outputs())
+    for (xValue *v : n->outputs())
       pValueVirIdxMap[v] = virIdx;
     pNodeVirIdxMap[n] = virIdx++;
   }
@@ -56,7 +56,7 @@ static void BuildVirtualIndex(::onnx::Graph &pGraph,
 // LiveInterval
 //===----------------------------------------------------------------------===//
 LiveInterval::LiveInterval(SlotIndex pStart, SlotIndex pEnd,
-                           const ::onnx::Value &pValue)
+                           const xValue &pValue)
     : m_Start(pStart), m_End(pEnd), m_Value(pValue) {
   assert(m_Start <= m_End && "Invalid live interval.");
 }
@@ -79,7 +79,7 @@ Pass::ReturnType GraphLivenessAnalysis::runOnModule(Module &pModule)
   return kModuleNoChanged;
 }
 
-Pass::ReturnType GraphLivenessAnalysis::runOnGraph(onnx::Graph &pGraph)
+Pass::ReturnType GraphLivenessAnalysis::runOnGraph(xGraph &pGraph)
 {
   calculateLiveness(pGraph);
   return kModuleNoChanged;
@@ -94,26 +94,26 @@ void GraphLivenessAnalysis::print(std::ostream& pOS) const
   }
 }
 
-void GraphLivenessAnalysis::calculateLiveness(::onnx::Graph &pGraph)
+void GraphLivenessAnalysis::calculateLiveness(xGraph &pGraph)
 {
   clear();
 
   // Basically, node's virtual index value can be calculated from it's output
   // value (onnx::Value), but some of nodes may not have output, so use
   // nodeVirIdxMap to record each node's index.
-  std::unordered_map< ::onnx::Value *, unsigned> valueVirIdxMap;
-  std::unordered_map< ::onnx::Node *, unsigned> nodeVirIdxMap;
+  std::unordered_map<xValue *, unsigned> valueVirIdxMap;
+  std::unordered_map<xNode *, unsigned> nodeVirIdxMap;
   BuildVirtualIndex(pGraph, valueVirIdxMap, nodeVirIdxMap);
 
   // Values that have been visited.
-  std::unordered_set< ::onnx::Value *> visited;
+  std::unordered_set<xValue *> visited;
 
   // calculate live range for each output of a node
-  for (::onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == ::onnx::kUndefined)
+  for (xNode *n : pGraph.nodes()) {
+    if (n->kind() == xBuiltinSymbol::kUndefined)
       continue;
 
-    for (::onnx::Value *v : n->outputs()) {
+    for (xValue *v : n->outputs()) {
       unsigned start = valueVirIdxMap[v];
       unsigned end = start;
       for(auto u : v->uses())
@@ -127,12 +127,12 @@ void GraphLivenessAnalysis::calculateLiveness(::onnx::Graph &pGraph)
   // calculate live range graph's input parameters.
   // input parameters' live range dependent on the first and last node which
   // use this input.
-  for (::onnx::Node *n : pGraph.nodes()) {
-    if (n->kind() == ::onnx::kUndefined)
+  for (xNode *n : pGraph.nodes()) {
+    if (n->kind() == xBuiltinSymbol::kUndefined)
       continue;
 
     unsigned nVid = nodeVirIdxMap[n];
-    for (::onnx::Value *v : n->inputs()) {
+    for (xValue *v : n->inputs()) {
       if (visited.count(v))
         continue;
 

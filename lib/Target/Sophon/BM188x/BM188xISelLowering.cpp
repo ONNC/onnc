@@ -35,11 +35,11 @@
 
 using namespace onnc;
 
-ComputeOperator2 *BM188xISelLowering::LowerConv(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerConv(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
-    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
+    auto is_sliced = pNode.i(xSymbol("is_sliced"));
     if (is_sliced)
       return LowerTLConv(pNode, pGraph);
   }
@@ -72,7 +72,7 @@ ComputeOperator2 *BM188xISelLowering::LowerConv(const ::onnx::Node &pNode,
                             scale_memop, scale_bias_memop);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLConv(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerTLConv(const xNode &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLConv(pNode);
@@ -90,11 +90,11 @@ ComputeOperator2 *BM188xISelLowering::LowerTLConv(const ::onnx::Node &pNode,
   return op;
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const xNode &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLLoad(pNode);
-  auto is_neuron = pNode.i(::onnx::Symbol("is_neuron"));
+  auto is_neuron = pNode.i(xSymbol("is_neuron"));
   MemType mem_type;
   if (is_neuron) {
     mem_type = MemType::NEURON;
@@ -106,11 +106,11 @@ ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const ::onnx::Node &pNode,
   return op;
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLStore(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerTLStore(const xNode &pNode,
                                                    ComputeGraph &pGraph)
 {
   auto *op = new BM188X::TLStore(pNode);
-  auto is_neuron = pNode.i(::onnx::Symbol("is_neuron"));
+  auto is_neuron = pNode.i(xSymbol("is_neuron"));
   MemType mem_type;
   if (is_neuron) {
     mem_type = MemType::NEURON;
@@ -124,7 +124,7 @@ ComputeOperator2 *BM188xISelLowering::LowerTLStore(const ::onnx::Node &pNode,
   return op;
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerRelu(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerRelu(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -133,7 +133,7 @@ ComputeOperator2 *BM188xISelLowering::LowerRelu(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerPRelu(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerPRelu(const xNode &pNode,
                                                  ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -146,7 +146,7 @@ ComputeOperator2 *BM188xISelLowering::LowerPRelu(const ::onnx::Node &pNode,
   return op->addMemOperands(input, slope, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerLeakyRelu(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerLeakyRelu(const xNode &pNode,
                                                      ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -156,7 +156,7 @@ ComputeOperator2 *BM188xISelLowering::LowerLeakyRelu(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLPool(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerTLPool(const xNode &pNode,
                                                   ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -165,11 +165,11 @@ ComputeOperator2 *BM188xISelLowering::LowerTLPool(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const xNode &pNode,
                                                    ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
-    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
+    auto is_sliced = pNode.i(xSymbol("is_sliced"));
     if (is_sliced)
       return LowerTLPool(pNode, pGraph);
   }
@@ -180,11 +180,11 @@ ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const ::onnx::Node &pNode,
 }
 
 ComputeOperator2 *
-BM188xISelLowering::LowerAveragePool(const ::onnx::Node &pNode,
+BM188xISelLowering::LowerAveragePool(const xNode &pNode,
                                      ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
-    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
+    auto is_sliced = pNode.i(xSymbol("is_sliced"));
     if (is_sliced)
       return LowerTLPool(pNode, pGraph);
   }
@@ -195,7 +195,7 @@ BM188xISelLowering::LowerAveragePool(const ::onnx::Node &pNode,
 }
 
 ComputeOperator2 *
-BM188xISelLowering::LowerGlobalAveragePool(const ::onnx::Node &pNode,
+BM188xISelLowering::LowerGlobalAveragePool(const xNode &pNode,
                                            ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -204,7 +204,7 @@ BM188xISelLowering::LowerGlobalAveragePool(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerGemm(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerGemm(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -215,7 +215,7 @@ ComputeOperator2 *BM188xISelLowering::LowerGemm(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output, weight, bias);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerSum(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerSum(const xNode &pNode,
                                                ComputeGraph &pGraph)
 {
   // BM188x does not support NEURON addition with Numpy-style broadcasting
@@ -241,7 +241,7 @@ ComputeOperator2 *BM188xISelLowering::LowerSum(const ::onnx::Node &pNode,
   return op->addMemOperands(vInput, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerUpsample(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerUpsample(const xNode &pNode,
                                                     ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -250,25 +250,25 @@ ComputeOperator2 *BM188xISelLowering::LowerUpsample(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerLRN(const onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerLRN(const xNode &pNode,
                                                ComputeGraph &pGraph)
 {
-  auto &node = const_cast<onnx::Node &>(pNode);
+  auto &node = const_cast<xNode &>(pNode);
   auto *graph = node.owningGraph();
   auto output_name = pNode.outputs()[0]->uniqueName();
   int npu_num = m_p1880backend->getTTI()->getWarpSize();
   // add SQR LUT table
-  onnx::Tensor sqrlut_tensor;
+  xTensor sqrlut_tensor;
   sqrlut_tensor.sizes().push_back(256 * npu_num);
-  sqrlut_tensor.elem_type() = onnx::TensorProto_DataType_INT8;
+  sqrlut_tensor.elem_type() = (xTensorProtoDataType)xValueType::kInt8;
   std::string squlut_name = output_name + "_sqrlut";
   auto *sqrlut_val = graph->addInitializerAndInput(sqrlut_tensor, squlut_name);
   node.addInput(sqrlut_val);
 
   // add POWER LUT table
-  onnx::Tensor powerlut_tensor;
+  xTensor powerlut_tensor;
   powerlut_tensor.sizes().push_back(256 * npu_num);
-  powerlut_tensor.elem_type() = onnx::TensorProto_DataType_INT8;
+  powerlut_tensor.elem_type() = (xTensorProtoDataType)xValueType::kInt8;
   std::string powerlut_name = output_name + "_powerlut";
   auto *powerlut_val =
       graph->addInitializerAndInput(powerlut_tensor, powerlut_name);
@@ -283,7 +283,7 @@ ComputeOperator2 *BM188xISelLowering::LowerLRN(const onnx::Node &pNode,
   return op->addMemOperands(input, sqrlut, powerlut, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::Lower2NopInst(const ::onnx::Node &pNode)
+ComputeOperator2 *BM188xISelLowering::Lower2NopInst(const xNode &pNode)
 {
   // emit nop instruction
   // nop is in-place layer
@@ -294,7 +294,7 @@ ComputeOperator2 *BM188xISelLowering::Lower2NopInst(const ::onnx::Node &pNode)
   return nullptr;
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerConcat(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerConcat(const xNode &pNode,
                                                   ComputeGraph &pGraph)
 {
   std::vector<MemOperand *> input;
@@ -307,7 +307,7 @@ ComputeOperator2 *BM188xISelLowering::LowerConcat(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTranspose(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerTranspose(const xNode &pNode,
                                                      ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -316,7 +316,7 @@ ComputeOperator2 *BM188xISelLowering::LowerTranspose(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerScale(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerScale(const xNode &pNode,
                                                  ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -327,50 +327,50 @@ ComputeOperator2 *BM188xISelLowering::LowerScale(const ::onnx::Node &pNode,
   return op->addMemOperands(input, scale, bias, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
+ComputeOperator2 *BM188xISelLowering::LowerOperation(const xNode &pNode,
                                                      ComputeGraph &pGraph)
 {
-  ::onnx::Node &node = const_cast< ::onnx::Node &>(pNode);
+  xNode &node = const_cast< ::xNode &>(pNode);
   DEBUG(dbgs() << "lowering node: name=" << node.name()
                << ", type=" << node.kind().toString() << "\n";);
 
   uint32_t symbol = pNode.kind();
-  if (symbol == ::onnx::Symbol("Undefined")) {
+  if (symbol == xSymbol("Undefined")) {
     return nullptr;
-  } else if (symbol == ::onnx::Symbol("Reshape") ||
-             symbol == ::onnx::Symbol("Flatten")) {
+  } else if (symbol == xSymbol("Reshape") ||
+             symbol == xSymbol("Flatten")) {
     return Lower2NopInst(pNode);
-  } else if (symbol == ::onnx::Symbol("Concat")) {
+  } else if (symbol == xSymbol("Concat")) {
     return LowerConcat(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Conv")) {
+  } else if (symbol == xSymbol("Conv")) {
     return LowerConv(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Relu")) {
+  } else if (symbol == xSymbol("Relu")) {
     return LowerRelu(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("PRelu")) {
+  } else if (symbol == xSymbol("PRelu")) {
     return LowerPRelu(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("LeakyRelu")) {
+  } else if (symbol == xSymbol("LeakyRelu")) {
     return LowerLeakyRelu(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("MaxPool")) {
+  } else if (symbol == xSymbol("MaxPool")) {
     return LowerMaxPool(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("AveragePool")) {
+  } else if (symbol == xSymbol("AveragePool")) {
     return LowerAveragePool(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("GlobalAveragePool")) {
+  } else if (symbol == xSymbol("GlobalAveragePool")) {
     return LowerGlobalAveragePool(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Gemm")) {
+  } else if (symbol == xSymbol("Gemm")) {
     return LowerGemm(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Sum")) {
+  } else if (symbol == xSymbol("Sum")) {
     return LowerSum(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Upsample")) {
+  } else if (symbol == xSymbol("Upsample")) {
     return LowerUpsample(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Transpose")) {
+  } else if (symbol == xSymbol("Transpose")) {
     return LowerTranspose(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("TLLoad")) {
+  } else if (symbol == xSymbol("TLLoad")) {
     return LowerTLLoad(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("TLStore")) {
+  } else if (symbol == xSymbol("TLStore")) {
     return LowerTLStore(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("LRN")) {
+  } else if (symbol == xSymbol("LRN")) {
     return LowerLRN(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Scale")) {
+  } else if (symbol == xSymbol("Scale")) {
     return LowerScale(pNode, pGraph);
   }
   std::cout << "Warning: unsupported node type: " << pNode.kind().toString()

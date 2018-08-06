@@ -25,7 +25,7 @@ public:
 
   ~BuildInitializers() { }
 
-  Pass::ReturnType runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG) override;
+  Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) override;
 
   StringRef getPassName() const override { return "BuildInitializers"; }
 };

@@ -178,9 +178,7 @@ ONNC_INCLUDES = @LIBONNC_INCLUDES@ @ONNX_INCLUDES@ -I${srcdir}/Target
 
 ONNC_LIBS = @ONNX_LIBS@
 
-ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
-
-ONNC_CPPFLAGS = -DONNX_NAMESPACE=onnx
+ONNC_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address
 
 if ENABLE_DEBUG
 ONNC_CPPFLAGS += -O0 -g3
@@ -190,7 +188,7 @@ if ENABLE_OPTIMIZE
 ONNC_CPPFLAGS += -O2 -DNDEBUG
 endif
 
-AM_CPPFLAGS = ${ONNC_INCLUDES} ${ONNC_CPPFLAGS} ${ANDROID_CPPFLAGS}
+AM_CPPFLAGS = ${ONNC_INCLUDES} ${ONNC_CPPFLAGS}
 
 AM_YFLAGS = -d
 AM_LFLAGS = -olex.yy.c

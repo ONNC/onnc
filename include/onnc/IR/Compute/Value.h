@@ -9,7 +9,7 @@
 #define ONNC_IR_COMPUTE_VALUE_H
 #include <onnc/IR/Compute/Use.h>
 #include <onnc/IR/Compute/Define.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <vector>
 #include <string>
 
@@ -24,31 +24,30 @@ class Value
 {
 public:
   typedef std::vector<onnc::Use> UseList;
-
   enum Type {
-    kUndefined = onnx::TensorProto_DataType_UNDEFINED,
+    kUndefined = xValueType::kUndefined,
 
     // Basic types.
-    kFloat     = onnx::TensorProto_DataType_FLOAT,   // float
-    kUint8     = onnx::TensorProto_DataType_UINT8,   // uint8_t
-    kInt8      = onnx::TensorProto_DataType_INT8,    // int8_t
-    kUint16    = onnx::TensorProto_DataType_UINT16,  // uint16_t
-    kInt16     = onnx::TensorProto_DataType_INT16,   // int16_t
-    kInt32     = onnx::TensorProto_DataType_INT32,   // int32_t
-    kInt64     = onnx::TensorProto_DataType_INT64,   // int64_t
-    kString    = onnx::TensorProto_DataType_STRING,  // string
-    kBoolean   = onnx::TensorProto_DataType_BOOL,    // bool
+    kFloat     = xValueType::kFloat,   // float
+    kUint8     = xValueType::kUint8,   // uint8_t
+    kInt8      = xValueType::kInt8,    // int8_t
+    kUint16    = xValueType::kUint16,  // uint16_t
+    kInt16     = xValueType::kInt16,   // int16_t
+    kInt32     = xValueType::kInt32,   // int32_t
+    kInt64     = xValueType::kInt64,   // int64_t
+    kString    = xValueType::kString,  // string
+    kBoolean   = xValueType::kBoolean, // bool
 
     // Advanced types
-    kFloat16   = onnx::TensorProto_DataType_FLOAT16,
-    kDouble    = onnx::TensorProto_DataType_DOUBLE,
-    kUint32    = onnx::TensorProto_DataType_UINT32,
-    kUint64    = onnx::TensorProto_DataType_UINT64,
+    kFloat16   = xValueType::kFloat16,
+    kDouble    = xValueType::kDouble,
+    kUint32    = xValueType::kUint32,
+    kUint64    = xValueType::kUint64,
 
     // complex with float32 real and imaginary components
-    kComplex64  = onnx::TensorProto_DataType_COMPLEX64,
+    kComplex64  = xValueType::kComplex64,
     // complex with float64 real and imaginary components
-    kComplex128 = onnx::TensorProto_DataType_COMPLEX128
+    kComplex128 = xValueType::kComplex128
   };
 
 public:
@@ -64,7 +63,7 @@ public:
     : m_Name(pName), m_Kind(pKind), m_pAdaptee(nullptr) {
   }
 
-  Value(Type pKind, ::onnx::Tensor& pAdaptee)
+  Value(Type pKind, xTensor& pAdaptee)
     : m_Name(pAdaptee.name()), m_Kind(pKind), m_pAdaptee(&pAdaptee) {
   }
 
@@ -85,11 +84,11 @@ public:
   /// replace all uses of this value to @ref pValue 
   void replaceAllUsesWith(Value& pValue);
 
-  void adapt(::onnx::Tensor& pAdaptee);
+  void adapt(xTensor& pAdaptee);
 
-  ::onnx::Tensor* adaptee() { return m_pAdaptee; }
+  xTensor* adaptee() { return m_pAdaptee; }
 
-  const ::onnx::Tensor* adaptee() const { return m_pAdaptee; }
+  const xTensor* adaptee() const { return m_pAdaptee; }
 
   bool hasAdaptee() const { return (nullptr != m_pAdaptee); }
 
@@ -101,7 +100,7 @@ protected:
   Type m_Kind;
 
   // Object adaptee. ONNX represents all types in a single tensor.
-  ::onnx::Tensor* m_pAdaptee;
+  xTensor* m_pAdaptee;
 };
 
 } // namespace of onnc

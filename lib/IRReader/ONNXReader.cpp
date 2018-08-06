@@ -7,12 +7,12 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/IRReader/ONNXReader.h>
 #include <onnc/Support/FileHandle.h>
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <onnc/Diagnostic/MsgHandling.h>
-#include <onnx/common/ir_pb_converter.h>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/IR/IRBuilder.h>
+#include <onnc/Config/ONNX.h>
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 
 using namespace onnc;
 
@@ -26,7 +26,7 @@ DoParse(Module& pModule, ::google::protobuf::io::ZeroCopyInputStream& pStream,
   ::google::protobuf::io::CodedInputStream coded_input(&pStream);
 
   coded_input.SetTotalBytesLimit(pTotalBytesLimit, pWarningThreshold);
-  ::onnx::ModelProto model;
+  xProto model;
   if (!model.ParseFromCodedStream(&coded_input)) {
     return false;
   }

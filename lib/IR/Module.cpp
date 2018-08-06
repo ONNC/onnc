@@ -7,8 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/IR/Module.h>
 #include <onnc/Diagnostic/MsgHandling.h>
-#include <onnx/common/ir.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -16,9 +16,9 @@ using namespace onnc;
 // Non-member function
 //===----------------------------------------------------------------------===//
 inline static void
-PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
+PrintAttrs(std::ostream& pOS, const xAttributes<xNode>& pAttr)
 {
-  std::vector<::onnx::Symbol> attrNames = pAttr.attributeNames();
+  std::vector<xSymbol> attrNames = pAttr.attributeNames();
   if (attrNames.size() != 0)
     pOS << " <";
 
@@ -26,13 +26,13 @@ PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
     if (i != 0)
       pOS << ", ";
 
-    ::onnx::Symbol name = attrNames[i];
+    xSymbol name = attrNames[i];
     pOS << name.toString() << ":";
     switch (pAttr.kindOf(name)) {
-      case ::onnx::AttributeKind::f:
+      case xAttributeKind::f:
         pOS << "FLOAT " << static_cast<float>(pAttr.f(name));
         break;
-      case ::onnx::AttributeKind::fs: {
+      case xAttributeKind::fs: {
         pOS << "FLOATS [";
         auto fs = pAttr.fs(name);
         for (int i = 0; i < fs.size(); ++i) {
@@ -43,10 +43,10 @@ PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
         pOS << "]";
         break;
       }
-      case ::onnx::AttributeKind::i:
+      case xAttributeKind::i:
         pOS << "INT " << pAttr.i(name);
         break;
-      case ::onnx::AttributeKind::is: {
+      case xAttributeKind::is: {
         pOS << "INTS [";
         auto is = pAttr.is(name);
         for (int i = 0; i < is.size(); ++i) {
@@ -57,11 +57,11 @@ PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
         pOS << "]";
         break;
       }
-      case ::onnx::AttributeKind::s:
+      case xAttributeKind::s:
         pOS << "STRING ";
         pOS << pAttr.s(name);
         break;
-      case ::onnx::AttributeKind::ss: {
+      case xAttributeKind::ss: {
         pOS << "STRINGS [";
         auto ss = pAttr.ss(name);
         for (int i = 0; i < ss.size(); ++i) {
@@ -72,11 +72,11 @@ PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
         pOS << "]";
         break;
       }
-      case ::onnx::AttributeKind::t: {
+      case xAttributeKind::t: {
         pOS << "TENSOR " << pAttr.t(name).name();
         break;
       }
-      case ::onnx::AttributeKind::ts: {
+      case xAttributeKind::ts: {
         pOS << "TENSORS [";
         auto ts = pAttr.ts(name);
         for (int i = 0; i < ts.size(); ++i) {
@@ -87,11 +87,11 @@ PrintAttrs(std::ostream& pOS, const ::onnx::Attributes<::onnx::Node>& pAttr)
         pOS << "]";
         break;
       }
-      case ::onnx::AttributeKind::g: {
+      case xAttributeKind::g: {
         pOS << "GRAPH " << pAttr.g(name).get()->name();
         break;
       }
-      case ::onnx::AttributeKind::gs: {
+      case xAttributeKind::gs: {
         pOS << "GRAPHS [";
         auto gs = pAttr.gs(name);
         for (int i = 0; i < gs.size(); ++i) {
@@ -121,7 +121,7 @@ Module::Module()
     m_ComputeGraphs() {
 }
 
-Module::Module(std::unique_ptr< ::onnx::Graph> pGraph)
+Module::Module(std::unique_ptr<xGraph> pGraph)
   : m_RootTensorGraph(std::move(pGraph)),
     m_TensorGraphs(),
     m_OnnxInfo(),
@@ -147,14 +147,14 @@ Module::~Module()
   m_Values.clear();
 }
 
-Module& Module::delegate(std::unique_ptr< ::onnx::Graph> pGraph)
+Module& Module::delegate(std::unique_ptr<xGraph> pGraph)
 {
   if (m_RootTensorGraph)
     m_RootTensorGraph.reset();
   return delegate(*pGraph.release());
 }
 
-Module& Module::delegate(::onnx::Graph& pGraph)
+Module& Module::delegate(xGraph& pGraph)
 {
   m_RootTensorGraph.reset(&pGraph);
 
@@ -168,7 +168,7 @@ Module& Module::delegate(::onnx::Graph& pGraph)
   return *this;
 }
 
-bool Module::recordSubgraph(::onnx::Graph& pSubgraph)
+bool Module::recordSubgraph(xGraph& pSubgraph)
 {
   bool exist = false;
   TensorGraphList::entry_type* entry = m_TensorGraphs.insert(pSubgraph.name(), exist);
@@ -244,7 +244,7 @@ void Module::print(std::ostream& pOS) const
 
   // XXX: This is ONNX's failure. They forget to write a constant
   // version of ::onnx::Graph::initializer_names()
-  ::onnx::Graph* graph = const_cast<::onnx::Graph*>(getRootTensorGraph());
+  xGraph* graph = const_cast<xGraph*>(getRootTensorGraph());
 
   // dump graph initializers
   pOS << "  initializers: {\n";
@@ -268,7 +268,7 @@ void Module::print(std::ostream& pOS) const
   pOS << "  inputs : {\n";
   i = 0;
   while (i < getGraphIR()->inputs().size()) {
-    const ::onnx::Value* v = getGraphIR()->inputs()[i];
+    const xValue* v = getGraphIR()->inputs()[i];
     pOS << "    ";
     print(pOS, *v);
     ++i;
@@ -281,8 +281,8 @@ void Module::print(std::ostream& pOS) const
   pOS << "}\n";
 
   // dump graph nodes
-  for (const ::onnx::Node *n : getGraphIR()->nodes()) {
-    if (::onnx::kUndefined == n->kind())
+  for (const xNode *n : getGraphIR()->nodes()) {
+    if (xBuiltinSymbol::kUndefined == n->kind())
       continue;
 
     print(pOS, *n);
@@ -294,14 +294,14 @@ void Module::print(std::ostream& pOS) const
     if (i != 0)
       pOS << ", ";
 
-    const ::onnx::Value *v = getGraphIR()->outputs()[i];
+    const xValue *v = getGraphIR()->outputs()[i];
     print(pOS, *v);
   }
   pOS << std::endl;
 }
 
 template<>
-void Module::print(std::ostream& pOS, const ::onnx::Value& pValue) const
+void Module::print(std::ostream& pOS, const xValue& pValue) const
 {
   pOS << TensorProto_DataType_Name(pValue.elemType()) << " tensor ";
   // print dimension
@@ -322,11 +322,11 @@ void Module::print(std::ostream& pOS, const ::onnx::Value& pValue) const
 }
 
 template<>
-void Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const
+void Module::print(std::ostream& pOS, const xNode& pNode) const
 {
   // print name
   // XXX: This is ONNX's bug. They forget to write constant getters.
-  ::onnx::Node* node = const_cast<::onnx::Node*>(&pNode);
+  xNode* node = const_cast<xNode*>(&pNode);
   if (node->has_name())
     pOS << "[" << node->name() << "] ";
 
@@ -335,7 +335,7 @@ void Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const
     if (i != 0)
       pOS << ", ";
 
-    const ::onnx::Value *v = pNode.outputs()[i];
+    const xValue *v = pNode.outputs()[i];
     print(pOS, *v);
   }
 
@@ -350,7 +350,7 @@ void Module::print(std::ostream& pOS, const ::onnx::Node& pNode) const
     if (i != 0)
       pOS << ", ";
 
-    const ::onnx::Value *v = pNode.inputs()[i];
+    const xValue *v = pNode.inputs()[i];
     print(pOS, *v);
   }
   pOS << ")" << std::endl;

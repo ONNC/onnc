@@ -24,15 +24,15 @@ PadLower::~PadLower()
 {
 }
 
-int PadLower::isMe(const ::onnx::Node& pNode) const
+int PadLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Pad"))
+  if (pNode.kind() == xSymbol("Pad"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-PadLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+PadLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 1)
@@ -42,42 +42,42 @@ PadLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check default attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("pads")))
+  if (!pNode.hasAttribute(xSymbol("pads")))
     return nullptr;
 
   // create operators
   onnc::Pad* op = pGraph.addOperator<onnc::Pad>(
-    pNode.is(::onnx::Symbol("pads")));
+    pNode.is(xSymbol("pads")));
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("mode")))
-    op->setMode(pNode.s(::onnx::Symbol("mode")));
-  if (pNode.hasAttribute(::onnx::Symbol("value")))
-    op->setValue(pNode.f(::onnx::Symbol("value")));
+  if (pNode.hasAttribute(xSymbol("mode")))
+    op->setMode(pNode.s(xSymbol("mode")));
+  if (pNode.hasAttribute(xSymbol("value")))
+    op->setValue(pNode.f(xSymbol("value")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

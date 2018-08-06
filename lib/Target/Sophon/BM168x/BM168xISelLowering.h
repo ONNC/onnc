@@ -10,12 +10,12 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#pragma once
-
+#ifndef ONNC_TARGET_BM168X_ISEL_LOWERING_H
+#define ONNC_TARGET_BM168X_ISEL_LOWERING_H
 #include "BM168xBackend.h"
 #include "TargetLowering.h"
+#include <onnc/Config/ONNX.h>
 #include <memory>
-#include <onnx/common/ir.h>
 
 namespace onnc {
 
@@ -27,11 +27,13 @@ public:
   BM168xTargetLowering(TGBackend *pBackend) : TargetLowering(pBackend) {}
 
   ComputeOperator2 *LowerOperation(
-      const ::onnx::Node &pNode,
+      const xNode &pNode,
       std::vector<std::unique_ptr<ComputeOperator2> > &pInstList) override;
 
 private:
-  ComputeOperator2 *LowerHelper(const ::onnx::Node &pNode);
+  ComputeOperator2 *LowerHelper(const xNode &pNode);
 };
 
 } // namespace onnc
+
+#endif

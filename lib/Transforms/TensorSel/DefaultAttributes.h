@@ -7,16 +7,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORMS_TENSORSEL_DEFAULTATTRIBUTES_H
 #define ONNC_TRANSFORMS_TENSORSEL_DEFAULTATTRIBUTES_H
-
-namespace onnx {
-class Node;
-} // namespace of onnx
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
 class ComputeOperator;
 
-void SetDefaultAttributes(::onnx::Node &pNode, ComputeOperator& pOp);
+void SetDefaultAttributes(xNode &pNode, ComputeOperator& pOp);
 
 } // namespace of onnc
 

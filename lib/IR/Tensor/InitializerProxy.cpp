@@ -17,6 +17,6 @@ InitializerProxy::InitializerProxy()
 }
 
 InitializerProxy::InitializerProxy(const std::string& pName,
-                         const ::onnx::Tensor& pTensor)
+                                   const xTensor& pTensor)
   : m_pName(&pName), m_pTensor(&pTensor) {
 }

@@ -16,13 +16,16 @@
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/Sophon/BM188x/bmkernel_api.h>
 
-namespace onnc {
-namespace BM188X {
+using namespace onnc;
+using namespace onnc::BM188X;
 
-TGPRelu::TGPRelu(const ::onnx::Node &pNode)
+//===---------------------------------------------------------------------===//
+// TGPRelu
+//===---------------------------------------------------------------------===//
+TGPRelu::TGPRelu(const xNode &pNode)
     : BM188xComputeOperator(pNode, std::string("PRelu"))
 {
-  const std::vector< ::onnx::Dimension> inDim = pNode.inputs()[0]->sizes();
+  const std::vector< xDimension> inDim = pNode.inputs()[0]->sizes();
   if (inDim.size() == 4) {
     m_N = inDim[0].dim;
     m_C = inDim[1].dim;
@@ -75,14 +78,11 @@ void TGPRelu::update(const tg::bm1880::LayerCalibrationParameter *pLayerCtable)
   m_GTScale = prelu.gt_scale();
 
   // get slope tensor to determine ChannelShared and Slope
-  const ::onnx::Value *value = m_MemOperands[1]->m_Value;
-  const ::onnx::Tensor &tensor =
+  const xValue *value = m_MemOperands[1]->m_Value;
+  const xTensor &tensor =
       ::onnc::getTensor(value->uniqueName(), *value->owningGraph());
-  assert(tensor.elem_type() == ::onnx::TensorProto_DataType_INT8);
+  assert(tensor.elem_type() == (xTensorProtoDataType)xValueType::kInt8);
   assert(tensor.is_raw_data());
   m_ChannelShared = (tensor.raw().size() == 1);
   m_Slope = tensor.raw()[0];
 }
-
-} // namespace BM188X
-} // namespace onnc

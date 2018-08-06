@@ -26,21 +26,21 @@ BM188X::ConcatLower::~ConcatLower()
 {
 }
 
-int BM188X::ConcatLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::ConcatLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Concat"))
+  if (pNode.kind() == xSymbol("Concat"))
     return kTargetNormal;
   return kNotMe;
 }
 
 onnc::ComputeOperator *BM188X::ConcatLower::activate(ComputeGraph& pGraph,
-                                                   ::onnx::Node &pNode) const
+                                                   xNode &pNode) const
 {
   // check input/output name
   if (pNode.inputs().empty())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -48,28 +48,28 @@ onnc::ComputeOperator *BM188X::ConcatLower::activate(ComputeGraph& pGraph,
   if (1 != pNode.outputs().size())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check required attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("axis")))
+  if (!pNode.hasAttribute(xSymbol("axis")))
     return nullptr;
 
   // create operators
   BM188X::Concat* op = pGraph.addOperator<onnc::BM188X::Concat>(
-    pNode.i(::onnx::Symbol("axis")));
+    pNode.i(xSymbol("axis")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

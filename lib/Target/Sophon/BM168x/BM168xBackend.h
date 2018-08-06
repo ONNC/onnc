@@ -10,11 +10,11 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef BM168X_BACKEND_H
-#define BM168X_BACKEND_H
+#ifndef ONNC_TARGET_BM168X_BACKEND_H
+#define ONNC_TARGET_BM168X_BACKEND_H
 #include "TGBackend.h"
+#include <onnc/Config/ONNX.h>
 #include <memory>
-#include <onnx/common/ir.h>
 #include <string>
 
 namespace onnc {
@@ -29,14 +29,11 @@ public:
 
   ~BM1680Backend() override;
 
-  bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
+  bool isNativeTensorType(xTensorProtoDataType pType) override;
 
   void addTensorSel(PassManager &pPM) override;
 
-  std::string getBackendName() override
-  {
-    return std::string("BM1680Backend");
-  };
+  std::string getBackendName() override { return "BM1680Backend"; }
 
   std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
 };
@@ -50,12 +47,9 @@ public:
 
   void addTensorSel(PassManager &pPM) override;
 
-  bool isNativeTensorType(::onnx::TensorProto_DataType pType) override;
+  bool isNativeTensorType(xTensorProtoDataType pType) override;
 
-  std::string getBackendName() override
-  {
-    return std::string("BM1682Backend");
-  };
+  std::string getBackendName() override { return "BM1682Backend"; }
 
   std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() override;
 };

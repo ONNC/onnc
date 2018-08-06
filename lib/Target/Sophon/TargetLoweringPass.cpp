@@ -15,7 +15,7 @@
 #include "TargetLowering.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -35,7 +35,7 @@ public:
   {
     TargetLowering *TLI = m_pTarget->getTargetLowering();
     TLI->PrepareISelLowering(pModule);
-    ::onnx::Graph *graph = pModule.getGraphIR().get();
+    xGraph *graph = pModule.getGraphIR().get();
     TLI->ISelLowering(graph, m_pTarget->getInsts());
     return Pass::kModuleNoChanged;
   }

@@ -16,7 +16,7 @@
 #include <fstream>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 using namespace onnc::TG;
@@ -33,7 +33,7 @@ TGCodeEmit::TGCodeEmit(TGBackend *pTarget, const std::string &pOutputFilename)
 
 Pass::ReturnType TGCodeEmit::runOnModule(Module &pModule)
 {
-  const ::onnx::Graph *graph = pModule.getGraphIR().get();
+  const xGraph *graph = pModule.getGraphIR().get();
   TGCodeEmitter *CE = m_Target->getTargetCodeEmitter();
   if (m_OutputFilename == "-") {
     CE->genRuntimeInfo(graph, onnc::outs());

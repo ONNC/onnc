@@ -1,17 +1,27 @@
+//===- ONNXUtils.cpp -------------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include <onnc/IR/Module.h>
 #include <onnc/IR/ONNXUtils.h>
-#include <onnx/common/ir_pb_converter.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
+//===----------------------------------------------------------------------===//
+// Procedures
+//===----------------------------------------------------------------------===//
 void onnc::SerializeToString(std::string &output, const Module &pModule)
 {
-  ::onnx::ModelProto modelProto;
+  xProto modelProto;
   ExportModelProto(modelProto, pModule);
   modelProto.SerializeToString(&output);
 }
 
-void onnc::ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModule)
+void onnc::ExportModelProto(xProto &pModelProto, const Module &pModule)
 {
   pModelProto.set_ir_version(pModule.getOnnxInfo().getIRVersion());
   pModelProto.set_producer_name(pModule.getOnnxInfo().getProducerName());
@@ -19,8 +29,8 @@ void onnc::ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModu
   pModelProto.set_domain(pModule.getOnnxInfo().getDomain());
   pModelProto.set_model_version(pModule.getOnnxInfo().getModelVersion());
   pModelProto.set_doc_string(pModule.getOnnxInfo().getDocString());
-  ::onnx::ExportModelProto(&pModelProto,
-      std::shared_ptr<::onnx::Graph>(const_cast<Module &>(pModule).getGraphIR()));
+  xExportModelProto(&pModelProto,
+      std::shared_ptr<xGraph>(const_cast<Module &>(pModule).getGraphIR()));
   for (const auto &setId : pModule.getSetId()) {
     auto *opset_imports = pModelProto.add_opset_import();
     opset_imports->set_domain(setId.first);
@@ -33,9 +43,9 @@ void onnc::ExportModelProto(::onnx::ModelProto &pModelProto, const Module &pModu
   }
 }
 
-Module* onnc::CreateModule(const ::onnx::ModelProto &pModelProto)
+Module* onnc::CreateModule(const xProto &pModelProto)
 {
-  Module* module = new Module(::onnx::ImportModelProto(pModelProto));
+  Module* module = new Module(xImportModelProto(pModelProto));
 
   if (pModelProto.has_ir_version())
     module->getOnnxInfo().setIRVersion(pModelProto.ir_version());
@@ -84,10 +94,9 @@ size_t onnc::getTotalCount(const std::vector<int64_t> &pDim)
   return s;
 }
 
-const ::onnx::Tensor &onnc::getTensor(std::string name,
-                                      const ::onnx::Graph &pGraph)
+const xTensor &onnc::getTensor(std::string name, const xGraph &pGraph)
 {
-  auto &graph = const_cast< ::onnx::Graph &>(pGraph);
+  auto &graph = const_cast<xGraph &>(pGraph);
   auto initNames = graph.initializer_names();
   std::ptrdiff_t idx = std::distance(
       initNames.begin(), std::find(initNames.begin(), initNames.end(), name));
@@ -98,22 +107,26 @@ const ::onnx::Tensor &onnc::getTensor(std::string name,
   return graph.initializers()[idx];
 }
 
-bool onnc::OutputSizeIsInputSize(::onnx::Node& pNode)
+bool onnc::OutputSizeIsInputSize(xNode& pNode)
 {
   /// Operator set whose output size equals to input size.
   /// (FIXME: Currently, this also implies: y[i] = some operation on x[i])
-  const static std::unordered_set<::onnx::NodeKind> g_OutputSizeIsInputSize = {
-    ::onnx::Symbol("Relu"), ::onnx::Symbol("LRN"),
-    ::onnx::Symbol("Dropout"), ::onnx::Symbol("Softmax"),
-    ::onnx::kBatchNormalization,
-    ::onnx::kMul, ::onnx::kDiv, ::onnx::kAdd, ::onnx::kSub, ::onnx::kNeg,
-    ::onnx::Symbol("Sum")
+  const static std::unordered_set<xNodeKind> g_OutputSizeIsInputSize = {
+    xSymbol("Relu"), xSymbol("LRN"),
+    xSymbol("Dropout"), xSymbol("Softmax"),
+    xBuiltinSymbol::kBatchNormalization,
+    xBuiltinSymbol::kMul,
+    xBuiltinSymbol::kDiv,
+    xBuiltinSymbol::kAdd,
+    xBuiltinSymbol::kSub,
+    xBuiltinSymbol::kNeg,
+    xSymbol("Sum")
   };
 
   return g_OutputSizeIsInputSize.count(pNode.kind()) != 0;
 }
 
-void onnc::GetAttrVals(::onnx::Node& pNode, ::onnx::BuiltinSymbol pAttr,
+void onnc::GetAttrVals(xNode& pNode, xBuiltinSymbol pAttr,
                         LongInts& pVal)
 {
   if (pNode.hasAttribute(pAttr)) {
@@ -124,11 +137,11 @@ void onnc::GetAttrVals(::onnx::Node& pNode, ::onnx::BuiltinSymbol pAttr,
   }
 }
 
-void onnc::GetPads(::onnx::Node& pNode, LongInts& pPadsB, LongInts& pPadsE)
+void onnc::GetPads(xNode& pNode, LongInts& pPadsB, LongInts& pPadsE)
 {
-  if (pNode.hasAttribute(::onnx::kpads)) {
+  if (pNode.hasAttribute(xBuiltinSymbol::kpads)) {
     // get pads begin and offset to pads end.
-    const auto& pads = pNode.is(::onnx::kpads);
+    const auto& pads = pNode.is(xBuiltinSymbol::kpads);
     const size_t padEndOffset = pads.size() / 2;
 
     pPadsB.resize(padEndOffset);
@@ -140,14 +153,15 @@ void onnc::GetPads(::onnx::Node& pNode, LongInts& pPadsB, LongInts& pPadsE)
   }
 }
 
-void onnc::GetConvKernelShape(::onnx::Node& pNode, LongInts& pKShape)
+void onnc::GetConvKernelShape(xNode& pNode, LongInts& pKShape)
 {
-  assert(pNode.kind() == ::onnx::kConv && "This is not a convolution node.");
+  assert(pNode.kind() ==
+         xBuiltinSymbol::kConv && "This is not a convolution node.");
   const TensorSizes& wDim = pNode.inputs()[1]->sizes();
   const size_t numAxis = wDim.size() - 2;
 
-  if (pNode.hasAttribute(::onnx::kkernel_shape)) {
-    GetAttrVals(pNode, ::onnx::kkernel_shape, pKShape);
+  if (pNode.hasAttribute(xBuiltinSymbol::kkernel_shape)) {
+    GetAttrVals(pNode, xBuiltinSymbol::kkernel_shape, pKShape);
   } else {
     pKShape.resize(numAxis);
     // If the kernel shape is not present, it should be inferred from input W.
@@ -157,9 +171,9 @@ void onnc::GetConvKernelShape(::onnx::Node& pNode, LongInts& pKShape)
 }
 
 /// @param pAttr Can be '::onnx::ktransA', '::onnx::ktransB'
-bool onnc::IsTranspose(const ::onnx::Node& pNode, const ::onnx::BuiltinSymbol pAttr)
+bool onnc::IsTranspose(const xNode& pNode, const xBuiltinSymbol pAttr)
 {
-  assert((pAttr == ::onnx::ktransA || pAttr == ::onnx::ktransB) &&
+  assert((pAttr == xBuiltinSymbol::ktransA || pAttr == xBuiltinSymbol::ktransB) &&
          "This is not transpose attribute.");
   if (pNode.hasAttribute(pAttr) &&
       pNode.i(pAttr))
@@ -167,7 +181,7 @@ bool onnc::IsTranspose(const ::onnx::Node& pNode, const ::onnx::BuiltinSymbol pA
   return false;
 }
 
-LongInts onnc::GetValueSizes(const ::onnx::Value& pVal)
+LongInts onnc::GetValueSizes(const xValue& pVal)
 {
   LongInts sizes;
 

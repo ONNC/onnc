@@ -24,15 +24,15 @@ LoopLower::~LoopLower()
 {
 }
 
-int LoopLower::isMe(const ::onnx::Node& pNode) const
+int LoopLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Loop"))
+  if (pNode.kind() == xSymbol("Loop"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-LoopLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
+LoopLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() < 3)
@@ -42,23 +42,23 @@ LoopLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
     return nullptr;
 
   // check input/output name
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
 
   // check default attributes
-  if (!pNode.hasAttribute(::onnx::Symbol("body")))
+  if (!pNode.hasAttribute(xSymbol("body")))
     return nullptr;
 
   // create operators
   onnc::Loop* op = pGraph.addOperator<onnc::Loop>(
-    pNode.g(::onnx::Symbol("body")));
+    pNode.g(xSymbol("body")));
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
@@ -67,14 +67,14 @@ LoopLower::activate(ComputeGraph& pGraph, ::onnx::Node& pNode) const
   
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

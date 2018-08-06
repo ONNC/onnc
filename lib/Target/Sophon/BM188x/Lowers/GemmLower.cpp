@@ -26,21 +26,21 @@ BM188X::GemmLower::~GemmLower()
 {
 }
 
-int BM188X::GemmLower::isMe(const ::onnx::Node &pNode) const
+int BM188X::GemmLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Gemm"))
+  if (pNode.kind() == xSymbol("Gemm"))
     return kTargetNormal;
   return kNotMe;
 }
 
 onnc::ComputeOperator *BM188X::GemmLower::activate(ComputeGraph& pGraph,
-                                                   ::onnx::Node &pNode) const
+                                                   xNode &pNode) const
 {
   // check input/output name
   if (3 == pNode.inputs().size())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -48,7 +48,7 @@ onnc::ComputeOperator *BM188X::GemmLower::activate(ComputeGraph& pGraph,
   if (1 != pNode.outputs().size())
     return nullptr;
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     if (!xv->has_unique_name())
       return nullptr;
   }
@@ -57,24 +57,24 @@ onnc::ComputeOperator *BM188X::GemmLower::activate(ComputeGraph& pGraph,
   BM188X::Gemm* op = pGraph.addOperator<onnc::BM188X::Gemm>();
 
   // set optional attributes
-  if (pNode.hasAttribute(::onnx::Symbol("alpha")))
-    op->setAlpha(pNode.f(::onnx::Symbol("alpha")));
-  if (pNode.hasAttribute(::onnx::Symbol("beta")))
-    op->setBeta(pNode.f(::onnx::Symbol("beta")));
-  if (pNode.hasAttribute(::onnx::Symbol("transA")))
-    op->setTransA(pNode.i(::onnx::Symbol("transA")));
-  if (pNode.hasAttribute(::onnx::Symbol("transB")))
-    op->setTransB(pNode.i(::onnx::Symbol("transB")));
+  if (pNode.hasAttribute(xSymbol("alpha")))
+    op->setAlpha(pNode.f(xSymbol("alpha")));
+  if (pNode.hasAttribute(xSymbol("beta")))
+    op->setBeta(pNode.f(xSymbol("beta")));
+  if (pNode.hasAttribute(xSymbol("transA")))
+    op->setTransA(pNode.i(xSymbol("transA")));
+  if (pNode.hasAttribute(xSymbol("transB")))
+    op->setTransB(pNode.i(xSymbol("transB")));
 
   // set input/output
-  for (::onnx::Value* xv : pNode.inputs()) {
+  for (xValue* xv : pNode.inputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);
     op->addInput(*tensor);
   }
 
-  for (::onnx::Value* xv : pNode.outputs()) {
+  for (xValue* xv : pNode.outputs()) {
     onnc::Tensor* tensor = pGraph.getValue<onnc::Tensor>(xv->uniqueName());
     if (nullptr == tensor)
       tensor = IRBuilder::CreateComputeTensor(pGraph, *xv);

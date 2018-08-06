@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/IRBuilder.h>
-#include <onnx/onnx.pb.h>
+#include <onnc/Config/ONNX.h>
 
 using namespace onnc;
 
@@ -19,7 +19,7 @@ IRBuilder::IRBuilder(Module& pModule)
   m_InsertionPoint.setModule(pModule);
 }
 
-IRBuilder::IRBuilder(Module& pModule, const ::onnx::ModelProto& pProto)
+IRBuilder::IRBuilder(Module& pModule, const xProto& pProto)
   : m_InsertionPoint() {
   m_InsertionPoint.setModule(pModule);
   update(pProto);
@@ -30,9 +30,9 @@ void IRBuilder::setInsertionPoint(const InsertionPoint& pISP)
   m_InsertionPoint = pISP;
 }
 
-void IRBuilder::update(const ::onnx::ModelProto& pProto)
+void IRBuilder::update(const xProto& pProto)
 {
-  getModule().delegate(::onnx::ImportModelProto(pProto));
+  getModule().delegate(xImportModelProto(pProto));
 
   if (pProto.has_ir_version())
     getModule().getOnnxInfo().setIRVersion(pProto.ir_version());
@@ -71,26 +71,26 @@ void IRBuilder::setComputeGraph(ComputeGraph* pCG)
 }
 
 /// create a tensor graph
-::onnx::Graph* IRBuilder::CreateTensorGraph()
+xGraph* IRBuilder::CreateTensorGraph()
 {
-  ::onnx::Graph* result = new ::onnx::Graph();
+  xGraph* result = new xGraph();
   getInsertionPoint().setTensorGraph(*result);
   getModule().delegate(*getTensorGraph());
   return getTensorGraph();
 }
 
 /// create a tensor graph whose name is @ref pName
-::onnx::Graph* IRBuilder::CreateTensorGraph(StringRef pName)
+xGraph* IRBuilder::CreateTensorGraph(StringRef pName)
 {
-  ::onnx::Graph* result = new ::onnx::Graph();
+  xGraph* result = new xGraph();
   getInsertionPoint().setTensorGraph(*result);
   getModule().delegate(*getTensorGraph());
   getTensorGraph()->setName(pName);
   return getTensorGraph();
 }
 
-::onnx::Value* IRBuilder::AddInput(const std::string& pName,
-                                   const std::vector<::onnx::Dimension>& pSizes,
+xValue* IRBuilder::AddInput(const std::string& pName,
+                                   const std::vector<xDimension>& pSizes,
                                    onnc::Value::Type pKind)
 {
   if (!hasTensorGraph())
@@ -104,22 +104,22 @@ void IRBuilder::setComputeGraph(ComputeGraph* pCG)
   if (exist)
     return nullptr;
 
-  ::onnx::Value *result = getTensorGraph()->addInput();
+  xValue *result = getTensorGraph()->addInput();
   result->setUniqueName(pName)
         ->setSizes(pSizes)
-        ->setElemType((onnx::TensorProto_DataType)pKind);
+        ->setElemType((xTensorProtoDataType)pKind);
 
   entry->setValue(result);
   return result;
 }
 
-::onnx::Node*
+xNode*
 IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
 {
   if (!hasTensorGraph())
     return nullptr;
 
-  ::onnx::Node *node = getTensorGraph()->create(::onnx::Symbol(pName));
+  xNode *node = getTensorGraph()->create(xSymbol(pName));
   // make sure every input name exists
   for (auto & input : pInputNames) {
     if (getInsertionPoint().getCreatedValues().end() ==
@@ -137,12 +137,12 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
   return node;
 }
 
-::onnx::Node* IRBuilder::CloneNode(::onnx::Node& pNode, const std::string& pName)
+xNode* IRBuilder::CloneNode(xNode& pNode, const std::string& pName)
 {
-  ::onnx::Graph* graph = pNode.owningGraph();
+  xGraph* graph = pNode.owningGraph();
 
   // kind and graph
-  ::onnx::Node *node = graph->create(pNode.kind());
+  xNode *node = graph->create(pNode.kind());
 
   // name
   if (!pName.empty())
@@ -161,16 +161,16 @@ IRBuilder::AddNode(const std::string& pName, const StringList& pInputNames)
 
 onnc::InitializerProxy
 IRBuilder::AddInitializer(const std::string& pName,
-                          const std::vector<::onnx::Dimension>& pSizes,
+                          const std::vector<xDimension>& pSizes,
                           onnc::Value::Type pKind)
 {
   if (!hasTensorGraph())
     return InitializerProxy();
 
-  // XXX: using local variables because ::onnx::Graph::addInitializer does
+  // XXX: using local variables because xGraph::addInitializer does
   // delegation (through std::move).
-  ::onnx::Tensor t;
-  t.elem_type() = (::onnx::TensorProto_DataType)pKind;
+  xTensor t;
+  t.elem_type() = (xTensorProtoDataType)pKind;
   t.setName(pName);
 
   if (pSizes.empty()) { // find from created values
@@ -179,27 +179,27 @@ IRBuilder::AddInitializer(const std::string& pName,
         getInsertionPoint().getCreatedValues().insert(pName, exist);
     if (exist) {
       t.sizes().reserve(entry->value()->sizes().size());
-      for (::onnx::Dimension d : entry->value()->sizes())
+      for (xDimension d : entry->value()->sizes())
         t.sizes().push_back(d.dim);
     }
   }
   else {
     t.sizes().reserve(pSizes.size());
-    for (::onnx::Dimension d : pSizes)
+    for (xDimension d : pSizes)
       t.sizes().push_back(d.dim);
   }
 
   getTensorGraph()->addInitializer(t, pName);
 
-  // XXX: using back() because ::onnx::Graph::addInitializer is an appending.
+  // XXX: using back() because xGraph::addInitializer is an appending.
   onnc::InitializerProxy result(getTensorGraph()->initializer_names().back(),
                                 getTensorGraph()->initializers().back());
   return result;
 }
 
-::onnx::Value*
+xValue*
 IRBuilder::AddOutput(const std::string& pName,
-                     const std::vector<::onnx::Dimension>& pSizes,
+                     const std::vector<xDimension>& pSizes,
                      onnc::Value::Type pKind)
 {
   if (!hasTensorNode())
@@ -215,7 +215,7 @@ IRBuilder::AddOutput(const std::string& pName,
 
   /// XXX: ONNX has already created a default output value. If we are
   /// in the very first adding, then use the created one.
-  ::onnx::Value *out = nullptr;
+  xValue *out = nullptr;
   if (1 < getTensorNode()->outputs().size())
     out = getTensorNode()->addOutput();
   else
@@ -223,7 +223,7 @@ IRBuilder::AddOutput(const std::string& pName,
 
   out->setUniqueName(pName)
      ->setSizes(pSizes)
-     ->setElemType((onnx::TensorProto_DataType)pKind);
+     ->setElemType((xTensorProtoDataType)pKind);
 
   // books the value
   entry->setValue(out);
@@ -268,61 +268,61 @@ bool IRBuilder::FinalizeTensorGraph(const StringList& pOutputs)
 }
 
 Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG,
-                                       const ::onnx::Value& pValue,
-                                       const ::onnx::Tensor& pTensor)
+                                       const xValue& pValue,
+                                       const xTensor& pTensor)
 {
   const std::string &name = pValue.uniqueName();
   Tensor* result = nullptr;
   switch (pValue.elemType()) {
-  case Value::kInt8: {
+  case onnc::Value::kInt8: {
     CREATE_VAL_DATA(result, pCG, pTensor, Int8Tensor, int32_t, int32s);
     break;
   }
-  case Value::kInt16: {
+  case onnc::Value::kInt16: {
     CREATE_VAL_DATA(result, pCG, pTensor, Int16Tensor, int32_t, int32s);
     break;
   }
-  case Value::kInt32: {
+  case onnc::Value::kInt32: {
     CREATE_VAL_DATA(result, pCG, pTensor, Int32Tensor, int32_t, int32s);
     break;
   }
-  case Value::kInt64: {
+  case onnc::Value::kInt64: {
     CREATE_VAL_DATA(result, pCG, pTensor, Int64Tensor, int64_t, int64s);
     break;
   }
-  case Value::kUint8: {
+  case onnc::Value::kUint8: {
     CREATE_VAL_DATA(result, pCG, pTensor, Uint8Tensor, int32_t, int32s);
     break;
   }
-  case Value::kUint16: {
+  case onnc::Value::kUint16: {
     CREATE_VAL_DATA(result, pCG, pTensor, Uint16Tensor, int32_t, int32s);
     break;
   }
-  case Value::kUint32: {
+  case onnc::Value::kUint32: {
     CREATE_VAL_DATA(result, pCG, pTensor, Uint32Tensor, uint64_t, uint64s);
     break;
   }
-  case Value::kUint64: {
+  case onnc::Value::kUint64: {
     CREATE_VAL_DATA(result, pCG, pTensor, Uint64Tensor, uint64_t, uint64s);
     break;
   }
-  case Value::kFloat: {
+  case onnc::Value::kFloat: {
     CREATE_VAL_DATA(result, pCG, pTensor, FloatTensor, float, floats);
     break;
   }
-  case Value::kFloat16: {
+  case onnc::Value::kFloat16: {
     CREATE_VAL_DATA(result, pCG, pTensor, Float16Tensor, float, floats);
     break;
   }
-  case Value::kString: {
+  case onnc::Value::kString: {
     CREATE_VAL_DATA(result, pCG, pTensor, StringTensor, std::string, strings);
     break;
   }
-  case Value::kBoolean: {
+  case onnc::Value::kBoolean: {
     CREATE_VAL_DATA(result, pCG, pTensor, BooleanTensor, int32_t, int32s);
     break;
   }
-  case Value::kDouble: {
+  case onnc::Value::kDouble: {
     CREATE_VAL_DATA(result, pCG, pTensor, DoubleTensor, double, doubles);
     break;
   }
@@ -339,65 +339,65 @@ Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG,
   return result;
 }
 
-Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue,
-                                       const ::onnx::Tensor& pTensor)
+Tensor* IRBuilder::CreateComputeTensor(const xValue& pValue,
+                                       const xTensor& pTensor)
 {
   return CreateComputeTensor(*getComputeGraph(), pValue, pTensor);
 }
 
-Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& pValue)
+Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG, const xValue& pValue)
 {
   Tensor* result = nullptr;
   switch (pValue.elemType()) {
-  case Value::kInt8: {
+  case onnc::Value::kInt8: {
     result = pCG.addValue<onnc::Int8Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kInt16: {
+  case onnc::Value::kInt16: {
     result = pCG.addValue<onnc::Int16Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kInt32: {
+  case onnc::Value::kInt32: {
     result = pCG.addValue<onnc::Int32Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kInt64: {
+  case onnc::Value::kInt64: {
     result = pCG.addValue<onnc::Int64Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kUint8: {
+  case onnc::Value::kUint8: {
     result = pCG.addValue<onnc::Uint8Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kUint16: {
+  case onnc::Value::kUint16: {
     result = pCG.addValue<onnc::Uint16Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kUint32: {
+  case onnc::Value::kUint32: {
     result = pCG.addValue<onnc::Uint32Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kUint64: {
+  case onnc::Value::kUint64: {
     result = pCG.addValue<onnc::Uint64Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kFloat: {
+  case onnc::Value::kFloat: {
     result = pCG.addValue<onnc::FloatTensor>(pValue.uniqueName());
     break;
   }
-  case Value::kFloat16: {
+  case onnc::Value::kFloat16: {
     result = pCG.addValue<onnc::Float16Tensor>(pValue.uniqueName());
     break;
   }
-  case Value::kString: {
+  case onnc::Value::kString: {
     result = pCG.addValue<onnc::StringTensor>(pValue.uniqueName());
     break;
   }
-  case Value::kBoolean: {
+  case onnc::Value::kBoolean: {
     result = pCG.addValue<onnc::BooleanTensor>(pValue.uniqueName());
     break;
   }
-  case Value::kDouble: {
+  case onnc::Value::kDouble: {
     result = pCG.addValue<onnc::DoubleTensor>(pValue.uniqueName());
     break;
   }
@@ -414,7 +414,7 @@ Tensor* IRBuilder::CreateComputeTensor(ComputeGraph& pCG, const ::onnx::Value& p
   return result;
 }
 
-Tensor* IRBuilder::CreateComputeTensor(const ::onnx::Value& pValue)
+Tensor* IRBuilder::CreateComputeTensor(const xValue& pValue)
 {
   return IRBuilder::CreateComputeTensor(*getComputeGraph(), pValue);
 }

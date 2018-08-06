@@ -10,11 +10,10 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNX_BM_TGCONV_H
-#define ONNX_BM_TGCONV_H
-
+#ifndef ONNC_TARGET_BM168X_TGCONV_H
+#define ONNC_TARGET_BM168X_TGCONV_H
 #include "ComputeOperator.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 
@@ -22,7 +21,7 @@ namespace onnc {
 class TGConv : public ComputeOperator2
 {
 public:
-  TGConv(const ::onnx::Node &pNode);
+  TGConv(const xNode &pNode);
 
   void emit() const override;
 

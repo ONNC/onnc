@@ -21,7 +21,7 @@
 #include <onnc/Target/DLATargetBackend.h>
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/IR/ComputeOperator.h>
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -61,7 +61,7 @@ public:
 
   // get or create a MemOperand by onnx::Value. user can specify name because
   // different ONNX value can map to the same MemOperand
-  MemOperand *getMemOperand(const ::onnx::Value *pValue, MemType pMemType,
+  MemOperand *getMemOperand(const xValue *pValue, MemType pMemType,
                             const std::string &pName = std::string());
 
   TargetLowering *getTargetLowering() { return m_pTLI; }
@@ -71,10 +71,10 @@ public:
   virtual std::unique_ptr<TGFuseOptimizer> getFuseOptimizr() = 0;
 
   // default sizeof function
-  virtual size_t sizeOfTensorType(::onnx::TensorProto_DataType pType);
+  virtual size_t sizeOfTensorType(xTensorProtoDataType pType);
 
   // backend can descript which tensor types are supported
-  virtual bool isNativeTensorType(::onnx::TensorProto_DataType pType);
+  virtual bool isNativeTensorType(xTensorProtoDataType pType);
 
   // calibration table name
   virtual std::string getCtableName() { return std::string(); }
@@ -86,7 +86,7 @@ public:
   virtual void setCtableProto(const std::string &pTextString);
 
   // for debug usage
-  virtual std::string getBackendName() { return std::string("TGBackend"); };
+  virtual std::string getBackendName() { return "TGBackend"; }
 
   using LowerPass_t = Pass *(*)(TGBackend *);
   void replaceTargetLower(LowerPass_t pFunc)
