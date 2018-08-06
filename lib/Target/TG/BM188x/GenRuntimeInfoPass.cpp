@@ -43,7 +43,7 @@ BM188X::GenRuntimeInfoPass::FindOnncLayerName(const onnx::Graph& pG,
       continue;
 
     std::string layer_name =
-        const_cast< ::onnx::Node*>(*node)->output()->uniqueName();
+        const_cast< ::onnx::Node*>(*node)->outputs()[0]->uniqueName();
 
     if (layer_name == pValue.uniqueName()) {
       return pValue.uniqueName();
