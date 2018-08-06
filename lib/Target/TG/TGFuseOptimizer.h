@@ -71,7 +71,7 @@ protected:
                                          ::onnx::Node *pAddNode);
 
 private:
-  bool FuseNodes(::onnx::Graph *pGraph, const int64_t &pOpsetVersion);
+  bool FuseNodes(::onnx::Graph *pGraph);
 
 protected:
   TGBackend *m_pBackend; // NOLINT
