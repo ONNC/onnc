@@ -308,6 +308,24 @@ onnx::Node *TGFuseOptimizer::FuseBNAdd(onnx::Graph *pGraph, onnx::Node *pBNNode,
   return pBNNode;
 }
 
+onnx::Node *TGFuseOptimizer::FuseMulAdd(onnx::Graph *pGraph,
+                                        onnx::Node *pMulNode,
+                                        onnx::Node *pAddNode)
+{
+  // create Scale node
+  onnx::Node *scale_node = pGraph->create(onnx::Symbol("Scale"));
+  scale_node->addInput(pMulNode->inputs()[0]);
+  scale_node->addInput(pMulNode->inputs()[1]);
+  scale_node->addInput(pAddNode->inputs()[1]);
+  scale_node->output()->copyMetadata(pAddNode->output());
+  scale_node->insertBefore(pMulNode);
+
+  pAddNode->replaceAllUsesWith(scale_node);
+  pAddNode->destroy();
+  pMulNode->destroy();
+  return scale_node;
+}
+
 bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
 {
   if (match(pNode, mSymbol("BatchNormalization")) &&
@@ -359,6 +377,30 @@ bool TGFuseOptimizer::FuseOpset7Nodes(onnx::Graph *pGraph, onnx::Node *pNode)
     // shape(unsqueeze) = (C, 1, 1)
     FuseBNAdd(pGraph, pNode, next(pNode));
     return true;
+  }
+
+  if (match(pNode, mSymbol("Mul")) && match(next(pNode), mSymbol("Add")) &&
+      isTensor(pNode->inputs()[1]) && isTensor(next(pNode)->inputs()[1])) {
+    auto mul_input_dims = pNode->inputs()[0]->sizes();
+    auto add_input_dims = next(pNode)->inputs()[0]->sizes();
+    auto mul_tensor_dims = pNode->inputs()[1]->sizes();
+    auto add_tensor_dims = next(pNode)->inputs()[1]->sizes();
+    // check this is channel-wise Mul and Add
+    // C = Mul (A, B) // A is (n,c,h,w), B is (1,c,1,1)
+    // E = Add (C, D) // C is (n,c,h,w), D is (1,c,1,1)
+    if (mul_input_dims.size() == mul_tensor_dims.size() &&
+        mul_tensor_dims.size() == add_tensor_dims.size() &&
+        mul_input_dims.size() == 4 && add_input_dims.size() == 4 &&
+        mul_input_dims[1].dim == add_input_dims[1].dim &&
+        mul_tensor_dims[0].dim == 1 &&
+        mul_tensor_dims[1].dim == mul_input_dims[1].dim &&
+        mul_tensor_dims[2].dim == 1 && mul_tensor_dims[3].dim == 1 &&
+        add_tensor_dims[0].dim == 1 &&
+        add_tensor_dims[1].dim == add_input_dims[1].dim &&
+        add_tensor_dims[2].dim == 1 && add_tensor_dims[3].dim == 1) {
+      FuseMulAdd(pGraph, pNode, next(pNode));
+      return true;
+    }
   }
   return false;
 }

@@ -64,6 +64,9 @@ protected:
 
   virtual ::onnx::Node *FuseBN(::onnx::Graph *pGraph, ::onnx::Node *pNode);
 
+  virtual onnx::Node *FuseMulAdd(onnx::Graph *pGraph, onnx::Node *pMulNode,
+                                 onnx::Node *pAddNode);
+
   virtual ::onnx::Node *AliasSumOperator(::onnx::Graph *pGraph,
                                          ::onnx::Node *pAddNode);
 
