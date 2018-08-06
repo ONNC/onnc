@@ -26,12 +26,22 @@ char BM188X::GenRuntimeInfoPass::ID = 0;
 //===----------------------------------------------------------------------===//
 // static functions
 //===----------------------------------------------------------------------===//
+static bool ComputingOnHost(const ::onnx::Node &pNode)
+{
+  if (pNode.kind() == ::onnx::Symbol("Softmax"))
+    return true;
+  return false;
+}
+
 std::string
 BM188X::GenRuntimeInfoPass::FindOnncLayerName(const onnx::Graph& pG,
                                                const ::onnx::Value &pValue)
 {
   ::onnx::const_graph_node_list_iterator node, nEnd = pG.end();
   for (node = pG.begin(); node != nEnd; ++node) {
+    if (ComputingOnHost(**node))
+      continue;
+
     std::string layer_name =
         const_cast< ::onnx::Node*>(*node)->output()->uniqueName();
 

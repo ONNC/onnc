@@ -33,6 +33,7 @@
 #include "Lowers/SumLower.h"
 #include "Lowers/TransposeLower.h"
 #include "Lowers/UpsampleLower.h"
+#include "AddLutTablePass.h"
 #include "CodeEmitVisitor.h"
 #include "EncodeInstructionsPass.h"
 #include "GenRuntimeInfoPass.h"
@@ -56,6 +57,7 @@
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
 #include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
+#include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
 #ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
 #endif
@@ -139,13 +141,14 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
     pPM.add(getTargetLower()(this));
   }
 
-  pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateDeadNodeEliminationPass());
+  pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());
   pPM.add(CreateBuildInputOperators());
   pPM.add(CreateTensorSel(this));
   pPM.add(CreateBuildOutputOperators());
+  pPM.add(BM188X::CreateAddLutTablePass(this));
 
   return;
 }
@@ -225,6 +228,7 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::ReluLower>();
   pRegistry.emplace<onnc::ReshapeLower>();
   pRegistry.emplace<BM188X::ScaleLower>();
+  pRegistry.emplace<onnc::SoftmaxLower>();
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::TransposeLower>();
