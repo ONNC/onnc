@@ -53,6 +53,9 @@ BM188X::SumLower::activate(ComputeGraph& pGraph, ::onnx::Node &pNode) const
   // create operators
   BM188X::Sum* op = pGraph.addOperator<BM188X::Sum>();
 
+  if (pNode.hasAttribute(::onnx::Symbol("do_relu")))
+    op->setDoRelu(pNode.i(::onnx::Symbol("do_relu")));
+
   // init xquant with zero values.
   op->setThresholdXQuantized(std::vector<int>(pNode.inputs().size()));
 
