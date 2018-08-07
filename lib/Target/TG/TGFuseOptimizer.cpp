@@ -27,18 +27,6 @@ static inline bool isTensor(onnx::Value *pValue)
   return false;
 }
 
-static bool isNeuronInputs(onnx::Node *pAddNode)
-{
-  onnx::Graph *graph = pAddNode->owningGraph();
-  std::unordered_set<std::string> init_names(graph->initializer_names().begin(),
-                                             graph->initializer_names().end());
-  auto input0 = pAddNode->inputs()[0]->uniqueName();
-  auto input1 = pAddNode->inputs()[1]->uniqueName();
-  if (init_names.count(input0) || init_names.count(input1))
-    return false;
-  return true;
-}
-
 onnx::Node *TGFuseOptimizer::FuseMulAdd(onnx::Graph *pGraph,
                                         onnx::Node *pMulNode,
                                         onnx::Node *pAddNode)
@@ -97,10 +85,6 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseRelu(pGraph, node, next(node));
       return true;
     }
-    if (match(node, mSymbol("Add")) && isNeuronInputs(node)) {
-      AliasSumOperator(pGraph, node);
-      return true;
-    }
     if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Scale"))) {
       FuseConvScale(pGraph, node, next(node));
       return true;
@@ -152,17 +136,4 @@ onnx::Node *TGFuseOptimizer::FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
 {
   Fuse(pNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
   return pNode;
-}
-
-onnx::Node *TGFuseOptimizer::AliasSumOperator(onnx::Graph *pGraph,
-                                              onnx::Node *pAddNode)
-{
-  onnx::Node *sum_node = pGraph->create(onnx::Symbol("Sum"));
-  sum_node->addInput(pAddNode->inputs()[0]);
-  sum_node->addInput(pAddNode->inputs()[1]);
-  sum_node->output()->copyMetadata(pAddNode->output());
-  sum_node->insertBefore(pAddNode);
-  pAddNode->replaceAllUsesWith(sum_node);
-  pAddNode->destroy();
-  return sum_node;
 }

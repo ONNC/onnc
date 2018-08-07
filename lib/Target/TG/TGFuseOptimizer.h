@@ -35,9 +35,6 @@ public:
   static ::onnx::Node *Fuse(::onnx::Node *pA, ::onnx::Node *pB);
 
 protected:
-  bool FuseOpset6Nodes(::onnx::Graph *pGraph, ::onnx::Node *pNode);
-  bool FuseOpset7Nodes(::onnx::Graph *pGraph, ::onnx::Node *pNode);
-
   virtual ::onnx::Node *FuseConvScale(::onnx::Graph *pGraph, ::onnx::Node *pConvNode,
                                       ::onnx::Node *pScaleNode);
 
@@ -66,9 +63,6 @@ protected:
 
   virtual onnx::Node *FuseMulAdd(onnx::Graph *pGraph, onnx::Node *pMulNode,
                                  onnx::Node *pAddNode);
-
-  virtual ::onnx::Node *AliasSumOperator(::onnx::Graph *pGraph,
-                                         ::onnx::Node *pAddNode);
 
 private:
   bool FuseNodes(::onnx::Graph *pGraph);
