@@ -77,7 +77,7 @@ public:
       m_FileName(pFilename) {
   }
 
-  Pass::ReturnType runOnModule(::onnc::Module &pModule)
+  Pass::ReturnType runOnModule(::onnc::Module &pModule) override
   {
     OFStream ofs;
     std::ostream* os = &onnc::outs();
