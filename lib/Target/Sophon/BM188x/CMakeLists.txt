@@ -5,6 +5,7 @@ gen_proto_cpp(PROTO proto/common_calibration2.proto SRCS proto_src)
 add_libonnc_src(
     ${proto_src}
     AddDummyWeightPass.cpp
+    AddLutTablePass.cpp
     BM188xBackend.cpp
     BM188xISelLowering.cpp
     BM188xCodeEmitter.cpp
