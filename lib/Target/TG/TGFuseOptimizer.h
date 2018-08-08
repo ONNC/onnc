@@ -61,6 +61,9 @@ protected:
 
   virtual ::onnx::Node *FuseBN(::onnx::Graph *pGraph, ::onnx::Node *pNode);
 
+  virtual onnx::Node *TGFuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
+                                 onnx::Node *pReluNode);
+
   virtual onnx::Node *FuseMulAdd(onnx::Graph *pGraph, onnx::Node *pMulNode,
                                  onnx::Node *pAddNode);
 

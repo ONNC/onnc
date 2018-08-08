@@ -32,7 +32,7 @@ onnx::Node *TGFuseOptimizer::FuseMulAdd(onnx::Graph *pGraph,
                                         onnx::Node *pAddNode)
 {
   // create Scale node
-  onnx::Node *scale_node = pGraph->create(onnx::Symbol("Scale"));
+  onnx::Node *scale_node = pGraph->create(onnx::Symbol("TGScale"));
   scale_node->addInput(pMulNode->inputs()[0]);
   scale_node->addInput(pMulNode->inputs()[1]);
   scale_node->addInput(pAddNode->inputs()[1]);
@@ -77,6 +77,12 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseRelu(pGraph, node, next(node));
       return true;
     }
+    if (match(node, mSymbol("TGConv")) and
+        match(next(node), mSymbol("Relu"), mFalseAttr("do_scale"),
+              mFalseAttr("do_scale_bias"))) {
+      TGFuseRelu(pGraph, node, next(node));
+      return true;
+    }
     if (match(node, mSymbol("Gemm")) and match(next(node), mSymbol("Relu"))) {
       FuseRelu(pGraph, node, next(node));
       return true;
@@ -85,7 +91,8 @@ bool TGFuseOptimizer::FuseNodes(onnx::Graph *pGraph)
       FuseRelu(pGraph, node, next(node));
       return true;
     }
-    if (match(node, mSymbol("Conv")) and match(next(node), mSymbol("Scale"))) {
+    if (match(node, mSymbol("Conv")) and
+        match(next(node), mSymbol("TGScale"))) {
       FuseConvScale(pGraph, node, next(node));
       return true;
     }
@@ -121,19 +128,41 @@ onnx::Node *TGFuseOptimizer::FuseConvScale(onnx::Graph *pGraph,
                                            onnx::Node *pConvNode,
                                            onnx::Node *pScaleNode)
 {
-  pConvNode->addInput(pScaleNode->inputs()[1]);
-  pConvNode->addInput(pScaleNode->inputs()[2]);
-  pConvNode->i_(onnx::Symbol("do_scale"), 1)
+  auto *new_conv = pGraph->create(onnx::Symbol("TGConv"), pConvNode->inputs());
+  new_conv->addInput(pScaleNode->inputs()[1]);
+  new_conv->addInput(pScaleNode->inputs()[2]);
+  new_conv->copyAttributes(*pConvNode);
+  new_conv->i_(onnx::Symbol("do_scale"), 1)
       ->i_(onnx::Symbol("do_scale_bias"), 1);
-  pConvNode->output()->copyMetadata(pScaleNode->output());
-  pScaleNode->replaceAllUsesWith(pConvNode);
+  new_conv->output()->copyMetadata(pScaleNode->output());
+  new_conv->insertBefore(pConvNode);
+  pScaleNode->replaceAllUsesWith(new_conv);
   pScaleNode->destroy();
-  return pConvNode;
+  pConvNode->destroy();
+  return new_conv;
 }
 
 onnx::Node *TGFuseOptimizer::FuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
                                       onnx::Node *pReluNode)
 {
-  Fuse(pNode, pReluNode)->i_(::onnx::Symbol("do_relu"), 1);
+  std::string symbol_str = std::string("TG") + pNode->kind().toString();
+  auto *new_node = pGraph->create(onnx::Symbol(symbol_str), pNode->inputs());
+  new_node->copyAttributes(*pNode);
+  new_node->output()->copyMetadata(pReluNode->output());
+  new_node->i_(::onnx::Symbol("do_relu"), 1);
+  new_node->insertBefore(pNode);
+  pReluNode->replaceAllUsesWith(new_node);
+  pReluNode->destroy();
+  pNode->destroy();
+  return new_node;
+}
+
+onnx::Node *TGFuseOptimizer::TGFuseRelu(onnx::Graph *pGraph, onnx::Node *pNode,
+                                        onnx::Node *pReluNode)
+{
+  pNode->i_(::onnx::Symbol("do_relu"), 1);
+  pNode->output()->copyMetadata(pReluNode->output());
+  pReluNode->replaceAllUsesWith(pNode);
+  pReluNode->destroy();
   return pNode;
 }

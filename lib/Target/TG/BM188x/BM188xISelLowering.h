@@ -60,7 +60,8 @@ private:
                                 ComputeGraph &pGraph);
   ComputeOperator2 *LowerTranspose(const ::onnx::Node &pNode,
                                    ComputeGraph &pGraph);
-  ComputeOperator2 *LowerScale(const ::onnx::Node &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerTGScale(const ::onnx::Node &pNode,
+                                 ComputeGraph &pGraph);
   ComputeOperator2 *LowerTLLoad(const ::onnx::Node &pNode,
                                 ComputeGraph &pGraph);
   ComputeOperator2 *LowerTLStore(const ::onnx::Node &pNode,

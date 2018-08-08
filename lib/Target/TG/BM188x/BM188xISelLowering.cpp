@@ -316,8 +316,8 @@ ComputeOperator2 *BM188xISelLowering::LowerTranspose(const ::onnx::Node &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerScale(const ::onnx::Node &pNode,
-                                                 ComputeGraph &pGraph)
+ComputeOperator2 *BM188xISelLowering::LowerTGScale(const ::onnx::Node &pNode,
+                                                   ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *scale = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
@@ -342,7 +342,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return Lower2NopInst(pNode);
   } else if (symbol == ::onnx::Symbol("Concat")) {
     return LowerConcat(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Conv")) {
+  } else if (symbol == ::onnx::Symbol("Conv") ||
+             symbol == ::onnx::Symbol("TGConv")) {
     return LowerConv(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Relu")) {
     return LowerRelu(pNode, pGraph);
@@ -356,9 +357,11 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerAveragePool(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("GlobalAveragePool")) {
     return LowerGlobalAveragePool(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Gemm")) {
+  } else if (symbol == ::onnx::Symbol("Gemm") ||
+             symbol == ::onnx::Symbol("TGGemm")) {
     return LowerGemm(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Sum")) {
+  } else if (symbol == ::onnx::Symbol("Sum") ||
+             symbol == ::onnx::Symbol("TGSum")) {
     return LowerSum(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("Upsample")) {
     return LowerUpsample(pNode, pGraph);
@@ -370,8 +373,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const ::onnx::Node &pNode,
     return LowerTLStore(pNode, pGraph);
   } else if (symbol == ::onnx::Symbol("LRN")) {
     return LowerLRN(pNode, pGraph);
-  } else if (symbol == ::onnx::Symbol("Scale")) {
-    return LowerScale(pNode, pGraph);
+  } else if (symbol == ::onnx::Symbol("TGScale")) {
+    return LowerTGScale(pNode, pGraph);
   }
   std::cout << "Warning: unsupported node type: " << pNode.kind().toString()
             << "\n";
