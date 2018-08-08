@@ -1,5 +1,6 @@
 
 
+
 //===- Config.h.in --------------------------------------------------------===//
 //
 //                             The ONNC Project
@@ -17,6 +18,15 @@
 /* define ARM target */
 #cmakedefine ENABLE_ARM_TARGET 1
 
+/* define sohpon target */
+#cmakedefine ENABLE_SOPHON_TARGET 1
+
+/* define tg target */
+#cmakedefine ENABLE_TG_TARGET 1
+
+/* define x86_64 target */
+#cmakedefine ENABLE_X86_TARGET 1
+
 /* Enable clock_gettime */
 #cmakedefine ENABLE_CLOCK_GETTIME 1
 
@@ -32,17 +42,8 @@
 /* Enable regression */
 #cmakedefine ENABLE_REGRESSION 1
 
-/* define sohpon target */
-#cmakedefine ENABLE_SOPHON_TARGET 1
-
-/* define tg target */
-#cmakedefine ENABLE_TG_TARGET 1
-
 /* Enable unittest */
 #cmakedefine ENABLE_UNITTEST 1
-
-/* define x86_64 target */
-#cmakedefine ENABLE_X86_TARGET 1
 
 /* the name of <hash_map> */
 #cmakedefine HASH_MAP_CLASS ${HASH_MAP_CLASS}
@@ -188,6 +189,9 @@
 
 /* Define if this is Win32ish platform */
 #cmakedefine ONNC_ON_WIN32 1
+
+/* default onnx namespace */
+#cmakedefine ONNX_NAMESPACE "${ONNX_NAMESPACE}"
 
 /* Name of package */
 #cmakedefine PACKAGE "${PACKAGE}"
