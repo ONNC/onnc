@@ -61,6 +61,11 @@ public:
   /// register lowers for TensorSel.
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 
+  tg::bm1880::NetCalibrationParameter &getBackendCtable()
+  {
+    return m_NetCtableParam;
+  }
+
 private:
   tg::bm1880::NetCalibrationParameter m_NetCtableParam;
   TargetTransformInfo *m_pTTI; // NOLINT
