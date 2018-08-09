@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
-file(READ ${ONNC_ROOT_PATH}/VERSION VERSION)
+file(STRINGS ${ONNC_ROOT_PATH}/VERSION VERSION REGEX "[0-9A-Za-z.]+")
 set(PACKAGE_VERSION ${VERSION})
 set(PACKAGE "onnc")
 set(PACKAGE_BUGREPORT "maillist.onnc.ai")
@@ -18,8 +18,8 @@ set(PACKAGE_URL "onnc.ai")
 #  Options
 include(option)
 option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
-option(ENABLE_PTHREAD "use pthreads" ON)
-set(HAVE_PTHREADS ${ENABLE_PTHREAD})
+option(USE_PTHREAD "use pthreads" ON)
+set(HAVE_PTHREADS ${USE_PTHREAD})
 option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
@@ -34,8 +34,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used by the CXX compiler during RELWITHDEBINFO builds.")
-option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
-if (ENABLE_WERROR)
+option(USE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
+if (USE_WERROR)
     add_compile_options(-Werror)
 endif()
 include(CheckCXXCompilerFlag)
@@ -63,6 +63,7 @@ endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
 ####################
 #  External
 #  onnx
+set(ONNX_NAMESPACE "onnx" CACHE STRING "ONNX namespace")
 find_package(onnx REQUIRED)
 message(STATUS "[${PACKAGE}] Using onnx include at ${ONNX_INCLUDE_DIR}")
 include_directories(${ONNX_INCLUDE_DIR})
@@ -85,19 +86,23 @@ endif(USE_LLVM)
 #  boost
 find_package(Boost COMPONENTS system REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
+#  bison
+find_package(BISON REQUIRED)
+#  flex
+find_package(FLEX REQUIRED)
 
 ####################
 #  Include
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/lib
 )
     
 ####################
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
 configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
+configure_file(include/onnc/Config/ONNX.h.cmake.in include/onnc/Config/ONNX.h)
 
 ####################
 # Subdirectories

@@ -191,7 +191,7 @@
 #cmakedefine ONNC_ON_WIN32 1
 
 /* default onnx namespace */
-#cmakedefine ONNX_NAMESPACE "${ONNX_NAMESPACE}"
+#cmakedefine ONNX_NAMESPACE ${ONNX_NAMESPACE}
 
 /* Name of package */
 #cmakedefine PACKAGE "${PACKAGE}"
