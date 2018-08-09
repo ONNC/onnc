@@ -4,8 +4,8 @@ enable_testing()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(ONNC_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
-file(READ ${ONNC_ROOT_DIR}/VERSION VERSION)
+set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
+file(READ ${ONNC_ROOT_PATH}/VERSION VERSION)
 set(PACKAGE_VERSION ${VERSION})
 set(PACKAGE "onnc")
 set(PACKAGE_BUGREPORT "maillist.onnc.ai")
@@ -49,7 +49,7 @@ include(check)
 
 ####################
 #  Targets
-file(STRINGS ${ONNC_ROOT_DIR}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
+file(STRINGS ${ONNC_ROOT_PATH}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
 string(REGEX MATCHALL "ENABLE_[A-Za-z0-9_]*_TARGET" CONFIG_IN_TARGETS ${CONFIG_IN_CONTENT})
 foreach(EACH_TARGET IN LISTS CONFIG_IN_TARGETS)
     # Get target name
@@ -62,37 +62,45 @@ endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
 
 ####################
 #  External
-# TODO:
-include(external)
+#  onnx
+find_package(onnx REQUIRED)
+message(STATUS "[${PACKAGE}] Using onnx include at ${ONNX_INCLUDE_DIR}")
+include_directories(${ONNX_INCLUDE_DIR})
+link_directories(${ONNX_LIBRARY_DIR})
+#  SkyPat
+find_package(SkyPat REQUIRED)
+message(STATUS "[${PACKAGE}] Using SkyPat include at ${SKYPAT_INCLUDE_DIR}")
+include_directories(${SKYPAT_INCLUDE_DIR})
+link_directories(${SKYPAT_LIBRARY_DIR})
+#  llvm
+OPTION(USE_LLVM "Use llvm" ON)
+if(USE_LLVM)
+    find_package(llvm)
+    if(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+        message(STATUS "[${PACKAGE}] Using llvm include at ${LLVM_INCLUDE_DIR}")
+        include_directories(${LLVM_INCLUDE_DIR})
+        link_directories(${LLVM_LIBRARY_DIR})
+    endif(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+endif(USE_LLVM)
+#  boost
+find_package(Boost COMPONENTS system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
 
-set(ONNC_INCLUDE_DIRS
+####################
+#  Include
+include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/lib)
-
-set(SKYPAT_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "skypat install path")
-set(SKYPAT_INCLUDE_DIRS
-    ${SKYPAT_INSTALL_DIR}/include)
-set(SKYPAT_LIBRARIES
-    ${SKYPAT_INSTALL_DIR}/lib/libskypat.a)
-
-set(ONNX_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
-set(ONNX_INCLUDE_DIRS
-    ${ONNX_INSTALL_DIR}/include)
-set(ONNX_LIBRARIES
-    ${ONNX_INSTALL_DIR}/lib/libonnx.a
-    ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
+    ${CMAKE_CURRENT_BINARY_DIR}/lib
+)
     
 ####################
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
 configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
-#configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
-#configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
 
 ####################
-# Other
-#add_custom_target(code_gen)
-#add_subdirectory(lib)
+# Subdirectories
+add_subdirectory(lib)
 #add_subdirectory(tools)
 #add_subdirectory(include)
