@@ -1,6 +1,3 @@
-
-include(${CMAKE_CURRENT_LIST_DIR}/canoncial_system.cmake)
-
 function(enum_onnc_targets)
     macro(add_target name default_value)
         string(TOUPPER ${name} op_name)
@@ -17,9 +14,6 @@ function(enum_onnc_targets)
     option(TARGET_ALL "Build all targets" ON)
     add_target(X86 ON)
     add_target(Sophon OFF)
-
-    # special option value
-    check_canonical_system()
 
     # evaluate macro for Platforms.def and Backends.def
     set(ONNC_TARGET_PLATFORMS "")
