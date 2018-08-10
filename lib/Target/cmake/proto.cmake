@@ -1,6 +1,6 @@
 
 function(gen_proto_cpp)
-    cmake_parse_arguments(OPT "" "TARGET;SRCS;HDRS;PROTO" "" ${ARGN})
+    cmake_parse_arguments(OPT "" "TARGET;SOURCE;HDRS;PROTO" "" ${ARGN})
     #prepare proto name
     get_filename_component(OPT_PROTO ${OPT_PROTO} ABSOLUTE)
     get_filename_component(proto_name ${OPT_PROTO} NAME)
