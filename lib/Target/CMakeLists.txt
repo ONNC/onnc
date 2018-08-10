@@ -1,16 +1,29 @@
+# Get all subdirectory
+file(GLOB TARGET_DIRS_GLOB RELATIVE ${CMAKE_CURRENT_LIST_DIR} *)
+foreach(TARGET_DIR IN LISTS TARGET_DIRS_GLOB)
+    if(IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/${TARGET_DIR})
+        # Check target list
+        set(TARGET_DIRS ${TARGET_DIRS} ${TARGET_DIR})
+        string(TOUPPER ${TARGET_DIR} TARGET_DIR)
+        set(TARGET_DIRS_UPPER ${TARGET_DIRS_UPPER} ${TARGET_DIR})
+    endif(IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/${TARGET_DIR})
+endforeach(TARGET_DIR IN LISTS TARGET_DIRS_GLOB)
 
-add_compile_options(-Werror -Wall)
-
-add_libonnc_src(
-    Target.cpp 
-    TargetBackend.cpp 
-    TargetOptions.cpp
-    TargetRegistry.cpp
-    NPUTargetBackend.cpp)
-
-if (TARGET_SOPHON)
-    add_subdirectory(Sophon)
-endif()
-if (TARGET_X86)
-    add_subdirectory(X86)
-endif()
+foreach(ONNC_TARGET IN LISTS ONNC_TARGETS)
+    # Get target name
+    string(LENGTH ${ONNC_TARGET} EACH_LEN)
+    math(EXPR SUBSTR_LEN "${EACH_LEN} - 14")
+    string(SUBSTRING ${ONNC_TARGET} 7 ${SUBSTR_LEN} ONNC_TARGET_NAME)
+    # Find target
+    string(TOUPPER ${ONNC_TARGET_NAME} ONNC_TARGET_UPPER)
+    list(FIND TARGET_DIRS_UPPER ${ONNC_TARGET_UPPER} TAEGET_EXIST)
+    # Set target if exist
+    if(TAEGET_EXIST GREATER -1)
+        option(${ONNC_TARGET} "Enable ${ONNC_TARGET_NAME} target in onnc" ON)
+        list(GET TARGET_DIRS ${TAEGET_EXIST} TARGET_DIR_NAME)
+        # Add subdirectory
+        if(${ONNC_TARGET})
+            add_subdirectory(${TARGET_DIR_NAME})
+        endif(${ONNC_TARGET})
+    endif(TAEGET_EXIST GREATER -1)
+endforeach(ONNC_TARGET IN LISTS ONNC_TARGETS)

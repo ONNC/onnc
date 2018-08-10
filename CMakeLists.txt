@@ -52,12 +52,7 @@ include(check)
 file(STRINGS ${ONNC_ROOT_PATH}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
 string(REGEX MATCHALL "ENABLE_[A-Za-z0-9_]*_TARGET" CONFIG_IN_TARGETS ${CONFIG_IN_CONTENT})
 foreach(EACH_TARGET IN LISTS CONFIG_IN_TARGETS)
-    # Get target name
-    string(LENGTH ${EACH_TARGET} EACH_LEN)
-    math(EXPR SUBSTR_LEN "${EACH_LEN} - 14")
-    string(SUBSTRING ${EACH_TARGET} 7 ${SUBSTR_LEN} EACH_TARGET_NAME)
-    # Set option
-    option(${EACH_TARGET} "Enable ${EACH_TARGET_NAME}" ON)
+    set(ONNC_TARGETS ${ONNC_TARGETS} ${EACH_TARGET})
 endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
 
 ####################
@@ -99,13 +94,13 @@ include_directories(
 )
     
 ####################
-# OUTPUT
-configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
-configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
-configure_file(include/onnc/Config/ONNX.h.cmake.in include/onnc/Config/ONNX.h)
-
-####################
 # Subdirectories
 add_subdirectory(lib)
 #add_subdirectory(tools)
 #add_subdirectory(include)
+
+####################
+# OUTPUT
+configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
+configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
+configure_file(include/onnc/Config/ONNX.h.cmake.in include/onnc/Config/ONNX.h)

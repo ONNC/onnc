@@ -171,6 +171,7 @@ add_library(libonnc
 	"Option/OptionPool.cpp"
 	"Option/OptParser.cpp"
 )
+
 ####################
 #  JSON
 add_custom_command(
@@ -186,6 +187,10 @@ add_custom_command(
     MAIN_DEPENDENCY JSON/JsonScanner.lpp
 )
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
+
+####################
+#  Target
+add_subdirectory(Target)
 
 ####################
 #  Link
