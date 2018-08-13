@@ -47,7 +47,7 @@
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/OFStream.h>
-#include <onnc/Target/TG/BM188x/bmkernel_api.h>
+#include <onnc/Target/Sophon/BM188x/bmkernel_api.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
 #include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Transforms/BuildInitializers.h>

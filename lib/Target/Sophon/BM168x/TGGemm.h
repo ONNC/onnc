@@ -14,7 +14,7 @@
 #define ONNX_BM_TGGEMM_H
 
 #include "ComputeOperator.h"
-#include <onnx/common/ir.h>
+#include <onnc/Config/ONNX.h>
 namespace onnc {
 
 //  m_EmOperands: input, weight, bias, output
