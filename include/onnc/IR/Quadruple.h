@@ -122,7 +122,7 @@ public:
     KFreeBSD,
     Linux,
     Lv2,        // PS3
-    MacOSX,
+    macOS,
     MinGW32,    // i*86-pc-mingw32, *-w64-mingw32
     NetBSD,
     OpenBSD,

@@ -108,7 +108,7 @@ Quadruple::OSType onnc::ParseOS(StringRef pOSName)
     .StartsWith("kfreebsd", Quadruple::KFreeBSD)
     .StartsWith("linux", Quadruple::Linux)
     .StartsWith("lv2", Quadruple::Lv2)
-    .StartsWith("macosx", Quadruple::MacOSX)
+    .StartsWith("macos", Quadruple::macOS)
     .StartsWith("mingw32", Quadruple::MinGW32)
     .StartsWith("netbsd", Quadruple::NetBSD)
     .StartsWith("openbsd", Quadruple::OpenBSD)
@@ -381,7 +381,7 @@ const char* onnc::OSToName(Quadruple::OSType pType)
     case Quadruple::KFreeBSD:  return "kfreebsd";
     case Quadruple::Linux:     return "linux";
     case Quadruple::Lv2:       return "lv2";
-    case Quadruple::MacOSX:    return "macosx";
+    case Quadruple::macOS:     return "macos";
     case Quadruple::MinGW32:   return "mingw32";
     case Quadruple::NetBSD:    return "netbsd";
     case Quadruple::OpenBSD:   return "openbsd";

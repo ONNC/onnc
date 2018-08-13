@@ -21,13 +21,13 @@ ONNC increases DLA ASIC performance and shorten production time for DLA ASIC.
 
 ## Supported platforms
 
-ONNC supports Ubuntu/x86_64 and MacOSX.
+ONNC supports Ubuntu/x86_64 and macOS.
 
 Here is a list of verified versions:
 * Ubuntu/x86_64
   - 16.04
 
-* MacOSX
+* macOS
   - High Sierra
 
 ## Getting Started
