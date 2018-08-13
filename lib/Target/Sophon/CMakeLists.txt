@@ -24,7 +24,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 ####################
 #  Include
-add_library(onnc_Sophon
+file(RELATIVE_PATH relative_path ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(onnc_${relative_path}
     "io.cpp"
     "TargetLowering.cpp"
     "TGBackend.cpp"
@@ -50,8 +51,10 @@ add_library(onnc_Sophon
     "TargetInfo/TGTargetInfo.cpp"
 )
 
-target_link_libraries(libonnc
-    onnc_Sophon
+file(COPY 
+    "io.hpp"
+    "bmkernel_api_base.h"
+    DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon
 )
 
 add_subdirectory(BM168x)
@@ -60,4 +63,4 @@ add_subdirectory(BM168x)
 
 ####################
 #  Install
-install()
+#install()

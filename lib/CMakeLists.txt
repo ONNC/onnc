@@ -182,7 +182,8 @@ add_custom_command(
     MAIN_DEPENDENCY JSON/JsonParser.ypp
 )
 add_custom_command(
-    OUTPUT JSON/JsonScanner.cpp
+	OUTPUT JSON/JsonScanner.cpp
+	COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/JSON"
     COMMAND flex --outfile="${CMAKE_CURRENT_BINARY_DIR}/JSON/JsonScanner.cpp" ${CMAKE_CURRENT_SOURCE_DIR}/JSON/JsonScanner.lpp
     MAIN_DEPENDENCY JSON/JsonScanner.lpp
 )
@@ -190,7 +191,14 @@ set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
 ####################
 #  Target
+set(ONNC_TARGET_LIBRARIES "")
 add_subdirectory(Target)
+foreach(TARGET_LIBRARY IN LISTS ONNC_TARGET_LIBRARIES)
+	target_link_libraries(libonnc
+		${TARGET_LIBRARY}
+	)
+endforeach(TARGET_LIBRARY IN LISTS ONNC_TARGET_LIBRARIES)
+
 
 ####################
 #  Link

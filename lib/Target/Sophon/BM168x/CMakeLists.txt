@@ -24,7 +24,12 @@ if (TG_GEN_ASM_PROTO)
     )
 
     # build asm proto cpp
-    target_sources(onnc_Sophon
-        ${bm168x_asm_proto_src}
-    )
+    #target_sources(onnc_Sophon
+    #    ${bm168x_asm_proto_src}
+    #)
 endif()
+
+file(COPY 
+    "bmkernel_api.h"
+    DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon/BM168x
+)
