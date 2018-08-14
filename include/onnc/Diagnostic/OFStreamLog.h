@@ -16,7 +16,7 @@ namespace diagnostic {
 /** \class OFStreamLog
  *  \brief OFStreamLog display the result of diagnostic in text file
  *
- *  A conventient class to decorate StreamLog
+ *  A convenient class to decorate StreamLog
  */
 class OFStreamLog : public StreamLog
 {

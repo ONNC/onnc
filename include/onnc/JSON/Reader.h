@@ -37,16 +37,16 @@ public:
   /// Constructor. Initialize scanner.
   Reader();
 
-  /// Destructor. Destory scanner.
+  /// Destructor. Destroy scanner.
   virtual ~Reader();
 
   /// parse a JSON file.
   /// @param[out] pRoot The root json value.
   /// @retval true If it succeed to parse file @ref pPath
-  /// @retval false If it fails to check the garmmar.
+  /// @retval false If it fails to check the grammar.
   Result parse(const Path& pPath, Value& pRoot);
 
-  /// @retval true If suceed to read content @ref pContent
+  /// @retval true If succeed to read content @ref pContent
   bool read(StringRef pContent, Value& pRoot);
 
 private:

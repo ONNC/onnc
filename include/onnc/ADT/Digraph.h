@@ -17,7 +17,7 @@
 namespace onnc {
 
 /** \class Digraph
- *  \brief Digraph provides an linked-list inplementation of a graph.
+ *  \brief Digraph provides an linked-list implementation of a graph.
  *
  *  Digraph is designed to get well performance for most algorithms of
  *  graph theory.

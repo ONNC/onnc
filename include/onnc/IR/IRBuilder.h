@@ -146,7 +146,7 @@ public:
   template<typename OpType, typename ... CtorParams>
   OpType* AddComputeOp(const xNode& pNode, CtorParams&& ... pParams);
 
-  /// Create and add an comute operand in the compute graph.
+  /// Create and add an compute operand in the compute graph.
   /// Two operators are connected as well.
   template<typename OpndType, typename OpType, typename ... CtorParams>
   OpndType* AddComputeOpnd(OpType& pFrom, OpType& pTo, CtorParams&& ... pParams);

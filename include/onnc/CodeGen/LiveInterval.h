@@ -31,7 +31,7 @@ private:
 };
 
 /** \class TimeSlot
- *  \brief TimeSlot preresents the index of a time slot in the liveness table
+ *  \brief TimeSlot presents the index of a time slot in the liveness table
  */
 class TimeSlot : public IListNode<TimeSlot>
 {

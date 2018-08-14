@@ -44,7 +44,7 @@ public:
   /// Use external PassRegistry
   PassManager(PassRegistry& pRegistry);
 
-  /// PassManager is responsed to release all passes being added and created
+  /// PassManager is responsible to release all passes being added and created
   /// during adding passes.
   ~PassManager();
 

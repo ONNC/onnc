@@ -25,7 +25,7 @@ namespace onnc {
  *  @code
  *  Color color = StringSwitch<Color>(argv[i])
  *    .Case("red", Red)
- *    .Case("blue", Bule)
+ *    .Case("blue", Blue)
  *    .Default(UnknownColor);
  *  @endcode
  */

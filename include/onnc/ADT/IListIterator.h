@@ -77,7 +77,7 @@ private:
   // IListIterator is a bidirectional iterator, but it has an implicit
   // conversion to pointer-type. Therefore, declare these functions
   // (but don't implement them) as private can help users catch
-  // accidential mis-use.
+  // accidental mis-use.
   void operator+(difference_type) const;
   void operator-(difference_type) const;
   void operator+=(difference_type) const;
@@ -112,7 +112,7 @@ template<typename NodeType>
 typename IListIterator<NodeType>::reference
 IListIterator<NodeType>::operator* () const
 {
-  assert(NULL != m_pNodePtr && "Can not derefer a NULL pointer");
+  assert(NULL != m_pNodePtr && "Can not dereference a NULL pointer");
   return *static_cast<pointer>(m_pNodePtr);
 }
 

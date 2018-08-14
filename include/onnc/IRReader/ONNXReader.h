@@ -35,7 +35,7 @@ public:
   /// @ref pContent File content
   SystemError parse(ConstBuffer pContent, Module& pModule);
 
-  /// parse ONNX file with file decriptor.
+  /// parse ONNX file with file descriptor.
   /// @note It doesn't close the file descriptor. Users is responsible for
   /// closing the file.
   /// @return error occurred in the parsing.

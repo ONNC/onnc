@@ -14,7 +14,7 @@
 namespace onnc {
 
 /** \class Quadruple
- *  \brief Rrepresentation of a target program model
+ *  \brief Representation of a target program model
  *
  *  Quadruple is used to identify an unique target program model. A target program
  *  model is a combination of hardware, software and toolchain models. A quadruple
@@ -42,7 +42,7 @@ class Quadruple
 public:
   /// Architecture type.
   enum ArchType {
-    UnknownArch, // Unkwnon architecture
+    UnknownArch, // Unknown architecture
 
     aarch64,     // AArch64: aarch64
     arm,         // ARM: arm, armv.*, xscale

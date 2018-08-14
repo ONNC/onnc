@@ -13,7 +13,7 @@
 namespace onnc {
 
 /** \class Scalar
- *  \brief Scalar is a placehoder of scalars in a network.
+ *  \brief Scalar is a placeholder of scalars in a network.
  */
 class Scalar : public onnc::Value
 {

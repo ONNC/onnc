@@ -55,7 +55,7 @@ diagnostic::MsgHandler ignore     (StringRef pMessage);
  *  #include <onnc/Diagnostic/MsgHandling.h>
  *
  *  using namespace onnc;
- *  // show "Error parsing JSON file: file.sjon"
+ *  // show "Error parsing JSON file: file.json"
  *  fatal(fatal_json_parsing) << "file.json";
  *  \endcode
  *

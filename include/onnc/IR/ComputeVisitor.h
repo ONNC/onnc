@@ -133,7 +133,7 @@ class ScaledTanh;
 class ThresholdedRelu;
 
 /** \class ComputeVisitor
- *  \brief ComptueVisitor provides interface to visit operators.
+ *  \brief ComputeVisitor provides interface to visit operators.
  */
 class ComputeVisitor
 {

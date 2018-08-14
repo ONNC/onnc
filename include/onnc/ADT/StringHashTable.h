@@ -56,7 +56,7 @@ protected:
 } // namespace hash
 
 /**
- * Partial specificiation MallocAllocator for Entry<StringRef, ValueType>
+ * Partial specification MallocAllocator for Entry<StringRef, ValueType>
  */
 template<class ValueType>
 class MallocAllocator<internal::Entry<StringRef, ValueType> >

@@ -22,7 +22,7 @@ public:
 
   ~TensorPass() override;
 
-  /// Virtual method overriden by subclasses to process the module
+  /// Virtual method overridden by subclasses to process the module
   /// being operated on.
   virtual Pass::ReturnType runOnTensor(Tensor &pTensor) = 0;
 };

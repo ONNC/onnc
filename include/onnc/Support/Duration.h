@@ -21,7 +21,7 @@ namespace onnc {
  *  \brief represents a small time in the system.
  *
  *  Duration represent a while of time. It can not be negative. That
- *  means, substracting a bigger duration from a smaller duration returns zero
+ *  means, subtracting a bigger duration from a smaller duration returns zero
  *  duration, not negative.
  */
 class Duration

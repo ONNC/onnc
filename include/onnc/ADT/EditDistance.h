@@ -19,7 +19,7 @@ namespace onnc {
 //   http://en.wikipedia.org/wiki/Levenshtein_distance
 //
 // Although the algorithm is typically described using an m x n
-// array, only two rows are used at a time, so this implemenation
+// array, only two rows are used at a time, so this implementation
 // just keeps two separate vectors for those two rows.
 inline unsigned int
 EditDistance(StringRef pFromArray, StringRef pToArray,

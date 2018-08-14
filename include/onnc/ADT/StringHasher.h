@@ -48,7 +48,7 @@ struct StringHasher : public std::unary_function<const onnc::StringRef&, uint32_
 };
 
 /** \class StringHasher<RS>
- *  \brief RS StringHasher funciton
+ *  \brief RS StringHasher function
  */
 template<>
 struct StringHasher<RS> : public std::unary_function<const onnc::StringRef&, uint32_t>
@@ -68,7 +68,7 @@ struct StringHasher<RS> : public std::unary_function<const onnc::StringRef&, uin
 };
 
 /** \class StringHasher<JS>
- *  \brief JS hash funciton
+ *  \brief JS hash function
  */
 template<>
 struct StringHasher<JS> : public std::unary_function<const onnc::StringRef&, uint32_t>
