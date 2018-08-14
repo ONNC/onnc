@@ -25,6 +25,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 ####################
 #  Include
 file(RELATIVE_PATH relative_path ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_library(onnc_${relative_path}
     "io.cpp"
     "TargetLowering.cpp"
@@ -49,6 +50,75 @@ add_library(onnc_${relative_path}
     "BM168x/TGRelu.cpp"
     "BM168x/TGSoftmax.cpp"
     "TargetInfo/TGTargetInfo.cpp"
+    "BM188x/AddDummyWeightPass.cpp"
+    "BM188x/BM188xBackend.cpp"
+    "BM188x/BM188xISelLowering.cpp"
+    "BM188x/BM188xCodeEmitter.cpp"
+    "BM188x/BM188xTargetTransformInfo.cpp"
+    "BM188x/BM188xTargetMemInfo.cpp"
+    "BM188x/BM188xVisitor.cpp"
+    "BM188x/BM188xFuseOptimizer.cpp"
+    "BM188x/CodeEmitVisitor.cpp"
+    "BM188x/FillWeightVisitor.cpp"
+    "BM188x/GenRuntimeInfoPass.cpp"
+    "BM188x/GenWeightPass.cpp"
+    "BM188x/PrepareCtablePass.cpp"
+    "BM188x/UpdateCtablePass.cpp"
+    "BM188x/TLLoad.cpp"
+    "BM188x/TLStore.cpp"
+    "BM188x/TGConv.cpp"
+    "BM188x/TLConv.cpp"
+    "BM188x/TGGemm.cpp"
+    "BM188x/TGLRN.cpp"
+    "BM188x/TGMaxPool.cpp"
+    "BM188x/TLPool.cpp"
+    "BM188x/TGAveragePool.cpp"
+    "BM188x/TGGlobalAveragePool.cpp"
+    "BM188x/TGRelu.cpp"
+    "BM188x/TGLeakyRelu.cpp"
+    "BM188x/TGUpsample.cpp"
+    "BM188x/TGConcat.cpp"
+    "BM188x/TGTranspose.cpp"
+    "BM188x/TGSum.cpp"
+    "BM188x/TGPRelu.cpp"
+    "BM188x/TGScale.cpp"
+    "BM188x/Weight.cpp"
+    "BM188x/Compute/AveragePool.cpp"
+    "BM188x/Compute/Concat.cpp"
+    "BM188x/Compute/Conv.cpp"
+    "BM188x/Compute/Gemm.cpp"
+    "BM188x/Compute/GlobalAveragePool.cpp"
+    "BM188x/Compute/Load.cpp"
+    "BM188x/Compute/LRN.cpp"
+    "BM188x/Compute/LeakyRelu.cpp"
+    "BM188x/Compute/MaxPool.cpp"
+    "BM188x/Compute/Pool.cpp"
+    "BM188x/Compute/PRelu.cpp"
+    "BM188x/Compute/Sum.cpp"
+    "BM188x/Compute/Store.cpp"
+    "BM188x/Compute/Scale.cpp"
+    "BM188x/Compute/SlicedConv.cpp"
+    "BM188x/Compute/Relu.cpp"
+    "BM188x/Compute/Transpose.cpp"
+    "BM188x/Compute/Upsample.cpp"
+    "BM188x/Lowers/AveragePoolLower.cpp"
+    "BM188x/Lowers/ConcatLower.cpp"
+    "BM188x/Lowers/ConvLower.cpp"
+    "BM188x/Lowers/GemmLower.cpp"
+    "BM188x/Lowers/GlobalAveragePoolLower.cpp"
+    "BM188x/Lowers/LoadLower.cpp"
+    "BM188x/Lowers/LRNLower.cpp"
+    "BM188x/Lowers/LeakyReluLower.cpp"
+    "BM188x/Lowers/MaxPoolLower.cpp"
+    "BM188x/Lowers/PoolLower.cpp"
+    "BM188x/Lowers/PReluLower.cpp"
+    "BM188x/Lowers/SlicedConvLower.cpp"
+    "BM188x/Lowers/StoreLower.cpp"
+    "BM188x/Lowers/SumLower.cpp"
+    "BM188x/Lowers/TransposeLower.cpp"
+    "BM188x/Lowers/ScaleLower.cpp"
+    "BM188x/Lowers/ReluLower.cpp"
+    "BM188x/Lowers/UpsampleLower.cpp"
 )
 
 file(COPY 
@@ -58,8 +128,7 @@ file(COPY
 )
 
 add_subdirectory(BM168x)
-# TODO: BM188x
-#add_subdirectory(BM188x)
+add_subdirectory(BM188x)
 
 ####################
 #  Install
