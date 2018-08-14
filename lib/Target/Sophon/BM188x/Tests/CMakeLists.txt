@@ -5,7 +5,7 @@ if (ENABLE_UNITTEST)
     add_library(libbm188x_test_main main.cpp)
     target_link_libraries(libbm188x_test_main
         libonnc
-        libSkyPat
+        skypat
     )
     function(add_onnc_test name)
         add_executable(unittest_${name} ${ARGN})

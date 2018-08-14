@@ -207,9 +207,9 @@ if (HAVE_PTHREADS)
 endif()
 target_link_libraries(libonnc
     ${Boost_LIBRARIES}
-    #glog
+    glog
     ${ONNX_LIBRARIES}
-    #${PROTOBUF_LIBRARIES}
+    ${PROTOBUF_LIBRARIES}
 )
 if (USE_LLVM)
     target_link_libraries(libonnc ${LLVM_LIBRARIES})

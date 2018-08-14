@@ -13,7 +13,6 @@ if (TG_GEN_ASM_PROTO)
         message(FATAL_ERROR "can't find bmtarget path: ${bmtarget_path}")
     endif()
 endif()
-
 ####################
 #  Include
 if (BMONNC_EXIST)
@@ -24,9 +23,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 ####################
 #  Include
-file(RELATIVE_PATH relative_path ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(BM168x)
+add_subdirectory(BM188x)
 
-add_library(onnc_${relative_path}
+add_library(onnc_Sophon
     "io.cpp"
     "TargetLowering.cpp"
     "TGBackend.cpp"
@@ -119,6 +119,9 @@ add_library(onnc_${relative_path}
     "BM188x/Lowers/ScaleLower.cpp"
     "BM188x/Lowers/ReluLower.cpp"
     "BM188x/Lowers/UpsampleLower.cpp"
+    $<TARGET_OBJECTS:bm168x_asm_object>
+    $<TARGET_OBJECTS:bm188x_asm_object>
+    $<TARGET_OBJECTS:common_calibration2_object>
 )
 
 file(COPY 
@@ -126,9 +129,6 @@ file(COPY
     "bmkernel_api_base.h"
     DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon
 )
-
-add_subdirectory(BM168x)
-add_subdirectory(BM188x)
 
 ####################
 #  Install

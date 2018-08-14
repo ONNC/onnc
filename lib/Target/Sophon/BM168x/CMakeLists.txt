@@ -1,8 +1,11 @@
 include(proto)
+file(COPY 
+    "bmkernel_api.h"
+    DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon/BM168x
+)
+set(bm168x_asm_proto "${CMAKE_CURRENT_SOURCE_DIR}/asm/bm168x_asm.proto")
 if (TG_GEN_ASM_PROTO)
     include(bmtarget)
-    set(bm168x_asm_proto ${CMAKE_CURRENT_SOURCE_DIR}/asm/bm168x_asm.proto)
-
     # gen bm168x_asm.proto and bmkernel_api.h
     bm_gen_asm_proto(
         TARGET bm168x_gen_asm_proto
@@ -13,25 +16,13 @@ if (TG_GEN_ASM_PROTO)
     )
     # gen asm proto cpp/header
     gen_proto_cpp(
-        TARGET bm168x_compile_asm_proto
         PROTO ${bm168x_asm_proto}
-        SOURCE bm168x_asm_proto_src
+        SOURCE bm168x_asm_src
         DEPEND ${bm168x_gen_asm_proto}
     )
 else(TG_GEN_ASM_PROTO)
     gen_proto_cpp(
-        TARGET bm168x_compile_asm_proto
         PROTO ${bm168x_asm_proto}
-        SOURCE bm168x_asm_proto_src
+        SOURCE bm168x_asm_src
     )
-endif()
-
-
-add_dependencies(onnc_Sophon
-    bm168x_compile_asm_proto
-)
-
-file(COPY 
-    "bmkernel_api.h"
-    DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon/BM168x
-)
+endif(TG_GEN_ASM_PROTO)
