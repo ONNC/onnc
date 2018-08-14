@@ -1,67 +1,133 @@
+include(check_helper)
 
-function(add_lit_target target comment)
-    cmake_parse_arguments(ARG "" "" "PARAMS;DEPENDS;ARGS" ${ARGN})
-    set(LIT_ARGS "${ARG_ARGS} ${LLVM_LIT_ARGS}")
-    separate_arguments(LIT_ARGS)
-    if (NOT CMAKE_CFG_INTDIR STREQUAL ".")
-        list(APPEND LIT_ARGS --param build_mode=${CMAKE_CFG_INTDIR})
-    endif ()
+####################
+#  Check canonical system
+if (UNIX)
+  set(ONNC_ON_UNIX 1)
+elseif(WIN32)
+  set(ONNC_ON_WIN32 1)
+elseif(APPLE)
+  set(ONNC_ON_APPLE 1)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  set(ONNC_ON_LINUX 1)
+endif()
 
+####################
+#  Check quardruple
+if( MSVC )
+  if( CMAKE_CL_64 )
+    set( ONNC_DEFAULT_TARGET_QUADRUPLE "x86_64-pc-win32" PARENT_SCOPE)
+  else()
+    set( ONNC_DEFAULT_TARGET_QUADRUPLE "i686-pc-win32" PARENT_SCOPE)
+  endif()
+elseif( MINGW AND NOT MSYS )
+  if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    set( ONNC_DEFAULT_TARGET_QUADRUPLE "x86_64-w64-mingw32" PARENT_SCOPE)
+  else()
+    set( ONNC_DEFAULT_TARGET_QUADRUPLE "i686-pc-mingw32" PARENT_SCOPE)
+  endif()
+else( MSVC )
+  execute_process(COMMAND sh ${CMAKE_CURRENT_LIST_DIR}/config.guess
+    RESULT_VARIABLE TT_RV
+    OUTPUT_VARIABLE TT_OUT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if( NOT TT_RV EQUAL 0 )
+    message(FATAL_ERROR "Failed to execute ${CMAKE_CURRENT_LIST_DIR}/config.guess")
+  endif( NOT TT_RV EQUAL 0 )
+  set( ONNC_DEFAULT_TARGET_QUADRUPLE ${TT_OUT} PARENT_SCOPE)
+endif( MSVC )
 
-    set(LIT_COMMAND python ${ONNC_BINARY_DIR}/test/onnc-lit.py)
-    list(APPEND LIT_COMMAND ${LIT_ARGS})
-    foreach(param ${ARG_PARAMS})
-        list(APPEND LIT_COMMAND --param ${param})
+####################
+#  Check STL hash
+message(STATUS "Looking for unordered/hash map/set headers")
+foreach(NAMESPACE_I std std::tr1)
+    foreach(LOCATION_I unordered_map tr1/unordered_map)
+        try_compile_code(
+            HEAD "#include <${LOCATION_I}>" 
+            CODE "${NAMESPACE_I}::unordered_map<int, int> t; return t.find(5) == t.end();" 
+            RESULT SUCCEED)
+        if (SUCCEED)
+            set(LOCATION "${LOCATION_I}")
+            break()
+        endif()
     endforeach()
-    if (ARG_UNPARSED_ARGUMENTS)
-        add_custom_target(${target}
-            COMMAND ${LIT_COMMAND} ${ARG_UNPARSED_ARGUMENTS}
-            COMMENT "${comment}"
-            USES_TERMINAL
-            )
-    else()
-        add_custom_target(${target}
-            COMMAND ${CMAKE_COMMAND} -E echo "${target} does nothing, no tools built.")
-        message(STATUS "${target} does nothing.")
+    if (SUCCEED)
+        set(NAMESPACE "${NAMESPACE_I}")
+        set(CLASSNAME "unordered_map")
+        break()
     endif()
-    if (ARG_DEPENDS)
-        add_dependencies(${target} ${ARG_DEPENDS})
-    endif()
-
-    # Tests should be excluded from "Build Solution".
-    set_target_properties(${target} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
-endfunction()
-
-function(add_lit_testsuites project directory)
-    if (NOT CMAKE_CONFIGURATION_TYPES)
-        cmake_parse_arguments(ARG "" "" "PARAMS;DEPENDS;ARGS" ${ARGN})
-
-        # Search recursively for test directories by assuming anything not
-        # in a directory called Inputs contains tests.
-        file(GLOB_RECURSE to_process LIST_DIRECTORIES true ${directory}/*)
-        foreach(lit_suite ${to_process})
-            if(NOT IS_DIRECTORY ${lit_suite})
-                continue()
-            endif()
-            string(FIND ${lit_suite} Inputs is_inputs)
-            string(FIND ${lit_suite} Output is_output)
-            if (NOT (is_inputs EQUAL -1 AND is_output EQUAL -1))
-                continue()
-            endif()
-
-            # Create a check- target for the directory.
-            string(REPLACE ${directory} "" name_slash ${lit_suite})
-            if (name_slash)
-                string(REPLACE "/" "-" name_slash ${name_slash})
-                string(REPLACE "\\" "-" name_dashes ${name_slash})
-                string(TOLOWER "${name_dashes}" name_var)
-                add_lit_target("check${name_var}" "Running lit suite ${lit_suite}"
-                    ${lit_suite}
-                    PARAMS ${ARG_PARAMS}
-                    DEPENDS ${ARG_DEPENDS}
-                    ARGS ${ARG_ARGS}
-                    )
+endforeach()
+if (NOT SUCCEED)
+    foreach(NAMESPACE_I __gnu_cxx "" std stdext)
+        foreach(LOCATION_I ext/hash_map hash_map)
+            try_compile_code(
+                HEAD "#include <${LOCATION_I}>" 
+                CODE "${NAMESPACE_I}::hash_map<int, int> t;" 
+                RESULT SUCCEED)
+            if (SUCCEED)
+                set(LOCATION "${LOCATION_I}")
+                break()
             endif()
         endforeach()
-    endif()
-endfunction()
+        if (SUCCEED)
+            set(NAMESPACE "${NAMESPACE_I}")
+            set(CLASSNAME "hash_map")
+            break()
+        endif()
+    endforeach()
+endif()
+if (SUCCEED)
+    set(HASH_NAMESPACE "${NAMESPACE}" CACHE INTERNAL "")
+    set(HAVE_HASH_MAP 1 CACHE INTERNAL "")
+    set(HASH_MAP_H "${LOCATION}" CACHE INTERNAL "")
+    set(HASH_MAP_CLASS "${CLASSNAME}" CACHE INTERNAL "")
+    string(REPLACE "map" "set" CLASSNAME ${CLASSNAME})
+    string(REPLACE "map" "set" LOCATION ${LOCATION})
+    set(HAVE_HASH_SET 1 CACHE INTERNAL "")
+    set(HASH_SET_H "${LOCATION}" CACHE INTERNAL "")
+    set(HASH_SET_CLASS "${CLASSNAME}" CACHE INTERNAL "")
+endif ()
+
+####################
+#  Check types
+check_types(int8_t int16_t int32_t int64_t intptr_t)
+check_types(uint8_t uint16_t uint32_t uint64_t uintptr_t)
+check_types(double "long double" "long long" "long long int" "unsigned long long int")
+check_types(off_t size_t ssize_t)
+if(LONG_DOUBLE GREATER DOUBLE)
+    set(HAVE_LONG_DOUBLE_WIDER TRUE)
+endif()
+
+####################
+# Check libraries
+find_package(Threads)
+if (Threads_FOUND)
+    set(HAVE_PTHREAD 1)
+endif ()
+find_package(ZLIB 1.2.0.4)
+if (ZLIB_FOUND)
+    set(HAVE_ZLIB 1)
+endif (ZLIB_FOUND)
+find_package(Protobuf REQUIRED)
+
+####################
+# Check for headers
+check_headers(
+    dlfcn.h
+    inttypes.h
+    memory.h
+    stdint.h
+    stdlib.h
+    strings.h
+    string.h
+    sys/stat.h
+    sys/time.h
+    sys/types.h
+    unistd.h
+)
+
+####################
+# Check for functions
+include(CheckSymbolExists)
+check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
+check_symbol_exists(clock_gettime sys/time.h HAVE_CLOCK_GETTIME)

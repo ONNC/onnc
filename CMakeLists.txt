@@ -1,47 +1,28 @@
 cmake_minimum_required(VERSION 3.5)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(option)
-
-set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
-set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used by the CXX compiler during RELWITHDEBINFO builds.")
-option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release RelWithDebInfo)
-
-project(ONNC)
+project(onnc)
 enable_testing()
-include(test)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (NOT TARGET build_external)
-    add_custom_target(build_external)
-endif()
-
-set(VERSION dev)
-set(PACKAGE_VERSION dev)
-set(HAVE_CXX14 TRUE)
-set(PACKAGE "onnc")
-set(PACKAGE_BUGREPORT "bugs@onnc.org")
-set(PACKAGE_NAME "ONNC")
-set(PACKAGE_STRING "ONNC dev")
-set(PACKAGE_TARNAME "onnc")
-set(PACKAGE_URL "")
-
 ####################
-#  Check environments - `host`, `target` and `build`
-include(canoncial_system)
-check_canonical_system()
+#  Options
+include(option)
+option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
+option(ENABLE_PTHREAD "use pthreads" ON)
+set(HAVE_PTHREADS ${ENABLE_PTHREAD})
+option(ENABLE_UNITTEST "enable unittest" ON)
+option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
+option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 
 ####################
 #  Languages
+set(STDC_HEADERS 1)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-include(stl_hash)
-determine_hash_namespace()
-
-####################
-# Check for compiler warnings
+set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used by the CXX compiler during RELWITHDEBINFO builds.")
 option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
 if (ENABLE_WERROR)
     add_compile_options(-Werror)
@@ -50,59 +31,11 @@ include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
 
 ####################
-# Check for libraries
-find_package(Threads)
-if (Threads_FOUND)
-    set(HAVE_PTHREAD 1)
-endif ()
-find_package(ZLIB 1.2.0.4)
-if (ZLIB_FOUND)
-    set(HAVE_ZLIB 1)
-endif (ZLIB_FOUND)
-find_package(Protobuf REQUIRED)
+#  Check
+include(check)
 
 ####################
-# Check for types
-include(platform_check)
-check_types(int8_t int16_t int32_t int64_t intptr_t)
-check_types(uint8_t uint16_t uint32_t uint64_t uintptr_t)
-check_types(double "long double" "long long" "long long int" "unsigned long long int")
-check_types(off_t size_t ssize_t)
-if(LONG_DOUBLE GREATER DOUBLE)
-    set(HAVE_LONG_DOUBLE_WIDER TRUE)
-endif()
-
-####################
-# Check for headers
-check_headers(
-    dlfcn.h
-    inttypes.h
-    memory.h
-    stdint.h
-    stdlib.h
-    strings.h
-    string.h
-    sys/stat.h
-    sys/time.h
-    sys/types.h
-    unistd.h)
-set(STDC_HEADERS 1)
-
-include(CheckSymbolExists)
-####################
-# Check for functions
-check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
-check_symbol_exists(clock_gettime sys/time.h HAVE_CLOCK_GETTIME)
-####################
-# Check for options
-option(ENABLE_PTHREAD "use pthreads" ON)
-set(HAVE_PTHREADS ${ENABLE_PTHREAD})
-option(ENABLE_UNITTEST "enable unittest" ON)
-option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
-option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
-
-####################
-# Check for variables and targets
+#  Targets
 include(onnc_target)
 enum_onnc_targets()
 
