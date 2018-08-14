@@ -10,6 +10,7 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
+
 #ifndef BM188X_BMKERNEL_API_H
 #define BM188X_BMKERNEL_API_H
 
@@ -19,6 +20,7 @@
 namespace bmnet {
 
 namespace bmnet_asm {
+using ActivationMethod = bmnet::bm1880::Inst::ActivationMethod;
 
 // clang-format off
 inline void bmnet_pooling_fixed_forward_bmkernel(
@@ -42,7 +44,8 @@ inline void bmnet_pooling_fixed_forward_bmkernel(
     float avg_const,
     int do_relu,
     int right_shift_width,
-    const int* threshold_x_quantized)
+    const int* threshold_x_quantized,
+    const bool ceil_mode)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -77,6 +80,7 @@ inline void bmnet_pooling_fixed_forward_bmkernel(
         pooling->set_right_shift_width(right_shift_width);
         for (size_t i = 0; i < (size_t)1; i++)
             pooling->add_threshold_x_quantized(threshold_x_quantized[i]);
+        pooling->set_ceil_mode(ceil_mode);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
@@ -577,7 +581,10 @@ inline void bmnet_concat_fixed_forward_bmkernel(
     int input_num,
     int concat_axis,
     int output_dim_len,
-    int* output_dim)
+    int* output_dim,
+    const int need_quantize_num,
+    const int* right_shift_width,
+    const int* threshold_x_quantized)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -600,6 +607,11 @@ inline void bmnet_concat_fixed_forward_bmkernel(
         concat->set_output_dim_len(output_dim_len);
         for (size_t i = 0; i < (size_t)output_dim_len; i++)
             concat->add_output_dim(output_dim[i]);
+        concat->set_need_quantize_num(need_quantize_num);
+        for (size_t i = 0; i < (size_t)need_quantize_num; i++)
+            concat->add_right_shift_width(right_shift_width[i]);
+        for (size_t i = 0; i < (size_t)need_quantize_num; i++)
+            concat->add_threshold_x_quantized(threshold_x_quantized[i]);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
@@ -935,7 +947,7 @@ inline void bmnet_tl_activation_forward_bmkernel(
     int activation_arg_len,
     float* activation_arg,
     bool channel_shared,
-    bmnet::bm1880::Inst::ActivationMethod activation_type)
+    const ActivationMethod activation_type)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -1225,6 +1237,166 @@ inline void bmnet_tl_upsample_forward_bmkernel(
         tl_upsample->set_output_h(output_h);
         tl_upsample->set_output_w(output_w);
         tl_upsample->set_size(size);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
+inline void bmnet_tl_load_stride_bmkernel(
+    u64 ga_src,
+    laddr_t la_dst,
+    int Local_N,
+    int Local_C,
+    int Local_H,
+    int Local_W,
+    int Global_C,
+    int Global_H,
+    int Global_W,
+    bool DoTranspose,
+    bool DoAligned,
+    bool isNeuron)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1880::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_tl_load_stride_bmkernel");
+        auto *tl_layer_load_stride = inst->mutable_tl_layer_load_stride();
+        tl_layer_load_stride->set_ga_src(ga_src);
+        tl_layer_load_stride->set_la_dst(la_dst);
+        tl_layer_load_stride->set_local_n(Local_N);
+        tl_layer_load_stride->set_local_c(Local_C);
+        tl_layer_load_stride->set_local_h(Local_H);
+        tl_layer_load_stride->set_local_w(Local_W);
+        tl_layer_load_stride->set_global_c(Global_C);
+        tl_layer_load_stride->set_global_h(Global_H);
+        tl_layer_load_stride->set_global_w(Global_W);
+        tl_layer_load_stride->set_dotranspose(DoTranspose);
+        tl_layer_load_stride->set_doaligned(DoAligned);
+        tl_layer_load_stride->set_isneuron(isNeuron);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
+inline void bmnet_tl_load_bmkernel(
+    u64 ga_src,
+    laddr_t la_dst,
+    int Local_N,
+    int Local_C,
+    int Local_H,
+    int Local_W,
+    int Global_C,
+    int Global_H,
+    int Global_W,
+    bool DoTranspose,
+    bool DoAligned,
+    bool isNeuron)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1880::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_tl_load_bmkernel");
+        auto *tl_layer_load = inst->mutable_tl_layer_load();
+        tl_layer_load->set_ga_src(ga_src);
+        tl_layer_load->set_la_dst(la_dst);
+        tl_layer_load->set_local_n(Local_N);
+        tl_layer_load->set_local_c(Local_C);
+        tl_layer_load->set_local_h(Local_H);
+        tl_layer_load->set_local_w(Local_W);
+        tl_layer_load->set_global_c(Global_C);
+        tl_layer_load->set_global_h(Global_H);
+        tl_layer_load->set_global_w(Global_W);
+        tl_layer_load->set_dotranspose(DoTranspose);
+        tl_layer_load->set_doaligned(DoAligned);
+        tl_layer_load->set_isneuron(isNeuron);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
+inline void bmnet_tl_store_stride_bmkernel(
+    u64 ga_dst,
+    laddr_t la_src,
+    int Local_N,
+    int Local_C,
+    int Local_H,
+    int Local_W,
+    int Global_C,
+    int Global_H,
+    int Global_W,
+    bool DoTranspose,
+    bool DoAligned,
+    bool isNeuron)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1880::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_tl_store_stride_bmkernel");
+        auto *tl_layer_store_stride = inst->mutable_tl_layer_store_stride();
+        tl_layer_store_stride->set_ga_dst(ga_dst);
+        tl_layer_store_stride->set_la_src(la_src);
+        tl_layer_store_stride->set_local_n(Local_N);
+        tl_layer_store_stride->set_local_c(Local_C);
+        tl_layer_store_stride->set_local_h(Local_H);
+        tl_layer_store_stride->set_local_w(Local_W);
+        tl_layer_store_stride->set_global_c(Global_C);
+        tl_layer_store_stride->set_global_h(Global_H);
+        tl_layer_store_stride->set_global_w(Global_W);
+        tl_layer_store_stride->set_dotranspose(DoTranspose);
+        tl_layer_store_stride->set_doaligned(DoAligned);
+        tl_layer_store_stride->set_isneuron(isNeuron);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
+inline void bmnet_tl_store_bmkernel(
+    u64 ga_dst,
+    laddr_t la_src,
+    int Local_N,
+    int Local_C,
+    int Local_H,
+    int Local_W,
+    int Global_C,
+    int Global_H,
+    int Global_W,
+    bool DoTranspose,
+    bool DoAligned,
+    bool isNeuron)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1880::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_tl_store_bmkernel");
+        auto *tl_layer_store = inst->mutable_tl_layer_store();
+        tl_layer_store->set_ga_dst(ga_dst);
+        tl_layer_store->set_la_src(la_src);
+        tl_layer_store->set_local_n(Local_N);
+        tl_layer_store->set_local_c(Local_C);
+        tl_layer_store->set_local_h(Local_H);
+        tl_layer_store->set_local_w(Local_W);
+        tl_layer_store->set_global_c(Global_C);
+        tl_layer_store->set_global_h(Global_H);
+        tl_layer_store->set_global_w(Global_W);
+        tl_layer_store->set_dotranspose(DoTranspose);
+        tl_layer_store->set_doaligned(DoAligned);
+        tl_layer_store->set_isneuron(isNeuron);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
