@@ -104,7 +104,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     PassManager pm(registry);
 
     pm.add(CreateRemoveTrainingNodesPass());
-    pm.add(CreateAddDummyWeightPass());
+    pm.add(createAddDummyWeightPass());
     pm.add(CreateUpdateGraphOutputSizePass());
     pm.add(createPrepareCtablePass( &test_backend ));
     pm.add(createONNXFuseOptPass( &test_backend ));
@@ -206,7 +206,7 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   TGBackend::Instructions insns;
   BM1880Backend backend(insns, options);
   pm.add(CreateRemoveTrainingNodesPass());
-  pm.add(CreateAddDummyWeightPass());
+  pm.add(createAddDummyWeightPass());
   pm.add(CreateUpdateGraphOutputSizePass());
   pm.add(createPrepareCtablePass( &backend ));
   pm.add(createONNXFuseOptPass( &backend ));
@@ -221,7 +221,7 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   TGBackend::Instructions insns2;
   BM1880Backend backend2(insns2, options);
   pm2.add(CreateRemoveTrainingNodesPass());
-  pm2.add(CreateAddDummyWeightPass());
+  pm2.add(createAddDummyWeightPass());
   pm2.add(CreateUpdateGraphOutputSizePass());
   pm2.add(createPrepareCtablePass( &backend2 ));
   pm2.add(createONNXFuseOptPass( &backend2 ));

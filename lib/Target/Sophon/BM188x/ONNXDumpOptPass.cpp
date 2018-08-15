@@ -48,7 +48,7 @@ Pass::ReturnType ONNXDumpOpt::runOnModule(Module &pModule)
   pModule.getMetaData()["bm1880_ctable"] =
       m_pBackend->getBackendCtable().DebugString();
 
-  std::string output_file = m_pBackend->getOption().m_OutputOptOnnx;
+  std::string output_file = m_pBackend->options().optOnnxModel();
 
   if (output_file.empty()) {
     errs() << "error:" << __func__ << "\n";
@@ -63,7 +63,7 @@ Pass::ReturnType ONNXDumpOpt::runOnModule(Module &pModule)
     m_pBackend->setCtableProto(ctable);
     std::cout << m_pBackend->getBackendCtable().DebugString() << std::endl;
   } else {
-    xModelProto modelProto;
+    xProto modelProto;
     onnc::ExportModelProto(modelProto, pModule);
     std::fstream output(output_file,
                         std::ios::out | std::ios::trunc | std::ios::binary);

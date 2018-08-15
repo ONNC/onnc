@@ -120,7 +120,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().target().ignoreCalibrationStep(IgnoreCalibrationStep);
   onnx2tg.options().target().useDummyCTable(AddDummyCTable);
   onnx2tg.options().target().useDummyWeight(AddDummyWeight);
-  onnx2tg.options().target().outputOptOnnx(OutputOptOnnx);
+  onnx2tg.options().target().optOnnxModel(OutputOptOnnx);
 
 #ifdef BMONNC_EXIST
   foo();

@@ -127,13 +127,13 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   pPM.add(CreateRemoveTrainingNodesPass());
   // TODO refactoring, AddDummyWeightPass can be target indepedent pass
   if (options().shouldUseDummyWeight())
-    pPM.add(CreateAddDummyWeightPass());
+    pPM.add(createAddDummyWeightPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
 
   // BM1880 customized Pass
   pPM.add(createPrepareCtablePass(this));
 
-  if (getOption().m_OutputOptOnnx.empty())
+  if (options().optOnnxModel().empty())
     pPM.add(createONNXFuseOptPass(this));
 
   if (options().shouldPrintBeforeTensorSel())
@@ -145,7 +145,7 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   pPM.add(createQuantizePass(this));
 #endif
 
-  if (!getOption().m_OutputOptOnnx.empty())
+  if (!options().optOnnxModel().empty())
     pPM.add(createONNXDumpOptPass(this));
   pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateBookONNXGraphs());

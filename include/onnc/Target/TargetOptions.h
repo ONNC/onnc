@@ -8,6 +8,8 @@
 #ifndef ONNC_CORE_TARGET_OPTIONS_H
 #define ONNC_CORE_TARGET_OPTIONS_H
 
+#include <string>
+
 namespace onnc {
 
 /** \class TargetOptions
@@ -48,13 +50,20 @@ public:
 
   void useDummyWeight(bool pEnable = true) { m_AddDummyWeight = pEnable; }
 
+  /// This property holds the output file name for optimized onnx model
+  /// in backend
+  std::string optOnnxModel() const { return m_OptOnnxModel; }
+
+  void optOnnxModel(std::string pFileName) { m_OptOnnxModel = pFileName; }
+
+
 private:
   bool m_PrintModuleBeforeSel;
   bool m_IgnoreCalibrationStep;
   bool m_AddDummyCTable;
   bool m_AddDummyWeight;
 
-  std::string m_OutputOptOnnx;
+  std::string m_OptOnnxModel;
 };
 
 } // namespace onnc
