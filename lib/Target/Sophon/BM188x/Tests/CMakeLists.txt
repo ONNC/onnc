@@ -8,7 +8,7 @@ function(add_onnc_test name)
     if (ENABLE_UNITTEST)
        add_executable(unittest_${name} main.cpp ${ARGN})
        if (BMONNC_EXIST)
-           target_link_libraries(unittest_${name} -Wl,--start-group bmnetc libonnc -Wl,--end-group
+           target_link_libraries(unittest_${name} bmnetc libonnc
                ${SKYPAT_LIBRARIES})
        else()
            target_link_libraries(unittest_${name} libonnc
