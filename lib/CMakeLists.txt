@@ -170,6 +170,11 @@ add_library(libonnc
 	"Option/Option.cpp"
 	"Option/OptionPool.cpp"
 	"Option/OptParser.cpp"
+	"Target/Target.cpp"
+	"Target/TargetOptions.cpp"
+	"Target/TargetBackend.cpp"
+	"Target/TargetRegistry.cpp"
+	"Target/NPUTargetBackend.cpp"
 )
 
 ####################
