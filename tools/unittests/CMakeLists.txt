@@ -4,7 +4,7 @@ add_definitions(-DBUILDDIR="${PROJECT_BINARY_DIR}")
 
 if (ENABLE_UNITTEST)
     add_library(unittests_main main.cpp)
-    target_link_libraries(unittest_main 
+    target_link_libraries(unittests_main 
         libonnc
         skypat
     )
