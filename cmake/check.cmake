@@ -99,18 +99,6 @@ if(LONG_DOUBLE GREATER DOUBLE)
 endif()
 
 ####################
-# Check libraries
-find_package(Threads)
-if (Threads_FOUND)
-    set(HAVE_PTHREAD 1)
-endif ()
-find_package(ZLIB 1.2.0.4)
-if (ZLIB_FOUND)
-    set(HAVE_ZLIB 1)
-endif (ZLIB_FOUND)
-find_package(Protobuf REQUIRED)
-
-####################
 # Check for headers
 check_headers(
     dlfcn.h

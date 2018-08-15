@@ -129,7 +129,3 @@ file(COPY
     "bmkernel_api_base.h"
     DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon
 )
-
-####################
-#  Install
-#install()

@@ -44,18 +44,6 @@ set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparenthese
 add_compile_options(${ANDROID_CPPFLAGS})
 
 ####################
-#  Check
-include(check)
-
-####################
-#  Targets
-file(STRINGS ${ONNC_ROOT_PATH}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
-string(REGEX MATCHALL "ENABLE_[A-Za-z0-9_]*_TARGET" CONFIG_IN_TARGETS ${CONFIG_IN_CONTENT})
-foreach(EACH_TARGET IN LISTS CONFIG_IN_TARGETS)
-    set(ONNC_TARGETS ${ONNC_TARGETS} ${EACH_TARGET})
-endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
-
-####################
 #  External
 #  onnx
 set(ONNX_NAMESPACE "onnx" CACHE STRING "ONNX namespace")
@@ -85,6 +73,32 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(BISON REQUIRED)
 #  flex
 find_package(FLEX REQUIRED)
+#  glog
+find_package(glog REQUIRED)
+#  thread
+find_package(Threads)
+if (Threads_FOUND)
+    set(HAVE_PTHREAD 1)
+endif ()
+#  zlib
+find_package(ZLIB 1.2.0.4)
+if (ZLIB_FOUND)
+    set(HAVE_ZLIB 1)
+endif (ZLIB_FOUND)
+#  protobuf
+find_package(Protobuf REQUIRED)
+
+####################
+#  Check
+include(check)
+
+####################
+#  Targets
+file(STRINGS ${ONNC_ROOT_PATH}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
+string(REGEX MATCHALL "ENABLE_[A-Za-z0-9_]*_TARGET" CONFIG_IN_TARGETS ${CONFIG_IN_CONTENT})
+foreach(EACH_TARGET IN LISTS CONFIG_IN_TARGETS)
+    set(ONNC_TARGETS ${ONNC_TARGETS} ${EACH_TARGET})
+endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
 
 ####################
 #  Include

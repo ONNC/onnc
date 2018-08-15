@@ -396,10 +396,10 @@ if (HAVE_PTHREADS)
 endif()
 target_link_libraries(libonnc
     ${Boost_LIBRARIES}
-    glog
 	onnx
 	onnx_proto
-    ${PROTOBUF_LIBRARIES}
+	${PROTOBUF_LIBRARIES}
+	${GLOG_LIBRARIES}
 )
 if (USE_LLVM)
     target_link_libraries(libonnc ${LLVM_LIBRARIES})
@@ -408,4 +408,5 @@ endif()
 ####################
 #  Install
 install(TARGETS libonnc
-    ARCHIVE DESTINATION lib)
+	ARCHIVE DESTINATION lib
+)
