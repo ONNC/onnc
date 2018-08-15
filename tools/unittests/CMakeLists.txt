@@ -1,4 +1,3 @@
-
 add_definitions(-DTOPDIR="${ONNC_ROOT_PATH}")
 add_definitions(-DBUILDDIR="${PROJECT_BINARY_DIR}")
 

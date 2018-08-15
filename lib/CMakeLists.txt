@@ -380,14 +380,14 @@ set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
 ####################
 #  Target
-set(ONNC_TARGET_LIBRARIES "")
+set(ONNC_TARGET_NAMES "")
 add_subdirectory(Target)
-foreach(TARGET_LIBRARY IN LISTS ONNC_TARGET_LIBRARIES)
+foreach(TARGET_NAME IN LISTS ONNC_TARGET_NAMES)
 	target_link_libraries(libonnc
-		${TARGET_LIBRARY}
+		onnc_${TARGET_NAME}
 	)
-endforeach(TARGET_LIBRARY IN LISTS ONNC_TARGET_LIBRARIES)
-
+endforeach(TARGET_NAME IN LISTS ONNC_TARGET_NAMES)
+set(ONNC_PLATFORM_NAMES ${ONNC_TARGET_NAMES} PARENT_SCOPE)
 
 ####################
 #  Link

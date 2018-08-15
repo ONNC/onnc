@@ -95,12 +95,30 @@ include_directories(
     
 ####################
 #   Subdirectories
+set(ONNC_PLATFORM_NAMES "")
 add_subdirectory(lib)
 add_subdirectory(tools)
 #add_subdirectory(include)
 
 ####################
-# OUTPUT
+#   Generated files
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
 configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
 configure_file(include/onnc/Config/ONNX.h.cmake.in include/onnc/Config/ONNX.h)
+foreach(platform_name IN LISTS ONNC_PLATFORM_NAMES)
+    set(ONNC_TARGET_PLATFORMS "ONNC_PLATFORM(${platform_name})\n${ONNC_TARGET_PLATFORMS}")
+
+    set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(${platform_name})\n${ONNC_TARGET_BACKENDS}")
+    # FIXME: Sophon BM168x & BM188x Initialize***ONNCBackend()
+    #file(GLOB_RECURSE backend_files 
+    #    RELATIVE "${ONNC_ROOT_PATH}/lib/Target/${platform_name}" 
+    #    "lib/Target/${platform_name}/*Backend.cpp"
+    #)
+    #foreach(backend_file IN LISTS backend_files)
+    #    get_filename_component(backend_name ${backend_file} NAME_WE)
+    #    string(REGEX REPLACE "Backend" "" backend_name ${backend_name})
+    #    set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(${backend_name})\n${ONNC_TARGET_BACKENDS}")
+    #endforeach(backend_file IN LISTS backend_files)
+endforeach(platform_name IN LISTS ONNC_PLATFORM_NAMES)
+configure_file(include/onnc/Config/Platforms.def.cmake.in include/onnc/Config/Platforms.def)
+configure_file(include/onnc/Config/Backends.def.cmake.in include/onnc/Config/Backends.def)
