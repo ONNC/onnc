@@ -131,6 +131,7 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   if (options().shouldUseDummyWeight())
     pPM.add(createAddDummyWeightPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
+  pPM.add(CreateDeadNodeEliminationPass());
 
   // BM1880 customized Pass
   pPM.add(createPrepareCtablePass(this));
@@ -143,7 +144,6 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   if (options().shouldPrintBeforeTensorSel())
     pPM.add(createONNCModulePrinterPass());
 
-  pPM.add(CreateDeadNodeEliminationPass());
   if (dumpOptONNXModel)
     pPM.add(createONNXDumpOptPass(this));
 
