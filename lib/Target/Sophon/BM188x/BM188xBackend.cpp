@@ -132,11 +132,21 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
 
   // BM1880 customized Pass
   pPM.add(createPrepareCtablePass(this));
-  pPM.add(createONNXFuseOptPass(this));
+
+  if (getOption().m_OutputOptOnnx.empty())
+    pPM.add(createONNXFuseOptPass(this));
+
   if (options().shouldPrintBeforeTensorSel())
     pPM.add(createONNCModulePrinterPass());
 
   pPM.add(CreateDeadNodeEliminationPass());
+
+#ifdef BMONNC_EXIST
+  pPM.add(createQuantizePass(this));
+#endif
+
+  if (!getOption().m_OutputOptOnnx.empty())
+    pPM.add(createONNXDumpOptPass(this));
   pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());

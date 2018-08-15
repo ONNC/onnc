@@ -53,6 +53,8 @@ private:
   bool m_IgnoreCalibrationStep;
   bool m_AddDummyCTable;
   bool m_AddDummyWeight;
+
+  std::string m_OutputOptOnnx;
 };
 
 } // namespace onnc
