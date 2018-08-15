@@ -96,7 +96,7 @@ include_directories(
 ####################
 #   Subdirectories
 add_subdirectory(lib)
-#add_subdirectory(tools)
+add_subdirectory(tools)
 #add_subdirectory(include)
 
 ####################

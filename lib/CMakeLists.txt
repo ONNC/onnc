@@ -208,7 +208,8 @@ endif()
 target_link_libraries(libonnc
     ${Boost_LIBRARIES}
     glog
-    ${ONNX_LIBRARIES}
+	onnx
+	onnx_proto
     ${PROTOBUF_LIBRARIES}
 )
 if (USE_LLVM)
