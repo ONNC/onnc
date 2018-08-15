@@ -112,7 +112,7 @@ include_directories(
 set(ONNC_PLATFORM_NAMES "")
 add_subdirectory(lib)
 add_subdirectory(tools)
-#add_subdirectory(include)
+add_subdirectory(include)
 
 ####################
 #   Generated files
