@@ -12,6 +12,11 @@ set(HAVE_PTHREADS ${ENABLE_PTHREAD})
 option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    option(ENABLE_UNITTEST "enable unittest" ON)
+else()
+    option(ENABLE_UNITTEST "enable unittest" OFF)
+endif()
 
 ####################
 #  Language
