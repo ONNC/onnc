@@ -4,7 +4,7 @@ file(COPY
     DESTINATION ${PROJECT_BINARY_DIR}/include/onnc/Target/Sophon/BM168x
 )
 set(bm168x_asm_proto "${CMAKE_CURRENT_SOURCE_DIR}/asm/bm168x_asm.proto")
-if (TG_GEN_ASM_PROTO)
+if (SOPHON_GEN_ASM_PROTO)
     include(bmtarget)
     # gen bm168x_asm.proto and bmkernel_api.h
     bm_gen_asm_proto(
@@ -20,9 +20,9 @@ if (TG_GEN_ASM_PROTO)
         SOURCE bm168x_asm_src
         DEPEND ${bm168x_gen_asm_proto}
     )
-else(TG_GEN_ASM_PROTO)
+else(SOPHON_GEN_ASM_PROTO)
     gen_proto_cpp(
         PROTO ${bm168x_asm_proto}
         SOURCE bm168x_asm_src
     )
-endif(TG_GEN_ASM_PROTO)
+endif(SOPHON_GEN_ASM_PROTO)

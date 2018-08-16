@@ -1,11 +1,11 @@
 ####################
 #  Options
-option(TG_GEN_ASM_PROTO "generate asm.proto by bmtarget" OFF)
+option(SOPHON_GEN_ASM_PROTO "generate asm.proto by bmtarget" OFF)
 option(BMONNC_EXIST "generate asm.proto by bmtarget" OFF)
 
 ####################
 #  Generate asm proto
-if (TG_GEN_ASM_PROTO)
+if (SOPHON_GEN_ASM_PROTO)
     set(bmtarget_path ${CMAKE_CURRENT_SOURCE_DIR}/bmtarget)
     if (IS_DIRECTORY ${bmtarget_path}/target)
         set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${bmtarget_path}/target)
