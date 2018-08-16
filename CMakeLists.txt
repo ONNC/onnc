@@ -20,9 +20,13 @@ include(option)
 option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
 option(USE_PTHREAD "use pthreads" ON)
 set(HAVE_PTHREADS ${USE_PTHREAD})
-option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    option(ENABLE_UNITTEST "enable unittest" ON)
+else()
+    option(ENABLE_UNITTEST "enable unittest" OFF)
+endif()
 
 ####################
 #  Languages
