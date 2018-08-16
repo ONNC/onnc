@@ -35,13 +35,8 @@ public:
   
   static bool classof(const ComputeOperator* pOp);
 
-  void setDims(const IntsAttr& pDims) { m_InputDims = pDims; }
-
-  const IntsAttr& getDims() const { return m_InputDims; }
-
 private:
   FloatAttr m_NegativeSlope;
-  IntsAttr m_InputDims;
 };
 
 } // namespace BM188X

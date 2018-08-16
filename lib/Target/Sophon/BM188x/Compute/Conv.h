@@ -24,39 +24,45 @@ public:
 
   ~Conv();
 
-  bool isDoBias() const { return m_Bias != nullptr; }
+  bool isDoBias() const { return m_DoBias == 1; }
 
-  bool isDoScale() const { return m_Scale != nullptr; }
+  bool isDoScale() const { return m_DoScale != 0; }
 
-  bool isDoScaleBias() const { return m_ScaleBias != nullptr; }
+  bool isDoScaleBias() const { return m_DoScaleBias != 0; }
 
-  bool isDoRelu() const { return m_DoRelu; }
+  int getDoBias() const { return m_DoBias; }
+
+  int getDoScale() const { return m_DoScale; }
+
+  int getDoScaleBias() const { return m_DoScaleBias; }
 
   int getRShiftWidth() const { return m_RShiftWidth; }
+
+  int getBiasIdx() const { return m_BiasIdx; }
+
+  int getScaleIdx() const { return m_ScaleIdx; }
+
+  int getScaleBiasIdx() const { return m_ScaleBiasIdx; }
 
   float getConvOuputThreshold() const { return m_ConvOutputThreshold; }
 
   void setRShiftWidth(int pValue) { m_RShiftWidth = pValue; }
 
+  void setDoBias(int pV) { m_DoBias = pV; }
+
+  void setDoScale(int pV) { m_DoScale = pV; }
+
+  void setDoScaleBias(int pV) { m_DoScaleBias = pV; }
+
   void setScaleRShiftWidth(int pV) { m_ScaleRShiftWidth = pV; }
 
+  void setBiasIdx(int pV) { m_BiasIdx = pV; }
+
+  void setScaleIdx(int pV) { m_ScaleIdx = pV; }
+
+  void setScaleBiasIdx(int pV) { m_ScaleBiasIdx = pV; }
+
   void setConvOutputThreshold(float pV) { m_ConvOutputThreshold = pV; }
-
-  void setBias(Tensor* pBias) { m_Bias = pBias; }
-
-  void setScale(Tensor* pScale) { m_Scale = pScale; }
-
-  void setScaleBias(Tensor* pSB) { m_ScaleBias = pSB; }
-
-  void setDoRelu(bool pV) { m_DoRelu = pV; }
-
-  int getScaleRShiftWidth() const { return m_ScaleRShiftWidth; }
-
-  Tensor* getBias() const { return m_Bias; }
-
-  Tensor* getScale() const { return m_Scale; }
-
-  Tensor* getScaleBias() const { return m_ScaleBias; }
 
   void print(std::ostream &pOS) const override;
 
@@ -67,14 +73,15 @@ public:
   static bool classof(const ComputeOperator* pOp);
 
 private:
+  int m_DoBias;
+  // int m_DoRelu;
+  int m_DoScale;
+  int m_DoScaleBias;
   int m_RShiftWidth;
   int m_ScaleRShiftWidth;
+  int m_BiasIdx, m_ScaleIdx, m_ScaleBiasIdx;
   float m_ConvOutputThreshold;
   // TODO add prelu_param
-  bool m_DoRelu;
-  Tensor* m_Bias;
-  Tensor* m_Scale;
-  Tensor* m_ScaleBias;
 };
 
 } // namespace BM188X

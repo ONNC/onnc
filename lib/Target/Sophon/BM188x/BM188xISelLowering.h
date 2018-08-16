@@ -52,10 +52,9 @@ private:
   ComputeOperator2 *LowerLRN(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerConcat(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerTranspose(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTGScale(const xNode &pNode, ComputeGraph &pGraph);
+  ComputeOperator2 *LowerScale(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerTLLoad(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerTLStore(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLRelu(const xNode &pNode, ComputeGraph &pGraph);
 
 private:
   BM1880Backend *m_p1880backend; // NOLINT

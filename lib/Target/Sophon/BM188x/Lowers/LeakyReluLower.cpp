@@ -47,28 +47,14 @@ onnc::ComputeOperator *BM188X::LeakyReluLower::activate(ComputeGraph& pGraph,
   if (!oy->has_unique_name())
     return nullptr;
 
-  const auto &inDim = ox->sizes();
-  if (inDim.size() != 4 && inDim.size() != 2) {
-    errs() << "BM188X::ReluLower: Invalid dim size.\n";
-    return nullptr;
-  }
+  auto &inDim = pNode.inputs()[0]->sizes();
+  assert((inDim.size() == 4 || inDim.size() == 2) &&
+         "BM188X::LeakyReluLower Invalid input dim");
 
   // create operators
   BM188X::LeakyRelu *op =
     pGraph.addOperator<onnc::BM188X::LeakyRelu>(
       pNode.f(xSymbol("alpha")));
-
-  // set dims.
-  IntsAttr dim = IntsAttr(4, 1);
-  if (inDim.size() == 4) {
-    for (int i = 0; i < 4; ++i)
-      dim.vector()[i] = inDim[i].dim;
-  } else {
-    dim.vector()[0] = inDim[0].dim;
-    dim.vector()[2] = inDim[1].dim;
-  }
-
-  op->setDims(dim);
 
   // set input/output
   for (xValue* xv : pNode.inputs()) {

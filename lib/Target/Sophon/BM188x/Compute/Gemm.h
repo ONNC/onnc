@@ -33,18 +33,6 @@ public:
 
   void setRShiftWidth(int pValue) { m_RShiftWidth = pValue; }
 
-  int getInRowNum() const { return m_InRowNum; }
-
-  int getInColNum() const { return m_InColNum; }
-
-  int getOutColNum() const { return m_OutColNum; }
-
-  bool haveBias() const { return m_HaveBias; }
-
-  bool isWeightTp() const { return m_WeightTp; }
-
-  bool isEnableRelu() const { return m_EnableRelu; }
-
   void print(std::ostream &pOS) const override;
 
   void accept(ComputeVisitor &pV) override;
@@ -57,7 +45,7 @@ private:
   int m_InRowNum;
   int m_InColNum;
   int m_OutColNum;
-  bool m_HaveBias;
+  int m_HaveBias;
   bool m_WeightTp;
   bool m_EnableRelu;
   int m_RShiftWidth;

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "GenWeightPass.h"
 #include "FillWeightVisitor.h"
-#include <onnc/Target/Sophon/io.hpp>
+#include <onnc/Target/TG/io.hpp>
 
 using namespace onnc;
 

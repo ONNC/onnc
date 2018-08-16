@@ -8,10 +8,8 @@
 #ifndef ONNC_TARGET_BM188X_QUANTIZE_VISITOR_H
 #define ONNC_TARGET_BM188X_QUANTIZE_VISITOR_H
 #include "BM188xVisitor.h"
-#include <cstdint>
 
 namespace onnc {
-class Tensor;
 class TGBackend;
 
 namespace BM188X {
@@ -52,8 +50,6 @@ public:
 
   void visit(const BM188X::Scale& pScale) override;
 
-  void visit(const BM188X::SlicedConv& pSlicedConv) override;
-
   void visit(const BM188X::Store& pStore) override;
 
   void visit(const BM188X::Sum& pSum) override;
@@ -61,9 +57,6 @@ public:
   void visit(const BM188X::Transpose& pTranspose) override;
 
   void visit(const BM188X::Upsample& pUpsample) override;
-
-private:
-  uint64_t getMemAddr(const onnc::Tensor *pT);
 
 private:
   TGBackend* m_TGBackend;

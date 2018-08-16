@@ -30,8 +30,6 @@ public:
 
   void setRShiftWidth(int pValue) { m_RShiftWidth = pValue; }
 
-  int getThresholdXQuantized() const { return m_ThresholdXQuantized; }
-
   void setThresholdXQuantized(int pV) { m_ThresholdXQuantized = pV; }
 
   void setEnableRelu(const int pEnableRelu) { m_EnableRelu = pEnableRelu; }

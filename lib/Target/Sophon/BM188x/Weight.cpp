@@ -92,7 +92,7 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
         const xTensor &tensor =
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
-        if (mem_op->m_Type == (xTensorProtoDataType)xValueType::kInt8) {
+        if (mem_op->m_Type == onnc::Value::kInt8) {
           append8bit(m_Weight, tensor.raw());
         } else {
           append16bit(m_Weight, tensor.raw());
@@ -126,7 +126,7 @@ void Weight::prepareWeight(const TGConv& pTGConv)
   const xValue *value = pTGConv.getMemOperand(1)->m_Value;
   const xTensor &tensor =
         onnc::getTensor(value->uniqueName(), *value->owningGraph());
-  assert(pTGConv.getMemOperand(1)->m_Type == (xTensorProtoDataType)xValueType::kInt8);
+  assert(pTGConv.getMemOperand(1)->m_Type == onnc::Value::kInt8);
   assert(tensor.is_raw_data());
   const std::string &raw = tensor.raw();
   size_t count = onnc::getTotalCount(tensor.sizes());
@@ -180,7 +180,7 @@ void Weight::prepareWeight(const TLConv& pTLConv)
     const xValue *value = pTLConv.getMemOperand(1)->m_Value;
     const xTensor &tensor =
         onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(pTLConv.getMemOperand(1)->m_Type == (xTensorProtoDataType)xValueType::kInt8);
+    assert(pTLConv.getMemOperand(1)->m_Type == onnc::Value::kInt8);
     assert(tensor.is_raw_data());
     const std::string &raw = tensor.raw();
     size_t count = onnc::getTotalCount(tensor.sizes());

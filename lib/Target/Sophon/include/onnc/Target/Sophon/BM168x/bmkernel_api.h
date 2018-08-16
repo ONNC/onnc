@@ -609,10 +609,12 @@ inline void bmnet_crop_forward_bmkernel(
 inline void bmnet_slice_forward_bmkernel(
     gaddr_t bottom_gaddr,
     gaddr_t top_gaddr,
+    int input_n,
     int outer_dim,
     int inner_dim,
-    int axis_dim,
-    int slice_dim)
+    int input_slice_dim,
+    int input_slice_offset,
+    int output_slice_dim)
 {
     // gen asm
     if (asm_context::get_context().on())
@@ -627,10 +629,12 @@ inline void bmnet_slice_forward_bmkernel(
         auto *bmnet_slice_forward_bmkernel_short = inst->mutable_bmnet_slice_forward_bmkernel_short();
         bmnet_slice_forward_bmkernel_short->set_bottom_gaddr(bottom_gaddr);
         bmnet_slice_forward_bmkernel_short->set_top_gaddr(top_gaddr);
+        bmnet_slice_forward_bmkernel_short->set_input_n(input_n);
         bmnet_slice_forward_bmkernel_short->set_outer_dim(outer_dim);
         bmnet_slice_forward_bmkernel_short->set_inner_dim(inner_dim);
-        bmnet_slice_forward_bmkernel_short->set_axis_dim(axis_dim);
-        bmnet_slice_forward_bmkernel_short->set_slice_dim(slice_dim);
+        bmnet_slice_forward_bmkernel_short->set_input_slice_dim(input_slice_dim);
+        bmnet_slice_forward_bmkernel_short->set_input_slice_offset(input_slice_offset);
+        bmnet_slice_forward_bmkernel_short->set_output_slice_dim(output_slice_dim);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
@@ -1268,10 +1272,6 @@ inline void bmnet_arithmetic_forward_bmkernel(
     int input_c,
     int input_h,
     int input_w,
-    int b_n,
-    int b_c,
-    int b_h,
-    int b_w,
     bool is_b_const,
     float b_value)
 {
@@ -1294,10 +1294,6 @@ inline void bmnet_arithmetic_forward_bmkernel(
         bmnet_arithmetic_forward_bmkernel_short->set_input_c(input_c);
         bmnet_arithmetic_forward_bmkernel_short->set_input_h(input_h);
         bmnet_arithmetic_forward_bmkernel_short->set_input_w(input_w);
-        bmnet_arithmetic_forward_bmkernel_short->set_b_n(b_n);
-        bmnet_arithmetic_forward_bmkernel_short->set_b_c(b_c);
-        bmnet_arithmetic_forward_bmkernel_short->set_b_h(b_h);
-        bmnet_arithmetic_forward_bmkernel_short->set_b_w(b_w);
         bmnet_arithmetic_forward_bmkernel_short->set_is_b_const(is_b_const);
         bmnet_arithmetic_forward_bmkernel_short->set_b_value(b_value);
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;

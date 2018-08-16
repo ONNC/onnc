@@ -47,11 +47,6 @@ TGRelu *TGRelu::addMemOperands(MemOperand *pInput, MemOperand *pOutput)
 
 void TGRelu::emit() const
 {
-  DEBUG(dbgs()
-    << "TGRelu::emit\n" << "  "
-    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
-    << m_N << " " << m_C << " " << m_H << " " << m_W << " "
-    << m_NegativeSlope << "\n");
 
   bmnet::bmnet_asm::bmnet_relu_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input_gaddr

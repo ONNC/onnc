@@ -118,20 +118,6 @@ void TGConv::emit() const
   uint64_t scale_bias_addr = m_DoScaleBias
                                  ? m_MemOperands[m_ScaleBiasIdx]->m_Addr
                                  : bmnet::bmnet_asm::GADDR_INVALID;
-
-  DEBUG(dbgs()
-    << "TGConv::emit\n" << "  "
-    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[2]->m_Addr << " "
-    << m_MemOperands[1]->m_Addr << " " << "\n  "
-    << biasAddr << " " << scale_addr << " " << scale_bias_addr << "\n  "
-    << m_InN << " " << m_InC << " " << m_InH << " " << m_InW << " "
-    << m_Groups << " " << m_OutC << " " << m_KH << " " << m_KW << " "
-    << m_DilationH << " " << m_DilationW << " "
-    << m_PadH << " " << m_PadW << " "
-    << m_StrideH << " " << m_StrideW << " "
-    << pm::match(m_pNode, pm::mTrueAttr("do_relu"))
-    << " " << m_RShiftWidth << " " << m_ScaleRShiftWidth << "\n");
-
   bmnet::bmnet_asm::bmnet_conv_parallel_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr,        // ifmap
       m_MemOperands[2]->m_Addr,        // ofmap

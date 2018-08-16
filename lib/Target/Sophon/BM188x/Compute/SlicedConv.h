@@ -59,10 +59,6 @@ public:
     m_BiasIdx = 3;
 	}
 
-  void setDilations(const IntsAttr& pDila) { m_Dilations = pDila; }
-
-  const IntsAttr& getDilations() const { return m_Dilations; }
-
   int getBiasIdx() const { return m_BiasIdx; }
 
   bool getDoBias() const { return m_DoBias; }
@@ -78,8 +74,6 @@ public:
   void setRShiftWidth(int pRShiftWidth) { m_RShiftWidth = pRShiftWidth; }
 
   int getRShiftWidth() const { return m_RShiftWidth; }
-
-  bool isDoResultAdd() const { return m_DoResultAdd; }
 
   void print(std::ostream& pOS) const override;
 
@@ -106,7 +100,6 @@ private:
   IntsAttr m_KernelShape;
   IntsAttr m_SlidePads;
   IntsAttr m_Strides;
-  IntsAttr m_Dilations;
 
 	IntAttr m_Groups;
   int m_RShiftWidth;

@@ -29,7 +29,6 @@
 #include "TLConv.h"
 #include "TLLoad.h"
 #include "TLPool.h"
-#include "TLRelu.h"
 #include "TLStore.h"
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/TargetTransformInfo.h>
@@ -125,28 +124,9 @@ ComputeOperator2 *BM188xISelLowering::LowerTLStore(const xNode &pNode,
   return op;
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLRelu(const xNode &pNode,
-                                                  ComputeGraph &pGraph)
-{
-  auto *op = new BM188X::TLRelu(pNode);
-  auto *input_memop =
-      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  auto *output_memop =
-      m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  op->addMemOperands(input_memop, output_memop);
-
-  return op;
-}
-
 ComputeOperator2 *BM188xISelLowering::LowerRelu(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
-    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
-    if (is_sliced)
-      return LowerTLRelu(pNode, pGraph);
-  }
-
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGRelu(pNode);
@@ -336,8 +316,8 @@ ComputeOperator2 *BM188xISelLowering::LowerTranspose(const xNode &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTGScale(const xNode &pNode,
-                                                   ComputeGraph &pGraph)
+ComputeOperator2 *BM188xISelLowering::LowerScale(const xNode &pNode,
+                                                 ComputeGraph &pGraph)
 {
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *scale = m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
@@ -362,8 +342,7 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const xNode &pNode,
     return Lower2NopInst(pNode);
   } else if (symbol == xSymbol("Concat")) {
     return LowerConcat(pNode, pGraph);
-  } else if (symbol == xSymbol("Conv") ||
-             symbol == xSymbol("TGConv")) {
+  } else if (symbol == xSymbol("Conv")) {
     return LowerConv(pNode, pGraph);
   } else if (symbol == xSymbol("Relu")) {
     return LowerRelu(pNode, pGraph);
@@ -377,11 +356,9 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const xNode &pNode,
     return LowerAveragePool(pNode, pGraph);
   } else if (symbol == xSymbol("GlobalAveragePool")) {
     return LowerGlobalAveragePool(pNode, pGraph);
-  } else if (symbol == xSymbol("Gemm") ||
-             symbol == xSymbol("TGGemm")) {
+  } else if (symbol == xSymbol("Gemm")) {
     return LowerGemm(pNode, pGraph);
-  } else if (symbol == xSymbol("Sum") ||
-             symbol == xSymbol("TGSum")) {
+  } else if (symbol == xSymbol("Sum")) {
     return LowerSum(pNode, pGraph);
   } else if (symbol == xSymbol("Upsample")) {
     return LowerUpsample(pNode, pGraph);
@@ -393,8 +370,8 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const xNode &pNode,
     return LowerTLStore(pNode, pGraph);
   } else if (symbol == xSymbol("LRN")) {
     return LowerLRN(pNode, pGraph);
-  } else if (symbol == xSymbol("TGScale")) {
-    return LowerTGScale(pNode, pGraph);
+  } else if (symbol == xSymbol("Scale")) {
+    return LowerScale(pNode, pGraph);
   }
   std::cout << "Warning: unsupported node type: " << pNode.kind().toString()
             << "\n";

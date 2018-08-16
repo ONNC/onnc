@@ -26,8 +26,6 @@ public:
 
   Pass::ReturnType runOnModule(Module &pModule) override;
 
-  StringRef getPassName() const override { return "TGCodeEmit"; }
-
 private:
   TGBackend *m_Target;
   std::string m_OutputFilename;

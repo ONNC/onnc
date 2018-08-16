@@ -19,7 +19,7 @@ char BM188X::Relu::ID = 0;
 // BM188X::Relu
 //===----------------------------------------------------------------------===//
 BM188X::Relu::Relu()
-    : onnc::Relu(), m_NegativeSlope(0.0), m_InputDims()
+    : onnc::Relu(), m_NegativeSlope(0.0)
 {
   setID(ID);
 }

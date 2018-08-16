@@ -100,7 +100,7 @@ Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory Method
 //===----------------------------------------------------------------------===//
-ModulePass *onnc::createAddDummyWeightPass()
+ModulePass *onnc::CreateAddDummyWeightPass()
 {
   return new AddDummyWeight();
 }

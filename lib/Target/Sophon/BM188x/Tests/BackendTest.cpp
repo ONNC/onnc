@@ -104,12 +104,9 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     PassManager pm(registry);
 
     pm.add(CreateRemoveTrainingNodesPass());
-    pm.add(createAddDummyWeightPass());
+    pm.add(CreateAddDummyWeightPass());
     pm.add(CreateUpdateGraphOutputSizePass());
-    pm.add(createPrepareCtablePass( &test_backend ));
     pm.add(createONNXFuseOptPass( &test_backend ));
-    pm.add(CreateDeadNodeEliminationPass());
-    pm.add(createUpdateCtablePass( &test_backend ));
     pm.add(createTargetLoweringPass( &test_backend ));
     pm.add(CreateGlobalMemAllocPass( &test_backend ));
     pm.add(CreateTGCodeEmitPass( &test_backend, "-" ));
@@ -131,8 +128,6 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
   }
 
   // Compare instructions.
-  // FIXME: TG ComputeOperator2 is depreciated. Do we need to remove test?
-#if 0
   typedef std::vector<std::unique_ptr<ComputeOperator2> > InstVector;
   InstVector& golden_insts = golden_backend.getInsts();
   InstVector& test_insts = test_backend.getInsts();
@@ -176,7 +171,7 @@ SKYPAT_F(BM188xTest, bm188x_pass_management)
     ASSERT_TRUE(name_is_found);
   }
   errs() << std::endl;
-#endif
+
 }
 
 //===----------------------------------------------------------------------===//
@@ -206,12 +201,9 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   TGBackend::Instructions insns;
   BM1880Backend backend(insns, options);
   pm.add(CreateRemoveTrainingNodesPass());
-  pm.add(createAddDummyWeightPass());
+  pm.add(CreateAddDummyWeightPass());
   pm.add(CreateUpdateGraphOutputSizePass());
-  pm.add(createPrepareCtablePass( &backend ));
   pm.add(createONNXFuseOptPass( &backend ));
-  pm.add(CreateDeadNodeEliminationPass());
-  pm.add(createUpdateCtablePass( &backend ));
   pm.add(createTargetLoweringPass( &backend ));
   pm.add(CreateGlobalMemAllocPass( &backend ));
   pm.add(CreateTGCodeEmitPass( &backend, "-" ));
@@ -221,12 +213,9 @@ SKYPAT_F(BM188xTest, bm188x_single_pass)
   TGBackend::Instructions insns2;
   BM1880Backend backend2(insns2, options);
   pm2.add(CreateRemoveTrainingNodesPass());
-  pm2.add(createAddDummyWeightPass());
+  pm2.add(CreateAddDummyWeightPass());
   pm2.add(CreateUpdateGraphOutputSizePass());
-  pm2.add(createPrepareCtablePass( &backend2 ));
   pm2.add(createONNXFuseOptPass( &backend2 ));
-  pm2.add(CreateDeadNodeEliminationPass());
-  pm2.add(createUpdateCtablePass( &backend2 ));
 
   /// create compute operator
   pm2.add(CreateDeadNodeEliminationPass());

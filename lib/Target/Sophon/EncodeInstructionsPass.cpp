@@ -20,12 +20,6 @@ EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor)
 {
 }
 
-EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor,
-                                       char& pPassID)
-    : ModulePass(pPassID), m_InstEmitVisitors(pInstVisitor)
-{
-}
-
 Pass::ReturnType EncodeInstructions::runOnModule(::onnc::Module &pModule)
 {
   unsigned result = Pass::kModuleNoChanged;
@@ -41,7 +35,6 @@ EncodeInstructions::runOnComputeGraph(::onnc::ComputeGraph &pCG)
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
     const onnc::ComputeOperator *node = nodeIt;
-    beforeEmit(node);
     node->accept(*m_InstEmitVisitors);
   }
   return Pass::kModuleNoChanged;

@@ -20,8 +20,7 @@ char BM188X::PRelu::ID = 0;
 // PRelu
 //===----------------------------------------------------------------------===//
 BM188X::PRelu::PRelu()
-    : onnc::PRelu(), m_GTRShiftWidth(0), m_LERShiftWidth(0), m_GTScale(0),
-      m_Slope(0.f), m_InputDims(), m_ChannelShared(false)
+    : onnc::PRelu(), m_GTRShiftWidth(0), m_LERShiftWidth(0), m_GTScale(0)
 {
   setID(ID);
 }

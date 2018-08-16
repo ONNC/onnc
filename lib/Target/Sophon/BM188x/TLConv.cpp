@@ -144,20 +144,6 @@ void TLConv::emit() const
   bmnet::bmnet_asm::u32 *group_bias = &bias_array[0];
   bmnet::bmnet_asm::u32 *group_weight = &weight_array[0];
 
-  DEBUG(dbgs()
-    << "BM188X::SlicedConv\n" << "  " << m_SplitName << " "
-    << m_IFmapAddr << " " << m_OFmapAddr << " "
-    << m_WeightAddr << " " << m_BiasAddr << " "
-    << m_InN << " " << m_InC << " " << m_InH << " " << m_InW << " "
-    << m_Groups << " " << m_OutC << " " << m_OutH << " " << m_OutW << " "
-    << m_KH << " " << m_KW << " "
-    << m_DilationH << " " << m_DilationW << " "
-    << m_PadHTop << " " << m_PadHBot << " "
-    << m_PadWLeft << " " << m_PadWRight << " "
-    << m_StrideH << " " << m_StrideW << " "
-    << m_DoResultAdd << " " << m_RShiftWidth << " "
-    << m_DoBias << " " << m_DoRelu << "\n");
-
   bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
   bmnet::bmnet_asm::bmnet_tl_conv_forward_bmkernel(
       m_IFmapAddr,  // ifmap
