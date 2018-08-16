@@ -1400,6 +1400,34 @@ inline void bmnet_tl_store_bmkernel(
         asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
     }
 }
+inline void bmnet_tl_relu_forward_bmkernel(
+    laddr_t input_laddr,
+    laddr_t output_laddr,
+    int input_n,
+    int input_c,
+    int input_h,
+    int input_w)
+{
+    // gen asm
+    if (asm_context::get_context().on())
+    {
+        bmnet::bm1880::CommandBuffer buf;
+        auto *inst = buf.add_inst();
+        auto &name = asm_context::get_context().name;
+        if (not name.empty())
+            inst->set_name(name);
+        name.clear();
+        inst->set_type("bmnet_tl_relu_forward_bmkernel");
+        auto *tl_relu = inst->mutable_tl_relu();
+        tl_relu->set_input_laddr(input_laddr);
+        tl_relu->set_output_laddr(output_laddr);
+        tl_relu->set_input_n(input_n);
+        tl_relu->set_input_c(input_c);
+        tl_relu->set_input_h(input_h);
+        tl_relu->set_input_w(input_w);
+        asm_context::get_context().get_fp() << buf.DebugString() << std::endl;
+    }
+}
 // clang-format on
 
 } // namespace bmnet_asm

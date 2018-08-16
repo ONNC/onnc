@@ -12,7 +12,10 @@
 //===---------------------------------------------------------------------===//
 #include "TGLRN.h"
 #include "BM188xCodeEmitter.h"
+#include <onnc/Support/Debug.h>
 #include <onnc/Target/Sophon/BM188x/bmkernel_api.h>
+
+#define DEBUG_TYPE "tg_lrn"
 
 namespace onnc {
 namespace BM188X {
@@ -46,6 +49,15 @@ TGLRN *TGLRN::addMemOperands(MemOperand *pInput, MemOperand *pSquLut,
 
 void TGLRN::emit() const
 {
+  DEBUG(dbgs()
+    << "TGLRN::emit\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[3]->m_Addr << " "
+    << m_MemOperands[1]->m_Addr << " " << m_MemOperands[2]->m_Addr << " "
+    << m_N << " " << m_C << " " << m_H << " " << m_W << " "
+    << m_LocalSize << " " << m_SumRightShiftWidth << " "
+    << m_LrnRightShiftWidth << " "
+    << m_ThresholdXQuantized[0] << " " << m_ThresholdXQuantized[1] << "\n");
+
   bmnet::bmnet_asm::bmnet_lrn_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input
       m_MemOperands[3]->m_Addr, // output

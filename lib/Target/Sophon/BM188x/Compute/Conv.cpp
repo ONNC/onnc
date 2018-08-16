@@ -19,9 +19,9 @@ char BM188X::Conv::ID = 0;
 // Conv
 //===----------------------------------------------------------------------===//
 BM188X::Conv::Conv()
-    : onnc::Conv(),  m_DoBias(0), /* m_DoRelu(0),*/ m_DoScale(0),
-      m_DoScaleBias(0), m_RShiftWidth(0), m_ScaleRShiftWidth(0),
-      m_ConvOutputThreshold(0.f)
+    : onnc::Conv(), m_RShiftWidth(0), m_ScaleRShiftWidth(0),
+      m_ConvOutputThreshold(0.f),
+      m_DoRelu(false), m_Bias(nullptr), m_Scale(nullptr), m_ScaleBias(nullptr)
 {
   setID(ID);
 }

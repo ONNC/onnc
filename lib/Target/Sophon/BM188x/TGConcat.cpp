@@ -54,6 +54,23 @@ void TGConcat::emit() const
   for (size_t i = 0; i < m_InputDims.size(); i++)
     input_addr.push_back(m_MemOperands[i]->m_Addr);
 
+  DEBUG(dbgs() << "TGConcat::emit\n";
+    dbgs() << "  inputs = ";
+    for (auto i : input_addr) dbgs() << i << " ";
+    dbgs() << "\n"
+           << "  " << m_MemOperands.back()->m_Addr << "\n  ";
+    for (auto i : m_InputDims) dbgs() << i << " ";
+    dbgs() << "\n  ";
+    for (auto i : m_OutputDim) dbgs() << i << " ";
+    dbgs() << "\n  "
+           << m_NeedQuantizeNum << "\n";
+    dbgs() << "  rswidth = ";
+    for (auto i : m_RShiftWidth) dbgs() << i << " ";
+    dbgs() << "\n  xq = ";
+    for (auto i : m_ThresholdXQuantized) dbgs() << i << " ";
+    dbgs() << "\n";
+  );
+
   bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
       input_addr.data(), m_MemOperands.back()->m_Addr,
       const_cast<int *>(m_InputDims.data()), m_InputDims.size(), m_ConcatAxis,

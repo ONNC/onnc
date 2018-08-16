@@ -85,6 +85,11 @@ static cl::alias HelpAliasH("h", cl::kShort, cl::trueopt(OptHelp),
 static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp),
                             cl::about(g_About));
 
+static cl::opt<std::string> OutputOptOnnx("opt-onnx", cl::kOptional,
+                                          cl::kValueRequired,
+                                          cl::desc("Ouput the optimized onnx"),
+                                          cl::about(g_About));
+
 //===----------------------------------------------------------------------===//
 // Main procedure
 //===----------------------------------------------------------------------===//
@@ -115,6 +120,7 @@ int main(int pArgc, char *pArgv[])
   onnx2tg.options().target().ignoreCalibrationStep(IgnoreCalibrationStep);
   onnx2tg.options().target().useDummyCTable(AddDummyCTable);
   onnx2tg.options().target().useDummyWeight(AddDummyWeight);
+  onnx2tg.options().target().optOnnxModel(OutputOptOnnx);
 
 #ifdef BMONNC_EXIST
   foo();
