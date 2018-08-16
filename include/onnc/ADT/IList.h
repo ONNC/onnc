@@ -18,7 +18,7 @@
 namespace onnc {
 
 /** \class IListBase
- *  \brief IListBase provids type-independent APIs for IList.
+ *  \brief IListBase provides type-independent APIs for IList.
  *
  *  A new IListBase object contains a single IListNodeBase object - sentinel.
  *  Sentinel defines the end of the list. Its @ref getNext() refers to itself.

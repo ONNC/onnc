@@ -22,7 +22,7 @@ public:
 
   ~ModulePass() override;
 
-  /// Virtual method overriden by subclasses to process the module
+  /// Virtual method overridden by subclasses to process the module
   /// being operated on.
   virtual Pass::ReturnType runOnModule(Module &pModule) = 0;
 

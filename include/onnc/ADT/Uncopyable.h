@@ -11,7 +11,7 @@
 namespace onnc {
 
 /** \class Uncopyable
- *  \brief Uncopyable provides the base class to forbit copy operations.
+ *  \brief Uncopyable provides the base class to forbid copy operations.
  *
  */
 class Uncopyable

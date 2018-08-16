@@ -15,7 +15,7 @@ namespace onnc {
 namespace cl {
 
 /** \class Option
- *  \brief Option is the occurrence numbr of an option on the command
+ *  \brief Option is the occurrence number of an option on the command
  *  line.
  */
 class Option : public IListNode<cl::Option>

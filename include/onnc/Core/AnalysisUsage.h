@@ -15,7 +15,7 @@ namespace onnc {
 /** \class AnalysisUsage
  *  \brief AnalysisUsage represents the analysis usage information of a pass.
  *
- *  An AnalysisUsage object analyses that the pass REQUIRES (must ran before the
+ *  An AnalysisUsage object analyzes that the pass REQUIRES (must ran before the
  *  pass runs).
  */
 class AnalysisUsage

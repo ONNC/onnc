@@ -75,7 +75,7 @@ public:
   /// A convenient function to print to stderr.
   void dump();
 
-  /// This function should be overriden by passes that need analysis information.
+  /// This function should be overridden by passes that need analysis information.
   virtual void getAnalysisUsage(AnalysisUsage& pUsage) const { }
 
   void setResolver(AnalysisResolver& pResolver) { m_pResolver = &pResolver; }

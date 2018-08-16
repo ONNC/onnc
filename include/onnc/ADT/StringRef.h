@@ -131,10 +131,10 @@ public:
 
   void toStr(std::ostream& pOS) const;
 
-  // Return the charactor at position @ref pIndex.
+  // Return the character at position @ref pIndex.
   char operator[](size_t pIndex) const;
 
-  // Return the charactor at position @ref pIndex with checking out of range.
+  // Return the character at position @ref pIndex with checking out of range.
   char at(size_t pIndex) const;
 
   /// Check if this string starts with the given \p Prefix.
@@ -145,7 +145,7 @@ public:
 
   /// @name String searching
   /// @{
-  /// searches for the first charactor @ref pC in the string
+  /// searches for the first character @ref pC in the string
   size_type find(char pC, size_type pFrom = 0) const;
 
   /// searches for the first sub-string @ref pStr in the string.

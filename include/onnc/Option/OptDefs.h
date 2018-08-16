@@ -84,7 +84,7 @@ public:
 
   const std::string& name() const { return m_Name; }
 
-  /// Occurrence preresents the occurrence of an option on the command line.
+  /// Occurrence presents the occurrence of an option on the command line.
   Occurrence getOccurrence() const { return m_Occurrence; }
 
   void setOccurrence(Occurrence pOccur) { m_Occurrence = pOccur; }
@@ -120,7 +120,7 @@ public:
 
   void setHelp(const char* pHelp) { m_Help = pHelp; }
 
-  /// @return The number of occrrence of this option definition
+  /// @return The number of occurrence of this option definition
   virtual unsigned int getNumOccurrence() const { return m_NumOccurrence; }
 
   /// @retval true If this option definition occurs on the command line.

@@ -20,7 +20,7 @@
 namespace onnc {
 
 /** \class Module
- *  \brief Rrepresentation of ONNX model
+ *  \brief Representation of ONNX model
  */
 class Module
 {
@@ -79,7 +79,7 @@ public:
     /// print the information in @ref pOS
     void print(std::ostream& pOS) const;
 
-    /// print the information to stderrs.
+    /// print the information to stderr.
     void dump() const;
 
   private:
@@ -217,7 +217,7 @@ public:
     assert(false && "no part to print!");
   }
 
-  /// print the information to stderrs.
+  /// print the information to stderr.
   void dump() const;
 
 private:

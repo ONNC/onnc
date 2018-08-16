@@ -15,7 +15,7 @@ namespace onnc {
 typedef std::vector<StringRef> StringList;
 
 /// Split the string into a list of substrings by
-/// all occurrence of the seperator.
+/// all occurrence of the separator.
 ///
 /// @param[out] pResult The resulting list of substrings.
 /// @param[in]  pString The input string to be splitted.

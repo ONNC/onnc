@@ -20,7 +20,7 @@ namespace onnc {
  *  @code
  *  Color color = TypeSwitch<Color>(type_tag<bool>())
  *    .Case<bool>(Red)
- *    .Case<double>(Bule)
+ *    .Case<double>(Blue)
  *    .Default(UnknownColor);
  *  @endcode
  */
