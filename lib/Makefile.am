@@ -42,6 +42,7 @@ ONNC_SOURCES = \
 	IR/Compute/Reshape.cpp \
 	IR/Compute/Softmax.cpp \
 	IR/Compute/Sum.cpp \
+	IR/Compute/Split.cpp \
 	IR/Compute/Transpose.cpp \
 	IR/Compute/Xor.cpp \
 	IR/Compute/Initializer.cpp \
@@ -77,6 +78,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/ConcatLower.cpp \
 	Transforms/TensorSel/ReshapeLower.cpp \
 	Transforms/TensorSel/UpsampleLower.cpp \
+	Transforms/TensorSel/SplitLower.cpp \
 	Transforms/TensorSel/XorLower.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
