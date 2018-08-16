@@ -10,29 +10,32 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef ONNX_BM_TGGEMM_H
-#define ONNX_BM_TGGEMM_H
+#ifndef ONNX_BM1880_TLRELU_H
+#define ONNX_BM1880_TLRELU_H
 
-#include "ComputeOperator.h"
+#include "BM188xComputeOperator.h"
+#include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Config/ONNX.h>
-namespace onnc {
 
-//  m_EmOperands: input, weight, bias, output
-class TGGemm : public ComputeOperator2
+namespace onnc {
+namespace BM188X {
+
+class TLRelu : public BM188xComputeOperator
 {
 public:
-  TGGemm(const xNode &pNode);
+  TLRelu(const xNode &pNode);
+
   void emit() const override;
+  TLRelu *addMemOperands(MemOperand *pInput, MemOperand *pOutput);
 
 private:
-  int m_InRowNum;
-  int m_InColNum;
-  int m_OutColNum;
-  int m_HaveBias;
-  int m_UsingRelu;
-  bool m_WeightTp;
+  int m_InN, m_InC, m_InH, m_InW;
+  int m_OutC, m_OutH, m_OutW;
+  std::string m_SplitName;
+  uint64_t m_IFmapAddr, m_OFmapAddr;
 };
 
+} // namespace BM188X
 } // namespace onnc
 
 #endif

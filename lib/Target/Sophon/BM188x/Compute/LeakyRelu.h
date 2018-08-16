@@ -39,7 +39,11 @@ public:
   void setGTScale(const IntAttr &pGS) { m_GTScale = pGS; }
 
   void setLEScale(const IntAttr &pLS) { m_LEScale = pLS; }
-  
+
+  void setDims(const IntsAttr& pDims) { m_InputDims = pDims; }
+
+  const IntsAttr& getDims() const { return m_InputDims; }
+
   void print(std::ostream &pOS) const override;
 
   void accept(ComputeVisitor &pV) override;
@@ -53,6 +57,7 @@ private:
   IntAttr m_LERShiftWidth;
   IntAttr m_GTScale;
   IntAttr m_LEScale;
+  IntsAttr m_InputDims;
 };
 
 } // namespace BM188X

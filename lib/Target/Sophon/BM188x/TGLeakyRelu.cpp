@@ -51,6 +51,13 @@ TGLeakyRelu *TGLeakyRelu::addMemOperands(MemOperand *pInput,
 
 void TGLeakyRelu::emit() const
 {
+  DEBUG(dbgs()
+    << "TGLeakyRelu::emit\n" << "  "
+    << m_MemOperands[0]->m_Addr << " " << m_MemOperands[1]->m_Addr << " "
+    << m_N << " " << m_C << " " << m_H << " " << m_W << " "
+    << m_GTRShiftWidth << " " << m_LERShiftWidth << " "
+    << m_GTScale << " " << m_LEScale << "\n");
+
   bmnet::bmnet_asm::bmnet_leakyrelu_fixed_forward_bmkernel(
       m_MemOperands[0]->m_Addr, // input_gaddr
       m_MemOperands[1]->m_Addr, // output_gaddr

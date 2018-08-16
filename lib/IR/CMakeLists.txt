@@ -46,4 +46,5 @@ add_libonnc_src(
     Compute/Xor.cpp
     Compute/Initializer.cpp
     Compute/Scale.cpp
+    Compute/Split.cpp
     Tensor/InitializerProxy.cpp)

@@ -128,6 +128,8 @@ set(ONNX_LIBRARIES
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
 configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
+set(ONNX_NAMESPACE "onnx")
+configure_file(include/onnc/Config/ONNX.h.in include/onnc/Config/ONNX.h @ONLY)
 configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
 configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
 

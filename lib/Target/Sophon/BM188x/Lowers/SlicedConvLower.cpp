@@ -26,7 +26,8 @@ BM188X::SlicedConvLower::~SlicedConvLower()
 
 int BM188X::SlicedConvLower::isMe(const xNode &pNode) const
 {
-  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
+  if ((pNode.kind() == ::onnx::Symbol("Conv")) &&
+      pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
     auto is_sliced = pNode.i(xSymbol("is_sliced"));
     if (is_sliced) {
       // higher than BM188X::Conv

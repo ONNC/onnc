@@ -8,7 +8,7 @@ if (TG_GEN_ASM_PROTO)
         TARGET gen_asm_proto
         MODEL BM188x
         BMKERNEL_API_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/bmkernel_api.h.in
-        BMKERNEL_API_H ${tg_root}/include/onnc/Target/TG/BM188x/bmkernel_api.h
+        BMKERNEL_API_H ${tg_root}/include/onnc/Target/Sophon/BM188x/bmkernel_api.h
         PROTO ${asm_proto})
 endif()
 
