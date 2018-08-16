@@ -120,7 +120,9 @@ add_library(onnc_Sophon OBJECT
     "BM188x/Lowers/ReluLower.cpp"
     "BM188x/Lowers/UpsampleLower.cpp"
 )
-
+add_dependencies(onnc_Sophon
+    ${onnc_Sophon_obj}
+)
 file(COPY 
     "io.hpp"
     "bmkernel_api_base.h"
