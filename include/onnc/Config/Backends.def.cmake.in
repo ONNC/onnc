@@ -24,6 +24,6 @@
 #  error Please define the macro ONNC_BACKEND(TargetName)
 #endif
 
-@ONNC_TARGET_BACKENDS@
+${ONNC_TARGET_BACKENDS}
 
 #undef ONNC_BACKEND

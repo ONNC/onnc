@@ -8,7 +8,7 @@
 #include <skypat/skypat.h>
 #include "../Weight.h"
 #include <onnc/Config/ONNX.h>
-#include "../io.hpp"
+#include <onnc/Target/Sophon/io.hpp>
 #include <string>
 
 using namespace onnc;

@@ -1,141 +1,142 @@
 cmake_minimum_required(VERSION 3.5)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(option)
-
-set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
-set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used by the CXX compiler during RELWITHDEBINFO builds.")
-option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release RelWithDebInfo)
-
-project(ONNC)
+project(onnc)
 enable_testing()
-include(test)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (NOT TARGET build_external)
-    add_custom_target(build_external)
-endif()
-
-set(VERSION dev)
-set(PACKAGE_VERSION dev)
-set(HAVE_CXX14 TRUE)
+set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
+file(STRINGS ${ONNC_ROOT_PATH}/VERSION VERSION REGEX "[0-9A-Za-z.]+")
+set(PACKAGE_VERSION ${VERSION})
 set(PACKAGE "onnc")
-set(PACKAGE_BUGREPORT "bugs@onnc.org")
+set(PACKAGE_BUGREPORT "maillist.onnc.ai")
 set(PACKAGE_NAME "ONNC")
-set(PACKAGE_STRING "ONNC dev")
+set(PACKAGE_STRING "ONNC ${VERSION}")
 set(PACKAGE_TARNAME "onnc")
-set(PACKAGE_URL "")
+set(PACKAGE_URL "onnc.ai")
 
 ####################
-#  Check environments - `host`, `target` and `build`
-include(canoncial_system)
-check_canonical_system()
+#  Options
+include(option)
+option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
+option(USE_PTHREAD "use pthreads" ON)
+set(HAVE_PTHREADS ${USE_PTHREAD})
+option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
+option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    option(ENABLE_UNITTEST "enable unittest" ON)
+else()
+    option(ENABLE_UNITTEST "enable unittest" OFF)
+endif()
 
 ####################
 #  Languages
+set(STDC_HEADERS 1)
 set(CMAKE_CXX_STANDARD 14)
+set(HAVE_CXX14 TRUE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-include(stl_hash)
-determine_hash_namespace()
-
-####################
-# Check for compiler warnings
-option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
-if (ENABLE_WERROR)
+set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG"     CACHE STRING "Flags used by the CXX compiler during RELEASE builds.")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG -g3" CACHE STRING "Flags used by the CXX compiler during RELWITHDEBINFO builds.")
+option(USE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
+if (USE_WERROR)
     add_compile_options(-Werror)
 endif()
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
+set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address)
+add_compile_options(${ANDROID_CPPFLAGS})
 
 ####################
-# Check for libraries
+#  External
+#  onnx
+set(ONNX_NAMESPACE "onnx" CACHE STRING "ONNX namespace")
+find_package(onnx REQUIRED)
+message(STATUS "[${PACKAGE}] Using onnx include at ${ONNX_INCLUDE_DIR}")
+include_directories(${ONNX_INCLUDE_DIR})
+link_directories(${ONNX_LIBRARY_DIR})
+#  SkyPat
+find_package(SkyPat REQUIRED)
+message(STATUS "[${PACKAGE}] Using SkyPat include at ${SKYPAT_INCLUDE_DIR}")
+include_directories(${SKYPAT_INCLUDE_DIR})
+link_directories(${SKYPAT_LIBRARY_DIR})
+#  llvm
+OPTION(USE_LLVM "Use llvm" ON)
+if(USE_LLVM)
+    find_package(llvm)
+    if(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+        message(STATUS "[${PACKAGE}] Using llvm include at ${LLVM_INCLUDE_DIR}")
+        include_directories(${LLVM_INCLUDE_DIR})
+        link_directories(${LLVM_LIBRARY_DIR})
+    endif(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+endif(USE_LLVM)
+#  boost
+find_package(Boost COMPONENTS system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+#  bison
+find_package(BISON REQUIRED)
+#  flex
+find_package(FLEX REQUIRED)
+#  glog
+find_package(glog REQUIRED)
+#  thread
 find_package(Threads)
 if (Threads_FOUND)
     set(HAVE_PTHREAD 1)
 endif ()
+#  zlib
 find_package(ZLIB 1.2.0.4)
 if (ZLIB_FOUND)
     set(HAVE_ZLIB 1)
 endif (ZLIB_FOUND)
+#  protobuf
 find_package(Protobuf REQUIRED)
 
 ####################
-# Check for types
-include(platform_check)
-check_types(int8_t int16_t int32_t int64_t intptr_t)
-check_types(uint8_t uint16_t uint32_t uint64_t uintptr_t)
-check_types(double "long double" "long long" "long long int" "unsigned long long int")
-check_types(off_t size_t ssize_t)
-if(LONG_DOUBLE GREATER DOUBLE)
-    set(HAVE_LONG_DOUBLE_WIDER TRUE)
-endif()
+#  Check
+include(check)
 
 ####################
-# Check for headers
-check_headers(
-    dlfcn.h
-    inttypes.h
-    memory.h
-    stdint.h
-    stdlib.h
-    strings.h
-    string.h
-    sys/stat.h
-    sys/time.h
-    sys/types.h
-    unistd.h)
-set(STDC_HEADERS 1)
-
-include(CheckSymbolExists)
-####################
-# Check for functions
-check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
-check_symbol_exists(clock_gettime sys/time.h HAVE_CLOCK_GETTIME)
-####################
-# Check for options
-option(ENABLE_PTHREAD "use pthreads" ON)
-set(HAVE_PTHREADS ${ENABLE_PTHREAD})
-option(ENABLE_UNITTEST "enable unittest" ON)
-option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
-option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
+#  Targets
+file(STRINGS ${ONNC_ROOT_PATH}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
+string(REGEX MATCHALL "ENABLE_[A-Za-z0-9_]*_TARGET" CONFIG_IN_TARGETS ${CONFIG_IN_CONTENT})
+foreach(EACH_TARGET IN LISTS CONFIG_IN_TARGETS)
+    set(ONNC_TARGETS ${ONNC_TARGETS} ${EACH_TARGET})
+endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
 
 ####################
-# Check for variables and targets
-include(onnc_target)
-enum_onnc_targets()
-
-set(ONNC_INCLUDE_DIRS
+#  Include
+include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/lib)
-
-set(SKYPAT_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "skypat install path")
-set(SKYPAT_INCLUDE_DIRS
-    ${SKYPAT_INSTALL_DIR}/include)
-set(SKYPAT_LIBRARIES
-    ${SKYPAT_INSTALL_DIR}/lib/libskypat.a)
-
-set(ONNX_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
-set(ONNX_INCLUDE_DIRS
-    ${ONNX_INSTALL_DIR}/include)
-set(ONNX_LIBRARIES
-    ${ONNX_INSTALL_DIR}/lib/libonnx.a
-    ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
+)
     
 ####################
-# OUTPUT
-configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
-configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
-configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
-configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
-
-####################
-# Other
-set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address)
-add_compile_options(${ANDROID_CPPFLAGS})
-add_custom_target(code_gen)
+#   Subdirectories
+set(ONNC_PLATFORM_NAMES "")
 add_subdirectory(lib)
 add_subdirectory(tools)
 add_subdirectory(include)
+
+####################
+#   Generated files
+configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
+configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
+configure_file(include/onnc/Config/ONNX.h.cmake.in include/onnc/Config/ONNX.h)
+foreach(platform_name IN LISTS ONNC_PLATFORM_NAMES)
+    set(ONNC_TARGET_PLATFORMS "ONNC_PLATFORM(${platform_name})\n${ONNC_TARGET_PLATFORMS}")
+
+    set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(${platform_name})\n${ONNC_TARGET_BACKENDS}")
+    # FIXME: Sophon BM168x & BM188x Initialize***ONNCBackend()
+    #file(GLOB_RECURSE backend_files 
+    #    RELATIVE "${ONNC_ROOT_PATH}/lib/Target/${platform_name}" 
+    #    "lib/Target/${platform_name}/*Backend.cpp"
+    #)
+    #foreach(backend_file IN LISTS backend_files)
+    #    get_filename_component(backend_name ${backend_file} NAME_WE)
+    #    string(REGEX REPLACE "Backend" "" backend_name ${backend_name})
+    #    set(ONNC_TARGET_BACKENDS "ONNC_BACKEND(${backend_name})\n${ONNC_TARGET_BACKENDS}")
+    #endforeach(backend_file IN LISTS backend_files)
+endforeach(platform_name IN LISTS ONNC_PLATFORM_NAMES)
+configure_file(include/onnc/Config/Platforms.def.cmake.in include/onnc/Config/Platforms.def)
+configure_file(include/onnc/Config/Backends.def.cmake.in include/onnc/Config/Backends.def)

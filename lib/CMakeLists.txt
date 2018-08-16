@@ -1,58 +1,417 @@
+####################
+#  Library
+add_library(libonnc
+	"ADT/TopologyIterator.cpp"
+	"ADT/Rope.cpp"
+	"ADT/TypeTag.cpp"
+	"ADT/Any.cpp"
+	"ADT/Digraph.cpp"
+	"ADT/IList.cpp"
+	"ADT/StringList.cpp"
+	"ADT/IListIterator.cpp"
+	"ADT/Color.cpp"
+	"ADT/Buffer.cpp"
+	"ADT/StringRef.cpp"
+	"ADT/PolicyNodeIterator.cpp"
+	"ADT/ConstBuffer.cpp"
+	"Core/Pass.cpp"
+	"Core/InitializePasses.cpp"
+	"Core/AnalysisUsage.cpp"
+	"Core/ObjectWriter.cpp"
+	"Core/PassRegistry.cpp"
+	"Core/AnalysisResolver.cpp"
+	"Core/PassInfo.cpp"
+	"Core/Application.cpp"
+	"Core/PassManager.cpp"
+	"Analysis/UpdateGraphOutputSize.cpp"
+	"Analysis/NodeIRScheduler.cpp"
+	"Analysis/MemoryAllocation.cpp"
+	"Analysis/SplitNode.cpp"
+	# FIXME: "Analysis/LiveInterval.cpp"
+	"Analysis/LivenessAnalysis.cpp"
+	"Config/AboutLicense.cpp"
+	"Config/AboutData.cpp"
+	"IR/IRBuilder.cpp"
+	"IR/Define.cpp"
+	"IR/ONNXUtils.cpp"
+	"IR/Module.cpp"
+	"IR/ComputeOperand.cpp"
+	"IR/Compute/Flatten.cpp"
+	# FIXME: "IR/Compute/Loop.cpp"
+	"IR/Compute/BatchNormalization.cpp"
+	"IR/Compute/Gemm.cpp"
+	"IR/Compute/Squeeze.cpp"
+	"IR/Compute/Dropout.cpp"
+	"IR/Compute/ReduceLogSum.cpp"
+	"IR/Compute/ImageScaler.cpp"
+	"IR/Compute/ArgMax.cpp"
+	"IR/Compute/Initializer.cpp"
+	"IR/Compute/Or.cpp"
+	"IR/Compute/SpaceToDepth.cpp"
+	"IR/Compute/ReduceSum.cpp"
+	"IR/Compute/ReduceSumSquare.cpp"
+	"IR/Compute/Log.cpp"
+	"IR/Compute/MaxRoiPool.cpp"
+	"IR/Compute/ConstantFill.cpp"
+	"IR/Compute/Sum.cpp"
+	"IR/Compute/Sqrt.cpp"
+	"IR/Compute/ATen.cpp"
+	"IR/Compute/Reshape.cpp"
+	"IR/Compute/Sigmoid.cpp"
+	"IR/Compute/ReduceL1.cpp"
+	"IR/Compute/GRU.cpp"
+	"IR/Compute/AveragePool.cpp"
+	"IR/Compute/Softplus.cpp"
+	"IR/Compute/Gather.cpp"
+	"IR/Compute/RandomUniformLike.cpp"
+	"IR/Compute/Tanh.cpp"
+	"IR/Compute/ReduceL2.cpp"
+	"IR/Compute/Reciprocal.cpp"
+	"IR/Compute/LeakyRelu.cpp"
+	"IR/Compute/Upsample.cpp"
+	"IR/Compute/Split.cpp"
+	"IR/Compute/MatMul.cpp"
+	"IR/Compute/Not.cpp"
+	"IR/Compute/LogSoftmax.cpp"
+	"IR/Compute/LoopIndexTensor.cpp"
+	"IR/Compute/Neg.cpp"
+	"IR/Compute/Pow.cpp"
+	"IR/Compute/Elu.cpp"
+	"IR/Compute/Exp.cpp"
+	"IR/Compute/Relu.cpp"
+	"IR/Compute/Tan.cpp"
+	"IR/Compute/Scalar.cpp"
+	# FIXME: "IR/Compute/If.cpp"
+	"IR/Compute/Slice.cpp"
+	"IR/Compute/ReduceMax.cpp"
+	"IR/Compute/Softsign.cpp"
+	"IR/Compute/MeanVarianceNormalization.cpp"
+	"IR/Compute/ConvTranspose.cpp"
+	"IR/Compute/LRN.cpp"
+	"IR/Compute/Transpose.cpp"
+	"IR/Compute/GivenTensorFill.cpp"
+	"IR/Compute/Mean.cpp"
+	"IR/Compute/Max.cpp"
+	"IR/Compute/ReduceLogSumExp.cpp"
+	"IR/Compute/Floor.cpp"
+	"IR/Compute/PRelu.cpp"
+	"IR/Compute/LpPool.cpp"
+	"IR/Compute/GRUUnit.cpp"
+	"IR/Compute/Identity.cpp"
+	"IR/Compute/LSTM.cpp"
+	"IR/Compute/Acos.cpp"
+	"IR/Compute/Less.cpp"
+	"IR/Compute/Concat.cpp"
+	"IR/Compute/Mul.cpp"
+	"IR/Compute/Asin.cpp"
+	"IR/Compute/Atan.cpp"
+	"IR/Compute/Equal.cpp"
+	"IR/Compute/RNN.cpp"
+	"IR/Compute/Abs.cpp"
+	"IR/Compute/ArgMin.cpp"
+	"IR/Compute/Crop.cpp"
+	"IR/Compute/Multinomial.cpp"
+	"IR/Compute/MaxPool.cpp"
+	"IR/Compute/RandomUniform.cpp"
+	"IR/Compute/And.cpp"
+	"IR/Compute/RandomNormal.cpp"
+	"IR/Compute/Value.cpp"
+	"IR/Compute/Shape.cpp"
+	"IR/Compute/Use.cpp"
+	"IR/Compute/Pad.cpp"
+	"IR/Compute/Affine.cpp"
+	"IR/Compute/Softmax.cpp"
+	"IR/Compute/Unsqueeze.cpp"
+	"IR/Compute/Div.cpp"
+	"IR/Compute/Clip.cpp"
+	"IR/Compute/TopK.cpp"
+	"IR/Compute/Sin.cpp"
+	"IR/Compute/Xor.cpp"
+	"IR/Compute/Conv.cpp"
+	"IR/Compute/DepthToSpace.cpp"
+	"IR/Compute/GlobalAveragePool.cpp"
+	"IR/Compute/Cos.cpp"
+	"IR/Compute/OutputOperator.cpp"
+	"IR/Compute/ParametricSoftplus.cpp"
+	"IR/Compute/Tile.cpp"
+	"IR/Compute/HardSigmoid.cpp"
+	"IR/Compute/Cast.cpp"
+	"IR/Compute/InstanceNormalization.cpp"
+	"IR/Compute/Tensor.cpp"
+	"IR/Compute/ReduceMean.cpp"
+	"IR/Compute/ReduceMin.cpp"
+	"IR/Compute/ThresholdedRelu.cpp"
+	"IR/Compute/Selu.cpp"
+	"IR/Compute/Scale.cpp"
+	"IR/Compute/ReduceProd.cpp"
+	"IR/Compute/GlobalMaxPool.cpp"
+	"IR/Compute/RandomNormalLike.cpp"
+	"IR/Compute/Add.cpp"
+	# FIXME: "IR/Compute/Constant.cpp"
+	"IR/Compute/Min.cpp"
+	"IR/Compute/InputOperator.cpp"
+	"IR/Compute/ScaledTanh.cpp"
+	"IR/Compute/Hardmax.cpp"
+	"IR/Compute/GlobalLpPool.cpp"
+	"IR/Compute/Size.cpp"
+	"IR/Compute/Greater.cpp"
+	"IR/Compute/LpNormalization.cpp"
+	"IR/Compute/Sub.cpp"
+	"IR/Compute/Ceil.cpp"
+	"IR/ComputeMemOperand.cpp"
+	"IR/ONNCNodeNameGen.cpp"
+	"IR/ONNCModulePrinter.cpp"
+	"IR/ComputeOperator.cpp"
+	"IR/InsertionPoint.cpp"
+	"IR/Quadruple.cpp"
+	"IR/Tensor/InitializerProxy.cpp"
+	"IR/ONNXNodeVisitor.cpp"
+	"IR/ComputeRegOperand.cpp"
+	"IR/Dump.cpp"
+	"IR/ComputeGraph.cpp"
+	"Target/NPUTargetBackend.cpp"
+	"Target/TargetOptions.cpp"
+	"Target/TargetRegistry.cpp"
+	"Target/TargetBackend.cpp"
+	"Target/Target.cpp"
+	"Diagnostic/MsgHandling.cpp"
+	"Diagnostic/DiagnosticInfoMap.cpp"
+	"Diagnostic/OFStreamLog.cpp"
+	"Diagnostic/MsgHandler.cpp"
+	"Diagnostic/GeneralOptions.cpp"
+	"Diagnostic/SysLog.cpp"
+	"Diagnostic/Engine.cpp"
+	"Diagnostic/Logger.cpp"
+	"Diagnostic/Diagnostic.cpp"
+	"Diagnostic/StreamLog.cpp"
+	"Diagnostic/Policy.cpp"
+	"ONNXWrapper/ONNXWrapper.cpp"
+	"Option/Alias.cpp"
+	"Option/OptParser.cpp"
+	"Option/Option.cpp"
+	"Option/OptDefs.cpp"
+	"Option/CommandLine.cpp"
+	"Option/OptionPool.cpp"
+	"JSON/Object.cpp"
+	"JSON/String.cpp"
+	"JSON/Array.cpp"
+	"JSON/Value.cpp"
+	"JSON/Notation.cpp"
+	"JSON/JsonParser.cpp"
+	"JSON/JsonScanner.cpp"
+	"Transforms/GraphBuildingPass.cpp"
+	"Transforms/DeadNodeElimination.cpp"
+	"Transforms/BuildInitializers.cpp"
+	"Transforms/BuildOutputOperators.cpp"
+	"Transforms/RemoveTrainingNodes.cpp"
+	"Transforms/BuildInputOperators.cpp"
+	"Transforms/TensorSel.cpp"
+	"Transforms/TensorSel/PReluLower.cpp"
+	"Transforms/TensorSel/NegLower.cpp"
+	"Transforms/TensorSel/SoftmaxLower.cpp"
+	"Transforms/TensorSel/AcosLower.cpp"
+	"Transforms/TensorSel/ClipLower.cpp"
+	"Transforms/TensorSel/MatMulLower.cpp"
+	"Transforms/TensorSel/ThresholdedReluLower.cpp"
+	"Transforms/TensorSel/CeilLower.cpp"
+	"Transforms/TensorSel/LowerRegistry.cpp"
+	"Transforms/TensorSel/SinLower.cpp"
+	"Transforms/TensorSel/ReduceL1Lower.cpp"
+	"Transforms/TensorSel/ConcatLower.cpp"
+	"Transforms/TensorSel/GlobalMaxPoolLower.cpp"
+	"Transforms/TensorSel/HardSigmoidLower.cpp"
+	"Transforms/TensorSel/MulLower.cpp"
+	"Transforms/TensorSel/SumLower.cpp"
+	"Transforms/TensorSel/MinLower.cpp"
+	"Transforms/TensorSel/LpPoolLower.cpp"
+	"Transforms/TensorSel/PadLower.cpp"
+	"Transforms/TensorSel/AbsLower.cpp"
+	"Transforms/TensorSel/CropLower.cpp"
+	"Transforms/TensorSel/GreaterLower.cpp"
+	"Transforms/TensorSel/LpNormalizationLower.cpp"
+	"Transforms/TensorSel/GemmLower.cpp"
+	"Transforms/TensorSel/ShapeLower.cpp"
+	"Transforms/TensorSel/NotLower.cpp"
+	"Transforms/TensorSel/AveragePoolLower.cpp"
+	"Transforms/TensorSel/EluLower.cpp"
+	"Transforms/TensorSel/LogLower.cpp"
+	"Transforms/TensorSel/SoftsignLower.cpp"
+	"Transforms/TensorSel/ReduceLogSumExpLower.cpp"
+	"Transforms/TensorSel/CosLower.cpp"
+	"Transforms/TensorSel/DropoutLower.cpp"
+	"Transforms/TensorSel/ScaleLower.cpp"
+	# FIXME: "Transforms/TensorSel/GRULower.cpp"
+	"Transforms/TensorSel/LeakyReluLower.cpp"
+	"Transforms/TensorSel/UpsampleLower.cpp"
+	"Transforms/TensorSel/AsinLower.cpp"
+	"Transforms/TensorSel/CastLower.cpp"
+	"Transforms/TensorSel/MeanVarianceNormalizationLower.cpp"
+	"Transforms/TensorSel/TileLower.cpp"
+	"Transforms/TensorSel/SqueezeLower.cpp"
+	"Transforms/TensorSel/ReluLower.cpp"
+	"Transforms/TensorSel/OrLower.cpp"
+	# FIXME: "Transforms/TensorSel/IfLower.cpp"
+	"Transforms/TensorSel/SplitLower.cpp"
+	"Transforms/TensorSel/SizeLower.cpp"
+	"Transforms/TensorSel/LRNLower.cpp"
+	"Transforms/TensorSel/ConvTransposeLower.cpp"
+	"Transforms/TensorSel/ReduceProdLower.cpp"
+	"Transforms/TensorSel/MaxLower.cpp"
+	# FIXME: "Transforms/TensorSel/GivenTensorFillLower.cpp"
+	"Transforms/TensorSel/ATenLower.cpp"
+	"Transforms/TensorSel/XorLower.cpp"
+	"Transforms/TensorSel/ReduceSumLower.cpp"
+	"Transforms/TensorSel/Lower.cpp"
+	"Transforms/TensorSel/MaxRoiPoolLower.cpp"
+	"Transforms/TensorSel/LSTMLower.cpp"
+	"Transforms/TensorSel/ReduceMinLower.cpp"
+	"Transforms/TensorSel/TanhLower.cpp"
+	"Transforms/TensorSel/HardmaxLower.cpp"
+	"Transforms/TensorSel/GlobalLpPoolLower.cpp"
+	"Transforms/TensorSel/SigmoidLower.cpp"
+	"Transforms/TensorSel/PowLower.cpp"
+	"Transforms/TensorSel/DepthToSpaceLower.cpp"
+	"Transforms/TensorSel/ImageScalerLower.cpp"
+	"Transforms/TensorSel/SoftplusLower.cpp"
+	# FIXME: "Transforms/TensorSel/LoopLower.cpp"
+	"Transforms/TensorSel/TanLower.cpp"
+	"Transforms/TensorSel/GatherLower.cpp"
+	"Transforms/TensorSel/MultinomialLower.cpp"
+	"Transforms/TensorSel/ReduceL2Lower.cpp"
+	"Transforms/TensorSel/ArgMaxLower.cpp"
+	"Transforms/TensorSel/AddLower.cpp"
+	# FIXME: "Transforms/TensorSel/SliceLower.cpp"
+	"Transforms/TensorSel/MeanLower.cpp"
+	"Transforms/TensorSel/EqualLower.cpp"
+	"Transforms/TensorSel/RandomNormalLikeLower.cpp"
+	"Transforms/TensorSel/ExpLower.cpp"
+	"Transforms/TensorSel/LogSoftmaxLower.cpp"
+	"Transforms/TensorSel/SqrtLower.cpp"
+	"Transforms/TensorSel/SpaceToDepthLower.cpp"
+	"Transforms/TensorSel/FlattenLower.cpp"
+	# FIXME: "Transforms/TensorSel/ConstantFillLower.cpp"
+	"Transforms/TensorSel/BatchNormalizationLower.cpp"
+	"Transforms/TensorSel/DivLower.cpp"
+	"Transforms/TensorSel/LoopIndexTensorLower.cpp"
+	"Transforms/TensorSel/ScaledTanhLower.cpp"
+	"Transforms/TensorSel/ParametricSoftplusLower.cpp"
+	"Transforms/TensorSel/InstanceNormalizationLower.cpp"
+	"Transforms/TensorSel/ReshapeLower.cpp"
+	"Transforms/TensorSel/TransposeLower.cpp"
+	"Transforms/TensorSel/ReduceSumSquareLower.cpp"
+	"Transforms/TensorSel/RandomUniformLikeLower.cpp"
+	"Transforms/TensorSel/ArgMinLower.cpp"
+	"Transforms/TensorSel/GlobalAveragePoolLower.cpp"
+	"Transforms/TensorSel/ReciprocalLower.cpp"
+	"Transforms/TensorSel/FloorLower.cpp"
+	"Transforms/TensorSel/AndLower.cpp"
+	"Transforms/TensorSel/AtanLower.cpp"
+	# FIXME: "Transforms/TensorSel/RNNLower.cpp"
+	"Transforms/TensorSel/SubLower.cpp"
+	"Transforms/TensorSel/GRUUnitLower.cpp"
+	"Transforms/TensorSel/AffineLower.cpp"
+	"Transforms/TensorSel/SeluLower.cpp"
+	"Transforms/TensorSel/IdentityLower.cpp"
+	"Transforms/TensorSel/UnsqueezeLower.cpp"
+	"Transforms/TensorSel/ConvLower.cpp"
+	# FIXME: "Transforms/TensorSel/ConstantLower.cpp"
+	"Transforms/TensorSel/DefaultAttributes.cpp"
+	"Transforms/TensorSel/ReduceMaxLower.cpp"
+	"Transforms/TensorSel/MaxPoolLower.cpp"
+	"Transforms/TensorSel/ReduceLogSumLower.cpp"
+	"Transforms/TensorSel/RandomNormalLower.cpp"
+	"Transforms/TensorSel/RandomUniformLower.cpp"
+	"Transforms/TensorSel/LessLower.cpp"
+	"Transforms/TensorSel/ReduceMeanLower.cpp"
+	"Transforms/TensorSel/TopKLower.cpp"
+	"Transforms/BookONNXGraphs.cpp"
+	"Support/FileInfo.cpp"
+	"Support/Pipe.cpp"
+	"Support/SelfPipe.cpp"
+	"Support/Duration.cpp"
+	"Support/FileLock.cpp"
+	"Support/Random.cpp"
+	"Support/Timer.cpp"
+	"Support/MemoryMap.cpp"
+	"Support/MappedFileRegion.cpp"
+	# FIXME: "Support/Slab.cpp"
+	"Support/CEnv.cpp"
+	"Support/FileStatus.cpp"
+	"Support/Directory.cpp"
+	"Support/Expansion.cpp"
+	"Support/Environ.cpp"
+	"Support/CArgu.cpp"
+	"Support/IndentOStreamBuf.cpp"
+	"Support/FileSystem.cpp"
+	"Support/Signal.cpp"
+	"Support/DirIterator.cpp"
+	"Support/AsyncPipe.cpp"
+	"Support/FileHandle.cpp"
+	"Support/ErrorCode.cpp"
+	"Support/Debug.cpp"
+	"Support/CArguRef.cpp"
+	"Support/Path.cpp"
+	"Support/Glob.cpp"
+	"Support/Readline.cpp"
+	"Support/IOStream.cpp"
+	"Support/linenoise.cpp"
+	"Support/ManagedStatic.cpp"
+	"Support/Host.cpp"
+	# FIXME: "Support/Compress.cpp"
+	"IRReader/ONNXReader.cpp"
+)
 
-
-set(LIB_ONNC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(LIB_ONNC_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
-function(add_libonnc_src)
-    file(RELATIVE_PATH name ${LIB_ONNC_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-    string(REPLACE "/" "_" name ${name})
-    set(name libonnc_${name})
-    add_library(${name} OBJECT ${ARGN})
-    target_sources(libonnc PRIVATE $<TARGET_OBJECTS:${name}>)
-    add_dependencies(${name} build_external)
-    set(cur_target ${name} PARENT_SCOPE)
-    add_dependencies(${name} code_gen)
-endfunction()
-
-
-find_package(Boost COMPONENTS system REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-
-include_directories(${ONNC_INCLUDE_DIRS})
-include_directories(${ONNX_INCLUDE_DIRS})
-include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
-add_definitions(-DONNX_NAMESPACE=onnx)
-
-add_library(libonnc "")
-add_dependencies(libonnc build_external)
-add_dependencies(libonnc code_gen)
-target_include_directories(libonnc PUBLIC ${ONNX_INCLUDE_DIRS})
-target_include_directories(libonnc PUBLIC ${LIB_ONNC_BINARY_DIR}/include) # for proto
-target_compile_definitions(libonnc PUBLIC -DONNX_NAMESPACE=onnx)
+####################
+#  JSON
+add_custom_command(
+    OUTPUT JSON/JsonParser.cpp
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/JSON"
+    COMMAND yacc --output="${CMAKE_CURRENT_BINARY_DIR}/JSON/JsonParser.cpp" ${CMAKE_CURRENT_SOURCE_DIR}/JSON/JsonParser.ypp
+    COMMAND mv "${CMAKE_CURRENT_BINARY_DIR}/JsonParser.h" "${CMAKE_CURRENT_BINARY_DIR}/JSON"
+    MAIN_DEPENDENCY JSON/JsonParser.ypp
+)
+add_custom_command(
+	OUTPUT JSON/JsonScanner.cpp
+	COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/JSON"
+    COMMAND flex --outfile="${CMAKE_CURRENT_BINARY_DIR}/JSON/JsonScanner.cpp" ${CMAKE_CURRENT_SOURCE_DIR}/JSON/JsonScanner.lpp
+    MAIN_DEPENDENCY JSON/JsonScanner.lpp
+)
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
-add_subdirectory(ADT)
-add_subdirectory(Analysis)
-add_subdirectory(Config)
-add_subdirectory(Core)
-add_subdirectory(Diagnostic)
-add_subdirectory(IR)
-add_subdirectory(IRReader)
-add_subdirectory(JSON)
-add_subdirectory(ONNXWrapper)
-add_subdirectory(Option)
-add_subdirectory(Support)
+####################
+#  Target
+set(ONNC_TARGET_NAMES "")
 add_subdirectory(Target)
-add_subdirectory(Transforms)
+foreach(TARGET_NAME IN LISTS ONNC_TARGET_NAMES)
+	target_sources(libonnc
+		PUBLIC $<TARGET_OBJECTS:onnc_${TARGET_NAME}>
+	)
+endforeach(TARGET_NAME IN LISTS ONNC_TARGET_NAMES)
+foreach(TARGET_OBJ IN LISTS ONNC_TARGET_OBJS)
+	target_sources(libonnc
+		PUBLIC $<TARGET_OBJECTS:${TARGET_OBJ}>
+	)
+endforeach(TARGET_OBJ IN LISTS ONNC_TARGET_OBJS)
+set(ONNC_PLATFORM_NAMES ${ONNC_TARGET_NAMES} PARENT_SCOPE)
 
+####################
+#  Link
 if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
 endif()
 target_link_libraries(libonnc
-    ${EXTERNAL_LIBRARY}
     ${Boost_LIBRARIES}
-    glog
-    ${ONNX_LIBRARIES}
-    ${PROTOBUF_LIBRARIES})
+	onnx
+	onnx_proto
+	${PROTOBUF_LIBRARIES}
+	${GLOG_LIBRARIES}
+)
+if (USE_LLVM)
+    target_link_libraries(libonnc ${LLVM_LIBRARIES})
+endif()
 
+####################
+#  Install
 install(TARGETS libonnc
-    ARCHIVE DESTINATION lib)
+	ARCHIVE DESTINATION lib
+)

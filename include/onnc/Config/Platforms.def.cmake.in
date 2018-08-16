@@ -25,6 +25,6 @@
 #  error Please define the macro ONNC_PLATFORM(TargetName)
 #endif
 
-@ONNC_TARGET_PLATFORMS@
+${ONNC_TARGET_PLATFORMS}
 
 #undef ONNC_PLATFORM
