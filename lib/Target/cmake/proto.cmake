@@ -1,6 +1,6 @@
 
 function(gen_proto_cpp)
-    cmake_parse_arguments(OPT "" "SOURCE;PROTO;DEPEND" "" ${ARGN})
+    cmake_parse_arguments(OPT "" "SOURCE;PROTO;DEPEND;OBJECT" "" ${ARGN})
     # prepare proto name
     get_filename_component(OPT_PROTO ${OPT_PROTO} ABSOLUTE)
     get_filename_component(proto_name ${OPT_PROTO} NAME)
@@ -9,7 +9,8 @@ function(gen_proto_cpp)
     # set return variable
     file(RELATIVE_PATH relative_path ${ONNC_ROOT_PATH}/lib ${proto_path})
     set(out_path ${PROJECT_BINARY_DIR}/include/onnc/${relative_path})
-    set(${OPT_SOURCE} "${out_path}/${proto_name_we}.pb.cc")
+    set(${OPT_SOURCE} "${out_path}/${proto_name_we}.pb.cc" PARENT_SCOPE)
+    set(${OPT_OBJECT} "${proto_name_we}_object" PARENT_SCOPE)
     # build
     if(OPT_DEPEND)
         add_custom_command(
@@ -21,7 +22,6 @@ function(gen_proto_cpp)
         add_library("${proto_name_we}_object" OBJECT
             "${out_path}/${proto_name_we}.pb.cc"
         )
-        
     else(OPT_DEPEND)
         add_custom_command(
             OUTPUT "${out_path}/${proto_name_we}.pb.cc"

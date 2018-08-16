@@ -383,10 +383,15 @@ set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 set(ONNC_TARGET_NAMES "")
 add_subdirectory(Target)
 foreach(TARGET_NAME IN LISTS ONNC_TARGET_NAMES)
-	target_link_libraries(libonnc
-		onnc_${TARGET_NAME}
+	target_sources(libonnc
+		PUBLIC $<TARGET_OBJECTS:onnc_${TARGET_NAME}>
 	)
 endforeach(TARGET_NAME IN LISTS ONNC_TARGET_NAMES)
+foreach(TARGET_OBJ IN LISTS ONNC_TARGET_OBJS)
+	target_sources(libonnc
+		PUBLIC $<TARGET_OBJECTS:${TARGET_OBJ}>
+	)
+endforeach(TARGET_OBJ IN LISTS ONNC_TARGET_OBJS)
 set(ONNC_PLATFORM_NAMES ${ONNC_TARGET_NAMES} PARENT_SCOPE)
 
 ####################

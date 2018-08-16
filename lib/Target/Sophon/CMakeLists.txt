@@ -25,8 +25,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 #  Include
 add_subdirectory(BM168x)
 add_subdirectory(BM188x)
-
-add_library(onnc_Sophon
+set(onnc_Sophon_obj ${onnc_Sophon_obj} PARENT_SCOPE)
+add_library(onnc_Sophon OBJECT
     "io.cpp"
     "TargetLowering.cpp"
     "TGBackend.cpp"
@@ -119,9 +119,6 @@ add_library(onnc_Sophon
     "BM188x/Lowers/ScaleLower.cpp"
     "BM188x/Lowers/ReluLower.cpp"
     "BM188x/Lowers/UpsampleLower.cpp"
-    $<TARGET_OBJECTS:bm168x_asm_object>
-    $<TARGET_OBJECTS:bm188x_asm_object>
-    $<TARGET_OBJECTS:common_calibration2_object>
 )
 
 file(COPY 

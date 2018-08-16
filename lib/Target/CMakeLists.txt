@@ -27,9 +27,12 @@ foreach(ONNC_TARGET IN LISTS ONNC_TARGETS)
         # Add subdirectory
         if(${ONNC_TARGET})
             add_subdirectory(${TARGET_DIR_NAME})
+            set(obj_name "onnc_${TARGET_DIR_NAME}_obj")
             set(TARGET_NAMES ${TARGET_NAMES} ${TARGET_DIR_NAME})
+            set(TARGET_OBJS ${TARGET_OBJS} ${${obj_name}})
         endif(${ONNC_TARGET})
     endif(TAEGET_EXIST GREATER -1)
 endforeach(ONNC_TARGET IN LISTS ONNC_TARGETS)
 
 set(ONNC_TARGET_NAMES ${TARGET_NAMES} PARENT_SCOPE)
+set(ONNC_TARGET_OBJS ${TARGET_OBJS} PARENT_SCOPE)

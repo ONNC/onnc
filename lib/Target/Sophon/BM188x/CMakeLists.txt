@@ -2,6 +2,7 @@ include(proto)
 gen_proto_cpp(
     PROTO ${CMAKE_CURRENT_SOURCE_DIR}/common_calibration2.proto
     SOURCE common_calibration2_src
+    OBJECT common_calibration2_obj
 )
 file(COPY 
     "bmkernel_api.h"
@@ -23,12 +24,16 @@ if (SOPHON_GEN_ASM_PROTO)
         PROTO ${bm188x_asm_proto}
         SOURCE bm188x_asm_src
         DEPEND ${bm188x_gen_asm_proto}
+        OBJECT bm188x_asm_obj
     )
 else(SOPHON_GEN_ASM_PROTO)
     gen_proto_cpp(
         PROTO ${bm188x_asm_proto}
         SOURCE bm188x_asm_src
+        OBJECT bm188x_asm_obj
     )
 endif(SOPHON_GEN_ASM_PROTO)
+
+set(onnc_Sophon_obj ${onnc_Sophon_obj} ${bm188x_asm_obj} ${common_calibration2_obj} PARENT_SCOPE)
 
 add_subdirectory(Tests)

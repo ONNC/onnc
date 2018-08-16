@@ -19,10 +19,14 @@ if (SOPHON_GEN_ASM_PROTO)
         PROTO ${bm168x_asm_proto}
         SOURCE bm168x_asm_src
         DEPEND ${bm168x_gen_asm_proto}
+        OBJECT bm168x_asm_obj
     )
 else(SOPHON_GEN_ASM_PROTO)
     gen_proto_cpp(
         PROTO ${bm168x_asm_proto}
         SOURCE bm168x_asm_src
+        OBJECT bm168x_asm_obj
     )
 endif(SOPHON_GEN_ASM_PROTO)
+
+set(onnc_Sophon_obj ${onnc_Sophon_obj} ${bm168x_asm_obj} PARENT_SCOPE)
