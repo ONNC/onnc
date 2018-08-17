@@ -123,6 +123,8 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   bmnetc_pass_extention(this, pPM);
 #endif
 
+  bool dumpOptONNXModel = !options().optOnnxModel().empty();
+
   // target independent pass
   pPM.add(CreateRemoveTrainingNodesPass());
   // TODO refactoring, AddDummyWeightPass can be target indepedent pass
@@ -133,20 +135,18 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   // BM1880 customized Pass
   pPM.add(createPrepareCtablePass(this));
 
-  if (options().optOnnxModel().empty())
+  // dump optimized onnx model pass need to
+  // disable fuse opt
+  if (!dumpOptONNXModel)
     pPM.add(createONNXFuseOptPass(this));
 
   if (options().shouldPrintBeforeTensorSel())
     pPM.add(createONNCModulePrinterPass());
 
   pPM.add(CreateDeadNodeEliminationPass());
-
-#ifdef BMONNC_EXIST
-  pPM.add(createQuantizePass(this));
-#endif
-
-  if (!options().optOnnxModel().empty())
+  if (dumpOptONNXModel)
     pPM.add(createONNXDumpOptPass(this));
+
   pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());
@@ -154,6 +154,9 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   pPM.add(CreateTensorSel(this));
   pPM.add(CreateBuildOutputOperators());
   pPM.add(BM188X::CreateAddLutTablePass(this));
+#ifdef BMONNC_EXIST
+  pPM.add(CreateNewQuantizePass(this));
+#endif
 
   return;
 }
