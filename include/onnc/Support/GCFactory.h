@@ -178,7 +178,7 @@ class GCFactoryBase : public Alloc {
 };
 
 /** \class GCFactory
- *  \brief GCFactory provides a factory that guaratees to remove all allocated
+ *  \brief GCFactory provides a factory that guarantees to remove all allocated
  *  data.
  */
 template <typename DataType, size_t ChunkSize>

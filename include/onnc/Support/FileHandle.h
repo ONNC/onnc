@@ -76,7 +76,7 @@ public:
   // truncate the file up to the size @ref pSize.
   SystemError truncate(size_t pSize);
 
-  /// read the file content from @ref pStartOffset with lenght @ref pLength
+  /// read the file content from @ref pStartOffset with length @ref pLength
   /// into the memory buffer @ref pMemBuffer
   SystemError read(void* pMemBuffer, size_t pStartOffset, size_t pLength);
 

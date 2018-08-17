@@ -34,7 +34,7 @@ public:
 public:
   virtual ~Lower() = 0;
 
-  /// If a backend doesn't want to use single quailty-match function, then
+  /// If a backend doesn't want to use single quality-match function, then
   /// we shall allow them to override this function.
   virtual int isMe(const xNode& pNode) const { return m_MatchFn(pNode); }
 

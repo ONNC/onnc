@@ -49,7 +49,7 @@ public:
 
   /// Construct a string ref from a pointer and length.
   /// @param pData a memory string (which may not be NULL terminated). Assertion
-  /// occurs when pStr is a NULL strin or pLength is zero.
+  /// occurs when pStr is a NULL string or pLength is zero.
   StringRef(const char *pData, size_t pLength);
 
   /// Construct a string ref from an std::string.

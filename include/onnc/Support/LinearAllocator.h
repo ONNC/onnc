@@ -124,7 +124,7 @@ class LinearAllocatorBase {
   void construct(pointer pPtr) { chunk_type::construct(pPtr); }
 
   /// standard destroy - destroy data on arbitrary address
-  //  @para pPtr the address where the data to be destruected.
+  //  @para pPtr the address where the data to be destructed.
   void destroy(pointer pPtr) { chunk_type::destroy(pPtr); }
 
   /// allocate - allocate N data in order.

@@ -159,11 +159,11 @@ public:
   static void free(int& pArgc, char**& pArgv);
 
   /// Move data to @ref pArgc and @ref pArgv
-  /// It doesn't allocate new memory space. Users must release storages
+  /// It doesn't allocate new memory space. Users must release storage
   /// manually. After the delegation, CArgu becomes empty.
   ///
   /// @param[out] pArgc Storage of argument count
-  /// @param[out] pArgv Staroge of argument vector
+  /// @param[out] pArgv Storage of argument vector
   void give(int& pArgc, char**& pArgv);
 
 protected:

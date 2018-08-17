@@ -16,7 +16,7 @@ class TargetOptions;
 class TargetRegistry;
 
 /** \class Target
- *  \brief Target collecs information of a target machine.
+ *  \brief Target collects information of a target machine.
  */
 class Target
 {

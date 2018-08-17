@@ -86,7 +86,7 @@ protected:
 };
 
 //===----------------------------------------------------------------------===//
-// Template speicification
+// Template specification
 //===----------------------------------------------------------------------===//
 template<> FD& Pipe::side<Pipe::kBoth>();
 template<> FD Pipe::side<Pipe::kBoth>() const;

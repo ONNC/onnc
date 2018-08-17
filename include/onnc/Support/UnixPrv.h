@@ -30,7 +30,7 @@ namespace unix {
 /// \fn safe_open
 /// Don't call ::open. Call unix::safe_open
 /// safe_open opens the file at @ref pPath safely. It considers about
-/// interrput and race condition.
+/// interrupt and race condition.
 static inline int safe_open(const char* pPath, int pFlags, mode_t pMode = 0777)
 {
 #ifdef O_CLOEXEC
@@ -56,7 +56,7 @@ static inline int safe_close(int pFD)
 
 /// \fn safe_read
 /// Don't call ::read. Call unix::safe_read.
-/// safe_read reads file at @ref pFD safely. It considers about interrput
+/// safe_read reads file at @ref pFD safely. It considers about interrupt
 /// and race condition of signals.
 static inline ssize_t safe_read(int pFD, void* pBuf, size_t pNBytes)
 {
