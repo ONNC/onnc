@@ -28,7 +28,8 @@ BM188X::ConvLower::~ConvLower()
 
 int BM188X::ConvLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == xSymbol("Conv"))
+  if (pNode.kind() == xSymbol("Conv") ||
+      pNode.kind() == xSymbol("TGConv"))
     return kTargetNormal;
   return kNotMe;
 }

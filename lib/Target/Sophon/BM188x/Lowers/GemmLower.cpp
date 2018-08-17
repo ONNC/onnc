@@ -28,7 +28,8 @@ BM188X::GemmLower::~GemmLower()
 
 int BM188X::GemmLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == xSymbol("Gemm"))
+  if (pNode.kind() == xSymbol("Gemm") ||
+      pNode.kind() == xSymbol("TGGemm"))
     return kTargetNormal;
   return kNotMe;
 }

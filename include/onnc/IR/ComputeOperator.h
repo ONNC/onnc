@@ -90,6 +90,9 @@ public:
   /// replace input value @ref pIdx by @ref pValue
   void replaceInput(unsigned int pIdx, onnc::Value& pValue);
 
+  /// replace output value @ref pIdx by @ref pValue
+  void replaceOutput(unsigned int pIdx, onnc::Value* pValue);
+
   /// Use covariant return type to override this function
   virtual onnc::Value* getOutput(unsigned int pIdx) { return m_Outputs[pIdx]; }
 

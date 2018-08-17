@@ -31,6 +31,8 @@ public:
 
   unsigned int dimension(unsigned int pIdx) const { return m_Dimensions[pIdx]; }
 
+  const Dimensions &getDimensions() const { return m_Dimensions; };
+
   void setDimensions(const Dimensions& pD) { m_Dimensions = pD; }
 
   void print(std::ostream& pOS) const {

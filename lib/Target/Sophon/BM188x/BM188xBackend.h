@@ -76,6 +76,8 @@ private:
 //===----------------------------------------------------------------------===//
 ModulePass *createPrepareCtablePass(BM1880Backend *pBackend);
 ModulePass *createUpdateCtablePass(BM1880Backend *pBackend);
+ModulePass *createQuantizePass(BM1880Backend *pBackend);
+ModulePass *CreateNewQuantizePass(BM1880Backend *pBackend);
 ModulePass *createAddDummyWeightPass();
 ModulePass *createONNXDumpOptPass(BM1880Backend *pBackend);
 
