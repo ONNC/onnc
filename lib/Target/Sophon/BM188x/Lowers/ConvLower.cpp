@@ -114,17 +114,16 @@ onnc::ComputeOperator *BM188X::ConvLower::activate(ComputeGraph& pGraph,
     doBias = true;
   }
 
-  // get input tensor.
-  onnc::Tensor *bias = nullptr, *scale = nullptr,
-               *scaleBias = nullptr;
   int inputIdx = 2;
-  if (doBias) bias = op->getInput(inputIdx++);
-  if (doScale) scale = op->getInput(inputIdx++);
-  if (doScaleBias) scaleBias = op->getInput(inputIdx++);
-
-  op->setBias(bias);
-  op->setScale(scale);
-  op->setScaleBias(scaleBias);
+  if (doBias) {
+    op->setBiasIdx(inputIdx++);
+  }
+  if (doScale) {
+    op->setScaleIdx(inputIdx++);
+  }
+  if (doScaleBias) {
+    op->setScaleBiasIdx(inputIdx++);
+  }
 
   if (doScale)
     op->setConvOutputThreshold(pNode.f(xSymbol("conv_output_threshold")));

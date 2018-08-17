@@ -20,8 +20,7 @@ char BM188X::Conv::ID = 0;
 //===----------------------------------------------------------------------===//
 BM188X::Conv::Conv()
     : onnc::Conv(), m_RShiftWidth(0), m_ScaleRShiftWidth(0),
-      m_ConvOutputThreshold(0.f),
-      m_DoRelu(false), m_Bias(nullptr), m_Scale(nullptr), m_ScaleBias(nullptr)
+      m_ConvOutputThreshold(0.f), m_DoRelu(false)
 {
   setID(ID);
 }
@@ -32,7 +31,10 @@ BM188X::Conv::~Conv()
 
 void BM188X::Conv::print(std::ostream& pOS) const
 {
-  // TODO
+  pOS << m_Outputs[0]->getName() << " = " << name();
+  for (unsigned int i = 0; i < m_Inputs.size(); ++i) {
+    pOS << " " << m_Inputs[i]->getName();
+  }
 }
 
 void BM188X::Conv::accept(ComputeVisitor& pV)
