@@ -2,11 +2,17 @@
 
 **ONNC (Open Neural Network Compiler)**
 
-A compiler specifically designed for Deep Learning Accelerator (DLA).
-Based on Open Neural Network Exchange (ONNX), ONNC transforms ONNX models into
-binary machine code for DLA ASIC. ONNC leverages the IR design of ONNX and
-provides effective algorithms to eliminate the overhead of data movement.
-ONNC increases DLA ASIC performance and shorten production time for DLA ASIC.
+The ONNC project aims to provide a compiler to
+connect [Open Neural Network Exchange Format (ONNX)](https://onnx.ai/)
+to every Deep Learning Accelerator (DLA). ONNX represents deep learning
+models that enables models to be correctly transferred among frameworks
+such as TensorFlow. ONNC guarantees executability across every DLA by
+means of transforming ONNX models into DLA specific binary forms and
+leveraging the intermediate representation (IR) design of ONNX along with
+effective algorithms to eliminate the overhead of data movement.
+
+With the aid of ONNC, DLA vendors can specify customizecd physical cost
+model and avoid re-inventing these intricate optimization algorithms.
 
 ## Current Status
 
