@@ -1,19 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
-project(onnc)
 enable_testing()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
-file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
-set(PACKAGE "onnc")
-set(PACKAGE_BUGREPORT "maillist.onnc.ai")
-set(PACKAGE_NAME "ONNC")
-set(PACKAGE_STRING "ONNC ${PACKAGE_VERSION}")
-set(PACKAGE_TARNAME "onnc")
-set(PACKAGE_URL "onnc.ai")
 
 ####################
-#  General options
+#  General settings
 include(option)
 option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
 option(ENABLE_PTHREAD "use pthreads" ON)
@@ -37,6 +28,18 @@ if (ENABLE_WERROR)
 endif()
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
+
+####################
+#  Project
+project(onnc)
+set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
+file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
+set(PACKAGE "onnc")
+set(PACKAGE_BUGREPORT "maillist.onnc.ai")
+set(PACKAGE_NAME "ONNC")
+set(PACKAGE_STRING "ONNC ${PACKAGE_VERSION}")
+set(PACKAGE_TARNAME "onnc")
+set(PACKAGE_URL "onnc.ai")
 
 ####################
 #  Check
