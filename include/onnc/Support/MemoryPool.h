@@ -17,7 +17,7 @@
 namespace onnc {
 
 /** \class MemoryPool
- *  \brief MemoryPool provides a factory that guaratees to remove all allocated
+ *  \brief MemoryPool provides a factory that guarantees to remove all allocated
  *  data.
  *
  *  In particular, MemoryPool just keeps allocating memory and never deletes it

@@ -20,7 +20,7 @@ void SerializeToString(std::string &pOutput, const Module &pModule);
 void ExportModelProto(xProto &pModelProto, const Module &pModule);
 
 /// Factory of Module
-/// @param [in] pModuleProto The prototex of the module.
+/// @param [in] pModuleProto The prototext of the module.
 Module* CreateModule(const xProto &pModelProto);
 
 /// Factory of Module. destroy the module.

@@ -58,7 +58,7 @@ private:
   // SlabIterator is a bidirectional iterator, but it has an implicit
   // conversion to pointer-type. Therefore, declare these functions
   // (but don't implement them) as private can help users catch
-  // accidential mis-use.
+  // accidental mis-use.
   void operator+(difference_type) const;
   void operator-(difference_type) const;
   void operator+=(difference_type) const;

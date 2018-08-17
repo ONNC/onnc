@@ -460,7 +460,7 @@ Quadruple::ArchCoreType ParseArchCore(StringRef pArchCoreName);
 /// architecture.
 StringRef FetchArchName(StringRef pName);
 
-/// Returns the 2nd compoenet of pName.
+/// Returns the 2nd component of pName.
 StringRef FetchArchVendorName(StringRef pName);
 
 /// Returns the 3rd component of pName

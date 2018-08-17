@@ -42,7 +42,7 @@ protected:
  *  TableImpl uses open-addressing, linear probing hash table.
  *  linear probing hash table obviously has high performance when the
  *  load factor is less than 0.7.
- *  The drawback is that the number of the stored items can notbe more
+ *  The drawback is that the number of the stored items can not be more
  *  than the size of the hash table.
  *
  *  We tries to merge every things in the same HashEntry. It can

@@ -46,7 +46,7 @@ diagnostic::MsgHandler ignore     (StringRef pMessage);
 /** \namespace onnc::diagnostic
  *  \brief classes of diagnostic system
  *
- *  \b diagnositc namespace is the namespace for diagnostic system.
+ *  \b diagnostic namespace is the namespace for diagnostic system.
  *  The most frequent used library of the diagnostic system is
  *  @ref MsgHandling.h. It provides error-report functions to show
  *  error messages with appropriate severity. For example:

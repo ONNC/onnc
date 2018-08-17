@@ -44,7 +44,7 @@ public:
   }
 
   /// delegate - get the control of chunks owned by the client
-  //  after calling delegate(), client will renouce its control
+  //  after calling delegate(), client will renounce its control
   //  of memory space.
   void delegate(TreeNodeAllocator& pClient) { Alloc::doConcatenate(pClient); }
 };

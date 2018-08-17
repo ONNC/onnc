@@ -59,7 +59,7 @@ public:
 
   Value& get(StringRef pKey);
 
-  /// Operator override fo get value with a key
+  /// Operator override to get value with a key
   /// \code
   /// Value v = obj["name"];
   /// \endcode

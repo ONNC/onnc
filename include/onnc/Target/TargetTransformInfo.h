@@ -75,7 +75,7 @@ public:
     return MemSize();
   }
 
-  /// Expose coarse grained execution units infomation, so scheduler can use
+  /// Expose coarse grained execution units information, so scheduler can use
   /// it to scheduling graph IR.
   virtual const ExeResource *queryExeResType(const xNode *pNode) const {
     return nullptr;

@@ -34,6 +34,6 @@ private:
   unsigned int GetRandomNumberSeed() const;
 };
 
-} // namespace fo onnc
+} // namespace of onnc
 
 #endif

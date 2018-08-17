@@ -150,7 +150,7 @@ private:
 
 /** \class PolicyIterator
  *  \brief PolicyIterator provides a policy-based design iterator. Its
- *  behavios changes when the policy changes.
+ *  behaviors changes when the policy changes.
  */
 template<class IteratorType, class Traits>
 class PolicyIterator : public IteratorType

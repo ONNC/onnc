@@ -168,7 +168,7 @@ Path absolute(const Path& pPath);
 /// /home/user/project/.././b -> /home/user/b
 /// /home/user/project/../../../../../bin -> /bin
 /// @endcode
-/// @retval false The path doest not exist.
+/// @retval false The path does not exist.
 bool canonicalize(Path& pPath);
 
 /// Change @ref pPath from the native form to canonical form.
@@ -189,7 +189,7 @@ bool canonicalize(Path& pPath);
 /// /home/user/project/.././b -> /home/user/b
 /// /home/user/project/../../../../../bin -> /bin
 /// @endcode
-/// @retval false The path doest not exist.
+/// @retval false The path does not exist.
 bool canonicalize(Path& pCanonResult, const Path& pPath);
 
 /// Change @ref pPath from the native from to canonical form.

@@ -88,7 +88,7 @@ private:
 void status(const Path& pPathName, FileStatus& pFileStatus);
 
 /// Checks the status of the \ref pFD file descriptor.
-/// @param [in]  pFD   the file descript
+/// @param [in]  pFD   the file descriptor
 /// @param [out] pFileStatus the result of status.
 void status(int pFD, FileStatus& pFileStatus);
 

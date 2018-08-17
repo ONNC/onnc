@@ -33,7 +33,7 @@ public:
   /// Read a line
   Readline& read(std::istream& pIns, std::string& pLine);
 
-  /// Encout any fault
+  /// Encounter any fault
   bool isGood() const { return m_bGood; }
 
   /// read a line
