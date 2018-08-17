@@ -22,8 +22,9 @@ void Value::adapt(xTensor& pAdaptee)
 void Value::replaceAllUsesWith(Value& pValue)
 {
   UseList::iterator use, uEnd = m_UseList.end();
-  for (use = m_UseList.begin(); use != uEnd; ++use) {
+  std::vector<onnc::Use> usedValues(m_UseList.begin(), m_UseList.end());
+  for (auto use : usedValues) {
     // replace the definition's input value by pValue
-    use->getUser()->replaceInput(use->getOperandNo(), pValue);
+    use.getUser()->replaceInput(use.getOperandNo(), pValue);
   }
 }
