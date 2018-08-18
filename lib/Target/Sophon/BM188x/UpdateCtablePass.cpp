@@ -13,6 +13,7 @@
 #include "BM188xBackend.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
+#include "Compute/LRN.h"
 #include "Compute/MaxPool.h"
 #include <onnc/Config/ONNX.h>
 #include <onnc/Core/ModulePass.h>
@@ -77,6 +78,20 @@ Pass::ReturnType UpdateCtablePass::runOnGraphs(xGraph &pTG,
       gemm->setRShiftWidth(layerCtable->right_shift_width());
       continue;
     } else if (isa<onnc::Reshape>(node) || isa<onnc::Softmax>(node)) {
+      continue;
+    } else if (auto *lrn = dyn_cast<BM188X::LRN>(node)) {
+      std::string outputName = lrn->getOutput(0)->getName();
+      for (int i = 0; i < layerCtable->blob_param_size(); ++i) {
+        if (layerCtable->blob_param(i).name() == outputName) {
+          lrn->setLrnRightShiftWidth(
+              layerCtable->blob_param(i).right_shift_width());
+        } else if (layerCtable->blob_param(i).name() == "sum_sq") {
+          lrn->setSumRightShiftWidth(
+              layerCtable->blob_param(i).right_shift_width());
+        }
+      }
+      lrn->getThresholdXQuantized()[0] = layerCtable->threshold_x_quantized(0);
+      lrn->getThresholdXQuantized()[1] = layerCtable->threshold_x_quantized(1);
       continue;
     }
     errs() << "FIXME: missed update " << ctableName << " operator\n";

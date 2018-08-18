@@ -24,7 +24,13 @@ public:
 
   ~LRN();
 
-  int getSumRightShftWidth() const { return m_SumRightShiftWidth; }
+  void setSumRightShiftWidth(int pV) { m_SumRightShiftWidth = pV; }
+
+  void setLrnRightShiftWidth(int pV) { m_LrnRightShiftWidth = pV; }
+
+  int *getThresholdXQuantized() { return m_ThresholdXQuantized; }
+
+  int getSumRightShiftWidth() const { return m_SumRightShiftWidth; }
 
   int getLrnRightShiftWidth() const { return m_LrnRightShiftWidth; }
 
