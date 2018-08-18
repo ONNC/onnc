@@ -16,7 +16,6 @@ function(enum_onnc_targets)
     set(TARGET_LIST "")
     option(TARGET_ALL "Build all targets" ON)
     add_target(X86 ON)
-    add_target(TG ON)
     add_target(Sophon OFF)
 
     # special option value
