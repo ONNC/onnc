@@ -58,10 +58,10 @@ void ComputeOperator::replaceInput(unsigned int pIdx, onnc::Value& pValue)
   pValue.getUses().emplace_back(*this, pIdx);
 }
 
-void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value *pValue)
+void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
 {
   // FIXEME changed input_out_of_range
   if (pIdx >= m_Outputs.size())
     fatal(input_out_of_range) << pIdx << name() << (uint32_t)m_Outputs.size();
-  m_Outputs[pIdx] = pValue;
+  m_Outputs[pIdx] = &pValue;
 }
