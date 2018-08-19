@@ -7,9 +7,19 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/Concat.h"
+#include "Compute/Conv.h"
+#include "Compute/Gemm.h"
+#include "Compute/GlobalAveragePool.h"
+#include "Compute/LRN.h"
+#include "Compute/LeakyRelu.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
+#include "Compute/Pool.h"
+#include "Compute/PRelu.h"
+#include "Compute/Relu.h"
 #include "Compute/Scale.h"
+#include "Compute/SlicedConv.h"
 #include "Compute/Store.h"
 #include "Compute/Sum.h"
 #include "Compute/Transpose.h"
@@ -23,15 +33,20 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
-#define USE_NEW_CE 0
+#define USE_NEW_CE 1
 
 //===----------------------------------------------------------------------===//
 // CodeEmitVisitor
 //===----------------------------------------------------------------------===//
+uint64_t CodeEmitVisitor::getMemAddr(const onnc::Tensor *pT)
+{
+  return m_TGBackend->getMemOpndByValue(pT)->start();
+}
+
 void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 {
-  auto *ifmap = m_TGBackend->getMemOpndByValue(pOperator.getInput(0));
-  auto *ofmap = m_TGBackend->getMemOpndByValue(pOperator.getOutput(0));
+  uint64_t inAddr = getMemAddr(pOperator.getInput(0)),
+           oAddr = getMemAddr(pOperator.getOutput(0));
 
   const onnc::Tensor* inTensor = pOperator.getInput(0);
   int n = inTensor->dimension(0),
@@ -56,7 +71,7 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 
   DEBUG(dbgs()
     << "BM188X::AveragePool" << "\n"
-    << "  " << ifmap->start() << " " << ofmap->start()
+    << "  " << inAddr << " " << oAddr
     << " " << n << " " << c << " " << h << " " << w << " "
     << kh << " " << kw << " "
     << padt << " " << padb << " " << padl << " " << padr << " "
@@ -66,8 +81,8 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 
 #if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap_gaddr
-      m_MemOperands[1]->m_Addr,        // ofmap_gaddr
+      inAddr,                          // ifmap_gaddr
+      oAddr,                           // ofmap_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // index_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
       n, c, h, w, kh, kw, padt, padb, padl, padr, strh, strw,
@@ -81,51 +96,125 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::AveragePool& pOperator)
 #endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Concat& pOp)
 {
-  /**
-  // Need to modify the api to use const.
-  std::vector<uint64_t> input_addr;
-  for (size_t i = 0; i < m_InputDims.size(); i++)
-    input_addr.push_back(m_MemOperands[i]->m_Addr);
+  std::vector<uint64_t> inAddrs(pOp.getNumOfInputs());
+  for (unsigned i = 0; i < inAddrs.size(); ++i)
+    inAddrs[i] = m_TGBackend->getMemOpndByValue(pOp.getInput(i))->start();
 
-  bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
-      input_addr.data(), m_MemOperands.back()->m_Addr,
-      const_cast<int *>(m_InputDims.data()), m_InputDims.size(), m_ConcatAxis,
-      m_OutputDim.size(), const_cast<int *>(m_OutputDim.data()),
-      m_NeedQuantizeNum,
-      m_RShiftWidth.data(),        // right_shift_width
-      m_ThresholdXQuantized.data() // threshold_x_quantized
+  uint64_t oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  const auto& inDims = pOp.getInputDims();
+  const auto& oDims = pOp.getOutputDims();
+
+  int needQuanNum = pOp.getNeedQuantizeNum();
+  auto& rsWidth = pOp.getRShiftWidth();
+  auto& xq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs() << "BM188X::Concat\n";
+    dbgs() << "  inputs = ";
+    for (auto i : inAddrs) dbgs() << i << " ";
+    dbgs() << "\n";
+    dbgs() << "  " << oAddr << "\n  ";
+    for (auto i : inDims) dbgs() << i << " ";
+    dbgs() << "\n  ";
+    for (auto i : oDims) dbgs() << i << " ";
+    dbgs() << "\n  "
+           << needQuanNum << "\n";
+    dbgs() << "  rswidth = ";
+    for (auto i : rsWidth) dbgs() << i << " ";
+    dbgs() << "\n  xq = ";
+    for (auto i : xq) dbgs() << i << " ";
+    dbgs() << "\n";
   );
-  **/
+
+#if USE_NEW_CE
+  bmnet::bmnet_asm::bmnet_concat_fixed_forward_bmkernel(
+      inAddrs.data(), oAddr,
+      const_cast<int *>(inDims.data()), inDims.size(),
+      pOp.getAxis(),
+      oDims.size(), const_cast<int *>(oDims.data()),
+      needQuanNum,
+      rsWidth.data(), // right_shift_width
+      xq.data()       // threshold_x_quantized
+  );
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOp)
 {
-  /**
+  uint64_t biasAddr = bmnet::bmnet_asm::GADDR_INVALID;
+  uint64_t scale_addr = bmnet::bmnet_asm::GADDR_INVALID;
+  uint64_t scale_bias_addr = bmnet::bmnet_asm::GADDR_INVALID;
+
+  if (pOp.getBias()) biasAddr = getMemAddr(pOp.getBias());
+  if (pOp.getScale()) scale_addr = getMemAddr(pOp.getScale());
+  if (pOp.getScaleBias()) scale_bias_addr = getMemAddr(pOp.getScaleBias());
+
+  uint64_t inAddr = getMemAddr(pOp.getInput(0)),
+           oAddr = getMemAddr(pOp.getOutput(0)),
+           wAddr = getMemAddr(pOp.getInput(1));
+
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  const onnc::Tensor* wTensor = pOp.getInput(1);
+  int oc = wTensor->dimension(0);
+
+  int kh = pOp.getKernelShape().vector()[0],
+      kw = pOp.getKernelShape().vector()[1];
+
+  int dilaH = pOp.getDilations().vector()[0],
+      dilaW = pOp.getDilations().vector()[1];
+
+  // NOTE: It is for bmkernel only padding on both ends
+  int padh = pOp.getPads().vector()[0],
+      padw = pOp.getPads().vector()[1];
+
+  int strh = pOp.getStrides().vector()[0],
+      strw = pOp.getStrides().vector()[1];
+
+  int rsWidth = pOp.getRShiftWidth();
+
+  int groups = pOp.getGroup();
+
+  bool doRelu = pOp.isDoRelu();
+  int scaleRSWidth = pOp.getScaleRShiftWidth();
+
+  DEBUG(dbgs()
+    << "BM188X::Conv\n" << "  "
+    << inAddr << " " << oAddr << " " << wAddr << " " << "\n  "
+    << biasAddr << " " << scale_addr << " " << scale_bias_addr << "\n  "
+    << n << " " << c << " " << h << " " << w << " "
+    << groups << " " << oc << " " << kh << " " << kw << " "
+    << dilaH << " " << dilaW << " " << padh << " " << padw << " "
+    << strh << " " << strw << " "
+    << doRelu << " " << rsWidth << " " << scaleRSWidth << "\n");
+
+#if USE_NEW_CE
   float activation_arg[1] = { 0.0f };
 
-  uint64_t biasAddr = m_DoBias ? m_MemOperands[m_BiasIdx]->m_Addr
-                               : bmnet::bmnet_asm::GADDR_INVALID;
-  uint64_t scale_addr = m_DoScale ? m_MemOperands[m_ScaleIdx]->m_Addr
-                                  : bmnet::bmnet_asm::GADDR_INVALID;
-  uint64_t scale_bias_addr = m_DoScaleBias
-                                 ? m_MemOperands[m_ScaleBiasIdx]->m_Addr
-                                 : bmnet::bmnet_asm::GADDR_INVALID;
+  bool doBias = pOp.isDoBias(),
+       doScale = pOp.isDoScale(),
+       doScaleBias = pOp.isDoScaleBias();
+
   bmnet::bmnet_asm::bmnet_conv_parallel_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap
-      m_MemOperands[2]->m_Addr,        // ofmap
-      m_MemOperands[1]->m_Addr,        // weight
-      biasAddr,                        // bias
-      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_mean,
-      bmnet::bmnet_asm::GADDR_INVALID, // ga_bn_variance,
-      scale_addr,                      // ga_scale,
-      scale_bias_addr,                 // ga_scale_bias,
-      m_InN, m_InC, m_InH, m_InW, m_Groups, m_OutC, m_KH, m_KW, m_DilationH,
-      m_DilationW, m_PadH, m_PadW, m_StrideH, m_StrideW, false, // result_add
-      m_DoBias,                                                 // do_bias,
-      0,                                                        // do_bn,
-      m_DoScale, m_DoScaleBias, pm::match(m_pNode, pm::mTrueAttr("do_relu")),
+      inAddr,       // ifmap
+      oAddr,        // ofmap
+      wAddr,        // weight
+      biasAddr,                         // bias
+      bmnet::bmnet_asm::GADDR_INVALID,  // ga_bn_mean,
+      bmnet::bmnet_asm::GADDR_INVALID,  // ga_bn_variance,
+      scale_addr,                       // ga_scale,
+      scale_bias_addr,                  // ga_scale_bias,
+      n, c, h, w, groups, oc, kh, kw, dilaH, dilaW,
+      padh, padw, strh, strw, false,    // result_add
+      doBias,                           // do_bias,
+      0,                                // do_bn,
+      doScale, doScaleBias, doRelu,
       0,                  // bn_scale,
       0,                  // bn_eps,
       0,                  // activation_method,
@@ -136,29 +225,46 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Conv& pOperator)
       0,                  // activation_gt_rshift
       0,                  // activation_le_scale
       0,                  // activation_le_rshift
-      m_RShiftWidth,      // right_shift_width
+      rsWidth,            // right_shift_width
       0,                  // bn_right_shift_width
-      m_ScaleRShiftWidth, // scale_right_shift_width
+      scaleRSWidth,       // scale_right_shift_width
       0                   // use_winograd
   );
-  **/
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOp)
 {
-  /**
-  int do_activation = m_EnableRelu;
-  int activation_method = RELU;
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           wAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start(),
+           bAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(2))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+  int inRowN = pOp.getInRowNum(),
+      inColN = pOp.getInColNum(),
+      outColN = pOp.getOutColNum();
+  bool haveBias = pOp.haveBias();
+  bool do_activation = pOp.isEnableRelu();
+  int activation_method = BM188X::Gemm::RELU;
+  bool isWeightTp = pOp.isWeightTp();
+  int rsWidth = pOp.getRShiftWidth();
 
+  DEBUG(dbgs()
+    << "BM188X::Gemm\n" << "  "
+    << inAddr << " " << wAddr << " " << bAddr << " " << oAddr << " "
+    << inRowN << " " << inColN << " " << outColN << " "
+    << haveBias << " " << do_activation << " " << activation_method
+    << isWeightTp << " " << rsWidth << " " << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_fc_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // input_data_gaddr
-      m_MemOperands[1]->m_Addr,        // weight_data_gaddr
-      m_MemOperands[2]->m_Addr,        // bias_data_gaddr
-      m_MemOperands[3]->m_Addr,        // output_data_gaddr
-      m_InRowNum,                      // input_row_num
-      m_InColNum,                      // input_col_num
-      m_OutColNum,                     // weight_col_num
-      m_HaveBias,                      // have_bias
+      inAddr,         // input_data_gaddr
+      wAddr,          // weight_data_gaddr
+      bAddr,          // bias_data_gaddr
+      oAddr,          // output_data_gaddr
+      inRowN,                          // input_row_num
+      inColN,                          // input_col_num
+      outColN,                         // weight_col_num
+      haveBias,                        // have_bias
       do_activation,                   // do_activation
       activation_method,               // activation_method
       bmnet::bmnet_asm::GADDR_INVALID, // activation_ga_slope
@@ -167,60 +273,121 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Gemm& pOperator)
       0,                               // activation_gt_rshift
       0,                               // activation_le_scale
       0,                               // activation_le_rshift
-      m_WeightTp,                      // weight_transpose
+      isWeightTp,                      // weight_transpose
       0,                               // left_shift_width //TODO
-      m_RShiftWidth                    // right_shift_width
+      rsWidth                          // right_shift_width
   );
-  **/
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::GlobalAveragePool& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::GlobalAveragePool& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  int enRelu = pOp.getEnableRelu(),
+      rsWidth = pOp.getRShiftWidth(),
+      xq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::GlobalAveragePool\n" << "  "
+    << inAddr << " " << oAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << enRelu << " " << rsWidth << " " << xq << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_pooling_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr,        // ifmap_gaddr
-      m_MemOperands[1]->m_Addr,        // ofmap_gaddr
+      inAddr,         // ifmap_gaddr
+      oAddr,          // ofmap_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // index_gaddr
       bmnet::bmnet_asm::GADDR_INVALID, // o_findex_gaddr
-      m_N, m_C, m_H, m_W, m_H, m_W, 0, 0, 0, 0, 1, 1,
-      1,                      // is_avg_pooling
-      0.0f,                   // avg_const
-      m_EnableRelu,           // do_relu
-      m_RShiftWidth,          // right_shift_width
-      &m_ThresholdXQuantized, // threshold_x_quantized
-      0                       // ceil_mode
+      n, c, h, w, h, w,
+      0, 0, 0, 0, 1, 1,
+      1,                // is_avg_pooling
+      0.0f,             // avg_const
+      enRelu,           // do_relu
+      rsWidth,          // right_shift_width
+      &xq,              // threshold_x_quantized
+      0                 // ceil_mode
   );
-  **/
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           sLutAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start(),
+           pLutAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(2))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  const onnc::Tensor* inTensor = pOp.getInput(0);
+  int n = inTensor->dimension(0),
+      c = inTensor->dimension(1),
+      h = inTensor->dimension(2),
+      w = inTensor->dimension(3);
+
+  int size = pOp.getSize(),
+      sumRSWidth = pOp.getSumRightShftWidth(),
+      lrnRSwidth = pOp.getLrnRightShiftWidth();
+
+  const int* pxq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::LRN\n" << "  "
+    << inAddr << " " << oAddr << " " << sLutAddr << " " << pLutAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << size << " " << sumRSWidth << " " << lrnRSwidth
+    << pxq[0] << " " << pxq[1] << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_lrn_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input
-      m_MemOperands[3]->m_Addr, // output
-      m_MemOperands[1]->m_Addr, // sqr_lut
-      m_MemOperands[2]->m_Addr, // power_lut,
-      m_N, m_C, m_H, m_W, m_LocalSize, m_SumRightShiftWidth,
-      m_LrnRightShiftWidth, m_ThresholdXQuantized);
-  **/
+      inAddr, // input
+      oAddr, // output
+      sLutAddr, // sqr_lut
+      pLutAddr, // power_lut,
+      n, c, h, w,
+      size, sumRSWidth, lrnRSwidth, pxq);
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::LeakyRelu& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::LeakyRelu& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+
+  int n = pOp.getDims().vector()[0],
+      c = pOp.getDims().vector()[1],
+      h = pOp.getDims().vector()[2],
+      w = pOp.getDims().vector()[3];
+
+  int gtscale = pOp.getGTScale(),
+      gtrswidth = pOp.getGTRShiftWidth(),
+      lerswidth = pOp.getLERShiftWidth(),
+      lescale = pOp.getLEScale();
+
+  DEBUG(dbgs()
+    << "BM188X::PRelu\n" << "  "
+    << inAddr << " " << oAddr << " "
+    << n << " " << c << " " << h << " " << w << " "
+    << gtrswidth << " " << lerswidth << " "
+    << gtscale << " " << lescale << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_leakyrelu_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input_gaddr
-      m_MemOperands[1]->m_Addr, // output_gaddr
-      m_N,                      // input_n
-      m_C,                      // input_c
-      m_H,                      // input_h
-      m_W,                      // input_w
-      m_GTRShiftWidth,          // GT_right_shift_width
-      m_LERShiftWidth,          // LE_right_shift_width
-      m_GTScale,                // GT_scale
-      m_LEScale);               // LE_scale
-  **/
+      inAddr,         // input_gaddr
+      oAddr,          // output_gaddr
+      n, c, h, w,
+      gtrswidth,      // GT_right_shift_width
+      lerswidth,      // LE_right_shift_width
+      gtscale,        // GT_scale
+      lescale);       // LE_scale
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Load& pOperator)
@@ -320,53 +487,119 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::MaxPool& pOperator)
 #endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::PRelu& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::PRelu& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           slopeAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(1))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+  bool channelShared = pOp.getChannelShared();
+  float slope = pOp.getSlope();
+
+  int n = pOp.getDims().vector()[0],
+      c = pOp.getDims().vector()[1],
+      h = pOp.getDims().vector()[2],
+      w = pOp.getDims().vector()[3];
+
+  int gtscale = pOp.getGTScale(),
+      gtrswidth = pOp.getGTRShiftWidth(),
+      lerswidth = pOp.getLERShiftWidth();
+
+  DEBUG(dbgs()
+    << "BM188X::PRelu\n" << "  "
+    << inAddr << " " << slopeAddr << " " << oAddr << " "
+    << channelShared << slope
+    << n << " " << c << " " << h << " " << w << " "
+    << gtscale << " " << gtrswidth << " " << lerswidth << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_prelu_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input_gaddr
-      m_MemOperands[1]->m_Addr, // slope_gaddr
-      m_MemOperands[2]->m_Addr, // output_gaddr
-      m_ChannelShared,          // channel_shared
-      m_Slope,                  // slope
-      m_N,                      // input_n
-      m_C,                      // input_c
-      m_H,                      // input_h
-      m_W,                      // input_w
-      m_GTScale,                // GT_scale
-      m_GTRShiftWidth,          // GT_right_shift_width
-      m_LERShiftWidth);         // LE_right_shift_width
-  **/
+      inAddr,         // input_gaddr
+      slopeAddr,      // slope_gaddr
+      oAddr,          // output_gaddr
+      channelShared,  // channel_shared
+      slope,          // slope
+      n, c, h, w,
+      gtscale,        // GT_scale
+      gtrswidth,      // GT_right_shift_width
+      lerswidth);     // LE_right_shift_width
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Pool& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Pool& pOp)
 {
-  /**
-  bmnet::bmnet_asm::asm_context::get_context().name = m_SplitName;
+  const StringAttr& splitName = pOp.getSplitName();
+  uint64_t inAddr = pOp.getIFmapAddr(),
+           oAddr = pOp.getOFmapAddr();
+  int in = pOp.getInDim().vector()[0],
+      ic = pOp.getInDim().vector()[1],
+      ih = pOp.getInDim().vector()[2],
+      iw = pOp.getInDim().vector()[3];
+
+  int on = pOp.getOutDim().vector()[0],
+      oc = pOp.getOutDim().vector()[1],
+      oh = pOp.getOutDim().vector()[2],
+      ow = pOp.getOutDim().vector()[3];
+
+  int kh = pOp.getKernelShape().vector()[0],
+      kw = pOp.getKernelShape().vector()[1];
+
+  int padt = pOp.getSlidePads().vector()[0],
+      padl = pOp.getSlidePads().vector()[1],
+      padb = pOp.getSlidePads().vector()[2],
+      padr = pOp.getSlidePads().vector()[3];
+
+  int strh = pOp.getStrides().vector()[0],
+      strw = pOp.getStrides().vector()[1];
+
+  bool isavgpooling = pOp.getIsAvgPooling();
+  int rswidth = pOp.getRShiftWidth(),
+      xq = pOp.getThresholdXQuantized();
+
+  DEBUG(dbgs()
+    << "BM188X::Pool\n" << "  " << splitName << " "
+    << inAddr << " " << oAddr << " "
+    << in << " " << ic << " " << ih << " " << iw << " "
+    << on << " " << oc << " " << oh << " " << ow << " "
+    << kh << " " << kw << " "
+    << strh << " " << strw << " "
+    << padt << " " << padb << " " << padl << " " << padr << " "
+    << isavgpooling << " " << rswidth << " " << xq << "\n");
+
+#if USE_NEW_CE
+  bmnet::bmnet_asm::asm_context::get_context().name = splitName;
   bmnet::bmnet_asm::bmnet_tl_pooling_forward_bmkernel(
-      m_IFmapAddr, // ifmap
-      m_OFmapAddr, // ofmap
-      m_InN, m_InC, m_InH, m_InW, m_OutN, m_OutC, m_OutH, m_OutW, m_KH, m_KW,
-      m_StrideH, m_StrideW,                          // stride
-      m_PadHTop, m_PadHBot, m_PadWLeft, m_PadWRight, // padding
-      m_IsAvgPooling,                                // is_avg_pooling
-      m_RShiftWidth, m_ThresholdXQuantized);
-  **/
+      inAddr, // ifmap
+      oAddr, // ofmap
+      in, ic, ih, iw, on, oc, oh, ow, kh, kw,
+      strh, strw,              // stride
+      padt, padb, padl, padr,  // padding
+      isavgpooling,          // is_avg_pooling
+      rswidth, xq);
+#endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Relu& pOperator)
+void BM188X::CodeEmitVisitor::visit(const BM188X::Relu& pOp)
 {
-  /**
+  uint64_t inAddr = m_TGBackend->getMemOpndByValue(pOp.getInput(0))->start(),
+           oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
+  float nslope = pOp.getNegativeSlope();
+  int n = pOp.getDims().vector()[0],
+      c = pOp.getDims().vector()[1],
+      h = pOp.getDims().vector()[2],
+      w = pOp.getDims().vector()[3];
+
+  DEBUG(dbgs()
+    << "BM188X::Relu\n" << "  "
+    << inAddr << " " << oAddr << " "
+    << n << " " << c << " " << h << " " << w << " " << nslope << "\n");
+
+#if USE_NEW_CE
   bmnet::bmnet_asm::bmnet_relu_fixed_forward_bmkernel(
-      m_MemOperands[0]->m_Addr, // input_gaddr
-      m_MemOperands[1]->m_Addr, // output_gaddr
-      m_NegativeSlope,          // negative_slope
-      m_N,                      // input_n
-      m_C,                      // input_c
-      m_H,                      // input_h
-      m_W                       // input_w
-  );
-  **/
+      inAddr,     // input_gaddr
+      oAddr,      // output_gaddr
+      nslope,     // negative_slope
+      n, c, h, w);
+#endif
 }
 
 void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOp)
@@ -398,6 +631,86 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOp)
       biasAddr,   // bias
       oAddr,      // output
       n, c, h, w, scaleDim, minnerDim, rswidth);
+#endif
+}
+
+void BM188X::CodeEmitVisitor::visit(const BM188X::SlicedConv& pOp)
+{
+  int groups = pOp.getGroups();
+  // FIXME(arcbbb): Support Group == 1 for the moment
+  assert(groups == 1);
+
+  uint64_t inAddr = pOp.getIFmapAddr(),
+           oAddr = pOp.getOFmapAddr(),
+           wAddr = pOp.getWeightAddr(),
+           bAddr = pOp.getBiasAddr();
+
+  int in = pOp.getInDim().vector()[0],
+      ic = pOp.getInDim().vector()[1],
+      ih = pOp.getInDim().vector()[2],
+      iw = pOp.getInDim().vector()[3];
+
+  int //on = pOp.getOutDim().vector()[0],
+      oc = pOp.getOutDim().vector()[1],
+      oh = pOp.getOutDim().vector()[2],
+      ow = pOp.getOutDim().vector()[3];
+
+  int kh = pOp.getKernelShape().vector()[0],
+      kw = pOp.getKernelShape().vector()[1];
+
+  int dilaH = pOp.getDilations().vector()[0],
+      dilaW = pOp.getDilations().vector()[1];
+
+  int padt = pOp.getSlidePads().vector()[0],
+      padl = pOp.getSlidePads().vector()[1],
+      padb = pOp.getSlidePads().vector()[2],
+      padr = pOp.getSlidePads().vector()[3];
+
+  int strh = pOp.getStrides().vector()[0],
+      strw = pOp.getStrides().vector()[1];
+
+  bool isDoResultAdd = pOp.isDoResultAdd(),
+       idDoBias = pOp.getDoBias(),
+       doRelu = pOp.getDoRelu();
+
+  int rsWidth = pOp.getRShiftWidth();
+
+  const StringAttr& splitName = pOp.getSplitName();
+
+  DEBUG(dbgs()
+    << "BM188X::SlicedConv\n" << "  " << splitName << " "
+    << inAddr << " " << oAddr << " " << wAddr << " " << bAddr << " "
+    << in << " " << ic << " " << ih << " " << iw << " "
+    << groups << " " << oc << " " << oh << " " << ow << " "
+    << kh << " " << kw << " " << dilaH << " " << dilaW << " "
+    << padt << " " << padb << " " << padl << " " << padr << " "
+    << strh << " " << strw << " "
+    << isDoResultAdd << " " << rsWidth << " "
+    << idDoBias << " " << doRelu << "\n");
+
+#if USE_NEW_CE
+  bmnet::bmnet_asm::u32 weight_array[groups];
+  bmnet::bmnet_asm::u32 bias_array[groups];
+  weight_array[0] = wAddr;
+  bias_array[0] = bAddr;
+
+  bool isUseWinograd = false;
+  int ctrl = 0;
+  bmnet::bmnet_asm::asm_context::get_context().name = splitName;
+  bmnet::bmnet_asm::bmnet_tl_conv_forward_bmkernel(
+      inAddr,   // ifmap
+      oAddr,    // ofmap
+      wAddr,    // weight
+      bAddr,    // bias
+      weight_array, // weight addr for each group
+      bias_array,   // bias addr for each group
+      in, ic, ih, iw, groups, oc, oh, ow, kh, kw,
+      dilaH, dilaW,               // Dilation
+      padt, padb, padl, padr,     // padding
+      strh, strw,                 // stride
+      isDoResultAdd,              // result_add
+      ctrl, // FIXME(arcbbb): DoRelu should be a hint here
+      rsWidth, idDoBias, isUseWinograd, doRelu);
 #endif
 }
 

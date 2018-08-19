@@ -28,7 +28,8 @@ BM188X::GemmLower::~GemmLower()
 
 int BM188X::GemmLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == xSymbol("Gemm"))
+  if (pNode.kind() == xSymbol("Gemm") ||
+      pNode.kind() == xSymbol("TGGemm"))
     return kTargetNormal;
   return kNotMe;
 }
@@ -37,7 +38,7 @@ onnc::ComputeOperator *BM188X::GemmLower::activate(ComputeGraph& pGraph,
                                                    xNode &pNode) const
 {
   // check input/output name
-  if (3 == pNode.inputs().size())
+  if (3 != pNode.inputs().size())
     return nullptr;
 
   for (xValue* xv : pNode.inputs()) {

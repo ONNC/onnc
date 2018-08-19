@@ -28,6 +28,8 @@ public:
 
   int getLrnRightShiftWidth() const { return m_LrnRightShiftWidth; }
 
+  const int* getThresholdXQuantized() const { return m_ThresholdXQuantized; }
+
   void print(std::ostream &pOS) const override;
 
   void accept(ComputeVisitor &pV) override;

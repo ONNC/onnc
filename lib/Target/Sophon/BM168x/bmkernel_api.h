@@ -13,8 +13,8 @@
 #ifndef BM168X_BMKERNEL_API_H
 #define BM168X_BMKERNEL_API_H
 
-#include <onnc/Target/TG/BM168x/asm/bm168x_asm.pb.h>
-#include <onnc/Target/TG/bmkernel_api_base.h>
+#include <onnc/Target/Sophon/BM168x/asm/bm168x_asm.pb.h>
+#include <onnc/Target/Sophon/bmkernel_api_base.h>
 
 namespace bmnet {
 

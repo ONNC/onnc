@@ -37,5 +37,31 @@ void ComputeOperator::replaceInput(unsigned int pIdx, onnc::Value& pValue)
 {
   if (pIdx >= m_Inputs.size())
     fatal(input_out_of_range) << pIdx << name() << (uint32_t)m_Inputs.size();
+
+  onnc::Value* oldV = m_Inputs[pIdx];
+  if (oldV == &pValue)
+    return;
+
+  // Remove this ComputeOperator from oldV's use_list
+  unsigned oldUseId = 0;
+  for (; oldUseId < oldV->getUses().size(); ++oldUseId)
+    if (oldV->getUses()[oldUseId].getUser() == this)
+      break;
+
+  assert(oldUseId < oldV->getUses().size() &&
+         "onnc::Value has no specified user.");
+
+  oldV->getUses().erase(oldV->getUses().begin() + oldUseId);
+
+  // Replace with new value and update use list.
   m_Inputs[pIdx] = &pValue;
+  pValue.getUses().emplace_back(*this, pIdx);
+}
+
+void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value *pValue)
+{
+  // FIXEME changed input_out_of_range
+  if (pIdx >= m_Outputs.size())
+    fatal(input_out_of_range) << pIdx << name() << (uint32_t)m_Outputs.size();
+  m_Outputs[pIdx] = pValue;
 }

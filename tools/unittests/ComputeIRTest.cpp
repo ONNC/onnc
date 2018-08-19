@@ -127,6 +127,25 @@ SKYPAT_F(ComputeIRTest, add_compute_opnd)
   ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
 }
 
+SKYPAT_F(ComputeIRTest, use_list_test)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+
+  ComputeGraph* cg = builder.CreateComputeGraph("top-level");
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+
+  onnc::Int8Tensor* i8t = cg->addValue<onnc::Int8Tensor>("val.i8");
+  onnc::FloatTensor* ft = cg->addValue<onnc::FloatTensor>("val.f");
+
+  op1->addInput(*i8t);
+  i8t->replaceAllUsesWith(*ft);
+
+  ASSERT_TRUE(i8t->getUses().empty());
+  ASSERT_EQ(ft->getUses().size(), 1);
+  ASSERT_EQ(ft->getUses()[0].getUser(), op1);
+}
+
 SKYPAT_F(ComputeIRTest, bfs_search)
 {
   onnc::Module module;

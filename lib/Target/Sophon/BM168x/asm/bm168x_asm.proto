@@ -1,4 +1,3 @@
-// version: v1.0-8-gdfb3af4
 // clang-format off
 syntax = "proto2";
 package bmnet.bm1680;
@@ -254,12 +253,10 @@ message Inst {
     message bmnet_slice_forward_bmkernel {
         optional uint64 bottom_gaddr = 1;
         optional uint64 top_gaddr = 2;
-        optional int32 input_n = 3;
-        optional int32 outer_dim = 4;
-        optional int32 inner_dim = 5;
-        optional int32 input_slice_dim = 6;
-        optional int32 input_slice_offset = 7;
-        optional int32 output_slice_dim = 8;
+        optional int32 outer_dim = 3;
+        optional int32 inner_dim = 4;
+        optional int32 axis_dim = 5;
+        optional int32 slice_dim = 6;
     }
     message bmnet_eltwise_forward_bmkernel {
         repeated uint64 ga_input = 1;
@@ -469,8 +466,12 @@ message Inst {
         optional int32 input_c = 6;
         optional int32 input_h = 7;
         optional int32 input_w = 8;
-        optional bool is_b_const = 9;
-        optional float b_value = 10;
+        optional int32 b_n = 9;
+        optional int32 b_c = 10;
+        optional int32 b_h = 11;
+        optional int32 b_w = 12;
+        optional bool is_b_const = 13;
+        optional float b_value = 14;
     }
     message bmnet_resizebilinear_forward_bmkernel {
         optional uint64 input_gaddr = 1;

@@ -34,33 +34,17 @@ public:
   static xNode *Fuse(xNode *pA, xNode *pB);
 
 protected:
-  bool FuseOpset6Nodes(xGraph *pGraph, xNode *pNode);
-  bool FuseOpset7Nodes(xGraph *pGraph, xNode *pNode);
-
   virtual xNode *FuseConvScale(xGraph *pGraph, xNode *pConvNode,
                                xNode *pScaleNode);
 
   virtual xNode *FuseRelu(xGraph *pGraph, xNode *pNode, xNode *pReluNode);
 
-  virtual xNode *FuseBNMulV6(xGraph *pGraph, xNode *pBNNode, xNode *pMul);
+  virtual xNode *TGFuseRelu(xGraph *pGraph, xNode *pNode, xNode *pReluNode);
 
-  virtual xNode *FuseBNAddV6(xGraph *pGraph, xNode *pBNNode, xNode *pAddNode);
-
-  virtual xNode *FuseBNMul(xGraph *pGraph, xNode *pBNNode, xNode *pMul);
-
-  virtual xNode *FuseBNAdd(xGraph *pGraph, xNode *pBNNode, xNode *pAddNode);
-
-  virtual xNode *FuseBNMulTensor(xGraph *pGraph, xNode *pBNNode, xNode *pMul);
-
-  virtual xNode *
-  FuseBNAddTensor(xGraph *pGraph, xNode *pBNNode, xNode *pAddNode);
-
-  virtual xNode *FuseBN(xGraph *pGraph, xNode *pNode);
-
-  virtual xNode *AliasSumOperator(xGraph *pGraph, xNode *pAddNode);
+  virtual xNode *FuseMulAdd(xGraph *pGraph, xNode *pMulNode, xNode *pAddNode);
 
 private:
-  bool FuseNodes(xGraph *pGraph, const int64_t &pOpsetVersion);
+  bool FuseNodes(xGraph *pGraph);
 
 protected:
   TGBackend *m_pBackend; // NOLINT

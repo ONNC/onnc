@@ -6,9 +6,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include "GenRuntimeInfoPass.h"
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/JSON/Object.h>
 #include <onnc/JSON/Reader.h>
 #include <onnc/JSON/Value.h>
+#include <onnc/Support/Casting.h>
 #include <onnc/Support/IndentOStream.h>
 #include <onnc/Support/OFStream.h>
 #include <onnc/Config/ONNX.h>
@@ -22,14 +26,24 @@ char BM188X::GenRuntimeInfoPass::ID = 0;
 //===----------------------------------------------------------------------===//
 // static functions
 //===----------------------------------------------------------------------===//
+static bool ComputingOnHost(const ::onnx::Node &pNode)
+{
+  if (pNode.kind() == ::onnx::Symbol("Softmax"))
+    return true;
+  return false;
+}
+
 std::string
 BM188X::GenRuntimeInfoPass::FindOnncLayerName(const onnx::Graph& pG,
                                                const ::onnx::Value &pValue)
 {
   ::onnx::const_graph_node_list_iterator node, nEnd = pG.end();
   for (node = pG.begin(); node != nEnd; ++node) {
+    if (ComputingOnHost(**node))
+      continue;
+
     std::string layer_name =
-        const_cast< ::onnx::Node*>(*node)->output()->uniqueName();
+        const_cast< ::onnx::Node*>(*node)->outputs()[0]->uniqueName();
 
     if (layer_name == pValue.uniqueName()) {
       return pValue.uniqueName();
@@ -75,8 +89,13 @@ Pass::ReturnType BM188X::GenRuntimeInfoPass::runOnModule(Module &pModule)
   GenMemoryLayout(document, *pModule.getRootComputeGraph());
   GenRest(document, *pModule.getRootTensorGraph());
 
-  OFStream os(m_OutFile, std::ios::out | std::ios::binary);
-  IndentOStream oss(os);
+  OFStream ofs;
+  std::ostream* os = &onnc::outs();
+  if (m_OutFile != "-") {
+    ofs.open(m_OutFile + ".rt.json", std::ios::out | std::ios::binary);
+    os = &ofs;
+  }
+  IndentOStream oss(*os);
   document.print(oss);
   return kModuleNoChanged;
 }
@@ -254,9 +273,15 @@ void GenRuntimeInfoPass::GenMemoryLayout(json::Object& pOutput,
                                          const ComputeGraph& pG)
 {
   onnc::json::Object jMemLayout;
-  ComputeGraph::const_iterator inst, iEnd = pG.end();
-  for (inst = pG.begin(); inst != iEnd; ++inst) {
+  ComputeGraph::const_iterator instIt, iEnd = pG.end();
+  for (instIt = pG.begin(); instIt != iEnd; ++instIt) {
     onnc::json::Object jLayer;
+    const ComputeOperator *inst = instIt;
+
+    if (isa<OutputOperator>(inst) || isa<InputOperator>(inst) ||
+        isa<Initializer>(inst))
+      continue;
+
     // inputs of inst
     unsigned int ins = inst->getNumOfInputs();
     for (unsigned int i = 0; i < ins; ++i) {
