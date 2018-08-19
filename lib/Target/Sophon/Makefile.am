@@ -14,7 +14,6 @@ ONNC_TARGET_SOURCES += \
   Target/Sophon/EncodeInstructionsPass.cpp \
   Target/Sophon/LinearScanAllocPass.cpp \
   Target/Sophon/BM188x/AddDummyWeightPass.cpp \
-	Target/Sophon/BM188x/AddLutTablePass.cpp \
   Target/Sophon/BM188x/BM188xBackend.cpp \
   Target/Sophon/BM188x/BM188xCodeEmitter.cpp \
   Target/Sophon/BM188x/BM188xFuseOptimizer.cpp \
@@ -24,7 +23,6 @@ ONNC_TARGET_SOURCES += \
   Target/Sophon/BM188x/BM188xTargetTransformInfo.cpp \
   Target/Sophon/BM188x/BM188xVisitor.cpp \
   Target/Sophon/BM188x/CodeEmitVisitor.cpp \
-	Target/Sophon/BM188x/ONNXDumpOptPass.cpp \
   Target/Sophon/BM188x/PrepareCtablePass.cpp \
   Target/Sophon/BM188x/TGAveragePool.cpp \
   Target/Sophon/BM188x/TGConcat.cpp \
@@ -44,7 +42,6 @@ ONNC_TARGET_SOURCES += \
   Target/Sophon/BM188x/TLLoad.cpp \
   Target/Sophon/BM188x/TLPool.cpp \
   Target/Sophon/BM188x/TLStore.cpp \
-	Target/Sophon/BM188x/TLRelu.cpp \
   Target/Sophon/BM188x/UpdateCtablePass.cpp \
   Target/Sophon/BM188x/Weight.cpp \
   Target/Sophon/BM188x/Compute/AveragePool.cpp \
