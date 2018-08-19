@@ -12,7 +12,7 @@
 #include <onnc/Support/IndentOStream.h>
 #include <onnc/Support/OFStream.h>
 #include <onnc/Config/ONNX.h>
-#include <onnc/Target/TG/BM188x/bmkernel_api.h>
+#include <onnc/Target/Sophon/BM188x/bmkernel_api.h>
 
 using namespace onnc;
 using namespace onnc::BM188X;
