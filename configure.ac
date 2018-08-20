@@ -60,6 +60,7 @@ AC_TYPE_LONG_DOUBLE_WIDER
 ####################
 # Check for headers
 AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([linux/perf_event.h])
 
 ####################
 # Check for functions
