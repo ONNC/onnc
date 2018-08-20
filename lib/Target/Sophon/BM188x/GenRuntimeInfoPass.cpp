@@ -288,6 +288,7 @@ void GenRuntimeInfoPass::GenMemoryLayout(json::Object& pOutput,
       onnc::json::Object jMem;
       const ComputeMemOperand *opnd =
           backend()->getMemOpndByValue(inst->getInput(i));
+      assert(opnd != nullptr);
       jMem.insert("addr", onnc::json::Value(opnd->start()));
       jMem.insert("size", onnc::json::Value(opnd->length()));
       jLayer.insert(inst->getInput(i)->getName(), jMem);

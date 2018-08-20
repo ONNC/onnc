@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#define DEBUG_TYPE "tg_build_memop"
 #include "BuildMemOpndPass.h"
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
@@ -68,6 +70,8 @@ void BuildMemOpnd::createMemOperandsOfNode(ComputeGraph &pCG,
     }
     assert(inputCMO != nullptr);
     m_ValOperandMap.emplace_back(inputCMO, outputValue);
+    DEBUG(dbgs() << "insert ValOperandMap: " << inputCMO << ","
+                 << outputValue->getName() << "\n");
     return;
   }
   unsigned int out_size = pNode.getNumOfOutputs();
@@ -80,6 +84,8 @@ void BuildMemOpnd::createMemOperandsOfNode(ComputeGraph &pCG,
         pCG.addOperand<ComputeMemOperand>(pNode, *use->getUser(),
                                           *value, pResd);
       m_ValOperandMap.emplace_back(memOperand, value);
+      DEBUG(dbgs() << "insert ValOperandMap: " << memOperand << ","
+                   << value->getName() << "\n");
     }
   }
 }

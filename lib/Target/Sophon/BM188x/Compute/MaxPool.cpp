@@ -28,7 +28,8 @@ BM188X::MaxPool::MaxPool(const IntsAttr& pKS)
 
 void BM188X::MaxPool::print(std::ostream& pOS) const
 {
-  // TODO
+  pOS << m_Outputs[0]->getName() << " = " << name() << " "
+      << m_Inputs[0]->getName();
 }
 
 void BM188X::MaxPool::accept(ComputeVisitor& pV)
