@@ -11,11 +11,16 @@
 //
 //===---------------------------------------------------------------------===//
 #include "BM188xBackend.h"
+#include "AddLutTablePass.h"
 #include "BM188x/BM188xTargetMemInfo.h"
 #include "BM188x/BM188xTargetTransformInfo.h"
 #include "BM188xCodeEmitter.h"
+#include "BM188xEncodeInstsPass.h"
 #include "BM188xFuseOptimizer.h"
 #include "BM188xISelLowering.h"
+#include "CodeEmitVisitor.h"
+#include "GenRuntimeInfoPass.h"
+#include "GenWeightPass.h"
 #include "Lowers/AveragePoolLower.h"
 #include "Lowers/ConcatLower.h"
 #include "Lowers/ConvLower.h"
@@ -33,24 +38,15 @@
 #include "Lowers/SumLower.h"
 #include "Lowers/TransposeLower.h"
 #include "Lowers/UpsampleLower.h"
-#include "AddLutTablePass.h"
-#include "CodeEmitVisitor.h"
-#include "EncodeInstructionsPass.h"
-#include "GenRuntimeInfoPass.h"
-#include "GenWeightPass.h"
 #include "TG.h"
 #include <google/protobuf/text_format.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
-#include <onnc/IR/Compute/Initializer.h>
-#include <onnc/IR/Compute/InputOperator.h>
-#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/OFStream.h>
-#include <onnc/Target/Sophon/BM188x/bmkernel_api.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
-#include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Transforms/BuildInitializers.h>
+#include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Transforms/BuildOutputOperators.h>
 #include <onnc/Transforms/DeadNodeElimination.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
@@ -64,47 +60,6 @@
 #endif
 
 using namespace onnc;
-
-class BM188xEncodeInstructions : public EncodeInstructions
-{
-public:
-  static char ID;
-
-public:
-  BM188xEncodeInstructions(ComputeVisitor *pInstVisitor,
-                           const std::string &pFilename)
-    : EncodeInstructions(pInstVisitor, ID),
-      m_FileName(pFilename) {
-  }
-
-  Pass::ReturnType runOnModule(::onnc::Module &pModule) override
-  {
-    OFStream ofs;
-    std::ostream* os = &onnc::outs();
-    if (m_FileName != "-") {
-      ofs.open(m_FileName + ".s", std::ios::out);
-      os = &ofs;
-    }
-    ::bmnet::bmnet_asm::asm_context::get_context().set_fp(*os);
-    return EncodeInstructions::runOnModule(pModule);
-  }
-
-protected:
-  void beforeEmit(const ::onnc::ComputeOperator* pOp) override
-  {
-    if (isa<OutputOperator>(pOp) || isa<InputOperator>(pOp) ||
-        isa<Initializer>(pOp))
-      return;
-
-    ::bmnet::bmnet_asm::asm_context::get_context().name =
-      pOp->getOutput(0)->getName();
-  }
-
-private:
-  const std::string m_FileName;
-};
-
-char BM188xEncodeInstructions::ID = 0;
 
 //===----------------------------------------------------------------------===//
 // BM1880
@@ -166,8 +121,7 @@ void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
   static BM188X::CodeEmitVisitor ceVisitor(this);
   pPM.add(BM188X::CreateGenRuntimeInfoPass(this, pOutputFile));
   //pPM.add(BM188X::CreateGenWeightPass(this, pOutputFile));
-  pPM.add(new BM188xEncodeInstructions(&ceVisitor, pOutputFile.native()));
-  //TGBackend::addCodeEmit(pPM, pOutputFile);
+  pPM.add(BM188X::CreateEncodeInstsPass(&ceVisitor, pOutputFile.native()));
 }
 
 bool BM1880Backend::isNativeTensorType(xTensorProtoDataType pType)
