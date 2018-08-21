@@ -19,7 +19,7 @@ bin_PROGRAMS = onnc
 
 onnc_LDFLAGS = @LIBONNC_LDFLAGS@
 
-onnc_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@ -lglog -lprotobuf
+onnc_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@ -lglog -lprotobuf -lboost_system
 
 nodist_onnc_SOURCES = main.cpp \
 	ONNCApp.cpp \
