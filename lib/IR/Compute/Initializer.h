@@ -18,7 +18,7 @@ namespace onnc {
  *  \brief Initializer is a kind of ComputeOperator represents initializers
  *  in ONNX.
  *
- *  Initializer stores name and the data copied from ::onnx::Tensor.
+ *  Initializer stores name and the data copied from xTensor.
  *  The data is stored in Initializer's output.
  */
 class Initializer : public ComputeOperator

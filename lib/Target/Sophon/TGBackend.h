@@ -59,7 +59,7 @@ public:
 
   std::vector<MemOperand *> &getMemOperands() { return m_MemOperands; }
 
-  // get or create a MemOperand by onnx::Value. user can specify name because
+  // get or create a MemOperand by xValue. user can specify name because
   // different ONNX value can map to the same MemOperand
   MemOperand *getMemOperand(const xValue *pValue, MemType pMemType,
                             const std::string &pName = std::string());

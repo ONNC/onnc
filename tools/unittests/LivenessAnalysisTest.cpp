@@ -131,7 +131,7 @@ namespace {
     const string &pName, const vector<int> &pSizes,
     TP_DataType pElemTy)
   {
-    assert(m_Node && "onnx::Node should be created before any operation.");
+    assert(m_Node && "xNode should be created before any operation.");
     xValue *out;
     if (m_HasInitFirstOutput)
       out = m_Node->addOutput();

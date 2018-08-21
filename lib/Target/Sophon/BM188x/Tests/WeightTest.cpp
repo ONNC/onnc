@@ -18,7 +18,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 SKYPAT_F(BM188xTest, weight_append)
 {
-  onnx::Tensor tensor;
+  xTensor tensor;
   std::string raw_data("abcdefghijklmnopqr");
   tensor.set_raw_data(raw_data);
   tensor.sizes().push_back(1);

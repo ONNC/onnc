@@ -10,6 +10,7 @@
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
 #include <onnc/Core/PassAnalysisSupport.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Value.h>
@@ -25,7 +26,7 @@ using namespace onnc::BM188X;
 char BM188X::AddLutTablePass::ID = 0;
 
 Pass::ReturnType
-BM188X::AddLutTablePass::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
+BM188X::AddLutTablePass::runOnGraphs(xGraph& pTG, ComputeGraph& pCG)
 {
   Pass::ReturnType ret = Pass::kModuleNoChanged;
   const int numNPU = m_pTarget->getTTI()->getWarpSize();
@@ -39,11 +40,11 @@ BM188X::AddLutTablePass::runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG)
     const auto &oName = node->getOutput(0)->getName();
 
     auto addLutWeight = [&](const std::string& name) {
-      onnx::Tensor lutTensor;
+      xTensor lutTensor;
       lutTensor.sizes().push_back(256 * numNPU);
-      lutTensor.elem_type() = onnx::TensorProto_DataType_INT8;
-      ::onnx::Value *onxLutV = pTG.addInitializerAndInput(lutTensor, name);
-      // FIXME: Do we need to call onnx::Node's addInput?
+      lutTensor.elem_type() = (xTensorProtoDataType)kInt8;
+      xValue *onxLutV = pTG.addInitializerAndInput(lutTensor, name);
+      // FIXME: Do we need to call xNode's addInput?
       // onnxNode.addInput(onxLutV);
 
       Initializer* init = pCG.addOperator<onnc::Initializer>(name);

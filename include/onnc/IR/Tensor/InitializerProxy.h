@@ -16,8 +16,8 @@ namespace onnc {
 
 /** \class InitializerProxy
  *
- *  There is no concrete InitializerProxy class in ::onnx::graph.
- *  InitializerProxy is a proxy to encapsulate ::onnx::Graph's initializer.
+ *  There is no concrete InitializerProxy class in xgraph.
+ *  InitializerProxy is a proxy to encapsulate xGraph's initializer.
  */
 class InitializerProxy
 {

@@ -301,21 +301,21 @@ def gen_tensor_sel_substitution_hash(schema):
 
   hash['CheckDefaultAttributes'] = '\n  '.join(flatten(
     for_attr(required_attrs, lambda attr: [
-      'if (!pNode.hasAttribute(::onnx::Symbol("{attr_name}")))'.format(**attr),
+      'if (!pNode.hasAttribute(xSymbol("{attr_name}")))'.format(**attr),
       '  return nullptr;',
     ])
   ))
 
   hash['CreateOperator'] = ''.join(
     for_attr(required_attrs, lambda attr:
-      '\n    pNode.{attr_type_getter}(::onnx::Symbol("{attr_name}"))'.format(**attr)
+      '\n    pNode.{attr_type_getter}(xSymbol("{attr_name}"))'.format(**attr)
     )
   )
 
   hash['SetOptionalAttributes'] = '\n  '.join(flatten(
     for_attr(optional_attrs, lambda attr: [
-      'if (pNode.hasAttribute(::onnx::Symbol("{attr_name}")))'.format(**attr),
-      '  op->set{AttrName}(pNode.{attr_type_getter}(::onnx::Symbol("{attr_name}")));'.format(**attr),
+      'if (pNode.hasAttribute(xSymbol("{attr_name}")))'.format(**attr),
+      '  op->set{AttrName}(pNode.{attr_type_getter}(xSymbol("{attr_name}")));'.format(**attr),
     ])
   ))
 

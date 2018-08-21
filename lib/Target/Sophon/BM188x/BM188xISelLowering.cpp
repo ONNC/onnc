@@ -141,8 +141,8 @@ ComputeOperator2 *BM188xISelLowering::LowerTLRelu(const xNode &pNode,
 ComputeOperator2 *BM188xISelLowering::LowerRelu(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(::onnx::Symbol("is_sliced"))) {
-    auto is_sliced = pNode.i(::onnx::Symbol("is_sliced"));
+  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
+    auto is_sliced = pNode.i(xSymbol("is_sliced"));
     if (is_sliced)
       return LowerTLRelu(pNode, pGraph);
   }

@@ -21,7 +21,7 @@ static const std::string *GetRaw(const onnc::Tensor* pT)
   return &pT->adaptee()->raw();
 }
 
-static const onnx::Tensor *
+static const xTensor *
 GetTensor(const BM188X::SlicedConv& pConv, unsigned int pIdx)
 {
   switch(pIdx) {
@@ -84,7 +84,7 @@ void FillWeightVisitor::visit(const BM188X::Conv& pConv)
 void FillWeightVisitor::visit(const BM188X::SlicedConv& pConv)
 {
   Weight weight;
-  const onnx::Tensor* tensor = pConv.getInput(1)->adaptee();
+  const xTensor* tensor = pConv.getInput(1)->adaptee();
   if (!isWritten(*tensor)) {
     setWritten(*tensor);
     weight.resize(onnc::getTotalCount(tensor->sizes()));
@@ -96,7 +96,7 @@ void FillWeightVisitor::visit(const BM188X::SlicedConv& pConv)
   }
 
   if (1 == pConv.getDoBias()) {
-    const onnx::Tensor* tensor = GetTensor(pConv, pConv.getBiasIdx());
+    const xTensor* tensor = GetTensor(pConv, pConv.getBiasIdx());
     if (!isWritten(*tensor)) {
       setWritten(*tensor);
       Append16bit(weight, tensor->raw());
@@ -142,12 +142,12 @@ void FillWeightVisitor::Append16bit(Weight& pW, const std::string &pRaw)
   }
 }
 
-bool FillWeightVisitor::isWritten(const onnx::Tensor &pOpnd) const
+bool FillWeightVisitor::isWritten(const xTensor &pOpnd) const
 {
   return (m_DoneOpndSet.end() != m_DoneOpndSet.find(&pOpnd));
 }
 
-void BM188X::FillWeightVisitor::setWritten(const onnx::Tensor &pOpnd)
+void BM188X::FillWeightVisitor::setWritten(const xTensor &pOpnd)
 {
   m_DoneOpndSet.insert(&pOpnd);
 }

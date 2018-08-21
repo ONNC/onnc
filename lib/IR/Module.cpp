@@ -243,7 +243,7 @@ void Module::print(std::ostream& pOS) const
   pOS << "graph " << getRootTensorGraph()->name() << "{\n";
 
   // XXX: This is ONNX's failure. They forget to write a constant
-  // version of ::onnx::Graph::initializer_names()
+  // version of xGraph::initializer_names()
   xGraph* graph = const_cast<xGraph*>(getRootTensorGraph());
 
   // dump graph initializers
