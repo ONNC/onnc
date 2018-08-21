@@ -13,7 +13,6 @@
 #ifndef _UTILS_IO_H_
 #define _UTILS_IO_H_
 
-#include <boost/filesystem.hpp>
 #include <iomanip>
 #include <iostream> // NOLINT(readability/streams)
 #include <string>
@@ -22,7 +21,6 @@
 
 namespace bmnet {
 
-using ::boost::filesystem::path;
 using ::google::protobuf::Message;
 using std::string;
 
