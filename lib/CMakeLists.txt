@@ -19,13 +19,12 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${ONNX_INCLUDE_DIRS})
 include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
-add_definitions(-DONNX_NAMESPACE=onnx)
 
 add_library(libonnc "")
 add_dependencies(libonnc code_gen)
 target_include_directories(libonnc PUBLIC ${ONNX_INCLUDE_DIRS})
 target_include_directories(libonnc PUBLIC ${LIB_ONNC_BINARY_DIR}/include) # for proto
-target_compile_definitions(libonnc PUBLIC -DONNX_NAMESPACE=onnx)
+target_compile_definitions(libonnc PUBLIC -DONNX_NAMESPACE=${ONNX_NAMESPACE})
 set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
 add_subdirectory(ADT)
