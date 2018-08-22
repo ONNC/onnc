@@ -12,6 +12,11 @@ set(HAVE_PTHREADS ${ENABLE_PTHREAD})
 option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    option(ENABLE_UNITTEST "enable unittest" ON)
+else()
+    option(ENABLE_UNITTEST "enable unittest" OFF)
+endif()
 
 ####################
 #  Language
@@ -34,6 +39,7 @@ check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
 project(onnc)
 set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
 file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
+string(REPLACE "\n" " " PACKAGE_VERSION ${PACKAGE_VERSION})
 set(PACKAGE "onnc")
 set(PACKAGE_BUGREPORT "maillist.onnc.ai")
 set(PACKAGE_NAME "ONNC")
@@ -44,30 +50,7 @@ set(PACKAGE_URL "onnc.ai")
 ####################
 #  Check
 include(check)
-
-####################
-#  External libraries
-find_package(Threads)
-if (Threads_FOUND)
-    set(HAVE_PTHREAD 1)
-endif ()
-find_package(ZLIB 1.2.0.4)
-if (ZLIB_FOUND)
-    set(HAVE_ZLIB 1)
-endif (ZLIB_FOUND)
-find_package(Protobuf REQUIRED)
-set(SKYPAT_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "skypat install path")
-set(SKYPAT_INCLUDE_DIRS
-    ${SKYPAT_INSTALL_DIR}/include)
-set(SKYPAT_LIBRARIES
-    ${SKYPAT_INSTALL_DIR}/lib/libskypat.a)
-
-set(ONNX_INSTALL_DIR ${ONNC_BINARY_DIR} CACHE PATH "onnx install path")
-set(ONNX_INCLUDE_DIRS
-    ${ONNX_INSTALL_DIR}/include)
-set(ONNX_LIBRARIES
-    ${ONNX_INSTALL_DIR}/lib/libonnx.a
-    ${ONNX_INSTALL_DIR}/lib/libonnx_proto.a)
+message("${ONNC_DEFAULT_TARGET_QUADRUPAL}")
 
 ####################
 #  Targets
@@ -80,12 +63,36 @@ set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+####################
+#  External
+#  onnx
+set(ONNX_NAMESPACE "onnx" CACHE STRING "Namespace of onnx")
+find_package(onnx REQUIRED)
+message(STATUS "[${PACKAGE}] Using onnx include at ${ONNX_INCLUDE_DIR}")
+include_directories(${ONNX_INCLUDE_DIR})
+link_directories(${ONNX_LIBRARY_DIR})
+#  SkyPat
+find_package(SkyPat REQUIRED)
+message(STATUS "[${PACKAGE}] Using SkyPat include at ${SKYPAT_INCLUDE_DIR}")
+include_directories(${SKYPAT_INCLUDE_DIR})
+link_directories(${SKYPAT_LIBRARY_DIR})
+#  llvm
+OPTION(USE_LLVM "Use llvm" ON)
+if(USE_LLVM)
+    find_package(llvm)
+    if(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+        message(STATUS "[${PACKAGE}] Using llvm include at ${LLVM_INCLUDE_DIR}")
+        include_directories(${LLVM_INCLUDE_DIR})
+        link_directories(${LLVM_LIBRARY_DIR})
+    endif(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+endif(USE_LLVM)
+find_package(Protobuf REQUIRED)
     
 ####################
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
 configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.h)
-set(ONNX_NAMESPACE "onnx")
 configure_file(include/onnc/Config/ONNX.h.in include/onnc/Config/ONNX.h @ONLY)
 configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
 configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
