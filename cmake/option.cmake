@@ -1,5 +1,3 @@
-
-
 function(option_bool)
     cmake_parse_arguments(OPT "" "NAME;HELP;CHECK;DEFAULT" "" ${ARGN})
     set(${OPT_NAME} ${OPT_DEFAULT} CACHE BOOL ${OPT_HELP})
