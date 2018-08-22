@@ -10,6 +10,7 @@
 #include "BM188xVisitor.h"
 #include "GenWeightPass.h"
 #include <assert.h>
+#include <onnc/IR/Compute/Tensor.h>
 
 namespace onnc {
 namespace BM188X {
@@ -22,30 +23,34 @@ public:
 public:
   using BM188xVisitor::visit;
 
-  void visit(const onnc::Initializer &pOp) override;
-
   void visit(const BM188X::Conv& pConv) override;
 
   void visit(const BM188X::SlicedConv& pSlicedConv) override;
+
+  void visit(const BM188X::Gemm &pGemm) override;
+
+  void visit(const BM188X::LRN &pLRN) override;
+
+  void visit(const BM188X::PRelu &pPRelu) override;
 
   FillWeightVisitor(Weight& pWeight);
 
 private:
   /// remember the written TLConv's memory operands to prevent from
   /// duplicatedly written.
-  typedef std::unordered_set<const xTensor*> DoneOpndSet;
+  typedef std::unordered_set<const onnc::Value *> DoneOpndSet;
 
 private:
-  static void Convert(Weight& pWeight, const std::string& pRaw,
+  static void Convert(Weight &pWeight, const std::vector<int8_t> &pData,
                       int pKS, int pIC, int pOC);
 
-  static void Append8bit(Weight& pW, const std::string &pData);
+  static void Append8bit(Weight &pW, const std::vector<int8_t> &pData);
 
-  static void Append16bit(Weight& pW, const std::string &pData);
+  static void Append16bit(Weight &pW, const std::vector<int16_t> &pData);
 
-  bool isWritten(const xTensor& pOpnd) const;
+  bool isWritten(const onnc::Value &pValue) const;
 
-  void setWritten(const xTensor& pOpnd);
+  void setWritten(const onnc::Value &pValue);
 
 private:
   Weight& m_Weight;

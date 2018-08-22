@@ -5,8 +5,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#define DEBUG_TYPE "GenWeightPass"
 #include "GenWeightPass.h"
 #include "FillWeightVisitor.h"
+#include <onnc/Support/Debug.h>
 #include <onnc/Target/Sophon/io.hpp>
 
 using namespace onnc;
@@ -36,15 +39,26 @@ void BM188X::GenWeightPass::fillWeight(const Module& pModule)
   // initialize weight's size
   size_t weight_size = 0;
   const Module::ValueList& value_list = pModule.getValueList();
-  Module::ValueList::const_iterator value, vEnd = value_list.end();
-  for (value = value_list.begin(); value != vEnd; ++value) {
+  const auto vEnd = value_list.end();
+  std::unordered_set<const ComputeMemOperand*> allocatedMemOpnd;
+  for (auto value = value_list.begin(); value != vEnd; ++value) {
     const ComputeMemOperand* mem_opnd =
         backend()->getMemOpndByValue(value->value());
+    // FIXME some values does not have the ComputeMemOperand
+    if (mem_opnd == nullptr)
+      continue;
+    // ignore duplicate ComputeMemOperand
+    if (allocatedMemOpnd.find(mem_opnd) != allocatedMemOpnd.end()) {
+      continue;
+    }
     weight_size += mem_opnd->length();
+    allocatedMemOpnd.insert(mem_opnd);
   }
 
   // reserve space.
   m_Weight.reserve(weight_size);
+
+  DEBUG(dbgs() << "GenWeightPass: reserve space is " << weight_size << "\n");
 
   FillWeightVisitor visitor(m_Weight);
   Module::const_cg_iterator cg, cEnd = pModule.cgEnd();
@@ -55,6 +69,9 @@ void BM188X::GenWeightPass::fillWeight(const Module& pModule)
       node->accept(visitor);
     } // for each node
   } // for each compute graph
+
+  DEBUG(dbgs() << "GenWeightPass: final weight size is " << m_Weight.size()
+               << "\n");
 }
 
 //===----------------------------------------------------------------------===//
