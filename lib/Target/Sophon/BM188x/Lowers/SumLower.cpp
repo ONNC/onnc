@@ -25,7 +25,8 @@ BM188X::SumLower::~SumLower()
 
 int BM188X::SumLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == xSymbol("Sum"))
+  if (pNode.kind() == ::onnx::Symbol("Sum") ||
+      pNode.kind() == ::onnx::Symbol("TGSum"))
     return kTargetNormal;
   return kNotMe;
 }
