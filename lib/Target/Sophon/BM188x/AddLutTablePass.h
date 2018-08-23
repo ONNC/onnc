@@ -9,6 +9,7 @@
 #define ONNC_TARGET_SOPHON_BM188X_ADD_LUT_TABLE_PASS_H
 #include <onnc/Target/DLATargetBackend.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
+#include <onnc/Config/ONNX.h>
 
 namespace onnc {
 namespace BM188X {
@@ -26,7 +27,7 @@ public:
 
   ~AddLutTablePass() {}
 
-  Pass::ReturnType runOnGraphs(::onnx::Graph& pTG, ComputeGraph& pCG) override;
+  Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) override;
 
   StringRef getPassName() const override { return "AddLutTablePass"; }
 

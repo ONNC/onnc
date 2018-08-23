@@ -25,8 +25,8 @@ BM188X::SumLower::~SumLower()
 
 int BM188X::SumLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Sum") ||
-      pNode.kind() == ::onnx::Symbol("TGSum"))
+  if (pNode.kind() == xSymbol("Sum") ||
+      pNode.kind() == xSymbol("TGSum"))
     return kTargetNormal;
   return kNotMe;
 }
@@ -54,8 +54,8 @@ BM188X::SumLower::activate(ComputeGraph& pGraph, xNode &pNode) const
   // create operators
   BM188X::Sum* op = pGraph.addOperator<BM188X::Sum>();
 
-  if (pNode.hasAttribute(::onnx::Symbol("do_relu")))
-    op->setDoRelu(pNode.i(::onnx::Symbol("do_relu")));
+  if (pNode.hasAttribute(xSymbol("do_relu")))
+    op->setDoRelu(pNode.i(xSymbol("do_relu")));
 
   // init xquant with zero values.
   op->setThresholdXQuantized(std::vector<int>(pNode.inputs().size()));

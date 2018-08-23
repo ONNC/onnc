@@ -33,7 +33,7 @@ public:
 private:
   /// remember the written TLConv's memory operands to prevent from
   /// duplicatedly written.
-  typedef std::unordered_set<const onnx::Tensor*> DoneOpndSet;
+  typedef std::unordered_set<const xTensor*> DoneOpndSet;
 
 private:
   static void Convert(Weight& pWeight, const std::string& pRaw,
@@ -43,9 +43,9 @@ private:
 
   static void Append16bit(Weight& pW, const std::string &pData);
 
-  bool isWritten(const onnx::Tensor& pOpnd) const;
+  bool isWritten(const xTensor& pOpnd) const;
 
-  void setWritten(const onnx::Tensor& pOpnd);
+  void setWritten(const xTensor& pOpnd);
 
 private:
   Weight& m_Weight;

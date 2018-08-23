@@ -99,7 +99,7 @@ void GraphLivenessAnalysis::calculateLiveness(xGraph &pGraph)
   clear();
 
   // Basically, node's virtual index value can be calculated from it's output
-  // value (onnx::Value), but some of nodes may not have output, so use
+  // value (xValue), but some of nodes may not have output, so use
   // nodeVirIdxMap to record each node's index.
   std::unordered_map<xValue *, unsigned> valueVirIdxMap;
   std::unordered_map<xNode *, unsigned> nodeVirIdxMap;

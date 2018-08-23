@@ -420,7 +420,7 @@ void SplitGraph::shrinkSize()
 SplitNode* SplitGraph::getSplitNode(xNode* pN)
 {
   assert(m_SplitNodes.find(pN) != m_SplitNodes.end() &&
-         "::onnx::Node doesn't exist in SplitGraph.");
+         "xNode doesn't exist in SplitGraph.");
   return m_SplitNodes[pN];
 }
 
@@ -428,7 +428,7 @@ const SplitNode* SplitGraph::getSplitNode(xNode* pN) const
 {
   auto it = m_SplitNodes.find(pN);
   assert(m_SplitNodes.find(pN) != m_SplitNodes.end() &&
-         "::onnx::Node doesn't exist in SplitGraph.");
+         "xNode doesn't exist in SplitGraph.");
   return it->second;
 }
 

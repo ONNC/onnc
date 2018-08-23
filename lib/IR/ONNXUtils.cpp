@@ -170,7 +170,7 @@ void onnc::GetConvKernelShape(xNode& pNode, LongInts& pKShape)
   }
 }
 
-/// @param pAttr Can be '::onnx::ktransA', '::onnx::ktransB'
+/// @param pAttr Can be 'xktransA', 'xktransB'
 bool onnc::IsTranspose(const xNode& pNode, const xBuiltinSymbol pAttr)
 {
   assert((pAttr == xBuiltinSymbol::ktransA || pAttr == xBuiltinSymbol::ktransB) &&

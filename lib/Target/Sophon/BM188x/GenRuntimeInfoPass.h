@@ -38,20 +38,20 @@ private:
   float getThreshold(const std::string &pName);
 
   static std::string
-  FindOnncLayerName(const onnx::Graph& pG, const ::onnx::Value &pValue);
+  FindOnncLayerName(const xGraph& pG, const xValue &pValue);
 
   static void
-  GetDefaultLayerNames(LayerNames& pNames, const ::onnx::Graph& pG);
+  GetDefaultLayerNames(LayerNames& pNames, const xGraph& pG);
 
   void GenOutputLayer(json::Object& pOutput, const LayerNames& pNames,
-                      const ::onnx::Graph& pG);
+                      const xGraph& pG);
 
   void GenFallbackPlan(json::Object& pOutput, const LayerNames& pNames,
-                       const ::onnx::Graph& pG);
+                       const xGraph& pG);
 
   void GenMemoryLayout(json::Object& pOutput, const ComputeGraph& pG);
 
-  void GenRest(json::Object& pOutput, const ::onnx::Graph& pG);
+  void GenRest(json::Object& pOutput, const xGraph& pG);
 
 private:
   BM1880Backend *m_pBackend;

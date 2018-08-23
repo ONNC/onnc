@@ -9,6 +9,7 @@
 // output can be pass to onnx-as as a new  onnx.model binary without init data
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Config/AboutData.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/Support/IOStream.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -59,11 +60,11 @@ template <class T> static void dumpRawTensor(const std::string &pRaw)
 }
 
 static void dumpNodeProto(
-    const ::google::protobuf::RepeatedPtrField< ::onnx::NodeProto> &pNodes,
+    const ::google::protobuf::RepeatedPtrField< xNodeProto> &pNodes,
     set<string> &pReshapeInputs)
 {
   int i;
-  ::google::protobuf::RepeatedPtrField<const ::onnx::NodeProto>::iterator it;
+  ::google::protobuf::RepeatedPtrField<const xNodeProto>::iterator it;
 
   for (it = pNodes.begin(); it != pNodes.end(); it++) {
     cout << "  node { ";
@@ -79,11 +80,11 @@ static void dumpNodeProto(
 }
 
 static void dumpTensorProto(
-    const ::google::protobuf::RepeatedPtrField< ::onnx::TensorProto> &pTensors,
+    const ::google::protobuf::RepeatedPtrField< xTensorProto> &pTensors,
     set<string> &pReshapeInputs)
 
 {
-  ::google::protobuf::RepeatedPtrField<const ::onnx::TensorProto>::iterator it;
+  ::google::protobuf::RepeatedPtrField<const xTensorProto>::iterator it;
   set<string>::iterator itReshape;
 
   for (it = pTensors.begin(); it != pTensors.end(); it++) {
@@ -99,7 +100,7 @@ static void dumpTensorProto(
   }
 }
 
-static void dumpGraphProto(const ::onnx::GraphProto &pGraph)
+static void dumpGraphProto(const xGraphProto &pGraph)
 {
   int i;
   set<string> reshapeInputs;
@@ -125,7 +126,7 @@ static void dumpGraphProto(const ::onnx::GraphProto &pGraph)
   cout << "}\n";
 }
 
-static void dumpModelProto(const ::onnx::ModelProto &pModel)
+static void dumpModelProto(const xProto &pModel)
 {
   int i;
 
@@ -162,7 +163,7 @@ int main(int pArgc, char *pArgv[])
     return EXIT_SUCCESS;
   }
 
-  onnx::ModelProto model;
+  xProto model;
   string fileName(InputFilename);
 
   {
@@ -171,7 +172,7 @@ int main(int pArgc, char *pArgv[])
     ::google::protobuf::io::CodedInputStream codeInputStream(&inputStream);
     codeInputStream.SetTotalBytesLimit(1024LL << 20, 512LL << 20);
     if (!model.ParseFromCodedStream(&codeInputStream)) {
-      std::cerr << "Failed to parse onnx::ModelProto.\n";
+      std::cerr << "Failed to parse xProto.\n";
       return EXIT_FAILURE;
     }
   }

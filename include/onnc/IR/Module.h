@@ -101,7 +101,7 @@ public:
   Module(std::unique_ptr<xGraph> pGraph);
 
   /// Destructor. Check and delete IRs.
-  /// Module responses for the life cycle of the delegated ::onnx::Graph.
+  /// Module responses for the life cycle of the delegated xGraph.
   ~Module();
 
   // move @ref pGraph from outside.
@@ -144,7 +144,7 @@ public:
 
   const_tg_iterator tgEnd() const { return m_TensorGraphs.end(); }
 
-  /// record a sub graph ::onnx::Graph.
+  /// record a sub graph xGraph.
   /// @retval false failed to record. The subgraph has existed
   /// @retval true  success to record.
   bool recordSubgraph(xGraph& pSubgraph);

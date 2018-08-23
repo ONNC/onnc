@@ -65,8 +65,8 @@ public:
   bool hasTensorGraph() const { return getInsertionPoint().hasTensorGraph(); }
 
   /// Add an input in tensor graph.
-  /// @param[in] pSizes a list of onnx::Dimension
-  /// @param[in] pKind  hide onnx::TensorProto_DataType
+  /// @param[in] pSizes a list of xDimension
+  /// @param[in] pKind  hide xTensorProto_DataType
   xValue* AddInput(const std::string& pName,
                    const std::vector<xDimension>& pSizes,
                    onnc::Value::Type pKind = onnc::Value::kFloat);

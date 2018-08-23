@@ -68,6 +68,7 @@ set(ONNC_INCLUDE_DIRS
 #  External
 #  onnx
 set(ONNX_NAMESPACE "onnx" CACHE STRING "Namespace of onnx")
+add_definitions(-DONNX_NAMESPACE=${ONNX_NAMESPACE})
 find_package(onnx REQUIRED)
 message(STATUS "[${PACKAGE}] Using onnx include at ${ONNX_INCLUDE_DIR}")
 include_directories(${ONNX_INCLUDE_DIR})

@@ -43,7 +43,7 @@ public:
 
   StringRef getPassName() const override { return "UpdateCtable"; }
 
-  Pass::ReturnType runOnGraphs(onnx::Graph &pTG, ComputeGraph &pCG) override;
+  Pass::ReturnType runOnGraphs(xGraph &pTG, ComputeGraph &pCG) override;
 
 private:
   BM1880Backend *m_pBackend; // NOLINT
@@ -51,7 +51,7 @@ private:
 
 } // namespace
 
-Pass::ReturnType UpdateCtablePass::runOnGraphs(onnx::Graph &pTG,
+Pass::ReturnType UpdateCtablePass::runOnGraphs(xGraph &pTG,
                                                ComputeGraph &pCG)
 {
   auto nEnd = pCG.end();

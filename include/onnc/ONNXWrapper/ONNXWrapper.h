@@ -19,7 +19,7 @@ namespace onnc {
 
 class Module;
 
-/// Infer (output) shape for onnx::Graph.
+/// Infer (output) shape for xGraph.
 bool onnxInferShape(Module &pModule);
 
 }

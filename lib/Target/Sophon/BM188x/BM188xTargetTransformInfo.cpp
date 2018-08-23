@@ -42,11 +42,11 @@ size_t getNumNeuron(const xValue &pValue)
 
 #if 0
 // Currently not used by anyone
-size_t getNumElems(const onnx::Node &pNode)
+size_t getNumElems(const xNode &pNode)
 {
   size_t total = 1;
-  for (const onnx::Value *v : pNode.inputs())
-    for (const onnx::Dimension &dim : v->sizes())
+  for (const xValue *v : pNode.inputs())
+    for (const xDimension &dim : v->sizes())
       total *= dim.dim;
   return total;
 }

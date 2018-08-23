@@ -18,7 +18,7 @@ namespace onnc {
 /** \class Value
  *  \brief Value represents all values computed by a program.
  *
- *  Value is an object adapter of ::onnx::Tensor.
+ *  Value is an object adapter of xTensor.
  */
 class Value
 {

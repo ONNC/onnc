@@ -44,7 +44,7 @@ public:
 
   virtual uint64_t getAlignment(TP_DataTy pTy) const { return 0; }
 
-  /// Return actual memory size and alignment requirement of onnx::Value.
+  /// Return actual memory size and alignment requirement of xValue.
   virtual MemSize getValueMemorySize(xValue *pValue) {
     return MemSize();
   }

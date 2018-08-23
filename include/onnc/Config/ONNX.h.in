@@ -28,6 +28,9 @@ typedef ::@ONNX_NAMESPACE@::NodeKind             xNodeKind;
 typedef ::@ONNX_NAMESPACE@::Node                 xNode;
 typedef ::@ONNX_NAMESPACE@::Graph                xGraph;
 typedef ::@ONNX_NAMESPACE@::ModelProto           xProto;
+typedef ::@ONNX_NAMESPACE@::NodeProto            xNodeProto;
+typedef ::@ONNX_NAMESPACE@::TensorProto          xTensorProto;
+typedef ::@ONNX_NAMESPACE@::GraphProto           xGraphProto;
 typedef ::@ONNX_NAMESPACE@::graph_node_list_iterator xGraphNodeListIterator;
 typedef ::@ONNX_NAMESPACE@::const_graph_node_list_iterator
     ConstxGraphNodeListIterator;

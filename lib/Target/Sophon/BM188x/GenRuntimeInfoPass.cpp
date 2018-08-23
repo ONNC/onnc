@@ -26,31 +26,31 @@ char BM188X::GenRuntimeInfoPass::ID = 0;
 //===----------------------------------------------------------------------===//
 // static functions
 //===----------------------------------------------------------------------===//
-static bool ComputingOnHost(const ::onnx::Node &pNode)
+static bool ComputingOnHost(const xNode &pNode)
 {
-  if (pNode.kind() == ::onnx::Symbol("Softmax"))
+  if (pNode.kind() == xSymbol("Softmax"))
     return true;
   return false;
 }
 
 std::string
-BM188X::GenRuntimeInfoPass::FindOnncLayerName(const onnx::Graph& pG,
-                                               const ::onnx::Value &pValue)
+BM188X::GenRuntimeInfoPass::FindOnncLayerName(const xGraph& pG,
+                                               const xValue &pValue)
 {
-  ::onnx::const_graph_node_list_iterator node, nEnd = pG.end();
+  ConstxGraphNodeListIterator node, nEnd = pG.end();
   for (node = pG.begin(); node != nEnd; ++node) {
     if (ComputingOnHost(**node))
       continue;
 
     std::string layer_name =
-        const_cast< ::onnx::Node*>(*node)->outputs()[0]->uniqueName();
+        const_cast< xNode*>(*node)->outputs()[0]->uniqueName();
 
     if (layer_name == pValue.uniqueName()) {
       return pValue.uniqueName();
     }
   }
 
-  const onnx::Value *input = pValue.node()->inputs()[0];
+  const xValue *input = pValue.node()->inputs()[0];
   auto inputs = pG.inputs();
   if (inputs.end() != std::find(inputs.begin(), inputs.end(), input)) {
     // can not find the onnc layer
@@ -62,9 +62,9 @@ BM188X::GenRuntimeInfoPass::FindOnncLayerName(const onnx::Graph& pG,
 
 void
 BM188X::GenRuntimeInfoPass::GetDefaultLayerNames(LayerNames& pNames,
-                                                 const ::onnx::Graph& pG)
+                                                 const xGraph& pG)
 {
-  const onnx::Value* value = pG.outputs()[0];
+  const xValue* value = pG.outputs()[0];
   pNames.onnx = value->uniqueName();
   pNames.onnc = FindOnncLayerName(pG, *value);
 }
@@ -102,7 +102,7 @@ Pass::ReturnType BM188X::GenRuntimeInfoPass::runOnModule(Module &pModule)
 
 void BM188X::GenRuntimeInfoPass::GenOutputLayer(json::Object& pOutput,
                                                 const LayerNames& pNames,
-                                                const ::onnx::Graph& pG)
+                                                const xGraph& pG)
 {
   size_t step = 0;
   onnc::json::Object jExeSteps;
@@ -116,7 +116,7 @@ void BM188X::GenRuntimeInfoPass::GenOutputLayer(json::Object& pOutput,
 
   // generate the other output layer info
   while (step < pG.outputs().size()) {
-    const onnx::Value *onnx_layer = pG.outputs()[step];
+    const xValue *onnx_layer = pG.outputs()[step];
     std::string onnc_layer_name = FindOnncLayerName(pG, *onnx_layer);
     std::string onnx_layer_name = onnx_layer->uniqueName();
     onnc::json::Object layer_info;
@@ -131,7 +131,7 @@ void BM188X::GenRuntimeInfoPass::GenOutputLayer(json::Object& pOutput,
 
 void GenRuntimeInfoPass::GenFallbackPlan(json::Object& pOutput,
                                          const LayerNames& pNames,
-                                         const ::onnx::Graph& pG)
+                                         const xGraph& pG)
 {
   bool is_find_fallback = false;
   int step = 0;
@@ -178,7 +178,7 @@ void GenRuntimeInfoPass::GenFallbackPlan(json::Object& pOutput,
     }
   }
 
-  std::vector<onnx::Dimension> onncOutDim;
+  std::vector<xDimension> onncOutDim;
   for (auto n : pG.nodes()) {
     for (size_t i = 0; i < n->outputs().size(); ++i) {
       if (n->outputs()[i]->uniqueName() == pNames.onnc) {
@@ -310,7 +310,7 @@ void GenRuntimeInfoPass::GenMemoryLayout(json::Object& pOutput,
   pOutput.insert("memory layout", jMemLayout);
 }
 
-void GenRuntimeInfoPass::GenRest(json::Object& pOutput, const ::onnx::Graph& pG)
+void GenRuntimeInfoPass::GenRest(json::Object& pOutput, const xGraph& pG)
 {
   onnc::json::Object jInputThres;
   onnc::json::Object jInputDim;
@@ -319,9 +319,9 @@ void GenRuntimeInfoPass::GenRest(json::Object& pOutput, const ::onnx::Graph& pG)
   onnc::json::Object jFallback;
   // Find the input of network.
   // The input of network should be in input list but not in initializers.
-  const onnx::Value *input = nullptr;
-  auto *graph= const_cast< ::onnx::Graph *>(&pG);
-  for (const onnx::Value *in : pG.inputs()) {
+  const xValue *input = nullptr;
+  auto *graph= const_cast< xGraph *>(&pG);
+  for (const xValue *in : pG.inputs()) {
     const auto &initNames = graph->initializer_names();
     auto found =
         std::find(initNames.begin(), initNames.end(), in->uniqueName());

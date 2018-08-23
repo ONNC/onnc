@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Config/AboutData.h>
+#include <onnc/Config/ONNX.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/OFStream.h>
 #include <onnc/Support/FileHandle.h>
@@ -60,7 +61,7 @@ int main(int pArgc, char *pArgv[])
     return EXIT_SUCCESS;
   }
 
-  ::onnx::ModelProto model;
+  xProto model;
   if (InputFilename.hasOccurrence() && InputFilename != "-") {
     // use file name
     FileHandle file;

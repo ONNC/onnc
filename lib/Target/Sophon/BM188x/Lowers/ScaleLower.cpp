@@ -24,8 +24,8 @@ BM188X::ScaleLower::~ScaleLower()
 
 int BM188X::ScaleLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == ::onnx::Symbol("Scale") ||
-      pNode.kind() == ::onnx::Symbol("TGScale"))
+  if (pNode.kind() == xSymbol("Scale") ||
+      pNode.kind() == xSymbol("TGScale"))
     return kTargetNormal;
   return kNotMe;
 }
