@@ -24,11 +24,11 @@ public:
 
   ~Conv();
 
-  bool isDoBias() const { return m_Bias != nullptr; }
+  bool isDoBias() const { return m_BiasIdx != -1; }
 
-  bool isDoScale() const { return m_Scale != nullptr; }
+  bool isDoScale() const { return m_ScaleIdx != -1; }
 
-  bool isDoScaleBias() const { return m_ScaleBias != nullptr; }
+  bool isDoScaleBias() const { return m_ScaleBiasIdx != -1; }
 
   bool isDoRelu() const { return m_DoRelu; }
 
@@ -42,21 +42,30 @@ public:
 
   void setConvOutputThreshold(float pV) { m_ConvOutputThreshold = pV; }
 
-  void setBias(Tensor* pBias) { m_Bias = pBias; }
+  void setBiasIdx(int pIdx) { m_BiasIdx = pIdx; }
 
-  void setScale(Tensor* pScale) { m_Scale = pScale; }
+  void setScaleIdx(int pIdx) { m_ScaleIdx = pIdx; }
 
-  void setScaleBias(Tensor* pSB) { m_ScaleBias = pSB; }
+  void setScaleBiasIdx(int pIdx) { m_ScaleBiasIdx = pIdx; }
 
   void setDoRelu(bool pV) { m_DoRelu = pV; }
 
   int getScaleRShiftWidth() const { return m_ScaleRShiftWidth; }
 
-  Tensor* getBias() const { return m_Bias; }
+  const Tensor *getBias() const
+  {
+    return m_BiasIdx == -1 ? nullptr : getInput(m_BiasIdx);
+  }
 
-  Tensor* getScale() const { return m_Scale; }
+  const Tensor *getScale() const
+  {
+    return m_ScaleIdx == -1 ? nullptr : getInput(m_ScaleIdx);
+  }
 
-  Tensor* getScaleBias() const { return m_ScaleBias; }
+  const Tensor *getScaleBias() const
+  {
+    return m_ScaleBiasIdx == -1 ? nullptr : getInput(m_ScaleBiasIdx);
+  }
 
   void print(std::ostream &pOS) const override;
 
@@ -72,9 +81,9 @@ private:
   float m_ConvOutputThreshold;
   // TODO add prelu_param
   bool m_DoRelu;
-  Tensor* m_Bias;
-  Tensor* m_Scale;
-  Tensor* m_ScaleBias;
+  int m_BiasIdx{ -1 };
+  int m_ScaleIdx{ -1 };
+  int m_ScaleBiasIdx{ -1 };
 };
 
 } // namespace BM188X
