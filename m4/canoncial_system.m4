@@ -184,7 +184,7 @@ AC_CACHE_CHECK([target architecture],
   esac])
 
 if test "$onnc_cv_target_arch_type" = "Unknown" ; then
-  AC_MSG_WARN([Configuring for an unknown target archicture])
+  AC_MSG_WARN([Configuring for an unknown target architecture])
 fi
 
 AC_SUBST(TARGET_ARCH,$onnc_cv_target_arch_type)
