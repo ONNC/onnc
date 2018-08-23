@@ -147,7 +147,6 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   if (dumpOptONNXModel)
     pPM.add(createONNXDumpOptPass(this));
 
-  pPM.add(createUpdateCtablePass(this));
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());
   pPM.add(CreateBuildInputOperators());
@@ -157,6 +156,7 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
 #ifdef BMONNC_EXIST
   pPM.add(CreateNewQuantizePass(this));
 #endif
+  pPM.add(createUpdateCtablePass(this));
 
   return;
 }

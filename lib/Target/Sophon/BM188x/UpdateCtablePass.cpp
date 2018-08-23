@@ -11,29 +11,39 @@
 //
 //===---------------------------------------------------------------------===//
 #include "BM188xBackend.h"
-#include "BM188xComputeOperator.h"
+#include "Compute/Conv.h"
+#include "Compute/Gemm.h"
+#include "Compute/MaxPool.h"
+#include <onnc/Config/ONNX.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
-#include <onnc/Config/ONNX.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/IR/Compute/Reshape.h>
+#include <onnc/IR/Compute/Softmax.h>
+#include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
+#include <onnc/Transforms/GraphBuildingPass.h>
+#include <onnx/common/ir.h>
 
 using namespace onnc;
 
 namespace {
 
-class UpdateCtablePass : public ModulePass
+class UpdateCtablePass : public GraphBuildingPass
 {
 public:
   static char ID;
 
 public:
   UpdateCtablePass(BM1880Backend *pBackend)
-      : ModulePass(ID), m_pBackend(pBackend)
+      : GraphBuildingPass(ID), m_pBackend(pBackend)
   {
   }
 
   StringRef getPassName() const override { return "UpdateCtable"; }
-  
-  Pass::ReturnType runOnModule(Module &pModule) override;
+
+  Pass::ReturnType runOnGraphs(onnx::Graph &pTG, ComputeGraph &pCG) override;
 
 private:
   BM1880Backend *m_pBackend; // NOLINT
@@ -41,13 +51,35 @@ private:
 
 } // namespace
 
-Pass::ReturnType UpdateCtablePass::runOnModule(Module &pModule)
+Pass::ReturnType UpdateCtablePass::runOnGraphs(onnx::Graph &pTG,
+                                               ComputeGraph &pCG)
 {
-  std::vector<std::unique_ptr<ComputeOperator2> > &instList =
-      m_pBackend->getInsts();
-  for (auto &i : instList) {
-    const auto *layerCtable = m_pBackend->getLayerCtable(i->getLayerName());
-    static_cast<BM188xComputeOperator *>(i.get())->update(layerCtable);
+  auto nEnd = pCG.end();
+  for (auto nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
+    onnc::ComputeOperator *node = nodeIt;
+    if (isa<OutputOperator>(node) || isa<Initializer>(node) ||
+        isa<InputOperator>(node))
+      continue;
+
+    const std::string ctableName = node->getOutput(0)->getName();
+    const auto *layerCtable = m_pBackend->getLayerCtable(ctableName);
+    if (auto *conv = dyn_cast<BM188X::Conv>(node)) {
+      conv->setRShiftWidth(layerCtable->right_shift_width());
+      conv->setScaleRShiftWidth(
+          layerCtable->convolution_param().scale_right_shift_width());
+      continue;
+    } else if (auto *maxPool = dyn_cast<BM188X::MaxPool>(node)) {
+      maxPool->setRShiftWidth(layerCtable->right_shift_width());
+      maxPool->setThresholdXQuantized(
+          *layerCtable->threshold_x_quantized().data());
+      continue;
+    } else if (auto *gemm = dyn_cast<BM188X::Gemm>(node)) {
+      gemm->setRShiftWidth(layerCtable->right_shift_width());
+      continue;
+    } else if (isa<onnc::Reshape>(node) || isa<onnc::Softmax>(node)) {
+      continue;
+    }
+    errs() << "FIXME: missed update " << ctableName << " operator\n";
   }
   return Pass::kModuleChanged;
 }
