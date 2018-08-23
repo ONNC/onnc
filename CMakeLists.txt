@@ -50,7 +50,7 @@ set(PACKAGE_URL "onnc.ai")
 ####################
 #  Check
 include(check)
-message("${ONNC_DEFAULT_TARGET_QUADRUPAL}")
+message(STATUS "ONNC_DEFAULT_TARGET_QUADRUPAL: ${ONNC_DEFAULT_TARGET_QUADRUPAL}")
 
 ####################
 #  Targets

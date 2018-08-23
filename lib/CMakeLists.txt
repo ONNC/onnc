@@ -49,8 +49,7 @@ target_link_libraries(libonnc
     ${EXTERNAL_LIBRARY}
     ${Boost_LIBRARIES}
     glog
-    onnx
-    onnx_proto
+    ${ONNX_LIBRARIES}
     ${PROTOBUF_LIBRARIES})
 
 install(TARGETS libonnc
