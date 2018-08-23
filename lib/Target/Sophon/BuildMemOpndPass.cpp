@@ -61,17 +61,11 @@ void BuildMemOpnd::createMemOperandsOfNode(ComputeGraph &pCG,
     onnc::Value *inputValue = pNode.getInput(0);
     onnc::Value *outputValue = pNode.getOutput(0);
     // find input's MemOperand
-    ComputeMemOperand *inputCMO = nullptr;
-    for (auto pair : m_ValOperandMap) {
-      if (pair.second == inputValue) {
-        inputCMO = pair.first;
-        break;
-      }
-    }
-    assert(inputCMO != nullptr);
-    m_ValOperandMap.emplace_back(inputCMO, outputValue);
-    DEBUG(dbgs() << "insert ValOperandMap: " << inputCMO << ","
-                 << outputValue->getName() << "\n");
+    assert(m_ValMemOpndMap.find(inputValue) != m_ValMemOpndMap.end());
+    ComputeMemOperand *inputCMO = m_ValMemOpndMap[inputValue];
+    m_ValMemOpndMap.insert({ outputValue, inputCMO });
+    DEBUG(dbgs() << "insert ValMemOpndMap[" << outputValue->getName()
+                 << "]=" << inputCMO << "\n");
     return;
   }
   unsigned int out_size = pNode.getNumOfOutputs();
@@ -83,16 +77,18 @@ void BuildMemOpnd::createMemOperandsOfNode(ComputeGraph &pCG,
       ComputeMemOperand *memOperand =
         pCG.addOperand<ComputeMemOperand>(pNode, *use->getUser(),
                                           *value, pResd);
-      m_ValOperandMap.emplace_back(memOperand, value);
-      DEBUG(dbgs() << "insert ValOperandMap: " << memOperand << ","
-                   << value->getName() << "\n");
+      if (m_ValMemOpndMap.find(value) != m_ValMemOpndMap.end())
+        continue;
+      m_ValMemOpndMap.insert({ value, memOperand });
+      DEBUG(dbgs() << "insert ValMemOpndMap:[" << memOperand
+                   << "]=" << value->getName() << "\n");
     }
   }
 }
 
 void BuildMemOpnd::clear()
 {
-  m_ValOperandMap.clear();
+  m_ValMemOpndMap.clear();
 }
 
 //===----------------------------------------------------------------------===//

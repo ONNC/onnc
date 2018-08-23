@@ -29,13 +29,19 @@ public:
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
 private:
-  void linearScanAlloMem(const BuildMemOpnd::MemOperandValList &pMemOps);
+  void linearScanAllocMem(const ComputeGraph &pCG,
+                          const BuildMemOpnd::ValMemOpndMap &pValMemOpndMap);
+
+  void memoryAlloc(ComputeMemOperand *pMemOp, const onnc::Value *pMemVal);
 
 private:
   // for sizeOfTensorType.
   // FIXME: Use DLATargetBackend instead.
   //        sizeofTensorType is used on compute ir with legalized value type
   TGBackend *m_pTarget; // NOLINT
+  unsigned int m_WeightOffset;
+  unsigned int m_NeuronOffset;
+  std::unordered_set<ComputeMemOperand*> m_AllocatedMemOpnd;
 };
 
 ModulePass *CreateLinearScanAllocPass(TGBackend *pTarget);

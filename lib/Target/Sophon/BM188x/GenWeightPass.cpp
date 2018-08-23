@@ -62,6 +62,7 @@ void BM188X::GenWeightPass::fillWeight(const Module& pModule)
 
   FillWeightVisitor visitor(m_Weight);
   Module::const_cg_iterator cg, cEnd = pModule.cgEnd();
+  // ps. currently traverse memory order need to sync with LinearScanAllocPass
   for (cg = pModule.cgBegin(); cg != cEnd; ++cg) {
     const ComputeGraph* graph = cg->value();
     ComputeGraph::const_iterator node, nEnd = graph->end();
