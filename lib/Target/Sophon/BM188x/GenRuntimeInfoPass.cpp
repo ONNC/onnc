@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "GenRuntimeInfoPass.h"
+#include <fstream>
+#include <onnc/Config/ONNX.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
@@ -14,8 +16,6 @@
 #include <onnc/JSON/Value.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IndentOStream.h>
-#include <onnc/Support/OFStream.h>
-#include <onnc/Config/ONNX.h>
 #include <onnc/Target/Sophon/BM188x/bmkernel_api.h>
 
 using namespace onnc;
@@ -89,14 +89,15 @@ Pass::ReturnType BM188X::GenRuntimeInfoPass::runOnModule(Module &pModule)
   GenMemoryLayout(document, *pModule.getRootComputeGraph());
   GenRest(document, *pModule.getRootTensorGraph());
 
-  OFStream ofs;
-  std::ostream* os = &onnc::outs();
-  if (m_OutFile != "-") {
-    ofs.open(m_OutFile + ".rt.json", std::ios::out | std::ios::binary);
-    os = &ofs;
+  if (m_OutFile == "-") {
+    onnc::IndentOStream oss(onnc::outs());
+    document.print(oss);
+  } else {
+    std::string filename = m_OutFile.native() + ".rt.json";
+    std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+    onnc::IndentOStream oss(ofs);
+    document.print(oss);
   }
-  IndentOStream oss(*os);
-  document.print(oss);
   return kModuleNoChanged;
 }
 
