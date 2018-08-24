@@ -120,7 +120,7 @@ void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
 {
   static BM188X::CodeEmitVisitor ceVisitor(this);
   pPM.add(BM188X::CreateGenRuntimeInfoPass(this, pOutputFile));
-  //pPM.add(BM188X::CreateGenWeightPass(this, pOutputFile));
+  pPM.add(BM188X::CreateGenWeightPass(this, pOutputFile));
   pPM.add(BM188X::CreateEncodeInstsPass(&ceVisitor, pOutputFile.native()));
 }
 
