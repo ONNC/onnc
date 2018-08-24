@@ -333,7 +333,7 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::LRN& pOp)
       w = inTensor->dimension(3);
 
   int size = pOp.getSize(),
-      sumRSWidth = pOp.getSumRightShftWidth(),
+      sumRSWidth = pOp.getSumRightShiftWidth(),
       lrnRSwidth = pOp.getLrnRightShiftWidth();
 
   const int* pxq = pOp.getThresholdXQuantized();

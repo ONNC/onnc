@@ -13,7 +13,9 @@
 #include "BM188xBackend.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
+#include "Compute/LRN.h"
 #include "Compute/MaxPool.h"
+#include "Compute/PRelu.h"
 #include <onnc/Config/ONNX.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
@@ -22,6 +24,7 @@
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/Compute/Reshape.h>
 #include <onnc/IR/Compute/Softmax.h>
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 #include <onnx/common/ir.h>
@@ -67,19 +70,42 @@ Pass::ReturnType UpdateCtablePass::runOnGraphs(xGraph &pTG,
       conv->setRShiftWidth(layerCtable->right_shift_width());
       conv->setScaleRShiftWidth(
           layerCtable->convolution_param().scale_right_shift_width());
-      continue;
     } else if (auto *maxPool = dyn_cast<BM188X::MaxPool>(node)) {
       maxPool->setRShiftWidth(layerCtable->right_shift_width());
       maxPool->setThresholdXQuantized(
           *layerCtable->threshold_x_quantized().data());
-      continue;
     } else if (auto *gemm = dyn_cast<BM188X::Gemm>(node)) {
       gemm->setRShiftWidth(layerCtable->right_shift_width());
-      continue;
+    } else if (auto *lrn = dyn_cast<BM188X::LRN>(node)) {
+      std::string outputName = lrn->getOutput(0)->getName();
+      for (int i = 0; i < layerCtable->blob_param_size(); ++i) {
+        if (layerCtable->blob_param(i).name() == outputName) {
+          lrn->setLrnRightShiftWidth(
+              layerCtable->blob_param(i).right_shift_width());
+        } else if (layerCtable->blob_param(i).name() == "sum_sq") {
+          lrn->setSumRightShiftWidth(
+              layerCtable->blob_param(i).right_shift_width());
+        }
+      }
+      lrn->getThresholdXQuantized()[0] = layerCtable->threshold_x_quantized(0);
+      lrn->getThresholdXQuantized()[1] = layerCtable->threshold_x_quantized(1);
+    } else if (auto *prelu = dyn_cast<BM188X::PRelu>(node)) {
+      const auto &lct_prelu = layerCtable->prelu_param();
+      prelu->setGTRShiftWidth(lct_prelu.gt_right_shift_width());
+      prelu->setLERShiftWidth(lct_prelu.le_right_shift_width());
+      prelu->setGTScale(lct_prelu.gt_scale());
+
+      // get slope tensor to determine ChannelShared and Slope
+      const ::onnc::Value *value = prelu->getInput(1);
+      const auto *tensor = dynamic_cast<const onnc::Int8Tensor*>(value);
+      std::vector<int8_t> tensorValues = tensor->getValues();
+      prelu->setChannelShared(tensorValues.size() == 1);
+      prelu->setSlope(tensorValues[0]);
     } else if (isa<onnc::Reshape>(node) || isa<onnc::Softmax>(node)) {
       continue;
+    } else {
+      errs() << "FIXME: missed update " << ctableName << " operator\n";
     }
-    errs() << "FIXME: missed update " << ctableName << " operator\n";
   }
   return Pass::kModuleChanged;
 }
