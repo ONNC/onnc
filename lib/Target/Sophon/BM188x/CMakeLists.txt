@@ -9,6 +9,7 @@ add_libonnc_src(
     BM188xBackend.cpp
     BM188xISelLowering.cpp
     BM188xCodeEmitter.cpp
+    BM188xEncodeInstsPass.cpp
     BM188xTargetTransformInfo.cpp
     BM188xTargetMemInfo.cpp
     BM188xVisitor.cpp
