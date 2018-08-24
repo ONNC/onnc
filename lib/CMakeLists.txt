@@ -1,32 +1,27 @@
-
-
 set(LIB_ONNC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(LIB_ONNC_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
-function(add_libonnc_src)
+
+####################
+#  Include
+include_directories(${ONNC_INCLUDE_DIRS})
+include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
+
+####################
+#  libonnc
+add_library(libonnc "")
+add_dependencies(libonnc code_gen)
+set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
+function(add_libonnc_src) # For adding source file inside subdirectories
     file(RELATIVE_PATH name ${LIB_ONNC_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
     string(REPLACE "/" "_" name ${name})
     set(name libonnc_${name})
     add_library(${name} OBJECT ${ARGN})
     target_sources(libonnc PRIVATE $<TARGET_OBJECTS:${name}>)
-    set(cur_target ${name} PARENT_SCOPE)
     add_dependencies(${name} code_gen)
 endfunction()
 
-
-find_package(Boost COMPONENTS system REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-
-include_directories(${ONNC_INCLUDE_DIRS})
-include_directories(${ONNX_INCLUDE_DIRS})
-include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
-
-add_library(libonnc "")
-add_dependencies(libonnc code_gen)
-target_include_directories(libonnc PUBLIC ${ONNX_INCLUDE_DIRS})
-target_include_directories(libonnc PUBLIC ${LIB_ONNC_BINARY_DIR}/include) # for proto
-target_compile_definitions(libonnc PUBLIC -DONNX_NAMESPACE=${ONNX_NAMESPACE})
-set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
-
+####################
+#  Subdirectories
 add_subdirectory(ADT)
 add_subdirectory(Analysis)
 add_subdirectory(CodeGen)
@@ -42,15 +37,19 @@ add_subdirectory(Support)
 add_subdirectory(Target)
 add_subdirectory(Transforms)
 
+####################
+#  Linking
 if (HAVE_PTHREADS)
     target_link_libraries(libonnc pthread)
 endif()
 target_link_libraries(libonnc
-    ${EXTERNAL_LIBRARY}
-    ${Boost_LIBRARIES}
     glog
     ${ONNX_LIBRARIES}
-    ${PROTOBUF_LIBRARIES})
+    ${PROTOBUF_LIBRARIES}
+)
 
+####################
+#  General settings
 install(TARGETS libonnc
-    ARCHIVE DESTINATION lib)
+    ARCHIVE DESTINATION lib
+)
