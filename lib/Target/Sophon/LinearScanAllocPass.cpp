@@ -51,13 +51,20 @@ void LinearScanAlloc::linearScanAlloMem(
   // but currently CodeEmitter's prepareWeight function can't save the weight
   // on the address of MemOperand. So we need to sync the traverse order
   // between MemAlloc and prepareWeight now.
-  TGBackend::ValMemOpndMap& allocatedValue = m_pTarget->getValMemOpndMap();
+  TGBackend::ValMemOpndMap &allocatedValue = m_pTarget->getValMemOpndMap();
+  std::unordered_set<ComputeMemOperand*> allocatedMemOpnd;
   for (auto memOpVal : pMemOps) {
     ComputeMemOperand *memOp = memOpVal.first;
     onnc::Value *memVal = memOpVal.second;
+    // handle duplicate ComputeMemOperand
     if (allocatedValue.count(memVal)) {
       memOp->setStart(allocatedValue[memVal]->start());
       memOp->setLength(allocatedValue[memVal]->length());
+      continue;
+    }
+    // handle no-op opeartor, update valMemOpndMap
+    if (allocatedMemOpnd.find(memOp) != allocatedMemOpnd.end()) {
+      allocatedValue.insert({ memVal, memOp });
       continue;
     }
 
@@ -73,7 +80,8 @@ void LinearScanAlloc::linearScanAlloMem(
       weight_offset += tensor_size;
     }
     memOp->setLength(tensor_size);
-    allocatedValue.insert({memVal, memOp});
+    allocatedValue.insert({ memVal, memOp });
+    allocatedMemOpnd.insert(memOp);
   }
 }
 

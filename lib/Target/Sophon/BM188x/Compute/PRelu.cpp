@@ -32,7 +32,8 @@ BM188X::PRelu::~PRelu()
 
 void BM188X::PRelu::print(std::ostream &pOS) const
 {
-  // TODO
+  pOS << m_Outputs[0]->getName() << " = " << name() << " "
+      << m_Inputs[0]->getName() << " " << m_Inputs[1]->getName();
 }
 
 void BM188X::PRelu::accept(ComputeVisitor& pV)

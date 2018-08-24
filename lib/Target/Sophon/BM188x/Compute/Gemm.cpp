@@ -55,7 +55,10 @@ void BM188X::Gemm::init(const xNode &pNode)
 
 void BM188X::Gemm::print(std::ostream &pOS) const
 {
-  // TODO
+  pOS << m_Outputs[0]->getName() << " = " << name();
+  for (unsigned int i = 0; i < m_Inputs.size(); ++i) {
+    pOS << " " << m_Inputs[i]->getName();
+  }
 }
 
 void BM188X::Gemm::accept(ComputeVisitor& pV)
