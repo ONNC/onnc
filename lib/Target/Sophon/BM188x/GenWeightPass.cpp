@@ -24,8 +24,10 @@ BM188X::GenWeightPass::GenWeightPass(TGBackend* pBackend, const Path &pOutFile)
 Pass::ReturnType BM188X::GenWeightPass::runOnModule(Module &pModule)
 {
   fillWeight(pModule);
-  if (!m_Weight.empty())
-    bmnet::WriteInt8DataToBinaryFile(&m_Weight, m_OutFile.c_str());
+  if (!m_Weight.empty()) {
+    std::string filename = m_OutFile.native() + ".weight.bin";
+    bmnet::WriteInt8DataToBinaryFile(&m_Weight, filename);
+  }
   return kModuleNoChanged;
 }
 
