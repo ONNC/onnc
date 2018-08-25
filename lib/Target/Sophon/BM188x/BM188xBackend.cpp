@@ -155,7 +155,7 @@ BM1880Backend::getMutableLayerCtable(const std::string &pName)
 }
 
 const BM1880Backend::LayerCtable *
-BM1880Backend::getLayerCtable(const std::string &pName)
+BM1880Backend::getLayerCtable(const std::string &pName) const
 {
   for (int i = 0; i < m_NetCtableParam.layer_size(); i++) {
     const tg::bm1880::LayerCalibrationParameter &layer =
