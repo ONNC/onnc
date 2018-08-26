@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "UpdateVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/Concat.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
 #include "Compute/GlobalAveragePool.h"
@@ -130,4 +131,19 @@ void UpdateVisitor::visit(BM188X::LeakyRelu &pLRelu)
 void UpdateVisitor::visit(BM188X::Scale &pTGScale) {
   const auto *layerCtable = getLayerCtable(&pTGScale);
   pTGScale.setRShiftWidth(layerCtable->right_shift_width());
+}
+
+void UpdateVisitor::visit(BM188X::Concat &pConcat)
+{
+  const auto *layerCtable = getLayerCtable(&pConcat);
+  const auto concat_param = layerCtable->concat_param();
+  pConcat.setNeedQuantizeNum(concat_param.need_quantize_num());
+  if (concat_param.need_quantize_num()) {
+    assert(concat_param.right_shift_width_size() ==
+           concat_param.threshold_x_quantized_size());
+    for (int i = 0; i < concat_param.right_shift_width_size(); i++) {
+      pConcat.setRShiftWidth(i, concat_param.right_shift_width(i));
+      pConcat.setThresholdXQuantized(i, concat_param.threshold_x_quantized(i));
+    }
+  }
 }

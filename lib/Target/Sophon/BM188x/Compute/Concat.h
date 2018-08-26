@@ -24,7 +24,12 @@ public:
 
   ~Concat();
 
-  void setNeedQuantizeNum(int pN) { m_NeedQuantizeNum = pN; }
+  void setNeedQuantizeNum(int pN)
+  {
+    m_NeedQuantizeNum = pN;
+    m_RShiftWidth.resize(pN);
+    m_ThresholdXQuantized.resize(pN);
+  }
 
   int getNeedQuantizeNum() const { return m_NeedQuantizeNum; }
 

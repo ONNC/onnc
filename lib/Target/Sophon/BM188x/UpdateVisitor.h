@@ -39,6 +39,8 @@ public:
 
   void visit(BM188X::Scale &pTGScale) override;
 
+  void visit(BM188X::Concat &pConcat) override;
+
   UpdateVisitor(const BM1880Backend *pBackend);
 
 private:
