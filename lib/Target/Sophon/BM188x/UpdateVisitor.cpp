@@ -6,11 +6,16 @@
 //
 //===----------------------------------------------------------------------===//
 #include "UpdateVisitor.h"
+#include "Compute/AveragePool.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
+#include "Compute/GlobalAveragePool.h"
 #include "Compute/LRN.h"
+#include "Compute/LeakyRelu.h"
 #include "Compute/MaxPool.h"
 #include "Compute/PRelu.h"
+#include "Compute/Scale.h"
+#include "Compute/Sum.h"
 #include <onnc/IR/Compute/Tensor.h>
 
 using namespace onnc;
@@ -45,6 +50,21 @@ void UpdateVisitor::visit(BM188X::MaxPool &pMaxPool)
   const auto *layerCtable = getLayerCtable(&pMaxPool);
   pMaxPool.setRShiftWidth(layerCtable->right_shift_width());
   pMaxPool.setThresholdXQuantized(*layerCtable->threshold_x_quantized().data());
+}
+
+void UpdateVisitor::visit(BM188X::AveragePool &pAvgPool)
+{
+  const auto *layerCtable = getLayerCtable(&pAvgPool);
+  pAvgPool.setRShiftWidth(layerCtable->right_shift_width());
+  pAvgPool.setThresholdXQuantized(*layerCtable->threshold_x_quantized().data());
+}
+
+void UpdateVisitor::visit(BM188X::GlobalAveragePool &pGlobalAvgPool)
+{
+  const auto *layerCtable = getLayerCtable(&pGlobalAvgPool);
+  pGlobalAvgPool.setRShiftWidth(layerCtable->right_shift_width());
+  pGlobalAvgPool.setThresholdXQuantized(
+      *layerCtable->threshold_x_quantized().data());
 }
 
 void UpdateVisitor::visit(BM188X::Gemm &pGemm)
@@ -84,4 +104,30 @@ void UpdateVisitor::visit(BM188X::PRelu &pPRelu)
   std::vector<int8_t> tensorValues = tensor->getValues();
   pPRelu.setChannelShared(tensorValues.size() == 1);
   pPRelu.setSlope(tensorValues[0]);
+}
+
+void UpdateVisitor::visit(BM188X::Sum &pSum)
+{
+  const auto *layerCtable = getLayerCtable(&pSum);
+  pSum.setRShiftWidth(layerCtable->right_shift_width());
+  std::vector<int> thXQuantized;
+  for (size_t i = 0; i < pSum.getNumOfInputs(); ++i) {
+    thXQuantized.push_back(layerCtable->threshold_x_quantized(i));
+  }
+  pSum.setThresholdXQuantized(thXQuantized);
+}
+
+void UpdateVisitor::visit(BM188X::LeakyRelu &pLRelu)
+{
+  const auto *layerCtable = getLayerCtable(&pLRelu);
+  const auto &leakyrelu = layerCtable->leakyrelu_param();
+  pLRelu.setGTRShiftWidth(leakyrelu.gt_right_shift_width());
+  pLRelu.setLERShiftWidth(leakyrelu.le_right_shift_width());
+  pLRelu.setGTScale(leakyrelu.gt_scale());
+  pLRelu.setLEScale(leakyrelu.le_scale());
+}
+
+void UpdateVisitor::visit(BM188X::Scale &pTGScale) {
+  const auto *layerCtable = getLayerCtable(&pTGScale);
+  pTGScale.setRShiftWidth(layerCtable->right_shift_width());
 }

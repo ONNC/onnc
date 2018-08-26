@@ -23,11 +23,21 @@ public:
 
   void visit(BM188X::MaxPool &pMaxPool) override;
 
+  void visit(BM188X::AveragePool &pAvgPool) override;
+
+  void visit(BM188X::GlobalAveragePool &pGlobalAvgPool) override;
+
   void visit(BM188X::Gemm &pGemm) override;
 
   void visit(BM188X::LRN &pLRN) override;
 
   void visit(BM188X::PRelu &pPRelu) override;
+
+  void visit(BM188X::Sum &pSum) override;
+
+  void visit(BM188X::LeakyRelu &pLRelu) override;
+
+  void visit(BM188X::Scale &pTGScale) override;
 
   UpdateVisitor(const BM1880Backend *pBackend);
 
