@@ -5,13 +5,18 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#define DEBUG_TYPE "sophon_LSAP"
 #include "LinearScanAllocPass.h"
 #include "TGBackend.h"
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
 #include <onnc/Core/PassAnalysisSupport.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Value.h>
+#include <onnc/Support/Debug.h>
 
 using namespace onnc;
 
@@ -27,7 +32,9 @@ LinearScanAlloc::LinearScanAlloc(TGBackend *pTarget)
 
 Pass::ReturnType LinearScanAlloc::runOnModule(::onnc::Module &pModule)
 {
-  linearScanAlloMem(getAnalysis<BuildMemOpnd>()->getMemOperandList());
+  assert (pModule.getNumOfComputeGraphs() == 1);
+  linearScanAllocMem(*pModule.getRootComputeGraph(),
+                     getAnalysis<BuildMemOpnd>()->getMemOperandList());
 
   return Pass::kModuleNoChanged;
 }
@@ -41,47 +48,77 @@ int64_t getNumElems(const onnc::Value *pV)
   return n;
 }
 
-void LinearScanAlloc::linearScanAlloMem(
-    const BuildMemOpnd::MemOperandValList &pMemOps)
+void LinearScanAlloc::memoryAlloc(ComputeMemOperand *pMemOp,
+                                  const onnc::Value *pMemVal)
 {
-  unsigned int weight_offset = 0;
-  unsigned int neuron_offset = 0;
-
-  // FIXME memory allocation only need to traverse MemOperands in order
-  // but currently CodeEmitter's prepareWeight function can't save the weight
-  // on the address of MemOperand. So we need to sync the traverse order
-  // between MemAlloc and prepareWeight now.
   TGBackend::ValMemOpndMap &allocatedValue = m_pTarget->getValMemOpndMap();
-  std::unordered_set<ComputeMemOperand*> allocatedMemOpnd;
-  for (auto memOpVal : pMemOps) {
-    ComputeMemOperand *memOp = memOpVal.first;
-    onnc::Value *memVal = memOpVal.second;
-    // handle duplicate ComputeMemOperand
-    if (allocatedValue.count(memVal)) {
-      memOp->setStart(allocatedValue[memVal]->start());
-      memOp->setLength(allocatedValue[memVal]->length());
+
+  if (allocatedValue.find(pMemVal) != allocatedValue.end())
+    return;
+
+  // handle duplicate ComputeMemOperand for nop Operator
+  // update valMemOpndMap
+  if (m_AllocatedMemOpnd.find(pMemOp) != m_AllocatedMemOpnd.end()) {
+    allocatedValue.insert({ pMemVal, pMemOp });
+    DEBUG(dbgs() << "allocatedValue insert: " << pMemVal->getName()
+                 << ", start: " << pMemOp->start()
+                 << ", end: " << pMemOp->length() << "\n");
+    return;
+  }
+
+  xTensorProtoDataType ty = (xTensorProtoDataType)pMemVal->kind();
+  int tensor_size = m_pTarget->sizeOfTensorType(ty) * getNumElems(pMemVal);
+
+  if (pMemOp->residence() != ComputeOperand::kWeightResidence) {
+    pMemOp->setStart(m_NeuronOffset);
+    m_NeuronOffset += tensor_size;
+  } else {
+    pMemOp->setStart(m_WeightOffset);
+    m_WeightOffset += tensor_size;
+  }
+
+  pMemOp->setLength(tensor_size);
+  allocatedValue.insert({ pMemVal, pMemOp });
+  DEBUG(dbgs() << "allocatedValue insert: " << pMemVal->getName() << ", start: "
+               << pMemOp->start() << ", end: " << pMemOp->length() << "\n");
+  m_AllocatedMemOpnd.insert(pMemOp);
+}
+
+void LinearScanAlloc::linearScanAllocMem(
+    const ComputeGraph &pCG, const BuildMemOpnd::ValMemOpndMap &pValMemOpndMap)
+{
+  m_WeightOffset = 0;
+  m_NeuronOffset = 0;
+  m_AllocatedMemOpnd.clear();
+  auto valMemOpndMap = pValMemOpndMap;
+
+  // we want to increase locality for loading weight data
+  // so we allocate memory in operator execution order.
+  // NOTE: if changed traverse order, we need to changed traverse order in
+  // GenWeightPass too.
+  auto iEnd = pCG.end();
+  for (auto instIt = pCG.begin(); instIt != iEnd; ++instIt) {
+    const ComputeOperator *inst = instIt;
+
+    if (isa<OutputOperator>(inst) || isa<InputOperator>(inst) ||
+        isa<Initializer>(inst))
       continue;
-    }
-    // handle no-op opeartor, update valMemOpndMap
-    if (allocatedMemOpnd.find(memOp) != allocatedMemOpnd.end()) {
-      allocatedValue.insert({ memVal, memOp });
-      continue;
+
+    // inputs of inst
+    unsigned int ins = inst->getNumOfInputs();
+    for (unsigned int i = 0; i < ins; ++i) {
+      const onnc::Value *memVal = inst->getInput(i);
+      ComputeMemOperand *memOp = valMemOpndMap[memVal];
+      memoryAlloc(memOp, memVal);
     }
 
-    xTensorProtoDataType ty = (xTensorProtoDataType)memVal->kind();
-
-    int tensor_size = m_pTarget->sizeOfTensorType(ty) * getNumElems(memVal);
-
-    if (memOp->residence() != ComputeOperand::kWeightResidence) {
-      memOp->setStart(neuron_offset);
-      neuron_offset += tensor_size;
-    } else {
-      memOp->setStart(weight_offset);
-      weight_offset += tensor_size;
+    // outputs of inst
+    unsigned int outs = inst->getNumOfOutputs();
+    for (unsigned int i = 0; i < outs; ++i) {
+      const onnc::Value *memVal = inst->getOutput(i);
+      ComputeMemOperand *memOp = valMemOpndMap[memVal];
+      memoryAlloc(memOp, memVal);
     }
-    memOp->setLength(tensor_size);
-    allocatedValue.insert({ memVal, memOp });
-    allocatedMemOpnd.insert(memOp);
   }
 }
 

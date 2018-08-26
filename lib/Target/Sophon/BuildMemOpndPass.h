@@ -16,8 +16,8 @@ namespace onnc {
 class BuildMemOpnd : public ModulePass
 {
 public:
-  typedef std::vector<std::pair<ComputeMemOperand*, onnc::Value*>>
-          MemOperandValList;
+  typedef std::map<const onnc::Value *, ComputeMemOperand *> ValMemOpndMap;
+
 public:
   static char ID;
 
@@ -25,12 +25,12 @@ public:
   BuildMemOpnd();
 
   StringRef getPassName() const override { return "BuildMemOpnd"; }
-  
+
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
-  const MemOperandValList &getMemOperandList() const
+  const ValMemOpndMap &getMemOperandList() const
   {
-    return m_ValOperandMap;
+    return m_ValMemOpndMap;
   }
 
 private:
@@ -42,7 +42,7 @@ private:
   void clear();
 
 private:
-  MemOperandValList m_ValOperandMap;
+  ValMemOpndMap m_ValMemOpndMap;
 };
 
 ModulePass *CreateBuildMemOpndPass();
