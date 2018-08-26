@@ -17,13 +17,16 @@ ONNC_TARGET_SOURCES += \
 	Target/Sophon/BM188x/AddLutTablePass.cpp \
   Target/Sophon/BM188x/BM188xBackend.cpp \
   Target/Sophon/BM188x/BM188xCodeEmitter.cpp \
+	Target/Sophon/BM188x/BM188xEncodeInstsPass.cpp \
   Target/Sophon/BM188x/BM188xFuseOptimizer.cpp \
   Target/Sophon/BM188x/BM188xISelLowering.cpp \
   Target/Sophon/BM188x/BM188xTargetMemInfo.cpp \
   Target/Sophon/BM188x/BM188xTargetTransformInfo.cpp \
   Target/Sophon/BM188x/BM188xVisitor.cpp \
   Target/Sophon/BM188x/CodeEmitVisitor.cpp \
+	Target/Sophon/BM188x/FillWeightVisitor.cpp \
 	Target/Sophon/BM188x/GenRuntimeInfoPass.cpp \
+	Target/Sophon/BM188x/GenWeightPass.cpp \
   Target/Sophon/BM188x/PrepareCtablePass.cpp \
   Target/Sophon/BM188x/TGAveragePool.cpp \
   Target/Sophon/BM188x/TGConcat.cpp \
