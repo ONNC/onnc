@@ -37,7 +37,7 @@ public:
 
   void visit(BM188X::LeakyRelu &pLRelu) override;
 
-  void visit(BM188X::Scale &pTGScale) override;
+  void visit(BM188X::BMScale &pBMScale) override;
 
   void visit(BM188X::Concat &pConcat) override;
 

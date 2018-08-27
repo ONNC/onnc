@@ -22,6 +22,7 @@
 #include "GenRuntimeInfoPass.h"
 #include "GenWeightPass.h"
 #include "Lowers/AveragePoolLower.h"
+#include "Lowers/BMScaleLower.h"
 #include "Lowers/ConcatLower.h"
 #include "Lowers/ConvLower.h"
 #include "Lowers/GemmLower.h"
@@ -33,7 +34,6 @@
 #include "Lowers/PReluLower.h"
 #include "Lowers/PoolLower.h"
 #include "Lowers/ReluLower.h"
-#include "Lowers/ScaleLower.h"
 #include "Lowers/StoreLower.h"
 #include "Lowers/SumLower.h"
 #include "Lowers/TransposeLower.h"
@@ -190,7 +190,7 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::PoolLower>();
   pRegistry.emplace<BM188X::ReluLower>();
   pRegistry.emplace<onnc::ReshapeLower>();
-  pRegistry.emplace<BM188X::ScaleLower>();
+  pRegistry.emplace<BM188X::BMScaleLower>();
   pRegistry.emplace<onnc::SoftmaxLower>();
   pRegistry.emplace<onnc::SplitLower>();
   pRegistry.emplace<onnc::FlattenLower>();

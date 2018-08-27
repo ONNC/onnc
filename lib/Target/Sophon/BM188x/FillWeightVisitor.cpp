@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "FillWeightVisitor.h"
+#include "Compute/BMScale.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
 #include "Compute/LRN.h"
@@ -136,6 +137,14 @@ void FillWeightVisitor::visit(const BM188X::PRelu &pPRelu)
 {
   const std::vector<int8_t> slope_data = getInt8Data(pPRelu.getInput(1));
   Append8bit(m_Weight, slope_data);
+}
+
+void FillWeightVisitor::visit(const BM188X::BMScale &pBMScale)
+{
+  const std::vector<int8_t> weight_data = getInt8Data(pBMScale.getInput(1));
+  Append8bit(m_Weight, weight_data);
+  const std::vector<int16_t> bias_data = getInt16Data(pBMScale.getInput(2));
+  Append16bit(m_Weight, bias_data);
 }
 
 //===----------------------------------------------------------------------===//

@@ -50,7 +50,7 @@ public:
 
   void visit(const BM188X::Relu& pRelu) override;
 
-  void visit(const BM188X::Scale& pScale) override;
+  void visit(const BM188X::BMScale& pScale) override;
 
   void visit(const BM188X::SlicedConv& pSlicedConv) override;
 

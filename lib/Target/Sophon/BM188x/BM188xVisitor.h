@@ -27,7 +27,7 @@ class MaxPool;
 class PRelu;
 class Pool;
 class Relu;
-class Scale;
+class BMScale;
 class SlicedConv;
 class Store;
 class Sum;
@@ -67,7 +67,7 @@ public:
 
   virtual void visit(const BM188X::Relu& pRelu) { }
 
-  virtual void visit(const BM188X::Scale& pScale) { }
+  virtual void visit(const BM188X::BMScale& pScale) { }
 
   virtual void visit(const BM188X::SlicedConv& pSlicedConv) { }
 
@@ -105,7 +105,7 @@ public:
 
   virtual void visit(BM188X::Relu& pRelu) { }
 
-  virtual void visit(BM188X::Scale& pScale) { }
+  virtual void visit(BM188X::BMScale& pScale) { }
 
   virtual void visit(BM188X::SlicedConv& pSlicedConv) { }
 

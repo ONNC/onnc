@@ -33,6 +33,8 @@ public:
 
   void visit(const BM188X::PRelu &pPRelu) override;
 
+  void visit(const BM188X::BMScale &pBMScale) override;
+
   FillWeightVisitor(Weight& pWeight);
 
 private:
