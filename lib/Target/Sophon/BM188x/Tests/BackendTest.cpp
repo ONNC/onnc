@@ -36,6 +36,7 @@
 #include <onnc/Transforms/TensorSel/Standards/AffineLower.h>
 #include <onnc/Transforms/TensorSel/Standards/GemmLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
+#include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AndLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
