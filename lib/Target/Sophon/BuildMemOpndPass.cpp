@@ -13,6 +13,7 @@
 #include <onnc/IR/Compute/Cast.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/Reshape.h>
+#include <onnc/IR/Compute/Flatten.h>
 #include <onnc/Support/Debug.h>
 #include <onnc/Support/IOStream.h>
 
@@ -57,7 +58,7 @@ void BuildMemOpnd::createMemOperandsOfNode(ComputeGraph &pCG,
                                            ComputeOperand::Residence pResd)
 {
   // no-op operator, input value's MemOperand is same as output's
-  if (isa<Reshape>(&pNode)) {
+  if (isa<Reshape>(&pNode) || isa<Flatten>(&pNode)) {
     onnc::Value *inputValue = pNode.getInput(0);
     onnc::Value *outputValue = pNode.getOutput(0);
     // find input's MemOperand
