@@ -8,7 +8,7 @@
 #include <skypat/skypat.h>
 #include "../Weight.h"
 #include <onnc/Config/ONNX.h>
-#include "../io.hpp"
+#include <onnc/Target/Sophon/io.hpp>
 #include <string>
 
 using namespace onnc;
@@ -42,22 +42,22 @@ SKYPAT_F(BM188xTest, weight_append)
   }
   errs() << std::endl;
   ASSERT_EQ(weight.size(), 36);
-  ASSERT_TRUE(weight[0]  == 'a');
+  ASSERT_TRUE(weight[0] == 'a');
   ASSERT_TRUE(weight[18] == 'b');
-  ASSERT_TRUE(weight[1]  == 'c');
+  ASSERT_TRUE(weight[1] == 'c');
   ASSERT_TRUE(weight[19] == 'd');
-  ASSERT_TRUE(weight[2]  == 'e');
+  ASSERT_TRUE(weight[2] == 'e');
   ASSERT_TRUE(weight[20] == 'f');
-  ASSERT_TRUE(weight[3]  == 'g');
+  ASSERT_TRUE(weight[3] == 'g');
   ASSERT_TRUE(weight[21] == 'h');
-  ASSERT_TRUE(weight[4]  == 'i');
+  ASSERT_TRUE(weight[4] == 'i');
   ASSERT_TRUE(weight[22] == 'j');
-  ASSERT_TRUE(weight[5]  == 'k');
+  ASSERT_TRUE(weight[5] == 'k');
   ASSERT_TRUE(weight[23] == 'l');
-  ASSERT_TRUE(weight[6]  == 'm');
+  ASSERT_TRUE(weight[6] == 'm');
   ASSERT_TRUE(weight[24] == 'n');
-  ASSERT_TRUE(weight[7]  == 'o');
+  ASSERT_TRUE(weight[7] == 'o');
   ASSERT_TRUE(weight[25] == 'p');
-  ASSERT_TRUE(weight[8]  == 'q');
+  ASSERT_TRUE(weight[8] == 'q');
   ASSERT_TRUE(weight[26] == 'r');
 }
