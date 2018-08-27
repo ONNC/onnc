@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_BM188X_WEIGHT_H
 #define ONNC_TARGET_TG_BM188X_WEIGHT_H
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include "../TGBackend.h"
 #include "TGConv.h"
 #include "TLConv.h"

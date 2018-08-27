@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_BM168X_TGCONV_H
 #define ONNC_TARGET_BM168X_TGCONV_H
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include <onnc/Config/ONNX.h>
 
 namespace onnc {

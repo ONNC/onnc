@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #ifndef BM188X_COMPUTE_OPERATOR_H
 #define BM188X_COMPUTE_OPERATOR_H
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>

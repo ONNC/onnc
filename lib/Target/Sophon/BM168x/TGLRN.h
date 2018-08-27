@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_BM168X_TGLRN_H
 #define ONNC_TARGET_BM168X_TGLRN_H
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include <onnc/Config/ONNX.h>
 
 // m_MemOperands: input, output

@@ -13,7 +13,7 @@
 #ifndef ONNX_BM_TGGEMM_H
 #define ONNX_BM_TGGEMM_H
 
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include <onnc/Config/ONNX.h>
 namespace onnc {
 
