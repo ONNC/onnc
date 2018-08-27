@@ -10,8 +10,8 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#ifndef COMPUTE_OPERATOR_H
-#define COMPUTE_OPERATOR_H
+#ifndef SOPHON_COMPUTE_OPERATOR_H
+#define SOPHON_COMPUTE_OPERATOR_H
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Config/ONNX.h>

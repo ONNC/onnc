@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #ifndef TARGET_TG_TG_BACKEND_H
 #define TARGET_TG_TG_BACKEND_H
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include "TGCodeEmitter.h"
 #include "TGFuseOptimizer.h"
 #include "GlobalMemAllocPass.h"

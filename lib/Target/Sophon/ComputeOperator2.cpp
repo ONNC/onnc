@@ -10,7 +10,7 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include <iomanip>
 
 using namespace onnc;

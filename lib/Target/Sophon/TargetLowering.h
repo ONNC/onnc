@@ -13,7 +13,7 @@
 #ifndef TARGET_TARGET_TG_TARGET_LOWERING_H
 #define TARGET_TARGET_TG_TARGET_LOWERING_H
 
-#include "ComputeOperator.h"
+#include "ComputeOperator2.h"
 #include "TGBackend.h"
 #include <memory>
 #include <onnc/IR/Module.h>
