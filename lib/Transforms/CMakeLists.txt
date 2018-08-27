@@ -27,6 +27,7 @@ add_libonnc_src(
     TensorSel/ReluLower.cpp
     TensorSel/ConcatLower.cpp
     TensorSel/ReshapeLower.cpp
+    TensorSel/FlattenLower.cpp
     TensorSel/SplitLower.cpp
     TensorSel/UpsampleLower.cpp
     TensorSel/XorLower.cpp)

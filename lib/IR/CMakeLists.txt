@@ -36,6 +36,7 @@ add_libonnc_src(
     Compute/OutputOperator.cpp
     Compute/Relu.cpp
     Compute/Reshape.cpp
+    Compute/Flatten.cpp
     Compute/LRN.cpp
     Compute/LeakyRelu.cpp
     Compute/PRelu.cpp
