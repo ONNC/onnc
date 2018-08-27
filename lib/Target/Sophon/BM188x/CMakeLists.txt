@@ -20,6 +20,7 @@ add_libonnc_src(
     GenWeightPass.cpp
     PrepareCtablePass.cpp
     UpdateCtablePass.cpp
+    UpdateVisitor.cpp
     ONNXDumpOptPass.cpp
     TLLoad.cpp
     TLStore.cpp

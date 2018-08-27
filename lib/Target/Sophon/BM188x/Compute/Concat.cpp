@@ -30,8 +30,8 @@ BM188X::Concat::~Concat()
 
 void BM188X::Concat::setRShiftWidth(unsigned int pIdx, int pValue)
 {
-  if (m_RShiftWidth.size() > pIdx)
-    m_RShiftWidth[pIdx] = pValue;
+  assert(m_RShiftWidth.size() > pIdx);
+  m_RShiftWidth[pIdx] = pValue;
 }
 
 const std::vector<int>& BM188X::Concat::getRShiftWidth() const
@@ -41,8 +41,8 @@ const std::vector<int>& BM188X::Concat::getRShiftWidth() const
 
 void BM188X::Concat::setThresholdXQuantized(unsigned int pIdx, int pValue)
 {
-  if (m_ThresholdXQuantized.size() > pIdx)
-    m_ThresholdXQuantized[pIdx] = pValue;
+  assert(m_ThresholdXQuantized.size() > pIdx);
+  m_ThresholdXQuantized[pIdx] = pValue;
 }
 
 const std::vector<int>& BM188X::Concat::getThresholdXQuantized() const

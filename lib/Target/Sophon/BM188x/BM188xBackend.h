@@ -52,7 +52,7 @@ public:
 
   LayerCtable* getMutableLayerCtable(const std::string &pName);
 
-  const LayerCtable* getLayerCtable(const std::string &pName);
+  const LayerCtable *getLayerCtable(const std::string &pName) const;
 
   const TargetTransformInfo *getTTI() const override { return m_pTTI; }
 
