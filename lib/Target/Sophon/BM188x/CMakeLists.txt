@@ -7,8 +7,6 @@ add_libonnc_src(
     AddDummyWeightPass.cpp
     AddLutTablePass.cpp
     BM188xBackend.cpp
-    BM188xISelLowering.cpp
-    BM188xCodeEmitter.cpp
     BM188xEncodeInstsPass.cpp
     BM188xTargetTransformInfo.cpp
     BM188xTargetMemInfo.cpp
@@ -22,26 +20,6 @@ add_libonnc_src(
     UpdateCtablePass.cpp
     UpdateVisitor.cpp
     ONNXDumpOptPass.cpp
-    TLLoad.cpp
-    TLStore.cpp
-    TLRelu.cpp
-    TGConv.cpp
-    TLConv.cpp
-    TGGemm.cpp
-    TGLRN.cpp
-    TGMaxPool.cpp
-    TLPool.cpp
-    TGAveragePool.cpp
-    TGGlobalAveragePool.cpp
-    TGRelu.cpp
-    TGLeakyRelu.cpp
-    TGUpsample.cpp
-    TGConcat.cpp
-    TGTranspose.cpp
-    TGSum.cpp
-    TGPRelu.cpp
-    TGScale.cpp
-    Weight.cpp
     Compute/AveragePool.cpp
     Compute/Concat.cpp
     Compute/Conv.cpp
@@ -80,4 +58,3 @@ add_libonnc_src(
     Lowers/UpsampleLower.cpp)
 
 add_subdirectory(asm)
-add_subdirectory(Tests)

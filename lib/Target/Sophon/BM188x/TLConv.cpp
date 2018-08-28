@@ -10,6 +10,7 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
+// legacy code
 #include "TLConv.h"
 #include "BM188xCodeEmitter.h"
 #include "PatternMatch.h"

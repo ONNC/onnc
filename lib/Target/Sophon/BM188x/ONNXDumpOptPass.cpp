@@ -12,9 +12,10 @@
 //===---------------------------------------------------------------------===//
 #include "BM188xBackend.h"
 #include <fstream>
-#include <onnc/Core/ModulePass.h>
-#include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Config/ONNX.h>
+#include <onnc/Core/ModulePass.h>
+#include <onnc/IR/ONNXUtils.h>
+#include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 
 using namespace onnc;
 namespace {

@@ -29,8 +29,7 @@ public:
   using LayerCtable = tg::bm1880::LayerCalibrationParameter;
 
 public:
-  BM1880Backend(TGBackend::Instructions& pInsns,
-                const TargetOptions &pOptions);
+  BM1880Backend(const TargetOptions &pOptions);
 
   ~BM1880Backend() override = default;
 
@@ -76,7 +75,6 @@ private:
 //===----------------------------------------------------------------------===//
 ModulePass *createPrepareCtablePass(BM1880Backend *pBackend);
 ModulePass *createUpdateCtablePass(BM1880Backend *pBackend);
-ModulePass *createQuantizePass(BM1880Backend *pBackend);
 ModulePass *CreateNewQuantizePass(BM1880Backend *pBackend);
 ModulePass *createAddDummyWeightPass();
 ModulePass *createONNXDumpOptPass(BM1880Backend *pBackend);

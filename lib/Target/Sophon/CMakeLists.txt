@@ -14,15 +14,9 @@ install(DIRECTORY include/ DESTINATION include)
 
 add_libonnc_src(
     io.cpp
-    TargetLowering.cpp
     TGBackend.cpp
-    TGCodeEmitter.cpp
-    TGCodeEmitPass.cpp
-    ComputeOperator2.cpp
     TGFuseOptimizer.cpp
     TGFuseOptimizerPass.cpp
-    GlobalMemAllocPass
-    TargetLoweringPass.cpp
     BuildMemOpndPass.cpp
     EncodeInstructionsPass.cpp
     LinearScanAllocPass.cpp)

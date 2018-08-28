@@ -14,10 +14,8 @@
 #include "AddLutTablePass.h"
 #include "BM188x/BM188xTargetMemInfo.h"
 #include "BM188x/BM188xTargetTransformInfo.h"
-#include "BM188xCodeEmitter.h"
 #include "BM188xEncodeInstsPass.h"
 #include "BM188xFuseOptimizer.h"
-#include "BM188xISelLowering.h"
 #include "CodeEmitVisitor.h"
 #include "GenRuntimeInfoPass.h"
 #include "GenWeightPass.h"
@@ -65,11 +63,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // BM1880
 //===----------------------------------------------------------------------===//
-BM1880Backend::BM1880Backend(Instructions& pInsn, const TargetOptions &pOptions)
-    : TGBackend(new BM188xISelLowering(this),
-                new BM188xCodeEmitter(this, pInsn), pInsn, pOptions)
+BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
+    : TGBackend(pOptions)
 {
-  m_pMemInfo = new BM188xTargetMemInfo(this);
   m_pTTI = new BM188xTargetTransformInfo(this);
 }
 

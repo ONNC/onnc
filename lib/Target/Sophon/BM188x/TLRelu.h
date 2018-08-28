@@ -10,6 +10,7 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
+// legacy code
 #ifndef ONNX_BM1880_TLRELU_H
 #define ONNX_BM1880_TLRELU_H
 
