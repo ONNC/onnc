@@ -35,6 +35,16 @@ void BM188X::Transpose::init(const xNode &pNode)
   auto inDim = pNode.inputs()[0]->sizes();
   auto &orders = pNode.is(xSymbol("perm"));
 
+  // Now, we only support permute layer for ssd, shufflenet and OCR model
+  assert(((orders[0] == 0) && (orders[1] == 2) && (orders[2] == 3) &&
+          (orders[3] == 1)) ||
+         ((orders[0] == 2) && (orders[1] == 3) && (orders[2] == 0) &&
+          (orders[3] == 1)) ||
+         ((orders[0] == 1) && (orders[1] == 0) && (orders[2] == 2) &&
+          (orders[3] == 3)) ||
+         ((orders[0] == 0) && (orders[1] == 2) && (orders[2] == 1) &&
+          (orders[3] == 3) && (orders[4] == 4)));
+
   m_W = inDim[3].dim;
   m_Order.resize(orders.size());
   m_OutputShape.resize(inDim.size());
@@ -44,7 +54,7 @@ void BM188X::Transpose::init(const xNode &pNode)
     m_OutputShape[i] = inDim[orders[i]].dim;
   }
 
-  if (orders.size() == 5) { // shufflenet
+  if (orders.size() == 5) {
     m_W = inDim[3].dim * inDim[4].dim;
     m_OutputShape[3] = m_OutputShape[3] * m_OutputShape[4];
   }
