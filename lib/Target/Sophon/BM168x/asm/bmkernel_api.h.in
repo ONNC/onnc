@@ -56,3 +56,4 @@ inline void {{ py_i.name }}(
 } // namespace bmnet_asm
 } // namespace bmnet
 #endif /* BM168X_BMKERNEL_API_H */
+
