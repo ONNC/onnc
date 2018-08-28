@@ -25,7 +25,7 @@ class TGCodeEmitter;
 class BM1680Backend : public TGBackend
 {
 public:
-  BM1680Backend(Instructions &pIns, const TargetOptions &pOptions);
+  BM1680Backend(const TargetOptions &pOptions);
 
   ~BM1680Backend() override;
 
@@ -41,7 +41,7 @@ public:
 class BM1682Backend : public TGBackend
 {
 public:
-  BM1682Backend(Instructions &pIns, const TargetOptions &pOptions);
+  BM1682Backend(const TargetOptions &pOptions);
 
   ~BM1682Backend() override;
 

@@ -17,7 +17,6 @@
 #include "LinearScanAllocPass.h"
 #include "TG.h"
 #include "TargetInfo/TGTargetInfo.h"
-#include "TargetLowering.h"
 #include <algorithm>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
@@ -29,46 +28,28 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // TGBackend
 //===----------------------------------------------------------------------===//
-TGBackend::TGBackend(TargetLowering *pTLI, TGCodeEmitter *pCE,
-                     Instructions& pInsns, const TargetOptions &pOptions)
-    : DLATargetBackend(pOptions), m_Instructions(pInsns), m_pTLI(pTLI),
-      m_pCE(pCE)
+TGBackend::TGBackend(const TargetOptions &pOptions) : DLATargetBackend(pOptions)
 {
   m_ReplaceTargetLower = nullptr;
 }
 
-TGBackend::~TGBackend()
-{
-  m_Instructions.clear();
-  for (auto &memOp : m_MemOperands) {
-    delete (memOp);
-  }
-  delete m_pTLI;
-  delete m_pCE;
-}
-
 void TGBackend::addTensorSel(PassManager &pPM)
 {
-  // IR level pass
-  pPM.add(CreateRemoveTrainingNodesPass());
-  pPM.add(CreateUpdateGraphOutputSizePass());
-  pPM.add(createONNXFuseOptPass(this));
-  if (options().shouldPrintBeforeTensorSel())
-    pPM.add(createONNCModulePrinterPass());
-  pPM.add(createTargetLoweringPass(this));
+  // TODO
+  assert(0);
   return;
 }
 
 void TGBackend::addMemAlloc(PassManager &pPM)
 {
-  pPM.add(CreateGlobalMemAllocPass(this));
   pPM.add(CreateBuildMemOpndPass());
   pPM.add(CreateLinearScanAllocPass(this));
 }
 
 void TGBackend::addCodeEmit(PassManager &pPM, const Path &pOutput)
 {
-  pPM.add(CreateTGCodeEmitPass(this, pOutput.native()));
+  // TODO
+  assert(0);
 }
 
 bool TGBackend::isNativeTensorType(xTensorProtoDataType pType)
@@ -112,23 +93,6 @@ void TGBackend::setCtableProto(const std::string &pTextString)
   }
 }
 
-MemOperand *TGBackend::getMemOperand(const xValue *pValue,
-                                     MemType pMemType, const std::string &pName)
-{
-  std::string name = pName;
-  if (pName.empty())
-    name = pValue->uniqueName();
-  auto it =
-      std::find_if(m_MemOperands.begin(), m_MemOperands.end(),
-                   [&](const auto &pElem) { return pElem->m_Name == name; });
-  if (it != m_MemOperands.end()) {
-    return *it;
-  }
-  MemOperand *memOp = new MemOperand(name, pValue, pMemType);
-  m_MemOperands.push_back(memOp);
-  return memOp;
-}
-
 onnc::ComputeMemOperand* TGBackend::getMemOpndByValue(const onnc::Value* pVal)
 {
   auto it = m_ValMemOpndMap.find(pVal);
@@ -140,20 +104,17 @@ onnc::ComputeMemOperand* TGBackend::getMemOpndByValue(const onnc::Value* pVal)
 //===----------------------------------------------------------------------===//
 TargetBackend *CreateTGBM1680Backend(const TargetOptions &pOptions)
 {
-  static TGBackend::Instructions insns;
-  return new BM1680Backend(insns, pOptions);
+  return new BM1680Backend(pOptions);
 }
 
 TargetBackend *CreateTGBM1682Backend(const TargetOptions &pOptions)
 {
-  static TGBackend::Instructions insns;
-  return new BM1682Backend(insns, pOptions);
+  return new BM1682Backend(pOptions);
 }
 
 TargetBackend *CreateTGBM1880Backend(const TargetOptions &pOptions)
 {
-  static TGBackend::Instructions insns;
-  return new BM1880Backend(insns, pOptions);
+  return new BM1880Backend(pOptions);
 }
 
 extern "C" void InitializeSophonONNCBackend()
