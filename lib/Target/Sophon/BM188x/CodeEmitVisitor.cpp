@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/BMScale.h"
 #include "Compute/Concat.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
@@ -15,10 +16,9 @@
 #include "Compute/LeakyRelu.h"
 #include "Compute/Load.h"
 #include "Compute/MaxPool.h"
-#include "Compute/Pool.h"
 #include "Compute/PRelu.h"
+#include "Compute/Pool.h"
 #include "Compute/Relu.h"
-#include "Compute/Scale.h"
 #include "Compute/SlicedConv.h"
 #include "Compute/Store.h"
 #include "Compute/Sum.h"
@@ -602,9 +602,9 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Relu& pOp)
 #endif
 }
 
-void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOp)
+void BM188X::CodeEmitVisitor::visit(const BM188X::BMScale& pOp)
 {
-  const onnc::Tensor* inTensor = pOp.getInput(0);
+  const onnc::Tensor* inTensor = static_cast<const Tensor*>(pOp.getInput(0));
   int n = inTensor->dimension(0),
       c = inTensor->dimension(1),
       h = inTensor->dimension(2),
@@ -619,7 +619,7 @@ void BM188X::CodeEmitVisitor::visit(const BM188X::Scale& pOp)
   uint64_t oAddr = m_TGBackend->getMemOpndByValue(pOp.getOutput(0))->start();
 
   DEBUG(dbgs()
-    << "BM188X::Scale\n" << "  "
+    << "BM188X::BMScale\n" << "  "
     << inAddr << " " << scaleAddr << " " << biasAddr << " " << oAddr << " "
     << n << " " << c << " " << h << " " << w << " "
     << scaleDim << "  " << minnerDim << "  " << rswidth << "\n");

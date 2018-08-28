@@ -24,8 +24,7 @@ BM188X::ScaleLower::~ScaleLower()
 
 int BM188X::ScaleLower::isMe(const xNode &pNode) const
 {
-  if (pNode.kind() == xSymbol("Scale") ||
-      pNode.kind() == xSymbol("TGScale"))
+  if (pNode.kind() == xSymbol("Scale"))
     return kTargetNormal;
   return kNotMe;
 }
@@ -33,6 +32,8 @@ int BM188X::ScaleLower::isMe(const xNode &pNode) const
 onnc::ComputeOperator *
 BM188X::ScaleLower::activate(ComputeGraph& pGraph, xNode &pNode) const
 {
+  // currently Sophon does not support scale.
+  assert(0);
   // check input/output name
   if (1 != pNode.inputs().size())
     return nullptr;

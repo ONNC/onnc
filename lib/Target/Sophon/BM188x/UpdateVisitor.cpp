@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "UpdateVisitor.h"
 #include "Compute/AveragePool.h"
+#include "Compute/BMScale.h"
 #include "Compute/Concat.h"
 #include "Compute/Conv.h"
 #include "Compute/Gemm.h"
@@ -15,7 +16,6 @@
 #include "Compute/LeakyRelu.h"
 #include "Compute/MaxPool.h"
 #include "Compute/PRelu.h"
-#include "Compute/Scale.h"
 #include "Compute/Sum.h"
 #include <onnc/IR/Compute/Tensor.h>
 
@@ -128,9 +128,9 @@ void UpdateVisitor::visit(BM188X::LeakyRelu &pLRelu)
   pLRelu.setLEScale(leakyrelu.le_scale());
 }
 
-void UpdateVisitor::visit(BM188X::Scale &pTGScale) {
-  const auto *layerCtable = getLayerCtable(&pTGScale);
-  pTGScale.setRShiftWidth(layerCtable->right_shift_width());
+void UpdateVisitor::visit(BM188X::BMScale &pBMScale) {
+  const auto *layerCtable = getLayerCtable(&pBMScale);
+  pBMScale.setRShiftWidth(layerCtable->right_shift_width());
 }
 
 void UpdateVisitor::visit(BM188X::Concat &pConcat)
