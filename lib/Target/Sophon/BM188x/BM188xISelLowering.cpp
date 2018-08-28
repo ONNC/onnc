@@ -26,11 +26,6 @@
 #include "TGSum.h"
 #include "TGTranspose.h"
 #include "TGUpsample.h"
-#include "TLConv.h"
-#include "TLLoad.h"
-#include "TLPool.h"
-#include "TLRelu.h"
-#include "TLStore.h"
 #include <onnc/Support/Debug.h>
 #include <onnc/Target/TargetTransformInfo.h>
 
@@ -39,12 +34,6 @@ using namespace onnc;
 ComputeOperator2 *BM188xISelLowering::LowerConv(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
-    auto is_sliced = pNode.i(xSymbol("is_sliced"));
-    if (is_sliced)
-      return LowerTLConv(pNode, pGraph);
-  }
-
   auto *op = new BM188X::TGConv(pNode);
   auto *input_memop =
       m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
@@ -73,80 +62,10 @@ ComputeOperator2 *BM188xISelLowering::LowerConv(const xNode &pNode,
                             scale_memop, scale_bias_memop);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLConv(const xNode &pNode,
-                                                  ComputeGraph &pGraph)
-{
-  auto *op = new BM188X::TLConv(pNode);
-  auto *input_memop =
-      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  auto *output_memop =
-      m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *weight_memop =
-      m_pBackend->getMemOperand(pNode.inputs()[1], MemType::WEIGHT);
-  bool do_bias = op->isDoBias();
-  MemOperand *bias_memop = nullptr;
-  if (do_bias)
-    bias_memop = m_pBackend->getMemOperand(pNode.inputs()[2], MemType::WEIGHT);
-  op->addMemOperands(input_memop, weight_memop, output_memop, bias_memop);
-  return op;
-}
-
-ComputeOperator2 *BM188xISelLowering::LowerTLLoad(const xNode &pNode,
-                                                  ComputeGraph &pGraph)
-{
-  auto *op = new BM188X::TLLoad(pNode);
-  auto is_neuron = pNode.i(xSymbol("is_neuron"));
-  MemType mem_type;
-  if (is_neuron) {
-    mem_type = MemType::NEURON;
-  } else {
-    mem_type = MemType::WEIGHT;
-  }
-  auto *input_memop = m_pBackend->getMemOperand(pNode.inputs()[0], mem_type);
-  op->addMemOperands(input_memop);
-  return op;
-}
-
-ComputeOperator2 *BM188xISelLowering::LowerTLStore(const xNode &pNode,
-                                                   ComputeGraph &pGraph)
-{
-  auto *op = new BM188X::TLStore(pNode);
-  auto is_neuron = pNode.i(xSymbol("is_neuron"));
-  MemType mem_type;
-  if (is_neuron) {
-    mem_type = MemType::NEURON;
-  } else {
-    mem_type = MemType::WEIGHT;
-  }
-  // FIXME(arcbbb): It's a workaround.
-  // not to violate SSA, we add output value as input.
-  auto *output_memop = m_pBackend->getMemOperand(pNode.inputs()[0], mem_type);
-  op->addMemOperands(output_memop);
-  return op;
-}
-
-ComputeOperator2 *BM188xISelLowering::LowerTLRelu(const xNode &pNode,
-                                                  ComputeGraph &pGraph)
-{
-  auto *op = new BM188X::TLRelu(pNode);
-  auto *input_memop =
-      m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  auto *output_memop =
-      m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  op->addMemOperands(input_memop, output_memop);
-
-  return op;
-}
 
 ComputeOperator2 *BM188xISelLowering::LowerRelu(const xNode &pNode,
                                                 ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
-    auto is_sliced = pNode.i(xSymbol("is_sliced"));
-    if (is_sliced)
-      return LowerTLRelu(pNode, pGraph);
-  }
-
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGRelu(pNode);
@@ -176,23 +95,9 @@ ComputeOperator2 *BM188xISelLowering::LowerLeakyRelu(const xNode &pNode,
   return op->addMemOperands(input, output);
 }
 
-ComputeOperator2 *BM188xISelLowering::LowerTLPool(const xNode &pNode,
-                                                  ComputeGraph &pGraph)
-{
-  auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
-  auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
-  auto *op = new BM188X::TLPool(pNode);
-  return op->addMemOperands(input, output);
-}
-
 ComputeOperator2 *BM188xISelLowering::LowerMaxPool(const xNode &pNode,
                                                    ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
-    auto is_sliced = pNode.i(xSymbol("is_sliced"));
-    if (is_sliced)
-      return LowerTLPool(pNode, pGraph);
-  }
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGMaxPool(pNode);
@@ -203,11 +108,6 @@ ComputeOperator2 *
 BM188xISelLowering::LowerAveragePool(const xNode &pNode,
                                      ComputeGraph &pGraph)
 {
-  if (pNode.hasAttribute(xSymbol("is_sliced"))) {
-    auto is_sliced = pNode.i(xSymbol("is_sliced"));
-    if (is_sliced)
-      return LowerTLPool(pNode, pGraph);
-  }
   auto *input = m_pBackend->getMemOperand(pNode.inputs()[0], MemType::NEURON);
   auto *output = m_pBackend->getMemOperand(pNode.outputs()[0], MemType::NEURON);
   auto *op = new BM188X::TGAveragePool(pNode);
@@ -387,10 +287,6 @@ ComputeOperator2 *BM188xISelLowering::LowerOperation(const xNode &pNode,
     return LowerUpsample(pNode, pGraph);
   } else if (symbol == xSymbol("Transpose")) {
     return LowerTranspose(pNode, pGraph);
-  } else if (symbol == xSymbol("TLLoad")) {
-    return LowerTLLoad(pNode, pGraph);
-  } else if (symbol == xSymbol("TLStore")) {
-    return LowerTLStore(pNode, pGraph);
   } else if (symbol == xSymbol("LRN")) {
     return LowerLRN(pNode, pGraph);
   } else if (symbol == xSymbol("TGScale")) {

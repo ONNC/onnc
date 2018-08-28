@@ -22,15 +22,10 @@ add_libonnc_src(
     UpdateCtablePass.cpp
     UpdateVisitor.cpp
     ONNXDumpOptPass.cpp
-    TLLoad.cpp
-    TLStore.cpp
-    TLRelu.cpp
     TGConv.cpp
-    TLConv.cpp
     TGGemm.cpp
     TGLRN.cpp
     TGMaxPool.cpp
-    TLPool.cpp
     TGAveragePool.cpp
     TGGlobalAveragePool.cpp
     TGRelu.cpp

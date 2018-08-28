@@ -10,6 +10,7 @@
 // See LICENSE.TXT for details.
 //
 //===---------------------------------------------------------------------===//
+// legacy code
 #include "TLRelu.h"
 #include "BM188xCodeEmitter.h"
 #include <onnc/Support/Debug.h>

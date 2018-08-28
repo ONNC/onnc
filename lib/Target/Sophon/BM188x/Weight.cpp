@@ -64,25 +64,10 @@ void BM188X::Weight::prepareWeight(TGBackend::Instructions& pInstructions,
 
   // TODO save the weight on the address of MemOperand
   for (auto &inst : pInstructions) {
-    if (inst->getTypeName() == "TLLoad") {
-      continue;
-    }
-
-    if (inst->getTypeName() == "TLStore") {
-      continue;
-    }
-
     // handle special case
     if (inst->getTypeName() == "Conv") {
       auto *tgconv = dynamic_cast< ::onnc::BM188X::TGConv *>(inst.get());
       prepareWeight(*tgconv);
-      continue;
-    }
-
-    if (inst->getTypeName() == "TLConv") {
-      std::vector<DataType> weight;
-      auto *tlconv = dynamic_cast< ::onnc::BM188X::TLConv *>(inst.get());
-      prepareWeight(*tlconv);
       continue;
     }
 
@@ -166,43 +151,6 @@ void Weight::prepareWeight(const TGConv& pTGConv)
             onnc::getTensor(mem_op->m_Value->uniqueName(),
                             *mem_op->m_Value->owningGraph());
     Weight::append16bit(weight, tensor.raw());
-  }
-
-  // update weight
-  m_Weight.insert(m_Weight.end(), weight.begin(), weight.end());
-}
-
-void Weight::prepareWeight(const TLConv& pTLConv)
-{
-  Weight::WeightType weight;
-  if (!isWritten(pTLConv.getMemOperand(1))) {
-    setWritten(pTLConv.getMemOperand(1));
-    const xValue *value = pTLConv.getMemOperand(1)->m_Value;
-    const xTensor &tensor =
-        onnc::getTensor(value->uniqueName(), *value->owningGraph());
-    assert(pTLConv.getMemOperand(1)->m_Type == (xTensorProtoDataType)xValueType::kInt8);
-    assert(tensor.is_raw_data());
-    const std::string &raw = tensor.raw();
-    size_t count = onnc::getTotalCount(tensor.sizes());
-    weight.resize(count);
-
-    // conv weight is arranged by (1, oc, kh*kw, ic)
-    // convert (oc, ic, kh, kw) to (1, oc, kh*kw, ic)
-    int ks = pTLConv.getKH() * pTLConv.getKW();
-    int ic = pTLConv.getInC() / pTLConv.getGroups();
-    int oc = pTLConv.getOutC();
-    Convert(weight, raw, ks, ic, oc);
-  }
-
-  if (pTLConv.getDoBias() == 1) {
-    auto *mem_op = pTLConv.getMemOperand(pTLConv.getBiasIdx());
-    if (!isWritten(pTLConv.getMemOperand(pTLConv.getBiasIdx()))) {
-      setWritten(pTLConv.getMemOperand(pTLConv.getBiasIdx()));
-      const xTensor &tensor =
-            onnc::getTensor(mem_op->m_Value->uniqueName(),
-                            *mem_op->m_Value->owningGraph());
-      Weight::append16bit(weight, tensor.raw());
-    }
   }
 
   // update weight

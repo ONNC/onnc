@@ -10,7 +10,6 @@
 #include "ComputeOperator2.h"
 #include "../TGBackend.h"
 #include "TGConv.h"
-#include "TLConv.h"
 #include <onnc/Support/DataTypes.h>
 #include <vector>
 #include <string>
@@ -41,9 +40,7 @@ private:
 
   void setWritten(const MemOperand* pOpnd);
 
-  void prepareWeight(const TLConv& pTLConv);
-
-  void prepareWeight(const TGConv& pTGConv);
+  void prepareWeight(const TGConv &pTGConv);
 
 private:
   /// remember the written TLConv's memory operands to prevent from

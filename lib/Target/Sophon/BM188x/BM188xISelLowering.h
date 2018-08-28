@@ -35,11 +35,9 @@ public:
 
 private:
   ComputeOperator2 *LowerConv(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLConv(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerRelu(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerPRelu(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerLeakyRelu(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLPool(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerMaxPool(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerAveragePool(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerGlobalAveragePool(const xNode &pNode,
@@ -53,9 +51,6 @@ private:
   ComputeOperator2 *LowerConcat(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerTranspose(const xNode &pNode, ComputeGraph &pGraph);
   ComputeOperator2 *LowerTGScale(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLLoad(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLStore(const xNode &pNode, ComputeGraph &pGraph);
-  ComputeOperator2 *LowerTLRelu(const xNode &pNode, ComputeGraph &pGraph);
 
 private:
   BM1880Backend *m_p1880backend; // NOLINT
