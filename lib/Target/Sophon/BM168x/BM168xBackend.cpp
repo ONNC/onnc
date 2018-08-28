@@ -11,9 +11,7 @@
 //
 //===---------------------------------------------------------------------===//
 #include "BM168xBackend.h"
-#include "BM168xCodeEmitter.h"
 #include "BM168xFuseOptimizer.h"
-#include "BM168xISelLowering.h"
 #ifdef BMONNC_EXIST
 #include <bmnetc/bmnetc.h>
 #endif
@@ -23,9 +21,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // BM1680
 //===----------------------------------------------------------------------===//
-BM1680Backend::BM1680Backend(Instructions& pIns, const TargetOptions &pOptions)
-    : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
-                pIns, pOptions)
+BM1680Backend::BM1680Backend(Instructions &pIns, const TargetOptions &pOptions)
+    : TGBackend(nullptr, nullptr, pIns, pOptions)
 {
 }
 
@@ -53,9 +50,8 @@ std::unique_ptr<TGFuseOptimizer> BM1680Backend::getFuseOptimizr()
 //===----------------------------------------------------------------------===//
 // BM1682
 //===----------------------------------------------------------------------===//
-BM1682Backend::BM1682Backend(Instructions& pIns, const TargetOptions &pOptions)
-    : TGBackend(new BM168xTargetLowering(this), new BM168xCodeEmitter(this),
-                pIns, pOptions)
+BM1682Backend::BM1682Backend(Instructions &pIns, const TargetOptions &pOptions)
+    : TGBackend(nullptr, nullptr, pIns, pOptions)
 {
 }
 
