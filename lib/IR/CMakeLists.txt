@@ -15,39 +15,126 @@ add_libonnc_src(
     ONNXUtils.cpp
     IRBuilder.cpp
     Quadruple.cpp
-    Compute/Value.cpp
-    Compute/Scalar.cpp
-    Compute/Tensor.cpp
-    Compute/Use.cpp
     Compute/ATen.cpp
     Compute/Abs.cpp
     Compute/Acos.cpp
     Compute/Add.cpp
-    Compute/And.cpp
     Compute/Affine.cpp
+    Compute/And.cpp
+    Compute/ArgMax.cpp
+    Compute/ArgMin.cpp
+    Compute/Asin.cpp
+    Compute/Atan.cpp
     Compute/AveragePool.cpp
     Compute/BatchNormalization.cpp
+    Compute/Cast.cpp
+    Compute/Ceil.cpp
+    Compute/Clip.cpp
     Compute/Concat.cpp
-    Compute/Gemm.cpp
-    Compute/GlobalAveragePool.cpp
+    #Compute/Constant.cpp
+    Compute/ConstantFill.cpp
     Compute/Conv.cpp
+    Compute/ConvTranspose.cpp
+    Compute/Cos.cpp
+    Compute/Crop.cpp
+    Compute/DepthToSpace.cpp
+    Compute/Div.cpp
+    Compute/Dropout.cpp
+    Compute/Elu.cpp
+    Compute/Equal.cpp
+    Compute/Exp.cpp
+    Compute/Flatten.cpp
+    Compute/Floor.cpp
+    Compute/GRU.cpp
+    Compute/GRUUnit.cpp
+    Compute/Gather.cpp
+    Compute/Gemm.cpp
+    Compute/GivenTensorFill.cpp
+    Compute/GlobalAveragePool.cpp
+    Compute/GlobalLpPool.cpp
+    Compute/GlobalMaxPool.cpp
+    Compute/Greater.cpp
+    Compute/HardSigmoid.cpp
+    Compute/Hardmax.cpp
+    Compute/Identity.cpp
+    #Compute/If.cpp
+    Compute/ImageScaler.cpp
+    Compute/Initializer.cpp
     Compute/InputOperator.cpp
+    Compute/InstanceNormalization.cpp
+    Compute/LRN.cpp
+    Compute/LSTM.cpp
+    Compute/LeakyRelu.cpp
+    Compute/Less.cpp
+    Compute/Log.cpp
+    Compute/LogSoftmax.cpp
+    #Compute/Loop.cpp
+    Compute/LoopIndexTensor.cpp
+    Compute/LpNormalization.cpp
+    Compute/LpPool.cpp
+    Compute/MatMul.cpp
+    Compute/Max.cpp
     Compute/MaxPool.cpp
+    Compute/MaxRoiPool.cpp
+    Compute/Mean.cpp
+    Compute/MeanVarianceNormalization.cpp
+    Compute/Min.cpp
     Compute/Mul.cpp
+    Compute/Multinomial.cpp
+    Compute/Neg.cpp
+    Compute/Not.cpp
+    Compute/Or.cpp
     Compute/OutputOperator.cpp
+    Compute/PRelu.cpp
+    Compute/Pad.cpp
+    Compute/ParametricSoftplus.cpp
+    Compute/Pow.cpp
+    Compute/RNN.cpp
+    Compute/RandomNormal.cpp
+    Compute/RandomNormalLike.cpp
+    Compute/RandomUniform.cpp
+    Compute/RandomUniformLike.cpp
+    Compute/Reciprocal.cpp
+    Compute/ReduceL1.cpp
+    Compute/ReduceL2.cpp
+    Compute/ReduceLogSum.cpp
+    Compute/ReduceLogSumExp.cpp
+    Compute/ReduceMax.cpp
+    Compute/ReduceMean.cpp
+    Compute/ReduceMin.cpp
+    Compute/ReduceProd.cpp
+    Compute/ReduceSum.cpp
+    Compute/ReduceSumSquare.cpp
     Compute/Relu.cpp
     Compute/Reshape.cpp
-    Compute/Flatten.cpp
-    Compute/LRN.cpp
-    Compute/LeakyRelu.cpp
-    Compute/PRelu.cpp
+    Compute/Scalar.cpp
+    Compute/Scale.cpp
+    Compute/ScaledTanh.cpp
+    Compute/Selu.cpp
+    Compute/Shape.cpp
+    Compute/Sigmoid.cpp
+    Compute/Sin.cpp
+    Compute/Size.cpp
     Compute/Slice.cpp
     Compute/Softmax.cpp
-    Compute/Sum.cpp
-    Compute/Transpose.cpp
-    Compute/Upsample.cpp
-    Compute/Xor.cpp
-    Compute/Initializer.cpp
-    Compute/Scale.cpp
+    Compute/Softplus.cpp
+    Compute/Softsign.cpp
+    Compute/SpaceToDepth.cpp
     Compute/Split.cpp
+    Compute/Sqrt.cpp
+    Compute/Squeeze.cpp
+    Compute/Sub.cpp
+    Compute/Sum.cpp
+    Compute/Tan.cpp
+    Compute/Tanh.cpp
+    Compute/Tensor.cpp
+    Compute/ThresholdedRelu.cpp
+    Compute/Tile.cpp
+    Compute/TopK.cpp
+    Compute/Transpose.cpp
+    Compute/Unsqueeze.cpp
+    Compute/Upsample.cpp
+    Compute/Use.cpp
+    Compute/Value.cpp
+    Compute/Xor.cpp
     Tensor/InitializerProxy.cpp)
