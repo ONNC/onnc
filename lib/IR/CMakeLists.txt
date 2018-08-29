@@ -33,6 +33,7 @@ add_libonnc_src(
     Compute/Conv.cpp
     Compute/InputOperator.cpp
     Compute/MaxPool.cpp
+    Compute/Mul.cpp
     Compute/OutputOperator.cpp
     Compute/Relu.cpp
     Compute/Reshape.cpp
@@ -40,6 +41,7 @@ add_libonnc_src(
     Compute/LRN.cpp
     Compute/LeakyRelu.cpp
     Compute/PRelu.cpp
+    Compute/Slice.cpp
     Compute/Softmax.cpp
     Compute/Sum.cpp
     Compute/Transpose.cpp
