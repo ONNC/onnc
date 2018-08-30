@@ -23,7 +23,8 @@ public:
   static char ID;
 
 public:
-  BM188xEncodeInsts(BM188X::CodeEmitVisitor *pInstVisitor,
+  BM188xEncodeInsts(BM1880Backend *pBackend,
+                    BM188X::CodeEmitVisitor *pInstVisitor,
                     const std::string &pFilename);
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
@@ -32,13 +33,15 @@ protected:
   void beforeEmit(const ::onnc::ComputeOperator *pOp) override;
 
 private:
+  BM1880Backend *m_pBackend;
   const std::string m_FileName;
 };
 
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-ModulePass *CreateEncodeInstsPass(BM188X::CodeEmitVisitor *pVisitor,
+ModulePass *CreateEncodeInstsPass(BM1880Backend *pBackend,
+                                  BM188X::CodeEmitVisitor *pVisitor,
                                   const std::string &pOutFile);
 
 } // namespace BM188X

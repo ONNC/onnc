@@ -16,6 +16,7 @@
 #include <memory>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Config/ONNX.h>
+#include <ostream>
 #include <string>
 
 namespace onnc {
@@ -64,8 +65,11 @@ public:
   {
     return m_NetCtableParam;
   }
+  std::shared_ptr<std::ostream> get_OSAsm();
+  void set_OSAsm(std::shared_ptr<std::ostream> pOS);
 
 private:
+  std::shared_ptr<std::ostream> m_OSAsm;
   tg::bm1880::NetCalibrationParameter m_NetCtableParam;
   TargetTransformInfo *m_pTTI; // NOLINT
 };
