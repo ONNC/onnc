@@ -1,2 +1,28 @@
-language: c++
-sudo: enabled
+language: cpp
+os:
+  - linux
+
+sudo: required
+dist: trusty
+notifications: 
+  email: false
+
+git:
+  submodules: false
+  depth: 1
+
+services: 
+  - docker
+
+matrix:
+  include:
+    - os: linux
+      before_install: 
+        - "sudo docker pull onnc/ubuntu-18.04"
+        - "sudo docker create --privileged=true -t --name container --volume ${TRAVIS_BUILD_DIR}:/root onnc/ubuntu-18.04"
+        - "sudo docker start container"
+
+      script: 
+        - sudo docker exec -t container /bin/bash -c "mkdir ~/build"
+        - sudo docker exec -t container /bin/bash -c "cd ~/build && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install .."
+        - sudo docker exec -t container /bin/bash -c "cd ~/build && make -j12 install"
