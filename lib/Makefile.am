@@ -31,6 +31,7 @@ ONNC_SOURCES = \
 	IR/Compute/BatchNormalization.cpp \
 	IR/Compute/Conv.cpp \
 	IR/Compute/Concat.cpp \
+	IR/Compute/Flatten.cpp \
 	IR/Compute/Gemm.cpp \
 	IR/Compute/GlobalAveragePool.cpp \
 	IR/Compute/LRN.cpp \
@@ -79,6 +80,7 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/ReshapeLower.cpp \
 	Transforms/TensorSel/UpsampleLower.cpp \
 	Transforms/TensorSel/SplitLower.cpp \
+	Transforms/TensorSel/FlattenLower.cpp \
 	Transforms/TensorSel/XorLower.cpp \
 	Core/PassRegistry.cpp \
 	Core/PassManager.cpp \
