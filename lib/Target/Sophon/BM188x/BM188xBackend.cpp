@@ -118,7 +118,7 @@ void BM1880Backend::addCodeEmit(PassManager &pPM, const Path &pOutputFile)
   static BM188X::CodeEmitVisitor ceVisitor(this);
   pPM.add(BM188X::CreateGenRuntimeInfoPass(this, pOutputFile));
   pPM.add(BM188X::CreateGenWeightPass(this, pOutputFile));
-  pPM.add(BM188X::CreateEncodeInstsPass(&ceVisitor, pOutputFile.native()));
+  pPM.add(BM188X::CreateEncodeInstsPass(this, &ceVisitor, pOutputFile.native()));
 }
 
 bool BM1880Backend::isNativeTensorType(xTensorProtoDataType pType)
@@ -194,4 +194,10 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::TransposeLower>();
   pRegistry.emplace<BM188X::UpsampleLower>();
+}
+
+std::shared_ptr<std::ostream> BM1880Backend::get_OSAsm() { return m_OSAsm; }
+void BM1880Backend::set_OSAsm(std::shared_ptr<std::ostream> pOS)
+{
+  m_OSAsm = pOS;
 }

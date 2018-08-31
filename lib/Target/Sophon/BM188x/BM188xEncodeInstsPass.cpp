@@ -22,23 +22,30 @@ using namespace onnc::BM188X;
 
 char BM188xEncodeInsts::ID = 0;
 
-BM188xEncodeInsts::BM188xEncodeInsts(BM188X::CodeEmitVisitor *pInstVisitor,
+BM188xEncodeInsts::BM188xEncodeInsts(BM1880Backend *pBackend,
+                                     BM188X::CodeEmitVisitor *pInstVisitor,
                                      const std::string &pFilename)
-    : EncodeInstructions(pInstVisitor, ID), m_FileName(pFilename)
+    : EncodeInstructions(pInstVisitor, ID), m_pBackend(pBackend),
+      m_FileName(pFilename)
 {
 }
 
 Pass::ReturnType BM188xEncodeInsts::runOnModule(::onnc::Module &pModule)
 {
-  OFStream ofs;
-  std::ostream *os;
-  if (m_FileName == "-") {
-    os = &onnc::outs();
-  } else {
-    ofs.open(m_FileName + ".s", std::ios::out);
-    os = &ofs;
+  if (m_pBackend->get_OSAsm())
+    ::bmnet::bmnet_asm::asm_context::get_context().set_fp(
+        *m_pBackend->get_OSAsm());
+  else {
+    OFStream ofs;
+    std::ostream *os;
+    if (m_FileName == "-") {
+      os = &onnc::outs();
+    } else {
+      ofs.open(m_FileName + ".s", std::ios::out);
+      os = &ofs;
+    }
+    ::bmnet::bmnet_asm::asm_context::get_context().set_fp(*os);
   }
-  ::bmnet::bmnet_asm::asm_context::get_context().set_fp(*os);
   return EncodeInstructions::runOnModule(pModule);
 }
 
@@ -55,8 +62,9 @@ void BM188xEncodeInsts::beforeEmit(const ::onnc::ComputeOperator *pOp)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-ModulePass *BM188X::CreateEncodeInstsPass(BM188X::CodeEmitVisitor *pVisitor,
+ModulePass *BM188X::CreateEncodeInstsPass(BM1880Backend *pBackend,
+                                          BM188X::CodeEmitVisitor *pVisitor,
                                           const std::string &pOutFile)
 {
-  return new BM188xEncodeInsts(pVisitor, pOutFile);
+  return new BM188xEncodeInsts(pBackend, pVisitor, pOutFile);
 }
