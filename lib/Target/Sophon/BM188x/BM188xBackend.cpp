@@ -50,7 +50,10 @@
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
+#include <onnc/Transforms/TensorSel/Standards/AddLower.h>
+#include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
+#include <onnc/Transforms/TensorSel/Standards/MulLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SplitLower.h>
@@ -173,23 +176,26 @@ std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
 
 void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
 {
+  pRegistry.emplace<onnc::AddLower>();
   pRegistry.emplace<BM188X::AveragePoolLower>();
+  pRegistry.emplace<onnc::BatchNormalizationLower>();
+  pRegistry.emplace<BM188X::BMScaleLower>();
   pRegistry.emplace<BM188X::ConcatLower>();
   pRegistry.emplace<BM188X::ConvLower>();
+  pRegistry.emplace<onnc::FlattenLower>();
   pRegistry.emplace<BM188X::GemmLower>();
   pRegistry.emplace<BM188X::GlobalAveragePoolLower>();
   pRegistry.emplace<BM188X::LRNLower>();
   pRegistry.emplace<BM188X::LeakyReluLower>();
   pRegistry.emplace<BM188X::LoadLower>();
   pRegistry.emplace<BM188X::MaxPoolLower>();
+  pRegistry.emplace<onnc::MulLower>();
   pRegistry.emplace<BM188X::PReluLower>();
   pRegistry.emplace<BM188X::PoolLower>();
   pRegistry.emplace<BM188X::ReluLower>();
   pRegistry.emplace<onnc::ReshapeLower>();
-  pRegistry.emplace<BM188X::BMScaleLower>();
   pRegistry.emplace<onnc::SoftmaxLower>();
   pRegistry.emplace<onnc::SplitLower>();
-  pRegistry.emplace<onnc::FlattenLower>();
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::TransposeLower>();
