@@ -82,6 +82,7 @@ ModulePass *createUpdateCtablePass(BM1880Backend *pBackend);
 ModulePass *CreateNewQuantizePass(BM1880Backend *pBackend);
 ModulePass *createAddDummyWeightPass();
 ModulePass *createONNXDumpOptPass(BM1880Backend *pBackend);
+ModulePass *createONNXDumpQuantizedPass(BM1880Backend *pBackend);
 
 } // namespace onnc
 

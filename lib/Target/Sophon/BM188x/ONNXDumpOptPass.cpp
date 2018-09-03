@@ -61,6 +61,11 @@ ModulePass *onnc::createONNXDumpOptPass(BM1880Backend *pBackend)
   return new ONNXDumpOpt(pBackend);
 }
 
+ModulePass *onnc::createONNXDumpQuantizedPass(BM1880Backend *pBackend)
+{
+  return new ONNXDumpQuantized(pBackend);
+}
+
 static void ExportONNX(const std::string &outputFileName, const Module &pModule)
 {
   xProto modelProto;
