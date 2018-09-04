@@ -5,31 +5,55 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Analysis/LiveInterval.h>
+#include <onnc/CodeGen/LiveInterval.h>
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// ValueIndex
+// LiveRange
 //===----------------------------------------------------------------------===//
-ValueIndex::ValueIndex(onnc::Value& pValue)
-  : m_pValue(&pValue) {
+LiveRange::LiveRange()
+  : m_Segments() {
+}
+
+void LiveRange::addSegment(const Segment &pNewSeg)
+{
+  for (auto& seg : m_Segments)
+    assert(seg.overlap(pNewSeg) && "Can't add overlapped segment.");
+
+  m_Segments.push_back(pNewSeg);
+}
+
+SlotIndex LiveRange::beginIndex() const
+{
+  return m_Segments.front().m_Start;
+}
+
+SlotIndex LiveRange::endIndex() const
+{
+  return m_Segments.back().m_End;
 }
 
 //===----------------------------------------------------------------------===//
-// TimeSlot
+// Segment
 //===----------------------------------------------------------------------===//
-TimeSlot::TimeSlot(ComputeOperator& pOp, unsigned int pIdx)
-  : m_Idx(pIdx), m_pOperator(&pOp) {
+bool LiveRange::Segment::overlap(const Segment& pOther) const
+{
+  if (m_Start > pOther.m_End || m_End < pOther.m_Start)
+    return false;
+  return true;
 }
 
 //===----------------------------------------------------------------------===//
-// SlotIndex
+// LiveInterval
 //===----------------------------------------------------------------------===//
-SlotIndex::SlotIndex()
-  : m_pTimeSlot(nullptr) {
+void LiveInterval::print(std::ostream& pOS) const
+{
+  pOS << m_pValue->getName() << ":";
+  for (auto& seg : m_Segments)
+    pOS << " [" << seg.m_Start.getIndex()
+        << ", " << seg.m_End.getIndex() << "]";
+  pOS << "\n";
 }
 
-SlotIndex::SlotIndex(TimeSlot* pSlot)
-  : m_pTimeSlot(pSlot) {
-}
+void LiveInterval::dump() const { print(errs()); }

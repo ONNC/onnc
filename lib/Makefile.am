@@ -96,6 +96,9 @@ ONNC_SOURCES = \
 	Analysis/NodeIRScheduler.cpp \
 	Analysis/SplitNode.cpp \
 	Analysis/UpdateGraphOutputSize.cpp \
+	CodeGen/LiveInterval.cpp \
+	CodeGen/LiveIntervals.cpp \
+	CodeGen/SlotIndexes.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \

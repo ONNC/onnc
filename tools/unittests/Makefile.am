@@ -13,6 +13,7 @@ TEST_SOURCES = DigraphTest.cpp \
 	JsonObjectTest.cpp \
 	ComputeIRTest.cpp \
 	TensorSelTest.cpp \
+	MemAllocTest.cpp \
 	ONNXReaderTest.cpp
 endif
 
