@@ -8,6 +8,7 @@
 #ifndef ONNC_IR_COMPUTE_DEFINE_H
 #define ONNC_IR_COMPUTE_DEFINE_H
 #include <onnc/ADT/StringRef.h>
+#include <onnc/JSON/Value.h>
 
 namespace onnc {
 
@@ -27,6 +28,7 @@ public:
 
   /// print the operator
   virtual void print(std::ostream& pOS) const = 0;
+  virtual void print(json::Value& pJSON) const = 0;
 
 private:
   StringRef m_Name;
