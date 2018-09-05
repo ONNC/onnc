@@ -23,6 +23,9 @@ matrix:
         - "sudo docker start container"
 
       script: 
-        - sudo docker exec -t container /bin/bash -c "mkdir ~/build"
-        - sudo docker exec -t container /bin/bash -c "cd ~/build && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install .."
-        - sudo docker exec -t container /bin/bash -c "cd ~/build && make -j12 install"
+        - sudo docker exec -t container /bin/bash -c "mkdir ~/build-cmake"
+        - sudo docker exec -t container /bin/bash -c "cd ~/build-cmake && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install-cmake .."
+        - sudo docker exec -t container /bin/bash -c "cd ~/build-cmake && make -j8 install"
+        - sudo docker exec -t container /bin/bash -c "mkdir ~/build-automake"
+        - sudo docker exec -t container /bin/bash -c "~/autogen.sh"
+        - sudo docker exec -t container /bin/bash -c "cd ~/build-automake && ../configure --with-llvm=/usr/local --with-skypat=/usr/local --with-onnx=/usr/local --enable-unittest && make -j8 install"
