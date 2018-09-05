@@ -101,6 +101,7 @@ public:
 
   /// display the operator
   void print(std::ostream& pOS) const = 0;
+  void print(json::Value& pJSON) const;
 
   /// redirect the printing to stderr
   void dump() const { return print(errs()); }
