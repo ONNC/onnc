@@ -233,6 +233,25 @@ const Module::ValueList& Module::getValueList() const
   return m_Values;
 }
 
+void Module::printComputeGraph(json::Object& pJSON) const
+{
+
+  if (m_ComputeGraphs.empty()){
+    errs() << "[from JSON] m_ComputeGraphs is empty" << std:: endl;
+    return;
+  }
+
+  // traverse all ComputeGraph
+  json::Value a_value;
+  const_cg_iterator cgIter = cgBegin();
+  for (cgIter; cgIter != cgEnd(); ++cgIter){
+    cgIter->value()->print(a_value); 
+  }
+
+  IndentOStream oss(onnc::errs());
+  pJSON.print(oss);
+}
+
 void Module::print(std::ostream& pOS) const
 {
   if (!hasGraphIR()) {
