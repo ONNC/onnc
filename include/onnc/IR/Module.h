@@ -11,6 +11,7 @@
 #include <onnc/IR/Compute/Define.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/ADT/StringMap.h>
+#include <onnc/JSON/Object.h>
 #include <onnc/Config/ONNX.h>
 #include <vector>
 #include <ostream>
@@ -208,6 +209,7 @@ public:
 
   // print the whole module to @ref pOS.
   void print(std::ostream& pOS) const;
+  void printComputeGraph(json::Object& pJSON) const;
 
   template<typename PART>
   void print(std::ostream& pOS) const { assert(false && "no part to print!"); }
