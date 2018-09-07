@@ -44,16 +44,9 @@ const LiveInterval* LiveIntervals::getInterval(const Value* pV) const
   return m_ValIntrvls.find(const_cast<Value*>(pV))->second;
 }
 
-void LiveIntervals::print(std::ostream& pOS) const
+const LiveIntervals::LIs LiveIntervals::getSortedIntervals() const
 {
-  pOS << "=== Live Intervals ===\n";
-  if (m_ValIntrvls.empty()) {
-    pOS << "Empty.\n";
-    return;
-  }
-
-  std::stringstream dbgstr;
-  std::vector<LiveInterval*> liveIntrvls;
+  LIs liveIntrvls;
   liveIntrvls.reserve(m_ValIntrvls.size());
 
   for (auto liIter : m_ValIntrvls)
@@ -64,8 +57,19 @@ void LiveIntervals::print(std::ostream& pOS) const
             [] (const LiveInterval* a, const LiveInterval* b) {
               return a->beginIndex() < b->beginIndex();
             });
+  return liveIntrvls;
+}
 
-  for (const LiveInterval* li : liveIntrvls)
+void LiveIntervals::print(std::ostream& pOS) const
+{
+  pOS << "=== Live Intervals ===\n";
+  if (m_ValIntrvls.empty()) {
+    pOS << "Empty.\n";
+    return;
+  }
+
+  std::stringstream dbgstr;
+  for (const LiveInterval* li : getSortedIntervals())
     li->print(dbgstr);
 
   pOS << dbgstr.str();

@@ -26,6 +26,8 @@ public:
 
   typedef std::unordered_map<Value*, LiveInterval*> ValueIntervalMap;
 
+  typedef std::vector<LiveInterval*> LIs;
+
 public:
   LiveIntervals()
     : ModulePass(LiveIntervals::ID), m_ValIntrvls(), m_SlotIndexes(nullptr) {
@@ -45,6 +47,13 @@ public:
   bool hasInterval(const Value* pV) const;
 
   const LiveInterval* getInterval(const Value* pV) const;
+
+  /// Get internal data structure.
+  ValueIntervalMap& getAllIntervals() { return m_ValIntrvls; }
+
+  /// Get all live intervals and sort them by start slot index in increasing
+  /// order.
+  const LIs getSortedIntervals() const;
 
   void print(std::ostream& pOS) const;
 
