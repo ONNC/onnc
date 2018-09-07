@@ -50,21 +50,27 @@ public:
     kComplex128 = xValueType::kComplex128
   };
 
+  static constexpr unsigned InvalidDefNo = UINT_MAX;
+
 public:
   Value()
-    : m_Name(), m_Kind(kUndefined), m_pAdaptee(nullptr) {
+    : m_pDefine(nullptr), m_DefineNo(InvalidDefNo), m_Name(),
+      m_Kind(kUndefined), m_pAdaptee(nullptr) {
   }
 
   Value(Type pKind)
-    : m_Name(), m_Kind(pKind), m_pAdaptee(nullptr) {
+    : m_pDefine(nullptr), m_DefineNo(InvalidDefNo), m_Name(),
+      m_Kind(pKind), m_pAdaptee(nullptr) {
   }
 
   Value(const std::string& pName, Type pKind)
-    : m_Name(pName), m_Kind(pKind), m_pAdaptee(nullptr) {
+    : m_pDefine(nullptr), m_DefineNo(InvalidDefNo), m_Name(pName),
+      m_Kind(pKind), m_pAdaptee(nullptr) {
   }
 
   Value(Type pKind, xTensor& pAdaptee)
-    : m_Name(pAdaptee.name()), m_Kind(pKind), m_pAdaptee(&pAdaptee) {
+    : m_pDefine(nullptr), m_DefineNo(InvalidDefNo), m_Name(pAdaptee.name()),
+      m_Kind(pKind), m_pAdaptee(&pAdaptee) {
   }
 
   virtual ~Value() { }
@@ -73,7 +79,22 @@ public:
 
   Type kind() const { return m_Kind; }
 
-  onnc::Define* getDefine() { return m_pDefine; }
+  /// Note: this method should only be used by ComputeOperator.
+  void setDefine(Define* pDef, unsigned pDefNo)
+  {
+    assert(m_pDefine == nullptr &&
+           "Value has been defined by other.");
+    m_pDefine = pDef;
+    m_DefineNo = pDefNo;
+  }
+
+  void clearDefine()
+  {
+    m_pDefine = nullptr;
+    m_DefineNo = InvalidDefNo;
+  }
+
+  onnc::Define* getDefine() const { return m_pDefine; }
 
   unsigned int getDefineNo() { return m_DefineNo; }
 

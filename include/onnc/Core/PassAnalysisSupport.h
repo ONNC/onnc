@@ -8,7 +8,8 @@
 #ifndef ONNC_CORE_PASS_ANALYSIS_SUPPORT_H
 #define ONNC_CORE_PASS_ANALYSIS_SUPPORT_H
 #include <onnc/Core/Pass.h>
-
+#include <onnc/Core/AnalysisResolver.h>
+#include <onnc/Core/AnalysisUsage.h>
 
 //===----------------------------------------------------------------------===//
 // Implementation of Pass's template member functions
