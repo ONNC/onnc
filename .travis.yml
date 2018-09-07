@@ -1,2 +1,31 @@
-language: c++
-sudo: enabled
+language: cpp
+os:
+  - linux
+
+sudo: required
+dist: trusty
+notifications: 
+  email: false
+
+git:
+  submodules: false
+  depth: 1
+
+services: 
+  - docker
+
+matrix:
+  include:
+    - os: linux
+      before_install: 
+        - "sudo docker pull onnc/ubuntu-18.04"
+        - "sudo docker create --privileged=true -t --name container --volume ${TRAVIS_BUILD_DIR}:/root onnc/ubuntu-18.04"
+        - "sudo docker start container"
+
+      script: 
+        - sudo docker exec -t container /bin/bash -c "mkdir ~/build-cmake"
+        - sudo docker exec -t container /bin/bash -c "cd ~/build-cmake && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install-cmake .."
+        - sudo docker exec -t container /bin/bash -c "cd ~/build-cmake && make -j8 install"
+        - sudo docker exec -t container /bin/bash -c "mkdir ~/build-automake"
+        - sudo docker exec -t container /bin/bash -c "~/autogen.sh"
+        - sudo docker exec -t container /bin/bash -c "cd ~/build-automake && ../configure --with-llvm=/usr/local --with-skypat=/usr/local --with-onnx=/usr/local --enable-unittest && make -j8 install"
