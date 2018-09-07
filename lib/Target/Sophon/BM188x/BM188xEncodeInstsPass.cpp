@@ -36,13 +36,14 @@ Pass::ReturnType BM188xEncodeInsts::runOnModule(::onnc::Module &pModule)
     ::bmnet::bmnet_asm::asm_context::get_context().set_fp(
         *m_pBackend->get_OSAsm());
   else {
-    OFStream ofs;
     std::ostream *os;
     if (m_FileName == "-") {
       os = &onnc::outs();
     } else {
-      ofs.open(m_FileName + ".s", std::ios::out);
-      os = &ofs;
+      auto ofs = std::make_shared<OFStream>();
+      ofs->open(m_FileName + ".s");
+      m_pBackend->set_OSAsm(ofs);
+      os = ofs.get();
     }
     ::bmnet::bmnet_asm::asm_context::get_context().set_fp(*os);
   }
