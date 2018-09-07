@@ -41,6 +41,7 @@ Here is a list of verified versions:
 ## Download and build ONNC.
 The simplest way to download and build ONNC is follow the
 [instructions of README.md](https://github.com/ONNC/onnc-umbrella) in **onnc-umbrella**.
+[Here](https://github.com/ONNC/onnc-umbrella/tree/master/external) is the version of external library we are using in ONNC. 
 
 ## Basic Installation
 Here is general installation instructions.
