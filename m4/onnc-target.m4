@@ -15,14 +15,14 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_ARG_ENABLE([targets],
     [AS_HELP_STRING([--enable-targets],
               [Build specific host targets: all or target1,target2,... Valid targets are:
-       host, vanilla, sophon, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
+       host, vanilla, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
        arm64, mips, spu, hexagon, xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
     [],
     [enableval=all])
 
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
-    all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX Sophon TG"
+    all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX"
         ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
@@ -61,10 +61,6 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
     cpp)      TARGETS_TO_BUILD="CppBackend $TARGETS_TO_BUILD" ;;
     mblaze)   TARGETS_TO_BUILD="MBlaze $TARGETS_TO_BUILD" ;;
     ptx)      TARGETS_TO_BUILD="PTX $TARGETS_TO_BUILD" ;;
-    sophon)
-        TARGETS_TO_BUILD="Sophon $TARGETS_TO_BUILD"
-        AC_DEFINE(ENABLE_SOPHON_TARGET, 1, [define sohpon target])
-        ;;
     *) AC_MSG_ERROR([Unrecognized target $a_target]) ;;
         esac
     done
@@ -94,12 +90,9 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   dnl enable variables
   AM_CONDITIONAL([ENABLE_VANILLA_TARGET], [ test "${TARGETS_TO_BUILD/Vanilla}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_X86_TARGET],     [ test "${TARGETS_TO_BUILD/X86}"     != "${TARGETS_TO_BUILD}" ])
-  AM_CONDITIONAL([ENABLE_TG_TARGET],      [ test "${TARGETS_TO_BUILD/TG}"      != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_AArch64_TARGET], [ test "${TARGETS_TO_BUILD/AArch64}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_ARM_TARGET],     [ test "${TARGETS_TO_BUILD/ARM}"     != "${TARGETS_TO_BUILD}" ])
-  AM_CONDITIONAL([ENABLE_SOPHON_TARGET],  [ test "${TARGETS_TO_BUILD/Sophon}"  != "${TARGETS_TO_BUILD}" ])
 
   dnl include target-dependent autoconf function calls.
   AM_COND_IF([ENABLE_X86_TARGET],     [m4_include(m4/targets/x86.m4)])
-  AM_COND_IF([ENABLE_TG_TARGET],      [m4_include(m4/targets/sophon.m4)])
 ])

@@ -33,9 +33,6 @@
 /* Enable regression */
 #undef ENABLE_REGRESSION
 
-/* define sohpon target */
-#undef ENABLE_SOPHON_TARGET
-
 /* Enable unittest */
 #undef ENABLE_UNITTEST
 

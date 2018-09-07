@@ -209,10 +209,6 @@ ONNC_TARGET_SOURCES = Target/Target.cpp \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp
 
-if ENABLE_SOPHON_TARGET
-include $(srcdir)/Target/Sophon/Makefile.am
-endif
-
 if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
 endif
