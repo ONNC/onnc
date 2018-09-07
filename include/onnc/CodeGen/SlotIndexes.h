@@ -95,6 +95,8 @@ public:
 
   SlotIndex getSlotIndex(const ComputeOperator* pOp) const;
 
+  size_t getNumSlots() const { return m_COpToSlotIdx.size(); }
+
   StringRef getPassName() const override { return "BuildSlotIndexes"; }
 
   void print(std::ostream& pOS) const;

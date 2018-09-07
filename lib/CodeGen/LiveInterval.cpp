@@ -34,6 +34,15 @@ SlotIndex LiveRange::endIndex() const
   return m_Segments.back().m_End;
 }
 
+bool LiveRange::overlap(const LiveRange& pOther) const
+{
+  for (auto& m : m_Segments)
+    for (auto& n : pOther.m_Segments)
+      if (m.overlap(n))
+        return true;
+  return false;
+}
+
 //===----------------------------------------------------------------------===//
 // Segment
 //===----------------------------------------------------------------------===//

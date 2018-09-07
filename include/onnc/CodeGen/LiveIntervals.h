@@ -55,6 +55,13 @@ public:
   /// order.
   const LIs getSortedIntervals() const;
 
+  unsigned getNumSlots() const { return m_SlotIndexes->getNumSlots(); }
+
+  SlotIndex getSlotIndex(const ComputeOperator* pOp) const
+  {
+    return m_SlotIndexes->getSlotIndex(pOp);
+  }
+
   void print(std::ostream& pOS) const;
 
   void dump() const;

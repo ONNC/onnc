@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/ADT/StringList.h>
 #include <onnc/CodeGen/LiveIntervals.h>
+#include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/PassManager.h>
@@ -246,5 +247,51 @@ SKYPAT_F(MemAllocTest, live_interval_test)
     const LiveInterval* li = liveIntrvls.getInterval(v);
     ASSERT_TRUE(li->beginIndex().getIndex() == vrIter.start);
     ASSERT_TRUE(li->endIndex().getIndex() == vrIter.end);
+  }
+}
+
+SKYPAT_F(MemAllocTest, live_matrix_test)
+{
+  Module module;
+  CreateAlexNet(module);
+
+  PassManager passMgr;
+  AnalysisResolver* resolver = nullptr;
+
+  BuildSlotIndexes buildSlotIdx;
+  buildSlotIdx.runOnModule(module);
+
+  LiveIntervals liveIntrvls;
+  resolver = new AnalysisResolver(passMgr);
+  resolver->add(buildSlotIdx.getPassID(), buildSlotIdx);
+  liveIntrvls.setResolver(*resolver);
+  liveIntrvls.runOnModule(module);
+
+  LiveValueMatrix liveMat;
+  resolver = new AnalysisResolver(passMgr);
+  resolver->add(liveIntrvls.getPassID(), liveIntrvls);
+  liveMat.setResolver(*resolver);
+  liveMat.runOnModule(module);
+
+  for (auto& outerIt : module.getValueList()) {
+    Value* v = outerIt.value();
+    const LiveInterval* vli = liveIntrvls.getInterval(v);
+    std::vector<LiveInterval*> expectOverlaps;
+
+    for (auto& innerIt : module.getValueList()) {
+      Value* u = innerIt.value();
+      if (v == u)
+        continue;
+      const LiveInterval* uli = liveIntrvls.getInterval(u);
+      if (uli->overlap(*vli))
+        expectOverlaps.push_back(const_cast<LiveInterval*>(uli));
+    }
+    std::sort(expectOverlaps.begin(), expectOverlaps.end());
+
+    std::vector<LiveInterval*> overlaps =
+      liveMat.getInterferingLiveIntervals(v);
+    std::sort(overlaps.begin(), overlaps.end());
+
+    ASSERT_TRUE(expectOverlaps == overlaps);
   }
 }

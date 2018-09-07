@@ -48,11 +48,19 @@ public:
   /// Add a new segment, which does not overlap with existing segments.
   void addSegment(const Segment &pNewSeg);
 
+  const Segments& getSegments() const { return m_Segments; }
+
   /// Return the lowest slot index.
   SlotIndex beginIndex() const;
 
   /// Return the highest slot index.
   SlotIndex endIndex() const;
+
+  /// Return true if two live ranges have overlap.
+  /// Time complexity: O(M*N)
+  ///   M = #Segments of this
+  ///   N = #Segments of pOther
+  bool overlap(const LiveRange& pOther) const;
 
 protected:
   Segments m_Segments;
@@ -69,6 +77,8 @@ public:
   }
 
   Value* getValue() { return m_pValue; }
+
+  const Value* getValue() const { return m_pValue; }
 
   void print(std::ostream& pOS) const;
 

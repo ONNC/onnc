@@ -98,6 +98,7 @@ ONNC_SOURCES = \
 	Analysis/UpdateGraphOutputSize.cpp \
 	CodeGen/LiveInterval.cpp \
 	CodeGen/LiveIntervals.cpp \
+	CodeGen/LiveValueMatrix.cpp \
 	CodeGen/SlotIndexes.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
