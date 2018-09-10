@@ -89,6 +89,8 @@ public:
 
   void erase(Arc& pArc);
 
+  void erase(Value& pVal);
+
   void clear();
 
   void getRear(Node*& pNode) const { pNode = m_pNodeRear; }
