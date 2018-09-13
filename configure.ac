@@ -90,7 +90,6 @@ ENUM_ONNC_TARGETS
 # OUTPUT
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
-AC_CONFIG_FILES([include/onnc/Makefile])
 AC_CONFIG_FILES([include/onnc/Config/Platforms.def])
 AC_CONFIG_FILES([include/onnc/Config/Backends.def])
 AC_CONFIG_FILES([include/onnc/Config/ONNX.h])
