@@ -140,6 +140,12 @@ Module::~Module()
   }
   m_RootTensorGraph.reset();
 
+  for (auto entry : m_ComputeGraphs) {
+    ComputeGraph* cg = entry.value();
+    delete cg;
+  }
+  m_ComputeGraphs.clear();
+
   for (auto entry : m_Values) {
     Value* v = entry.value();
     delete v;

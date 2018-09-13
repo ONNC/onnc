@@ -29,6 +29,7 @@ set_target_properties(libonnc PROPERTIES OUTPUT_NAME onnc)
 
 add_subdirectory(ADT)
 add_subdirectory(Analysis)
+add_subdirectory(CodeGen)
 add_subdirectory(Config)
 add_subdirectory(Core)
 add_subdirectory(Diagnostic)

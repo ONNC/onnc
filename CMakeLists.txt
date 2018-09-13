@@ -31,8 +31,8 @@ option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
 if (ENABLE_WERROR)
     add_compile_options(-Werror)
 endif()
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
+#include(CheckCXXCompilerFlag)
+#check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
 
 ####################
 #  Project

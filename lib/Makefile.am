@@ -96,6 +96,10 @@ ONNC_SOURCES = \
 	Analysis/NodeIRScheduler.cpp \
 	Analysis/SplitNode.cpp \
 	Analysis/UpdateGraphOutputSize.cpp \
+	CodeGen/LiveInterval.cpp \
+	CodeGen/LiveIntervals.cpp \
+	CodeGen/LiveValueMatrix.cpp \
+	CodeGen/SlotIndexes.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \
 	ADT/Buffer.cpp \
@@ -204,10 +208,6 @@ ONNC_TARGET_SOURCES = Target/Target.cpp \
 	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Target/NPUTargetBackend.cpp
-
-if ENABLE_SOPHON_TARGET
-include $(srcdir)/Target/Sophon/Makefile.am
-endif
 
 if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am

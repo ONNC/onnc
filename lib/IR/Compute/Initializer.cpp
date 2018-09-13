@@ -35,7 +35,7 @@ void Initializer::setTensor(onnc::Tensor& pTensor)
     // fatal error
     return;
   }
-  m_Outputs.push_back(&pTensor);
+  addOutput(pTensor);
 }
 
 void Initializer::print(std::ostream& pOS) const

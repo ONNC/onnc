@@ -108,6 +108,14 @@ void ComputeGraph::erase(ComputeOperand& pArc)
   delete &pArc;
 }
 
+void ComputeGraph::erase(Value& pVal)
+{
+  assert(pVal.getDefine() == nullptr && "Define still exist.");
+  assert(pVal.getUses().empty() && "User list is not empty.");
+  m_ValueList.erase(pVal.getName());
+  delete &pVal;
+}
+
 void ComputeGraph::clear()
 {
   m_pNodeHead = nullptr;

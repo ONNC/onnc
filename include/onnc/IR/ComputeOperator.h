@@ -79,7 +79,10 @@ public:
   }
 
   template<typename OpndType>
-  void addOutput(OpndType& pOperand) { m_Outputs.push_back(&pOperand); }
+  void addOutput(OpndType& pOperand) {
+    pOperand.setDefine(this, m_Outputs.size());
+    m_Outputs.push_back(&pOperand);
+  }
 
   /// Use covariant return type to override this function
   virtual onnc::Value* getInput(unsigned int pIdx) { return m_Inputs[pIdx]; }

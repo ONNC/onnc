@@ -35,7 +35,7 @@ void InputOperator::setTensor(onnc::Tensor& pTensor)
     // fatal error
     return;
   }
-  m_Outputs.push_back(&pTensor);
+  addOutput(pTensor);
 }
 
 void InputOperator::print(std::ostream& pOS) const

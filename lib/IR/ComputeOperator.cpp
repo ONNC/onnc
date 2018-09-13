@@ -63,7 +63,10 @@ void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
   // FIXEME changed input_out_of_range
   if (pIdx >= m_Outputs.size())
     fatal(input_out_of_range) << pIdx << name() << (uint32_t)m_Outputs.size();
+  m_Outputs[pIdx]->clearDefine();
+  m_Outputs[pIdx]->replaceAllUsesWith(pValue);
   m_Outputs[pIdx] = &pValue;
+  pValue.setDefine(this, pIdx);
 }
 
 void ComputeOperator::print(json::Value& pJSON) const

@@ -50,7 +50,10 @@
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
+#include <onnc/Transforms/TensorSel/Standards/AddLower.h>
+#include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
+#include <onnc/Transforms/TensorSel/Standards/MulLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SplitLower.h>
@@ -66,6 +69,7 @@ using namespace onnc;
 BM1880Backend::BM1880Backend(const TargetOptions &pOptions)
     : TGBackend(pOptions)
 {
+  m_pMemInfo = new BM188xTargetMemInfo(this);
   m_pTTI = new BM188xTargetTransformInfo(this);
 }
 
@@ -80,25 +84,24 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   // target independent pass
   pPM.add(CreateRemoveTrainingNodesPass());
   // TODO refactoring, AddDummyWeightPass can be target indepedent pass
-  if (options().shouldUseDummyWeight())
+  if (options().shouldUseDummyWeight()) {
     pPM.add(createAddDummyWeightPass());
+  }
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(CreateDeadNodeEliminationPass());
-
   // BM1880 customized Pass
   pPM.add(createPrepareCtablePass(this));
-
   // dump optimized onnx model pass need to
   // disable fuse opt
-  if (!dumpOptONNXModel)
+  if (!dumpOptONNXModel) {
     pPM.add(createONNXFuseOptPass(this));
-
-  if (options().shouldPrintBeforeTensorSel())
+  }
+  if (options().shouldPrintBeforeTensorSel()) {
     pPM.add(createONNCModulePrinterPass());
-
-  if (dumpOptONNXModel)
+  }
+  if (dumpOptONNXModel) {
     pPM.add(createONNXDumpOptPass(this));
-
+  }
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());
   pPM.add(CreateBuildInputOperators());
@@ -109,6 +112,11 @@ void BM1880Backend::addTensorSel(PassManager &pPM)
   pPM.add(CreateNewQuantizePass(this));
 #endif
   pPM.add(createUpdateCtablePass(this));
+#ifdef BMONNC_EXIST
+  if (dumpOptONNXModel) {
+    pPM.add(createONNXDumpQuantizedPass(this));
+  }
+#endif
 
   return;
 }
@@ -173,23 +181,26 @@ std::unique_ptr<TGFuseOptimizer> BM1880Backend::getFuseOptimizr()
 
 void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
 {
+  pRegistry.emplace<onnc::AddLower>();
   pRegistry.emplace<BM188X::AveragePoolLower>();
+  pRegistry.emplace<onnc::BatchNormalizationLower>();
+  pRegistry.emplace<BM188X::BMScaleLower>();
   pRegistry.emplace<BM188X::ConcatLower>();
   pRegistry.emplace<BM188X::ConvLower>();
+  pRegistry.emplace<onnc::FlattenLower>();
   pRegistry.emplace<BM188X::GemmLower>();
   pRegistry.emplace<BM188X::GlobalAveragePoolLower>();
   pRegistry.emplace<BM188X::LRNLower>();
   pRegistry.emplace<BM188X::LeakyReluLower>();
   pRegistry.emplace<BM188X::LoadLower>();
   pRegistry.emplace<BM188X::MaxPoolLower>();
+  pRegistry.emplace<onnc::MulLower>();
   pRegistry.emplace<BM188X::PReluLower>();
   pRegistry.emplace<BM188X::PoolLower>();
   pRegistry.emplace<BM188X::ReluLower>();
   pRegistry.emplace<onnc::ReshapeLower>();
-  pRegistry.emplace<BM188X::BMScaleLower>();
   pRegistry.emplace<onnc::SoftmaxLower>();
   pRegistry.emplace<onnc::SplitLower>();
-  pRegistry.emplace<onnc::FlattenLower>();
   pRegistry.emplace<BM188X::StoreLower>();
   pRegistry.emplace<BM188X::SumLower>();
   pRegistry.emplace<BM188X::TransposeLower>();
