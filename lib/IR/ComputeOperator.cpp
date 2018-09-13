@@ -68,3 +68,8 @@ void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
   m_Outputs[pIdx] = &pValue;
   pValue.setDefine(this, pIdx);
 }
+
+void ComputeOperator::print(json::Value& pJSON) const
+{
+}
+

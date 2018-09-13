@@ -136,6 +136,8 @@ public:
     pOS << "<unimplemented>";
   };
 
+  void print(json::Value& pJSON) const;
+
   /// redirect the printing to stderr
   void dump() const { return print(errs()); }
 
