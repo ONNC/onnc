@@ -171,6 +171,40 @@ SKYPAT_F(ComputeIRTest, use_list_test2)
   ASSERT_EQ(ft->getUses()[2].getUser(), op3);
 }
 
+SKYPAT_F(ComputeIRTest, replace_output_test)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+
+  ComputeGraph* cg = builder.CreateComputeGraph("top-level");
+  onnc::Int8Tensor* i8t = cg->addValue<onnc::Int8Tensor>("val.i8");
+  onnc::FloatTensor* ft = cg->addValue<onnc::FloatTensor>("val.f");
+
+  ComputeOperator* conv = builder.AddComputeOp<Conv>();
+  conv->addOutput(*ft);
+
+  ComputeOperator* op1 = builder.AddComputeOp<Relu>();
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ComputeOperator* op3 = builder.AddComputeOp<Relu>();
+  op1->addInput(*ft);
+  op2->addInput(*ft);
+  op3->addInput(*ft);
+
+  Value* delVal = conv->getOutput(0);
+  conv->replaceOutput(0, *i8t);
+  cg->erase(*delVal);
+
+  ASSERT_TRUE(ft->getUses().empty());
+  ASSERT_EQ(i8t->getUses().size(), 3);
+  ASSERT_EQ(i8t->getUses()[0].getUser(), op1);
+  ASSERT_EQ(i8t->getUses()[1].getUser(), op2);
+  ASSERT_EQ(i8t->getUses()[2].getUser(), op3);
+
+  ASSERT_EQ(op1->getInput(0), i8t);
+  ASSERT_EQ(op2->getInput(0), i8t);
+  ASSERT_EQ(op3->getInput(0), i8t);
+}
+
 SKYPAT_F(ComputeIRTest, bfs_search)
 {
   onnc::Module module;
