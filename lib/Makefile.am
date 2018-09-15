@@ -101,6 +101,7 @@ ONNC_SOURCES = \
 	CodeGen/LiveInterval.cpp \
 	CodeGen/LiveIntervals.cpp \
 	CodeGen/LiveValueMatrix.cpp \
+	CodeGen/SetMemOperand.cpp \
 	CodeGen/SlotIndexes.cpp \
 	ADT/PolicyNodeIterator.cpp \
 	ADT/Digraph.cpp \

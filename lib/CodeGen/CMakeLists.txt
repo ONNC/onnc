@@ -4,4 +4,5 @@ add_libonnc_src(
     LiveInterval.cpp
     LiveIntervals.cpp
     LiveValueMatrix.cpp
+    SetMemOperand.cpp
     SlotIndexes.cpp)
