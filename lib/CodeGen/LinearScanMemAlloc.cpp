@@ -73,6 +73,7 @@ Pass::ReturnType LinearScanMemAlloc::runOnModule(Module& pModule)
 
 void LinearScanMemAlloc::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
+  pUsage.addRequiredID(LiveIntervals::ID);
   pUsage.addRequiredID(LiveValueMatrix::ID);
 }
 
