@@ -37,6 +37,7 @@ ONNC_SOURCES = \
 	IR/Compute/LRN.cpp \
 	IR/Compute/LeakyRelu.cpp \
 	IR/Compute/MaxPool.cpp \
+	IR/Compute/Mul.cpp \
 	IR/Compute/PRelu.cpp \
 	IR/Compute/Upsample.cpp \
 	IR/Compute/Relu.cpp \
@@ -71,13 +72,18 @@ ONNC_SOURCES = \
 	Transforms/TensorSel/SoftmaxLower.cpp \
 	Transforms/TensorSel/AveragePoolLower.cpp \
 	Transforms/TensorSel/GemmLower.cpp \
+	Transforms/TensorSel/GlobalAveragePoolLower.cpp \
+	Transforms/TensorSel/LeakyReluLower.cpp \
 	Transforms/TensorSel/MaxPoolLower.cpp \
+	Transforms/TensorSel/MulLower.cpp \
 	Transforms/TensorSel/SumLower.cpp \
 	Transforms/TensorSel/BatchNormalizationLower.cpp \
 	Transforms/TensorSel/LRNLower.cpp \
 	Transforms/TensorSel/ReluLower.cpp \
+	Transforms/TensorSel/PReluLower.cpp \
 	Transforms/TensorSel/ConcatLower.cpp \
 	Transforms/TensorSel/ReshapeLower.cpp \
+	Transforms/TensorSel/TransposeLower.cpp \
 	Transforms/TensorSel/UpsampleLower.cpp \
 	Transforms/TensorSel/SplitLower.cpp \
 	Transforms/TensorSel/FlattenLower.cpp \
