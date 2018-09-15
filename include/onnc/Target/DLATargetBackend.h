@@ -20,16 +20,7 @@ public:
     : TargetBackend(pOptions) {
   }
 
-  virtual ~DLATargetBackend(){}
-
-  /// This is not a constant function. Because there in case memory emulator
-  /// must change its internal state.
-  TargetMemInfo* getMemInfo() { return m_pMemInfo; }
-
-  const TargetMemInfo* getMemInfo() const { return m_pMemInfo; }
-
-protected:
-  TargetMemInfo* m_pMemInfo;
+  virtual ~DLATargetBackend() {}
 };
 
 } // namespace of onnc
