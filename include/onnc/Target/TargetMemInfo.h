@@ -12,6 +12,8 @@
 
 namespace onnc {
 
+class Tensor;
+
 typedef xTensorProtoDataType TP_DataTy;
 
 /** \struct MemSize
@@ -46,6 +48,11 @@ public:
 
   /// Return actual memory size and alignment requirement of xValue.
   virtual MemSize getValueMemorySize(xValue *pValue) {
+    return MemSize();
+  }
+
+  /// Return actual memory size and alignment requirement of onnc Tensor.
+  virtual MemSize getTensorMemorySize(const Tensor& pVal) {
     return MemSize();
   }
 };
