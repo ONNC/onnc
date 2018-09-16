@@ -20,7 +20,8 @@ char BM188X::Upsample::ID = 0;
 //===----------------------------------------------------------------------===//
 BM188X::Upsample::Upsample(int pScale, const FloatAttr& pHeightScale,
                            const FloatAttr& pWidthScale)
-    : onnc::Upsample(pHeightScale, pWidthScale), m_Scale(pScale)
+    : onnc::Upsample(FloatsAttr::VectorType{pHeightScale, pWidthScale}),
+      m_Scale(pScale)
 {
   setID(ID);
 }
