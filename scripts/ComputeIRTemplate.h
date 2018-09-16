@@ -1,4 +1,4 @@
-//===- ${OperatorName}.h --------------------------------------------------===//
+//===- ${OperatorName}.h ${Dashs}-------===//
 //
 //                             The ONNC Project
 //
@@ -33,7 +33,7 @@ public:
   // shallow copy constructor.
   ${OperatorName}(const ${OperatorName} &pCopy);
 
-  ~${OperatorName}() { }
+  virtual ~${OperatorName}() { }
 
   // clang-format off
   // Attributes getters
@@ -73,7 +73,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   ${AttributesMemberVariables}
   // clang-format on
