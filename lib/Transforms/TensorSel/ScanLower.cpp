@@ -60,7 +60,7 @@ ScanLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 
   // create operators
   onnc::Scan* op = pGraph.addOperator<onnc::Scan>(
-    pNode.g(xSymbol("body"))
+    pNode.g(xSymbol("body")),
     pNode.i(xSymbol("num_scan_inputs")));
 
   // set default attributes

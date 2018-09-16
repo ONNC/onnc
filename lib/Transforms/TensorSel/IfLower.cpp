@@ -60,7 +60,7 @@ IfLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 
   // create operators
   onnc::If* op = pGraph.addOperator<onnc::If>(
-    pNode.g(xSymbol("else_branch"))
+    pNode.g(xSymbol("else_branch")),
     pNode.g(xSymbol("then_branch")));
 
   // set default attributes

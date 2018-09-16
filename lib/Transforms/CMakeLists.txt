@@ -101,7 +101,6 @@ add_libonnc_src(
     TensorSel/ReshapeLower.cpp
     TensorSel/ScaleLower.cpp
     TensorSel/ScaledTanhLower.cpp
-    TensorSel/ScanLower.cpp
     TensorSel/SeluLower.cpp
     TensorSel/ShapeLower.cpp
     TensorSel/SigmoidLower.cpp

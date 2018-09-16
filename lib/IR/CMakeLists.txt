@@ -110,7 +110,6 @@ add_libonnc_src(
     Compute/Scalar.cpp
     Compute/Scale.cpp
     Compute/ScaledTanh.cpp
-    Compute/Scan.cpp
     Compute/Selu.cpp
     Compute/Shape.cpp
     Compute/Sigmoid.cpp
