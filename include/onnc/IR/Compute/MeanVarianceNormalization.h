@@ -1,4 +1,4 @@
-//===- MeanVarianceNormalization.h --------------------------------------------------===//
+//===- MeanVarianceNormalization.h ----------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   MeanVarianceNormalization(const MeanVarianceNormalization &pCopy);
 
-  ~MeanVarianceNormalization() { }
+  virtual ~MeanVarianceNormalization() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_AcrossChannels;
   IntAttr m_NormalizeVariance;

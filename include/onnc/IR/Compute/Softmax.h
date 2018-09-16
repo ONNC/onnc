@@ -1,4 +1,4 @@
-//===- Softmax.h --------------------------------------------------===//
+//===- Softmax.h ----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Softmax(const Softmax &pCopy);
 
-  ~Softmax() { }
+  virtual ~Softmax() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   // clang-format on

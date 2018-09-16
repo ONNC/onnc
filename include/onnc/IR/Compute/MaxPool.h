@@ -1,4 +1,4 @@
-//===- MaxPool.h --------------------------------------------------===//
+//===- MaxPool.h ----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -19,7 +19,8 @@ class MaxPool : public ComputeOperator
 public:
   enum IOConst {
     kX = 0,
-    kY = 0
+    kY = 0,
+    kIndices = 1
   };
 
   static char ID;
@@ -31,6 +32,7 @@ public:
   MaxPool(const StringAttr& pAutoPad,
           const IntsAttr& pKernelShape,
           const IntsAttr& pPads,
+          const IntAttr& pStorageOrder,
           const IntsAttr& pStrides);
 
   // clang-format on
@@ -38,7 +40,7 @@ public:
   // shallow copy constructor.
   MaxPool(const MaxPool &pCopy);
 
-  ~MaxPool() { }
+  virtual ~MaxPool() { }
 
   // clang-format off
   // Attributes getters
@@ -47,6 +49,8 @@ public:
   const IntsAttr& getKernelShape() const { return m_KernelShape; }
 
   const IntsAttr& getPads() const { return m_Pads; }
+
+  const IntAttr& getStorageOrder() const { return m_StorageOrder; }
 
   const IntsAttr& getStrides() const { return m_Strides; }
 
@@ -57,6 +61,8 @@ public:
   void setKernelShape(const IntsAttr& pKernelShape) { m_KernelShape = pKernelShape; }
 
   void setPads(const IntsAttr& pPads) { m_Pads = pPads; }
+
+  void setStorageOrder(const IntAttr& pStorageOrder) { m_StorageOrder = pStorageOrder; }
 
   void setStrides(const IntsAttr& pStrides) { m_Strides = pStrides; }
 
@@ -78,6 +84,8 @@ public:
   // Outputs getters
   Tensor* getY() { return getOutput(kY); }
 
+  Tensor* getIndices() { return getOutput(kIndices); }
+
 
   // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
@@ -85,6 +93,8 @@ public:
 
   // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  void setIndices(Tensor& pTensor) { m_Outputs[kIndices] = &pTensor; }
 
   // clang-format on
 
@@ -96,11 +106,12 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   StringAttr m_AutoPad;
   IntsAttr m_KernelShape;
   IntsAttr m_Pads;
+  IntAttr m_StorageOrder;
   IntsAttr m_Strides;
   // clang-format on
 };

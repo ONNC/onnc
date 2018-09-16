@@ -1,4 +1,4 @@
-//===- Neg.h --------------------------------------------------===//
+//===- Neg.h --------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   Neg(const Neg &pCopy);
 
-  ~Neg() { }
+  virtual ~Neg() { }
 
   // clang-format off
   // Attributes getters
@@ -78,7 +78,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   
   // clang-format on

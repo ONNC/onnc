@@ -1,4 +1,4 @@
-//===- Asin.h --------------------------------------------------===//
+//===- Asin.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   Asin(const Asin &pCopy);
 
-  ~Asin() { }
+  virtual ~Asin() { }
 
   // clang-format off
   // Attributes getters
@@ -78,7 +78,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   
   // clang-format on

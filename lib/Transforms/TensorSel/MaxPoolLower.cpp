@@ -1,4 +1,4 @@
-//===- MaxPoolLower.cpp -------------------------------------------===//
+//===- MaxPoolLower.cpp ---------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -38,7 +38,7 @@ MaxPoolLower::activate(ComputeGraph& pGraph, xNode& pNode) const
   if (pNode.inputs().size() != 1)
     return nullptr;
 
-  if (pNode.outputs().size() != 1)
+  if (pNode.outputs().size() < 1 || 2 < pNode.outputs().size())
     return nullptr;
 
   // check input/output name
@@ -68,6 +68,8 @@ MaxPoolLower::activate(ComputeGraph& pGraph, xNode& pNode) const
     op->setAutoPad(pNode.s(xSymbol("auto_pad")));
   if (pNode.hasAttribute(xSymbol("pads")))
     op->setPads(pNode.is(xSymbol("pads")));
+  if (pNode.hasAttribute(xSymbol("storage_order")))
+    op->setStorageOrder(pNode.i(xSymbol("storage_order")));
   if (pNode.hasAttribute(xSymbol("strides")))
     op->setStrides(pNode.is(xSymbol("strides")));
 

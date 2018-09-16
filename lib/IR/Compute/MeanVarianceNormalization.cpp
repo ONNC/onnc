@@ -1,4 +1,4 @@
-//===- MeanVarianceNormalization.cpp ------------------------------------------------===//
+//===- MeanVarianceNormalization.cpp --------------------------------------===//
 //
 //                             The ONNC Project
 //

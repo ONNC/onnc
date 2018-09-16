@@ -1,4 +1,4 @@
-//===- Loop.h --------------------------------------------------===//
+//===- Loop.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   Loop(const Loop &pCopy);
 
-  ~Loop() { }
+  virtual ~Loop() { }
 
   // clang-format off
   // Attributes getters
@@ -90,7 +90,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   GraphAttr m_Body;
   // clang-format on

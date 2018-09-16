@@ -1,4 +1,4 @@
-//===- BatchNormalizationLower.cpp -------------------------------------------===//
+//===- BatchNormalizationLower.cpp ----------------------------------------===//
 //
 //                             The ONNC Project
 //

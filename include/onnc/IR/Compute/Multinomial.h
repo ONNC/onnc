@@ -1,4 +1,4 @@
-//===- Multinomial.h --------------------------------------------------===//
+//===- Multinomial.h ------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -37,7 +37,7 @@ public:
   // shallow copy constructor.
   Multinomial(const Multinomial &pCopy);
 
-  ~Multinomial() { }
+  virtual ~Multinomial() { }
 
   // clang-format off
   // Attributes getters
@@ -91,7 +91,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Dtype;
   IntAttr m_SampleSize;

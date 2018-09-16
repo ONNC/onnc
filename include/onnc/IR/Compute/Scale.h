@@ -1,4 +1,4 @@
-//===- Scale.h --------------------------------------------------===//
+//===- Scale.h ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Scale(const Scale &pCopy);
 
-  ~Scale() { }
+  virtual ~Scale() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Scale;
   // clang-format on

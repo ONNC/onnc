@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   LpNormalization(const LpNormalization &pCopy);
 
-  ~LpNormalization() { }
+  virtual ~LpNormalization() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   IntAttr m_P;

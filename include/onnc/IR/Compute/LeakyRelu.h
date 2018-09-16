@@ -1,4 +1,4 @@
-//===- LeakyRelu.h --------------------------------------------------===//
+//===- LeakyRelu.h --------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   LeakyRelu(const LeakyRelu &pCopy);
 
-  ~LeakyRelu() { }
+  virtual ~LeakyRelu() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Alpha;
   // clang-format on

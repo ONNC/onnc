@@ -1,4 +1,4 @@
-//===- ConstantFill.h --------------------------------------------------===//
+//===- ConstantFill.h -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -39,7 +39,7 @@ public:
   // shallow copy constructor.
   ConstantFill(const ConstantFill &pCopy);
 
-  ~ConstantFill() { }
+  virtual ~ConstantFill() { }
 
   // clang-format off
   // Attributes getters
@@ -101,7 +101,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Dtype;
   IntsAttr m_ExtraShape;

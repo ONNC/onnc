@@ -1,4 +1,4 @@
-//===- Cast.h --------------------------------------------------===//
+//===- Cast.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   Cast(const Cast &pCopy);
 
-  ~Cast() { }
+  virtual ~Cast() { }
 
   // clang-format off
   // Attributes getters
@@ -80,7 +80,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_To;
   // clang-format on

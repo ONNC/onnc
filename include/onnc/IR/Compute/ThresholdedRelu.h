@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   ThresholdedRelu(const ThresholdedRelu &pCopy);
 
-  ~ThresholdedRelu() { }
+  virtual ~ThresholdedRelu() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Alpha;
   // clang-format on

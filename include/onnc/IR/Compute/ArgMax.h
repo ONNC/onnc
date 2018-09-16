@@ -1,4 +1,4 @@
-//===- ArgMax.h --------------------------------------------------===//
+//===- ArgMax.h -----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ArgMax(const ArgMax &pCopy);
 
-  ~ArgMax() { }
+  virtual ~ArgMax() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   IntAttr m_Keepdims;

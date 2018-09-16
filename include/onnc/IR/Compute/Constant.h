@@ -1,4 +1,4 @@
-//===- Constant.h --------------------------------------------------===//
+//===- Constant.h ---------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -33,7 +33,7 @@ public:
   // shallow copy constructor.
   Constant(const Constant &pCopy);
 
-  ~Constant() { }
+  virtual ~Constant() { }
 
   // clang-format off
   // Attributes getters
@@ -77,7 +77,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   TensorAttr m_Value;
   // clang-format on

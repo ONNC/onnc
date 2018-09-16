@@ -1,4 +1,4 @@
-//===- GlobalAveragePoolLower.cpp -------------------------------------------===//
+//===- GlobalAveragePoolLower.cpp -----------------------------------------===//
 //
 //                             The ONNC Project
 //

@@ -1,4 +1,4 @@
-//===- Dropout.h --------------------------------------------------===//
+//===- Dropout.h ----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   Dropout(const Dropout &pCopy);
 
-  ~Dropout() { }
+  virtual ~Dropout() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Ratio;
   // clang-format on
