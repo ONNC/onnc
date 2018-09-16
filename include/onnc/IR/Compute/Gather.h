@@ -1,4 +1,4 @@
-//===- Gather.h --------------------------------------------------===//
+//===- Gather.h -----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   Gather(const Gather &pCopy);
 
-  ~Gather() { }
+  virtual ~Gather() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   // clang-format on

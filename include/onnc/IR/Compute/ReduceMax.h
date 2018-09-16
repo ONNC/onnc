@@ -1,4 +1,4 @@
-//===- ReduceMax.h --------------------------------------------------===//
+//===- ReduceMax.h --------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ReduceMax(const ReduceMax &pCopy);
 
-  ~ReduceMax() { }
+  virtual ~ReduceMax() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Axes;
   IntAttr m_Keepdims;

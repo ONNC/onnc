@@ -1,4 +1,4 @@
-//===- Pow.h --------------------------------------------------===//
+//===- Pow.h --------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Pow(const Pow &pCopy);
 
-  ~Pow() { }
+  virtual ~Pow() { }
 
   // clang-format off
   // Attributes getters
@@ -83,7 +83,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   
   // clang-format on

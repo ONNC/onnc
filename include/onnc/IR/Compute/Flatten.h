@@ -1,4 +1,4 @@
-//===- Flatten.h --------------------------------------------------===//
+//===- Flatten.h ----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Flatten(const Flatten &pCopy);
 
-  ~Flatten() { }
+  virtual ~Flatten() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   // clang-format on

@@ -1,4 +1,4 @@
-//===- Elu.h --------------------------------------------------===//
+//===- Elu.h --------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Elu(const Elu &pCopy);
 
-  ~Elu() { }
+  virtual ~Elu() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Alpha;
   // clang-format on

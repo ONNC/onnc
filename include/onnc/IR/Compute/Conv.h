@@ -1,4 +1,4 @@
-//===- Conv.h --------------------------------------------------===//
+//===- Conv.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -42,7 +42,7 @@ public:
   // shallow copy constructor.
   Conv(const Conv &pCopy);
 
-  ~Conv() { }
+  virtual ~Conv() { }
 
   // clang-format off
   // Attributes getters
@@ -116,7 +116,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   StringAttr m_AutoPad;
   IntsAttr m_Dilations;

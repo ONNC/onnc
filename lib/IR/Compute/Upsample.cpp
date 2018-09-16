@@ -1,4 +1,4 @@
-//===- Upsample.cpp ------------------------------------------------===//
+//===- Upsample.cpp -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -25,15 +25,6 @@ Upsample::Upsample(const StringAttr& pMode,
   : ComputeOperator("Upsample", ID),
     m_Mode(pMode),
     m_Scales(pScales) {
-}
-
-Upsample::Upsample(const FloatAttr& pHScale,
-                   const FloatAttr& pWScale)
-  : ComputeOperator("Upsample", ID),
-    m_Mode("nearest"),
-    m_Scales() {
-  m_Scales.vector().push_back(pHScale);
-  m_Scales.vector().push_back(pWScale);
 }
 
 Upsample::Upsample(const Upsample& pCopy)

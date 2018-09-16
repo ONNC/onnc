@@ -1,4 +1,4 @@
-//===- Pad.h --------------------------------------------------===//
+//===- Pad.h --------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -37,7 +37,7 @@ public:
   // shallow copy constructor.
   Pad(const Pad &pCopy);
 
-  ~Pad() { }
+  virtual ~Pad() { }
 
   // clang-format off
   // Attributes getters
@@ -91,7 +91,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   StringAttr m_Mode;
   IntsAttr m_Pads;

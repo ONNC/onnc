@@ -1,4 +1,4 @@
-//===- GRUUnit.h --------------------------------------------------===//
+//===- GRUUnit.h ----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -38,7 +38,7 @@ public:
   // shallow copy constructor.
   GRUUnit(const GRUUnit &pCopy);
 
-  ~GRUUnit() { }
+  virtual ~GRUUnit() { }
 
   // clang-format off
   // Attributes getters
@@ -96,7 +96,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_DropStates;
   // clang-format on

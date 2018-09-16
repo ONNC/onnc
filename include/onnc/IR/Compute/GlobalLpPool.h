@@ -1,4 +1,4 @@
-//===- GlobalLpPool.h --------------------------------------------------===//
+//===- GlobalLpPool.h -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   GlobalLpPool(const GlobalLpPool &pCopy);
 
-  ~GlobalLpPool() { }
+  virtual ~GlobalLpPool() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_P;
   // clang-format on

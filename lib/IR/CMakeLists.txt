@@ -43,6 +43,7 @@ add_libonnc_src(
     Compute/Elu.cpp
     Compute/Equal.cpp
     Compute/Exp.cpp
+    Compute/Expand.cpp
     Compute/Flatten.cpp
     Compute/Floor.cpp
     Compute/GRU.cpp
@@ -69,7 +70,6 @@ add_libonnc_src(
     Compute/Log.cpp
     Compute/LogSoftmax.cpp
     #Compute/Loop.cpp
-    Compute/LoopIndexTensor.cpp
     Compute/LpNormalization.cpp
     Compute/LpPool.cpp
     Compute/MatMul.cpp
@@ -110,6 +110,7 @@ add_libonnc_src(
     Compute/Scalar.cpp
     Compute/Scale.cpp
     Compute/ScaledTanh.cpp
+    Compute/Scan.cpp
     Compute/Selu.cpp
     Compute/Shape.cpp
     Compute/Sigmoid.cpp

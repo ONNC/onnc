@@ -1,4 +1,4 @@
-//===- ComputeVisitor.h ----------------------------------------------------===//
+//===- ComputeVisitor.h ---------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -40,6 +40,7 @@ class Dropout;
 class Elu;
 class Equal;
 class Exp;
+class Expand;
 class Flatten;
 class Floor;
 class GRU;
@@ -52,6 +53,7 @@ class Greater;
 class HardSigmoid;
 class Hardmax;
 class Identity;
+class If;
 class InstanceNormalization;
 class LRN;
 class LSTM;
@@ -59,6 +61,7 @@ class LeakyRelu;
 class Less;
 class Log;
 class LogSoftmax;
+class Loop;
 class LpNormalization;
 class LpPool;
 class MatMul;
@@ -93,6 +96,7 @@ class ReduceSum;
 class ReduceSumSquare;
 class Relu;
 class Reshape;
+class Scan;
 class Selu;
 class Shape;
 class Sigmoid;
@@ -122,10 +126,7 @@ class ConstantFill;
 class Crop;
 class GRUUnit;
 class GivenTensorFill;
-class If;
 class ImageScaler;
-class Loop;
-class LoopIndexTensor;
 class MeanVarianceNormalization;
 class ParametricSoftplus;
 class Scale;
@@ -180,6 +181,7 @@ public:
   virtual void visit(const Elu& pElu) { }
   virtual void visit(const Equal& pEqual) { }
   virtual void visit(const Exp& pExp) { }
+  virtual void visit(const Expand& pExpand) { }
   virtual void visit(const Flatten& pFlatten) { }
   virtual void visit(const Floor& pFloor) { }
   virtual void visit(const GRU& pGRU) { }
@@ -192,6 +194,7 @@ public:
   virtual void visit(const HardSigmoid& pHardSigmoid) { }
   virtual void visit(const Hardmax& pHardmax) { }
   virtual void visit(const Identity& pIdentity) { }
+  virtual void visit(const If& pIf) { }
   virtual void visit(const InstanceNormalization& pInstanceNormalization) { }
   virtual void visit(const LRN& pLRN) { }
   virtual void visit(const LSTM& pLSTM) { }
@@ -199,6 +202,7 @@ public:
   virtual void visit(const Less& pLess) { }
   virtual void visit(const Log& pLog) { }
   virtual void visit(const LogSoftmax& pLogSoftmax) { }
+  virtual void visit(const Loop& pLoop) { }
   virtual void visit(const LpNormalization& pLpNormalization) { }
   virtual void visit(const LpPool& pLpPool) { }
   virtual void visit(const MatMul& pMatMul) { }
@@ -233,6 +237,7 @@ public:
   virtual void visit(const ReduceSumSquare& pReduceSumSquare) { }
   virtual void visit(const Relu& pRelu) { }
   virtual void visit(const Reshape& pReshape) { }
+  virtual void visit(const Scan& pScan) { }
   virtual void visit(const Selu& pSelu) { }
   virtual void visit(const Shape& pShape) { }
   virtual void visit(const Sigmoid& pSigmoid) { }
@@ -262,10 +267,7 @@ public:
   virtual void visit(const Crop& pCrop) { }
   virtual void visit(const GRUUnit& pGRUUnit) { }
   virtual void visit(const GivenTensorFill& pGivenTensorFill) { }
-  virtual void visit(const If& pIf) { }
   virtual void visit(const ImageScaler& pImageScaler) { }
-  virtual void visit(const Loop& pLoop) { }
-  virtual void visit(const LoopIndexTensor& pLoopIndexTensor) { }
   virtual void visit(const MeanVarianceNormalization& pMeanVarianceNormalization) { }
   virtual void visit(const ParametricSoftplus& pParametricSoftplus) { }
   virtual void visit(const Scale& pScale) { }
@@ -304,6 +306,7 @@ public:
   virtual void visit(Elu& pElu) { }
   virtual void visit(Equal& pEqual) { }
   virtual void visit(Exp& pExp) { }
+  virtual void visit(Expand& pExpand) { }
   virtual void visit(Flatten& pFlatten) { }
   virtual void visit(Floor& pFloor) { }
   virtual void visit(GRU& pGRU) { }
@@ -316,6 +319,7 @@ public:
   virtual void visit(HardSigmoid& pHardSigmoid) { }
   virtual void visit(Hardmax& pHardmax) { }
   virtual void visit(Identity& pIdentity) { }
+  virtual void visit(If& pIf) { }
   virtual void visit(InstanceNormalization& pInstanceNormalization) { }
   virtual void visit(LRN& pLRN) { }
   virtual void visit(LSTM& pLSTM) { }
@@ -323,6 +327,7 @@ public:
   virtual void visit(Less& pLess) { }
   virtual void visit(Log& pLog) { }
   virtual void visit(LogSoftmax& pLogSoftmax) { }
+  virtual void visit(Loop& pLoop) { }
   virtual void visit(LpNormalization& pLpNormalization) { }
   virtual void visit(LpPool& pLpPool) { }
   virtual void visit(MatMul& pMatMul) { }
@@ -357,6 +362,7 @@ public:
   virtual void visit(ReduceSumSquare& pReduceSumSquare) { }
   virtual void visit(Relu& pRelu) { }
   virtual void visit(Reshape& pReshape) { }
+  virtual void visit(Scan& pScan) { }
   virtual void visit(Selu& pSelu) { }
   virtual void visit(Shape& pShape) { }
   virtual void visit(Sigmoid& pSigmoid) { }
@@ -386,10 +392,7 @@ public:
   virtual void visit(Crop& pCrop) { }
   virtual void visit(GRUUnit& pGRUUnit) { }
   virtual void visit(GivenTensorFill& pGivenTensorFill) { }
-  virtual void visit(If& pIf) { }
   virtual void visit(ImageScaler& pImageScaler) { }
-  virtual void visit(Loop& pLoop) { }
-  virtual void visit(LoopIndexTensor& pLoopIndexTensor) { }
   virtual void visit(MeanVarianceNormalization& pMeanVarianceNormalization) { }
   virtual void visit(ParametricSoftplus& pParametricSoftplus) { }
   virtual void visit(Scale& pScale) { }

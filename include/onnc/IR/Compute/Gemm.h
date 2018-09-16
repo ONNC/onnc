@@ -1,4 +1,4 @@
-//===- Gemm.h --------------------------------------------------===//
+//===- Gemm.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -40,7 +40,7 @@ public:
   // shallow copy constructor.
   Gemm(const Gemm &pCopy);
 
-  ~Gemm() { }
+  virtual ~Gemm() { }
 
   // clang-format off
   // Attributes getters
@@ -106,7 +106,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Beta;

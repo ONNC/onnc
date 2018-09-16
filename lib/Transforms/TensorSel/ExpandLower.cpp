@@ -1,4 +1,4 @@
-//===- LoopIndexTensorLower.cpp -------------------------------------------===//
+//===- ExpandLower.cpp ----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -6,33 +6,33 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Transforms/TensorSel/Lower.h>
-#include <onnc/Transforms/TensorSel/Standards/LoopIndexTensorLower.h>
-#include <onnc/IR/Compute/LoopIndexTensor.h>
+#include <onnc/Transforms/TensorSel/Standards/ExpandLower.h>
+#include <onnc/IR/Compute/Expand.h>
 #include "DefaultAttributes.h"
 #include <onnc/IR/IRBuilder.h>
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// LoopIndexTensorLower
+// ExpandLower
 //===----------------------------------------------------------------------===//
-LoopIndexTensorLower::LoopIndexTensorLower()
+ExpandLower::ExpandLower()
 {
 }
 
-LoopIndexTensorLower::~LoopIndexTensorLower()
+ExpandLower::~ExpandLower()
 {
 }
 
-int LoopIndexTensorLower::isMe(const xNode& pNode) const
+int ExpandLower::isMe(const xNode& pNode) const
 {
-  if (pNode.kind() == xSymbol("LoopIndexTensor"))
+  if (pNode.kind() == xSymbol("Expand"))
     return kStdLower;
   return kNotMe;
 }
 
 ComputeOperator*
-LoopIndexTensorLower::activate(ComputeGraph& pGraph, xNode& pNode) const
+ExpandLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 {
   // check input/output number
   if (pNode.inputs().size() != 2)
@@ -56,14 +56,13 @@ LoopIndexTensorLower::activate(ComputeGraph& pGraph, xNode& pNode) const
   
 
   // create operators
-  onnc::LoopIndexTensor* op = pGraph.addOperator<onnc::LoopIndexTensor>();
+  onnc::Expand* op = pGraph.addOperator<onnc::Expand>();
 
   // set default attributes
   SetDefaultAttributes(pNode, *op);
 
   // set optional attributes
-  if (pNode.hasAttribute(xSymbol("axis")))
-    op->setAxis(pNode.i(xSymbol("axis")));
+  
 
   // set input/output
   for (xValue* xv : pNode.inputs()) {

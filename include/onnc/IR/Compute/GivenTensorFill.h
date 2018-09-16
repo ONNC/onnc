@@ -38,7 +38,7 @@ public:
   // shallow copy constructor.
   GivenTensorFill(const GivenTensorFill &pCopy);
 
-  ~GivenTensorFill() { }
+  virtual ~GivenTensorFill() { }
 
   // clang-format off
   // Attributes getters
@@ -96,7 +96,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_ExtraShape;
   IntAttr m_InputAsShape;

@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ReduceSumSquare(const ReduceSumSquare &pCopy);
 
-  ~ReduceSumSquare() { }
+  virtual ~ReduceSumSquare() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Axes;
   IntAttr m_Keepdims;

@@ -1,4 +1,4 @@
-//===- Transpose.h --------------------------------------------------===//
+//===- Transpose.h --------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Transpose(const Transpose &pCopy);
 
-  ~Transpose() { }
+  virtual ~Transpose() { }
 
   // clang-format off
   // Attributes getters
@@ -81,7 +81,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Perm;
   // clang-format on

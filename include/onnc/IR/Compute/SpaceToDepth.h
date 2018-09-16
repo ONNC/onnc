@@ -1,4 +1,4 @@
-//===- SpaceToDepth.h --------------------------------------------------===//
+//===- SpaceToDepth.h -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   SpaceToDepth(const SpaceToDepth &pCopy);
 
-  ~SpaceToDepth() { }
+  virtual ~SpaceToDepth() { }
 
   // clang-format off
   // Attributes getters
@@ -80,7 +80,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Blocksize;
   // clang-format on

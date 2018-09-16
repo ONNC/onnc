@@ -1,4 +1,4 @@
-//===- Upsample.h --------------------------------------------------===//
+//===- Upsample.h ---------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -27,14 +27,16 @@ public:
 public:
   Upsample(const FloatsAttr& pScales);
 
-  Upsample(const StringAttr& pMode, const FloatsAttr& pScales);
+  // clang-format off
+  Upsample(const StringAttr& pMode,
+           const FloatsAttr& pScales);
 
-  Upsample(const FloatAttr& pHScale, const FloatAttr& pWScale);
+  // clang-format on
 
   // shallow copy constructor.
   Upsample(const Upsample &pCopy);
 
-  ~Upsample() { }
+  virtual ~Upsample() { }
 
   // clang-format off
   // Attributes getters
@@ -84,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   StringAttr m_Mode;
   FloatsAttr m_Scales;
