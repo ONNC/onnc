@@ -60,7 +60,7 @@ SliceLower::activate(ComputeGraph& pGraph, xNode& pNode) const
 
   // create operators
   onnc::Slice* op = pGraph.addOperator<onnc::Slice>(
-    pNode.is(xSymbol("ends"))
+    pNode.is(xSymbol("ends")),
     pNode.is(xSymbol("starts")));
 
   // set default attributes
