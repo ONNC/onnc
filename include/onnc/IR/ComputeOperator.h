@@ -71,6 +71,10 @@ public:
 
   unsigned int getNumOfOutputs() const { return m_Outputs.size(); }
 
+  bool isInputEmpty() const { return m_Inputs.empty(); }
+
+  bool isOutputEmpty() const { return m_Outputs.empty(); }
+
   template<typename OpndType>
   void addInput(OpndType& pOperand) {
     unsigned inputIdx = m_Inputs.size();
