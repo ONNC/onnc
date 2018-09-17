@@ -43,10 +43,16 @@ def gen_compute_ir_substitution_hash(schema):
     output_name = to_camel_case(io_schema.name)
     alt_name[output_name] = output_name in alt_name
 
+  # XXX
+  attrs = []
+  if schema.attributes:
+    attrs = [attr.name for _, attr in sorted(schema.attributes.items())]
   def for_io_schema(io_schemas, io, cb):
     def transform_io_schema(idx, io_schema):
       name = io_schema.name
-      if alt_name[to_camel_case(name)] or (name in ['input', 'output'] and io_schema.option == OpSchema.FormalParameterOption.Variadic):
+      if alt_name[to_camel_case(name)] or \
+        (name in ['input', 'output'] and io_schema.option == OpSchema.FormalParameterOption.Variadic) or \
+	(name in attrs):
         name = ('in_' if io == 'i' else 'out_') + name
       return {
         'idx': idx,

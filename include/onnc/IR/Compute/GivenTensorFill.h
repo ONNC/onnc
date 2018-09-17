@@ -18,7 +18,7 @@ class GivenTensorFill : public ComputeOperator
 {
 public:
   enum IOConst {
-    kShape = 0,
+    kInShape = 0,
     kX = 0
   };
 
@@ -72,7 +72,7 @@ public:
 
   // clang-format off
   // Inputs getters
-  Tensor* getShape() { return getInput(kShape); }
+  Tensor* getInShape() { return getInput(kInShape); }
 
 
   // Outputs getters
@@ -80,7 +80,7 @@ public:
 
 
   // Inputs setters
-  void setShape(Tensor& pTensor) { m_Inputs[kShape] = &pTensor; }
+  void setInShape(Tensor& pTensor) { m_Inputs[kInShape] = &pTensor; }
 
 
   // Outputs setters
