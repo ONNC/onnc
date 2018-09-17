@@ -163,37 +163,36 @@ def gen_interpreter_substitution_hash(schema):
   def prepare_io(prefix):
     def cb(io_schema):
       io_schema['prefix'] = prefix
+      io_schema['Prefix'] = to_camel_case(prefix)
       r = [
-        '::onnx::Value *{prefix}_{io_name}_v = pNode->{prefix}s()[{idx}];'.format(**io_schema),
+        'Tensor *{prefix}_{io_name}_t = pOp.get{Prefix}({idx});'.format(**io_schema),
       ]
-      if prefix == 'output':
-        r = r + [
-          'm_ATable[{prefix}_{io_name}_v] = allocate_output_memory({prefix}_{io_name}_v);'.format(**io_schema),
-        ]
       if io_schema['option'] == OpSchema.FormalParameterOption.Single:
         return r + [
-          'void *{prefix}_{io_name} = m_ATable[{prefix}_{io_name}_v];'.format(**io_schema),
-          'int32_t {prefix}_{io_name}_ndim = {prefix}_{io_name}_v->sizes().size();'.format(**io_schema),
+          'void *{prefix}_{io_name} = m_ATable[{prefix}_{io_name}_t];'.format(**io_schema),
+          'int32_t {prefix}_{io_name}_ndim = {prefix}_{io_name}_t->getNumOfDimensions();'.format(**io_schema),
           'int32_t {prefix}_{io_name}_dims[{prefix}_{io_name}_ndim];'.format(**io_schema),
-          'for (int i = 0; i < {prefix}_{io_name}_ndim; ++i) {prefix}_{io_name}_dims[i] = {prefix}_{io_name}_v->sizes()[i].dim;'.format(**io_schema),
+          'for (int i = 0; i < {prefix}_{io_name}_ndim; ++i) {prefix}_{io_name}_dims[i] = {prefix}_{io_name}_t->dimension(i);'.format(**io_schema),
         ]
       elif io_schema['option'] == OpSchema.FormalParameterOption.Optional:
         return [
-          '::onnx::Value *{prefix}_{io_name}_v = NULL;'.format(**io_schema),
+          'Tensor *{prefix}_{io_name}_t = NULL;'.format(**io_schema),
           'void *{prefix}_{io_name} = NULL;'.format(**io_schema),
           'int32_t {prefix}_{io_name}_ndim = 0;'.format(**io_schema),
-          'if (pNode->{prefix}s().size() > {idx}) {{'.format(**io_schema),
-          '  {prefix}_{io_name}_v = pNode->{prefix}s()[{idx}];'.format(**io_schema),
-          '  {prefix}_{io_name} = m_ATable[{prefix}_{io_name}_v];'.format(**io_schema),
-          '  {prefix}_{io_name}_ndim = {prefix}_{io_name}_v->sizes().size();'.format(**io_schema),
+          'if (pOp.getNumOf{Prefix}s() > {idx}) {{'.format(**io_schema),
+          '  {prefix}_{io_name}_t = pOp.get{Prefix}({idx});'.format(**io_schema),
+          '  {prefix}_{io_name} = m_ATable[{prefix}_{io_name}_t];'.format(**io_schema),
+          '  {prefix}_{io_name}_ndim = {prefix}_{io_name}_t->getNumOfDimensions();'.format(**io_schema),
           '}',
           'int32_t {prefix}_{io_name}_dims[{prefix}_{io_name}_ndim];'.format(**io_schema),
-          'for (int i = 0; i < {prefix}_{io_name}_ndim; ++i) {prefix}_{io_name}_dims[i] = {prefix}_{io_name}_v->sizes()[i].dim;'.format(**io_schema),
+          'for (int i = 0; i < {prefix}_{io_name}_ndim; ++i) {prefix}_{io_name}_dims[i] = {prefix}_{io_name}_t->dimension(i);'.format(**io_schema),
         ]
       elif io_schema['option'] == OpSchema.FormalParameterOption.Variadic:
-        return r + [
-          'int32_t {prefix}_{io_name}_ntensor = pNode->{prefix}s().size() - {idx};'.format(**io_schema),
-          'void *{prefix}_{io_name}[{prefix}_{io_name}_ntensor]; // FIXME: = m_ATable[{prefix}_{io_name}_v];'.format(**io_schema),
+        # TODO
+        return [
+          'int32_t {prefix}_{io_name}_ntensor = pOp.getNumOf{Prefix}s() - {idx};'.format(**io_schema),
+          'void *{prefix}_{io_name}[{prefix}_{io_name}_ntensor];'.format(**io_schema),
+          'for (int i = 0; i < {prefix}_{io_name}_ntensor; ++i) {prefix}_{io_name}[i] = m_ATable[pOp.get{Prefix}({idx} + i)];'.format(**io_schema),
           'int32_t {prefix}_{io_name}_ndim[{prefix}_{io_name}_ntensor]; // FIXME: = {prefix}_{io_name}_v->sizes().size();'.format(**io_schema),
           'int32_t *{prefix}_{io_name}_dims[{prefix}_{io_name}_ntensor]; // FIXME: [{prefix}_{io_name}_ndim[0]];'.format(**io_schema),
           '// FIXME: for (int i = 0; i < {prefix}_{io_name}_ndim; ++i) {prefix}_{io_name}_dims[i] = {prefix}_{io_name}_v->sizes()[i].dim;'.format(**io_schema),
@@ -236,6 +235,7 @@ def gen_interpreter_substitution_hash(schema):
       return {
         'attr_type': format_attr_type(attr.type),
         'attr_name': attr.name,
+        'AttrName': to_camel_case(attr.name),
       }
     return [cb(transform_attr(attr)) for attr in attrs]
 
@@ -286,17 +286,14 @@ def gen_interpreter_substitution_hash(schema):
     if attr['attr_type'][-1] == 's':
       attr['attr_type'] = attr_type_map[attr['attr_type']]
       return [
-        '::onnx::Symbol {attr_name}_s = ::onnx::Symbol("{attr_name}");'.format(**attr),
-        'int32_t number_of_{attr_name} = pNode->hasAttribute({attr_name}_s) ? pNode->{attr_type_a}({attr_name}_s).size() : 0;'.format(**attr),
+        'int32_t number_of_{attr_name} = pOp.get{AttrName}().vector().size();'.format(**attr),
         '{attr_type} {attr_name}[number_of_{attr_name}];'.format(**attr),
-        'if (pNode->hasAttribute({attr_name}_s)) for (int i = 0; i < number_of_{attr_name}; ++i) {attr_name}[i] = {attr_type_ah}pNode->{attr_type_a}({attr_name}_s)[i]{attr_type_at};'.format(**attr),
+        'for (int i = 0; i < number_of_{attr_name}; ++i) {attr_name}[i] = {attr_type_ah}pOp.get{AttrName}().at(i){attr_type_at};'.format(**attr),
       ]
     else:
       attr['attr_type'] = attr_type_map[attr['attr_type']]
       return [
-        '::onnx::Symbol {attr_name}_s = ::onnx::Symbol("{attr_name}");'.format(**attr),
-        '{attr_type} {attr_name};'.format(**attr),
-        'if (pNode->hasAttribute({attr_name}_s)) {attr_name} = {attr_type_ah}pNode->{attr_type_a}({attr_name}_s){attr_type_at};'.format(**attr),
+        '{attr_type} {attr_name} = {attr_type_ah}pOp.get{AttrName}().value(){attr_type_at};'.format(**attr),
       ]
   def pass_attr(attr):
     if attr['attr_type'][-1] == 's':
@@ -323,17 +320,24 @@ def gen_interpreter(operator_schemas, template_filename, visitor_template_filena
     z.update(y)
     return z
 
+  ComputeIR_includes = []
   interpreter_visitors = []
+  # XXX: GraphAttr bug
+  SKIP_OPERS = ['If', 'Loop', 'Scan'] 
   # TODO: Refactor to simple data structure and simple for loop
   for domain, supportmap in operator_schemas:
     for _, namemap in supportmap:
       for op_type, schema, versions in namemap:
+        if schema.name in SKIP_OPERS:
+          continue
         substitution_hash = gen_interpreter_substitution_hash(schema)
         substitution_hash = merge_two_dicts(substitution_hash, gen_runtime_substitution_hash(schema))
         # ${interpreter_visitors}
+        ComputeIR_includes.append('#include <onnc/IR/Compute/{OperatorName}.h>'.format(**substitution_hash))
         interpreter_visitors.append(visitor_template.substitute(substitution_hash))
 
   substitution_hash = {
+    'ComputeIR_includes': '\n'.join(ComputeIR_includes),
     'interpreter_visitors': '\n\n'.join(interpreter_visitors),
   }
 
