@@ -7,143 +7,143 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_INTERPRETER_INTERPRETER_H
 #define ONNC_INTERPRETER_INTERPRETER_H
-#include <onnc/IR/ONNXNodeVisitor.h>
+#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/Compute/Value.h>
+#include <onnc/IR/ComputeMemOperand.h>
 #include <unordered_map>
-#include <onnx/onnx.pb.h>
+#include <cstddef>
 
+namespace onnc {
 /** \class Interpreter
  *  \brief Interpreter dispatch compute ir to runtime.
  */
-class Interpreter : public onnc::ONNXNodeVisitor
+class Interpreter : public ComputeVisitor
 {
 public:
   Interpreter(void *pContext) : m_pContext(pContext) {};
 
-  typedef std::unordered_map<::onnx::Value *, void *> AddressTable;
   // XXX
+  typedef std::unordered_map<Value *, void *> AddressTable;
   AddressTable m_ATable;
-  void visitMultinomial(onnx::Node*);
 
-  virtual void visitNode(::onnx::Node *pNode);
-  virtual void visitAbs(::onnx::Node *pNode);
-  virtual void visitAcos(::onnx::Node *pNode);
-  virtual void visitAdd(::onnx::Node *pNode);
-  virtual void visitAnd(::onnx::Node *pNode);
-  virtual void visitArgMax(::onnx::Node *pNode);
-  virtual void visitArgMin(::onnx::Node *pNode);
-  virtual void visitAsin(::onnx::Node *pNode);
-  virtual void visitAtan(::onnx::Node *pNode);
-  virtual void visitAveragePool(::onnx::Node *pNode);
-  virtual void visitBatchNormalization(::onnx::Node *pNode);
-  virtual void visitCast(::onnx::Node *pNode);
-  virtual void visitCeil(::onnx::Node *pNode);
-  virtual void visitClip(::onnx::Node *pNode);
-  virtual void visitConcat(::onnx::Node *pNode);
-  virtual void visitConstant(::onnx::Node *pNode);
-  virtual void visitConv(::onnx::Node *pNode);
-  virtual void visitConvTranspose(::onnx::Node *pNode);
-  virtual void visitCos(::onnx::Node *pNode);
-  virtual void visitDepthToSpace(::onnx::Node *pNode);
-  virtual void visitDiv(::onnx::Node *pNode);
-  virtual void visitDropout(::onnx::Node *pNode);
-  virtual void visitElu(::onnx::Node *pNode);
-  virtual void visitEqual(::onnx::Node *pNode);
-  virtual void visitExp(::onnx::Node *pNode);
-  virtual void visitFlatten(::onnx::Node *pNode);
-  virtual void visitFloor(::onnx::Node *pNode);
-  virtual void visitGRU(::onnx::Node *pNode);
-  virtual void visitGather(::onnx::Node *pNode);
-  virtual void visitGemm(::onnx::Node *pNode);
-  virtual void visitGlobalAveragePool(::onnx::Node *pNode);
-  virtual void visitGlobalLpPool(::onnx::Node *pNode);
-  virtual void visitGlobalMaxPool(::onnx::Node *pNode);
-  virtual void visitGreater(::onnx::Node *pNode);
-  virtual void visitHardSigmoid(::onnx::Node *pNode);
-  virtual void visitHardmax(::onnx::Node *pNode);
-  virtual void visitIdentity(::onnx::Node *pNode);
-  virtual void visitInstanceNormalization(::onnx::Node *pNode);
-  virtual void visitLRN(::onnx::Node *pNode);
-  virtual void visitLSTM(::onnx::Node *pNode);
-  virtual void visitLeakyRelu(::onnx::Node *pNode);
-  virtual void visitLess(::onnx::Node *pNode);
-  virtual void visitLog(::onnx::Node *pNode);
-  virtual void visitLogSoftmax(::onnx::Node *pNode);
-  virtual void visitLpNormalization(::onnx::Node *pNode);
-  virtual void visitLpPool(::onnx::Node *pNode);
-  virtual void visitMatMul(::onnx::Node *pNode);
-  virtual void visitMax(::onnx::Node *pNode);
-  virtual void visitMaxPool(::onnx::Node *pNode);
-  virtual void visitMaxRoiPool(::onnx::Node *pNode);
-  virtual void visitMean(::onnx::Node *pNode);
-  virtual void visitMin(::onnx::Node *pNode);
-  virtual void visitMul(::onnx::Node *pNode);
-  virtual void visitNeg(::onnx::Node *pNode);
-  virtual void visitNot(::onnx::Node *pNode);
-  virtual void visitOr(::onnx::Node *pNode);
-  virtual void visitPRelu(::onnx::Node *pNode);
-  virtual void visitPad(::onnx::Node *pNode);
-  virtual void visitPow(::onnx::Node *pNode);
-  virtual void visitRNN(::onnx::Node *pNode);
-  virtual void visitRandomNormal(::onnx::Node *pNode);
-  virtual void visitRandomNormalLike(::onnx::Node *pNode);
-  virtual void visitRandomUniform(::onnx::Node *pNode);
-  virtual void visitRandomUniformLike(::onnx::Node *pNode);
-  virtual void visitReciprocal(::onnx::Node *pNode);
-  virtual void visitReduceL1(::onnx::Node *pNode);
-  virtual void visitReduceL2(::onnx::Node *pNode);
-  virtual void visitReduceLogSum(::onnx::Node *pNode);
-  virtual void visitReduceLogSumExp(::onnx::Node *pNode);
-  virtual void visitReduceMax(::onnx::Node *pNode);
-  virtual void visitReduceMean(::onnx::Node *pNode);
-  virtual void visitReduceMin(::onnx::Node *pNode);
-  virtual void visitReduceProd(::onnx::Node *pNode);
-  virtual void visitReduceSum(::onnx::Node *pNode);
-  virtual void visitReduceSumSquare(::onnx::Node *pNode);
-  virtual void visitRelu(::onnx::Node *pNode);
-  virtual void visitReshape(::onnx::Node *pNode);
-  virtual void visitSelu(::onnx::Node *pNode);
-  virtual void visitShape(::onnx::Node *pNode);
-  virtual void visitSigmoid(::onnx::Node *pNode);
-  virtual void visitSin(::onnx::Node *pNode);
-  virtual void visitSize(::onnx::Node *pNode);
-  virtual void visitSlice(::onnx::Node *pNode);
-  virtual void visitSoftmax(::onnx::Node *pNode);
-  virtual void visitSoftplus(::onnx::Node *pNode);
-  virtual void visitSoftsign(::onnx::Node *pNode);
-  virtual void visitSpaceToDepth(::onnx::Node *pNode);
-  virtual void visitSplit(::onnx::Node *pNode);
-  virtual void visitSqrt(::onnx::Node *pNode);
-  virtual void visitSqueeze(::onnx::Node *pNode);
-  virtual void visitSub(::onnx::Node *pNode);
-  virtual void visitSum(::onnx::Node *pNode);
-  virtual void visitTan(::onnx::Node *pNode);
-  virtual void visitTanh(::onnx::Node *pNode);
-  virtual void visitTile(::onnx::Node *pNode);
-  virtual void visitTopK(::onnx::Node *pNode);
-  virtual void visitTranspose(::onnx::Node *pNode);
-  virtual void visitUnsqueeze(::onnx::Node *pNode);
-  virtual void visitUpsample(::onnx::Node *pNode);
-  virtual void visitXor(::onnx::Node *pNode);
-  virtual void visitATen(::onnx::Node *pNode);
-  virtual void visitAffine(::onnx::Node *pNode);
-  virtual void visitConstantFill(::onnx::Node *pNode);
-  virtual void visitCrop(::onnx::Node *pNode);
-  virtual void visitFC(::onnx::Node *pNode) {};
-  virtual void visitGRUUnit(::onnx::Node *pNode);
-  virtual void visitGivenTensorFill(::onnx::Node *pNode);
-  virtual void visitIf(::onnx::Node *pNode);
-  virtual void visitImageScaler(::onnx::Node *pNode);
-  virtual void visitLoop(::onnx::Node *pNode);
-  virtual void visitMeanVarianceNormalization(::onnx::Node *pNode);
-  virtual void visitParametricSoftplus(::onnx::Node *pNode);
-  virtual void visitScale(::onnx::Node *pNode);
-  virtual void visitScaledTanh(::onnx::Node *pNode);
-  virtual void visitThresholdedRelu(::onnx::Node *pNode);
-  virtual void visitExpand(::onnx::Node *pNode);
-  virtual void visitScan(::onnx::Node *pNode);
+  virtual void visit(Abs& pAbs);
+  virtual void visit(Acos& pAcos);
+  virtual void visit(Add& pAdd);
+  virtual void visit(And& pAnd);
+  virtual void visit(ArgMax& pArgMax);
+  virtual void visit(ArgMin& pArgMin);
+  virtual void visit(Asin& pAsin);
+  virtual void visit(Atan& pAtan);
+  virtual void visit(AveragePool& pAveragePool);
+  virtual void visit(BatchNormalization& pBatchNormalization);
+  virtual void visit(Cast& pCast);
+  virtual void visit(Ceil& pCeil);
+  virtual void visit(Clip& pClip);
+  virtual void visit(Concat& pConcat);
+  virtual void visit(Constant& pConstant);
+  virtual void visit(Conv& pConv);
+  virtual void visit(ConvTranspose& pConvTranspose);
+  virtual void visit(Cos& pCos);
+  virtual void visit(DepthToSpace& pDepthToSpace);
+  virtual void visit(Div& pDiv);
+  virtual void visit(Dropout& pDropout);
+  virtual void visit(Elu& pElu);
+  virtual void visit(Equal& pEqual);
+  virtual void visit(Exp& pExp);
+  virtual void visit(Expand& pExpand);
+  virtual void visit(Flatten& pFlatten);
+  virtual void visit(Floor& pFloor);
+  virtual void visit(GRU& pGRU);
+  virtual void visit(Gather& pGather);
+  virtual void visit(Gemm& pGemm);
+  virtual void visit(GlobalAveragePool& pGlobalAveragePool);
+  virtual void visit(GlobalLpPool& pGlobalLpPool);
+  virtual void visit(GlobalMaxPool& pGlobalMaxPool);
+  virtual void visit(Greater& pGreater);
+  virtual void visit(HardSigmoid& pHardSigmoid);
+  virtual void visit(Hardmax& pHardmax);
+  virtual void visit(Identity& pIdentity);
+  virtual void visit(InstanceNormalization& pInstanceNormalization);
+  virtual void visit(LRN& pLRN);
+  virtual void visit(LSTM& pLSTM);
+  virtual void visit(LeakyRelu& pLeakyRelu);
+  virtual void visit(Less& pLess);
+  virtual void visit(Log& pLog);
+  virtual void visit(LogSoftmax& pLogSoftmax);
+  virtual void visit(LpNormalization& pLpNormalization);
+  virtual void visit(LpPool& pLpPool);
+  virtual void visit(MatMul& pMatMul);
+  virtual void visit(Max& pMax);
+  virtual void visit(MaxPool& pMaxPool);
+  virtual void visit(MaxRoiPool& pMaxRoiPool);
+  virtual void visit(Mean& pMean);
+  virtual void visit(Min& pMin);
+  virtual void visit(Mul& pMul);
+  virtual void visit(Multinomial& pMultinomial);
+  virtual void visit(Neg& pNeg);
+  virtual void visit(Not& pNot);
+  virtual void visit(Or& pOr);
+  virtual void visit(PRelu& pPRelu);
+  virtual void visit(Pad& pPad);
+  virtual void visit(Pow& pPow);
+  virtual void visit(RNN& pRNN);
+  virtual void visit(RandomNormal& pRandomNormal);
+  virtual void visit(RandomNormalLike& pRandomNormalLike);
+  virtual void visit(RandomUniform& pRandomUniform);
+  virtual void visit(RandomUniformLike& pRandomUniformLike);
+  virtual void visit(Reciprocal& pReciprocal);
+  virtual void visit(ReduceL1& pReduceL1);
+  virtual void visit(ReduceL2& pReduceL2);
+  virtual void visit(ReduceLogSum& pReduceLogSum);
+  virtual void visit(ReduceLogSumExp& pReduceLogSumExp);
+  virtual void visit(ReduceMax& pReduceMax);
+  virtual void visit(ReduceMean& pReduceMean);
+  virtual void visit(ReduceMin& pReduceMin);
+  virtual void visit(ReduceProd& pReduceProd);
+  virtual void visit(ReduceSum& pReduceSum);
+  virtual void visit(ReduceSumSquare& pReduceSumSquare);
+  virtual void visit(Relu& pRelu);
+  virtual void visit(Reshape& pReshape);
+  virtual void visit(Selu& pSelu);
+  virtual void visit(Shape& pShape);
+  virtual void visit(Sigmoid& pSigmoid);
+  virtual void visit(Sin& pSin);
+  virtual void visit(Size& pSize);
+  virtual void visit(Slice& pSlice);
+  virtual void visit(Softmax& pSoftmax);
+  virtual void visit(Softplus& pSoftplus);
+  virtual void visit(Softsign& pSoftsign);
+  virtual void visit(SpaceToDepth& pSpaceToDepth);
+  virtual void visit(Split& pSplit);
+  virtual void visit(Sqrt& pSqrt);
+  virtual void visit(Squeeze& pSqueeze);
+  virtual void visit(Sub& pSub);
+  virtual void visit(Sum& pSum);
+  virtual void visit(Tan& pTan);
+  virtual void visit(Tanh& pTanh);
+  virtual void visit(Tile& pTile);
+  virtual void visit(TopK& pTopK);
+  virtual void visit(Transpose& pTranspose);
+  virtual void visit(Unsqueeze& pUnsqueeze);
+  virtual void visit(Upsample& pUpsample);
+  virtual void visit(Xor& pXor);
+  virtual void visit(ATen& pATen);
+  virtual void visit(Affine& pAffine);
+  virtual void visit(ConstantFill& pConstantFill);
+  virtual void visit(Crop& pCrop);
+  virtual void visit(GRUUnit& pGRUUnit);
+  virtual void visit(GivenTensorFill& pGivenTensorFill);
+  virtual void visit(ImageScaler& pImageScaler);
+  virtual void visit(MeanVarianceNormalization& pMeanVarianceNormalization);
+  virtual void visit(ParametricSoftplus& pParametricSoftplus);
+  virtual void visit(Scale& pScale);
+  virtual void visit(ScaledTanh& pScaledTanh);
+  virtual void visit(ThresholdedRelu& pThresholdedRelu);
 
 private:
   void *m_pContext;
 };
+
+} // namespace of onnc
 
 #endif

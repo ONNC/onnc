@@ -18,4 +18,19 @@ void ONNC_RUNTIME_gemm_float(
   ,int32_t transA
   ,int32_t transB
 ) {
+  int num = transA ? input_A_dims[0] : input_A_dims[1];
+  for (int32_t i = 0 ; i < output_Y_dims[0] ; ++i) {
+    for (int32_t j = 0 ; j < output_Y_dims[1] ; ++j) {
+      output_Y[ i * output_Y_dims[1] + j ] = 0;
+      for (int32_t k = 0 ; k < num ; ++k) {
+        output_Y[ i * output_Y_dims[1] + j ] +=
+          input_A[ transA ? (k * input_A_dims[1] + i) :
+                            (i * input_A_dims[1] + k) ] *
+          input_B[ transB ? (j * input_B_dims[1] + k) :
+                            (k * input_B_dims[1] + j) ];
+      }
+      output_Y[ i * output_Y_dims[1] + j ] *= alpha;
+      output_Y[ i * output_Y_dims[1] + j ] += beta * input_C[ + j ];
+    }
+  }
 }
