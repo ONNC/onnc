@@ -46,7 +46,7 @@ def gen_compute_ir_substitution_hash(schema):
   def for_io_schema(io_schemas, io, cb):
     def transform_io_schema(idx, io_schema):
       name = io_schema.name
-      if alt_name[to_camel_case(name)]:
+      if alt_name[to_camel_case(name)] or (name in ['input', 'output'] and io_schema.option == OpSchema.FormalParameterOption.Variadic):
         name = ('in_' if io == 'i' else 'out_') + name
       return {
         'idx': idx,

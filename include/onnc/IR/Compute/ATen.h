@@ -18,8 +18,8 @@ class ATen : public ComputeOperator
 {
 public:
   enum IOConst {
-    kInput = 0,
-    kOutput = 0
+    kInInput = 0,
+    kOutOutput = 0
   };
 
   static char ID;
@@ -54,19 +54,19 @@ public:
 
   // clang-format off
   // Inputs getters
-  Tensor* getInput(size_t pIdx) { return getInput(kInput + pIdx); }
+  Tensor* getInInput(size_t pIdx) { return getInput(kInInput + pIdx); }
 
 
   // Outputs getters
-  Tensor* getOutput(size_t pIdx) { return getOutput(kOutput + pIdx); }
+  Tensor* getOutOutput(size_t pIdx) { return getOutput(kOutOutput + pIdx); }
 
 
   // Inputs setters
-  void setInput(size_t pIdx, Tensor& pTensor) { m_Inputs[kInput + pIdx] = &pTensor; }
+  void setInInput(size_t pIdx, Tensor& pTensor) { m_Inputs[kInInput + pIdx] = &pTensor; }
 
 
   // Outputs setters
-  void setOutput(size_t pIdx, Tensor& pTensor) { m_Outputs[kOutput + pIdx] = &pTensor; }
+  void setOutOutput(size_t pIdx, Tensor& pTensor) { m_Outputs[kOutOutput + pIdx] = &pTensor; }
 
   // clang-format on
 
