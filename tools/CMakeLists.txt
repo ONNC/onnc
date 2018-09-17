@@ -1,6 +1,7 @@
 
 add_subdirectory(unittests)
 add_subdirectory(onnc)
+add_subdirectory(onni)
 add_subdirectory(readonnx)
 if (ENABLE_SOPHON_TARGET)
     add_subdirectory(onnx2tg)
