@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
 
 void ONNC_RUNTIME_randomuniform_float(
   void * restrict onnc_runtime_context
@@ -15,4 +17,12 @@ void ONNC_RUNTIME_randomuniform_float(
   ,int32_t * restrict shape
   ,int32_t number_of_shape
 ) {
+  srand(seed ? seed : time(NULL));
+  int32_t size = 1;
+  for(int32_t dim = 0; dim < output_output_ndim; dim++){
+    size *= output_output_dims[dim];
+  }
+  for(int32_t in = 0 ; in < size ; ++in ){
+    output_output[in] = ((float)rand() / (float)RAND_MAX) * (high - low) + low;
+  }
 }

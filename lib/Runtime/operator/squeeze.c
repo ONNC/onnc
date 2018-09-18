@@ -12,4 +12,14 @@ void ONNC_RUNTIME_squeeze_float(
   ,int32_t * restrict axes
   ,int32_t number_of_axes
 ) {
+  int32_t size_N = 1;
+
+  // total counts of elements
+  for(int32_t i = 0; i < input_data_ndim; ++i) {
+    size_N *= input_data_dims[i];
+  }
+
+  for(int32_t i = 0; i < size_N; ++i) {
+    output_squeezed[i] = input_data[i];
+  }
 }

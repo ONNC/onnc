@@ -11,4 +11,12 @@ void ONNC_RUNTIME_flatten_float(
   ,int32_t output_output_ndim, const int32_t * restrict output_output_dims
   ,int32_t axis
 ) {
+  int32_t size = 1;
+  for(int32_t dim = 0 ; dim < input_input_ndim ; dim++){
+    size *= input_input_dims[dim];
+  }
+
+  for(int32_t index = 0 ; index < size ; index++){
+    output_output[index] = input_input[index];
+  }
 }
