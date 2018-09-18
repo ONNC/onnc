@@ -85,7 +85,7 @@ Pass::ReturnType GraphLivenessAnalysis::runOnGraph(xGraph &pGraph)
   return kModuleNoChanged;
 }
 
-void GraphLivenessAnalysis::print(std::ostream& pOS) const
+void GraphLivenessAnalysis::print(OStream& pOS, const Module* pModule) const
 {
   for (const LiveInterval *li : m_LiveIntervals) {
     pOS << li->getValue().uniqueName()

@@ -60,7 +60,7 @@ public:
 
   const LiveIntervalList& getLiveIntervals() const { return m_LiveIntervals; }
 
-  void print(std::ostream& pOS) const;
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   void calculateLiveness(xGraph &pGraph);

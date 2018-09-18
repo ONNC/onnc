@@ -60,7 +60,7 @@ const LiveIntervals::LIs LiveIntervals::getSortedIntervals() const
   return liveIntrvls;
 }
 
-void LiveIntervals::print(std::ostream& pOS) const
+void LiveIntervals::print(OStream& pOS, const Module* pModule) const
 {
   pOS << "=== Live Intervals ===\n";
   if (m_ValIntrvls.empty()) {
@@ -74,8 +74,6 @@ void LiveIntervals::print(std::ostream& pOS) const
 
   pOS << dbgstr.str();
 }
-
-void LiveIntervals::dump() const { print(errs()); }
 
 void LiveIntervals::clear()
 {

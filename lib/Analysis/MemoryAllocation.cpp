@@ -209,7 +209,7 @@ void MemoryAllocation::printGraphAlloc(OStream &pOS,
   pOS << "\n";
 }
 
-void MemoryAllocation::print(OStream& pOS) const
+void MemoryAllocation::print(OStream& pOS, const Module* pModule) const
 {
   for (const auto &it : m_GraphMemAllocList)
     printGraphAlloc(pOS, it.first);

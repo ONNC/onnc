@@ -99,9 +99,7 @@ public:
 
   StringRef getPassName() const override { return "BuildSlotIndexes"; }
 
-  void print(std::ostream& pOS) const;
-
-  void dump() const { print(errs()); }
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   TimeSlot* createTimeSlot(ComputeOperator& pOp, unsigned pIdx);
