@@ -61,6 +61,8 @@ public:
 
   AllocEntry getAlloc(const Value* pVal) const;
 
+  bool hasAlloc(const Value* pVal) const;
+
   void print(OStream& pOS, const Module* pModule) const override;
 
 private:

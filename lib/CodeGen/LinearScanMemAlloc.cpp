@@ -86,6 +86,12 @@ LinearScanMemAlloc::getAlloc(const Value* pVal) const
   return it->second;
 }
 
+bool LinearScanMemAlloc::hasAlloc(const Value* pVal) const
+{
+  auto it = m_ValToAllocEntry.find(const_cast<Value*>(pVal));
+  return it != m_ValToAllocEntry.end();
+}
+
 void LinearScanMemAlloc::print(OStream& pOS, const Module* pModule) const
 {
   pOS << "=== LinearScanMemAlloc ===\n";
