@@ -151,23 +151,6 @@ namespace {
 
 }
 
-static const char *testAlexNetAnswer =
-  "conv1_w_0 [0, 0]\ndata_0 [0, 0]\nconv1_b_0 [0, 0]\n"
-  "conv1_1 [0, 1]\nconv1_2 [1, 2]\nnorm1_1 [2, 3]\n"
-  "pool1_1 [3, 4]\nconv2_1 [4, 5]\nconv2_b_0 [4, 4]\nconv2_w_0 [4, 4]\n"
-  "conv2_2 [5, 6]\n"
-  "norm2_1 [6, 7]\npool2_1 [7, 8]\n"
-  "conv3_1 [8, 9]\nconv3_b_0 [8, 8]\nconv3_w_0 [8, 8]\nconv3_2 [9, 10]\n"
-  "conv4_1 [10, 11]\nconv4_b_0 [10, 10]\nconv4_w_0 [10, 10]\nconv4_2 [11, 12]\n"
-  "conv5_w_0 [12, 12]\nconv5_b_0 [12, 12]\n"
-  "conv5_1 [12, 13]\nconv5_2 [13, 14]\npool5_1 [14, 15]\n"
-  "fc6_w_0 [15, 15]\nfc6_b_0 [15, 15]\n"
-  "fc6_1 [15, 16]\nfc6_2 [16, 17]\n_fc6_mask_1 [17, 17]\nfc6_3 [17, 18]\n"
-  "fc7_w_0 [18, 18]\nfc7_b_0 [18, 18]\n"
-  "fc7_1 [18, 19]\nfc7_2 [19, 20]\nfc7_3 [20, 21]\n_fc7_mask_1 [20, 20]\n"
-  "fc8_1 [21, 22]\nfc8_w_0 [21, 21]\nfc8_b_0 [21, 21]\n"
-  "prob_1 [22, 22]\n";
-
 SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   GraphHelper graph(new xGraph());
 
@@ -260,9 +243,42 @@ SKYPAT_F(LivenessAnalysisTest, testAlexNet){
   pm.add(liveAnalPass);
   pm.run(module);
 
-  std::string result;
-  OStrStream oss(result);
-  liveAnalPass->print(oss);
+  // Answer:
+  struct ValRange
+  {
+    int start, end;
+    ValRange(int start, int end)
+      : start(start), end(end) {
+    }
+  };
 
-  ASSERT_TRUE(result == testAlexNetAnswer);
+  const std::unordered_map<std::string, ValRange> valRanges = {
+    {"data_0", {0, 0}},
+    {"conv1_w_0", {0, 0}}, {"conv1_b_0", {0, 0}},
+    {"conv2_w_0", {4, 4}}, {"conv2_b_0", {4, 4}},
+    {"conv3_w_0", {8, 8}}, {"conv3_b_0", {8, 8}},
+    {"conv4_w_0", {10, 10}}, {"conv4_b_0", {10, 10}},
+    {"conv5_w_0", {12, 12}}, {"conv5_b_0", {12, 12}},
+    {"fc6_w_0", {15, 15}}, {"fc6_b_0", {15, 15}},
+    {"fc7_w_0", {18, 18}}, {"fc7_b_0", {18, 18}},
+    {"fc8_w_0", {21, 21}}, {"fc8_b_0", {21, 21}},
+    {"conv1_1", {0, 1}}, {"conv1_2", {1, 2}},
+    {"norm1_1", {2, 3}}, {"pool1_1", {3, 4}},
+    {"conv2_1", {4, 5}}, {"conv2_2", {5, 6}},
+    {"norm2_1", {6, 7}}, {"pool2_1", {7, 8}},
+    {"conv3_1", {8, 9}}, {"conv3_2", {9, 10}}, {"conv4_2", {11, 12}},
+    {"conv4_1", {10, 11}}, {"conv5_1", {12, 13}},
+    {"conv5_2", {13, 14}}, {"pool5_1", {14, 15}},
+    {"fc6_1", {15, 16}}, {"fc6_2", {16, 17}}, {"fc6_3", {17, 18}},
+    {"_fc6_mask_1", {17, 17}},
+    {"fc7_1", {18, 19}}, {"fc7_2", {19, 20}}, {"fc7_3", {20, 21}},
+    {"_fc7_mask_1", {20, 20}},
+    {"fc8_1", {21, 22}}, {"prob_1", {22, 22}}
+  };
+
+  for (const LiveInterval* li : liveAnalPass->getLiveIntervals()) {
+    auto it = valRanges.find(li->getValue().uniqueName());
+    ASSERT_TRUE(li->getStart() == it->second.start);
+    ASSERT_TRUE(li->getEnd() == it->second.end);
+  }
 }
