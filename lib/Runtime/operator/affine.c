@@ -12,4 +12,12 @@ void ONNC_RUNTIME_affine_float(
   ,float alpha
   ,float beta
 ) {
+	int32_t size = 1;
+	for(int32_t i = 0 ; i < input_X_ndim ; ++i){
+		size *= input_X_dims[i];
+	}
+  // y = alpha * x + beta
+	for(int32_t i = 0 ; i < size ; ++i){
+		output_Y[i] = alpha * input_X[i] + beta;
+	}
 }

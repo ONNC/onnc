@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 
 void ONNC_RUNTIME_scaledtanh_float(
   void * restrict onnc_runtime_context
@@ -12,4 +13,13 @@ void ONNC_RUNTIME_scaledtanh_float(
   ,float alpha
   ,float beta
 ) {
+	int32_t size = 1;
+
+	for(int32_t i = 0 ; i < input_input_ndim ; ++i){
+		size *= input_input_dims[i];
+	}
+
+	for(int32_t i = 0 ; i < size ; ++i){
+    output_output[i] = alpha * tanhf(beta * input_input[i]);
+	}
 }

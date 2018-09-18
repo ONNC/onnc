@@ -13,4 +13,15 @@ void ONNC_RUNTIME_xor_float(
   ,int32_t output_C_ndim, const int32_t * restrict output_C_dims
   
 ) {
+  int32_t size = 1;
+  for(int32_t i = 0; i < input_A_ndim; ++i){
+    size *= input_A_dims[i];
+  }
+  for(int32_t i = 0; i < size; ++i){
+    if((bool)input_A[i] == (bool)input_B[i]){
+      output_C[i] = (float)false;
+    } else {
+      output_C[i] = (float)true;
+    }
+  }
 }

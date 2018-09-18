@@ -12,4 +12,15 @@ void ONNC_RUNTIME_clip_float(
   ,float max
   ,float min
 ) {
+	int32_t size = 1;
+	for(int32_t i = 0 ; i < input_input_ndim ; ++i){
+		size *= input_input_dims[i];
+	}
+
+	for(int32_t i = 0 ; i < size ; ++i){
+    float tmp_val = input_input[i];
+    tmp_val = tmp_val > max ? max : tmp_val;
+    tmp_val = tmp_val < min ? min : tmp_val;
+		output_output[i] = tmp_val;
+	}
 }
