@@ -31,7 +31,7 @@ public:
 
     Segment(SlotIndex pStart, SlotIndex pEnd)
       : m_Start(pStart), m_End(pEnd) {
-      assert(m_Start < m_End && "Invalid liverange segment.");
+      assert(m_Start <= m_End && "Invalid liverange segment.");
     }
 
     /// Return true if the two segments has overlap.
