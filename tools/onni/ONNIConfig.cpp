@@ -14,7 +14,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 ONNIConfig::ONNIConfig()
   : m_Model(), m_Input(), m_Output(),
-    m_Quadruple(), m_Arch(), m_TargetOptions() {
+    m_Quadruple(), m_Arch(), m_TargetOptions(),
+    m_Verbose() {
 }
 
 ONNIConfig::~ONNIConfig()
