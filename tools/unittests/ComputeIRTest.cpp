@@ -324,7 +324,7 @@ SKYPAT_F(ComputeIRTest, deep_clone)
   builder.AddInitializer("fc8_b_0");
 
   // create nodes (layers)
-  xNode* conv = builder.AddNode("Conv",    {"data_0", "conv1_w_0", "conv1_b_0"});
+  builder.AddNode("Conv",    {"data_0", "conv1_w_0", "conv1_b_0"});
   builder.AddOutput("conv1_1", {1});
 
   builder.AddNode("Relu",    {"conv1_1"});

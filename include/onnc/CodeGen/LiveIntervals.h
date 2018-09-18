@@ -48,6 +48,9 @@ public:
 
   const LiveInterval* getInterval(const Value* pV) const;
 
+  /// Remove a live interval pV from liveness table.
+  void removeLiveInterval(const Value* pV);
+
   /// Get internal data structure.
   ValueIntervalMap& getAllIntervals() { return m_ValIntrvls; }
 
@@ -62,9 +65,7 @@ public:
     return m_SlotIndexes->getSlotIndex(pOp);
   }
 
-  void print(std::ostream& pOS) const;
-
-  void dump() const;
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   /// Delete LiveInterval object.

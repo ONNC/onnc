@@ -6,10 +6,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/ADT/StringList.h>
+#include <onnc/CodeGen/BuildMemOperand.h>
+#include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/AnalysisResolver.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Core/PassManager.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/IR/Compute/Conv.h>
@@ -24,7 +27,10 @@
 #include <onnc/IR/Compute/Softmax.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/OStrStream.h>
+#include <onnc/Target/TargetBackend.h>
+#include <onnc/Target/TargetMemInfo.h>
 #include <skypat/skypat.h>
+#include "../../lib/Target/X86/X86RemoveWeightFromLiveIntervals.h"
 
 using namespace onnc;
 
@@ -188,6 +194,61 @@ static ComputeGraph& CreateAlexNet(Module& pM)
 }
 
 //===----------------------------------------------------------------------===//
+// Virtual Target
+//===----------------------------------------------------------------------===//
+class VTargetMemInfo : public TargetMemInfo
+{
+public:
+  MemSize getTensorMemorySize(const Tensor& pVal) override {
+    uint64_t align, size;
+    switch (pVal.kind()) {
+    case kUint8:
+    case kInt8:
+    case kBoolean:
+      align = 16, size = 1;
+      break;
+
+    case kUint16:
+    case kInt16:
+    case kFloat16:
+      align = 16, size = 2;
+      break;
+
+    case kFloat:
+    case kInt32:
+    case kUint32:
+      align = 16, size = 4;
+      break;
+
+    case kInt64:
+    case kUint64:
+      align = 16, size = 8;
+      break;
+
+    default:
+      assert(false && "Un-support value type.");
+      align = 16, size = 4;
+    }
+
+    for (auto i : pVal.getDimensions())
+      size *= i;
+
+    return MemSize(align, size);
+  }
+};
+
+class VTargetBackend : public TargetBackend
+{
+public:
+  VTargetBackend(const TargetOptions& pOptions)
+    : TargetBackend(pOptions) {
+    m_pMemInfo = &m_VTMI;
+  }
+
+  VTargetMemInfo m_VTMI;
+};
+
+//===----------------------------------------------------------------------===//
 // Testcases
 //===----------------------------------------------------------------------===//
 SKYPAT_F(MemAllocTest, live_interval_test)
@@ -293,5 +354,97 @@ SKYPAT_F(MemAllocTest, live_matrix_test)
     std::sort(overlaps.begin(), overlaps.end());
 
     ASSERT_TRUE(expectOverlaps == overlaps);
+  }
+}
+
+SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
+{
+  Module module;
+  CreateAlexNet(module);
+
+  PassManager passMgr;
+  AnalysisResolver resolver(passMgr);
+  AnalysisResolver* nullResolver = nullptr;
+
+  TargetOptions opt;
+  VTargetBackend vtarget(opt);
+
+  BuildSlotIndexes buildSlotIdx;
+  LiveIntervals liveIntrvls;
+  LiveValueMatrix liveMat;
+  LinearScanMemAlloc linearMemAlloc(&vtarget);
+  BuildMemOperand buildMemOpnd;
+
+  resolver.add(buildSlotIdx.getPassID(), buildSlotIdx);
+  resolver.add(liveIntrvls.getPassID(), liveIntrvls);
+  resolver.add(liveMat.getPassID(), liveMat);
+  resolver.add(linearMemAlloc.getPassID(), linearMemAlloc);
+
+  liveIntrvls.setResolver(resolver);
+  liveMat.setResolver(resolver);
+  linearMemAlloc.setResolver(resolver);
+
+  buildSlotIdx.runOnModule(module);
+  liveIntrvls.runOnModule(module);
+  liveMat.runOnModule(module);
+  buildMemOpnd.runOnModule(module);
+  linearMemAlloc.runOnModule(module);
+
+  for (auto li : liveIntrvls.getSortedIntervals()) {
+    LinearScanMemAlloc::AllocEntry
+      myAlloc = linearMemAlloc.getAlloc(li->getValue());
+
+    for (auto overlappedLI : liveMat.getInterferingLiveIntervals(li))
+    {
+      LinearScanMemAlloc::AllocEntry otherAlloc =
+        linearMemAlloc.getAlloc(overlappedLI->getValue());
+      ASSERT_FALSE(otherAlloc.overlap(myAlloc));
+    }
+  }
+
+  liveIntrvls.setResolver(*nullResolver);
+  liveMat.setResolver(*nullResolver);
+  linearMemAlloc.setResolver(*nullResolver);
+}
+
+SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
+{
+  TargetOptions opt;
+  VTargetBackend vtarget(opt);
+
+  BuildSlotIndexes* buildSlotIdx = new BuildSlotIndexes();
+  LiveIntervals* liveIntrvls = new LiveIntervals();
+  X86RemoveWeightFromLiveIntervals*
+    rmWeight = new X86RemoveWeightFromLiveIntervals();
+  LiveValueMatrix* liveMat = new LiveValueMatrix();
+  LinearScanMemAlloc* linearMemAlloc = new LinearScanMemAlloc(&vtarget);
+  BuildMemOperand* buildMemOpnd = new BuildMemOperand();
+
+  PassManager passMgr;
+  passMgr.add(buildSlotIdx);
+  passMgr.add(liveIntrvls);
+  passMgr.add(rmWeight);
+  passMgr.add(liveMat);
+  passMgr.add(buildMemOpnd);
+  passMgr.add(linearMemAlloc);
+
+  Module module;
+  CreateAlexNet(module);
+
+  passMgr.run(module);
+
+  for (auto li : liveIntrvls->getSortedIntervals()) {
+    LinearScanMemAlloc::AllocEntry
+      myAlloc = linearMemAlloc->getAlloc(li->getValue());
+    ComputeOperator* op = static_cast<ComputeOperator*>(li->getValue()
+                                                          ->getDefine());
+    ASSERT_FALSE(isa<Initializer>(op));
+
+    for (auto overlappedLI : liveMat->getInterferingLiveIntervals(li))
+    {
+      LinearScanMemAlloc::AllocEntry otherAlloc =
+        linearMemAlloc->getAlloc(overlappedLI->getValue());
+      ASSERT_FALSE(otherAlloc.overlap(myAlloc));
+    }
   }
 }

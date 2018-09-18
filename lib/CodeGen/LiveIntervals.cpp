@@ -44,6 +44,12 @@ const LiveInterval* LiveIntervals::getInterval(const Value* pV) const
   return m_ValIntrvls.find(const_cast<Value*>(pV))->second;
 }
 
+void LiveIntervals::removeLiveInterval(const Value* pV)
+{
+  assert(hasInterval(pV) && "The value has no interval.");
+  m_ValIntrvls.erase(const_cast<Value*>(pV));
+}
+
 const LiveIntervals::LIs LiveIntervals::getSortedIntervals() const
 {
   LIs liveIntrvls;
@@ -60,7 +66,7 @@ const LiveIntervals::LIs LiveIntervals::getSortedIntervals() const
   return liveIntrvls;
 }
 
-void LiveIntervals::print(std::ostream& pOS) const
+void LiveIntervals::print(OStream& pOS, const Module* pModule) const
 {
   pOS << "=== Live Intervals ===\n";
   if (m_ValIntrvls.empty()) {
@@ -74,8 +80,6 @@ void LiveIntervals::print(std::ostream& pOS) const
 
   pOS << dbgstr.str();
 }
-
-void LiveIntervals::dump() const { print(errs()); }
 
 void LiveIntervals::clear()
 {

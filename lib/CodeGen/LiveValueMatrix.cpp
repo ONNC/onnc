@@ -96,7 +96,7 @@ void LiveValueMatrix::getAnalysisUsage(AnalysisUsage& pUsage) const
   pUsage.addRequiredID(LiveIntervals::ID);
 }
 
-void LiveValueMatrix::print(std::ostream& pOS) const
+void LiveValueMatrix::print(OStream& pOS, const Module* pModule) const
 {
   pOS << "=== Live Matrix (Interference) ===\n";
   if (m_OverlapLIs.empty()) {
@@ -113,8 +113,6 @@ void LiveValueMatrix::print(std::ostream& pOS) const
   }
   pOS << dbgstr.str();
 }
-
-void LiveValueMatrix::dump() const { print(errs()); }
 
 void LiveValueMatrix::clear()
 {

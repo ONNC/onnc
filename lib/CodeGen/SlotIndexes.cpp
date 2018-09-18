@@ -61,7 +61,7 @@ void BuildSlotIndexes::clear()
   m_StartIdx = 0;
 }
 
-void BuildSlotIndexes::print(std::ostream& pOS) const
+void BuildSlotIndexes::print(OStream& pOS, const Module* pModule) const
 {
   if (m_TSList.empty())
     return;

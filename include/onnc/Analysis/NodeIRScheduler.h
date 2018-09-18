@@ -68,7 +68,7 @@ public:
 
   void inorderSingleIssueSchedule(Module& pModule);
 
-  void print(OStream& pOS) const;
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   Nodes greedyPickNextNodes(Nodes &pCands);
