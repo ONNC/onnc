@@ -14,101 +14,6 @@
 
 using namespace onnc;
 
-typedef std::vector<xDimension> TensorSizes;
-typedef xTensorProtoDataType TP_DataTy;
-
-//===----------------------------------------------------------------------===//
-// Non-member functions
-//===----------------------------------------------------------------------===//
-static void UpdateOutputInfo(xNode *pNode, const TensorSizes &pSize,
-                             TP_DataTy pTy)
-{
-  for (::xValue* out : pNode->outputs()) {
-    out->setElemType(pTy);
-    out->setSizes(pSize);
-  }
-}
-
-static std::vector<int64_t> getReshapeOpDestDims(xNode *pReshapeOp)
-{
-  // second input is a shape tensor
-  const xValue *input1 = pReshapeOp->inputs()[1];
-  const xTensor &shapeTensor =
-      getTensor(input1->uniqueName(), *pReshapeOp->owningGraph());
-  std::vector<int64_t> dims;
-  // tensor is raw data
-  if (0 == shapeTensor.int64s().size()) {
-    size_t size = getTotalCount(shapeTensor.sizes());
-    dims.resize(size);
-    memcpy(dims.data(), shapeTensor.raw().data(), size * sizeof(int64_t));
-  } else {
-    for (auto &i : shapeTensor.int64s()) {
-      dims.push_back(i);
-    }
-  }
-  return dims;
-}
-
-static int64_t getDimensionTotalCount(std::vector<xDimension> &pDims)
-{
-  int64_t count = 1;
-  for (auto &i : pDims) {
-    assert(i.is_int);
-    count *= i.dim;
-  }
-  return count;
-}
-
-static void updateReshapeOpDestDimension(xGraph *pGraph, xNode *pNode,
-                                         std::vector<int64_t> &pDestDims)
-{
-  // calculate new shape dims
-  std::vector<xDimension> input_dims = pNode->inputs()[0]->sizes();
-  std::vector<int64_t> new_shape_dims;
-  int remaining_idx = -1;
-  size_t cur_total_count = 1;
-  for (size_t i = 0; i < pDestDims.size(); ++i) {
-    // take dimension from input tensor
-    if (0 == pDestDims[i]) {
-      assert(input_dims[i].is_int);
-      new_shape_dims.push_back(input_dims[i].dim);
-      cur_total_count *= input_dims[i].dim;
-    } else if (-1 == pDestDims[i]) {
-      // at most one dimension can be -1
-      assert(remaining_idx == -1);
-      remaining_idx = i;
-      // update later
-      new_shape_dims.push_back(-1);
-    } else {
-      assert(pDestDims[i] > 0);
-      new_shape_dims.push_back(pDestDims[i]);
-      cur_total_count *= (size_t)pDestDims[i];
-    }
-  }
-  // update remaining dimension
-  size_t dim_total_count = getDimensionTotalCount(input_dims);
-  if (remaining_idx != -1) {
-    assert(dim_total_count % cur_total_count == 0);
-    new_shape_dims[remaining_idx] = dim_total_count / cur_total_count;
-  }
-  pDestDims = new_shape_dims;
-
-  // update reshape's shape tensor
-  xTensor dest_dims;
-  dest_dims.sizes().push_back(new_shape_dims.size());
-  dest_dims.elem_type() = (xTensorProtoDataType)onnc::Value::kInt64;
-  dest_dims.set_raw_data(std::string((char *)new_shape_dims.data(),
-                         new_shape_dims.size() * sizeof(int64_t)));
-  std::string name = pNode->inputs()[0]->uniqueName() + "reshape";
-  xValue *new_dest_dims_value =
-      pGraph->addInitializerAndInput(dest_dims, name);
-  auto *old_dest_dims_value = pNode->inputs()[1];
-  pNode->replaceInput(1, new_dest_dims_value);
-  if (old_dest_dims_value->uses().size() == 0) {
-    pGraph->eraseInitializerAndInput(old_dest_dims_value);
-  }
-}
-
 //===----------------------------------------------------------------------===//
 // Options
 //===----------------------------------------------------------------------===//
@@ -118,53 +23,6 @@ static unsigned int getBatchSize()
       "batch-size", cl::kShort, cl::kOptional, cl::kValueRequired, cl::init(0),
       cl::desc("specific input batch size"));
   return batch_size;
-}
-
-//===----------------------------------------------------------------------===//
-// UpdateGraphOutputSize
-//===----------------------------------------------------------------------===//
-
-bool UpdateGraphOutputSize::updateReshapeOutputInfo(xGraph *pGraph)
-{
-  bool require_onnxInferShape = false;
-  for (xNode *node : pGraph->nodes()) {
-    const auto kind = node->kind();
-    if (kind != xBuiltinSymbol::kReshape)
-      continue;
-
-    // check special case, the output dimension(shape) can be 0 or -1
-    // At most one dimension of the new shape can be -1. In this case, the
-    // value is inferred from the size of the tensor and the remaining
-    // dimensions. A dimension could also be 0, in which case the actual
-    // dimension value is unchanged (i.e. taken from the input tensor).
-    // this case require input tensor dimension value
-    std::vector<int64_t> dest_dims = getReshapeOpDestDims(node);
-    if (std::find(dest_dims.begin(), dest_dims.end(), 0) != dest_dims.end() or
-        std::find(dest_dims.begin(), dest_dims.end(), -1) != dest_dims.end()) {
-      xValue *input0 = node->inputs()[0];
-      if (input0->sizes().size() == 0) {
-        // input tensor dimension is empty, need to run onnx shape inference
-        // first
-        return true;
-      }
-      // update shape tensor with exact dimension value
-      updateReshapeOpDestDimension(pGraph, node, dest_dims);
-      require_onnxInferShape = true;
-    }
-
-    // user specific batch_size
-    if (m_BatchSize > 0)
-      dest_dims[0] = m_BatchSize;
-
-    // First input is the data tensor
-    const xValue *in = node->inputs()[0];
-    TensorSizes dims;
-    for (auto &i : dest_dims) {
-      dims.push_back(xDimension(i));
-    }
-    UpdateOutputInfo(node, dims, in->elemType());
-  }
-  return require_onnxInferShape;
 }
 
 //===----------------------------------------------------------------------===//
@@ -226,16 +84,6 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
     updateInputBatchSize(graph);
     updateOutputValueInfo(graph);
   }
-
-  bool run_onnxInferShape = false;
-  do {
-    run_onnxInferShape = updateReshapeOutputInfo(graph);
-    if (run_onnxInferShape) {
-      // onnx inference will create the new module
-      onnxInferShape(pModule);
-      graph = pModule.getGraphIR().get();
-    }
-  } while (run_onnxInferShape);
 
   onnxInferShape(pModule);
 
