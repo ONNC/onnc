@@ -48,6 +48,9 @@ public:
 
   const LiveInterval* getInterval(const Value* pV) const;
 
+  /// Remove a live interval pV from liveness table.
+  void removeLiveInterval(const Value* pV);
+
   /// Get internal data structure.
   ValueIntervalMap& getAllIntervals() { return m_ValIntrvls; }
 

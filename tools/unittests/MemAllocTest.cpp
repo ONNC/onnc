@@ -12,6 +12,7 @@
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/AnalysisResolver.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Core/PassManager.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/IR/Compute/Conv.h>
@@ -29,6 +30,7 @@
 #include <onnc/Target/TargetBackend.h>
 #include <onnc/Target/TargetMemInfo.h>
 #include <skypat/skypat.h>
+#include "../../lib/Target/X86/X86RemoveWeightFromLiveIntervals.h"
 
 using namespace onnc;
 
@@ -403,4 +405,46 @@ SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
   liveIntrvls.setResolver(*nullResolver);
   liveMat.setResolver(*nullResolver);
   linearMemAlloc.setResolver(*nullResolver);
+}
+
+SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
+{
+  TargetOptions opt;
+  VTargetBackend vtarget(opt);
+
+  BuildSlotIndexes* buildSlotIdx = new BuildSlotIndexes();
+  LiveIntervals* liveIntrvls = new LiveIntervals();
+  X86RemoveWeightFromLiveIntervals*
+    rmWeight = new X86RemoveWeightFromLiveIntervals();
+  LiveValueMatrix* liveMat = new LiveValueMatrix();
+  LinearScanMemAlloc* linearMemAlloc = new LinearScanMemAlloc(&vtarget);
+  BuildMemOperand* buildMemOpnd = new BuildMemOperand();
+
+  PassManager passMgr;
+  passMgr.add(buildSlotIdx);
+  passMgr.add(liveIntrvls);
+  passMgr.add(rmWeight);
+  passMgr.add(liveMat);
+  passMgr.add(buildMemOpnd);
+  passMgr.add(linearMemAlloc);
+
+  Module module;
+  CreateAlexNet(module);
+
+  passMgr.run(module);
+
+  for (auto li : liveIntrvls->getSortedIntervals()) {
+    LinearScanMemAlloc::AllocEntry
+      myAlloc = linearMemAlloc->getAlloc(li->getValue());
+    ComputeOperator* op = static_cast<ComputeOperator*>(li->getValue()
+                                                          ->getDefine());
+    ASSERT_FALSE(isa<Initializer>(op));
+
+    for (auto overlappedLI : liveMat->getInterferingLiveIntervals(li))
+    {
+      LinearScanMemAlloc::AllocEntry otherAlloc =
+        linearMemAlloc->getAlloc(overlappedLI->getValue());
+      ASSERT_FALSE(otherAlloc.overlap(myAlloc));
+    }
+  }
 }

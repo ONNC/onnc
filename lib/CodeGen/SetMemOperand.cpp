@@ -22,7 +22,7 @@ Pass::ReturnType SetMemOperand::runOnModule(Module& pModule)
 
   for (ComputeOperand* opnd : pModule.getComputeOperands()) {
     Value* v = opnd->getValue();
-    if (!v)
+    if (!v || !memAllocPass->hasAlloc(v))
       continue;
 
     LinearScanMemAlloc::AllocEntry alloc = memAllocPass->getAlloc(v);

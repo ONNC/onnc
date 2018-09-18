@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86Backend.h"
+#include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/X86TargetInfo.h"
 #include "TargetInfo/X86TargetMemInfo.h"
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
@@ -82,6 +83,7 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 {
   pPM.add(CreateBuildSlotIndexesPass());
   pPM.add(CreateLiveIntervalsPass());
+  pPM.add(CreateX86RemoveWeightFromLiveIntervalsPass());
   pPM.add(CreateLiveValueMatrixPass());
   pPM.add(CreateLinearScanMemAllocPass(this));
   pPM.add(CreateBuildMemOperandPass());
