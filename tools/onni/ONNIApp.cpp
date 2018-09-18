@@ -126,6 +126,10 @@ int ONNIApp::run()
   }
 
   for (ComputeOperator &cm : *module.getRootComputeGraph()) {
+    if (options().verbose() > 0) {
+      cm.print(outs());
+      outs() << std::endl;
+    }
     cm.accept(interpreter);
   }
 
