@@ -266,7 +266,7 @@ void NodeIRScheduler::getAnalysisUsage(AnalysisUsage& pUsage) const
   pUsage.addRequiredID(UpdateGraphOutputSize::ID);
 }
 
-void NodeIRScheduler::print(OStream& pOS) const
+void NodeIRScheduler::print(OStream& pOS, const Module* pModule) const
 {
   auto normalize = [] (uint64_t c) -> unsigned {
                      // 1 million cycle.

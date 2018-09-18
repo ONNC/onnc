@@ -86,7 +86,7 @@ LinearScanMemAlloc::getAlloc(const Value* pVal) const
   return it->second;
 }
 
-void LinearScanMemAlloc::print(std::ostream& pOS) const
+void LinearScanMemAlloc::print(OStream& pOS, const Module* pModule) const
 {
   pOS << "=== LinearScanMemAlloc ===\n";
 
@@ -121,8 +121,6 @@ void LinearScanMemAlloc::print(std::ostream& pOS) const
 
   pOS << dbgstr.str();
 }
-
-void LinearScanMemAlloc::dump() const { print(errs()); }
 
 LinearScanMemAlloc::AllocEntries
 LinearScanMemAlloc::getSortedAllocatedRegions(const LIs& pLIs) const

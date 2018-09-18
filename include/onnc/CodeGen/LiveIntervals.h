@@ -62,9 +62,7 @@ public:
     return m_SlotIndexes->getSlotIndex(pOp);
   }
 
-  void print(std::ostream& pOS) const;
-
-  void dump() const;
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   /// Delete LiveInterval object.

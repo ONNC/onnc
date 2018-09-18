@@ -53,7 +53,7 @@ public:
 
   void printGraphAlloc(OStream &pOS, const xGraph *pGraph) const;
 
-  void print(OStream& pOS) const;
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   /// Return total size of this allocation.

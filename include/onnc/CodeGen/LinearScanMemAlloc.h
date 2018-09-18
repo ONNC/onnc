@@ -61,9 +61,7 @@ public:
 
   AllocEntry getAlloc(const Value* pVal) const;
 
-  void print(std::ostream& pOS) const;
-
-  void dump() const;
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   AllocEntries getSortedAllocatedRegions(const LIs& pLIs) const;
