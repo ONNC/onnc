@@ -36,6 +36,8 @@ struct MemSize
 class TargetMemInfo
 {
 public:
+  virtual ~TargetMemInfo() {}
+
   virtual uint64_t getGlobalMemSize() const { return 0; }
 
   virtual uint64_t getLocalMemSize() const { return 0; }
