@@ -206,7 +206,7 @@ nobase_nodist_include_HEADERS = \
 	onnc/IR/Compute/Loop.h \
 	onnc/IR/Compute/ArgMax.h \
 	onnc/IR/Compute/Scan.h \
-	onnc/IR/Compute/Extend.h \
+	onnc/IR/Compute/Expand.h \
 	onnc/IR/ComputeRegOperand.h \
 	onnc/IR/ComputeMemOperand.h \
 	onnc/IR/ComputeOperator.h \
@@ -408,7 +408,7 @@ nobase_nodist_include_HEADERS = \
 	onnc/Transforms/TensorSel/Standards/CeilLower.h \
 	onnc/Transforms/TensorSel/Standards/TopKLower.h \
 	onnc/Transforms/TensorSel/Standards/ScanLower.h \
-	onnc/Transforms/TensorSel/Standards/ExtendLower.h \
+	onnc/Transforms/TensorSel/Standards/ExpandLower.h \
 	onnc/Transforms/TensorSel/Lower.h \
 	onnc/Config/AboutData.h \
 	onnc/Config/AboutLicense.h \
