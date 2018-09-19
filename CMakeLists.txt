@@ -50,7 +50,7 @@ set(PACKAGE_URL "onnc.ai")
 ####################
 #  Check
 include(check)
-message(STATUS "ONNC_DEFAULT_TARGET_QUADRUPAL: ${ONNC_DEFAULT_TARGET_QUADRUPAL}")
+message(STATUS "ONNC_DEFAULT_TARGET_QUADRUPLE: ${ONNC_DEFAULT_TARGET_QUADRUPLE}")
 
 ####################
 #  Targets
@@ -71,6 +71,7 @@ set(ONNX_NAMESPACE "onnx" CACHE STRING "Namespace of onnx")
 add_definitions(-DONNX_NAMESPACE=${ONNX_NAMESPACE})
 find_package(onnx REQUIRED)
 message(STATUS "[${PACKAGE}] Using onnx include at ${ONNX_INCLUDE_DIR}")
+message(STATUS "[${PACKAGE}] Using onnx library at ${ONNX_LIBRARY_DIR}")
 include_directories(${ONNX_INCLUDE_DIR})
 link_directories(${ONNX_LIBRARY_DIR})
 #  SkyPat
@@ -81,12 +82,13 @@ link_directories(${SKYPAT_LIBRARY_DIR})
 #  llvm
 OPTION(USE_LLVM "Use llvm" ON)
 if(USE_LLVM)
-    find_package(llvm)
-    if(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
-        message(STATUS "[${PACKAGE}] Using llvm include at ${LLVM_INCLUDE_DIR}")
-        include_directories(${LLVM_INCLUDE_DIR})
-        link_directories(${LLVM_LIBRARY_DIR})
-    endif(LLVM_INCLUDE_DIR AND LLVM_LIBRARY_DIR)
+    if(LLVM_ROOT_DIR)
+        set(LLVM_DIR ${LLVM_ROOT_DIR}/lib/cmake/llvm)
+    endif(LLVM_ROOT_DIR)
+    find_package(LLVM REQUIRED CONFIG)
+    message(STATUS "[${PACKAGE}] Using llvm include at ${LLVM_INCLUDE_DIR}")
+    include_directories(${LLVM_INCLUDE_DIRS})
+    add_definitions(${LLVM_DEFINITIONS})
 endif(USE_LLVM)
 find_package(Protobuf REQUIRED)
     
