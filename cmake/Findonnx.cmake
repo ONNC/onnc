@@ -8,8 +8,10 @@ if (NOT ONNX_LIBRARIES)
         list(APPEND ONNX_LIBRARIES ${ONNX_LIBRARIE_${libname}})
     endforeach()
     set(ONNX_LIBRARIES ${ONNX_LIBRARIES} CACHE STRING "")
-    get_filename_component(ONNX_LIBRARY_DIR ${ONNX_LIBRARIE_onnx} DIRECTORY)
-endif()
+else(NOT ONNX_LIBRARIES)
+    list(GET ONNX_LIBRARIES 0 ONNX_LIBRARIE_onnx)
+endif(NOT ONNX_LIBRARIES)
+get_filename_component(ONNX_LIBRARY_DIR ${ONNX_LIBRARIE_onnx} DIRECTORY)
 
 find_path(ONNX_INCLUDE_DIR
     NAMES onnx/onnx.pb.h

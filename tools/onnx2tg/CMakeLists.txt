@@ -6,14 +6,6 @@ include_directories(${SKYPAT_INCLUDE_DIRS})
 add_definitions(-DTOPDIR="${onnc_SOURCE_DIR}")
 add_definitions(-DBUILDDIR="${onnc_BINARY_DIR}")
 
-if(LLVM_ROOT_DIR)
-    set(LLVM_DIR ${LLVM_ROOT_DIR}/lib/cmake/llvm)
-endif(LLVM_ROOT_DIR)
-find_package(LLVM REQUIRED CONFIG)
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-llvm_map_components_to_libnames(llvm_libs option)
-
 if (BMONNC_EXIST)
     add_definitions(-DBMONNC_EXIST)
     include_directories(${BMONNC_SOURCE_DIR}/src/include)
@@ -22,10 +14,14 @@ endif()
 add_executable(onnx2tg
     main.cpp
     ONNX2TGApp.cpp
-    Config.cpp)
+    Config.cpp
+)
+
+llvm_map_components_to_libnames(llvm_libs option)
 target_link_libraries(onnx2tg
     libonnc
-    ${llvm_libs})
+    ${llvm_libs}
+)
 
 if (BMONNC_EXIST)
     target_link_libraries(onnx2tg foo)
