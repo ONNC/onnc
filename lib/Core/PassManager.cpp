@@ -105,6 +105,12 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
 
     for (Pass::AnalysisID& use : usage) {
       if (hasAdded(use)) {
+        // TODO:
+        // We need to check whether any previous pass clobber the 'use' pass
+        // result. If so, we need to add the 'use' pass to execution queue.
+        //
+        // TODO:
+        // Need a mechanism for each pass to return clobber information.
         DepNode* dep_node = findNode(use);
         assert(dep_node && "dependency node doesn't exist?!");
         // add dependency.
