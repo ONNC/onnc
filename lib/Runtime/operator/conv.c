@@ -70,14 +70,14 @@ void ONNC_RUNTIME_conv_2d_float(void * restrict onnc_runtime_context,
 
           float sum = 0.f;
 
-          for (int32_t w_channel = 0; w_channel < kC; ++w_channel) {
-            int32_t input_channel = base_c + w_channel;
-            for (int32_t i = (base_h < 0 ? (-base_h) / dilations[0] : 0); i < kH; ++i) {
-              int32_t input_h = base_h + i * dilations[0];
-              if (input_h >= iH) { break; }
-              for (int32_t j =  (base_w < 0 ? (-base_w) / dilations[1] : 0); j < kW; ++j) {
-                int32_t input_w = base_w + j * dilations[1];
-                if (input_w >= iW) { break; }
+          for (int32_t i = (base_h < 0 ? (-base_h) / dilations[0] : 0); i < kH; ++i) {
+            int32_t input_h = base_h + i * dilations[0];
+            if (input_h >= iH) { break; }
+            for (int32_t j =  (base_w < 0 ? (-base_w) / dilations[1] : 0); j < kW; ++j) {
+              int32_t input_w = base_w + j * dilations[1];
+              if (input_w >= iW) { break; }
+              for (int32_t w_channel = 0; w_channel < kC; ++w_channel) {
+                int32_t input_channel = base_c + w_channel;
 
                 float input = X[n][input_channel][input_h][input_w];
                 float weight = W[c][w_channel][i][j];
