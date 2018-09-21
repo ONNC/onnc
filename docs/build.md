@@ -1,10 +1,10 @@
 # Build & Test from source
 
-You can build onnc source with either [CMake](#Building-with-CMake) or [Automake](#Building-with-Automake) building system.
+You can build onnc source with either [CMake](#building-with-cmake) or [Automake](#building-with-automake) building system.
 
 # Building with CMake
 
-There are 2 modes, [Release mode](#Release-mode) and [debug mode](#Debug-mode), provided in CMake building system. 
+There are 2 modes, [Release mode](#release-mode) and [debug mode](#debug-mode), provided in CMake building system. 
 
 ## Release mode
 
