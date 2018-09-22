@@ -57,6 +57,21 @@ public:
     return m_pTimeSlot->getIndex() < pOther.m_pTimeSlot->getIndex();
   }
 
+  bool operator==(const SlotIndex& pOther) const
+  {
+    return m_pTimeSlot->getIndex() == pOther.m_pTimeSlot->getIndex();
+  }
+
+  bool operator<=(const SlotIndex& pOther) const
+  {
+    return m_pTimeSlot->getIndex() <= pOther.m_pTimeSlot->getIndex();
+  }
+
+  bool operator>=(const SlotIndex& pOther) const
+  {
+    return m_pTimeSlot->getIndex() >= pOther.m_pTimeSlot->getIndex();
+  }
+
   unsigned getIndex() const { return m_pTimeSlot->getIndex(); }
 
 private:
