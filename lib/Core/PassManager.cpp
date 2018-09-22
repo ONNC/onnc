@@ -71,6 +71,13 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
   if (hasAdded(pPass->getPassID()))
     return;
 
+  // Execution queue insertion point (position). Dependent passes are inserted
+  // at this point (before pPass).
+  // E.g. Z -> Y -> X (Z dependent on Y .. and so on.)
+  // If we only doAdd(Z), then Y and X are inserted before Z in the execution
+  // queue.
+  ExecutionOrder::iterator exeQueueInsertPt = pState.execution.end() - 1;
+
   std::stack<DepNode*> stack;
   DepNode* cur_node = addNode(*pPass);
   stack.push(cur_node);
@@ -98,6 +105,12 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
 
     for (Pass::AnalysisID& use : usage) {
       if (hasAdded(use)) {
+        // TODO:
+        // We need to check whether any previous pass clobber the 'use' pass
+        // result. If so, we need to add the 'use' pass to execution queue.
+        //
+        // TODO:
+        // Need a mechanism for each pass to return clobber information.
         DepNode* dep_node = findNode(use);
         assert(dep_node && "dependency node doesn't exist?!");
         // add dependency.
@@ -120,6 +133,11 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
       // add dependency for cur_node.
       m_Dependencies.connect(*new_node, *cur_node);
       resolver->add(use, *new_pass);
+
+      // Retrieve the insertion point. Later, if there is any new dependent
+      // pass, it will be added before new_pass in terms of execution order.
+      exeQueueInsertPt = pState.execution.insert(exeQueueInsertPt,
+                                                 new_pass->getPassID());
 
       // continue traverse dependency of new node.
       stack.push(new_node);
