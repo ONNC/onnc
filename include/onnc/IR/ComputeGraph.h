@@ -68,6 +68,10 @@ public:
   template<typename OpType>
   ComputeGraph& addOperator(OpType& pOperator);
 
+  /// Add a value to Module.
+  /// @retval nullptr Fails to add value to Module.
+  /// @note Each value should have a unique name in Module. If add a value with
+  ///       a name which is already existing in Module will cause failure.
   template<typename ValueType, typename ... ValueCtorParams>
   ValueType* addValue(ValueCtorParams&& ... pParams);
 
@@ -141,7 +145,10 @@ private:
   typedef std::unordered_set<Node*> NodeList;
 
 private:
-  void addValueToModule(Value* pValue);
+  /// Add a value to Module.
+  /// @retval false Fails to add value to Module.
+  /// @see addValue
+  bool addValueToModule(Value* pValue);
 
 private:
   Module& m_Module;

@@ -220,13 +220,14 @@ ComputeGraph* Module::createComputeGraph(StringRef pName)
   return entry->value();
 }
 
-void Module::addValue(Value* pValue)
+bool Module::addValue(Value* pValue)
 {
   bool exist = false;
   auto* entry = m_Values.insert(pValue->getName(), exist);
   if (exist)
-    return;
+    return false;
   entry->setValue(pValue);
+  return true;
 }
 
 Module::ValueList& Module::getValueList()
