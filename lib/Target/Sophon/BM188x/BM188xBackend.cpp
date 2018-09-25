@@ -29,6 +29,7 @@
 #include "Lowers/LeakyReluLower.h"
 #include "Lowers/LoadLower.h"
 #include "Lowers/MaxPoolLower.h"
+#include "Lowers/PadLower.h"
 #include "Lowers/PReluLower.h"
 #include "Lowers/PoolLower.h"
 #include "Lowers/ReluLower.h"
@@ -195,6 +196,7 @@ void BM1880Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<BM188X::LoadLower>();
   pRegistry.emplace<BM188X::MaxPoolLower>();
   pRegistry.emplace<onnc::MulLower>();
+  pRegistry.emplace<BM188X::PadLower>();
   pRegistry.emplace<BM188X::PReluLower>();
   pRegistry.emplace<BM188X::PoolLower>();
   pRegistry.emplace<BM188X::ReluLower>();
