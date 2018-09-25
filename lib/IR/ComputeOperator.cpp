@@ -68,3 +68,20 @@ void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
   m_Outputs[pIdx] = &pValue;
   pValue.setDefine(this, pIdx);
 }
+
+void ComputeOperator::print(json::Value& pJSON) const
+{
+  errs() << "I'm " << name() << std::endl;
+  errs() << "input: ";
+  for (Value* v : m_Inputs){
+    errs() << v << ", ";
+  }
+  errs() << std::endl;
+  errs() << "output: ";
+  for (Value* v : m_Outputs){
+    errs() << v << ", ";
+  }
+  errs() << std::endl;
+
+  //TODO: find the relationship of input and output
+}
