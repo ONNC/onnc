@@ -21,7 +21,7 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/OStrStream.h>
 #include <skypat/skypat.h>
-#include "../../lib/Target/Sophon/BuildMemOpndPass.h"
+#include <onnc/CodeGen/BuildMemOperand.h>
 
 using namespace onnc;
 
@@ -205,7 +205,7 @@ SKYPAT_F(ComputeGraphTest, print_alexnet)
   */
 
   // build memory operands
-  BuildMemOpnd buildMemOpnd;
+  BuildMemOperand buildMemOpnd;
   buildMemOpnd.runOnModule(module);
 
   // create JSON value to print
