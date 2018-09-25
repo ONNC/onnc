@@ -1,4 +1,4 @@
-//===- Slice.h --------------------------------------------------===//
+//===- Slice.h ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -37,7 +37,7 @@ public:
   // shallow copy constructor.
   Slice(const Slice &pCopy);
 
-  ~Slice() { }
+  virtual ~Slice() { }
 
   // clang-format off
   // Attributes getters
@@ -91,7 +91,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Axes;
   IntsAttr m_Ends;

@@ -168,7 +168,6 @@ nobase_nodist_include_HEADERS = \
 	onnc/IR/Compute/Value.h \
 	onnc/IR/Compute/ScaledTanh.h \
 	onnc/IR/Compute/Exp.h \
-	onnc/IR/Compute/LoopIndexTensor.h \
 	onnc/IR/Compute/Sum.h \
 	onnc/IR/Compute/Min.h \
 	onnc/IR/Compute/ImageScaler.h \
@@ -206,6 +205,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/IR/Compute/Log.h \
 	onnc/IR/Compute/Loop.h \
 	onnc/IR/Compute/ArgMax.h \
+	onnc/IR/Compute/Scan.h \
+	onnc/IR/Compute/Expand.h \
 	onnc/IR/ComputeRegOperand.h \
 	onnc/IR/ComputeMemOperand.h \
 	onnc/IR/ComputeOperator.h \
@@ -368,7 +369,6 @@ nobase_nodist_include_HEADERS = \
 	onnc/Transforms/TensorSel/Standards/LRNLower.h \
 	onnc/Transforms/TensorSel/Standards/ReduceL2Lower.h \
 	onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h \
-	onnc/Transforms/TensorSel/Standards/LoopIndexTensorLower.h \
 	onnc/Transforms/TensorSel/Standards/LSTMLower.h \
 	onnc/Transforms/TensorSel/Standards/ConvTransposeLower.h \
 	onnc/Transforms/TensorSel/Standards/DropoutLower.h \
@@ -407,6 +407,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/Transforms/TensorSel/Standards/LoopLower.h \
 	onnc/Transforms/TensorSel/Standards/CeilLower.h \
 	onnc/Transforms/TensorSel/Standards/TopKLower.h \
+	onnc/Transforms/TensorSel/Standards/ScanLower.h \
+	onnc/Transforms/TensorSel/Standards/ExpandLower.h \
 	onnc/Transforms/TensorSel/Lower.h \
 	onnc/Config/AboutData.h \
 	onnc/Config/AboutLicense.h \

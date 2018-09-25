@@ -1,4 +1,4 @@
-//===- ${OperatorName}.cpp ------------------------------------------------===//
+//===- ${OperatorName}.cpp ${Dashs}-----===//
 //
 //                             The ONNC Project
 //

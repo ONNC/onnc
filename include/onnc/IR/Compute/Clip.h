@@ -1,4 +1,4 @@
-//===- Clip.h --------------------------------------------------===//
+//===- Clip.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   Clip(const Clip &pCopy);
 
-  ~Clip() { }
+  virtual ~Clip() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Max;
   FloatAttr m_Min;

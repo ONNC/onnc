@@ -1,4 +1,4 @@
-//===- InstanceNormalization.h --------------------------------------------------===//
+//===- InstanceNormalization.h --------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -37,7 +37,7 @@ public:
   // shallow copy constructor.
   InstanceNormalization(const InstanceNormalization &pCopy);
 
-  ~InstanceNormalization() { }
+  virtual ~InstanceNormalization() { }
 
   // clang-format off
   // Attributes getters
@@ -91,7 +91,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Epsilon;
   // clang-format on

@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ReduceLogSumExp(const ReduceLogSumExp &pCopy);
 
-  ~ReduceLogSumExp() { }
+  virtual ~ReduceLogSumExp() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Axes;
   IntAttr m_Keepdims;

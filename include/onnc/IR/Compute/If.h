@@ -1,4 +1,4 @@
-//===- If.h --------------------------------------------------===//
+//===- If.h ---------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   If(const If &pCopy);
 
-  ~If() { }
+  virtual ~If() { }
 
   // clang-format off
   // Attributes getters
@@ -84,7 +84,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   GraphAttr m_ElseBranch;
   GraphAttr m_ThenBranch;

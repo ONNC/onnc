@@ -1,4 +1,4 @@
-//===- Xor.h --------------------------------------------------===//
+//===- Xor.h --------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -35,7 +35,7 @@ public:
   // shallow copy constructor.
   Xor(const Xor &pCopy);
 
-  ~Xor() { }
+  virtual ~Xor() { }
 
   // clang-format off
   // Attributes getters
@@ -83,7 +83,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   
   // clang-format on

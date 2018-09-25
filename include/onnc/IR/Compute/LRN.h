@@ -1,4 +1,4 @@
-//===- LRN.h --------------------------------------------------===//
+//===- LRN.h --------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -38,7 +38,7 @@ public:
   // shallow copy constructor.
   LRN(const LRN &pCopy);
 
-  ~LRN() { }
+  virtual ~LRN() { }
 
   // clang-format off
   // Attributes getters
@@ -96,7 +96,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Beta;

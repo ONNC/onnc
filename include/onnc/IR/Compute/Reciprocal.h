@@ -1,4 +1,4 @@
-//===- Reciprocal.h --------------------------------------------------===//
+//===- Reciprocal.h -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   Reciprocal(const Reciprocal &pCopy);
 
-  ~Reciprocal() { }
+  virtual ~Reciprocal() { }
 
   // clang-format off
   // Attributes getters
@@ -78,7 +78,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   
   // clang-format on

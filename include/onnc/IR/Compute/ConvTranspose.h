@@ -1,4 +1,4 @@
-//===- ConvTranspose.h --------------------------------------------------===//
+//===- ConvTranspose.h ----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -44,7 +44,7 @@ public:
   // shallow copy constructor.
   ConvTranspose(const ConvTranspose &pCopy);
 
-  ~ConvTranspose() { }
+  virtual ~ConvTranspose() { }
 
   // clang-format off
   // Attributes getters
@@ -126,7 +126,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   StringAttr m_AutoPad;
   IntsAttr m_Dilations;

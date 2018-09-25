@@ -59,6 +59,7 @@ private:
   virtual void visitElu(xNode *pNode) { visitNode(pNode); };
   virtual void visitEqual(xNode *pNode) { visitNode(pNode); };
   virtual void visitExp(xNode *pNode) { visitNode(pNode); };
+  virtual void visitExpand(xNode *pNode) { visitNode(pNode); };
   virtual void visitFlatten(xNode *pNode) { visitNode(pNode); };
   virtual void visitFloor(xNode *pNode) { visitNode(pNode); };
   virtual void visitGRU(xNode *pNode) { visitNode(pNode); };
@@ -71,6 +72,7 @@ private:
   virtual void visitHardSigmoid(xNode *pNode) { visitNode(pNode); };
   virtual void visitHardmax(xNode *pNode) { visitNode(pNode); };
   virtual void visitIdentity(xNode *pNode) { visitNode(pNode); };
+  virtual void visitIf(xNode *pNode) { visitNode(pNode); };
   virtual void visitInstanceNormalization(xNode *pNode) { visitNode(pNode); };
   virtual void visitLRN(xNode *pNode) { visitNode(pNode); };
   virtual void visitLSTM(xNode *pNode) { visitNode(pNode); };
@@ -78,6 +80,7 @@ private:
   virtual void visitLess(xNode *pNode) { visitNode(pNode); };
   virtual void visitLog(xNode *pNode) { visitNode(pNode); };
   virtual void visitLogSoftmax(xNode *pNode) { visitNode(pNode); };
+  virtual void visitLoop(xNode *pNode) { visitNode(pNode); };
   virtual void visitLpNormalization(xNode *pNode) { visitNode(pNode); };
   virtual void visitLpPool(xNode *pNode) { visitNode(pNode); };
   virtual void visitMatMul(xNode *pNode) { visitNode(pNode); };
@@ -111,6 +114,7 @@ private:
   virtual void visitReduceSumSquare(xNode *pNode) { visitNode(pNode); };
   virtual void visitRelu(xNode *pNode) { visitNode(pNode); };
   virtual void visitReshape(xNode *pNode) { visitNode(pNode); };
+  virtual void visitScan(xNode *pNode) { visitNode(pNode); };
   virtual void visitSelu(xNode *pNode) { visitNode(pNode); };
   virtual void visitShape(xNode *pNode) { visitNode(pNode); };
   virtual void visitSigmoid(xNode *pNode) { visitNode(pNode); };
@@ -141,10 +145,7 @@ private:
   virtual void visitFC(xNode *pNode) { visitNode(pNode); };
   virtual void visitGRUUnit(xNode *pNode) { visitNode(pNode); };
   virtual void visitGivenTensorFill(xNode *pNode) { visitNode(pNode); };
-  virtual void visitIf(xNode *pNode) { visitNode(pNode); };
   virtual void visitImageScaler(xNode *pNode) { visitNode(pNode); };
-  virtual void visitLoop(xNode *pNode) { visitNode(pNode); };
-  virtual void visitLoopIndexTensor(xNode *pNode) { visitNode(pNode); };
   virtual void visitMeanVarianceNormalization(xNode *pNode) { visitNode(pNode); };
   virtual void visitParametricSoftplus(xNode *pNode) { visitNode(pNode); };
   virtual void visitScale(xNode *pNode) { visitNode(pNode); };

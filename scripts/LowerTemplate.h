@@ -1,4 +1,4 @@
-//===- ${OperatorName}Lower.h ---------------------------------------------===//
+//===- ${OperatorName}Lower.h ${Dashs}--===//
 //
 //                             The ONNC Project
 //

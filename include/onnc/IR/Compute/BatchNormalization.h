@@ -1,4 +1,4 @@
-//===- BatchNormalization.h --------------------------------------------------===//
+//===- BatchNormalization.h -----------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -45,7 +45,7 @@ public:
   // shallow copy constructor.
   BatchNormalization(const BatchNormalization &pCopy);
 
-  ~BatchNormalization() { }
+  virtual ~BatchNormalization() { }
 
   // clang-format off
   // Attributes getters
@@ -131,7 +131,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Epsilon;
   FloatAttr m_Momentum;

@@ -30,6 +30,7 @@ def gen_compute_ir_substitution_hash(schema):
   hash = {
     'OperatorName': schema.name,
     'OPERATORNAME': schema.name.upper(),
+    'Dashs': (58 - len(schema.name)) * '-',
   }
 
   # ========== Input Output ==============
@@ -233,6 +234,7 @@ def gen_tensor_sel_substitution_hash(schema):
   hash = {
     'OperatorName': schema.name,
     'OPERATORNAME': schema.name.upper(),
+    'Dashs': (58 - len(schema.name)) * '-',
   }
 
   # ========== Input Output ==============
@@ -306,7 +308,7 @@ def gen_tensor_sel_substitution_hash(schema):
     ])
   ))
 
-  hash['CreateOperator'] = ''.join(
+  hash['CreateOperator'] = ','.join(
     for_attr(required_attrs, lambda attr:
       '\n    pNode.{attr_type_getter}(xSymbol("{attr_name}"))'.format(**attr)
     )

@@ -1,4 +1,4 @@
-//===- ScaledTanh.h --------------------------------------------------===//
+//===- ScaledTanh.h -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ScaledTanh(const ScaledTanh &pCopy);
 
-  ~ScaledTanh() { }
+  virtual ~ScaledTanh() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatAttr m_Alpha;
   FloatAttr m_Beta;

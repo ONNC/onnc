@@ -1,4 +1,4 @@
-//===- LSTM.h --------------------------------------------------===//
+//===- LSTM.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -50,7 +50,7 @@ public:
   // shallow copy constructor.
   LSTM(const LSTM &pCopy);
 
-  ~LSTM() { }
+  virtual ~LSTM() { }
 
   // clang-format off
   // Attributes getters
@@ -156,7 +156,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatsAttr m_ActivationAlpha;
   FloatsAttr m_ActivationBeta;

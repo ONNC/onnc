@@ -1,4 +1,4 @@
-//===- MaxRoiPool.h --------------------------------------------------===//
+//===- MaxRoiPool.h -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -37,7 +37,7 @@ public:
   // shallow copy constructor.
   MaxRoiPool(const MaxRoiPool &pCopy);
 
-  ~MaxRoiPool() { }
+  virtual ~MaxRoiPool() { }
 
   // clang-format off
   // Attributes getters
@@ -91,7 +91,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_PooledShape;
   FloatAttr m_SpatialScale;

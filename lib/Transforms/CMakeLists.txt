@@ -36,6 +36,7 @@ add_libonnc_src(
     TensorSel/EluLower.cpp
     TensorSel/EqualLower.cpp
     TensorSel/ExpLower.cpp
+    TensorSel/ExpandLower.cpp
     TensorSel/FlattenLower.cpp
     TensorSel/FloorLower.cpp
     TensorSel/GRULower.cpp
@@ -59,7 +60,6 @@ add_libonnc_src(
     TensorSel/LessLower.cpp
     TensorSel/LogLower.cpp
     TensorSel/LogSoftmaxLower.cpp
-    TensorSel/LoopIndexTensorLower.cpp
     #TensorSel/LoopLower.cpp
     TensorSel/Lower.cpp
     TensorSel/LowerRegistry.cpp

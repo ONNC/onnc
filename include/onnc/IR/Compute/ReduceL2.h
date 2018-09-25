@@ -1,4 +1,4 @@
-//===- ReduceL2.h --------------------------------------------------===//
+//===- ReduceL2.h ---------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ReduceL2(const ReduceL2 &pCopy);
 
-  ~ReduceL2() { }
+  virtual ~ReduceL2() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Axes;
   IntAttr m_Keepdims;

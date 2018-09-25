@@ -1,4 +1,4 @@
-//===- TopK.h --------------------------------------------------===//
+//===- TopK.h -------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -37,7 +37,7 @@ public:
   // shallow copy constructor.
   TopK(const TopK &pCopy);
 
-  ~TopK() { }
+  virtual ~TopK() { }
 
   // clang-format off
   // Attributes getters
@@ -91,7 +91,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   IntAttr m_K;

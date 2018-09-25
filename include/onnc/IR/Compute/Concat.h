@@ -1,4 +1,4 @@
-//===- Concat.h --------------------------------------------------===//
+//===- Concat.h -----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   Concat(const Concat &pCopy);
 
-  ~Concat() { }
+  virtual ~Concat() { }
 
   // clang-format off
   // Attributes getters
@@ -62,8 +62,6 @@ public:
   // Outputs getters
   Tensor* getConcatResult() { return getOutput(kConcatResult); }
 
-  bool isInputEmpty() const { return m_Inputs.empty(); }
-
 
   // Inputs setters
   void setInputs(size_t pIdx, Tensor& pTensor) { m_Inputs[kInputs + pIdx] = &pTensor; }
@@ -82,7 +80,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   // clang-format on

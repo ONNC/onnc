@@ -1,12 +1,12 @@
-//===- LoopIndexTensor.h --------------------------------------------------===//
+//===- Expand.h -----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_IR_COMPUTE_OPERATOR_LOOPINDEXTENSOR_H
-#define ONNC_IR_COMPUTE_OPERATOR_LOOPINDEXTENSOR_H
+#ifndef ONNC_IR_COMPUTE_OPERATOR_EXPAND_H
+#define ONNC_IR_COMPUTE_OPERATOR_EXPAND_H
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
@@ -14,38 +14,35 @@
 
 namespace onnc {
 
-class LoopIndexTensor : public ComputeOperator
+class Expand : public ComputeOperator
 {
 public:
   enum IOConst {
-    kT = 0,
-    kLoopIdx = 1,
-    kO = 0
+    kInput = 0,
+    kShape = 1,
+    kOutput = 0
   };
 
   static char ID;
 
 public:
-  LoopIndexTensor();
+  Expand();
 
   // clang-format off
-  LoopIndexTensor(const IntAttr& pAxis);
-
+  
   // clang-format on
 
   // shallow copy constructor.
-  LoopIndexTensor(const LoopIndexTensor &pCopy);
+  Expand(const Expand &pCopy);
 
-  ~LoopIndexTensor() { }
+  virtual ~Expand() { }
 
   // clang-format off
   // Attributes getters
-  const IntAttr& getAxis() const { return m_Axis; }
-
+  
 
   // Attributes setters
-  void setAxis(const IntAttr& pAxis) { m_Axis = pAxis; }
-
+  
   // clang-format on
 
   Tensor* getInput(unsigned int pIdx) override { return static_cast<Tensor*>(m_Inputs[pIdx]); }
@@ -58,23 +55,23 @@ public:
 
   // clang-format off
   // Inputs getters
-  Tensor* getT() { return getInput(kT); }
+  Tensor* getInput() { return getInput(kInput); }
 
-  Tensor* getLoopIdx() { return getInput(kLoopIdx); }
+  Tensor* getShape() { return getInput(kShape); }
 
 
   // Outputs getters
-  Tensor* getO() { return getOutput(kO); }
+  Tensor* getOutput() { return getOutput(kOutput); }
 
 
   // Inputs setters
-  void setT(Tensor& pTensor) { m_Inputs[kT] = &pTensor; }
+  void setInput(Tensor& pTensor) { m_Inputs[kInput] = &pTensor; }
 
-  void setLoopIdx(Tensor& pTensor) { m_Inputs[kLoopIdx] = &pTensor; }
+  void setShape(Tensor& pTensor) { m_Inputs[kShape] = &pTensor; }
 
 
   // Outputs setters
-  void setO(Tensor& pTensor) { m_Outputs[kO] = &pTensor; }
+  void setOutput(Tensor& pTensor) { m_Outputs[kOutput] = &pTensor; }
 
   // clang-format on
 
@@ -86,9 +83,9 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
-  IntAttr m_Axis;
+  
   // clang-format on
 };
 

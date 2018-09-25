@@ -1,4 +1,4 @@
-//===- InstanceNormalization.cpp ------------------------------------------------===//
+//===- InstanceNormalization.cpp ------------------------------------------===//
 //
 //                             The ONNC Project
 //

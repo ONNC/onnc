@@ -1,4 +1,4 @@
-//===- ImageScaler.h --------------------------------------------------===//
+//===- ImageScaler.h ------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   ImageScaler(const ImageScaler &pCopy);
 
-  ~ImageScaler() { }
+  virtual ~ImageScaler() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   FloatsAttr m_Bias;
   FloatAttr m_Scale;

@@ -1,4 +1,4 @@
-//===- Unsqueeze.h --------------------------------------------------===//
+//===- Unsqueeze.h --------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -34,7 +34,7 @@ public:
   // shallow copy constructor.
   Unsqueeze(const Unsqueeze &pCopy);
 
-  ~Unsqueeze() { }
+  virtual ~Unsqueeze() { }
 
   // clang-format off
   // Attributes getters
@@ -80,7 +80,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntsAttr m_Axes;
   // clang-format on

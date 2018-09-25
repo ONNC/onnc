@@ -1,4 +1,4 @@
-//===- Split.h --------------------------------------------------===//
+//===- Split.h ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -36,7 +36,7 @@ public:
   // shallow copy constructor.
   Split(const Split &pCopy);
 
-  ~Split() { }
+  virtual ~Split() { }
 
   // clang-format off
   // Attributes getters
@@ -86,7 +86,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Axis;
   IntsAttr m_Split;

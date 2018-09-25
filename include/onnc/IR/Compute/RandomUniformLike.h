@@ -1,4 +1,4 @@
-//===- RandomUniformLike.h --------------------------------------------------===//
+//===- RandomUniformLike.h ------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -38,7 +38,7 @@ public:
   // shallow copy constructor.
   RandomUniformLike(const RandomUniformLike &pCopy);
 
-  ~RandomUniformLike() { }
+  virtual ~RandomUniformLike() { }
 
   // clang-format off
   // Attributes getters
@@ -96,7 +96,7 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-private:
+protected:
   // clang-format off
   IntAttr m_Dtype;
   FloatAttr m_High;
