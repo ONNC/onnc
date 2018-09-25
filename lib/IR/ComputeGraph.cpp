@@ -30,9 +30,9 @@ ComputeGraph::~ComputeGraph()
   clear();
 }
 
-void ComputeGraph::addValueToModule(Value* pValue)
+bool ComputeGraph::addValueToModule(Value* pValue)
 {
-  m_Module.addValue(pValue);
+  return m_Module.addValue(pValue);
 }
 
 void ComputeGraph::erase(ComputeOperator& pNode)

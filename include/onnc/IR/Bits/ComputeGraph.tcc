@@ -45,8 +45,11 @@ template<typename ValueType, typename ... ValueCtorParams>
 ValueType* ComputeGraph::addValue(ValueCtorParams&& ... pParams)
 {
   ValueType* result = new ValueType(pParams...);
-  this->addValueToModule(result);
-  return result;
+  if (this->addValueToModule(result))
+    return result;
+
+  delete result;
+  return nullptr;
 }
 
 template<typename ValueType>

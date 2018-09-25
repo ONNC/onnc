@@ -200,7 +200,8 @@ public:
 
   /// Add a value which is created by ComputeGraph.
   /// Value is deleted by Module.
-  void addValue(Value* pValue);
+  /// @retval false The value with the same name already exists
+  bool addValue(Value* pValue);
 
   ValueList& getValueList();
 
