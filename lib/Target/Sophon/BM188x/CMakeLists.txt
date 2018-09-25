@@ -47,6 +47,7 @@ add_libonnc_src(
     Lowers/LRNLower.cpp
     Lowers/LeakyReluLower.cpp
     Lowers/MaxPoolLower.cpp
+    Lowers/PadLower.cpp
     Lowers/PoolLower.cpp
     Lowers/PReluLower.cpp
     Lowers/SlicedConvLower.cpp
