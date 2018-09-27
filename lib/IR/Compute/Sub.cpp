@@ -24,9 +24,9 @@ Sub::Sub(const Sub& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Sub::print(std::ostream& pOS) const
+void Sub::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Sub::classof(const ComputeOperator* pOp)

@@ -29,9 +29,9 @@ Squeeze::Squeeze(const Squeeze& pCopy)
     m_Axes(pCopy.getAxes()) {
 }
 
-void Squeeze::print(std::ostream& pOS) const
+void Squeeze::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ">";
+  pOS << '<' << "axes: " << getAxes()<< '>';
 }
 
 bool Squeeze::classof(const ComputeOperator* pOp)

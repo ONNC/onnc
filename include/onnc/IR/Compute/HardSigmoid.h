@@ -78,7 +78,7 @@ public:
 
   // clang-format on
 
-  void print(std::ostream& pOS) const override;
+  void printAttributes(std::ostream& pOS) const override;
 
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 

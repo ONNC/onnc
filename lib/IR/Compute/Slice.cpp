@@ -37,9 +37,9 @@ Slice::Slice(const Slice& pCopy)
     m_Starts(pCopy.getStarts()) {
 }
 
-void Slice::print(std::ostream& pOS) const
+void Slice::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getEnds() << ", " << getStarts() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "ends: " << getEnds() << ", " "starts: " << getStarts()<< '>';
 }
 
 bool Slice::classof(const ComputeOperator* pOp)

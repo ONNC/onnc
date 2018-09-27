@@ -29,9 +29,9 @@ Elu::Elu(const Elu& pCopy)
     m_Alpha(pCopy.getAlpha()) {
 }
 
-void Elu::print(std::ostream& pOS) const
+void Elu::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ">";
+  pOS << '<' << "alpha: " << getAlpha()<< '>';
 }
 
 bool Elu::classof(const ComputeOperator* pOp)

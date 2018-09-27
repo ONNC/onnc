@@ -37,9 +37,9 @@ BatchNormalization::BatchNormalization(const BatchNormalization& pCopy)
     m_Spatial(pCopy.getSpatial()) {
 }
 
-void BatchNormalization::print(std::ostream& pOS) const
+void BatchNormalization::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getEpsilon() << ", " << getMomentum() << ", " << getSpatial() << ">";
+  pOS << '<' << "epsilon: " << getEpsilon() << ", " "momentum: " << getMomentum() << ", " "spatial: " << getSpatial()<< '>';
 }
 
 bool BatchNormalization::classof(const ComputeOperator* pOp)

@@ -45,9 +45,9 @@ MaxPool::MaxPool(const MaxPool& pCopy)
     m_Strides(pCopy.getStrides()) {
 }
 
-void MaxPool::print(std::ostream& pOS) const
+void MaxPool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAutoPad() << ", " << getKernelShape() << ", " << getPads() << ", " << getStorageOrder() << ", " << getStrides() << ">";
+  pOS << '<' << "auto_pad: " << getAutoPad() << ", " "kernel_shape: " << getKernelShape() << ", " "pads: " << getPads() << ", " "storage_order: " << getStorageOrder() << ", " "strides: " << getStrides()<< '>';
 }
 
 bool MaxPool::classof(const ComputeOperator* pOp)

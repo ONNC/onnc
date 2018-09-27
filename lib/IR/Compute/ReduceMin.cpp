@@ -33,9 +33,9 @@ ReduceMin::ReduceMin(const ReduceMin& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceMin::print(std::ostream& pOS) const
+void ReduceMin::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceMin::classof(const ComputeOperator* pOp)

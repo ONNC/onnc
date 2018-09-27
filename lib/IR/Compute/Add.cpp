@@ -24,9 +24,9 @@ Add::Add(const Add& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Add::print(std::ostream& pOS) const
+void Add::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Add::classof(const ComputeOperator* pOp)

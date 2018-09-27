@@ -37,9 +37,9 @@ Pad::Pad(const Pad& pCopy)
     m_Value(pCopy.getValue()) {
 }
 
-void Pad::print(std::ostream& pOS) const
+void Pad::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getMode() << ", " << getPads() << ", " << getValue() << ">";
+  pOS << '<' << "mode: " << getMode() << ", " "pads: " << getPads() << ", " "value: " << getValue()<< '>';
 }
 
 bool Pad::classof(const ComputeOperator* pOp)

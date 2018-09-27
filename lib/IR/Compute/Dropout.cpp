@@ -29,9 +29,9 @@ Dropout::Dropout(const Dropout& pCopy)
     m_Ratio(pCopy.getRatio()) {
 }
 
-void Dropout::print(std::ostream& pOS) const
+void Dropout::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getRatio() << ">";
+  pOS << '<' << "ratio: " << getRatio()<< '>';
 }
 
 bool Dropout::classof(const ComputeOperator* pOp)

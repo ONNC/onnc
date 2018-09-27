@@ -53,9 +53,9 @@ LSTM::LSTM(const LSTM& pCopy)
     m_InputForget(pCopy.getInputForget()) {
 }
 
-void LSTM::print(std::ostream& pOS) const
+void LSTM::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getActivationAlpha() << ", " << getActivationBeta() << ", " << getActivations() << ", " << getClip() << ", " << getDirection() << ", " << getHiddenSize() << ", " << getInputForget() << ">";
+  pOS << '<' << "activation_alpha: " << getActivationAlpha() << ", " "activation_beta: " << getActivationBeta() << ", " "activations: " << getActivations() << ", " "clip: " << getClip() << ", " "direction: " << getDirection() << ", " "hidden_size: " << getHiddenSize() << ", " "input_forget: " << getInputForget()<< '>';
 }
 
 bool LSTM::classof(const ComputeOperator* pOp)

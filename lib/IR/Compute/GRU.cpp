@@ -53,9 +53,9 @@ GRU::GRU(const GRU& pCopy)
     m_LinearBeforeReset(pCopy.getLinearBeforeReset()) {
 }
 
-void GRU::print(std::ostream& pOS) const
+void GRU::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getActivationAlpha() << ", " << getActivationBeta() << ", " << getActivations() << ", " << getClip() << ", " << getDirection() << ", " << getHiddenSize() << ", " << getLinearBeforeReset() << ">";
+  pOS << '<' << "activation_alpha: " << getActivationAlpha() << ", " "activation_beta: " << getActivationBeta() << ", " "activations: " << getActivations() << ", " "clip: " << getClip() << ", " "direction: " << getDirection() << ", " "hidden_size: " << getHiddenSize() << ", " "linear_before_reset: " << getLinearBeforeReset()<< '>';
 }
 
 bool GRU::classof(const ComputeOperator* pOp)

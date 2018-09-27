@@ -33,9 +33,9 @@ ReduceL1::ReduceL1(const ReduceL1& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceL1::print(std::ostream& pOS) const
+void ReduceL1::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceL1::classof(const ComputeOperator* pOp)

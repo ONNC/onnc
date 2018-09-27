@@ -26,9 +26,9 @@ Loop::Loop(const Loop& pCopy)
     m_Body(pCopy.getBody()) {
 }
 
-void Loop::print(std::ostream& pOS) const
+void Loop::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getBody() << ">";
+  pOS << '<' << "body: " << getBody()<< '>';
 }
 
 bool Loop::classof(const ComputeOperator* pOp)

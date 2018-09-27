@@ -41,9 +41,9 @@ GivenTensorFill::GivenTensorFill(const GivenTensorFill& pCopy)
     m_Values(pCopy.getValues()) {
 }
 
-void GivenTensorFill::print(std::ostream& pOS) const
+void GivenTensorFill::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getExtraShape() << ", " << getInputAsShape() << ", " << getShape() << ", " << getValues() << ">";
+  pOS << '<' << "extra_shape: " << getExtraShape() << ", " "input_as_shape: " << getInputAsShape() << ", " "shape: " << getShape() << ", " "values: " << getValues()<< '>';
 }
 
 bool GivenTensorFill::classof(const ComputeOperator* pOp)

@@ -33,9 +33,9 @@ Selu::Selu(const Selu& pCopy)
     m_Gamma(pCopy.getGamma()) {
 }
 
-void Selu::print(std::ostream& pOS) const
+void Selu::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getGamma() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "gamma: " << getGamma()<< '>';
 }
 
 bool Selu::classof(const ComputeOperator* pOp)

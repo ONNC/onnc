@@ -24,9 +24,9 @@ Less::Less(const Less& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Less::print(std::ostream& pOS) const
+void Less::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Less::classof(const ComputeOperator* pOp)

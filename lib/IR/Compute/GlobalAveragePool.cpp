@@ -24,9 +24,9 @@ GlobalAveragePool::GlobalAveragePool(const GlobalAveragePool& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void GlobalAveragePool::print(std::ostream& pOS) const
+void GlobalAveragePool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool GlobalAveragePool::classof(const ComputeOperator* pOp)

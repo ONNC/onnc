@@ -33,9 +33,9 @@ ArgMin::ArgMin(const ArgMin& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ArgMin::print(std::ostream& pOS) const
+void ArgMin::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axis: " << getAxis() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ArgMin::classof(const ComputeOperator* pOp)

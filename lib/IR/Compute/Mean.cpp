@@ -24,9 +24,9 @@ Mean::Mean(const Mean& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Mean::print(std::ostream& pOS) const
+void Mean::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Mean::classof(const ComputeOperator* pOp)

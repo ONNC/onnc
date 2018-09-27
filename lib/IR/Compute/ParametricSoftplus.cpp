@@ -33,9 +33,9 @@ ParametricSoftplus::ParametricSoftplus(const ParametricSoftplus& pCopy)
     m_Beta(pCopy.getBeta()) {
 }
 
-void ParametricSoftplus::print(std::ostream& pOS) const
+void ParametricSoftplus::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "beta: " << getBeta()<< '>';
 }
 
 bool ParametricSoftplus::classof(const ComputeOperator* pOp)

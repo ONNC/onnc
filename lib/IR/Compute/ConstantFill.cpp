@@ -45,9 +45,9 @@ ConstantFill::ConstantFill(const ConstantFill& pCopy)
     m_Value(pCopy.getValue()) {
 }
 
-void ConstantFill::print(std::ostream& pOS) const
+void ConstantFill::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDtype() << ", " << getExtraShape() << ", " << getInputAsShape() << ", " << getShape() << ", " << getValue() << ">";
+  pOS << '<' << "dtype: " << getDtype() << ", " "extra_shape: " << getExtraShape() << ", " "input_as_shape: " << getInputAsShape() << ", " "shape: " << getShape() << ", " "value: " << getValue()<< '>';
 }
 
 bool ConstantFill::classof(const ComputeOperator* pOp)

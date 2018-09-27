@@ -24,9 +24,9 @@ Abs::Abs(const Abs& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Abs::print(std::ostream& pOS) const
+void Abs::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Abs::classof(const ComputeOperator* pOp)

@@ -33,9 +33,9 @@ HardSigmoid::HardSigmoid(const HardSigmoid& pCopy)
     m_Beta(pCopy.getBeta()) {
 }
 
-void HardSigmoid::print(std::ostream& pOS) const
+void HardSigmoid::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "beta: " << getBeta()<< '>';
 }
 
 bool HardSigmoid::classof(const ComputeOperator* pOp)

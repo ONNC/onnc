@@ -24,9 +24,9 @@ Shape::Shape(const Shape& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Shape::print(std::ostream& pOS) const
+void Shape::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Shape::classof(const ComputeOperator* pOp)

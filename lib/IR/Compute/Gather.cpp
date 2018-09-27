@@ -29,9 +29,9 @@ Gather::Gather(const Gather& pCopy)
     m_Axis(pCopy.getAxis()) {
 }
 
-void Gather::print(std::ostream& pOS) const
+void Gather::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ">";
+  pOS << '<' << "axis: " << getAxis()<< '>';
 }
 
 bool Gather::classof(const ComputeOperator* pOp)

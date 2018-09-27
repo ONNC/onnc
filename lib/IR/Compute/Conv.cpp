@@ -49,9 +49,9 @@ Conv::Conv(const Conv& pCopy)
     m_Strides(pCopy.getStrides()) {
 }
 
-void Conv::print(std::ostream& pOS) const
+void Conv::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAutoPad() << ", " << getDilations() << ", " << getGroup() << ", " << getKernelShape() << ", " << getPads() << ", " << getStrides() << ">";
+  pOS << '<' << "auto_pad: " << getAutoPad() << ", " "dilations: " << getDilations() << ", " "group: " << getGroup() << ", " "kernel_shape: " << getKernelShape() << ", " "pads: " << getPads() << ", " "strides: " << getStrides()<< '>';
 }
 
 bool Conv::classof(const ComputeOperator* pOp)

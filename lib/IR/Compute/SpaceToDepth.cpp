@@ -26,9 +26,9 @@ SpaceToDepth::SpaceToDepth(const SpaceToDepth& pCopy)
     m_Blocksize(pCopy.getBlocksize()) {
 }
 
-void SpaceToDepth::print(std::ostream& pOS) const
+void SpaceToDepth::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getBlocksize() << ">";
+  pOS << '<' << "blocksize: " << getBlocksize()<< '>';
 }
 
 bool SpaceToDepth::classof(const ComputeOperator* pOp)

@@ -24,9 +24,9 @@ Acos::Acos(const Acos& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Acos::print(std::ostream& pOS) const
+void Acos::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Acos::classof(const ComputeOperator* pOp)

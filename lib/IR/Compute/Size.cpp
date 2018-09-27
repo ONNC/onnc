@@ -24,9 +24,9 @@ Size::Size(const Size& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Size::print(std::ostream& pOS) const
+void Size::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Size::classof(const ComputeOperator* pOp)

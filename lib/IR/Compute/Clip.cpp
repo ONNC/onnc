@@ -33,9 +33,9 @@ Clip::Clip(const Clip& pCopy)
     m_Min(pCopy.getMin()) {
 }
 
-void Clip::print(std::ostream& pOS) const
+void Clip::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getMax() << ", " << getMin() << ">";
+  pOS << '<' << "max: " << getMax() << ", " "min: " << getMin()<< '>';
 }
 
 bool Clip::classof(const ComputeOperator* pOp)

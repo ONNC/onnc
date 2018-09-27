@@ -29,9 +29,9 @@ Flatten::Flatten(const Flatten& pCopy)
     m_Axis(pCopy.getAxis()) {
 }
 
-void Flatten::print(std::ostream& pOS) const
+void Flatten::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ">";
+  pOS << '<' << "axis: " << getAxis()<< '>';
 }
 
 bool Flatten::classof(const ComputeOperator* pOp)

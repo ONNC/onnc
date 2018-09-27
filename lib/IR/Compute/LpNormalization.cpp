@@ -33,9 +33,9 @@ LpNormalization::LpNormalization(const LpNormalization& pCopy)
     m_P(pCopy.getP()) {
 }
 
-void LpNormalization::print(std::ostream& pOS) const
+void LpNormalization::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ", " << getP() << ">";
+  pOS << '<' << "axis: " << getAxis() << ", " "p: " << getP()<< '>';
 }
 
 bool LpNormalization::classof(const ComputeOperator* pOp)

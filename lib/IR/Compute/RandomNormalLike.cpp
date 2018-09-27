@@ -41,9 +41,9 @@ RandomNormalLike::RandomNormalLike(const RandomNormalLike& pCopy)
     m_Seed(pCopy.getSeed()) {
 }
 
-void RandomNormalLike::print(std::ostream& pOS) const
+void RandomNormalLike::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDtype() << ", " << getMean() << ", " << getScale() << ", " << getSeed() << ">";
+  pOS << '<' << "dtype: " << getDtype() << ", " "mean: " << getMean() << ", " "scale: " << getScale() << ", " "seed: " << getSeed()<< '>';
 }
 
 bool RandomNormalLike::classof(const ComputeOperator* pOp)

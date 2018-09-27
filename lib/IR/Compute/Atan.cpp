@@ -24,9 +24,9 @@ Atan::Atan(const Atan& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Atan::print(std::ostream& pOS) const
+void Atan::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Atan::classof(const ComputeOperator* pOp)

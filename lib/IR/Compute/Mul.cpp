@@ -24,9 +24,9 @@ Mul::Mul(const Mul& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Mul::print(std::ostream& pOS) const
+void Mul::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Mul::classof(const ComputeOperator* pOp)

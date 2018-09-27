@@ -33,9 +33,9 @@ TopK::TopK(const TopK& pCopy)
     m_K(pCopy.getK()) {
 }
 
-void TopK::print(std::ostream& pOS) const
+void TopK::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ", " << getK() << ">";
+  pOS << '<' << "axis: " << getAxis() << ", " "k: " << getK()<< '>';
 }
 
 bool TopK::classof(const ComputeOperator* pOp)

@@ -24,9 +24,9 @@ ${OperatorName}::${OperatorName}(const ${OperatorName}& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */${CallAttributesCopyConstructor} {
 }
 
-void ${OperatorName}::print(std::ostream& pOS) const
+void ${OperatorName}::printAttributes(std::ostream& pOS) const
 {
-  pOS << name()${PrintAttributes};
+  ${PrintAttributes};
 }
 
 bool ${OperatorName}::classof(const ComputeOperator* pOp)
