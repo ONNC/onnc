@@ -51,6 +51,9 @@ public:
 protected:
   TargetMemInfo* m_pMemInfo;
 
+  // This is helper function to add passes for building up standard ONNC IR.
+  void addStandardTensorSel(PassManager& pPM);
+
 private:
   const TargetOptions& m_TargetOptions;
 };
