@@ -24,9 +24,9 @@ Exp::Exp(const Exp& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Exp::print(std::ostream& pOS) const
+void Exp::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Exp::classof(const ComputeOperator* pOp)

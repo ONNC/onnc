@@ -45,9 +45,9 @@ RandomNormal::RandomNormal(const RandomNormal& pCopy)
     m_Shape(pCopy.getShape()) {
 }
 
-void RandomNormal::print(std::ostream& pOS) const
+void RandomNormal::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDtype() << ", " << getMean() << ", " << getScale() << ", " << getSeed() << ", " << getShape() << ">";
+  pOS << '<' << "dtype: " << getDtype() << ", " "mean: " << getMean() << ", " "scale: " << getScale() << ", " "seed: " << getSeed() << ", " "shape: " << getShape()<< '>';
 }
 
 bool RandomNormal::classof(const ComputeOperator* pOp)

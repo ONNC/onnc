@@ -29,9 +29,9 @@ Transpose::Transpose(const Transpose& pCopy)
     m_Perm(pCopy.getPerm()) {
 }
 
-void Transpose::print(std::ostream& pOS) const
+void Transpose::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getPerm() << ">";
+  pOS << '<' << "perm: " << getPerm()<< '>';
 }
 
 bool Transpose::classof(const ComputeOperator* pOp)

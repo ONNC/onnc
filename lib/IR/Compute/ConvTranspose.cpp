@@ -57,9 +57,9 @@ ConvTranspose::ConvTranspose(const ConvTranspose& pCopy)
     m_Strides(pCopy.getStrides()) {
 }
 
-void ConvTranspose::print(std::ostream& pOS) const
+void ConvTranspose::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAutoPad() << ", " << getDilations() << ", " << getGroup() << ", " << getKernelShape() << ", " << getOutputPadding() << ", " << getOutputShape() << ", " << getPads() << ", " << getStrides() << ">";
+  pOS << '<' << "auto_pad: " << getAutoPad() << ", " "dilations: " << getDilations() << ", " "group: " << getGroup() << ", " "kernel_shape: " << getKernelShape() << ", " "output_padding: " << getOutputPadding() << ", " "output_shape: " << getOutputShape() << ", " "pads: " << getPads() << ", " "strides: " << getStrides()<< '>';
 }
 
 bool ConvTranspose::classof(const ComputeOperator* pOp)

@@ -41,9 +41,9 @@ LRN::LRN(const LRN& pCopy)
     m_Size(pCopy.getSize()) {
 }
 
-void LRN::print(std::ostream& pOS) const
+void LRN::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ", " << getBias() << ", " << getSize() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "beta: " << getBeta() << ", " "bias: " << getBias() << ", " "size: " << getSize()<< '>';
 }
 
 bool LRN::classof(const ComputeOperator* pOp)

@@ -26,9 +26,9 @@ Concat::Concat(const Concat& pCopy)
     m_Axis(pCopy.getAxis()) {
 }
 
-void Concat::print(std::ostream& pOS) const
+void Concat::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ">";
+  pOS << '<' << "axis: " << getAxis()<< '>';
 }
 
 bool Concat::classof(const ComputeOperator* pOp)

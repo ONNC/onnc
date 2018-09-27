@@ -33,9 +33,9 @@ ReduceSum::ReduceSum(const ReduceSum& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceSum::print(std::ostream& pOS) const
+void ReduceSum::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceSum::classof(const ComputeOperator* pOp)

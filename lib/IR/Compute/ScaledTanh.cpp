@@ -33,9 +33,9 @@ ScaledTanh::ScaledTanh(const ScaledTanh& pCopy)
     m_Beta(pCopy.getBeta()) {
 }
 
-void ScaledTanh::print(std::ostream& pOS) const
+void ScaledTanh::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "beta: " << getBeta()<< '>';
 }
 
 bool ScaledTanh::classof(const ComputeOperator* pOp)

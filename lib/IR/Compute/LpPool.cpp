@@ -45,9 +45,9 @@ LpPool::LpPool(const LpPool& pCopy)
     m_Strides(pCopy.getStrides()) {
 }
 
-void LpPool::print(std::ostream& pOS) const
+void LpPool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAutoPad() << ", " << getKernelShape() << ", " << getP() << ", " << getPads() << ", " << getStrides() << ">";
+  pOS << '<' << "auto_pad: " << getAutoPad() << ", " "kernel_shape: " << getKernelShape() << ", " "p: " << getP() << ", " "pads: " << getPads() << ", " "strides: " << getStrides()<< '>';
 }
 
 bool LpPool::classof(const ComputeOperator* pOp)

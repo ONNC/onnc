@@ -24,9 +24,9 @@ Div::Div(const Div& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Div::print(std::ostream& pOS) const
+void Div::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Div::classof(const ComputeOperator* pOp)

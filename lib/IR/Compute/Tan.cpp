@@ -24,9 +24,9 @@ Tan::Tan(const Tan& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Tan::print(std::ostream& pOS) const
+void Tan::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Tan::classof(const ComputeOperator* pOp)

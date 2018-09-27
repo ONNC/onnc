@@ -33,9 +33,9 @@ ReduceMean::ReduceMean(const ReduceMean& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceMean::print(std::ostream& pOS) const
+void ReduceMean::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceMean::classof(const ComputeOperator* pOp)

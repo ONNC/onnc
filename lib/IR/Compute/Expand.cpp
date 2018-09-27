@@ -24,9 +24,9 @@ Expand::Expand(const Expand& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Expand::print(std::ostream& pOS) const
+void Expand::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Expand::classof(const ComputeOperator* pOp)

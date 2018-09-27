@@ -45,9 +45,9 @@ RandomUniform::RandomUniform(const RandomUniform& pCopy)
     m_Shape(pCopy.getShape()) {
 }
 
-void RandomUniform::print(std::ostream& pOS) const
+void RandomUniform::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDtype() << ", " << getHigh() << ", " << getLow() << ", " << getSeed() << ", " << getShape() << ">";
+  pOS << '<' << "dtype: " << getDtype() << ", " "high: " << getHigh() << ", " "low: " << getLow() << ", " "seed: " << getSeed() << ", " "shape: " << getShape()<< '>';
 }
 
 bool RandomUniform::classof(const ComputeOperator* pOp)

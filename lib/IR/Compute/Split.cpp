@@ -33,9 +33,9 @@ Split::Split(const Split& pCopy)
     m_Split(pCopy.getSplit()) {
 }
 
-void Split::print(std::ostream& pOS) const
+void Split::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ", " << getSplit() << ">";
+  pOS << '<' << "axis: " << getAxis() << ", " "split: " << getSplit()<< '>';
 }
 
 bool Split::classof(const ComputeOperator* pOp)

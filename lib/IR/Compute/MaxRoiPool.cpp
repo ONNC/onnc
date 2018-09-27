@@ -33,9 +33,9 @@ MaxRoiPool::MaxRoiPool(const MaxRoiPool& pCopy)
     m_SpatialScale(pCopy.getSpatialScale()) {
 }
 
-void MaxRoiPool::print(std::ostream& pOS) const
+void MaxRoiPool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getPooledShape() << ", " << getSpatialScale() << ">";
+  pOS << '<' << "pooled_shape: " << getPooledShape() << ", " "spatial_scale: " << getSpatialScale()<< '>';
 }
 
 bool MaxRoiPool::classof(const ComputeOperator* pOp)

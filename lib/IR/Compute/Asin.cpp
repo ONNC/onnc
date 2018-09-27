@@ -24,9 +24,9 @@ Asin::Asin(const Asin& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Asin::print(std::ostream& pOS) const
+void Asin::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Asin::classof(const ComputeOperator* pOp)

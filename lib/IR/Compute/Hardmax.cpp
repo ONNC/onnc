@@ -29,9 +29,9 @@ Hardmax::Hardmax(const Hardmax& pCopy)
     m_Axis(pCopy.getAxis()) {
 }
 
-void Hardmax::print(std::ostream& pOS) const
+void Hardmax::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ">";
+  pOS << '<' << "axis: " << getAxis()<< '>';
 }
 
 bool Hardmax::classof(const ComputeOperator* pOp)

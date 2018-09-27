@@ -37,9 +37,9 @@ Multinomial::Multinomial(const Multinomial& pCopy)
     m_Seed(pCopy.getSeed()) {
 }
 
-void Multinomial::print(std::ostream& pOS) const
+void Multinomial::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDtype() << ", " << getSampleSize() << ", " << getSeed() << ">";
+  pOS << '<' << "dtype: " << getDtype() << ", " "sample_size: " << getSampleSize() << ", " "seed: " << getSeed()<< '>';
 }
 
 bool Multinomial::classof(const ComputeOperator* pOp)

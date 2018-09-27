@@ -24,9 +24,9 @@ Xor::Xor(const Xor& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Xor::print(std::ostream& pOS) const
+void Xor::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Xor::classof(const ComputeOperator* pOp)

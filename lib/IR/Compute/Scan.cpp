@@ -37,9 +37,9 @@ Scan::Scan(const Scan& pCopy)
     m_NumScanInputs(pCopy.getNumScanInputs()) {
 }
 
-void Scan::print(std::ostream& pOS) const
+void Scan::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getBody() << ", " << getDirections() << ", " << getNumScanInputs() << ">";
+  pOS << '<' << "body: " << getBody() << ", " "directions: " << getDirections() << ", " "num_scan_inputs: " << getNumScanInputs()<< '>';
 }
 
 bool Scan::classof(const ComputeOperator* pOp)

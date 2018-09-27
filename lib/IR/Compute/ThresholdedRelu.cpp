@@ -29,9 +29,9 @@ ThresholdedRelu::ThresholdedRelu(const ThresholdedRelu& pCopy)
     m_Alpha(pCopy.getAlpha()) {
 }
 
-void ThresholdedRelu::print(std::ostream& pOS) const
+void ThresholdedRelu::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ">";
+  pOS << '<' << "alpha: " << getAlpha()<< '>';
 }
 
 bool ThresholdedRelu::classof(const ComputeOperator* pOp)

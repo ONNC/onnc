@@ -49,9 +49,9 @@ RNN::RNN(const RNN& pCopy)
     m_HiddenSize(pCopy.getHiddenSize()) {
 }
 
-void RNN::print(std::ostream& pOS) const
+void RNN::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getActivationAlpha() << ", " << getActivationBeta() << ", " << getActivations() << ", " << getClip() << ", " << getDirection() << ", " << getHiddenSize() << ">";
+  pOS << '<' << "activation_alpha: " << getActivationAlpha() << ", " "activation_beta: " << getActivationBeta() << ", " "activations: " << getActivations() << ", " "clip: " << getClip() << ", " "direction: " << getDirection() << ", " "hidden_size: " << getHiddenSize()<< '>';
 }
 
 bool RNN::classof(const ComputeOperator* pOp)

@@ -29,9 +29,9 @@ Scale::Scale(const Scale& pCopy)
     m_Scale(pCopy.getScale()) {
 }
 
-void Scale::print(std::ostream& pOS) const
+void Scale::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getScale() << ">";
+  pOS << '<' << "scale: " << getScale()<< '>';
 }
 
 bool Scale::classof(const ComputeOperator* pOp)

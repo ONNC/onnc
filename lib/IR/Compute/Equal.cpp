@@ -24,9 +24,9 @@ Equal::Equal(const Equal& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Equal::print(std::ostream& pOS) const
+void Equal::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Equal::classof(const ComputeOperator* pOp)

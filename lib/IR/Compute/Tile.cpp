@@ -24,9 +24,9 @@ Tile::Tile(const Tile& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Tile::print(std::ostream& pOS) const
+void Tile::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Tile::classof(const ComputeOperator* pOp)

@@ -41,9 +41,9 @@ RandomUniformLike::RandomUniformLike(const RandomUniformLike& pCopy)
     m_Seed(pCopy.getSeed()) {
 }
 
-void RandomUniformLike::print(std::ostream& pOS) const
+void RandomUniformLike::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDtype() << ", " << getHigh() << ", " << getLow() << ", " << getSeed() << ">";
+  pOS << '<' << "dtype: " << getDtype() << ", " "high: " << getHigh() << ", " "low: " << getLow() << ", " "seed: " << getSeed()<< '>';
 }
 
 bool RandomUniformLike::classof(const ComputeOperator* pOp)

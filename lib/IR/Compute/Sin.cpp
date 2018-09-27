@@ -24,9 +24,9 @@ Sin::Sin(const Sin& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Sin::print(std::ostream& pOS) const
+void Sin::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Sin::classof(const ComputeOperator* pOp)

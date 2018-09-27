@@ -24,9 +24,9 @@ Pow::Pow(const Pow& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Pow::print(std::ostream& pOS) const
+void Pow::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Pow::classof(const ComputeOperator* pOp)
