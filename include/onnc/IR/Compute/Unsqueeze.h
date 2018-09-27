@@ -56,10 +56,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getData() const { return getInput(kData); }
+
   Tensor* getData() { return getInput(kData); }
 
 
   // Outputs getters
+  const Tensor* getExpanded() const { return getOutput(kExpanded); }
+
   Tensor* getExpanded() { return getOutput(kExpanded); }
 
 

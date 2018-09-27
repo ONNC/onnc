@@ -54,10 +54,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getInInput(size_t pIdx) const { return getInput(kInInput + pIdx); }
+
   Tensor* getInInput(size_t pIdx) { return getInput(kInInput + pIdx); }
 
 
   // Outputs getters
+  const Tensor* getOutOutput(size_t pIdx) const { return getOutput(kOutOutput + pIdx); }
+
   Tensor* getOutOutput(size_t pIdx) { return getOutput(kOutOutput + pIdx); }
 
 

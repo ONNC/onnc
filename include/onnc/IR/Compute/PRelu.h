@@ -55,12 +55,18 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getX() const { return getInput(kX); }
+
+  const Tensor* getSlope() const { return getInput(kSlope); }
+
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getSlope() { return getInput(kSlope); }
 
 
   // Outputs getters
+  const Tensor* getY() const { return getOutput(kY); }
+
   Tensor* getY() { return getOutput(kY); }
 
 

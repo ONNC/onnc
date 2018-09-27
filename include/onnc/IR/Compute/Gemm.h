@@ -74,6 +74,12 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getA() const { return getInput(kA); }
+
+  const Tensor* getB() const { return getInput(kB); }
+
+  const Tensor* getC() const { return getInput(kC); }
+
   Tensor* getA() { return getInput(kA); }
 
   Tensor* getB() { return getInput(kB); }
@@ -82,6 +88,8 @@ public:
 
 
   // Outputs getters
+  const Tensor* getY() const { return getOutput(kY); }
+
   Tensor* getY() { return getOutput(kY); }
 
 

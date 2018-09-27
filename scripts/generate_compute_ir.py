@@ -52,7 +52,7 @@ def gen_compute_ir_substitution_hash(schema):
       name = io_schema.name
       if alt_name[to_camel_case(name)] or \
         (name in ['input', 'output'] and io_schema.option == OpSchema.FormalParameterOption.Variadic) or \
-	(name in attrs):
+        (name in attrs):
         name = ('in_' if io == 'i' else 'out_') + name
       return {
         'idx': idx,
@@ -66,17 +66,21 @@ def gen_compute_ir_substitution_hash(schema):
     return 'k{io_name} = {idx}'.format(**io_schema)
   hash['IOConst'] = ',\n    '.join(for_io_schema(schema.inputs, 'i', io_const) + for_io_schema(schema.outputs, 'o', io_const))
 
-  def io_getter(prefix):
+  def io_getter(prefix, const):
     def io_getter_cb(io_schema):
+      io_schema['const'] = const
       if OpSchema.FormalParameterOption.Variadic == io_schema['option']:
-        return 'Tensor* get{io_name}(size_t pIdx) {{ return get{prefix}(k{io_name} + pIdx); }}\n'.format(prefix=prefix, **io_schema)
+        return '{const}Tensor* get{io_name}(size_t pIdx) {const}{{ return get{prefix}(k{io_name} + pIdx); }}\n'.format(prefix=prefix, **io_schema)
       else:
-        return 'Tensor* get{io_name}() {{ return get{prefix}(k{io_name}); }}\n'.format(prefix=prefix, **io_schema)
+        return '{const}Tensor* get{io_name}() {const}{{ return get{prefix}(k{io_name}); }}\n'.format(prefix=prefix, **io_schema)
     return io_getter_cb
   # ${InputsGetters}
-  hash['InputsGetters'] = '\n  '.join(for_io_schema(schema.inputs, 'i', io_getter('Input')))
+  hash['InputsGetters'] = '\n  '.join(for_io_schema(schema.inputs, 'i', io_getter('Input', 'const ')) + \
+                                      for_io_schema(schema.inputs, 'i', io_getter('Input', '')))
   # ${OutputsGetters}
-  hash['OutputsGetters'] = '\n  '.join(for_io_schema(schema.outputs, 'o', io_getter('Output')))
+  hash['OutputsGetters'] = '\n  '.join(for_io_schema(schema.outputs, 'o', io_getter('Output', 'const ')) + \
+                                       for_io_schema(schema.outputs, 'o', io_getter('Output', '')))
+  # ${OutputsGetters}
 
   def io_setter(prefix):
     def io_setter_cb(io_schema):
