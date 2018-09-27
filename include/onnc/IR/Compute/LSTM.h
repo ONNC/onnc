@@ -96,6 +96,22 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getX() const { return getInput(kX); }
+
+  const Tensor* getW() const { return getInput(kW); }
+
+  const Tensor* getR() const { return getInput(kR); }
+
+  const Tensor* getB() const { return getInput(kB); }
+
+  const Tensor* getSequenceLens() const { return getInput(kSequenceLens); }
+
+  const Tensor* getInitialH() const { return getInput(kInitialH); }
+
+  const Tensor* getInitialC() const { return getInput(kInitialC); }
+
+  const Tensor* getP() const { return getInput(kP); }
+
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getW() { return getInput(kW); }
@@ -114,6 +130,12 @@ public:
 
 
   // Outputs getters
+  const Tensor* getY() const { return getOutput(kY); }
+
+  const Tensor* getYH() const { return getOutput(kYH); }
+
+  const Tensor* getYC() const { return getOutput(kYC); }
+
   Tensor* getY() { return getOutput(kY); }
 
   Tensor* getYH() { return getOutput(kYH); }

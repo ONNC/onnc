@@ -58,12 +58,18 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getData() const { return getInput(kData); }
+
+  const Tensor* getIndices() const { return getInput(kIndices); }
+
   Tensor* getData() { return getInput(kData); }
 
   Tensor* getIndices() { return getInput(kIndices); }
 
 
   // Outputs getters
+  const Tensor* getOutput() const { return getOutput(kOutput); }
+
   Tensor* getOutput() { return getOutput(kOutput); }
 
 

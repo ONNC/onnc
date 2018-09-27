@@ -68,12 +68,18 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getSequenceLens() const { return getInput(kSequenceLens); }
+
+  const Tensor* getInitialStateAndScanInputs(size_t pIdx) const { return getInput(kInitialStateAndScanInputs + pIdx); }
+
   Tensor* getSequenceLens() { return getInput(kSequenceLens); }
 
   Tensor* getInitialStateAndScanInputs(size_t pIdx) { return getInput(kInitialStateAndScanInputs + pIdx); }
 
 
   // Outputs getters
+  const Tensor* getFinalStateAndScanOutputs(size_t pIdx) const { return getOutput(kFinalStateAndScanOutputs + pIdx); }
+
   Tensor* getFinalStateAndScanOutputs(size_t pIdx) { return getOutput(kFinalStateAndScanOutputs + pIdx); }
 
 

@@ -75,6 +75,16 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getX() const { return getInput(kX); }
+
+  const Tensor* getScale() const { return getInput(kScale); }
+
+  const Tensor* getB() const { return getInput(kB); }
+
+  const Tensor* getInMean() const { return getInput(kInMean); }
+
+  const Tensor* getInVar() const { return getInput(kInVar); }
+
   Tensor* getX() { return getInput(kX); }
 
   Tensor* getScale() { return getInput(kScale); }
@@ -87,6 +97,16 @@ public:
 
 
   // Outputs getters
+  const Tensor* getY() const { return getOutput(kY); }
+
+  const Tensor* getOutMean() const { return getOutput(kOutMean); }
+
+  const Tensor* getOutVar() const { return getOutput(kOutVar); }
+
+  const Tensor* getSavedMean() const { return getOutput(kSavedMean); }
+
+  const Tensor* getSavedVar() const { return getOutput(kSavedVar); }
+
   Tensor* getY() { return getOutput(kY); }
 
   Tensor* getOutMean() { return getOutput(kOutMean); }

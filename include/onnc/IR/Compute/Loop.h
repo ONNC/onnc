@@ -58,6 +58,12 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getM() const { return getInput(kM); }
+
+  const Tensor* getCond() const { return getInput(kCond); }
+
+  const Tensor* getVInitial(size_t pIdx) const { return getInput(kVInitial + pIdx); }
+
   Tensor* getM() { return getInput(kM); }
 
   Tensor* getCond() { return getInput(kCond); }
@@ -66,6 +72,8 @@ public:
 
 
   // Outputs getters
+  const Tensor* getVFinalAndScanOutputs(size_t pIdx) const { return getOutput(kVFinalAndScanOutputs + pIdx); }
+
   Tensor* getVFinalAndScanOutputs(size_t pIdx) { return getOutput(kVFinalAndScanOutputs + pIdx); }
 
 

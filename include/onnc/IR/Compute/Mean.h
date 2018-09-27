@@ -54,10 +54,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getData0(size_t pIdx) const { return getInput(kData0 + pIdx); }
+
   Tensor* getData0(size_t pIdx) { return getInput(kData0 + pIdx); }
 
 
   // Outputs getters
+  const Tensor* getMean() const { return getOutput(kMean); }
+
   Tensor* getMean() { return getOutput(kMean); }
 
 

@@ -72,10 +72,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getInShape() const { return getInput(kInShape); }
+
   Tensor* getInShape() { return getInput(kInShape); }
 
 
   // Outputs getters
+  const Tensor* getX() const { return getOutput(kX); }
+
   Tensor* getX() { return getOutput(kX); }
 
 

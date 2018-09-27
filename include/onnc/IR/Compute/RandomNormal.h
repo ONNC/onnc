@@ -79,6 +79,8 @@ public:
   
 
   // Outputs getters
+  const Tensor* getOutput() const { return getOutput(kOutput); }
+
   Tensor* getOutput() { return getOutput(kOutput); }
 
 
