@@ -25,6 +25,7 @@ add_libonnc_src(
     Compute/ArgMin.cpp
     Compute/Asin.cpp
     Compute/Atan.cpp
+    Compute/Attributes.cpp
     Compute/AveragePool.cpp
     Compute/BatchNormalization.cpp
     Compute/Cast.cpp
