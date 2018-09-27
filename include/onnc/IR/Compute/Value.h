@@ -12,6 +12,7 @@
 #include <onnc/Config/ONNX.h>
 #include <vector>
 #include <string>
+#include <ostream>
 
 namespace onnc {
 
@@ -112,6 +113,8 @@ public:
   const xTensor* adaptee() const { return m_pAdaptee; }
 
   bool hasAdaptee() const { return (nullptr != m_pAdaptee); }
+
+  virtual void print(std::ostream& pOS) const { pOS << getName(); }
 
 protected:
   onnc::Define* m_pDefine;
