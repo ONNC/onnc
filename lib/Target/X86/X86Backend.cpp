@@ -9,7 +9,6 @@
 #include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/X86TargetInfo.h"
 #include "TargetInfo/X86TargetMemInfo.h"
-#include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
@@ -17,13 +16,6 @@
 #include <onnc/CodeGen/SetMemOperand.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Target/TargetRegistry.h>
-#include <onnc/Transforms/BookONNXGraphs.h>
-#include <onnc/Transforms/BuildInitializers.h>
-#include <onnc/Transforms/BuildInputOperators.h>
-#include <onnc/Transforms/BuildOutputOperators.h>
-#include <onnc/Transforms/DeadNodeElimination.h>
-#include <onnc/Transforms/RemoveTrainingNodes.h>
-#include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/Standards/AbsLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AcosLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
@@ -50,6 +42,7 @@
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
+#include <onnc/Transforms/TensorSel/LowerRegistry.h>
 
 using namespace onnc;
 
@@ -68,15 +61,9 @@ X86Backend::~X86Backend()
 
 void X86Backend::addTensorSel(PassManager& pPM)
 {
-  // target independent pass
-  pPM.add(CreateRemoveTrainingNodesPass());
-  pPM.add(CreateUpdateGraphOutputSizePass());
-  pPM.add(CreateDeadNodeEliminationPass());
-  pPM.add(CreateBookONNXGraphs());
-  pPM.add(CreateBuildInitializers());
-  pPM.add(CreateBuildInputOperators());
-  pPM.add(CreateTensorSel(this));
-  pPM.add(CreateBuildOutputOperators());
+  // X86 only uses the standard ONNC IR and standard Lower, so just use the
+  // standard Tensor selection passes.
+  addStandardTensorSel(pPM);
 }
 
 void X86Backend::addMemAlloc(PassManager& pPM)
