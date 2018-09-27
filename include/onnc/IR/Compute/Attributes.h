@@ -44,7 +44,7 @@ public:
 
   Type kind() const { return m_Kind; }
 
-  void print(std::ostream& pOS) const {
+  virtual void print(std::ostream& pOS) const {
     pOS << ConstSwitch<std::string>(kind())
            .Case<kBoolean>("bool")
            .Case<kFloat>("float")
@@ -91,6 +91,8 @@ public:
   const ValueType& value() const { return m_Value; }
 
   void setValue(const ValueType& pValue) { m_Value = pValue; }
+
+  void print(std::ostream& pOS) const override;
 
 private:
   ValueType m_Value;
@@ -141,6 +143,8 @@ public:
 
   const ValueType& at(unsigned int pIdx) const { return m_Vector.at(pIdx); }
 
+  void print(std::ostream& pOS) const override;
+
 private:
   VectorType m_Vector;
 };
@@ -161,17 +165,37 @@ typedef VectorAttribute<ComputeGraph, Attribute::kGraph> GraphsAttr;
 
 template<typename ValueType, Attribute::Type Kind> std::ostream&
 operator<<(std::ostream& pOS, const ScalarAttribute<ValueType, Kind>& pV) {
-  pV.Attribute::print(pOS);
-  pOS << " (" << pV.value() << ")";
+  pV.print(pOS);
   return pOS;
 }
 
 template<typename ValueType, Attribute::Type Kind> std::ostream&
 operator<<(std::ostream& pOS, const VectorAttribute<ValueType, Kind>& pV) {
-  pV.Attribute::print(pOS);
-  pOS << " [" << pV.vector().size() << "]";
+  pV.print(pOS);
   return pOS;
 }
+
+template<typename ValueType, Attribute::Type Kind>
+void ScalarAttribute<ValueType, Kind>::print(std::ostream& pOS) const {
+  pOS << "undefined";
+}
+template<> void BoolAttr::print(std::ostream& pOS) const;
+template<> void FloatAttr::print(std::ostream& pOS) const;
+template<> void IntAttr::print(std::ostream& pOS) const;
+template<> void StringAttr::print(std::ostream& pOS) const;
+template<> void TensorAttr::print(std::ostream& pOS) const;
+template<> void GraphAttr::print(std::ostream& pOS) const;
+
+template<typename ValueType, Attribute::Type Kind>
+void VectorAttribute<ValueType, Kind>::print(std::ostream& pOS) const {
+  pOS << "undefined[" << vector().size() << "]";
+}
+template<> void BoolsAttr::print(std::ostream& pOS) const;
+template<> void FloatsAttr::print(std::ostream& pOS) const;
+template<> void IntsAttr::print(std::ostream& pOS) const;
+template<> void StringsAttr::print(std::ostream& pOS) const;
+template<> void TensorsAttr::print(std::ostream& pOS) const;
+template<> void GraphsAttr::print(std::ostream& pOS) const;
 
 } // namespace of onnc
 
