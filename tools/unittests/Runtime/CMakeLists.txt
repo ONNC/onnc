@@ -5,4 +5,5 @@ function(add_onnc_runtime_test name)
     add_onnc_test(Runtime_${name} ${ARGN})
 endfunction()
 
-add_onnc_runtime_test(OperatorAbs OperatorAbsTest.cpp)
+add_onnc_runtime_test(Abs AbsTest.cpp)
+add_onnc_runtime_test(Transpose TransposeTest.cpp)

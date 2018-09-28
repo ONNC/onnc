@@ -9,7 +9,7 @@ extern "C"{
 }
 #undef restrict
 
-SKYPAT_F(OperatorAbs, non_broadcast){
+SKYPAT_F(Operator_Abs, non_broadcast){
     // Prepare
     srand(time(NULL));
     int32_t ndim = rand() % 3 + 1;
