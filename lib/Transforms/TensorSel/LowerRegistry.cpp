@@ -66,8 +66,10 @@ Lower* LowerRegistry::lookup(const xNode& pNode)
   Lower* target = nullptr;
   for (Lower* lower : m_LowerList) {
     int score = lower->isMe(pNode);
-    if (score > max)
+    if (score > max) {
       target = lower;
+      max = score;
+    }
   }
   return target;
 }
@@ -78,8 +80,10 @@ const Lower* LowerRegistry::lookup(const xNode& pNode) const
   const Lower* target = nullptr;
   for (const Lower* lower : m_LowerList) {
     int score = lower->isMe(pNode);
-    if (score > max)
+    if (score > max) {
       target = lower;
+      max = score;
+    }
   }
   return target;
 }
