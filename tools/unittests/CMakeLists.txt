@@ -19,6 +19,9 @@ function(add_onnc_test name)
         add_test(${name} unittest_${name})
     endif()
 endfunction()
+
+add_subdirectory(Runtime)
+
 add_onnc_test(Digraph DigraphTest.cpp)
 add_onnc_test(FileHandle FileHandleTest.cpp)
 add_onnc_test(PassManager PassManagerTest.cpp)
