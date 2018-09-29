@@ -34,7 +34,6 @@ public:
 private:
   void updateInputBatchSize(xGraph *pGraph);
   void updateOutputValueInfo(xGraph *pGraph);
-  bool updateReshapeOutputInfo(xGraph *pGraph);
 
 private:
   unsigned m_BatchSize;
