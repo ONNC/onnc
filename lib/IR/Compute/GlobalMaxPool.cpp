@@ -24,9 +24,9 @@ GlobalMaxPool::GlobalMaxPool(const GlobalMaxPool& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void GlobalMaxPool::print(std::ostream& pOS) const
+void GlobalMaxPool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool GlobalMaxPool::classof(const ComputeOperator* pOp)

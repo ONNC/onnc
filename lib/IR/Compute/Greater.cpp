@@ -24,9 +24,9 @@ Greater::Greater(const Greater& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Greater::print(std::ostream& pOS) const
+void Greater::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Greater::classof(const ComputeOperator* pOp)

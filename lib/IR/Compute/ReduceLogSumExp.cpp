@@ -33,9 +33,9 @@ ReduceLogSumExp::ReduceLogSumExp(const ReduceLogSumExp& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceLogSumExp::print(std::ostream& pOS) const
+void ReduceLogSumExp::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceLogSumExp::classof(const ComputeOperator* pOp)

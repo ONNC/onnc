@@ -33,9 +33,9 @@ ArgMax::ArgMax(const ArgMax& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ArgMax::print(std::ostream& pOS) const
+void ArgMax::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axis: " << getAxis() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ArgMax::classof(const ComputeOperator* pOp)

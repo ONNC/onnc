@@ -33,9 +33,9 @@ ImageScaler::ImageScaler(const ImageScaler& pCopy)
     m_Scale(pCopy.getScale()) {
 }
 
-void ImageScaler::print(std::ostream& pOS) const
+void ImageScaler::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getBias() << ", " << getScale() << ">";
+  pOS << '<' << "bias: " << getBias() << ", " "scale: " << getScale()<< '>';
 }
 
 bool ImageScaler::classof(const ComputeOperator* pOp)

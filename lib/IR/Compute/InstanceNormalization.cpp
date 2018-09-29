@@ -29,9 +29,9 @@ InstanceNormalization::InstanceNormalization(const InstanceNormalization& pCopy)
     m_Epsilon(pCopy.getEpsilon()) {
 }
 
-void InstanceNormalization::print(std::ostream& pOS) const
+void InstanceNormalization::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getEpsilon() << ">";
+  pOS << '<' << "epsilon: " << getEpsilon()<< '>';
 }
 
 bool InstanceNormalization::classof(const ComputeOperator* pOp)

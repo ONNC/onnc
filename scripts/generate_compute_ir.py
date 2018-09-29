@@ -120,7 +120,8 @@ def gen_compute_ir_substitution_hash(schema):
     def transform_attr(attr):
       return {
         'attr_type': format_attr_type(attr.type),
-        'attr_name': to_camel_case(attr.name),
+        'attr_name': attr.name,
+        'AttrName': to_camel_case(attr.name),
         'attr_required': attr.required,
         'attr_default_value': format_attr_default_value(attr.default_value),
       }
@@ -129,25 +130,25 @@ def gen_compute_ir_substitution_hash(schema):
   if schema.attributes:
     # ${AttributesGetters}
     hash['AttributesGetters'] = '\n  '.join(for_attr(attrs, lambda attr:
-      'const {attr_type}& get{attr_name}() const {{ return m_{attr_name}; }}\n'.format(**attr)
+      'const {attr_type}& get{AttrName}() const {{ return m_{AttrName}; }}\n'.format(**attr)
     ))
 
     # ${AttributesSetters}
     hash['AttributesSetters'] = '\n  '.join(for_attr(attrs, lambda attr:
-      'void set{attr_name}(const {attr_type}& p{attr_name}) {{ m_{attr_name} = p{attr_name}; }}\n'.format(**attr)
+      'void set{AttrName}(const {attr_type}& p{AttrName}) {{ m_{AttrName} = p{AttrName}; }}\n'.format(**attr)
     ))
 
     # ${AttributesMemberVariables}
     hash['AttributesMemberVariables'] = '\n  '.join(for_attr(attrs, lambda attr:
-      '{attr_type} m_{attr_name};'.format(**attr)
+      '{attr_type} m_{AttrName};'.format(**attr)
     ))
 
-    required_attrs_params = for_attr(required_attrs, lambda attr: 'const {attr_type}& p{attr_name}'.format(**attr))
+    required_attrs_params = for_attr(required_attrs, lambda attr: 'const {attr_type}& p{AttrName}'.format(**attr))
     hash['ConstructorRequireAttributes'] = ', '.join(required_attrs_params)
 
     if len(attrs) != len(required_attrs):
       indent = ' ' * len(hash['OperatorName'])
-      attrs_params = for_attr(attrs, lambda attr: 'const {attr_type}& p{attr_name}'.format(**attr))
+      attrs_params = for_attr(attrs, lambda attr: 'const {attr_type}& p{AttrName}'.format(**attr))
       # ${ConstructorByAttributes}
       hash['ConstructorByAttributes'] = '{OperatorName}({attrs_params});\n'.format(
         attrs_params=(',\n   ' + indent).join(attrs_params),
@@ -160,7 +161,7 @@ def gen_compute_ir_substitution_hash(schema):
     {attrs_call_constructor} {{
 }}'''.format(
         attrs_params = (',\n   ' + (indent * 2)).join(attrs_params),
-        attrs_call_constructor = (',\n    ').join(for_attr(attrs, lambda attr: 'm_{attr_name}(p{attr_name})'.format(**attr))),
+        attrs_call_constructor = (',\n    ').join(for_attr(attrs, lambda attr: 'm_{AttrName}(p{AttrName})'.format(**attr))),
         **hash
       )
     else:
@@ -171,14 +172,14 @@ def gen_compute_ir_substitution_hash(schema):
     hash['CallAttributesConstructor'] = ',\n    ' + (',\n    ').join(
         for_attr(
           attrs,
-          lambda attr: ('m_{attr_name}(p{attr_name})' if attr['attr_required'] else 'm_{attr_name}({attr_default_value})').format(**attr)
+          lambda attr: ('m_{AttrName}(p{AttrName})' if attr['attr_required'] else 'm_{AttrName}({attr_default_value})').format(**attr)
         ))
 
     # ${CallAttributesCopyConstructor}
-    hash['CallAttributesCopyConstructor'] = ',\n    ' + (',\n    ').join(for_attr(attrs, lambda attr: 'm_{attr_name}(pCopy.get{attr_name}())'.format(**attr)))
+    hash['CallAttributesCopyConstructor'] = ',\n    ' + (',\n    ').join(for_attr(attrs, lambda attr: 'm_{AttrName}(pCopy.get{AttrName}())'.format(**attr)))
 
     # ${PrintAttributes}
-    hash['PrintAttributes'] = ' << "< "' + (' << ", "').join(for_attr(attrs, lambda attr: ' << get{attr_name}()'.format(**attr))) + ' << ">"'
+    hash['PrintAttributes'] = 'pOS << \'<\' <<' + (' << ", "').join(for_attr(attrs, lambda attr: ' "{attr_name}: " << get{AttrName}()'.format(**attr))) + '<< \'>\''
   else:
     hash['AttributesGetters'] = ''
     hash['AttributesSetters'] = ''

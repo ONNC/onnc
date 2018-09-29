@@ -29,9 +29,9 @@ GRUUnit::GRUUnit(const GRUUnit& pCopy)
     m_DropStates(pCopy.getDropStates()) {
 }
 
-void GRUUnit::print(std::ostream& pOS) const
+void GRUUnit::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getDropStates() << ">";
+  pOS << '<' << "drop_states: " << getDropStates()<< '>';
 }
 
 bool GRUUnit::classof(const ComputeOperator* pOp)

@@ -33,9 +33,9 @@ ReduceSumSquare::ReduceSumSquare(const ReduceSumSquare& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceSumSquare::print(std::ostream& pOS) const
+void ReduceSumSquare::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceSumSquare::classof(const ComputeOperator* pOp)

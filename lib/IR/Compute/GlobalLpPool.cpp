@@ -29,9 +29,9 @@ GlobalLpPool::GlobalLpPool(const GlobalLpPool& pCopy)
     m_P(pCopy.getP()) {
 }
 
-void GlobalLpPool::print(std::ostream& pOS) const
+void GlobalLpPool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getP() << ">";
+  pOS << '<' << "p: " << getP()<< '>';
 }
 
 bool GlobalLpPool::classof(const ComputeOperator* pOp)

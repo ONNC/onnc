@@ -33,9 +33,9 @@ ReduceMax::ReduceMax(const ReduceMax& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceMax::print(std::ostream& pOS) const
+void ReduceMax::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceMax::classof(const ComputeOperator* pOp)

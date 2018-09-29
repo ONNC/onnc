@@ -35,9 +35,7 @@ public:
 
   void setDimensions(const Dimensions& pD) { m_Dimensions = pD; }
 
-  void print(std::ostream& pOS) const {
-    pOS << getName() << "[]";
-  }
+  void print(std::ostream& pOS) const override;
 
 protected:
   Dimensions m_Dimensions;

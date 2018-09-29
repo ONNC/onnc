@@ -29,9 +29,9 @@ LeakyRelu::LeakyRelu(const LeakyRelu& pCopy)
     m_Alpha(pCopy.getAlpha()) {
 }
 
-void LeakyRelu::print(std::ostream& pOS) const
+void LeakyRelu::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ">";
+  pOS << '<' << "alpha: " << getAlpha()<< '>';
 }
 
 bool LeakyRelu::classof(const ComputeOperator* pOp)

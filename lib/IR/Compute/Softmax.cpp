@@ -29,9 +29,9 @@ Softmax::Softmax(const Softmax& pCopy)
     m_Axis(pCopy.getAxis()) {
 }
 
-void Softmax::print(std::ostream& pOS) const
+void Softmax::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ">";
+  pOS << '<' << "axis: " << getAxis()<< '>';
 }
 
 bool Softmax::classof(const ComputeOperator* pOp)

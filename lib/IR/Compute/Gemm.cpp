@@ -41,9 +41,9 @@ Gemm::Gemm(const Gemm& pCopy)
     m_TransB(pCopy.getTransB()) {
 }
 
-void Gemm::print(std::ostream& pOS) const
+void Gemm::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ", " << getTransA() << ", " << getTransB() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "beta: " << getBeta() << ", " "transA: " << getTransA() << ", " "transB: " << getTransB()<< '>';
 }
 
 bool Gemm::classof(const ComputeOperator* pOp)

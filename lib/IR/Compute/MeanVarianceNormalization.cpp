@@ -33,9 +33,9 @@ MeanVarianceNormalization::MeanVarianceNormalization(const MeanVarianceNormaliza
     m_NormalizeVariance(pCopy.getNormalizeVariance()) {
 }
 
-void MeanVarianceNormalization::print(std::ostream& pOS) const
+void MeanVarianceNormalization::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAcrossChannels() << ", " << getNormalizeVariance() << ">";
+  pOS << '<' << "across_channels: " << getAcrossChannels() << ", " "normalize_variance: " << getNormalizeVariance()<< '>';
 }
 
 bool MeanVarianceNormalization::classof(const ComputeOperator* pOp)

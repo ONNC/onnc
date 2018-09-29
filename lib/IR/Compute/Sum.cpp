@@ -24,9 +24,9 @@ Sum::Sum(const Sum& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Sum::print(std::ostream& pOS) const
+void Sum::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Sum::classof(const ComputeOperator* pOp)

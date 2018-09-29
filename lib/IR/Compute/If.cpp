@@ -28,9 +28,9 @@ If::If(const If& pCopy)
     m_ThenBranch(pCopy.getThenBranch()) {
 }
 
-void If::print(std::ostream& pOS) const
+void If::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getElseBranch() << ", " << getThenBranch() << ">";
+  pOS << '<' << "else_branch: " << getElseBranch() << ", " "then_branch: " << getThenBranch()<< '>';
 }
 
 bool If::classof(const ComputeOperator* pOp)

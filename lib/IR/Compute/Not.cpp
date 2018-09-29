@@ -24,9 +24,9 @@ Not::Not(const Not& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Not::print(std::ostream& pOS) const
+void Not::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Not::classof(const ComputeOperator* pOp)

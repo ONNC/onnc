@@ -33,9 +33,9 @@ Crop::Crop(const Crop& pCopy)
     m_Scale(pCopy.getScale()) {
 }
 
-void Crop::print(std::ostream& pOS) const
+void Crop::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getBorder() << ", " << getScale() << ">";
+  pOS << '<' << "border: " << getBorder() << ", " "scale: " << getScale()<< '>';
 }
 
 bool Crop::classof(const ComputeOperator* pOp)

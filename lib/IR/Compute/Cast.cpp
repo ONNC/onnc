@@ -26,9 +26,9 @@ Cast::Cast(const Cast& pCopy)
     m_To(pCopy.getTo()) {
 }
 
-void Cast::print(std::ostream& pOS) const
+void Cast::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getTo() << ">";
+  pOS << '<' << "to: " << getTo()<< '>';
 }
 
 bool Cast::classof(const ComputeOperator* pOp)

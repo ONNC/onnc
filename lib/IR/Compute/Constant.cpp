@@ -26,9 +26,9 @@ Constant::Constant(const Constant& pCopy)
     m_Value(pCopy.getValue()) {
 }
 
-void Constant::print(std::ostream& pOS) const
+void Constant::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getValue() << ">";
+  pOS << '<' << "value: " << getValue()<< '>';
 }
 
 bool Constant::classof(const ComputeOperator* pOp)

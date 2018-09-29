@@ -29,9 +29,9 @@ LogSoftmax::LogSoftmax(const LogSoftmax& pCopy)
     m_Axis(pCopy.getAxis()) {
 }
 
-void LogSoftmax::print(std::ostream& pOS) const
+void LogSoftmax::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxis() << ">";
+  pOS << '<' << "axis: " << getAxis()<< '>';
 }
 
 bool LogSoftmax::classof(const ComputeOperator* pOp)

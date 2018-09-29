@@ -45,9 +45,9 @@ AveragePool::AveragePool(const AveragePool& pCopy)
     m_Strides(pCopy.getStrides()) {
 }
 
-void AveragePool::print(std::ostream& pOS) const
+void AveragePool::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAutoPad() << ", " << getCountIncludePad() << ", " << getKernelShape() << ", " << getPads() << ", " << getStrides() << ">";
+  pOS << '<' << "auto_pad: " << getAutoPad() << ", " "count_include_pad: " << getCountIncludePad() << ", " "kernel_shape: " << getKernelShape() << ", " "pads: " << getPads() << ", " "strides: " << getStrides()<< '>';
 }
 
 bool AveragePool::classof(const ComputeOperator* pOp)

@@ -24,9 +24,9 @@ Relu::Relu(const Relu& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Relu::print(std::ostream& pOS) const
+void Relu::printAttributes(std::ostream& pOS) const
 {
-  pOS << name();
+  ;
 }
 
 bool Relu::classof(const ComputeOperator* pOp)

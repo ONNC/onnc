@@ -33,9 +33,9 @@ ReduceProd::ReduceProd(const ReduceProd& pCopy)
     m_Keepdims(pCopy.getKeepdims()) {
 }
 
-void ReduceProd::print(std::ostream& pOS) const
+void ReduceProd::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAxes() << ", " << getKeepdims() << ">";
+  pOS << '<' << "axes: " << getAxes() << ", " "keepdims: " << getKeepdims()<< '>';
 }
 
 bool ReduceProd::classof(const ComputeOperator* pOp)

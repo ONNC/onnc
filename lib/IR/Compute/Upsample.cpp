@@ -33,9 +33,9 @@ Upsample::Upsample(const Upsample& pCopy)
     m_Scales(pCopy.getScales()) {
 }
 
-void Upsample::print(std::ostream& pOS) const
+void Upsample::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getMode() << ", " << getScales() << ">";
+  pOS << '<' << "mode: " << getMode() << ", " "scales: " << getScales()<< '>';
 }
 
 bool Upsample::classof(const ComputeOperator* pOp)

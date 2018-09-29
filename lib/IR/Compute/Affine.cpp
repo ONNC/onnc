@@ -33,9 +33,9 @@ Affine::Affine(const Affine& pCopy)
     m_Beta(pCopy.getBeta()) {
 }
 
-void Affine::print(std::ostream& pOS) const
+void Affine::printAttributes(std::ostream& pOS) const
 {
-  pOS << name() << "< " << getAlpha() << ", " << getBeta() << ">";
+  pOS << '<' << "alpha: " << getAlpha() << ", " "beta: " << getBeta()<< '>';
 }
 
 bool Affine::classof(const ComputeOperator* pOp)
