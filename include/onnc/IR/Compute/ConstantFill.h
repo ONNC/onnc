@@ -77,10 +77,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getInput() const { return getInput(kInput); }
+
   Tensor* getInput() { return getInput(kInput); }
 
 
   // Outputs getters
+  const Tensor* getOutput() const { return getOutput(kOutput); }
+
   Tensor* getOutput() { return getOutput(kOutput); }
 
 

@@ -60,10 +60,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getCond() const { return getInput(kCond); }
+
   Tensor* getCond() { return getInput(kCond); }
 
 
   // Outputs getters
+  const Tensor* getOutputs(size_t pIdx) const { return getOutput(kOutputs + pIdx); }
+
   Tensor* getOutputs(size_t pIdx) { return getOutput(kOutputs + pIdx); }
 
 

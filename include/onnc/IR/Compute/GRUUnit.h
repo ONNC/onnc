@@ -60,6 +60,14 @@ public:
 
   // clang-format off
   // Inputs getters
+  const Tensor* getHiddenPrev() const { return getInput(kHiddenPrev); }
+
+  const Tensor* getGates() const { return getInput(kGates); }
+
+  const Tensor* getSeqLengths() const { return getInput(kSeqLengths); }
+
+  const Tensor* getT() const { return getInput(kT); }
+
   Tensor* getHiddenPrev() { return getInput(kHiddenPrev); }
 
   Tensor* getGates() { return getInput(kGates); }
@@ -70,6 +78,8 @@ public:
 
 
   // Outputs getters
+  const Tensor* getHidden() const { return getOutput(kHidden); }
+
   Tensor* getHidden() { return getOutput(kHidden); }
 
 
