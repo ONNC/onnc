@@ -107,36 +107,14 @@ public:
   virtual const onnc::Value* getOutput(unsigned int pIdx) const { return m_Outputs[pIdx]; }
 
   /// display the operator
-  void print(std::ostream& pOS) const override {
-    { // Print Outputs
-      bool first = true;
-      for (const Value *v : m_Outputs) {
-        if (!first) pOS << ", ";
-        v->print(pOS);
-        first = false;
-      }
-    }
-    // Print operator name & attributes
-    pOS << " = " << name();
-    printAttributes(pOS);
-    { // Print Inputs
-      bool first = true;
-      pOS << '(';
-      for (const Value *v : m_Inputs) {
-        if (!first) pOS << ", ";
-        v->print(pOS);
-        first = false;
-      }
-      pOS << ')';
-    }
-  }
+  void print(std::ostream& pOS) const override;
 
   /// display attributes
   virtual void printAttributes(std::ostream& pOS) const {
     pOS << "<unimplemented>";
   };
 
-  void print(json::Value& pJSON) const;
+  void print(json::Value& pJSON) const override;
 
   /// redirect the printing to stderr
   void dump() const { return print(errs()); }
