@@ -1,7 +1,7 @@
 
 include_directories(${ONNC_INCLUDE_DIRS})
 
-add_executable(onni main.cpp ONNIApp.cpp ONNIConfig.cpp Interpreter.cpp)
+add_executable(onni main.cpp ONNIApp.cpp ONNIConfig.cpp Interpreter.cpp InterpreterPass.cpp)
 target_link_libraries(onni libonnc)
 
 install(TARGETS onni

@@ -24,7 +24,8 @@ onni_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@
 nodist_onni_SOURCES = main.cpp \
 	ONNIApp.cpp \
 	ONNIConfig.cpp \
-	Interpreter.cpp
+	Interpreter.cpp \
+	InterpreterPass.cpp
 
 if HAVE_PTHREADS
 onni_LDADD += -lpthread
