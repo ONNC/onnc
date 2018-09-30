@@ -28,6 +28,8 @@ public:
 
   /// print the operator
   virtual void print(std::ostream& pOS) const = 0;
+
+  /// print the operator by JSON file.
   virtual void print(json::Value& pJSON) const = 0;
 
 private:
