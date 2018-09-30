@@ -109,12 +109,13 @@ public:
   /// display the operator
   void print(std::ostream& pOS) const override;
 
+  /// display the operator in JSON
+  void print(json::Value& pJSON) const override;
+
   /// display attributes
   virtual void printAttributes(std::ostream& pOS) const {
     pOS << "<unimplemented>";
   };
-
-  void print(json::Value& pJSON) const override;
 
   /// redirect the printing to stderr
   void dump() const { return print(errs()); }
