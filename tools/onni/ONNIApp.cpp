@@ -9,6 +9,7 @@
 
 #include "CountOperatorsPass.h"
 #include "InterpreterPass.h"
+#include "OnnxOptPass.h"
 
 #include <cstdlib>
 #include <onnc/Config/ONNX.h>
@@ -63,6 +64,11 @@ int ONNIApp::run()
   }
 
   PassManager pm;
+
+  if (options().onnxOpt()) {
+    pm.add(CreateOnnxOptPass());
+  }
+
   TargetBackend* backend = target->createBackend(options().target());
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);

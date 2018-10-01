@@ -26,7 +26,8 @@ nodist_onni_SOURCES = main.cpp \
 	ONNIApp.cpp \
 	ONNIConfig.cpp \
 	Interpreter.cpp \
-	InterpreterPass.cpp
+	InterpreterPass.cpp \
+	OnnxOptPass.cpp
 
 if HAVE_PTHREADS
 onni_LDADD += -lpthread

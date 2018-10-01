@@ -68,6 +68,13 @@ OptDryRun("dry-run", cl::kLong, cl::kOptional, cl::kValueDisallowed,
     cl::desc("Do not do the inference, just print statistics."),
     cl::about(g_About));
 
+// TODO: General way to enable passes
+static cl::opt<bool>
+OptOnnxOpt("onnx-opt", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Enable onnx optimizer"),
+    cl::about(g_About));
+
 static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort, cl::kOptional,
     cl::kValueRequired, cl::desc("target quadruple"), cl::about(g_About));
 
@@ -95,6 +102,9 @@ int main(int pArgc, char* pArgv[])
 
   // --dry-run
   onni.options().setDryRun(OptDryRun);
+
+  // --onnx-optimizer
+  onni.options().setOnnxOpt(OptOnnxOpt);
 
   // --help
   if (OptHelp) {
