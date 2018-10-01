@@ -9,6 +9,7 @@
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
 
 using namespace onnc;
 
@@ -24,7 +25,7 @@ Pass::ReturnType X86RemoveWeightFromLiveIntervals::runOnModule(Module& pModule)
     // TODO: check if Define is ComputeOperator before casting.
     ComputeOperator* op = static_cast<ComputeOperator*>(v->getDefine());
     // If the value is weight, remove it from liveness table.
-    if (isa<Initializer>(op))
+    if (isa<Initializer>(op) || isa<InputOperator>(op))
       liveIntrvlPass->removeLiveInterval(v);
   }
 
