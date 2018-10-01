@@ -63,6 +63,10 @@ public:
 
   unsigned int verbose() const { return m_Verbose; }
 
+  void setDryRun(bool pIsDryRun) { m_DryRun = pIsDryRun; }
+
+  bool dryRun() const { return m_DryRun; }
+
 private:
   onnc::Path m_Model;
   onnc::Path m_Input;
@@ -71,6 +75,7 @@ private:
   std::string m_Arch;
   onnc::TargetOptions m_TargetOptions;
   unsigned int m_Verbose;
+  bool m_DryRun;
 };
 
 #endif

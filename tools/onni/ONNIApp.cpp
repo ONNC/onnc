@@ -64,10 +64,13 @@ int ONNIApp::run()
   TargetBackend* backend = target->createBackend(options().target());
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
+  if (options().verbose() >= 3) {
+    // TODO: Add statistics
+  }
 
   // FIXME: Use onnc-runtime to handle input
   char *input_mem = NULL;
-  {
+  if (!options().dryRun()) {
     xTensorProto tensor;
     std::ifstream input_fin(options().input().native());
     tensor.ParseFromIstream(&input_fin);
@@ -75,7 +78,8 @@ int ONNIApp::run()
     input_mem = new char[raw_data_str.size()];
     memcpy(input_mem, raw_data_str.data(), raw_data_str.size());
   }
-  pm.add(CreateInterpreterPass(backend, input_mem, options().verbose()));
+  pm.add(CreateInterpreterPass(backend, input_mem,
+                               options().verbose(), options().dryRun()));
 
   pm.run(module);
 

@@ -13,6 +13,7 @@
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Support/Timer.h>
 
 #include <cassert>
 #include <algorithm>
@@ -30,62 +31,86 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 InterpreterPass::InterpreterPass(TargetBackend *pBackend,
                                  char *pInputMem,
-                                 unsigned int pVerbose)
+                                 unsigned int pVerbose,
+                                 bool pIsDryRun)
   : ModulePass(ID),
-    m_pBackend(pBackend), m_pInputMem(pInputMem), m_Verbose(pVerbose) {
+    m_pBackend(pBackend), m_pInputMem(pInputMem),
+    m_Verbose(pVerbose), m_DryRun(pIsDryRun) {
 }
 
 Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 {
-  // TODO: Refactor
-  void *runtime_context = ONNC_RUNTIME_init_runtime();
-
-  Interpreter interpreter(runtime_context);
-
-  // XXX: Use onnc-runtime to handle memory
-  char *heap = NULL;
-
   // XXX: Use Pass or something to get internal memory size
-  uint64_t max_size = 0;
+  uint64_t internal_memory_size = 0;
   for (ComputeOperand *co : pModule.getComputeOperands()) {
     if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
       Value *v = co->getValue();
       if (mem->isInput()) {
         // XXX: Multiple inputs
-        interpreter.m_ATable[v] = m_pInputMem;
+        m_Interpreter.m_ATable[v] = m_pInputMem;
       } else if (mem->isWeight()) {
         // XXX
         FloatTensor *t = static_cast<FloatTensor *>(v);
-        interpreter.m_ATable[v] = t->getValues().data();
+        m_Interpreter.m_ATable[v] = t->getValues().data();
       } else {
-        max_size = std::max(max_size, static_cast<uint64_t>(mem->start()) + mem->length());
+        internal_memory_size =
+            std::max(internal_memory_size,
+                     static_cast<uint64_t>(mem->start()) + mem->length());
       }
     }
   }
+  if (m_Verbose >= 1) {
+    errs() << "internal memory: " << internal_memory_size << std::endl;
+  }
 
-  // TODO: aligned_alloc after c++17
-  // XXX: Refactor
-  // TODO: posix_memalign(&interpreter.m_mem, backend->......, max_size)
-  int fail = posix_memalign(reinterpret_cast<void **>(&heap), 16, max_size);
-  assert((!fail) && "posix_memalign failed!");
+  if (!m_DryRun) {
+    // XXX: Use onnc-runtime to handle memory
+    char *heap = NULL;
 
-  // Fixup memory address
-  for (ComputeOperand *co : pModule.getComputeOperands()) {
-    if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
-      if (mem->isOutput() || mem->isInternal()) {
-        interpreter.m_ATable[co->getValue()] = heap + mem->start();
+    // TODO: aligned_alloc after c++17
+    // XXX: Refactor into interpreter
+    // TODO: posix_memalign(&interpreter.m_mem,
+    //                      backend->......,
+    //                      internal_memory_size)
+    int fail = posix_memalign(reinterpret_cast<void **>(&heap),
+                              16,
+                              internal_memory_size);
+    assert((!fail) && "posix_memalign failed!");
+
+    // Fixup memory address
+    for (ComputeOperand *co : pModule.getComputeOperands()) {
+      if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
+        if (mem->isOutput() || mem->isInternal()) {
+          m_Interpreter.m_ATable[co->getValue()] = heap + mem->start();
+        }
       }
     }
+
+    Pass::ReturnType r = runInterpreter(pModule);
+
+    // TODO: (use runtime) write output to file
+    free(heap);
+
+    return r;
+  } else {
+    return Pass::kModuleNoChanged;
   }
+}
+
+Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
+{
+  // TODO: Refactor into Interpreter
+  m_Interpreter.m_pContext = ONNC_RUNTIME_init_runtime();
 
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
-    if (m_Verbose > 0) {
-      cm.print(outs());
-      outs() << std::endl;
-    }
 
-    cm.accept(interpreter);
+    if (m_Verbose >= 2) cm.print(outs());
+
+    cm.accept(m_Interpreter);
+
+    if (m_Verbose >= 2) outs() << std::endl;
   }
+
 
   // Hack for that: Due to the wrong ComputeOperand design,
   //                there is no output ComputeOperand.
@@ -95,7 +120,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
     if (OutputOperator *out = dyn_cast<OutputOperator>(&cm)) {
       for (int i = 0; i < out->getNumOfInputs(); ++i) {
         Value *v = out->getInput(i);
-        float *output = static_cast<float *>(interpreter.m_ATable[v]);
+        float *output = static_cast<float *>(m_Interpreter.m_ATable[v]);
 
         Tensor *t = static_cast<Tensor *>(v);
         size_t size = 1;
@@ -111,10 +136,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
     }
   }
 
-  ONNC_RUNTIME_shutdown_runtime(runtime_context);
-
-  // TODO: write output to file
-  free(heap);
+  ONNC_RUNTIME_shutdown_runtime(m_Interpreter.m_pContext);
 
   return Pass::kModuleNoChanged;
 }
@@ -126,6 +148,7 @@ char InterpreterPass::ID = 0;
 
 InterpreterPass *onnc::CreateInterpreterPass(TargetBackend *pBackend,
                                              char *pInputMem,
-                                             unsigned int pVerbose) {
-  return new InterpreterPass(pBackend, pInputMem, pVerbose);
+                                             unsigned int pVerbose,
+                                             bool pIsDryRun) {
+  return new InterpreterPass(pBackend, pInputMem, pVerbose, pIsDryRun);
 }
