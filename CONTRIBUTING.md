@@ -13,5 +13,5 @@ please join [mailing list](https://maillist.onnc.ai/) now! now!
 1. Build with debug mode, take onnc-umbrella as an example:
   * $> git clone --recursive https://github.com/ONNC/onnc-umbrella.git ${ONNC}
   * $> cd ${ONNC} && ./build.sh dbg ${TARGET_TO_INSTALL}
-1. You will have a executable file named "unittest" in build-dbg/tools.
-1. Run "unittest", and get all pass.
+2. You will have a executable file named "unittest" in build-dbg/tools.
+3. Run "unittest", and get all pass.
