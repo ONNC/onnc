@@ -10,13 +10,17 @@
 #include "Interpreter.h"
 
 #include <onnc/IR/Compute/Tensor.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iomanip>
+#include <unordered_map>
 
 #define restrict __restrict__
 extern "C" {
@@ -67,6 +71,9 @@ InterpreterPass::InterpreterPass(TargetBackend *pBackend,
 
 Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 {
+  std::unordered_map<Value *, int64_t> mem_start;
+  std::unordered_map<Value *, int64_t> mem_length;
+
   // XXX: Use Pass or something to get internal memory size
   uint64_t weight_memory_size = 0;
   uint64_t internal_memory_size = 0;
@@ -83,6 +90,8 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
         weight_memory_size +=
             t->getValues().size() * sizeof(FloatTensor::ValueList::value_type);
       } else {
+        mem_start[co->getValue()] = mem->start();
+        mem_length[co->getValue()] = mem->length();
         internal_memory_size =
             std::max(internal_memory_size,
                      static_cast<uint64_t>(mem->start()) + mem->length());
@@ -93,6 +102,60 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
     outs() << "[v1] weight memory: " << weight_memory_size << std::endl;
     outs() << "[v1] internal memory: " << internal_memory_size << std::endl;
   }
+
+  if (m_Verbose >= 2) {
+    for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+      outs() << "[v2] ";
+      cm.print(outs());
+      outs() << std::endl;
+    }
+  }
+
+  if (m_Verbose >= 4) {
+    std::ios old_state(nullptr);
+    old_state.copyfmt(outs());
+
+    // TODO: Refactor this. We need a table printer.
+    size_t val_len = 8;
+    for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+      if (dyn_cast<InputOperator>(&cm)) continue;
+      if (dyn_cast<Initializer>(&cm)) continue;
+      if (dyn_cast<OutputOperator>(&cm)) continue;
+      for (int i = 0; i < cm.getNumOfOutputs(); ++i) {
+        val_len = std::max(val_len, cm.getOutput(i)->getName().size());
+      }
+    }
+    const std::string sep{" | "};
+    size_t ptr_len = 8;
+    outs() << "[v4] " << std::setw(val_len) << "Value" << sep
+           << std::setw(ptr_len) << "offset" << "   "
+           << std::setw(ptr_len) << "end" << "   "
+           << std::setw(ptr_len) << "size" << std::endl;
+    outs() << "[v4] "
+           << std::setfill('-')
+           << std::setw(val_len) << '-' << "-+"
+           << std::setw(ptr_len * 3 + 2 * 2 + 3) << '-'
+           << std::setfill(' ')
+           << std::endl;
+    for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+      if (dyn_cast<InputOperator>(&cm)) continue;
+      if (dyn_cast<Initializer>(&cm)) continue;
+      if (dyn_cast<OutputOperator>(&cm)) continue;
+      for (int i = 0; i < cm.getNumOfOutputs(); ++i) {
+        Value *v = cm.getOutput(i);
+        outs() << "[v4] " << std::setw(val_len) << v->getName() << sep
+               << std::internal << std::hex << std::setfill('0')
+               << "0x" << std::setw(ptr_len) << mem_start[v] << ' '
+               << "0x" << std::setw(ptr_len) << mem_start[v] + mem_length[v] << ' '
+               << std::right << std::dec << std::setfill(' ')
+               << std::setw(ptr_len) << mem_length[v] << ' '
+               << std::endl;
+      }
+    }
+
+    outs().copyfmt(old_state);
+  }
+
 
   if (!m_DryRun) {
     // XXX: Use onnc-runtime to handle memory
@@ -137,21 +200,16 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
   // TODO: Timer can not nested. Should rewrite it.
   if (m_Verbose >= 1) total = ::ns();
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
-    if (m_Verbose >= 2) {
-      outs() << "[v2] ";
-      cm.print(outs());
-      outs() << std::endl;
-    }
-
     Timer timer;
 
-    if (m_Verbose >= 3) timer.start();
+    if (m_Verbose >= 3) {
+      outs() << "[v3] " << cm.name() << " runs in ";
+      timer.start();
+    }
     cm.accept(m_Interpreter);
     if (m_Verbose >= 3) {
       timer.stop();
-      outs() << "[v3] " << cm.name()
-             << " runs in " << timer.interval() << ' ' << timer.unit()
-             << std::endl;
+      outs() << timer.interval() << ' ' << timer.unit() << std::endl;
     }
   }
   if (m_Verbose >= 1) {
