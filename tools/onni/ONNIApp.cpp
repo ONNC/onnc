@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ONNIApp.h"
+
+#include "CountOperatorsPass.h"
 #include "InterpreterPass.h"
 
 #include <cstdlib>
@@ -65,7 +67,7 @@ int ONNIApp::run()
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   if (options().verbose() >= 3) {
-    // TODO: Add statistics pass
+    pm.add(CreateCountOperatorsPass("[v3] "));
   }
 
   // FIXME: Use onnc-runtime to handle input
