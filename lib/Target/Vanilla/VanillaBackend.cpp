@@ -9,6 +9,7 @@
 ///#include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/VanillaTargetInfo.h"
 ///#include "TargetInfo/X86TargetMemInfo.h"
+#include "CodeEmitVisitor.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -18,6 +19,7 @@
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/SetMemOperand.h>
 #include <onnc/CodeGen/SlotIndexes.h>
+#include <onnc/IR/CodeEmit.h>
 
 #include <onnc/Target/TargetRegistry.h>
 
@@ -63,6 +65,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 VanillaBackend::VanillaBackend(const TargetOptions& pOptions)
   : NPUTargetBackend(pOptions) {
+  // FIXME: what is memInfo for?
   ///m_pMemInfo = new X86TargetMemInfo();
 }
 
@@ -79,6 +82,8 @@ void VanillaBackend::addTensorSel(PassManager& pPM)
   pPM.add(CreateRemoveTrainingNodesPass());
   pPM.add(CreateUpdateGraphOutputSizePass());
   pPM.add(CreateDeadNodeEliminationPass());
+  // FIXME: use a BIG pass to include all the following passes?
+  // They are related to building Compute IR.
   pPM.add(CreateBookONNXGraphs());
   pPM.add(CreateBuildInitializers());
   pPM.add(CreateBuildInputOperators());
@@ -89,6 +94,7 @@ void VanillaBackend::addTensorSel(PassManager& pPM)
 void VanillaBackend::addTensorSched(PassManager& pPM)
 {
   errs() << "VanillaBackend::addTensorSched...\n";
+  //FIXME: what is the pass currently used for scheduling? How is NodeIRScheduler working?
   //pPM.add(CreateNodeIRSchedulerPass(this));
 }
 
@@ -110,11 +116,15 @@ void VanillaBackend::addMemAlloc(PassManager& pPM)
 void VanillaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   errs() << "VanillaBackend::addCodeEmit...\n";
-  // TODO
+  // FIXME: Need to create a reference code emit pass.
+  // have added one. Defined in lib/CodeGen/CodeEmit.cpp
+  static vanilla::CodeEmitVisitor ceVisitor;
+  pPM.add(CreateCodeEmitPass(ceVisitor));
 }
 
 void VanillaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 {
+  // FIXME: Are these all the lowers?
   pRegistry.emplace<AddLower>();
   pRegistry.emplace<AveragePoolLower>();
   pRegistry.emplace<BatchNormalizationLower>();
@@ -146,6 +156,7 @@ TargetBackend* CreateVanillaBackend(const TargetOptions& pOptions)
   return new VanillaBackend(pOptions);
 }
 
+//FIXME: Can I merge to with InitializeVanillaONNCPlatform()?
 extern "C" void InitializeVanillaONNCBackend()
 {
   onnc::TargetRegistry::RegisterTargetBackend(getTheVanillaTarget(),
