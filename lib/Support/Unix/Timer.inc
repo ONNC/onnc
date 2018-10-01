@@ -50,11 +50,13 @@ public:
   }
 
   void start() {
-    assert(-1 != (m_Start = ns()) && "fail to get starting time");
+    m_Start = ns();
+    assert(-1 != m_Start && "fail to get starting time");
   }
 
   void stop() {
-    assert(-1 != (m_End = ns()) && "fail to get elapsed time");
+    m_End = ns();
+    assert(-1 != m_End && "fail to get elapsed time");
   }
 
   Timer::Interval clock() const {

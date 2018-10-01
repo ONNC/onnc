@@ -71,4 +71,4 @@ check_headers(
 # Check for functions
 include(CheckSymbolExists)
 check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
-check_symbol_exists(clock_gettime sys/time.h HAVE_CLOCK_GETTIME)
+check_symbol_exists(clock_gettime time.h HAVE_CLOCK_GETTIME)
