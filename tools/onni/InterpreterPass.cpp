@@ -105,6 +105,9 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 
   if (m_Verbose >= 2) {
     for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+      if (dyn_cast<InputOperator>(&cm)) continue;
+      if (dyn_cast<Initializer>(&cm)) continue;
+      if (dyn_cast<OutputOperator>(&cm)) continue;
       outs() << "[v2] ";
       cm.print(outs());
       outs() << std::endl;

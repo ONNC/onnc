@@ -8,6 +8,9 @@
 #include "CountOperatorsPass.h"
 
 #include <onnc/IR/ComputeOperator.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Support/IOStream.h>
 
@@ -27,6 +30,9 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
   uint64_t total = 0;
 
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+    if (dyn_cast<InputOperator>(&cm)) continue;
+    if (dyn_cast<Initializer>(&cm)) continue;
+    if (dyn_cast<OutputOperator>(&cm)) continue;
     onnc::StringRef name = cm.name(); 
     count[name] += 1;
     op_len = std::max(op_len, name.size());
