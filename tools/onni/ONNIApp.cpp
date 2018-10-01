@@ -65,7 +65,7 @@ int ONNIApp::run()
   backend->addTensorSel(pm);
   backend->addMemAlloc(pm);
   if (options().verbose() >= 3) {
-    // TODO: Add statistics
+    // TODO: Add statistics pass
   }
 
   // FIXME: Use onnc-runtime to handle input

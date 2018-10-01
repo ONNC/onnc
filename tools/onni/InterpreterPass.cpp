@@ -24,6 +24,33 @@ extern "C" {
 }
 #undef restrict
 
+// TODO: ====== REMOVE THIS AFTER REWRITE Support/Timer.h ======
+#include <time.h>
+#if defined(HAVE_SYS_TIMES_H)
+#include <sys/times.h>
+#endif
+#if defined(HAVE_SYS_TIME_H) && defined(ENABLE_GETTIMEOFDAY)
+#include <sys/time.h>
+#endif
+namespace {
+  onnc::Timer::Interval ns() {
+#if defined(HAVE_CLOCK_GETTIME) && defined(ENABLE_CLOCK_GETTIME)
+    struct timespec ts;
+    int r = clock_gettime(CLOCK_MONOTONIC, &ts);
+    return r == -1 ? -1 : ts.tv_sec * 1000000000LL + ts.tv_nsec;
+#elif defined(HAVE_GETTIMEOFDAY) && defined(ENABLE_GETTIMEOFDAY)
+    struct timeval tv;
+    int r = gettimeofday(&tv, NULL);
+    return r == -1 ? -1 : tv.tv_sec * 1000000000LL + (tv.tv_usec * 1000LL);
+#else
+    struct tms tm;
+    clock_t r = times(&tm);
+    return r == -1 ? -1 : r * 1000000000LL / g_ClkTick;
+#endif
+  }
+}
+// ========= REMOVE THIS AFTER REWRITE Support/Timer.h =========
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
@@ -41,6 +68,7 @@ InterpreterPass::InterpreterPass(TargetBackend *pBackend,
 Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 {
   // XXX: Use Pass or something to get internal memory size
+  uint64_t weight_memory_size = 0;
   uint64_t internal_memory_size = 0;
   for (ComputeOperand *co : pModule.getComputeOperands()) {
     if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
@@ -52,6 +80,8 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
         // XXX
         FloatTensor *t = static_cast<FloatTensor *>(v);
         m_Interpreter.m_ATable[v] = t->getValues().data();
+        weight_memory_size +=
+            t->getValues().size() * sizeof(FloatTensor::ValueList::value_type);
       } else {
         internal_memory_size =
             std::max(internal_memory_size,
@@ -60,7 +90,8 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
     }
   }
   if (m_Verbose >= 1) {
-    errs() << "internal memory: " << internal_memory_size << std::endl;
+    outs() << "[v1] weight memory: " << weight_memory_size << std::endl;
+    outs() << "[v1] internal memory: " << internal_memory_size << std::endl;
   }
 
   if (!m_DryRun) {
@@ -102,13 +133,30 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
   // TODO: Refactor into Interpreter
   m_Interpreter.m_pContext = ONNC_RUNTIME_init_runtime();
 
+  Timer::Interval total;
+  // TODO: Timer can not nested. Should rewrite it.
+  if (m_Verbose >= 1) total = ::ns();
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+    if (m_Verbose >= 2) {
+      outs() << "[v2] ";
+      cm.print(outs());
+      outs() << std::endl;
+    }
 
-    if (m_Verbose >= 2) cm.print(outs());
+    Timer timer;
 
+    if (m_Verbose >= 3) timer.start();
     cm.accept(m_Interpreter);
-
-    if (m_Verbose >= 2) outs() << std::endl;
+    if (m_Verbose >= 3) {
+      timer.stop();
+      outs() << "[v3] " << cm.name()
+             << " runs in " << timer.interval() << ' ' << timer.unit()
+             << std::endl;
+    }
+  }
+  if (m_Verbose >= 1) {
+    total = ns() - total;
+    outs() << "[v1] total inference time: " << total << " ns" << std::endl;
   }
 
 
