@@ -16,6 +16,7 @@ ONNC_SOURCES = \
 	IR/InsertionPoint.cpp \
 	IR/IRBuilder.cpp \
 	IR/ONNCModulePrinter.cpp \
+	IR/CodeEmit.cpp \
 	IR/Compute/Value.cpp \
 	IR/Compute/Scalar.cpp \
 	IR/Compute/Scale.cpp \
