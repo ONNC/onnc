@@ -341,6 +341,9 @@ if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
 endif
 
+# FIXME: embraced by flag?
+include $(srcdir)/Target/Vanilla/Makefile.am
+
 #####################################
 # Build shared libraries
 lib_LIBRARIES = libonnc.a
