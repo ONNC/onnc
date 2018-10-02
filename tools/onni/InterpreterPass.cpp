@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
+#include <sstream>
 #include <unordered_map>
 
 #define restrict __restrict__
@@ -115,9 +116,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
   }
 
   if (m_Verbose >= 4) {
-    std::ios old_state(nullptr);
-    old_state.copyfmt(outs());
-
+    std::ostringstream os;
     // TODO: Refactor this. We need a table printer.
     size_t val_len = 8;
     for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
@@ -130,33 +129,34 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
     }
     const std::string sep{" | "};
     size_t ptr_len = 8;
-    outs() << "[v4] " << std::setw(val_len) << "Value" << sep
-           << std::setw(ptr_len) << "offset" << "   "
-           << std::setw(ptr_len) << "end" << "   "
-           << std::setw(ptr_len) << "size" << std::endl;
-    outs() << "[v4] "
-           << std::setfill('-')
-           << std::setw(val_len) << '-' << "-+"
-           << std::setw(ptr_len * 3 + 2 * 2 + 3) << '-'
-           << std::setfill(' ')
-           << std::endl;
+    os << "[v4] " << std::setw(val_len) << "Value" << sep
+       << std::setw(ptr_len) << "[offset" << "   "
+       << std::setw(ptr_len) << ")end" << "   "
+       << std::setw(ptr_len) << "size" << std::endl;
+    os << "[v4] "
+       << std::setfill('-')
+       << std::setw(val_len) << '-' << "-+"
+       << std::setw(ptr_len * 3 + 2 * 2 + 3) << '-'
+       << std::setfill(' ')
+       << std::endl;
     for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
       if (dyn_cast<InputOperator>(&cm)) continue;
       if (dyn_cast<Initializer>(&cm)) continue;
       if (dyn_cast<OutputOperator>(&cm)) continue;
       for (int i = 0; i < cm.getNumOfOutputs(); ++i) {
         Value *v = cm.getOutput(i);
-        outs() << "[v4] " << std::setw(val_len) << v->getName() << sep
-               << std::internal << std::hex << std::setfill('0')
-               << "0x" << std::setw(ptr_len) << mem_start[v] << ' '
-               << "0x" << std::setw(ptr_len) << mem_start[v] + mem_length[v] << ' '
-               << std::right << std::dec << std::setfill(' ')
-               << std::setw(ptr_len) << mem_length[v] << ' '
-               << std::endl;
+        uint64_t mem_end = mem_start[v] + mem_length[v];
+        os << "[v4] " << std::setw(val_len) << v->getName() << sep
+           << std::internal << std::hex << std::setfill('0')
+           << "0x" << std::setw(ptr_len) << mem_start[v]
+           << (mem_end == internal_memory_size ? '*' : ' ')
+           << "0x" << std::setw(ptr_len) << mem_end << ' '
+           << std::right << std::dec << std::setfill(' ')
+           << std::setw(ptr_len) << mem_length[v] << ' '
+           << std::endl;
       }
     }
-
-    outs().copyfmt(old_state);
+    outs() << os.str();
   }
 
 

@@ -71,6 +71,7 @@ int ONNIApp::run()
 
   TargetBackend* backend = target->createBackend(options().target());
   backend->addTensorSel(pm);
+  backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   if (options().verbose() >= 3) {
     pm.add(CreateCountOperatorsPass("[v3] "));
