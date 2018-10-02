@@ -6,10 +6,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86Backend.h"
+#include "X86InplaceValueFusible.h"
 #include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/X86TargetInfo.h"
 #include "TargetInfo/X86TargetMemInfo.h"
 #include <onnc/CodeGen/BuildMemOperand.h>
+#include <onnc/CodeGen/FuseInplaceValue.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
@@ -68,6 +70,7 @@ void X86Backend::addTensorSel(PassManager& pPM)
 
 void X86Backend::addMemAlloc(PassManager& pPM)
 {
+  pPM.add(CreateFuseInplaceValuePass(x86::IsInplaceValueFusible));
   pPM.add(CreateBuildSlotIndexesPass());
   pPM.add(CreateLiveIntervalsPass());
   pPM.add(CreateX86RemoveWeightFromLiveIntervalsPass());
