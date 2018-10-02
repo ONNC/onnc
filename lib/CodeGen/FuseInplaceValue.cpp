@@ -40,9 +40,9 @@ Pass::ReturnType FuseInplaceValue::runOnComputeGraph(ComputeGraph& pCG)
     Value *input = node->getInput(0),
           *output = node->getOutput(outputId);
 
-    // If input or output has more than one user, we can't fuse this pair.
-    if (input->getUses().size() > 1 ||
-        output->getUses().size() > 1)
+    // If input has more than one user, we can't fuse this pair, since we need
+    // keep input value for other users.
+    if (input->getUses().size() > 1)
       continue;
 
     Define* origDef = input->getDefine();

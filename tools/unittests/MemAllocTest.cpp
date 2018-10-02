@@ -484,8 +484,12 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
   Module module;
   ComputeGraph& cg = CreateAlexNet(module);
 
-  // Create second use of 'relu2_1', so 'relu2_1' can not be fused.
-  CreateComputeOperator<LRN>(cg, {"relu2_1"}, IntAttr(1))
+  // Create second use of 'conv2_1', so 'relu2_1' can not be fused.
+  // original: Conv -> (conv2_1) -> Relu -> (relu2_1)
+  //
+  // new:      Conv -> (conv2_1) -> Relu -> (relu2_1)
+  //                             -> Relu -> (unused)
+  CreateComputeOperator<Relu>(cg, {"conv2_1"})
     ->addOutput(*CreateFloatComputeTensor(cg, "unused", {10, 256, 27, 27}));
 
   passMgr.run(module);
