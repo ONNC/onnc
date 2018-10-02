@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86InplaceValueFusible.h"
-#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/Relu.h>
 
 using namespace onnc;
 
@@ -22,7 +22,7 @@ public:
     : m_bFusible(false) {
   }
 
-  void visit(const Initializer& pInitializer) { m_bFusible = true; }
+  void visit(const Relu& pOp) { m_bFusible = true; }
 
   bool isFusible() const { return m_bFusible; }
 
