@@ -17,6 +17,10 @@ model and avoid re-inventing these intricate optimization algorithms.
 ## Current Status
 
 * [v0.9](https://github.com/ONNC/onnc/releases)
+
+## How to contribute
+
+* Please see [contribute guidline](https://github.com/ONNC/onnc/CONTRIBUTING.md)
  
 ## Directory Structure
 * README.md - This document
