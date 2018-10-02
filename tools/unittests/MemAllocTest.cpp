@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/ADT/StringList.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
+#include <onnc/CodeGen/FuseInplaceValue.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
@@ -447,4 +448,54 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
       ASSERT_FALSE(otherAlloc.overlap(myAlloc));
     }
   }
+}
+
+static bool VTargetIsInplaceValueFusible(const ComputeOperator& pOp)
+{
+  if (isa<Relu>(&pOp))
+    return true;
+  return false;
+}
+
+SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
+{
+  TargetOptions opt;
+  VTargetBackend vtarget(opt);
+
+  FuseInplaceValue* fuseValue =
+    new FuseInplaceValue(VTargetIsInplaceValueFusible);
+  BuildSlotIndexes* buildSlotIdx = new BuildSlotIndexes();
+  LiveIntervals* liveIntrvls = new LiveIntervals();
+  X86RemoveWeightFromLiveIntervals*
+    rmWeight = new X86RemoveWeightFromLiveIntervals();
+  LiveValueMatrix* liveMat = new LiveValueMatrix();
+  LinearScanMemAlloc* linearMemAlloc = new LinearScanMemAlloc(&vtarget);
+  BuildMemOperand* buildMemOpnd = new BuildMemOperand();
+
+  PassManager passMgr;
+  passMgr.add(fuseValue);
+  passMgr.add(buildSlotIdx);
+  passMgr.add(liveIntrvls);
+  passMgr.add(rmWeight);
+  passMgr.add(liveMat);
+  passMgr.add(buildMemOpnd);
+  passMgr.add(linearMemAlloc);
+
+  Module module;
+  ComputeGraph& cg = CreateAlexNet(module);
+
+  // Create second use of 'relu2_1', so 'relu2_1' can not be fused.
+  CreateComputeOperator<LRN>(cg, {"relu2_1"}, IntAttr(1))
+    ->addOutput(*CreateFloatComputeTensor(cg, "unused", {10, 256, 27, 27}));
+
+  passMgr.run(module);
+
+  const std::string reluStrs[] = {
+    "relu1_1", "relu3_1", "relu4_1", "relu5_1", "relu6_1", "relu7_1"
+  };
+
+  for (auto& str : reluStrs)
+    ASSERT_FALSE(linearMemAlloc->hasAlloc(cg.getValue(str)));
+
+  ASSERT_TRUE(linearMemAlloc->hasAlloc(cg.getValue("relu2_1")));
 }

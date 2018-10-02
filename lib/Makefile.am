@@ -104,6 +104,7 @@ ONNC_SOURCES = \
 	Analysis/SplitNode.cpp \
 	Analysis/UpdateGraphOutputSize.cpp \
 	CodeGen/BuildMemOperand.cpp \
+	CodeGen/FuseInplaceValue.cpp \
 	CodeGen/LinearScanMemAlloc.cpp \
 	CodeGen/LiveInterval.cpp \
 	CodeGen/LiveIntervals.cpp \
