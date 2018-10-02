@@ -1,6 +1,3 @@
-
-add_compile_options(-Werror -Wall)
-
 add_libonnc_src(
     Target.cpp 
     TargetBackend.cpp 
