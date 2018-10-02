@@ -8,6 +8,7 @@
 #include "ONNIApp.h"
 #include "Interpreter.h"
 #include <cstdlib>
+#include <onnc/Config/ONNX.h>
 #include <onnc/Target/TargetSelect.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetBackend.h>
@@ -84,7 +85,7 @@ int ONNIApp::run()
   char *heap = NULL;
   // FIXME: Use onnc-runtime to handle input
   {
-    ::onnx::TensorProto tensor;
+    xTensorProto tensor;
     std::ifstream input_fin(options().input().native());
     tensor.ParseFromIstream(&input_fin);
     const std::string &raw_data_str = tensor.raw_data();
