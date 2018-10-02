@@ -69,7 +69,34 @@ void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
   pValue.setDefine(this, pIdx);
 }
 
-void ComputeOperator::print(json::Value& pJSON) const
+void ComputeOperator::print(std::ostream& pOS) const
 {
+  { // Print Outputs
+    bool first = true;
+    for (const Value *v : m_Outputs) {
+      if (!first)
+        pOS << ", ";
+      v->print(pOS);
+      first = false;
+    }
+  }
+  // Print operator name & attributes
+  pOS << " = " << name();
+  printAttributes(pOS);
+  { // Print Inputs
+    bool first = true;
+    pOS << '(';
+    for (const Value *v : m_Inputs) {
+      if (!first)
+        pOS << ", ";
+      v->print(pOS);
+      first = false;
+    }
+    pOS << ')';
+  }
 }
 
+void ComputeOperator::print(json::Value& pJSON) const
+{
+  // TODO: implement it!
+}
