@@ -332,7 +332,6 @@ AM_LFLAGS = -olex.yy.c
 # Target-depednet files and settings
 ONNC_TARGET_SOURCES = Target/Target.cpp \
 	Target/TargetOptions.cpp \
-	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
 	Target/TargetStandardPasses.cpp \
 	Target/NPUTargetBackend.cpp
