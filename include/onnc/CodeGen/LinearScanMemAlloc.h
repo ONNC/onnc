@@ -8,6 +8,7 @@
 #ifndef ONNC_CODEGEN_LINEAR_SCAN_MEM_ALLOC_H
 #define ONNC_CODEGEN_LINEAR_SCAN_MEM_ALLOC_H
 #include <onnc/Core/ModulePass.h>
+#include <onnc/CodeGen/MemAllocData.h>
 
 namespace onnc {
 
@@ -25,26 +26,7 @@ class LinearScanMemAlloc : public ModulePass
 public:
   static char ID;
 
-  struct AllocEntry
-  {
-    uint64_t startAddr, size;
-    AllocEntry(uint64_t pStartAddr, uint64_t pSize)
-      : startAddr(pStartAddr), size(pSize) {
-    }
-
-    AllocEntry()
-      : startAddr(0), size(0) {
-    }
-
-    bool overlap(const AllocEntry& pOther)
-    {
-      uint64_t myEnd = startAddr + size,
-               otherEnd = pOther.startAddr + pOther.size;
-      return !(myEnd <= pOther.startAddr || otherEnd <= startAddr);
-    }
-  };
-
-  typedef std::unordered_map<Value*, AllocEntry> ValToAllocEntry;
+  using AllocEntry = MemAllocData::AllocEntry;
 
   typedef std::vector<AllocEntry> AllocEntries;
 
@@ -59,10 +41,6 @@ public:
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
 
-  AllocEntry getAlloc(const Value* pVal) const;
-
-  bool hasAlloc(const Value* pVal) const;
-
   void print(OStream& pOS, const Module* pModule) const override;
 
 private:
@@ -71,9 +49,8 @@ private:
   AllocEntry getAnEmptyRegion(const AllocEntries& pAllocs,
                               uint64_t pRequiredSize,
                               uint64_t pAlignment) const;
-
 private:
-  ValToAllocEntry m_ValToAllocEntry;
+  MemAllocData* m_MemAllocData;
   LiveIntervals* m_LIPass;
   LiveValueMatrix* m_LiveMatPass;
   TargetMemInfo* m_TMI;

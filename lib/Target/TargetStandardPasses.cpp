@@ -10,6 +10,7 @@
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
+#include <onnc/CodeGen/MemAllocData.h>
 #include <onnc/CodeGen/SetMemOperand.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/PassManager.h>
@@ -61,6 +62,8 @@ void onnc::addStandardMemoryAllocation(PassManager& pPM, TargetBackend& pTB)
 {
   // Create live matrix for interference query
   pPM.add(CreateLiveValueMatrixPass());
+  // Create memory allocation data pass for saving allocation result.
+  pPM.add(CreateMemAllocDataPass());
   // Standard memory allocation for each value
   pPM.add(CreateLinearScanMemAllocPass(&pTB));
 }
