@@ -114,7 +114,7 @@ void SysLog::unreachable(const std::string& pMessage)
   assert(isStarted() && "SysLog not started");
   std::string mesg = (Rope(pMessage) +
                       Rope("\n\nYou meet a bug of ONNC. Please report to:\n") +
-                      Rope("  bugs@onnc.com")).str();
+                      Rope("  bugs@onnc.ai")).str();
   ::syslog(LOG_EMERG, "Unreachable: %s\n", mesg.c_str());
 }
 
