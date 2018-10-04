@@ -76,8 +76,7 @@ int main(int pArgc, char* pArgv[])
   ONNIApp onni(pArgc, pArgv);
 
   // -verbose=level
-  if (OptVerbose.hasOccurrence())
-    onni.options().setVerbose(OptVerbose);
+  onni.options().setVerbose(OptVerbose);
 
   // -v
   if (OptV.hasOccurrence())
