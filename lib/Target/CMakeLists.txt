@@ -1,8 +1,8 @@
 add_libonnc_src(
     Target.cpp 
-    TargetBackend.cpp 
     TargetOptions.cpp
     TargetRegistry.cpp
+    TargetStandardPasses.cpp
     NPUTargetBackend.cpp)
 
 foreach(TARGET_DIR IN LISTS ONNC_TARGETS)

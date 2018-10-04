@@ -109,6 +109,7 @@ ONNC_SOURCES = \
 	CodeGen/LiveInterval.cpp \
 	CodeGen/LiveIntervals.cpp \
 	CodeGen/LiveValueMatrix.cpp \
+	CodeGen/MemAllocData.cpp \
 	CodeGen/SetMemOperand.cpp \
 	CodeGen/SlotIndexes.cpp \
 	ADT/PolicyNodeIterator.cpp \
@@ -332,8 +333,8 @@ AM_LFLAGS = -olex.yy.c
 # Target-depednet files and settings
 ONNC_TARGET_SOURCES = Target/Target.cpp \
 	Target/TargetOptions.cpp \
-	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
+	Target/TargetStandardPasses.cpp \
 	Target/NPUTargetBackend.cpp
 
 if ENABLE_X86_TARGET

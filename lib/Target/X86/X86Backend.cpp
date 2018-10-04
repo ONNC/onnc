@@ -10,14 +10,9 @@
 #include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/X86TargetInfo.h"
 #include "TargetInfo/X86TargetMemInfo.h"
-#include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/FuseInplaceValue.h>
-#include <onnc/CodeGen/LinearScanMemAlloc.h>
-#include <onnc/CodeGen/LiveIntervals.h>
-#include <onnc/CodeGen/LiveValueMatrix.h>
-#include <onnc/CodeGen/SetMemOperand.h>
-#include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Target/TargetRegistry.h>
+#include <onnc/Target/TargetStandardPasses.h>
 #include <onnc/Transforms/TensorSel/Standards/AbsLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AcosLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
@@ -65,19 +60,30 @@ void X86Backend::addTensorSel(PassManager& pPM)
 {
   // X86 only uses the standard ONNC IR and standard Lower, so just use the
   // standard Tensor selection passes.
-  addStandardTensorSel(pPM);
+  addStandardTensorSel(pPM, *this);
 }
 
 void X86Backend::addMemAlloc(PassManager& pPM)
 {
+  // Fuse inplace value pairs before liveness analysis, because this pass may
+  // delete values. ONNC IR graph topology may become invalid after this pass.
   pPM.add(CreateFuseInplaceValuePass(x86::IsInplaceValueFusible));
-  pPM.add(CreateBuildSlotIndexesPass());
-  pPM.add(CreateLiveIntervalsPass());
+
+  // Input: Module
+  // Output: LiveIntervals
+  addStandardCreateLiveIntervals(pPM);
+
+  // FIXME: Remove 'X86RemoveWeightFromLiveIntervals' pass, add configure in
+  //        LiveIntervals to config this behaviour.
   pPM.add(CreateX86RemoveWeightFromLiveIntervalsPass());
-  pPM.add(CreateLiveValueMatrixPass());
-  pPM.add(CreateLinearScanMemAllocPass(this));
-  pPM.add(CreateBuildMemOperandPass());
-  pPM.add(CreateSetMemOperandPass());
+
+  // Input: LiveIntervals
+  // Output: MemAllocs
+  addStandardMemoryAllocation(pPM, *this);
+
+  // Input: MemAllocs
+  // Output: Virtual memory address for each memory operands.
+  addStandardSetMemOperands(pPM);
 }
 
 void X86Backend::addCodeEmit(PassManager& pPM, const Path& pOutput)
