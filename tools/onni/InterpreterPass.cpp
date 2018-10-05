@@ -152,7 +152,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
            << (mem_end == internal_memory_size ? '*' : ' ')
            << "0x" << std::setw(ptr_len) << mem_end << ' '
            << std::right << std::dec << std::setfill(' ')
-           << std::setw(ptr_len) << mem_length[v] << ' '
+           << std::setw(ptr_len) << mem_length[v]
            << std::endl;
       }
     }
