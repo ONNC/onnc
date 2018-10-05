@@ -196,12 +196,16 @@ ComputeGraph::const_bfs_iterator ComputeGraph::bfs_end() const
 
 void ComputeGraph::print(std::ostream& pOS) const
 {
+  const_iterator nodeIter = begin();
+  for(; nodeIter != end(); ++nodeIter){
+    nodeIter->print(pOS);
+  }
 }
 
 void ComputeGraph::print(json::Value& pValue) const
 {
     const_iterator nodeIter = begin();
-    for(nodeIter; nodeIter != end(); ++nodeIter){
+    for(; nodeIter != end(); ++nodeIter){
       nodeIter->print(pValue);
     }
 }

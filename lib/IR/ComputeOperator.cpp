@@ -94,6 +94,7 @@ void ComputeOperator::print(std::ostream& pOS) const
     }
     pOS << ')';
   }
+  pOS << std::endl;
 }
 
 void ComputeOperator::print(json::Value& pJSON) const

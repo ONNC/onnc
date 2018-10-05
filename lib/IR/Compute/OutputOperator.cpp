@@ -34,11 +34,6 @@ void OutputOperator::addTensor(onnc::Tensor& pTensor)
   m_Inputs.push_back(&pTensor);
 }
 
-void OutputOperator::print(std::ostream& pOS) const
-{
-  pOS << name();
-}
-
 bool OutputOperator::classof(const ComputeOperator* pOp)
 {
   if (nullptr == pOp)

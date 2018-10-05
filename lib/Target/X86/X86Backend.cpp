@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86Backend.h"
+#include "X86FuseConvRelu.h"
 #include "X86InplaceValueFusible.h"
 #include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/X86TargetInfo.h"
@@ -150,6 +151,8 @@ void X86Backend::addTensorSel(PassManager& pPM)
   // X86 only uses the standard ONNC IR and standard Lower, so just use the
   // standard Tensor selection passes.
   addStandardTensorSel(pPM, *this);
+
+  pPM.add(CreateX86FuseConvReluPass());
 }
 
 void X86Backend::addMemAlloc(PassManager& pPM)
