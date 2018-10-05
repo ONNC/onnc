@@ -125,17 +125,7 @@ int main(int pArgc, char* pArgv[])
   }
   onni.options().setModel(OptModel);
 
-  // check onnx model
-  if (!exists(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file not found: " << OptInput << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (!is_regular(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file is not a regular file: " << OptInput << std::endl;
-    return EXIT_FAILURE;
-  }
+  // set onnx input
   onni.options().setInput(OptInput);
 
   // check output
