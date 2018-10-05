@@ -13,6 +13,7 @@
 #include <onnc/CodeGen/FuseInplaceValue.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetStandardPasses.h>
+#include <onnc/Transforms/TensorSel/LowerRegistry.h>
 #include <onnc/Transforms/TensorSel/Standards/AbsLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AcosLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
