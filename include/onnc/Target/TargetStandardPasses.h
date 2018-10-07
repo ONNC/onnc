@@ -7,8 +7,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TARGET_STANDARD_PASSES_H
 #define ONNC_TARGET_TARGET_STANDARD_PASSES_H
+#include <onnc/Option/CommandLine.h>
 
 namespace onnc {
+
+extern cl::opt<std::string> LinearScanAlgo;
 
 class PassManager;
 class TargetBackend;

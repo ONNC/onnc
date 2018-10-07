@@ -11,6 +11,7 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Config/AboutData.h>
+#include <onnc/Target/TargetStandardPasses.h>
 
 using namespace onnc;
 
@@ -86,6 +87,7 @@ static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
 //===----------------------------------------------------------------------===//
 int main(int pArgc, char* pArgv[])
 {
+  apply(cl::about(g_About), &LinearScanAlgo);
   ONNIApp onni(pArgc, pArgv);
 
   // -verbose=level

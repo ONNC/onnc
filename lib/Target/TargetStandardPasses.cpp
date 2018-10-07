@@ -8,6 +8,7 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
+#include <onnc/CodeGen/H1LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/MemAllocData.h>
@@ -23,7 +24,16 @@
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 
+#include <onnc/Option/CommandLine.h>
+
 using namespace onnc;
+
+cl::opt<std::string>
+onnc::LinearScanAlgo("fLinearScanAlgo",
+                     cl::kShort, cl::kOptional,
+                     cl::kValueOptional, cl::kEqualSeparated,
+                     cl::init("simple"),
+                     cl::desc("Select linear scan algorithm: simple. (default is simple)"));
 
 //===----------------------------------------------------------------------===//
 // TargetStandardPasses
