@@ -48,7 +48,8 @@ private:
 
   AllocEntry getAnEmptyRegion(const AllocEntries& pAllocs,
                               uint64_t pRequiredSize,
-                              uint64_t pAlignment) const;
+                              uint64_t pAlignment,
+                              uint64_t pRight) const;
 private:
   MemAllocData* m_MemAllocData;
   LiveIntervals* m_LIPass;

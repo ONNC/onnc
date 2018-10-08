@@ -32,8 +32,8 @@ cl::opt<std::string>
 onnc::LinearScanAlgo("fLinearScanAlgo",
                      cl::kShort, cl::kOptional,
                      cl::kValueOptional, cl::kEqualSeparated,
-                     cl::init("simple"),
-                     cl::desc("Select linear scan algorithm: simple. (default is simple)"));
+                     cl::init("first-fit"),
+                     cl::desc("Select linear scan algorithm: first-fit, best-fit. (default is first-fit)"));
 
 //===----------------------------------------------------------------------===//
 // TargetStandardPasses
