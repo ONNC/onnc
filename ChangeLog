@@ -1,4 +1,10 @@
 2018-9-19 Evan Li  <evanli@skymizer.com>
+  * release: 0.9.3
+  * Executive Summary:
+  1.  Complete the x86 interpreter runtime. 
+  2.  Enable FuseInplaceValue pass on x86 to further optimize memory footprint.
+
+2018-9-19 Evan Li  <evanli@skymizer.com>
   * release: 0.9.2
   * Executive Summary:
   1.  Complete the x86 memory allocation with liveness analysis information, and

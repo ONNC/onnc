@@ -130,3 +130,45 @@ The simplest way to compile this package is:
    all sorts of other programs in order to regenerate files that came
    with the distribution.
 
+## x86 interpreter runtime -- onni
+
+## Run onni:
+
+```bash
+$ cd ${ONNC_BUILD_FOLDER}/tools/onni && ./onni --help
+NAME
+        onni -- [Experimental] ONNI is the interpreter of ONNC
+
+SYNOPSIS
+        onni [options ...]
+
+DESCRIPTION
+        model        <path>       The onnx model file
+        input        <path>       The input file
+        -o           <string>     The output file
+        --help                    Show this manual.
+        --verbose    =<number>    Set verbose level to <number> (default is 1).
+        -v                        One -v increases one verbose level.
+        --quiet                   Set verbose level to 0.
+        --dry-run                 Do not do the inference, just print statistics.
+        --onnx-opt                Enable onnx optimizer
+        -mquadruple  <string>     target quadruple
+        -march       <string>     target architecture
+
+COPYRIGHT
+        onni version 0.1.0
+        https://www.onnc.com
+```
+
+## Use onni to inference model from ONNX model zoo:
+```bash
+
+$ mkdir -p ~/onnx_model_zoo
+$ cd ~/onnx_model_zoo && wget https://s3.amazonaws.com/download.onnx/models/opset_8/bvlc_alexnet.tar.gz
+$ tar xvf bvlc_alexnet.tar.gz
+$ cd ${ONNC_BUILD_FOLDER}/tools/onnc
+$ ./onni ~/onnx_model_zoo/bvlc_alexnet/model.onnx ~/onnx_model_zoo/bvlc_alexnet/test_data_set_0/input_0.pb 
+
+# you can also try verbose=4 to see details.
+
+```
