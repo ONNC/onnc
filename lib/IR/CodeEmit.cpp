@@ -16,8 +16,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType CodeEmit::runOnModule(Module& pModule)
 {
-  errs() << "CodeEmit::runOnModule\n";
-
   unsigned result = Pass::kModuleNoChanged;
   Module::cg_iterator cg, cgEnd = pModule.cgEnd();
   for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)

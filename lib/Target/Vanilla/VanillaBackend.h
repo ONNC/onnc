@@ -8,11 +8,11 @@
 #ifndef TARGET_VANILLA_VANILLA_BACKEND_H
 #define TARGET_VANILLA_VANILLA_BACKEND_H
 #include <string>
-#include <onnc/Target/NPUTargetBackend.h>
+#include <onnc/Target/TargetBackend.h>
 
 namespace onnc {
 
-class VanillaBackend : public NPUTargetBackend
+class VanillaBackend : public TargetBackend
 {
 public:
   VanillaBackend(const TargetOptions& pOptions);
