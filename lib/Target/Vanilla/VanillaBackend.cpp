@@ -135,7 +135,6 @@ TargetBackend* CreateVanillaBackend(const TargetOptions& pOptions)
   return new VanillaBackend(pOptions);
 }
 
-//FIXME: Can I merge to with InitializeVanillaONNCPlatform()?
 extern "C" void InitializeVanillaONNCBackend()
 {
   onnc::TargetRegistry::RegisterTargetBackend(getTheVanillaTarget(),
