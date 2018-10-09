@@ -20,6 +20,7 @@
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/IR/CodeEmit.h>
 #include <onnc/Target/TargetRegistry.h>
+#include <onnc/Target/TargetStandardPasses.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
 #include <onnc/Transforms/BuildInitializers.h>
 #include <onnc/Transforms/BuildInputOperators.h>
@@ -68,32 +69,37 @@ void VanillaBackend::addTensorSel(PassManager& pPM)
 {
   errs() << "Vanilla is invoked\n";
 
-  // target independent pass
-  pPM.add(CreateRemoveTrainingNodesPass());
-  pPM.add(CreateUpdateGraphOutputSizePass());
-  pPM.add(CreateDeadNodeEliminationPass());
-  pPM.add(CreateBookONNXGraphs());
-  pPM.add(CreateBuildInitializers());
-  pPM.add(CreateBuildInputOperators());
-  pPM.add(CreateTensorSel(this));
-  pPM.add(CreateBuildOutputOperators());
+  // Do ONNX graph IR optimization here.
+
+  // Translate from ONNX graph IR into ONNC IR
+  addStandardTensorSel(pPM, *this);
+  
+  // Now ONNC IR is ready.
+  // If you need to extend ONNC IR, here is the place to add your pass that
+  // adds your ONNC IR operators.
 }
 
 void VanillaBackend::addTensorSched(PassManager& pPM)
 {
   // After method AddTensorSel, operators have been scheduled in an
-  // topological order, which indeed respects the data dependency but
-  // is not optimized for any objective.
+  // topological order, which totally respects the data dependency.
+  // However, that might not be an optimized order for certain objective.
+  // Add a scheduling optimization pass here.
 }
 
 void VanillaBackend::addMemAlloc(PassManager& pPM)
 {
-  pPM.add(CreateBuildSlotIndexesPass());
-  pPM.add(CreateLiveIntervalsPass());
-  pPM.add(CreateLiveValueMatrixPass());
-  pPM.add(CreateLinearScanMemAllocPass(this));
-  pPM.add(CreateBuildMemOperandPass());
-  pPM.add(CreateSetMemOperandPass());
+  // Input: Module
+  // Output: LiveIntervals
+  addStandardCreateLiveIntervals(pPM);
+
+  // Input: LiveIntervals
+  // Output: MemAllocs
+  addStandardMemoryAllocation(pPM, *this);
+
+  // Input: MemAllocs
+  // Output: Virtual memory address for each memory operands.
+  addStandardSetMemOperands(pPM);
 }
 
 void VanillaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
