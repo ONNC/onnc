@@ -11,7 +11,7 @@
 
 namespace onnc {
 
-onnc::Target& getTheVanillaTarget();
+Target& getTheVanillaTarget();
 
 } // namespace of onnc
 
