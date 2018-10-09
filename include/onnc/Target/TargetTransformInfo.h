@@ -7,8 +7,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TRANSFORM_INFO_H
 #define ONNC_TARGET_TRANSFORM_INFO_H
-#include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Config/ONNX.h>
+#include <onnc/IR/ComputeOperator.h>
+#include <onnc/Target/TargetMemInfo.h>
 #include <vector>
 
 namespace onnc {
@@ -42,6 +43,12 @@ public:
     return 0;
   }
 
+  /// Get coarse-grained (approximately) cost of onnc IR.
+  virtual uint64_t getOperatorCost(const ComputeOperator *pOp,
+                                   unsigned pKind) const {
+    return 0;
+  }
+
   /// Get coarse-grained (approximately) total memory usage of onnx node.
   ///
   /// Memory usage of onnx node is target dependent. E.g. a gemm node with
@@ -50,6 +57,11 @@ public:
   /// choose to load part of rows and columns to compute a tile, so its
   /// real memory usage will be reduced a lot.
   virtual MemSize getOperatorMemUsage(const xNode *pNode) const {
+    return MemSize();
+  }
+
+  /// @see xNode version of getOperatorMemUsage.
+  virtual MemSize getOperatorMemUsage(const ComputeOperator *pOp) const {
     return MemSize();
   }
 
@@ -80,6 +92,9 @@ public:
   virtual const ExeResource *queryExeResType(const xNode *pNode) const {
     return nullptr;
   }
+
+  virtual const ExeResource *
+  queryExeResType(const ComputeOperator *pOp) const { return nullptr; }
 
   virtual int getWarpSize() const { return 0; }
 
