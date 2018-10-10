@@ -16,6 +16,7 @@ ONNC_SOURCES = \
 	IR/InsertionPoint.cpp \
 	IR/IRBuilder.cpp \
 	IR/ONNCModulePrinter.cpp \
+	IR/CodeEmit.cpp \
 	IR/Compute/Value.cpp \
 	IR/Compute/Scalar.cpp \
 	IR/Compute/Scale.cpp \
@@ -340,6 +341,9 @@ ONNC_TARGET_SOURCES = Target/Target.cpp \
 if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
 endif
+
+# FIXME: embraced by flag?
+include $(srcdir)/Target/Vanilla/Makefile.am
 
 #####################################
 # Build shared libraries
