@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/CodeGen/LinearScanMemAlloc.h>
+#include <onnc/CodeGen/MemAllocData.h>
 #include <onnc/CodeGen/SetMemOperand.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/Core/PassSupport.h>
@@ -17,15 +17,14 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType SetMemOperand::runOnModule(Module& pModule)
 {
-  // TODO: allow to use different memory allocation pass.
-  LinearScanMemAlloc* memAllocPass = getAnalysis<LinearScanMemAlloc>();
+  MemAllocData* memAllocData = getAnalysis<MemAllocData>();
 
   for (ComputeOperand* opnd : pModule.getComputeOperands()) {
     Value* v = opnd->getValue();
-    if (!v || !memAllocPass->hasAlloc(v))
+    if (!v || !memAllocData->hasAlloc(v))
       continue;
 
-    LinearScanMemAlloc::AllocEntry alloc = memAllocPass->getAlloc(v);
+    MemAllocData::AllocEntry alloc = memAllocData->getAlloc(v);
     // FIXME: need some check, e.g isa<>
     ComputeMemOperand* memOpnd = (ComputeMemOperand*)opnd;
     memOpnd->setStart(alloc.startAddr);
@@ -37,7 +36,7 @@ Pass::ReturnType SetMemOperand::runOnModule(Module& pModule)
 
 void SetMemOperand::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LinearScanMemAlloc::ID);
+  pUsage.addRequiredID(MemAllocData::ID);
 }
 
 //===----------------------------------------------------------------------===//

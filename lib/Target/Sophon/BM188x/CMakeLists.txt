@@ -1,6 +1,6 @@
 
 include(proto)
-gen_proto_cpp(PROTO proto/common_calibration2.proto SRCS proto_src)
+gen_proto_cpp(PROTO ${CMAKE_CURRENT_LIST_DIR}/proto/common_calibration2.proto SRCS proto_src)
 
 add_libonnc_src(
     ${proto_src}

@@ -28,8 +28,8 @@ public:
                AboutLicense::Key pLicenseType = AboutLicense::kPrivate,
                const std::string& pShortDescription = std::string(),
                const std::string& pCopyrightStatement = "Copyright (C), The ONNC Team. All rights reserved.",
-               const std::string& pHomePageAddress = "https://www.onnc.com",
-               const std::string& pBugsEmailAddress = "bugs@onnc.com");
+               const std::string& pHomePageAddress = "https://onnc.ai",
+               const std::string& pBugsEmailAddress = "bugs@onnc.ai");
 
   ~AboutData() { }
 

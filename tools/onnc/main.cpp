@@ -72,8 +72,7 @@ int main(int pArgc, char* pArgv[])
   ONNCApp onnc(pArgc, pArgv);
 
   // -verbose=level
-  if (OptVerbose.hasOccurrence())
-    onnc.options().setVerbose(OptVerbose);
+  onnc.options().setVerbose(OptVerbose);
 
   // -v
   if (OptV.hasOccurrence())

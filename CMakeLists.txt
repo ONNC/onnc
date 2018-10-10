@@ -10,7 +10,7 @@ option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Re
 option(ENABLE_PTHREAD "use pthreads" ON)
 set(HAVE_PTHREADS ${ENABLE_PTHREAD})
 option(ENABLE_UNITTEST "enable unittest" ON)
-option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" OFF)
+option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" ON)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     option(ENABLE_UNITTEST "enable unittest" ON)
@@ -22,6 +22,7 @@ endif()
 #  Language
 set(STDC_HEADERS 1)
 set(CMAKE_CXX_STANDARD 14)
+set(HAVE_CXX14 TRUE)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g3"          CACHE STRING "Flags used by the CXX compiler during DEBUG builds.")
@@ -31,8 +32,6 @@ option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
 if (ENABLE_WERROR)
     add_compile_options(-Werror)
 endif()
-#include(CheckCXXCompilerFlag)
-#check_cxx_compiler_flag(-Wno-variadic-macros WNO_VARIADIC_MACROS)
 
 ####################
 #  Project
@@ -50,19 +49,45 @@ set(PACKAGE_URL "onnc.ai")
 ####################
 #  Check
 include(check)
-message(STATUS "ONNC_DEFAULT_TARGET_QUADRUPLE: ${ONNC_DEFAULT_TARGET_QUADRUPLE}")
+message(STATUS "Default target quadruple: ${ONNC_DEFAULT_TARGET_QUADRUPLE}")
 
 ####################
-#  Targets
-include(onnc_target)
-enum_onnc_targets()
+#  Scan targets from config
+file(STRINGS ${ONNC_ROOT_PATH}/include/onnc/Config/Config.h.cmake.in CONFIG_IN_CONTENT)
+string(REGEX MATCHALL "ENABLE_[A-Za-z0-9_]*_TARGET" CONFIG_IN_TARGETS ${CONFIG_IN_CONTENT})
+file(GLOB target_dir_dump RELATIVE ${ONNC_ROOT_PATH}/lib/Target ${ONNC_ROOT_PATH}/lib/Target/* )
+foreach(content IN LISTS target_dir_dump)
+    string(TOUPPER ${content} content)
+    set(target_dir_upper ${target_dir_upper} ${content})
+endforeach(content IN LISTS target_dir_dump)
+foreach(EACH_TARGET IN LISTS CONFIG_IN_TARGETS)
+    # Get target name
+    string(LENGTH ${EACH_TARGET} EACH_LEN)
+    math(EXPR SUBSTR_LEN "${EACH_LEN} - 14")
+    string(SUBSTRING ${EACH_TARGET} 7 ${SUBSTR_LEN} EACH_TARGET_NAME)
+    # Set option
+    string(TOUPPER ${EACH_TARGET_NAME} EACH_TARGET_NAME_upper)
+    if(EACH_TARGET_NAME_upper IN_LIST target_dir_upper)
+        option(${EACH_TARGET} "Enable ${EACH_TARGET_NAME}" ON)
+        if(${EACH_TARGET})
+            list(FIND target_dir_upper ${EACH_TARGET_NAME_upper} target_dir_index)
+            list(GET target_dir_dump ${target_dir_index} target_name_real)
+            set(ONNC_TARGET_PLATFORMS "${ONNC_TARGET_PLATFORMS} ONNC_PLATFORM(${target_name_real})")
+            set(ONNC_TARGET_BACKENDS "${ONNC_TARGET_BACKENDS} ONNC_BACKEND(${target_name_real})")
+            set(ONNC_TARGETS ${ONNC_TARGETS} ${target_name_real})
+            set(ONNC_TARGET_ENTRIES ${ONNC_TARGET_ENTRIES} ${EACH_TARGET})
+        endif(${EACH_TARGET})
+    endif(EACH_TARGET_NAME_upper IN_LIST target_dir_upper)
+endforeach(EACH_TARGET IN CONFIG_IN_TARGETS)
+unset(target_dir_upper)
 
 ####################
 #  Include
 set(ONNC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/lib)
+    ${CMAKE_CURRENT_BINARY_DIR}/lib
+)
 
 ####################
 #  External
@@ -90,8 +115,16 @@ if(USE_LLVM)
     include_directories(${LLVM_INCLUDE_DIRS})
     add_definitions(${LLVM_DEFINITIONS})
 endif(USE_LLVM)
+#  Protobuf
 find_package(Protobuf REQUIRED)
-    
+
+####################
+# Other
+add_custom_target(code_gen)
+add_subdirectory(lib)
+add_subdirectory(tools)
+add_subdirectory(include)
+
 ####################
 # OUTPUT
 configure_file(include/onnc/Support/DataTypes.h.cmake.in include/onnc/Support/DataTypes.h)
@@ -99,12 +132,3 @@ configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.
 configure_file(include/onnc/Config/ONNX.h.in include/onnc/Config/ONNX.h @ONLY)
 configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
 configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
-
-####################
-# Other
-set(ANDROID_CPPFLAGS -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address)
-add_compile_options(${ANDROID_CPPFLAGS})
-add_custom_target(code_gen)
-add_subdirectory(lib)
-add_subdirectory(tools)
-add_subdirectory(include)

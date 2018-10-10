@@ -12,7 +12,6 @@
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/TargetBackend.h>
 #include <onnc/Target/TargetMemInfo.h>
-#include <iomanip>
 
 using namespace onnc;
 
@@ -41,7 +40,7 @@ static uint64_t GetAlignedAddr(uint64_t pAddr, uint64_t pAlignment)
 // LinearScanMemAlloc
 //===----------------------------------------------------------------------===//
 LinearScanMemAlloc::LinearScanMemAlloc(TargetBackend* pTarget)
-  : ModulePass(ID), m_ValToAllocEntry(),
+  : ModulePass(ID), m_MemAllocData(nullptr),
     m_LIPass(nullptr), m_LiveMatPass(nullptr) {
   m_TMI = pTarget->getMemInfo();
 }
@@ -50,8 +49,7 @@ Pass::ReturnType LinearScanMemAlloc::runOnModule(Module& pModule)
 {
   m_LIPass = getAnalysis<LiveIntervals>();
   m_LiveMatPass = getAnalysis<LiveValueMatrix>();
-
-  AllocEntries curAllocs;
+  m_MemAllocData = getAnalysis<MemAllocData>();
 
   // Allocate memory for each value (live interval).
   for (const LiveInterval* LI: m_LIPass->getSortedIntervals()) {
@@ -65,8 +63,8 @@ Pass::ReturnType LinearScanMemAlloc::runOnModule(Module& pModule)
     // FIXME: Do we have safer casting? We should check before casting.
     MemSize m = m_TMI->getTensorMemorySize(*(Tensor*)v);
 
-    m_ValToAllocEntry[v] =
-      getAnEmptyRegion(allocRegions, m.size, m.alignment);
+    m_MemAllocData->addAlloc(v, getAnEmptyRegion(allocRegions,
+                                                 m.size, m.alignment));
   }
   return Pass::kModuleNoChanged;
 }
@@ -75,57 +73,13 @@ void LinearScanMemAlloc::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
   pUsage.addRequiredID(LiveIntervals::ID);
   pUsage.addRequiredID(LiveValueMatrix::ID);
-}
-
-LinearScanMemAlloc::AllocEntry
-LinearScanMemAlloc::getAlloc(const Value* pVal) const
-{
-  auto it = m_ValToAllocEntry.find(const_cast<Value*>(pVal));
-  assert(it != m_ValToAllocEntry.end() &&
-         "Value has no memory allocation.");
-  return it->second;
-}
-
-bool LinearScanMemAlloc::hasAlloc(const Value* pVal) const
-{
-  auto it = m_ValToAllocEntry.find(const_cast<Value*>(pVal));
-  return it != m_ValToAllocEntry.end();
+  pUsage.addRequiredID(MemAllocData::ID);
 }
 
 void LinearScanMemAlloc::print(OStream& pOS, const Module* pModule) const
 {
   pOS << "=== LinearScanMemAlloc ===\n";
-
-  if (m_ValToAllocEntry.empty()) {
-    pOS << "Empty.\n";
-    return;
-  }
-
-  std::stringstream dbgstr;
-  dbgstr << std::hex << std::left
-         << std::setw(20) << "value:" << std::setw(12) << "start"
-         << std::setw(12) << "end"
-         << "\n";
-
-  uint64_t maxEnd = 0;
-
-  for (const LiveInterval* li : m_LIPass->getSortedIntervals()) {
-    Value* v = const_cast<Value*>(li->getValue());
-    AllocEntry alloc = m_ValToAllocEntry.find(v)->second;
-    uint64_t endAddr = alloc.startAddr + alloc.size;
-    maxEnd = std::max(maxEnd, endAddr);
-
-    dbgstr << std::left << std::setw(20) << std::setfill(' ') << v->getName()
-           << "0x"
-           << std::right << std::setw(8) << std::setfill('0') << alloc.startAddr
-           << "  0x" << std::setw(8) << endAddr
-           << "\n";
-  }
-
-  dbgstr << std::dec << "\nTotal memory usages = "
-         << (double)maxEnd / (1024.0 * 1024.0) << " mb\n";
-
-  pOS << dbgstr.str();
+  m_MemAllocData->print(pOS, pModule);
 }
 
 LinearScanMemAlloc::AllocEntries
@@ -133,10 +87,9 @@ LinearScanMemAlloc::getSortedAllocatedRegions(const LIs& pLIs) const
 {
   AllocEntries allocs;
   for (const LiveInterval* li : pLIs) {
-    Value* v = const_cast<Value*>(li->getValue());
-    auto entIt = m_ValToAllocEntry.find(v);
-    if (entIt != m_ValToAllocEntry.end())
-      allocs.push_back(entIt->second);
+    const Value* v = li->getValue();
+    if (m_MemAllocData->hasAlloc(v))
+      allocs.push_back(m_MemAllocData->getAlloc(v));
   }
 
   // sort by starting address

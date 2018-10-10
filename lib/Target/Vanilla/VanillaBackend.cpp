@@ -1,24 +1,34 @@
-//===- X86Backend.cpp -----------------------------------------------------===//
+//===- VanillaBackend.cpp -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "X86Backend.h"
-#include "X86InplaceValueFusible.h"
-#include "X86RemoveWeightFromLiveIntervals.h"
-#include "TargetInfo/X86TargetInfo.h"
-#include "TargetInfo/X86TargetMemInfo.h"
-#include <onnc/CodeGen/FuseInplaceValue.h>
+#include "VanillaBackend.h"
+#include "TargetInfo/VanillaTargetInfo.h"
+#include "TargetInfo/VanillaTargetMemInfo.h"
+#include "CodeEmitVisitor.h"
+
+#include <onnc/Analysis/UpdateGraphOutputSize.h>
+#include <onnc/Analysis/NodeIRScheduler.h>
+#include <onnc/CodeGen/BuildMemOperand.h>
+#include <onnc/CodeGen/LinearScanMemAlloc.h>
+#include <onnc/CodeGen/LiveIntervals.h>
+#include <onnc/CodeGen/LiveValueMatrix.h>
+#include <onnc/CodeGen/SetMemOperand.h>
+#include <onnc/CodeGen/SlotIndexes.h>
+#include <onnc/IR/CodeEmit.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetStandardPasses.h>
-#include <onnc/Transforms/TensorSel/Standards/AbsLower.h>
-#include <onnc/Transforms/TensorSel/Standards/AcosLower.h>
+#include <onnc/Transforms/BookONNXGraphs.h>
+#include <onnc/Transforms/BuildInitializers.h>
+#include <onnc/Transforms/BuildInputOperators.h>
+#include <onnc/Transforms/BuildOutputOperators.h>
+#include <onnc/Transforms/DeadNodeElimination.h>
+#include <onnc/Transforms/RemoveTrainingNodes.h>
+#include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
-#include <onnc/Transforms/TensorSel/Standards/AffineLower.h>
-#include <onnc/Transforms/TensorSel/Standards/AndLower.h>
-#include <onnc/Transforms/TensorSel/Standards/ATenLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
 #include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConcatLower.h>
@@ -36,46 +46,52 @@
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SplitLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SumLower.h>
-#include <onnc/Transforms/TensorSel/Standards/XorLower.h>
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
-#include <onnc/Transforms/TensorSel/LowerRegistry.h>
+
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// X86Backend
+// VanillaBackend
 //===----------------------------------------------------------------------===//
-X86Backend::X86Backend(const TargetOptions& pOptions)
-  : NPUTargetBackend(pOptions) {
-  m_pMemInfo = new X86TargetMemInfo();
+VanillaBackend::VanillaBackend(const TargetOptions& pOptions)
+  : TargetBackend(pOptions) { 
+  m_pMemInfo = new VanillaTargetMemInfo();
 }
 
-X86Backend::~X86Backend()
+VanillaBackend::~VanillaBackend()
 {
   delete m_pMemInfo;
 }
 
-void X86Backend::addTensorSel(PassManager& pPM)
+void VanillaBackend::addTensorSel(PassManager& pPM)
 {
-  // X86 only uses the standard ONNC IR and standard Lower, so just use the
-  // standard Tensor selection passes.
+  errs() << "Vanilla is invoked\n";
+
+  // Do ONNX graph IR optimization here.
+
+  // Translate from ONNX graph IR into ONNC IR
   addStandardTensorSel(pPM, *this);
+  
+  // Now ONNC IR is ready.
+  // If you need to extend ONNC IR, here is the place to add your pass that
+  // adds your ONNC IR operators.
 }
 
-void X86Backend::addMemAlloc(PassManager& pPM)
+void VanillaBackend::addTensorSched(PassManager& pPM)
 {
-  // Fuse inplace value pairs before liveness analysis, because this pass may
-  // delete values. ONNC IR graph topology may become invalid after this pass.
-  pPM.add(CreateFuseInplaceValuePass(x86::IsInplaceValueFusible));
+  // After method AddTensorSel, operators have been scheduled in an
+  // topological order, which totally respects the data dependency.
+  // However, that might not be an optimized order for certain objective.
+  // Add a scheduling optimization pass here.
+}
 
+void VanillaBackend::addMemAlloc(PassManager& pPM)
+{
   // Input: Module
   // Output: LiveIntervals
   addStandardCreateLiveIntervals(pPM);
-
-  // FIXME: Remove 'X86RemoveWeightFromLiveIntervals' pass, add configure in
-  //        LiveIntervals to config this behaviour.
-  pPM.add(CreateX86RemoveWeightFromLiveIntervalsPass());
 
   // Input: LiveIntervals
   // Output: MemAllocs
@@ -86,12 +102,13 @@ void X86Backend::addMemAlloc(PassManager& pPM)
   addStandardSetMemOperands(pPM);
 }
 
-void X86Backend::addCodeEmit(PassManager& pPM, const Path& pOutput)
+void VanillaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  // TODO
+  static vanilla::CodeEmitVisitor ceVisitor;
+  pPM.add(CreateCodeEmitPass(ceVisitor));
 }
 
-void X86Backend::RegisterLowers(LowerRegistry& pRegistry) const
+void VanillaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 {
   pRegistry.emplace<AddLower>();
   pRegistry.emplace<AveragePoolLower>();
@@ -115,55 +132,18 @@ void X86Backend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<UpsampleLower>();
 }
 
-//===----------------------------------------------------------------------===//
-// X86_32Backend
-//===----------------------------------------------------------------------===//
-X86_32Backend::X86_32Backend(const TargetOptions& pOptions)
-  : X86Backend(pOptions) {
-}
-
-X86_32Backend::~X86_32Backend()
-{
-}
-
-void X86_32Backend::RegisterLowers(LowerRegistry& pRegistry) const
-{
-  X86Backend::RegisterLowers(pRegistry);
-}
-
-//===----------------------------------------------------------------------===//
-// X86_64Backend
-//===----------------------------------------------------------------------===//
-X86_64Backend::X86_64Backend(const TargetOptions& pOptions)
-  : X86Backend(pOptions) {
-}
-
-X86_64Backend::~X86_64Backend()
-{
-}
-
-void X86_64Backend::RegisterLowers(LowerRegistry& pRegistry) const
-{
-  X86Backend::RegisterLowers(pRegistry);
-}
 
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateX86_32Backend(const TargetOptions& pOptions)
+TargetBackend* CreateVanillaBackend(const TargetOptions& pOptions)
 {
-  return new X86_32Backend(pOptions);
+  return new VanillaBackend(pOptions);
 }
 
-TargetBackend* CreateX86_64Backend(const TargetOptions& pOptions)
+extern "C" void InitializeVanillaONNCBackend()
 {
-  return new X86_64Backend(pOptions);
+  onnc::TargetRegistry::RegisterTargetBackend(getTheVanillaTarget(),
+      CreateVanillaBackend);
 }
 
-extern "C" void InitializeX86ONNCBackend()
-{
-  onnc::TargetRegistry::RegisterTargetBackend(getTheX86_32Target(),
-      CreateX86_32Backend);
-  onnc::TargetRegistry::RegisterTargetBackend(getTheX86_64Target(),
-      CreateX86_64Backend);
-}

@@ -7,9 +7,11 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/ADT/StringList.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
+#include <onnc/CodeGen/FuseInplaceValue.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
+#include <onnc/CodeGen/MemAllocData.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/InitializePasses.h>
@@ -29,6 +31,7 @@
 #include <onnc/Support/OStrStream.h>
 #include <onnc/Target/TargetBackend.h>
 #include <onnc/Target/TargetMemInfo.h>
+#include <onnc/Target/TargetStandardPasses.h>
 #include <skypat/skypat.h>
 #include "../../lib/Target/X86/X86RemoveWeightFromLiveIntervals.h"
 
@@ -372,12 +375,14 @@ SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
   BuildSlotIndexes buildSlotIdx;
   LiveIntervals liveIntrvls;
   LiveValueMatrix liveMat;
+  MemAllocData memAllocData;
   LinearScanMemAlloc linearMemAlloc(&vtarget);
   BuildMemOperand buildMemOpnd;
 
   resolver.add(buildSlotIdx.getPassID(), buildSlotIdx);
   resolver.add(liveIntrvls.getPassID(), liveIntrvls);
   resolver.add(liveMat.getPassID(), liveMat);
+  resolver.add(memAllocData.getPassID(), memAllocData);
   resolver.add(linearMemAlloc.getPassID(), linearMemAlloc);
 
   liveIntrvls.setResolver(resolver);
@@ -391,13 +396,13 @@ SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
   linearMemAlloc.runOnModule(module);
 
   for (auto li : liveIntrvls.getSortedIntervals()) {
-    LinearScanMemAlloc::AllocEntry
-      myAlloc = linearMemAlloc.getAlloc(li->getValue());
+    MemAllocData::AllocEntry
+      myAlloc = memAllocData.getAlloc(li->getValue());
 
     for (auto overlappedLI : liveMat.getInterferingLiveIntervals(li))
     {
-      LinearScanMemAlloc::AllocEntry otherAlloc =
-        linearMemAlloc.getAlloc(overlappedLI->getValue());
+      MemAllocData::AllocEntry otherAlloc =
+        memAllocData.getAlloc(overlappedLI->getValue());
       ASSERT_FALSE(otherAlloc.overlap(myAlloc));
     }
   }
@@ -412,21 +417,20 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   TargetOptions opt;
   VTargetBackend vtarget(opt);
 
-  BuildSlotIndexes* buildSlotIdx = new BuildSlotIndexes();
-  LiveIntervals* liveIntrvls = new LiveIntervals();
-  X86RemoveWeightFromLiveIntervals*
-    rmWeight = new X86RemoveWeightFromLiveIntervals();
-  LiveValueMatrix* liveMat = new LiveValueMatrix();
-  LinearScanMemAlloc* linearMemAlloc = new LinearScanMemAlloc(&vtarget);
-  BuildMemOperand* buildMemOpnd = new BuildMemOperand();
-
   PassManager passMgr;
-  passMgr.add(buildSlotIdx);
-  passMgr.add(liveIntrvls);
-  passMgr.add(rmWeight);
-  passMgr.add(liveMat);
-  passMgr.add(buildMemOpnd);
-  passMgr.add(linearMemAlloc);
+  addStandardCreateLiveIntervals(passMgr);
+  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  addStandardMemoryAllocation(passMgr, vtarget);
+  addStandardSetMemOperands(passMgr);
+
+  LiveIntervals* liveIntrvls =
+    static_cast<LiveIntervals*>(passMgr.lookup(&LiveIntervals::ID));
+
+  LiveValueMatrix* liveMat =
+    static_cast<LiveValueMatrix*>(passMgr.lookup(&LiveValueMatrix::ID));
+
+  MemAllocData* memAllocData =
+    static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));
 
   Module module;
   CreateAlexNet(module);
@@ -434,17 +438,62 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   passMgr.run(module);
 
   for (auto li : liveIntrvls->getSortedIntervals()) {
-    LinearScanMemAlloc::AllocEntry
-      myAlloc = linearMemAlloc->getAlloc(li->getValue());
+    MemAllocData::AllocEntry
+      myAlloc = memAllocData->getAlloc(li->getValue());
     ComputeOperator* op = static_cast<ComputeOperator*>(li->getValue()
                                                           ->getDefine());
     ASSERT_FALSE(isa<Initializer>(op));
 
     for (auto overlappedLI : liveMat->getInterferingLiveIntervals(li))
     {
-      LinearScanMemAlloc::AllocEntry otherAlloc =
-        linearMemAlloc->getAlloc(overlappedLI->getValue());
+      MemAllocData::AllocEntry otherAlloc =
+        memAllocData->getAlloc(overlappedLI->getValue());
       ASSERT_FALSE(otherAlloc.overlap(myAlloc));
     }
   }
+}
+
+static bool VTargetIsInplaceValueFusible(const ComputeOperator& pOp)
+{
+  if (isa<Relu>(&pOp))
+    return true;
+  return false;
+}
+
+SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
+{
+  TargetOptions opt;
+  VTargetBackend vtarget(opt);
+
+  PassManager passMgr;
+  passMgr.add(CreateFuseInplaceValuePass(VTargetIsInplaceValueFusible));
+  addStandardCreateLiveIntervals(passMgr);
+  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  addStandardMemoryAllocation(passMgr, vtarget);
+  addStandardSetMemOperands(passMgr);
+
+  MemAllocData* memAllocData =
+    static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));
+
+  Module module;
+  ComputeGraph& cg = CreateAlexNet(module);
+
+  // Create second use of 'conv2_1', so 'relu2_1' can not be fused.
+  // original: Conv -> (conv2_1) -> Relu -> (relu2_1)
+  //
+  // new:      Conv -> (conv2_1) -> Relu -> (relu2_1)
+  //                             -> Relu -> (unused)
+  CreateComputeOperator<Relu>(cg, {"conv2_1"})
+    ->addOutput(*CreateFloatComputeTensor(cg, "unused", {10, 256, 27, 27}));
+
+  passMgr.run(module);
+
+  const std::string reluStrs[] = {
+    "relu1_1", "relu3_1", "relu4_1", "relu5_1", "relu6_1", "relu7_1"
+  };
+
+  for (auto& str : reluStrs)
+    ASSERT_FALSE(memAllocData->hasAlloc(cg.getValue(str)));
+
+  ASSERT_TRUE(memAllocData->hasAlloc(cg.getValue("relu2_1")));
 }

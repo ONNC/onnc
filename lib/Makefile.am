@@ -16,6 +16,7 @@ ONNC_SOURCES = \
 	IR/InsertionPoint.cpp \
 	IR/IRBuilder.cpp \
 	IR/ONNCModulePrinter.cpp \
+	IR/CodeEmit.cpp \
 	IR/Compute/Value.cpp \
 	IR/Compute/Scalar.cpp \
 	IR/Compute/Scale.cpp \
@@ -104,10 +105,12 @@ ONNC_SOURCES = \
 	Analysis/SplitNode.cpp \
 	Analysis/UpdateGraphOutputSize.cpp \
 	CodeGen/BuildMemOperand.cpp \
+	CodeGen/FuseInplaceValue.cpp \
 	CodeGen/LinearScanMemAlloc.cpp \
 	CodeGen/LiveInterval.cpp \
 	CodeGen/LiveIntervals.cpp \
 	CodeGen/LiveValueMatrix.cpp \
+	CodeGen/MemAllocData.cpp \
 	CodeGen/SetMemOperand.cpp \
 	CodeGen/SlotIndexes.cpp \
 	ADT/PolicyNodeIterator.cpp \
@@ -191,6 +194,7 @@ ONNC_SOURCES = \
 	Option/Option.cpp \
 	Option/OptionPool.cpp \
 	Option/OptParser.cpp \
+	Runtime/onnc-runtime.c \
 	Runtime/operator/abs.c \
 	Runtime/operator/acos.c \
 	Runtime/operator/add.c \
@@ -332,13 +336,16 @@ AM_LFLAGS = -olex.yy.c
 ONNC_TARGET_SOURCES = Target/Platform.cpp \
 	Target/Target.cpp \
 	Target/TargetOptions.cpp \
-	Target/TargetBackend.cpp \
 	Target/TargetRegistry.cpp \
+	Target/TargetStandardPasses.cpp \
 	Target/NPUTargetBackend.cpp
 
 if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
 endif
+
+# FIXME: embraced by flag?
+include $(srcdir)/Target/Vanilla/Makefile.am
 
 #####################################
 # Build shared libraries

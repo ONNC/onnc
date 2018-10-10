@@ -63,6 +63,14 @@ public:
 
   unsigned int verbose() const { return m_Verbose; }
 
+  void setDryRun(bool pDryRun) { m_DryRun = pDryRun; }
+
+  bool dryRun() const { return m_DryRun; }
+
+  void setOnnxOpt(bool pIsOnnxOpt) { m_OnnxOpt = pIsOnnxOpt; }
+
+  bool onnxOpt() const { return m_OnnxOpt; }
+
 private:
   onnc::Path m_Model;
   onnc::Path m_Input;
@@ -71,6 +79,8 @@ private:
   std::string m_Arch;
   onnc::TargetOptions m_TargetOptions;
   unsigned int m_Verbose;
+  bool m_DryRun;
+  bool m_OnnxOpt;
 };
 
 #endif
