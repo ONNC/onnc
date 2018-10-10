@@ -194,6 +194,7 @@ ONNC_SOURCES = \
 	Option/Option.cpp \
 	Option/OptionPool.cpp \
 	Option/OptParser.cpp \
+	Runtime/onnc-runtime.c \
 	Runtime/operator/abs.c \
 	Runtime/operator/acos.c \
 	Runtime/operator/add.c \

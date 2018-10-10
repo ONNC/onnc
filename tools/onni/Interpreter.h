@@ -20,11 +20,10 @@ namespace onnc {
 class Interpreter : public ComputeVisitor
 {
 public:
-  Interpreter(void *pContext) : m_pContext(pContext) {};
-
   // XXX
   typedef std::unordered_map<Value *, void *> AddressTable;
   AddressTable m_ATable;
+  void *m_pContext;
 
   virtual void visit(Abs& pAbs);
   virtual void visit(Acos& pAcos);
@@ -139,9 +138,6 @@ public:
   virtual void visit(Scale& pScale);
   virtual void visit(ScaledTanh& pScaledTanh);
   virtual void visit(ThresholdedRelu& pThresholdedRelu);
-
-private:
-  void *m_pContext;
 };
 
 } // namespace of onnc

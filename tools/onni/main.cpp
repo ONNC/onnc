@@ -18,7 +18,7 @@ static AboutData g_About("onni",
                          "onni",
                          "0.1.0",
                          AboutLicense::kPrivate,
-                         "ONNI is the interpreter of ONNC");
+                         "[Experimental] ONNI is the interpreter of ONNC");
 
 static cl::opt<Path> OptModel("model", cl::kPositional, cl::kOptional,
     cl::kValueRequired,
@@ -62,9 +62,22 @@ OptQuiet("quiet", cl::kLong, cl::kOptional, cl::kValueDisallowed,
     cl::desc("Set verbose level to 0."),
     cl::about(g_About));
 
+static cl::opt<bool>
+OptDryRun("dry-run", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Do not do the inference, just print statistics."),
+    cl::about(g_About));
+
+// TODO: General way to enable passes
+static cl::opt<bool>
+OptOnnxOpt("onnx-opt", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Enable onnx optimizer"),
+    cl::about(g_About));
+
 static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort, cl::kOptional,
     cl::kValueRequired, cl::desc("target quadruple"), cl::about(g_About));
-    
+
 static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
     cl::kValueRequired, cl::desc("target architecture"), cl::about(g_About));
 
@@ -85,6 +98,12 @@ int main(int pArgc, char* pArgv[])
   // --quiet
   if (OptQuiet)
     onni.options().setVerbose(0);
+
+  // --dry-run
+  onni.options().setDryRun(OptDryRun);
+
+  // --onnx-optimizer
+  onni.options().setOnnxOpt(OptOnnxOpt);
 
   // --help
   if (OptHelp) {

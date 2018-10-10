@@ -22,9 +22,12 @@ onni_LDFLAGS = @LIBONNC_LDFLAGS@
 onni_LDADD = @LIBONNC_LIBS@ @SKYPAT_LIBS@
 
 nodist_onni_SOURCES = main.cpp \
+	CountOperatorsPass.cpp \
 	ONNIApp.cpp \
 	ONNIConfig.cpp \
-	Interpreter.cpp
+	Interpreter.cpp \
+	InterpreterPass.cpp \
+	OnnxOptPass.cpp
 
 if HAVE_PTHREADS
 onni_LDADD += -lpthread
