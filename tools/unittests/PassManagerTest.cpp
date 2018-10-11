@@ -248,54 +248,79 @@ SKYPAT_F(PassManagerTest, run_test_1)
   pm.add(new Z(), state);
   pm.add(new Y(), state);
   pm.add(new Z(), state);
-
-  ASSERT_EQ(state.execution.size(), 3); // ZYZ
+  ASSERT_EQ(state.execution.size(), 8); // XYZXYXYZ
   ASSERT_FALSE(state.changed);
 
   Module module;
 
   std::string process;
+
+  // run X
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 7); // YZXYXYZ
+
+  // run Y
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 6); // ZXYXYZ
+
   // run Z(1): retry
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 5); // XYZYZ
+  ASSERT_EQ(state.execution.size(), 8); // XYZXYXYZ
   ASSERT_FALSE(state.changed);
 
   // run X: changed
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 4); // YZYZ
+  ASSERT_EQ(state.execution.size(), 7); // YZXYXYZ
   ASSERT_TRUE(state.changed);
 
   // run Y: no changed
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 3); // ZYZ
+  ASSERT_EQ(state.execution.size(), 6); // ZXYXYZ
   ASSERT_TRUE(state.changed);
 
   // run Z(2): retry
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 5); // XYZYZ
+  ASSERT_EQ(state.execution.size(), 8); // XYZXYXYZ
   ASSERT_FALSE(state.changed);
 
   // run X: changed
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 4); // YZYZ
+  ASSERT_EQ(state.execution.size(), 7); // YZXYXYZ
   ASSERT_TRUE(state.changed);
 
   // run Y: no changed
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 3); // ZYZ
+  ASSERT_EQ(state.execution.size(), 6); // ZXYXYZ
   ASSERT_TRUE(state.changed);
 
   // run Z(3): changed
   ASSERT_TRUE(pm.step(module, state));
   process += state.pass->getPassName();
-  ASSERT_EQ(state.execution.size(), 2); // YZ
+  ASSERT_EQ(state.execution.size(), 5); // XYXYZ
   ASSERT_TRUE(state.changed);
+
+  // run X
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 4); // YXYZ
+
+  // run Y
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 3); // XYZ
+
+  // run X
+  ASSERT_TRUE(pm.step(module, state));
+  process += state.pass->getPassName();
+  ASSERT_EQ(state.execution.size(), 2); // YZ
 
   // run Y: no changed
   ASSERT_TRUE(pm.step(module, state));
@@ -346,6 +371,6 @@ SKYPAT_F(PassManagerTest, run_test_1)
   ASSERT_TRUE(state.changed);
 
   errs() << process << std::endl;
-  ASSERT_TRUE(process == "ZXYZXYZYZXYZXYZ");
+  ASSERT_TRUE(process == "XYZXYZXYZXYXYZXYZXYZ");
   ASSERT_TRUE(pm.run(module, state));
 }

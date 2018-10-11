@@ -136,6 +136,10 @@ private:
 
   void UpdateExecutionOrder(ExecutionOrder& pOrder);
 
+  /// Add a pass to execution queue. If a pass depends on other passes, the
+  /// dependent passes are added to exe queue unconditionally.
+  void addPassToExeQueue(Pass* pPass, State& pState);
+
 private:
   PassRegistry* m_pPassRegistry;
 

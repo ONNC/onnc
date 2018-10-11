@@ -43,11 +43,13 @@ PassManager::~PassManager()
 void PassManager::add(Pass* pPass, State& pState)
 {
   addPassToDependencyGraph(pPass, nullptr, pState);
+  addPassToExeQueue(pPass, pState);
 }
 
 void PassManager::add(Pass* pPass, TargetBackend* pBackend, State& pState)
 {
   addPassToDependencyGraph(pPass, pBackend, pState);
+  addPassToExeQueue(pPass, pState);
 }
 
 // Use depth search first to build up a sub-graph of dependenciess.
@@ -61,12 +63,22 @@ void PassManager::add(Pass* pPass, TargetBackend* pBackend)
   add(pPass, pBackend, m_RunState);
 }
 
+void PassManager::addPassToExeQueue(Pass* pPass, State& pState)
+{
+  State s;
+  s.execution.push_back(pPass->getPassID());
+  UpdateExecutionOrder(s.execution);
+
+  // Concate the two execution queue.
+  pState.execution.insert(pState.execution.end(),
+                          s.execution.begin(), s.execution.end());
+
+}
+
 /// Add a pass by DSF order
 void PassManager::addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend,
                                            State& pState)
 {
-  pState.execution.push_back(pPass->getPassID());
-
   // If the pass is already in the dependency graph, then we don't
   // need to add it into the graph.
   if (hasAdded(pPass->getPassID()))
