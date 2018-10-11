@@ -190,9 +190,9 @@ Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)
   return result;
 }
 
-PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
+PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID) const
 {
-  AvailableAnalysisMap::iterator entry = m_AvailableAnalysis.find(pID);
+  AvailableAnalysisMap::const_iterator entry = m_AvailableAnalysis.find(pID);
   if (m_AvailableAnalysis.end() == entry)
     return nullptr;
   return entry->second;

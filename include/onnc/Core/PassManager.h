@@ -113,7 +113,7 @@ private:
   PassRegistry* getPassRegistry() { return m_pPassRegistry; }
 
   /// Dependency graph operator: find a node
-  DepNode* findNode(Pass::AnalysisID pID);
+  DepNode* findNode(Pass::AnalysisID pID) const;
 
   /// Dependency graph operator: add a node
   DepNode* addNode(Pass& pPass);
