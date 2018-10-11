@@ -219,6 +219,27 @@ Pass* PassManager::lookup(Pass::AnalysisID pID)
   return node->pass;
 }
 
+void PassManager::printState(const State& pState, OStream& pOS) const
+{
+  pOS << "Execution queue: ";
+  if (pState.execution.empty()) {
+    pOS << "empty." << std::endl;
+    return;
+  }
+
+  pOS << "Start";
+  for (Pass::AnalysisID id : pState.execution) {
+    DepNode* node = findNode(id);
+    pOS << " -> " << node->pass->getPassName();
+  }
+  pOS << std::endl;
+}
+
+void PassManager::dumpState(const State& pState) const
+{
+  printState(pState, errs());
+}
+
 bool PassManager::hasAdded(Pass::AnalysisID pID) const
 {
   return (m_AvailableAnalysis.end() != m_AvailableAnalysis.find(pID));

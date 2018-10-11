@@ -78,6 +78,10 @@ public:
 
   Pass* lookup(Pass::AnalysisID pID);
 
+  void printState(const State& pState, OStream& pOS) const;
+
+  void dumpState(const State& pState) const;
+
 private:
   struct DepNode : public DigraphNode<DepNode>
   {
