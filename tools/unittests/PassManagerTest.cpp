@@ -219,7 +219,7 @@ public:
       return kModuleChanged;
 
     // retry till c is 3
-    return (kPassRetry | kModuleChanged);
+    return kPassRetry;
   }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override {

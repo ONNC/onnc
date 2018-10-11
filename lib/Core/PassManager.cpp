@@ -153,10 +153,8 @@ bool PassManager::step(Module& pModule, State& pState)
     return false;
 
   if (Pass::IsRetry(result)) {
-    if (Pass::IsRevised(result)) {
-      UpdateExecutionOrder(pState.execution);
-      pState.changed = false;
-    }
+    UpdateExecutionOrder(pState.execution);
+    pState.changed = false;
   }
   else { //< not retry
     if (Pass::IsRevised(result))
