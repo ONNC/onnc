@@ -122,7 +122,10 @@ private:
   /// @retval true If the pass @ref pID has been added.
   bool hasAdded(Pass::AnalysisID pID) const;
 
-  void doAdd(Pass* pPass, TargetBackend* pBackend, State& pState);
+  /// Dependency graph operator
+  /// Add a pass to internal dependency graph. Pass is added in DSF order.
+  void addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend,
+                                State& pState);
 
   /// Run the pass
   Pass::ReturnType doRun(Pass& pPass, Module& pModule);

@@ -42,12 +42,12 @@ PassManager::~PassManager()
 // Use depth search first to build up a sub-graph of dependenciess.
 void PassManager::add(Pass* pPass, State& pState)
 {
-  doAdd(pPass, nullptr, pState);
+  addPassToDependencyGraph(pPass, nullptr, pState);
 }
 
 void PassManager::add(Pass* pPass, TargetBackend* pBackend, State& pState)
 {
-  doAdd(pPass, pBackend, pState);
+  addPassToDependencyGraph(pPass, pBackend, pState);
 }
 
 // Use depth search first to build up a sub-graph of dependenciess.
@@ -62,7 +62,8 @@ void PassManager::add(Pass* pPass, TargetBackend* pBackend)
 }
 
 /// Add a pass by DSF order
-void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
+void PassManager::addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend,
+                                           State& pState)
 {
   pState.execution.push_back(pPass->getPassID());
 
