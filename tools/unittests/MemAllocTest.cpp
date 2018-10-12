@@ -10,6 +10,7 @@
 #include <onnc/CodeGen/FuseInplaceValue.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
+#include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/MemAllocData.h>
 #include <onnc/CodeGen/SlotIndexes.h>
@@ -265,9 +266,11 @@ SKYPAT_F(MemAllocTest, live_interval_test)
   BuildSlotIndexes buildSlotIdx;
   buildSlotIdx.runOnModule(module);
 
+  LiveIntervalsData liData;
   LiveIntervals liveIntrvls;
   resolver = new AnalysisResolver(passMgr);
   resolver->add(buildSlotIdx.getPassID(), buildSlotIdx);
+  resolver->add(liData.getPassID(), liData);
   liveIntrvls.setResolver(*resolver);
   liveIntrvls.runOnModule(module);
 
@@ -308,7 +311,7 @@ SKYPAT_F(MemAllocTest, live_interval_test)
 
   for (auto &vrIter : valRanges) {
     const Value* v = cg.getValue(vrIter.valName);
-    const LiveInterval* li = liveIntrvls.getInterval(v);
+    const LiveInterval* li = liData.getInterval(v);
     ASSERT_TRUE(li->beginIndex().getIndex() == vrIter.start);
     ASSERT_TRUE(li->endIndex().getIndex() == vrIter.end);
   }
@@ -325,28 +328,36 @@ SKYPAT_F(MemAllocTest, live_matrix_test)
   BuildSlotIndexes buildSlotIdx;
   buildSlotIdx.runOnModule(module);
 
+  LiveIntervalsData liData;
+  resolver = new AnalysisResolver(passMgr);
+  resolver->add(buildSlotIdx.getPassID(), buildSlotIdx);
+  liData.setResolver(*resolver);
+  liData.doInitialization(module);
+
   LiveIntervals liveIntrvls;
   resolver = new AnalysisResolver(passMgr);
   resolver->add(buildSlotIdx.getPassID(), buildSlotIdx);
+  resolver->add(liData.getPassID(), liData);
   liveIntrvls.setResolver(*resolver);
   liveIntrvls.runOnModule(module);
 
   LiveValueMatrix liveMat;
   resolver = new AnalysisResolver(passMgr);
   resolver->add(liveIntrvls.getPassID(), liveIntrvls);
+  resolver->add(liData.getPassID(), liData);
   liveMat.setResolver(*resolver);
   liveMat.runOnModule(module);
 
   for (auto& outerIt : module.getValueList()) {
     Value* v = outerIt.value();
-    const LiveInterval* vli = liveIntrvls.getInterval(v);
+    const LiveInterval* vli = liData.getInterval(v);
     std::vector<LiveInterval*> expectOverlaps;
 
     for (auto& innerIt : module.getValueList()) {
       Value* u = innerIt.value();
       if (v == u)
         continue;
-      const LiveInterval* uli = liveIntrvls.getInterval(u);
+      const LiveInterval* uli = liData.getInterval(u);
       if (uli->overlap(*vli))
         expectOverlaps.push_back(const_cast<LiveInterval*>(uli));
     }
@@ -373,6 +384,7 @@ SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
   VTargetBackend vtarget(opt);
 
   BuildSlotIndexes buildSlotIdx;
+  LiveIntervalsData liData;
   LiveIntervals liveIntrvls;
   LiveValueMatrix liveMat;
   MemAllocData memAllocData;
@@ -380,22 +392,25 @@ SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
   BuildMemOperand buildMemOpnd;
 
   resolver.add(buildSlotIdx.getPassID(), buildSlotIdx);
+  resolver.add(liData.getPassID(), liData);
   resolver.add(liveIntrvls.getPassID(), liveIntrvls);
   resolver.add(liveMat.getPassID(), liveMat);
   resolver.add(memAllocData.getPassID(), memAllocData);
   resolver.add(linearMemAlloc.getPassID(), linearMemAlloc);
 
+  liData.setResolver(resolver);
   liveIntrvls.setResolver(resolver);
   liveMat.setResolver(resolver);
   linearMemAlloc.setResolver(resolver);
 
+  liData.doInitialization(module);
   buildSlotIdx.runOnModule(module);
   liveIntrvls.runOnModule(module);
   liveMat.runOnModule(module);
   buildMemOpnd.runOnModule(module);
   linearMemAlloc.runOnModule(module);
 
-  for (auto li : liveIntrvls.getSortedIntervals()) {
+  for (auto li : liData.getSortedIntervals()) {
     MemAllocData::AllocEntry
       myAlloc = memAllocData.getAlloc(li->getValue());
 
@@ -407,6 +422,7 @@ SKYPAT_F(MemAllocTest, linear_mem_alloc_test)
     }
   }
 
+  liData.setResolver(*nullResolver);
   liveIntrvls.setResolver(*nullResolver);
   liveMat.setResolver(*nullResolver);
   linearMemAlloc.setResolver(*nullResolver);
@@ -417,14 +433,15 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   TargetOptions opt;
   VTargetBackend vtarget(opt);
 
-  PassManager passMgr;
+  PassRegistry registry;
+  PassManager passMgr(registry);
   addStandardCreateLiveIntervals(passMgr);
   passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
-  LiveIntervals* liveIntrvls =
-    static_cast<LiveIntervals*>(passMgr.lookup(&LiveIntervals::ID));
+  LiveIntervalsData* liData =
+    static_cast<LiveIntervalsData*>(passMgr.lookup(&LiveIntervalsData::ID));
 
   LiveValueMatrix* liveMat =
     static_cast<LiveValueMatrix*>(passMgr.lookup(&LiveValueMatrix::ID));
@@ -437,7 +454,7 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
 
   passMgr.run(module);
 
-  for (auto li : liveIntrvls->getSortedIntervals()) {
+  for (auto li : liData->getSortedIntervals()) {
     MemAllocData::AllocEntry
       myAlloc = memAllocData->getAlloc(li->getValue());
     ComputeOperator* op = static_cast<ComputeOperator*>(li->getValue()
@@ -465,12 +482,15 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
   TargetOptions opt;
   VTargetBackend vtarget(opt);
 
-  PassManager passMgr;
+  PassRegistry registry;
+  PassManager passMgr(registry);
   passMgr.add(CreateFuseInplaceValuePass(VTargetIsInplaceValueFusible));
   addStandardCreateLiveIntervals(passMgr);
   passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
+
+  passMgr.dumpState(passMgr.state());
 
   MemAllocData* memAllocData =
     static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));

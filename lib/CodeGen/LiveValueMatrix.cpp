@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/CodeGen/LiveIntervals.h>
+#include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <iomanip>
@@ -18,7 +18,7 @@ using namespace onnc;
 const LiveValueMatrix::LIs&
 LiveValueMatrix::getInterferingLiveIntervals(const Value* pV) const
 {
-  return getInterferingLiveIntervals(m_LIPass->getInterval(pV));
+  return getInterferingLiveIntervals(m_LIDataPass->getInterval(pV));
 }
 
 const LiveValueMatrix::LIs&
@@ -34,12 +34,12 @@ Pass::ReturnType LiveValueMatrix::runOnModule(Module& pModule)
 {
   clear();
 
-  m_LIPass = getAnalysis<LiveIntervals>();
+  m_LIDataPass = getAnalysis<LiveIntervalsData>();
   buildStartWithEndWith();
 
   // Have to construct overlap set in compute operator order
   // (slotIndex in increasing order)
-  const unsigned numSlots = m_LIPass->getNumSlots();
+  const unsigned numSlots = m_LIDataPass->getNumSlots();
   for (unsigned i = 0; i < numSlots; ++i)
     calculateOverlapSet(i);
 
@@ -72,7 +72,7 @@ void LiveValueMatrix::calculateOverlapSet(unsigned pSlotIdx)
 
 void LiveValueMatrix::buildStartWithEndWith()
 {
-  const unsigned numSlots = m_LIPass->getNumSlots();
+  const unsigned numSlots = m_LIDataPass->getNumSlots();
   m_StartWith.resize(numSlots);
   m_EndWith.resize(numSlots);
 
@@ -82,7 +82,7 @@ void LiveValueMatrix::buildStartWithEndWith()
   static_assert(BuildSlotIndexes::OperatorDist == 1,
                 "Assume OperatorDist is 1.");
 
-  for (auto& liIter : m_LIPass->getAllIntervals()) {
+  for (auto& liIter : m_LIDataPass->getAllIntervals()) {
     LiveInterval* li = liIter.second;
     for (const LiveInterval::Segment& s : li->getSegments()) {
       m_StartWith[s.m_Start.getIndex()].emplace_back(li, s);
@@ -93,7 +93,7 @@ void LiveValueMatrix::buildStartWithEndWith()
 
 void LiveValueMatrix::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LiveIntervals::ID);
+  pUsage.addRequiredID(LiveIntervalsData::ID);
 }
 
 void LiveValueMatrix::print(OStream& pOS, const Module* pModule) const
@@ -105,7 +105,7 @@ void LiveValueMatrix::print(OStream& pOS, const Module* pModule) const
   }
 
   std::stringstream dbgstr;
-  for (const LiveInterval* li : m_LIPass->getSortedIntervals()) {
+  for (const LiveInterval* li : m_LIDataPass->getSortedIntervals()) {
     dbgstr << std::left << std::setw(20) << li->getValue()->getName() << ":";
     for (const LiveInterval* overlapLI : getInterferingLiveIntervals(li))
       dbgstr << " " << overlapLI->getValue()->getName();
@@ -121,7 +121,7 @@ void LiveValueMatrix::clear()
   m_EndWith.clear();
   m_CurLiveSegSet.clear();
   m_CurLISet.clear();
-  m_LIPass = nullptr;
+  m_LIDataPass = nullptr;
 }
 
 //===----------------------------------------------------------------------===//

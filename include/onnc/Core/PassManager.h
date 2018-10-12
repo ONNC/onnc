@@ -48,6 +48,9 @@ public:
   /// during adding passes.
   ~PassManager();
 
+  /// add pPass to:
+  /// 1. dependency graph (ignore if pPass.getPassID() has been added before)
+  /// 2. execution queue.
   void add(Pass* pPass);
 
   void add(Pass* pPass, TargetBackend* pBackend);
@@ -77,6 +80,8 @@ public:
   const State& state() const { return m_RunState; }
 
   Pass* lookup(Pass::AnalysisID pID);
+
+  PassRegistry* getPassRegistry() { return m_pPassRegistry; }
 
   void printState(const State& pState, OStream& pOS) const;
 
@@ -114,8 +119,6 @@ private:
   typedef std::map<Pass::AnalysisID, DepNode*> AvailableAnalysisMap;
 
 private:
-  PassRegistry* getPassRegistry() { return m_pPassRegistry; }
-
   /// Dependency graph operator: find a node
   DepNode* findNode(Pass::AnalysisID pID) const;
 
@@ -128,8 +131,10 @@ private:
 
   /// Dependency graph operator
   /// Add a pass to internal dependency graph. Pass is added in DSF order.
-  void addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend,
-                                State& pState);
+  ///
+  /// @note The function can be called multiple times with the same pPass
+  ///       without side effect.
+  void addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend);
 
   /// Run the pass
   Pass::ReturnType doRun(Pass& pPass, Module& pModule);

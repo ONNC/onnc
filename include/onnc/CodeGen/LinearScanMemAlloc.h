@@ -13,7 +13,7 @@
 namespace onnc {
 
 class LiveInterval;
-class LiveIntervals;
+class LiveIntervalsData;
 class LiveValueMatrix;
 class TargetBackend;
 class TargetMemInfo;
@@ -51,7 +51,7 @@ private:
                               uint64_t pAlignment) const;
 private:
   MemAllocData* m_MemAllocData;
-  LiveIntervals* m_LIPass;
+  LiveIntervalsData* m_LIDataPass;
   LiveValueMatrix* m_LiveMatPass;
   TargetMemInfo* m_TMI;
 };

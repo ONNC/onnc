@@ -12,6 +12,8 @@
 
 namespace onnc {
 
+class LiveIntervalsData;
+
 /** \class LiveValueMatrix
  *  \brief Track live interference between onnc::Value pairs. Provide utilities
  *         for live interference queries.
@@ -106,7 +108,7 @@ private:
   /// User count of a LiveInterval in current live segment set.
   LICount m_CurLISet;
 
-  LiveIntervals* m_LIPass;
+  LiveIntervalsData* m_LIDataPass;
 };
 
 LiveValueMatrix* CreateLiveValueMatrixPass();

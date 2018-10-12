@@ -263,6 +263,7 @@ ONNC_SOURCES = \
 	CodeGen/LinearScanMemAlloc.cpp \
 	CodeGen/LiveInterval.cpp \
 	CodeGen/LiveIntervals.cpp \
+	CodeGen/LiveIntervalsData.cpp \
 	CodeGen/LiveValueMatrix.cpp \
 	CodeGen/MemAllocData.cpp \
 	CodeGen/SetMemOperand.cpp \
