@@ -109,9 +109,12 @@ private:
   public:
     StartPass() : ModulePass(ID) { }
 
-    Pass::ReturnType runOnModule(Module &pModule) { return kModuleNoChanged; }
+    Pass::ReturnType runOnModule(Module &pModule) override
+    {
+      return kModuleNoChanged;
+    }
 
-    StringRef getPassName() const { return "start"; }
+    StringRef getPassName() const override { return "start"; }
   };
 
   typedef Digraph<DepNode> PassDependencyLattice;
