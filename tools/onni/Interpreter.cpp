@@ -618,10 +618,16 @@ void Interpreter::visit(Concat& pOp) {
   // Prepare input
   int32_t input_inputs_ntensor = pOp.getNumOfInputs() - 0;
   void *input_inputs[input_inputs_ntensor];
-  for (int i = 0; i < input_inputs_ntensor; ++i) input_inputs[i] = m_ATable[pOp.getInput(0 + i)];
-  int32_t input_inputs_ndim[input_inputs_ntensor]; // FIXME: = input_inputs_v->sizes().size();
-  int32_t *input_inputs_dims[input_inputs_ntensor]; // FIXME: [input_inputs_ndim[0]];
-  // FIXME: for (int i = 0; i < input_inputs_ndim; ++i) input_inputs_dims[i] = input_inputs_v->sizes()[i].dim;
+  int32_t input_inputs_ndim[input_inputs_ntensor];
+  int32_t *input_inputs_dims[input_inputs_ntensor];
+  for (int i = 0; i < input_inputs_ntensor; ++i){
+    input_inputs[i] = m_ATable[pOp.getInput(0 + i)];
+    input_inputs_ndim[i] = pOp.getInput(0 + i)->getNumOfDimensions();
+    input_inputs_dims[i] = new int32_t[input_inputs_ndim[i]];
+    for(int32_t j = 0; j < input_inputs_ndim[i]; ++j){
+      input_inputs_dims[i][j] = pOp.getInput(0 + i)->dimension(j);
+    }
+  }
   // Prepare output
   Tensor *output_concat_result_t = pOp.getOutput(0);
   void *output_concat_result = m_ATable[output_concat_result_t];
@@ -641,6 +647,11 @@ void Interpreter::visit(Concat& pOp) {
     , output_concat_result_ndim, output_concat_result_dims
     , axis
   );
+
+  // Clean
+  for (int i = 0; i < input_inputs_ntensor; ++i){
+    delete [] input_inputs_dims[i];
+  }
 };
 
 
