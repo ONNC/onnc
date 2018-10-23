@@ -25,9 +25,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
 {
-  std::unordered_map<std::string, int> count;
+  std::unordered_map<std::string, int> &count = *this;
   size_t op_len = 8;
-  uint64_t total = 0;
 
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
     if (dyn_cast<InputOperator>(&cm)) continue;
@@ -36,35 +35,30 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     onnc::StringRef name = cm.name(); 
     count[name] += 1;
     op_len = std::max(op_len, name.size());
-    ++total;
+    ++m_Total;
   }
 
-  const std::string sep{" |"};
-  size_t count_len = (total > 99999) ? 10 : 5;
+  m_Width.first = op_len;
+  m_Width.second = ((m_Total > 99999) ? 10 : 5) + 1;
 
-  count_len += 1;
-
-  outs() << m_Prefix << std::setw(op_len) << "Operator" << sep
-         << std::setw(count_len) << "Count" << std::endl;
-  outs() << m_Prefix
-         << std::setfill('-')
-         << std::setw(op_len) << '-' << "-+" << std::setw(count_len) << '-'
-         << std::setfill(' ')
-         << std::endl;
-  for (auto c : count) {
-    outs() << m_Prefix << std::setw(op_len) << c.first << sep
-           << std::setw(count_len) << c.second << std::endl;
-  }
-  outs() << m_Prefix
-         << std::setfill('-')
-         << std::setw(op_len) << '-' << "-+" << std::setw(count_len) << '-'
-         << std::setfill(' ')
-         << std::endl;
-  outs() << m_Prefix << std::setw(op_len) << "Total" << sep
-         << std::setw(count_len) << total << std::endl;
-
+  // TODO: Use Statistics facility to print.
+  print(outs(), nullptr);
   return Pass::kModuleNoChanged;
 }
+
+
+std::pair<int, int> CountOperatorsPass::printHeader(OStream &pOS) const {
+  pOS << m_Prefix << std::setw(m_Width.first) << "Operator" << SEP
+         << std::setw(m_Width.second) << "Count" << std::endl;
+  printSeparator(pOS, m_Width);
+  return m_Width;
+}
+void CountOperatorsPass::printFooter(OStream &pOS) const {
+  printSeparator(pOS, m_Width);
+  pOS << m_Prefix << std::setw(m_Width.first) << "Total" << SEP
+      << std::setw(m_Width.second) << m_Total << std::endl;
+}
+
 
 //===----------------------------------------------------------------------===//
 // Factory method

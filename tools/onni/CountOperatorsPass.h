@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_COUNT_OPERATORS_PASS_H
 #define ONNC_COUNT_OPERATORS_PASS_H
-#include <onnc/Core/ModulePass.h>
+#include "Statistics.h"
 
 #include <string>
 
@@ -20,19 +20,25 @@ class TargetBackend;
 /** \class CountOperatorsPass
  *  \brief Count & print Operators count statistics
  */
-class CountOperatorsPass : public ModulePass
+class CountOperatorsPass : public OneDStatistic<std::string, int>
 {
 public:
   static char ID;
 
 public:
   CountOperatorsPass(const std::string &pPrefix)
-      : ModulePass(ID), m_Prefix(pPrefix) {}
+      : OneDStatistic(ID, pPrefix) {}
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
-  std::string m_Prefix;
+  ~CountOperatorsPass() override {}
+
+  std::pair<int, int> printHeader(OStream &pOS) const override;
+  void printFooter(OStream &pOS) const override;
+
+  std::pair<int, int> m_Width;
+  uint64_t m_Total{0};
 };
 
 // XXX: Experimental
