@@ -20,7 +20,7 @@ model and avoid re-inventing these intricate optimization algorithms.
 
 ## How to contribute
 
-* Please see [contribute guidline](https://github.com/ONNC/onnc/CONTRIBUTING.md)
+* Please see [contribute guidline](https://github.com/ONNC/onnc/blob/master/CONTRIBUTING.md)
  
 ## Directory Structure
 * README.md - This document
