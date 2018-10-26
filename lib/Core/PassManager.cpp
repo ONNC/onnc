@@ -24,14 +24,16 @@ PassManager::PassManager()
   : m_pPassRegistry(onnc::GetPassRegistry()),
     m_Dependencies(), m_AvailableAnalysis(),
     m_RunState(),
-    m_pStart(m_Dependencies.addNode(new StartPass())) {
+    m_pStart(m_Dependencies.addNode(new StartPass())),
+    m_TimeStep(0) {
 }
 
 PassManager::PassManager(PassRegistry& pRegistry)
   : m_pPassRegistry(&pRegistry),
     m_Dependencies(), m_AvailableAnalysis(),
     m_RunState(),
-    m_pStart(m_Dependencies.addNode(new StartPass())) {
+    m_pStart(m_Dependencies.addNode(new StartPass())),
+    m_TimeStep(0) {
 }
 
 PassManager::~PassManager()
@@ -139,8 +141,18 @@ void PassManager::addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend)
   } // leave stacking
 }
 
+void PassManager::initRunState(Module& pModule, State& pState)
+{
+  m_TimeStep = 0;
+  pModule.setTimeStep(1);
+  for (Pass::AnalysisID id : pState.execution)
+    lookup(id)->setTimeStep(0);
+}
+
 bool PassManager::run(Module& pModule, State& pState)
 {
+  initRunState(pModule, pState);
+
   while (!pState.execution.empty()) {
     if (!step(pModule, pState))
       return false;
@@ -159,10 +171,23 @@ bool PassManager::step(Module& pModule, State& pState)
   if (nullptr == node)
     return Pass::kPassFailure;
   pState.pass = node->pass;
+  pState.executed = false;
 
-  Pass::ReturnType result = doRun(*pState.pass, pModule);
+  Pass::ReturnType result = Pass::kModuleNoChanged;
+  if (needRun(*pState.pass, pModule)) {
+    ++m_TimeStep;
+    pState.pass->clear();
+    pState.pass->setTimeStep(m_TimeStep);
+    pState.pass->setModule(&pModule);
+    pState.executed = true;
+    result = doRun(*pState.pass, pModule);
+  }
+
   if (Pass::IsFailed(result))
     return false;
+
+  if (Pass::IsRevised(result))
+    pModule.setTimeStep(m_TimeStep);
 
   if (Pass::IsRetry(result)) {
     UpdateExecutionOrder(pState.execution);
@@ -180,6 +205,26 @@ bool PassManager::step(Module& pModule, State& pState)
 bool PassManager::step(Module& pModule)
 {
   return step(pModule, m_RunState);
+}
+
+bool PassManager::needRun(Pass& pPass, Module& pModule)
+{
+  if (pPass.getModule() != &pModule)
+    return true;
+
+  if (pModule.getTimeStep() > pPass.getTimeStep())
+    return true;
+
+  AnalysisUsage usage;
+  pPass.getAnalysisUsage(usage);
+
+  for (Pass::AnalysisID& use : usage) {
+    DepNode* dep_node = findNode(use);
+    Pass* depPass = dep_node->pass;
+    if (depPass->getTimeStep() > pPass.getTimeStep())
+      return true;
+  }
+  return false;
 }
 
 Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)

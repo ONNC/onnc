@@ -79,9 +79,8 @@ public:
     m_SlotIndexes = pSlotIndex;
   }
 
-private:
   /// Delete LiveInterval object.
-  void clear();
+  void clear() override;
 
 private:
   ValueIntervalMap m_ValIntrvls;

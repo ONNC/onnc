@@ -31,9 +31,10 @@ public:
   struct State {
     ExecutionOrder execution;
     bool changed; // module changed or not
+    bool executed; // current pass is executed (true) or skipped (false)
     Pass* pass; // current pass
 
-    State() : execution(), changed(false), pass(nullptr) { }
+    State() : execution(), changed(false), executed(false), pass(nullptr) { }
   };
 
 public:
@@ -59,6 +60,16 @@ public:
 
   void add(Pass* pPass, TargetBackend* pBackend, State& pState);
 
+  /// PassManager::run behaviour:
+  /// 1. If a pass dependents on other passes (cyclic dependency is disallowed),
+  ///    PassManager guarantees all dependencies are executed before that pass.
+  ///
+  /// 2. PassManager doesn't re-execute a pass if that pass's dependencies are
+  ///    unchanged.
+  ///
+  /// 3. If a pass return retry, PassManager re-executes that pass, but whether
+  ///    re-executes it's dependencies or not follows rule 2.
+
   /// run all passes
   /// @retval false A pass return failure.
   bool run(Module& pModule);
@@ -73,6 +84,10 @@ public:
   /// run one pass
   /// @return The pass run
   bool step(Module& pModule, State& pState);
+
+  bool needRun(Pass& pPass, Module& pModule);
+
+  void initRunState(Module& pModule, State& pState);
 
   /// @return The number of registered passes.
   unsigned int size() const;
@@ -160,6 +175,11 @@ private:
   State m_RunState;
 
   DepNode *m_pStart;
+
+  // Executing time step, it is reset on initRunState. PassManager uses time
+  // step to decide whether to execute a pass or not. If PassManager execute a
+  // pass, it also updates Pass' time step.
+  unsigned m_TimeStep;
 };
 
 } // namespace of onnc

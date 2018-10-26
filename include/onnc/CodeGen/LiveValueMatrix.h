@@ -70,10 +70,10 @@ public:
 
   void print(OStream& pOS, const Module* pModule) const override;
 
-private:
   /// Delete LiveInterval object.
-  void clear();
+  void clear() override;
 
+private:
   /// For each SlotIndex (ComputeOperator):
   /// 1. Find live intervals which start from SlotIndex i, then add these
   ///    intervals' segments to m_StartWith[i]
