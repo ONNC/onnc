@@ -6,16 +6,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ####################
 #  General settings
 include(option)
-option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
+option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Normal Debug Release)
 option(ENABLE_PTHREAD "use pthreads" ON)
 set(HAVE_PTHREADS ${ENABLE_PTHREAD})
-option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" ON)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    option(ENABLE_UNITTEST "enable unittest" ON)
-else()
+if(CMAKE_BUILD_TYPE STREQUAL Release)
     option(ENABLE_UNITTEST "enable unittest" OFF)
+else()
+    option(ENABLE_UNITTEST "enable unittest" ON)
 endif()
 
 ####################
