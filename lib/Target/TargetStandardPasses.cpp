@@ -8,7 +8,6 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
-#include <onnc/CodeGen/H1LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/CodeGen/MemAllocData.h>
