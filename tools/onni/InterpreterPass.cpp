@@ -7,8 +7,6 @@
 //===----------------------------------------------------------------------===//
 #include "InterpreterPass.h"
 
-#include "Interpreter.h"
-
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -16,6 +14,7 @@
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
+#include <onnc/Target/TargetBackend.h>
 
 #include <algorithm>
 #include <cassert>
@@ -67,7 +66,9 @@ InterpreterPass::InterpreterPass(TargetBackend *pBackend,
                                  bool pIsDryRun)
   : ModulePass(ID),
     m_pBackend(pBackend), m_pInputMem(pInputMem),
-    m_Verbose(pVerbose), m_DryRun(pIsDryRun) {
+    m_Verbose(pVerbose), m_DryRun(pIsDryRun),
+    m_Interpreter(pBackend->createTargetInterpreter()) {
+  m_InterpreterBase = m_pBackend->hackInterpreterBase(&m_Interpreter);
 }
 
 Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
@@ -83,11 +84,11 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
       Value *v = co->getValue();
       if (mem->isInput()) {
         // XXX: Multiple inputs
-        m_Interpreter.m_ATable[v] = m_pInputMem;
+        m_InterpreterBase->m_ATable[v] = m_pInputMem;
       } else if (mem->isWeight()) {
         // XXX
         FloatTensor *t = static_cast<FloatTensor *>(v);
-        m_Interpreter.m_ATable[v] = t->getValues().data();
+        m_InterpreterBase->m_ATable[v] = t->getValues().data();
         weight_memory_size +=
             t->getValues().size() * sizeof(FloatTensor::ValueList::value_type);
       } else {
@@ -178,7 +179,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
     for (ComputeOperand *co : pModule.getComputeOperands()) {
       if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
         if (mem->isOutput() || mem->isInternal()) {
-          m_Interpreter.m_ATable[co->getValue()] = heap + mem->start();
+          m_InterpreterBase->m_ATable[co->getValue()] = heap + mem->start();
         }
       }
     }
@@ -197,7 +198,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
 {
   // TODO: Refactor into Interpreter
-  m_Interpreter.m_pContext = ONNC_RUNTIME_init_runtime();
+  m_InterpreterBase->m_pContext = ONNC_RUNTIME_init_runtime();
 
   Timer::Interval total;
   // TODO: Timer can not nested. Should rewrite it.
@@ -229,7 +230,7 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
     if (OutputOperator *out = dyn_cast<OutputOperator>(&cm)) {
       for (int i = 0; i < out->getNumOfInputs(); ++i) {
         Value *v = out->getInput(i);
-        float *output = static_cast<float *>(m_Interpreter.m_ATable[v]);
+        float *output = static_cast<float *>(m_InterpreterBase->m_ATable[v]);
 
         Tensor *t = static_cast<Tensor *>(v);
         size_t size = 1;
@@ -245,7 +246,7 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
     }
   }
 
-  ONNC_RUNTIME_shutdown_runtime(m_Interpreter.m_pContext);
+  ONNC_RUNTIME_shutdown_runtime(m_InterpreterBase->m_pContext);
 
   return Pass::kModuleNoChanged;
 }

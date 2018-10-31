@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86Backend.h"
+#include "X86Interpreter.h"
 #include "X86FuseConvRelu.h"
 #include "X86InplaceValueFusible.h"
 #include "X86RemoveWeightFromLiveIntervals.h"
@@ -133,6 +134,11 @@
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
 using namespace onnc;
 
+cl::opt<bool>
+onnc::EnableX86FuseConvRelu("enable-x86-fuse-conv-relu", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Enable x86 fuse conv relu."));
+
 //===----------------------------------------------------------------------===//
 // X86Backend
 //===----------------------------------------------------------------------===//
@@ -152,9 +158,9 @@ void X86Backend::addTensorSel(PassManager& pPM)
   // standard Tensor selection passes.
   addStandardTensorSel(pPM, *this);
 
-  // CreateX86FuseConvReluPass is an example pass.
-  // We don't really want to use it since it doesn't work so far.
-  //pPM.add(CreateX86FuseConvReluPass());
+  if (EnableX86FuseConvRelu) {
+    pPM.add(CreateX86FuseConvReluPass());
+  }
 }
 
 void X86Backend::addMemAlloc(PassManager& pPM)
@@ -183,6 +189,15 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 void X86Backend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   // TODO
+}
+
+ComputeVisitor &X86Backend::createTargetInterpreter() const {
+  return *static_cast<X86ComputeVisitor*>(new X86Interpreter());
+}
+InterpreterBase *X86Backend::hackInterpreterBase(ComputeVisitor *pCv) const {
+  return static_cast<Interpreter<X86ComputeVisitor>*>(
+    static_cast<X86ComputeVisitor *>(pCv)
+  );
 }
 
 void X86Backend::RegisterLowers(LowerRegistry& pRegistry) const

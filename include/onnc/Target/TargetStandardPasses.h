@@ -12,6 +12,7 @@
 namespace onnc {
 
 extern cl::opt<std::string> LinearScanAlgo;
+extern cl::opt<bool> EnableX86FuseConvRelu;
 
 class PassManager;
 class TargetBackend;

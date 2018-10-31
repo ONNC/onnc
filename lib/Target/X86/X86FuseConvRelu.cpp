@@ -47,6 +47,9 @@ Pass::ReturnType X86FuseConvRelu::runOnComputeGraph(ComputeGraph& pCG)
 
     ret |= Pass::kModuleChanged;
   }
+
+  pCG.topologicalSort();
+
   return ret;
 }
 
@@ -70,8 +73,12 @@ bool X86FuseConvRelu::isFusible(ComputeOperator& pNode)
 X86ConvRelu* X86FuseConvRelu::mergeConvRelu(ComputeGraph& pCG,
                                             Conv& pConv, Relu& pRelu)
 {
+  Value* outv = pRelu.getOutput(0);
+  Value* out_conv = pConv.getOutput(0);
+  pConv.replaceOutput(0, *outv);
+  pCG.erase(*out_conv);
   // FIXME: need move newOp to correct position.
-  X86ConvRelu* newOp = pCG.addOperator<X86ConvRelu>();
+  X86ConvRelu* newOp = pCG.addOperator<X86ConvRelu>(pConv, pRelu);
   Value* emptyV = new Value;
 
   for (unsigned i = 0; i < pConv.getNumOfInputs(); ++i) {
@@ -80,12 +87,8 @@ X86ConvRelu* X86FuseConvRelu::mergeConvRelu(ComputeGraph& pCG,
     // FIXME: need implement ComputeOperator::removeAllInputs.
     pConv.replaceInput(i, *emptyV);
   }
+  pRelu.replaceInput(0, *emptyV);
 
-  Value* outv = pRelu.getOutput(0);
-  // FIXME: need implement ComputeOperator::removeAllOutputs.
-  pConv.replaceOutput(0, *emptyV);
-  emptyV->clearDefine();
-  pRelu.replaceOutput(0, *emptyV);
   outv->clearDefine();
   newOp->addOutput(*outv);
 

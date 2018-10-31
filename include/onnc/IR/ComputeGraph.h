@@ -9,6 +9,7 @@
 #define ONNC_IR_COMPUTE_GRAPH_H
 #include <onnc/ADT/Bits/PolicyNodeIterator.h>
 #include <onnc/ADT/StringMap.h>
+#include <onnc/ADT/TopologyIterator.h>
 #include <onnc/ADT/TypeTraits.h>
 #include <onnc/Support/MemoryPool.h>
 #include <onnc/IR/ComputeOperator.h>
@@ -118,6 +119,8 @@ public:
   const_iterator begin() const;
 
   const_iterator end() const;
+
+  void topologicalSort();
 
   dfs_iterator dfs_begin();
 

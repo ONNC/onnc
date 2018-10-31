@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86InplaceValueFusible.h"
+#include "Compute/X86ComputeVisitor.h"
 #include <onnc/IR/Compute/Relu.h>
 
 using namespace onnc;
@@ -15,7 +16,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 namespace {
 
-class InplaceValueFusible : public ComputeVisitor
+class InplaceValueFusible : public X86ComputeVisitor
 {
 public:
   InplaceValueFusible()

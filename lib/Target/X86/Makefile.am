@@ -1,5 +1,6 @@
 ONNC_TARGET_SOURCES += \
   Target/X86/Compute/X86ConvRelu.cpp \
+  Target/X86/Compute/X86ComputeVisitor.cpp \
   Target/X86/X86Backend.cpp \
   Target/X86/X86InplaceValueFusible.cpp \
   Target/X86/X86FuseConvRelu.cpp \
