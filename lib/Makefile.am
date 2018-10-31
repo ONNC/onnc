@@ -89,6 +89,7 @@ ONNC_SOURCES = \
 	IR/Compute/Pad.cpp \
 	IR/Compute/ParametricSoftplus.cpp \
 	IR/Compute/Pow.cpp \
+	IR/Compute/Profile.cpp \
 	IR/Compute/RNN.cpp \
 	IR/Compute/RandomNormal.cpp \
 	IR/Compute/RandomNormalLike.cpp \
