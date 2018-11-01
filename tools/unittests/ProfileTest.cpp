@@ -51,7 +51,7 @@ SKYPAT_F(ProfilerTest, add_compute_op)
   ASSERT_TRUE(op4->name().equals("Profile"));
   
   module.getComputeGraph("top-level")->erase(*op1);
-  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 3);
 
   module.getComputeGraph("top-level")->clear();
   ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
