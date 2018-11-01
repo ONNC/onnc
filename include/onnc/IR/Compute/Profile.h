@@ -29,7 +29,7 @@ public:
   // shallow copy constructor.
   Profile(const Profile &pCopy);
 
-  ~Profile() { }
+  virtual ~Profile() { }
 
   // clang-format off
   // Attributes getters
@@ -43,6 +43,9 @@ public:
   // Outputs setters
 
   // clang-format on
+  void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
+
+  void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
 
   void print(std::ostream& pOS) const override;
 
