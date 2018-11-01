@@ -1,0 +1,58 @@
+//===- ProfilerTest.cpp --------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include <skypat/skypat.h>
+#include <onnc/Config/ONNX.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/Support/OStrStream.h>
+#include <onnc/IR/Compute/Attributes.h>
+#include <onnc/IR/Compute/Scalar.h>
+#include <onnc/IR/IRBuilder.h>
+#include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/Compute/ATen.h>
+#include <onnc/IR/Compute/Abs.h>
+#include <onnc/IR/Compute/Profile.h>
+#include <onnc/Support/IOStream.h>
+#include <ostream>
+#include <string>
+
+using namespace onnc;
+
+//===----------------------------------------------------------------------===//
+// Any Test
+//===----------------------------------------------------------------------===//
+SKYPAT_F(ProfilerTest, add_compute_op)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+
+  builder.CreateComputeGraph("top-level");
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+  ASSERT_TRUE(op1->name().equals("Conv"));
+
+  /// builder.getComputeGraph()
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 1);
+
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
+  ASSERT_TRUE(op2->name().equals("Relu"));
+
+  ATen* op3 = builder.AddComputeOp<ATen>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 3);
+  ASSERT_TRUE(op3->name().equals("ATen"));
+
+  Profile* op4 = builder.AddComputeOp<Profile>();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 4);
+  ASSERT_TRUE(op4->name().equals("Profile"));
+  
+  module.getComputeGraph("top-level")->erase(*op1);
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 2);
+
+  module.getComputeGraph("top-level")->clear();
+  ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
+}
