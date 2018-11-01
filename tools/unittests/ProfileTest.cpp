@@ -56,3 +56,49 @@ SKYPAT_F(ProfilerTest, add_compute_op)
   module.getComputeGraph("top-level")->clear();
   ASSERT_EQ(module.getComputeGraph("top-level")->getNodeSize(), 0);
 }
+
+SKYPAT_F(ProfilerTest, print_before_and_after_bfs_search)
+{
+  onnc::Module module;
+  IRBuilder builder(module);
+  builder.CreateComputeGraph("top-level");
+
+  ComputeOperator* op1 = builder.AddComputeOp<Conv>();
+  ComputeOperator* op2 = builder.AddComputeOp<Relu>();
+  ComputeOperator* op3 = builder.AddComputeOp<ATen>();
+  ComputeOperator* op4 = builder.AddComputeOp<Abs>();
+  ComputeOperator* op5 = builder.AddComputeOp<Conv>();
+  ComputeOperator* opProfile = builder.AddComputeOp<Profile>();
+
+  //    op1       BFS: op1 - op2 - op3 - op4 - op5
+  //   /   \      DFS: op1 - op2 - op3 - op5 - op4
+  //  op2->op3
+  //  |     |
+  //  op4  op5
+  builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op2);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op1, *op3);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op2, *op3);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op2, *op4);
+  builder.AddComputeOpnd<ComputeMemOperand>(*op3, *op5);
+
+  // Test Profiler
+  opProfile->printAttributes(outs());
+
+  ComputeGraph::bfs_iterator i;
+  i = builder.getComputeGraph()->bfs_begin();
+  ASSERT_TRUE(i->name() == op1->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op2->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op3->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op4->name());
+  i.next();
+  ASSERT_TRUE(i->name() == op5->name());
+  i.next();
+
+  ASSERT_TRUE(i == builder.getComputeGraph()->bfs_end());
+
+  // Test Profiler
+  opProfile->printAttributes(outs());
+}
