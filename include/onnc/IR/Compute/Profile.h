@@ -47,7 +47,7 @@ public:
 
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }
 
-  void print(std::ostream& pOS) const override;
+  void printAttributes(std::ostream& pOS) const override { pOS << "Hello, world.\n"; }
 
   static bool classof(const ComputeOperator* pOp);
 

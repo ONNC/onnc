@@ -22,11 +22,6 @@ Profile::Profile(const Profile& pCopy)
   : ComputeOperator(pCopy) /* shallow copy */ {
 }
 
-void Profile::print(std::ostream& pOS) const
-{
-  pOS << name();
-}
-
 bool Profile::classof(const ComputeOperator* pOp)
 {
   if (nullptr == pOp)
