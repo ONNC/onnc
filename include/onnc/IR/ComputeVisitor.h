@@ -14,6 +14,7 @@ namespace onnc {
 class Initializer;
 class InputOperator;
 class OutputOperator;
+class Profile;
 
 /// ONNX defined operators
 class Abs;
@@ -154,6 +155,7 @@ public:
   virtual void visit(const Initializer& pInitializer) { }
   virtual void visit(const InputOperator& pInputOperator) { }
   virtual void visit(const OutputOperator& pOutputOperator) { }
+  virtual void visit(const Profile& pProfile) { }
 
   /// @}
   /// ONNX defined operators @{
