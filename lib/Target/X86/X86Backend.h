@@ -25,6 +25,9 @@ public:
 
   void addCodeEmit(PassManager& pPM, const Path& pOutput) override;
 
+  ComputeVisitor &createTargetInterpreter() const override;
+  InterpreterBase *hackInterpreterBase(ComputeVisitor *pCv) const override;
+
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 };
 

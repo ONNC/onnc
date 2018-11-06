@@ -10,6 +10,7 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/Support/Path.h>
+#include <onnc/Runtime/Interpreter.h>
 
 namespace onnc {
 
@@ -36,6 +37,9 @@ public:
   virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
 
   virtual const TargetTransformInfo* getTTI() const { return nullptr; }
+
+  virtual ComputeVisitor &createTargetInterpreter() const { return *new InterpreterBase(); }
+  virtual InterpreterBase *hackInterpreterBase(ComputeVisitor *pCv) const { return static_cast<InterpreterBase *>(pCv); }
 
   /// For the backend using standard TensorSel pass.
   virtual void RegisterLowers(LowerRegistry& pRegistry) const { return; }

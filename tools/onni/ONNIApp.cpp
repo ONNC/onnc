@@ -11,7 +11,7 @@
 #include "InterpreterPass.h"
 #include "OnnxOptPass.h"
 
-#include <cstdlib>
+#include <onnc/ADT/Color.h>
 #include <onnc/Config/ONNX.h>
 #include <onnc/Target/TargetSelect.h>
 #include <onnc/Target/TargetRegistry.h>
@@ -23,8 +23,10 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
-#include <string>
+
+#include <cstdlib>
 #include <fstream>
+#include <string>
 
 using namespace onnc;
 
@@ -80,6 +82,19 @@ int ONNIApp::run()
   // FIXME: Use onnc-runtime to handle input
   char *input_mem = NULL;
   if (!options().dryRun()) {
+    if (!exists(options().input())) {
+      errs() << Color::MAGENTA << "Fatal" << Color::RESET
+             << ": input file not found: " << options().input()
+             << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (!is_regular(options().input())) {
+      errs() << Color::MAGENTA << "Fatal" << Color::RESET
+             << ": input file is not a regular file: " << options().input()
+             << std::endl;
+      return EXIT_FAILURE;
+    }
+
     xTensorProto tensor;
     std::ifstream input_fin(options().input().native());
     tensor.ParseFromIstream(&input_fin);

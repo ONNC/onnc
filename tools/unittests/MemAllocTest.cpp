@@ -497,3 +497,14 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
 
   ASSERT_TRUE(memAllocData->hasAlloc(cg.getValue("relu2_1")));
 }
+
+#include "../../lib/Target/X86/X86FuseConvRelu.h"
+SKYPAT_F(MemAllocTest, x86_new_ir_test)
+{
+  X86FuseConvRelu x86fuseIr;
+
+  Module module;
+  ComputeGraph& cg = CreateAlexNet(module);
+  x86fuseIr.runOnModule(module);
+  cg.dump();
+}
