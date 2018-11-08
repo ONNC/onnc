@@ -10,13 +10,16 @@
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Attributes.h>
+#include <onnc/Support/DataTypes.h>
 #include <onnc/Support/IOStream.h>
+#include <linux/perf_event.h>
 
 namespace onnc {
 
 class Profile : public ComputeOperator
 {
 public:
+  typedef uint64_t Interval;
   static char ID;
 
 public:
@@ -29,14 +32,16 @@ public:
   // shallow copy constructor.
   Profile(const Profile &pCopy);
 
-  virtual ~Profile() { }
+  //virtual ~Profile() { }
+  ~Profile();
 
   // clang-format off
   // Attributes getters
-  
+  void getPMUCounter();
 
   // Attributes setters
-  
+  void start();
+  void stop();
 
   // Inputs setters
 
@@ -53,7 +58,8 @@ public:
 
 private:
   // clang-format off
-  
+  Profile::Interval m_Interval, m_EventType;
+  bool m_bIsActive;  
   // clang-format on
 };
 

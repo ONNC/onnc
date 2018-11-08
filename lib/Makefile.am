@@ -306,6 +306,7 @@ ONNC_SOURCES = \
 	Support/FileStatus.cpp \
 	Support/FileSystem.cpp \
 	Support/Timer.cpp \
+	Support/Perf.cpp \
 	Support/Random.cpp \
 	Support/Readline.cpp \
 	Support/linenoise.cpp \
