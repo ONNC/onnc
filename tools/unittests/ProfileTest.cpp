@@ -1,4 +1,4 @@
-//===- ProfilerTest.cpp --------------------------------------------------===//
+//===- ProfilerTest.cpp ---------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -68,7 +68,7 @@ SKYPAT_F(ProfilerTest, print_before_and_after_bfs_search)
   ComputeOperator* op3 = builder.AddComputeOp<ATen>();
   ComputeOperator* op4 = builder.AddComputeOp<Abs>();
   ComputeOperator* op5 = builder.AddComputeOp<Conv>();
-  ComputeOperator* opProfile = builder.AddComputeOp<Profile>();
+  Profile* opProfile = builder.AddComputeOp<Profile>();
 
   //    op1       BFS: op1 - op2 - op3 - op4 - op5
   //   /   \      DFS: op1 - op2 - op3 - op5 - op4
@@ -83,6 +83,7 @@ SKYPAT_F(ProfilerTest, print_before_and_after_bfs_search)
 
   // Test Profiler
   opProfile->printAttributes(outs());
+  opProfile->start();
 
   ComputeGraph::bfs_iterator i;
   i = builder.getComputeGraph()->bfs_begin();
@@ -97,6 +98,8 @@ SKYPAT_F(ProfilerTest, print_before_and_after_bfs_search)
   ASSERT_TRUE(i->name() == op5->name());
   i.next();
 
+  opProfile->stop();
+  
   ASSERT_TRUE(i == builder.getComputeGraph()->bfs_end());
 
   // Test Profiler
