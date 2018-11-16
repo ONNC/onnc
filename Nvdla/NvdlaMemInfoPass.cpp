@@ -1,0 +1,177 @@
+//===- InterpreterPass.cpp ------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "NvdlaMemInfoPass.h"
+
+#include <onnc/IR/Compute/Tensor.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/Support/Casting.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/Support/Timer.h>
+
+using namespace onnc;
+
+//===----------------------------------------------------------------------===//
+// NvdlaMemInfoPass
+//===----------------------------------------------------------------------===//
+NvdlaMemInfoPass::NvdlaMemInfoPass(TargetBackend *pBackend,
+                  NvdlaBackendMeta *pMeta)
+  : ModulePass(ID),
+    m_pBackend(pBackend), m_pMeta(pMeta){
+}
+
+Pass::ReturnType NvdlaMemInfoPass::runOnModule(Module &pModule)
+{
+  // [0] entry of memory & address list
+  {
+    ILoadable::MemoryListEntry mle;
+  	mle.id = m_pMeta->m_MemoryListEntries.size();
+  	mle.alignment = 4096;
+  	mle.bind_id = 0;
+  	mle.domain = nvdla::ILoadable::MemoryDomain_SYSMEM;
+  	mle.flags = nvdla::ILoadable::MemoryFlags_ALLOC;
+  	mle.size = 4096;
+  	mle.tensor_desc_id = 0;
+    m_pMeta->m_MemoryListEntries.push_back(mle);
+
+    ILoadable::AddressListEntry ale;
+    ale.size = 4096;
+    ale.offset = 0;
+    ale.mem_id = mle.id;
+    ale.id = m_pMeta->m_AddressListEntries.size();
+    m_pMeta->m_AddressListEntries.push_back(ale);
+  }
+
+  std::unordered_map<Value *, bool> isOutputMap;
+  for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
+    if (OutputOperator *out = dyn_cast<OutputOperator>(&cm)) {
+      for (int i = 0; i < out->getNumOfInputs(); ++i) {
+        Value *v = out->getInput(i);
+        isOutputMap[v] = true;
+        FloatTensor *t = static_cast<FloatTensor *>(v);
+        for (auto i: t->getDimensions()) {
+          NVDLA_DBG("%ld\n", i);
+        }
+      }
+    }
+  }
+
+  for (ComputeOperand *co : pModule.getComputeOperands()) {
+    NVDLA_DBG("ComputeOperand: ");
+    if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
+      Value *v = co->getValue();
+      if (mem->isWeight()) {
+        //for weight, memory buffers are allocated & blob files are also generated in ComputeOperator.
+
+        FloatTensor *t = static_cast<FloatTensor *>(v);
+        //m_pMeta->m_WeightTable[v] = t->getValues().data();
+        NVDLA_DBG("weight size:%d %d\n", mem->length(), t->getValues().size());
+
+      }else{
+        NVDLA_DBG("operand size:%d\n", mem->length());
+        //alocation only, no blobs
+        FloatTensor *t = static_cast<FloatTensor *>(v);
+        ILoadable::MemoryListEntry mle;
+        ILoadable::TensorDescListEntry tle;
+
+        mle.id = m_pMeta->m_MemoryListEntries.size();
+
+        int dims[4] = {1, 1, 1, 1};
+        int idx = 0;
+        for (auto i: t->getDimensions())
+          dims[idx++] = i;
+        NvdlaCubeInfo cubeinfo(NVDLA_CUBE_FEATURE, dims[0], dims[1], dims[2], dims[3], sizeof(unsigned short));
+        mle.size = cubeinfo.size;
+
+        mle.alignment = 4096;
+        mle.flags = nvdla::ILoadable::MemoryFlags_ALLOC;
+        mle.domain = nvdla::ILoadable::MemoryDomain_SYSMEM;
+        mle.bind_id = 0;
+        mle.tensor_desc_id = 0;
+
+        if (mem->isInput()) {
+          mle.flags |= nvdla::ILoadable::MemoryFlags_INPUT;
+          mle.tensor_desc_id = 0;
+          //mle.size = cubeinfo.size;
+
+          tle.name = "data";
+          tle.id = 0;
+          tle.memId = mle.id;
+          tle.size = mle.size;
+          tle.offset = 0;
+
+          tle.dims.n = cubeinfo.dim_n;
+          tle.dims.c = cubeinfo.dim_c;
+          tle.dims.h = cubeinfo.dim_h;
+          tle.dims.w = cubeinfo.dim_w;
+          tle.dataFormat = 3;
+          tle.dataType = nvdla::loadable::DataType_HALF;
+          tle.dataCategory = nvdla::loadable::DataCategory_FEATURE;
+          tle.pixelFormat = TENSOR_PIXEL_FORMAT_FEATURE;
+          tle.pixelMapping = 0;
+
+          tle.stride[0] = cubeinfo.stride_channel;
+          tle.stride[1] = cubeinfo.stride_line;
+          tle.stride[2] = cubeinfo.stride_surface;
+          tle.stride[3] = 0;
+          tle.stride[4] = 0;
+          tle.stride[5] = 0;
+          tle.stride[6] = 0;
+          tle.stride[7] = 0;
+
+          m_pMeta->m_TensorDescListEntries.emplace(m_pMeta->m_TensorDescListEntries.begin(), tle);
+        } else if (isOutputMap.find(v) != isOutputMap.end()) {
+          mle.flags |= nvdla::ILoadable::MemoryFlags_OUTPUT;
+          mle.tensor_desc_id = 1;
+
+          tle.name = "probe";
+          tle.id = 1;
+          tle.memId = mle.id;
+          tle.size = mle.size;
+          tle.offset = 0;
+
+          tle.dims.n = cubeinfo.dim_n;
+          tle.dims.c = cubeinfo.dim_c;
+          tle.dims.h = cubeinfo.dim_h;
+          tle.dims.w = cubeinfo.dim_w;
+          tle.dataFormat = 3;
+          tle.dataType = nvdla::loadable::DataType_HALF;
+          tle.dataCategory = nvdla::loadable::DataCategory_FEATURE;
+          tle.pixelFormat = TENSOR_PIXEL_FORMAT_FEATURE;
+          tle.pixelMapping = 0;
+
+          tle.stride[0] = cubeinfo.stride_channel;
+          tle.stride[1] = cubeinfo.stride_line;
+          tle.stride[2] = cubeinfo.stride_surface;
+          tle.stride[3] = 0;
+          tle.stride[4] = 0;
+          tle.stride[5] = 0;
+          tle.stride[6] = 0;
+          tle.stride[7] = 0;
+
+          m_pMeta->m_TensorDescListEntries.push_back(tle);
+        }
+        m_pMeta->m_MemIdxTable[v] = m_pMeta->m_MemoryListEntries.size();
+        m_pMeta->m_MemoryListEntries.push_back(mle);
+      }
+    }
+  }
+  return Pass::kModuleNoChanged;
+}
+
+
+//===----------------------------------------------------------------------===//
+// Factory method
+//===----------------------------------------------------------------------===//
+char NvdlaMemInfoPass::ID = 0;
+
+NvdlaMemInfoPass *onnc::CreateNvdlaMemInfoPass(TargetBackend *pBackend,
+                                              NvdlaBackendMeta *pMeta) {
+  return new NvdlaMemInfoPass(pBackend, pMeta);
+}
