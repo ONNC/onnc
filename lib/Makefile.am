@@ -258,6 +258,8 @@ ONNC_SOURCES = \
 	Analysis/NodeIRScheduler.cpp \
 	Analysis/SplitNode.cpp \
 	Analysis/UpdateGraphOutputSize.cpp \
+	Analysis/Statistics.cpp \
+	Analysis/StatisticsGroup.cpp \
 	CodeGen/BuildMemOperand.cpp \
 	CodeGen/FuseInplaceValue.cpp \
 	CodeGen/LinearScanMemAlloc.cpp \

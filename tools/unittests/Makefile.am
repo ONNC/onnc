@@ -15,7 +15,8 @@ TEST_SOURCES = DigraphTest.cpp \
 	TensorSelTest.cpp \
 	MemAllocTest.cpp \
 	ComputeGraphTest.cpp \
-	ONNXReaderTest.cpp
+	ONNXReaderTest.cpp \
+  StatisticsTest.cpp
 endif
 
 if ENABLE_REGRESSION
