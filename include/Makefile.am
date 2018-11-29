@@ -418,6 +418,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/Analysis/UpdateGraphOutputSize.h \
 	onnc/Analysis/NodeIRScheduler.h \
 	onnc/Analysis/LivenessAnalysis.h \
+	onnc/Analysis/Statistics.h \
+	onnc/Analysis/StatisticsGroup.h \
 	onnc/IRReader/ONNXReader.h \
 	onnc/ADT/ConstSwitch.h \
 	onnc/ADT/If.h \

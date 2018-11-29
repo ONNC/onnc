@@ -25,7 +25,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
 {
-  std::unordered_map<std::string, int> &count = *this;
+  std::unordered_map<std::string, int> count;
   size_t op_len = 8;
 
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
