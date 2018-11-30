@@ -30,9 +30,15 @@ using namespace nvdla::priv;
 #define WEIGHT_ATOM_CUBE_SIZE  128
 
 namespace onnc {
+  typedef struct concat_meta {
+    const Tensor *t;
+    int ofs;
+  } concat_meta;
+
   //typedef std::unordered_map<const Value *, float *> WeightTable;
   typedef std::unordered_map<Value *, int> MemoryIdxTable;
-  typedef std::unordered_map<const Tensor *, const Tensor *> ReshapeTable;
+  typedef std::unordered_map<const Tensor *, const Tensor *> RemapTable;
+  typedef std::unordered_map<const Tensor *, concat_meta> ConcatTable;
 
   typedef struct NvdlaDlaOperation{
     NvdlaDlaOperation(void){
@@ -164,7 +170,8 @@ namespace onnc {
     std::vector<NvdlaEmuOperation *> m_EMUOperationList;
 
     MemoryIdxTable m_MemIdxTable;
-    ReshapeTable m_ReshapeTable;
+    RemapTable m_ReshapeTable;
+    ConcatTable m_ConcatTable;
 
     int m_NumBlobs;
     priv::LoadableFactory::LoadablePrivPair m_Loadable;
@@ -185,7 +192,7 @@ namespace onnc {
       dim_w = w;
 
       mode = m;
-
+      reduced = false;
       switch(mode){
         case NVDLA_CUBE_FEATURE:
           stride_channel = element_size;
@@ -251,7 +258,6 @@ namespace onnc {
     }
 
     void reduceBanks(void){
-      reduced = true;
       switch(mode){
         case NVDLA_CUBE_FEATURE:
           break;
@@ -261,6 +267,7 @@ namespace onnc {
             banks /= 2;
           break;
       }
+      reduced = true;
     }
 
     ~NvdlaCubeInfo() {};

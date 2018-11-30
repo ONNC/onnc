@@ -11,9 +11,11 @@
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/LRN.h>
 #include <onnc/IR/Compute/MaxPool.h>
+#include <onnc/IR/Compute/AveragePool.h>
 #include <onnc/IR/Compute/Relu.h>
 #include <onnc/IR/Compute/Gemm.h>
 #include <onnc/IR/Compute/Softmax.h>
+#include <onnc/IR/Compute/Concat.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
@@ -370,11 +372,11 @@ void CodeEmitVisitor::visit(const Reshape& pOp)
   int32_t output_reshaped_ndim = output_reshaped_t->getNumOfDimensions();
   int32_t output_reshaped_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < output_reshaped_ndim; ++i) output_reshaped_dims[i] = output_reshaped_t->dimension(i);
-  int out_shape_idx = m_pMeta->m_MemIdxTable[(Tensor *)output_reshaped_t];
-  ILoadable::MemoryListEntry out_shape_mle = m_pMeta->m_MemoryListEntries[out_shape_idx];
+  //int out_shape_idx = m_pMeta->m_MemIdxTable[(Tensor *)output_reshaped_t];
+  //ILoadable::MemoryListEntry out_shape_mle = m_pMeta->m_MemoryListEntries[out_shape_idx];
 
   //TODO, setup remapping table
-  m_pMeta->m_ReshapeTable[output_reshaped_t] = input_data_t;
+  //m_pMeta->m_ReshapeTable[output_reshaped_t] = input_data_t;
 }
 
 //Setup LookupTable
@@ -415,7 +417,7 @@ void CodeEmitVisitor::visit(const LRN& pOp)
     //critical error
     NVDLA_DBG("LRN(alpha:%f beta:%f bias:%f size:%d) is not matched !!!!!!!!!!!!!!!!!!!!!\n", alpha, beta, bias, size);
     struct dla_lut_param *lut_param = new dla_lut_param();
-    memset(&lut_param, 0, sizeof(struct dla_lut_param));
+    memset(lut_param, 0, sizeof(struct dla_lut_param));
     {
       float fsize = (float)size;
       float x = 1.0f;
@@ -545,10 +547,10 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
   maxpool_desc->pool_height = kernel_shape[0] - 1;
   maxpool_desc->stride_x = strides[1];
   maxpool_desc->stride_y = strides[0];
-  maxpool_desc->pad_top = (pad_shapes[2]+1)/2;  //pad_shape - H
-  maxpool_desc->pad_bottom = pad_shapes[2]/2;
-  maxpool_desc->pad_left = (pad_shapes[3]+1)/2; //pad_shape - W
-  maxpool_desc->pad_right = pad_shapes[3]/2;
+  maxpool_desc->pad_top = pad_shapes[0];  //pad_shape - H
+  maxpool_desc->pad_left = pad_shapes[1]; //pad_shape - W
+  maxpool_desc->pad_bottom = pad_shapes[2];
+  maxpool_desc->pad_right = pad_shapes[3];
 
   maxpool_desc->precision = PRECISION_FP16;
 
@@ -576,6 +578,100 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
   issueDlaOp(maxpool_op, NULL, m_pMeta->m_pPrevOp);
 }
 
+void CodeEmitVisitor::visit(const AveragePool& pOp)
+{
+  pOp.print(errs());
+  errs() << "\n";
+
+  const Tensor *input_X_t = pOp.getInput(0);
+  //void *input_X = m_ATable[input_X_t];
+  int32_t input_X_ndim = input_X_t->getNumOfDimensions();
+  int32_t input_X_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < input_X_ndim; ++i) input_X_dims[i] = input_X_t->dimension(i);
+  int X_mid = m_pMeta->m_MemIdxTable[(Tensor *)input_X_t];
+  ILoadable::MemoryListEntry X_mle = m_pMeta->m_MemoryListEntries[X_mid];
+  NvdlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], sizeof(short));
+
+  // Prepare output
+  const Tensor *output_Y_t = pOp.getOutput(0);
+  //void *output_Y = m_ATable[output_Y_t];
+  int32_t output_Y_ndim = output_Y_t->getNumOfDimensions();
+  int32_t output_Y_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
+  int Y_mid = m_pMeta->m_MemIdxTable[(Tensor *)output_Y_t];
+  ILoadable::MemoryListEntry Y_mle = m_pMeta->m_MemoryListEntries[Y_mid];
+  NvdlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3], sizeof(short));
+
+  const Tensor *output_Indices_t = NULL;
+  void *output_Indices = NULL;
+  int32_t output_Indices_ndim = 0;
+  if (pOp.getNumOfOutputs() > 1) {
+    output_Indices_t = pOp.getOutput(1);
+    //output_Indices = m_ATable[output_Indices_t];
+    output_Indices_ndim = output_Indices_t->getNumOfDimensions();
+  }
+  int32_t output_Indices_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < output_Indices_ndim; ++i) output_Indices_dims[i] = output_Indices_t->dimension(i);
+
+  // Prepare attributes
+  int32_t number_of_kernel_shape = pOp.getKernelShape().vector().size();
+  int32_t kernel_shape[number_of_kernel_shape];
+  for (int i = 0; i < number_of_kernel_shape; ++i) kernel_shape[i] = pOp.getKernelShape().at(i);
+  int32_t number_of_pads = pOp.getPads().vector().size();
+  int32_t pad_shapes[number_of_pads];
+  for (int i = 0; i < number_of_pads; ++i) pad_shapes[i] = pOp.getPads().at(i);
+  //int32_t storage_order = pOp.getStorageOrder().value();
+  int32_t number_of_strides = pOp.getStrides().vector().size();
+  int32_t strides[number_of_strides];
+  for (int i = 0; i < number_of_strides; ++i) strides[i] = pOp.getStrides().at(i);
+
+  NvdlaDlaOperation *avgpool_op = new NvdlaDlaOperation();
+  avgpool_op->op_dep.op_type = DLA_OP_PDP;
+
+  struct dla_pdp_op_desc *avgpool_desc = (struct dla_pdp_op_desc *)(&(avgpool_op->op_desc));
+  avgpool_desc->partial_in_width_first = 0;
+  avgpool_desc->partial_in_width_mid = 0;
+  avgpool_desc->partial_in_width_last = 0;
+  avgpool_desc->partial_width_first = 0;
+  avgpool_desc->partial_width_mid = 0;
+  avgpool_desc->partial_width_last = 0;
+  avgpool_desc->split_num = 1;
+  avgpool_desc->pool_mode = POOL_MODE_AVG;
+  avgpool_desc->pool_width = kernel_shape[1] - 1;
+  avgpool_desc->pool_height = kernel_shape[0] - 1;
+  avgpool_desc->stride_x = strides[1];
+  avgpool_desc->stride_y = strides[0];
+  avgpool_desc->pad_top = pad_shapes[0];  //pad_shape - H
+  avgpool_desc->pad_left = pad_shapes[1]; //pad_shape - W
+  avgpool_desc->pad_bottom = pad_shapes[2];
+  avgpool_desc->pad_right = pad_shapes[3];
+
+  avgpool_desc->precision = PRECISION_FP16;
+
+  struct dla_pdp_surface_desc *avgpool_surf = (struct dla_pdp_surface_desc *)(&(avgpool_op->op_surf));
+  avgpool_surf->src_data.type = DLA_MEM_MC;
+  avgpool_surf->src_data.address = issueDlaAddr(X_mid, X_cube, 1, 0, 0);
+  avgpool_surf->src_data.size = X_mle.size;
+  avgpool_surf->src_data.width = X_cube.dim_w;
+  avgpool_surf->src_data.height = X_cube.dim_h;
+  avgpool_surf->src_data.channel = X_cube.dim_c;
+  avgpool_surf->src_data.line_stride = X_cube.stride_line;
+  avgpool_surf->src_data.surf_stride = X_cube.stride_surface;
+  avgpool_surf->src_data.plane_stride = X_cube.stride_plane;
+
+  avgpool_surf->dst_data.type = DLA_MEM_MC;
+  avgpool_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, 1, 0, 0);
+  avgpool_surf->dst_data.size = Y_mle.size;
+  avgpool_surf->dst_data.width = Y_cube.dim_w;
+  avgpool_surf->dst_data.height = Y_cube.dim_h;
+  avgpool_surf->dst_data.channel = Y_cube.dim_c;
+  avgpool_surf->dst_data.line_stride = Y_cube.stride_line;
+  avgpool_surf->dst_data.surf_stride = Y_cube.stride_surface;
+  avgpool_surf->dst_data.plane_stride = Y_cube.stride_plane;
+
+  issueDlaOp(avgpool_op, NULL, m_pMeta->m_pPrevOp);
+}
+
 void CodeEmitVisitor::visit(const Relu& pOp)
 {
   pOp.print(errs());
@@ -595,8 +691,19 @@ void CodeEmitVisitor::visit(const Relu& pOp)
   int32_t output_Y_ndim = output_Y_t->getNumOfDimensions();
   int32_t output_Y_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
-  int Y_mid = m_pMeta->m_MemIdxTable[(Tensor *)output_Y_t];
-  ILoadable::MemoryListEntry Y_mle = m_pMeta->m_MemoryListEntries[Y_mid];
+
+  int Y_mid;
+  ILoadable::MemoryListEntry Y_mle;
+  concat_meta meta;
+  if(m_pMeta->m_ConcatTable.find(output_Y_t) == m_pMeta->m_ConcatTable.end()){
+    Y_mid= m_pMeta->m_MemIdxTable[(Tensor *)output_Y_t];
+    Y_mle = m_pMeta->m_MemoryListEntries[Y_mid];
+  }else{
+    printf("Concat Relu ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    meta = m_pMeta->m_ConcatTable[output_Y_t];
+    Y_mid = m_pMeta->m_MemIdxTable[(Tensor *)meta.t];
+    Y_mle = m_pMeta->m_MemoryListEntries[Y_mid];
+  }
   NvdlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3], sizeof(short));
 
   NvdlaDlaOperation *relu_op = new NvdlaDlaOperation();
@@ -645,7 +752,10 @@ void CodeEmitVisitor::visit(const Relu& pOp)
   relu_surf->src_data.plane_stride = X_cube.stride_plane;
 
   relu_surf->dst_data.type = DLA_MEM_MC;
-  relu_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, 1, 0, 0);
+  if(m_pMeta->m_ConcatTable.find(output_Y_t) == m_pMeta->m_ConcatTable.end())
+    relu_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, 1, 0, 0);
+  else
+    relu_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube,-1, 0, meta.ofs);
   relu_surf->dst_data.size = Y_mle.size;
   relu_surf->dst_data.width = Y_cube.dim_w;
   relu_surf->dst_data.height = Y_cube.dim_h;
@@ -707,6 +817,10 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3],
       output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]
     );
+
+    if(m_pMeta->m_ReshapeTable.find(input_B_t) != m_pMeta->m_ReshapeTable.end()){
+      input_B_t = m_pMeta->m_ReshapeTable[input_B_t];
+    }
 
     if(m_pMeta->m_ReshapeTable.find(input_A_t) != m_pMeta->m_ReshapeTable.end()){
       input_A_t = m_pMeta->m_ReshapeTable[input_A_t];
@@ -979,6 +1093,49 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
   issueEmuOp(softmax_op);
 }
 
+void CodeEmitVisitor::visit(const Concat& pOp) {
+  // Prepare input
+  int32_t input_inputs_ntensor = pOp.getNumOfInputs() - 0;
+  void *input_inputs[input_inputs_ntensor];
+  int32_t input_inputs_ndim[input_inputs_ntensor];
+  int32_t *input_inputs_dims[input_inputs_ntensor];
+  for (int i = 0; i < input_inputs_ntensor; ++i){
+    //input_inputs[i] = m_ATable[pOp.getInput(0 + i)];
+    input_inputs_ndim[i] = pOp.getInput(0 + i)->getNumOfDimensions();
+    input_inputs_dims[i] = new int32_t[4];
+    for(int32_t j = 0; j < 4; ++j){
+      input_inputs_dims[i][j] = (j < input_inputs_ndim[i]) ? pOp.getInput(0 + i)->dimension(j) : 1;
+    }
+    NVDLA_DBG("Concat input[%d](%d %d %d %d)\n", i, input_inputs_dims[i][0], input_inputs_dims[i][1], input_inputs_dims[i][2], input_inputs_dims[i][3]);
+  }
+
+  // Prepare output
+  const Tensor *output_concat_result_t = pOp.getOutput(0);
+  //void *output_concat_result = m_ATable[output_concat_result_t];
+  int32_t output_concat_result_ndim = output_concat_result_t->getNumOfDimensions();
+  int32_t output_concat_result_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < output_concat_result_ndim; ++i) output_concat_result_dims[i] = output_concat_result_t->dimension(i);
+  NVDLA_DBG("Concat output(%d %d %d %d)\n", output_concat_result_dims[0], output_concat_result_dims[1], output_concat_result_dims[2], output_concat_result_dims[3]);
+  int output_mid = m_pMeta->m_MemIdxTable[(Tensor *)output_concat_result_t];
+  ILoadable::MemoryListEntry output_mle = m_pMeta->m_MemoryListEntries[output_mid];
+
+  // Prepare attributesinput_inputs_ndim
+  int32_t axis = pOp.getAxis().value();
+  NVDLA_DBG("Concat AXIS[%d]\n", axis);
+
+  if(axis == 1){
+
+  } else {
+    //critical error
+  }
+
+  // Clean
+  for (int i = 0; i < input_inputs_ntensor; ++i){
+    delete [] input_inputs_dims[i];
+  }
+};
+
+
 int CodeEmitVisitor::packWeight(const Tensor *t, int dims[4], int gidx)
 {
   std::string blob_name = "tb-" + std::to_string(m_pMeta->m_NumBlobs++);
@@ -1038,13 +1195,13 @@ int CodeEmitVisitor::packBias(const Tensor *t, int dims[4], int gidx)
   b.subInterface = 0;
   //b.data = blob_data;
   NvU8 *blob_data = new NvU8[b.size];
+  memset(blob_data, 0, b.size);
   short *dest = (short*)blob_data;
   float *data = (float*)(static_cast<const FloatTensor *>(t)->getValues().data());
   int group_c = gidx * dims[0];
   for(int c = 0; c < dims[0]; c++){
     *(dest + c) = __gnu_f2h_ieee(*(data + group_c + c));
   }
-  memset(blob_data, 0, b.size);
   #if 0
   for(int h = 0; h < dims[2]; h++){
     for(int w = 0; w < dims[3]; w++){
@@ -1102,7 +1259,7 @@ void CodeEmitVisitor::issueEmuOp(NvdlaEmuOperation *op)
   m_pMeta->m_EMUOperationList.push_back(op);
 }
 
-int CodeEmitVisitor::issueDlaAddr(int mid, NvdlaCubeInfo cube, int groups, int gidx, int hofs)
+int CodeEmitVisitor::issueDlaAddr(int mid, NvdlaCubeInfo cube, int groups, int gidx, int ofs)
 {
   int aid = m_pMeta->m_AddressListEntries.size();
 
@@ -1110,14 +1267,19 @@ int CodeEmitVisitor::issueDlaAddr(int mid, NvdlaCubeInfo cube, int groups, int g
   ILoadable::MemoryListEntry mle = m_pMeta->m_MemoryListEntries[mid];
 
   ale.size = mle.size;
-  int h_offset = hofs * cube.stride_line;
-  ale.offset = ((gidx * (cube.dim_n*cube.dim_c*cube.dim_h*cube.dim_w*cube.element_size))/groups) + h_offset;
-  //ale.offset = h_offset;
+  if(groups >= 0){
+    int h_offset = ofs * cube.stride_line;
+    ale.offset = ((gidx * (cube.dim_n*cube.dim_c*cube.dim_h*cube.dim_w*cube.element_size))/groups) + h_offset;
+    //ale.offset = h_offset;
+  }else{
+    int surf_offset = ofs / (32/sizeof(short));
+    ale.offset = surf_offset * cube.stride_surface;
+  }
   ale.mem_id = mid;
   ale.id = aid;
-  NVDLA_DBG("cube(%d %d %d %d %d), group(%d/%d) hofs %d\n",
+  NVDLA_DBG("cube(%d %d %d %d %d), group(%d/%d) ofs %d\n",
           cube.dim_n, cube.dim_c, cube.dim_h, cube.dim_w, cube.element_size,
-          groups, gidx, hofs);
+          groups, gidx, ofs);
   NVDLA_DBG("AddressEntry s:%9d o:%9d mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
 
   m_pMeta->m_AddressListEntries.push_back(ale);

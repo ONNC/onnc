@@ -36,8 +36,10 @@ public:
   void visit(const Relu& pRelu) override;
   void visit(const LRN& pLRN) override;
   void visit(const MaxPool& pMaxPool) override;
+  void visit(const AveragePool& pAveragePool) override;
   void visit(const Gemm& pGemm) override;
   void visit(const Softmax& pSoftmax) override;
+  void visit(const Concat& pConcat) override;
   /// @}
   //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
   void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);

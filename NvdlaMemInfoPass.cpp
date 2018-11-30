@@ -11,6 +11,8 @@
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/IR/Compute/Reshape.h>
+#include <onnc/IR/Compute/Concat.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
@@ -54,11 +56,43 @@ Pass::ReturnType NvdlaMemInfoPass::runOnModule(Module &pModule)
       for (int i = 0; i < out->getNumOfInputs(); ++i) {
         Value *v = out->getInput(i);
         isOutputMap[v] = true;
-        FloatTensor *t = static_cast<FloatTensor *>(v);
-        for (auto i: t->getDimensions()) {
-          NVDLA_DBG("%ld\n", i);
+        Tensor *t = static_cast<Tensor *>(v);
+        for (auto j: t->getDimensions()) {
+          NVDLA_DBG("output dim[%ld]\n", j);
         }
       }
+    }
+    else if(Reshape *reshape = dyn_cast<Reshape>(&cm)){
+      Tensor *input_t = reshape->getInput(0);
+      Tensor *output_t = reshape->getOutput(0);
+      //Tensor *t = static_cast<Tensor *>(v);
+      m_pMeta->m_ReshapeTable[output_t] = input_t;
+    }
+    else if(Concat *concat = dyn_cast<Concat>(&cm)){
+      int32_t num_inputs = concat->getNumOfInputs();
+      int32_t num_outputs = concat->getNumOfOutputs();
+      Tensor *output_t = concat->getOutput(0);
+
+      int channels = 0;
+      for(int i = 0; i < num_inputs; i++){
+        Tensor *input_t = concat->getInput(i);
+        concat_meta meta;
+        meta.t = output_t;
+        meta.ofs = channels;
+        //TODO - change to tensor-to-address
+        //m_pMeta->m_ConcatTable[input_t] = output_t;
+        m_pMeta->m_ConcatTable[input_t] = meta;
+        printf(
+          "\tconcat input[%d] dim(%d %d %d %d)\n",
+          i,
+          input_t->dimension(0),
+          input_t->dimension(1),
+          input_t->dimension(2),
+          input_t->dimension(3)
+        );
+        channels += input_t->dimension(1);
+      }
+
     }
   }
 
@@ -76,10 +110,18 @@ Pass::ReturnType NvdlaMemInfoPass::runOnModule(Module &pModule)
       }else{
         NVDLA_DBG("operand size:%d\n", mem->length());
         //alocation only, no blobs
-        FloatTensor *t = static_cast<FloatTensor *>(v);
+        Tensor *t = static_cast<Tensor *>(v);
+
+        //skip reshape output memory allocation
+        if(
+          m_pMeta->m_ReshapeTable.find(t) != m_pMeta->m_ReshapeTable.end() ||
+          m_pMeta->m_ConcatTable.find(t) != m_pMeta->m_ConcatTable.end()
+        ){
+          continue;
+        }
+
         ILoadable::MemoryListEntry mle;
         ILoadable::TensorDescListEntry tle;
-
         mle.id = m_pMeta->m_MemoryListEntries.size();
 
         int dims[4] = {1, 1, 1, 1};

@@ -52,6 +52,8 @@
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 
+#include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
+
 
 using namespace onnc;
 
@@ -127,16 +129,16 @@ void NvdlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<GemmLower>();
 
   //SDP
-  pRegistry.emplace<PReluLower>();
+  //pRegistry.emplace<PReluLower>();
   pRegistry.emplace<ReluLower>();
-  pRegistry.emplace<MulLower>();
-  pRegistry.emplace<AddLower>();
+  //pRegistry.emplace<MulLower>();
+  //pRegistry.emplace<AddLower>();
   //pRegistry.emplace<SumLower>();  // N Adds
   //pRegistry.emplace<BatchNormalizationLower>();
 
   //PDP
   pRegistry.emplace<MaxPoolLower>();
-  //pRegistry.emplace<AveragePoolLower>();
+  pRegistry.emplace<AveragePoolLower>();
 
   //CDP
   pRegistry.emplace<LRNLower>();
@@ -154,7 +156,8 @@ void NvdlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   //pRegistry.emplace<GlobalAveragePoolLower>();  //PDP?
   //pRegistry.emplace<TransposeLower>();  //??
   //pRegistry.emplace<UpsampleLower>();   // BDMA + CONV??
-  //pRegistry.emplace<ConcatLower>();    // RUBIK?
+  //pRegistry.emplace<UnsqueezeLower>();
+  pRegistry.emplace<ConcatLower>();    // RUBIK?
 
 }
 

@@ -269,13 +269,13 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
     {
       for(int i=0; i<3; i++){
         ILoadable::MemoryListEntry mle;
-      	mle.id = m_pMeta->m_MemoryListEntries.size();
-      	mle.alignment = 4096;
-      	mle.bind_id = 0;
-      	mle.domain = nvdla::ILoadable::MemoryDomain_SYSMEM;
-      	mle.flags = nvdla::ILoadable::MemoryFlags_ALLOC;
-      	mle.size = 4096;
-      	mle.tensor_desc_id = 0;
+        mle.id = m_pMeta->m_MemoryListEntries.size();
+        mle.alignment = 4096;
+        mle.bind_id = 0;
+        mle.domain = nvdla::ILoadable::MemoryDomain_SYSMEM;
+        mle.flags = nvdla::ILoadable::MemoryFlags_ALLOC;
+        mle.size = 4096;
+        mle.tensor_desc_id = 0;
         m_pMeta->m_MemoryListEntries.push_back(mle);
 
         ILoadable::AddressListEntry ale;
