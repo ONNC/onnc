@@ -32,6 +32,8 @@ public:
       : ModulePass(ID), m_Prefix(pPrefix) {}
 
   Pass::ReturnType runOnModule(Module& pModule) override;
+  StringRef getPassName() const override { return "CountOperatorsPass"; }
+  void print(OStream& pOS, const Module* pModule) const override;
 
 private:
   ~CountOperatorsPass() override {}

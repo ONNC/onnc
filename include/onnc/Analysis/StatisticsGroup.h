@@ -5,8 +5,8 @@
 // Copyright (C) 2013, 2014, Skymizer Inc.. All rights reserved.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SKYMIZER_CONFIG_SKYCONFIG_GROUP_H
-#define SKYMIZER_CONFIG_SKYCONFIG_GROUP_H
+#ifndef ONNC_ANALYSIS_STATISTICS_GROUP_H
+#define ONNC_ANALYSIS_STATISTICS_GROUP_H
 #include <onnc/Support/Path.h>
 #include <onnc/JSON/Array.h>
 #include <onnc/JSON/Object.h>

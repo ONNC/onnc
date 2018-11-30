@@ -419,6 +419,7 @@ nobase_nodist_include_HEADERS = \
 	onnc/Analysis/LivenessAnalysis.h \
 	onnc/Analysis/Statistics.h \
 	onnc/Analysis/StatisticsGroup.h \
+	onnc/Analysis/GlobalStatistics.h \
 	onnc/IRReader/ONNXReader.h \
 	onnc/ADT/ConstSwitch.h \
 	onnc/ADT/If.h \

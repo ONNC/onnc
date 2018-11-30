@@ -13,6 +13,7 @@
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Analysis/GlobalStatistics.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -38,6 +39,16 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     ++m_Total;
   }
 
+  std::string str2("{\"Skymizer\":\"ONNC\"}");
+  global::GlobalStat()->read(str2);
+  global::GlobalStat()->addGroup("CountOperatorsPass");
+
+  for(auto mapIter = count.begin(); mapIter != count.end(); ++mapIter){
+    global::GlobalStat()->group("CountOperatorsPass").\
+    writeEntry(mapIter->first, mapIter->second);
+  }
+
+  // Counting Width for alignment
   m_Width.first = op_len;
   m_Width.second = ((m_Total > 99999) ? 10 : 5) + 1;
 
@@ -59,6 +70,17 @@ void CountOperatorsPass::printFooter(OStream &pOS) const {
       << std::setw(m_Width.second) << m_Total << std::endl;
 }
 
+void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
+  printHeader(pOS);
+  StatisticsGroup group = global::GlobalStat()->group("CountOperatorsPass");
+  StringList opList = group.entryList();
+  for(auto listItr = opList.begin(); listItr != opList.end(); ++listItr){
+    pOS << m_Prefix << std::setw(m_Width.first) << *listItr << SEP
+        << std::setw(m_Width.second) << group.readEntry(*listItr, 0)
+        << std::endl;
+  }
+  printFooter(pOS);
+}
 
 //===----------------------------------------------------------------------===//
 // Factory method
