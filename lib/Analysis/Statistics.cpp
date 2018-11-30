@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/Statistics.h>
 #include <onnc/Analysis/StatisticsGroup.h>
+#include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/Support/IndentOStream.h>
 #include <onnc/JSON/Reader.h>
