@@ -23,6 +23,7 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Analysis/GlobalStatistics.h>
 
 #include <cstdlib>
 #include <fstream>
@@ -76,7 +77,7 @@ int ONNIApp::run()
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   if (options().verbose() >= 3) {
-    pm.add(CreateCountOperatorsPass("[v3] "));
+    pm.add(CreateCountOperatorsPass("[Statistics] "));
   }
 
   // FIXME: Use onnc-runtime to handle input
@@ -107,6 +108,15 @@ int ONNIApp::run()
 
   pm.run(module);
 
+  if (options().verbose() >= 3) {
+    errs() << "==== print CountOperatorsPass result again ====\n";
+    StatisticsGroup group = global::GlobalStat()->group("CountOperatorsPass");
+    StringList opList = group.entryList();
+    for(auto listItr=opList.begin(); listItr != opList.end(); ++listItr){
+      errs() << *listItr << ": " << group.readEntry(*listItr, 0) << std::endl;
+    }
+    errs() << "==== end again of printing CountOperatorsPass ====\n";
+  }
   delete input_mem;
   return EXIT_SUCCESS;
 }
