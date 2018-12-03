@@ -4,6 +4,7 @@ nobase_nodist_include_HEADERS = \
   onnc/Config/ONNX.h \
   onnc/Diagnostic/DiagCommonKinds.inc \
   onnc/Diagnostic/Bits/Engine.tcc \
+  onnc/IR/CodeEmit.h \
   onnc/IR/Bits/IRBuilder.tcc \
   onnc/IR/Bits/ComputeGraph.tcc \
   onnc/Support/Bits/StringBuf.tcc \
