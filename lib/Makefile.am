@@ -499,6 +499,10 @@ if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
 endif
 
+if ENABLE_NVDLA_TARGET
+include $(srcdir)/Target/NVDLA/Makefile.am
+endif
+
 # FIXME: embraced by flag?
 include $(srcdir)/Target/Vanilla/Makefile.am
 
