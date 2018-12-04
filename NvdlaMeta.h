@@ -48,7 +48,7 @@ namespace onnc {
   typedef std::unordered_map<const Tensor *, concat_meta> ConcatTable;
 
   struct NvdlaDlaOperation {
-    NvdlaDlaOperation(void){
+    NvdlaDlaOperation() {
       memset(&op_dep, 0, sizeof(op_dep));
       memset(&op_desc, 0, sizeof(op_desc));
       memset(&op_surf, 0, sizeof(op_surf));
@@ -65,7 +65,7 @@ namespace onnc {
   };
 
   struct NvdlaEmuOperation {
-    NvdlaEmuOperation(void){
+    NvdlaEmuOperation() {
       memset(&op_desc, 0, sizeof(op_desc));
       memset(&op_buf, 0, sizeof(op_buf));
     }
@@ -74,7 +74,7 @@ namespace onnc {
   };
 
   struct NvdlaBackendMeta {
-    NvdlaBackendMeta(void){
+    NvdlaBackendMeta() {
       m_NumLUTs = 0;
       m_NumBlobs = 0;
       m_Loadable = priv::LoadableFactory::newLoadable();
@@ -106,7 +106,7 @@ namespace onnc {
       }
     }
 
-    ~NvdlaBackendMeta(void){
+    ~NvdlaBackendMeta() {
       std::map<std::string, Loadable::Symbol>::iterator it;
       for (it = m_Symbols.begin(); it != m_Symbols.end(); it++) {
           Loadable::Symbol symbol = it->second;
@@ -249,7 +249,7 @@ namespace onnc {
       }
     }
 
-    int getReducedBanks(void){
+    int getReducedBanks() {
       switch(mode){
         case NVDLA_CUBE_FEATURE:
           return banks;
@@ -264,7 +264,7 @@ namespace onnc {
       }
     }
 
-    void reduceBanks(void){
+    void reduceBanks() {
       switch(mode){
         case NVDLA_CUBE_FEATURE:
           break;
