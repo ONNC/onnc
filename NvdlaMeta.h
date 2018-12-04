@@ -37,17 +37,17 @@ using namespace nvdla::priv;
 #define WEIGHT_ATOM_CUBE_SIZE  128
 
 namespace onnc {
-  typedef struct concat_meta {
+  struct concat_meta {
     const Tensor *t;
     int ofs;
-  } concat_meta;
+  };
 
   //typedef std::unordered_map<const Value *, float *> WeightTable;
   typedef std::unordered_map<Value *, int> MemoryIdxTable;
   typedef std::unordered_map<const Tensor *, const Tensor *> RemapTable;
   typedef std::unordered_map<const Tensor *, concat_meta> ConcatTable;
 
-  typedef struct NvdlaDlaOperation{
+  struct NvdlaDlaOperation {
     NvdlaDlaOperation(void){
       memset(&op_dep, 0, sizeof(op_dep));
       memset(&op_desc, 0, sizeof(op_desc));
@@ -62,18 +62,18 @@ namespace onnc {
     struct dla_common_op_desc op_dep;
     union dla_operation_container op_desc;
     union dla_surface_container op_surf;
-  } NvdlaDlaOperation;
+  };
 
-  typedef struct NvdlaEmuOperation{
+  struct NvdlaEmuOperation {
     NvdlaEmuOperation(void){
       memset(&op_desc, 0, sizeof(op_desc));
       memset(&op_buf, 0, sizeof(op_buf));
     }
     union emu_operation_container op_desc;
     union emu_operation_buffer_container op_buf;
-  } NvdlaEmuOperation;
+  };
 
-  typedef struct NvdlaBackendMeta{
+  struct NvdlaBackendMeta {
     NvdlaBackendMeta(void){
       m_NumLUTs = 0;
       m_NumBlobs = 0;
@@ -182,7 +182,7 @@ namespace onnc {
 
     int m_NumBlobs;
     priv::LoadableFactory::LoadablePrivPair m_Loadable;
-  } NvdlaBackendMeta;
+  };
 
   typedef enum {
     NVDLA_CUBE_FEATURE,
