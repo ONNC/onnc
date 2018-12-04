@@ -168,9 +168,8 @@ NvdlaCubeInfo::NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
   } // end of switch
 }
 
-int NvdlaCubeInfo::getReducedBanks()
+int NvdlaCubeInfo::getReducedBanks() const
 {
-  // TODO: should be a constant member function
   switch(mode) {
     case NVDLA_CUBE_FEATURE:
       return banks;
@@ -182,6 +181,7 @@ int NvdlaCubeInfo::getReducedBanks()
       return rbanks;
     }
   } // end of switch
+  return 0; //< is the default value correct?
 }
 
 void NvdlaCubeInfo::reduceBanks()

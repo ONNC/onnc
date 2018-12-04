@@ -133,7 +133,7 @@ class NvdlaCubeInfo
 public:
   NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es);
 
-  int getReducedBanks();
+  int getReducedBanks() const;
 
   void reduceBanks();
 
