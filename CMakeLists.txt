@@ -131,3 +131,4 @@ configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.
 configure_file(include/onnc/Config/ONNX.h.in include/onnc/Config/ONNX.h @ONLY)
 configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
 configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
+configure_file(cmake/ONNCConfig.cmake.in cmake/ONNCConfig.cmake @ONLY)
