@@ -5,6 +5,7 @@ set(LIB_ONNC_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 #  Include
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
+include_directories(${PROTOBUF_INCLUDE_DIR})
 
 ####################
 #  libonnc

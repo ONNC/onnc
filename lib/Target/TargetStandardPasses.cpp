@@ -13,6 +13,7 @@
 #include <onnc/CodeGen/MemAllocData.h>
 #include <onnc/CodeGen/SetMemOperand.h>
 #include <onnc/CodeGen/SlotIndexes.h>
+#include <onnc/Core/InitializePasses.h>
 #include <onnc/Core/PassManager.h>
 #include <onnc/Target/TargetStandardPasses.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
@@ -52,19 +53,27 @@ void onnc::addStandardTensorSel(PassManager& pPM, TargetBackend& pTB) {
 
 void onnc::addStandardCreateLiveIntervals(PassManager& pPM)
 {
+  PassRegistry& reg = *pPM.getPassRegistry();
   // Build slot id for each onnc ir
-  pPM.add(CreateBuildSlotIndexesPass());
+  InitializeBuildSlotIndexesPass(reg);
+  // Data pass for saving live intervals built by LiveIntervals.
+  InitializeLiveIntervalsDataPass(reg);
   // Build live interval for each value
+  InitializeLiveIntervalsPass(reg);
+
   pPM.add(CreateLiveIntervalsPass());
 }
 
 void onnc::addStandardMemoryAllocation(PassManager& pPM, TargetBackend& pTB)
 {
+  PassRegistry& reg = *pPM.getPassRegistry();
   // Create live matrix for interference query
-  pPM.add(CreateLiveValueMatrixPass());
+  InitializeLiveValueMatrixPass(reg);
   // Create memory allocation data pass for saving allocation result.
-  pPM.add(CreateMemAllocDataPass());
+  InitializeMemAllocDataPass(reg);
   // Standard memory allocation for each value
+  InitializeLinearScanMemAllocPass(reg);
+
   pPM.add(CreateLinearScanMemAllocPass(&pTB));
 }
 

@@ -118,7 +118,8 @@ Module::Module()
     m_OnnxSetId(),
     m_OnnxMetaData(),
     m_pRootComputeGraph(nullptr),
-    m_ComputeGraphs() {
+    m_ComputeGraphs(),
+    m_TimeStep(0) {
 }
 
 Module::Module(std::unique_ptr<xGraph> pGraph)
@@ -128,7 +129,8 @@ Module::Module(std::unique_ptr<xGraph> pGraph)
     m_OnnxSetId(),
     m_OnnxMetaData(),
     m_pRootComputeGraph(nullptr),
-    m_ComputeGraphs() {
+    m_ComputeGraphs(),
+    m_TimeStep(0) {
 }
 
 Module::~Module()
@@ -251,7 +253,7 @@ void Module::printComputeGraph(json::Object& pJSON) const
   // traverse all ComputeGraph
   json::Value a_value;
   const_cg_iterator cgIter = cgBegin();
-  for (cgIter; cgIter != cgEnd(); ++cgIter){
+  for (; cgIter != cgEnd(); ++cgIter){
     cgIter->value()->print(a_value); 
   }
 

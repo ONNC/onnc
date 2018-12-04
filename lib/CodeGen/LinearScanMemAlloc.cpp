@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
-#include <onnc/CodeGen/LiveIntervals.h>
+#include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/CodeGen/LiveValueMatrix.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/Core/PassSupport.h>
@@ -41,19 +41,19 @@ static uint64_t GetAlignedAddr(uint64_t pAddr, uint64_t pAlignment)
 //===----------------------------------------------------------------------===//
 LinearScanMemAlloc::LinearScanMemAlloc(TargetBackend* pTarget)
   : ModulePass(ID), m_MemAllocData(nullptr),
-    m_LIPass(nullptr), m_LiveMatPass(nullptr) {
+    m_LIDataPass(nullptr), m_LiveMatPass(nullptr) {
   m_TMI = pTarget->getMemInfo();
 }
 
 Pass::ReturnType LinearScanMemAlloc::runOnModule(Module& pModule)
 {
-  m_LIPass = getAnalysis<LiveIntervals>();
+  m_LIDataPass = getAnalysis<LiveIntervalsData>();
   m_LiveMatPass = getAnalysis<LiveValueMatrix>();
   m_MemAllocData = getAnalysis<MemAllocData>();
 
   // Allocate memory for each value (live interval).
-  for (const LiveInterval* LI: m_LIPass->getSortedIntervals()) {
-    LiveIntervals::LIs overlappedLIs =
+  for (const LiveInterval* LI: m_LIDataPass->getSortedIntervals()) {
+    LiveIntervalsData::LIs overlappedLIs =
       m_LiveMatPass->getInterferingLiveIntervals(LI);
 
     AllocEntries allocRegions = getSortedAllocatedRegions(overlappedLIs);
@@ -71,7 +71,7 @@ Pass::ReturnType LinearScanMemAlloc::runOnModule(Module& pModule)
 
 void LinearScanMemAlloc::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LiveIntervals::ID);
+  pUsage.addRequiredID(LiveIntervalsData::ID);
   pUsage.addRequiredID(LiveValueMatrix::ID);
   pUsage.addRequiredID(MemAllocData::ID);
 }

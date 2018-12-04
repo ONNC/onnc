@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/CodeGen/LiveIntervals.h>
-#include <onnc/CodeGen/SlotIndexes.h>
+#include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 
 using namespace onnc;
@@ -16,14 +16,14 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
 {
-  clear();
-
-  m_SlotIndexes = getAnalysis<BuildSlotIndexes>();
+  BuildSlotIndexes& slotIndexes = *getAnalysis<BuildSlotIndexes>();
+  LiveIntervalsData& liData = *getAnalysis<LiveIntervalsData>();
+  liData.setSlotIndexes(&slotIndexes);
 
   for (auto& valIt : pModule.getValueList()) {
     Value* v = valIt.value();
-    LiveInterval* liveintrvl = createEmptyLiveInterval(v);
-    computeValueInterval(*liveintrvl);
+    LiveInterval& liveintrvl = *liData.createEmptyLiveInterval(v);
+    computeValueInterval(liveintrvl, slotIndexes);
   }
 
   return Pass::kModuleNoChanged;
@@ -32,83 +32,27 @@ Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
 void LiveIntervals::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
   pUsage.addRequiredID(BuildSlotIndexes::ID);
-}
-
-bool LiveIntervals::hasInterval(const Value* pV) const
-{
-  return m_ValIntrvls.find(const_cast<Value*>(pV)) != m_ValIntrvls.end();
-}
-
-const LiveInterval* LiveIntervals::getInterval(const Value* pV) const
-{
-  return m_ValIntrvls.find(const_cast<Value*>(pV))->second;
-}
-
-void LiveIntervals::removeLiveInterval(const Value* pV)
-{
-  assert(hasInterval(pV) && "The value has no interval.");
-  m_ValIntrvls.erase(const_cast<Value*>(pV));
-}
-
-const LiveIntervals::LIs LiveIntervals::getSortedIntervals() const
-{
-  LIs liveIntrvls;
-  liveIntrvls.reserve(m_ValIntrvls.size());
-
-  for (auto liIter : m_ValIntrvls)
-    liveIntrvls.push_back(liIter.second);
-
-  // sort the index in increasing order.
-  std::sort(liveIntrvls.begin(), liveIntrvls.end(),
-            [] (const LiveInterval* a, const LiveInterval* b) {
-              return a->beginIndex() < b->beginIndex();
-            });
-  return liveIntrvls;
+  pUsage.addRequiredID(LiveIntervalsData::ID);
 }
 
 void LiveIntervals::print(OStream& pOS, const Module* pModule) const
 {
-  pOS << "=== Live Intervals ===\n";
-  if (m_ValIntrvls.empty()) {
-    pOS << "Empty.\n";
-    return;
-  }
-
-  std::stringstream dbgstr;
-  for (const LiveInterval* li : getSortedIntervals())
-    li->print(dbgstr);
-
-  pOS << dbgstr.str();
+  LiveIntervalsData& liData = *getAnalysis<LiveIntervalsData>();
+  liData.print(pOS, pModule);
 }
 
-void LiveIntervals::clear()
-{
-  for (auto liIter : m_ValIntrvls) {
-    LiveInterval* li = liIter.second;
-    delete li;
-  }
-  m_ValIntrvls.clear();
-}
-
-LiveInterval* LiveIntervals::createEmptyLiveInterval(Value* pV)
-{
-  assert(!hasInterval(pV) && "Live interval has been created.");
-  LiveInterval* li = new LiveInterval(pV);
-  m_ValIntrvls[pV] = li;
-  return li;
-}
-
-void LiveIntervals::computeValueInterval(LiveInterval& pLI)
+void LiveIntervals::computeValueInterval(LiveInterval& pLI,
+                                         const BuildSlotIndexes& pSlotIndexes)
 {
   Value* v = pLI.getValue();
   // FIXME: Can I assume (ComputeOperator*)v->getDefine() is true?
-  SlotIndex start = m_SlotIndexes->getSlotIndex(
-    (ComputeOperator*)v->getDefine());
+  ComputeOperator* op = static_cast<ComputeOperator*>(v->getDefine());
+  SlotIndex start = pSlotIndexes.getSlotIndex(op);
   SlotIndex end = start;
 
   // find the last user
   for (const Use& u : v->getUses())
-    end = std::max(end, m_SlotIndexes->getSlotIndex(u.getUser()));
+    end = std::max(end, pSlotIndexes.getSlotIndex(u.getUser()));
 
   pLI.addSegment(LiveRange::Segment(start, end));
 }

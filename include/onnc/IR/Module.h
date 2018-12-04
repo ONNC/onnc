@@ -223,6 +223,10 @@ public:
   /// print the information to stderr.
   void dump() const;
 
+  unsigned getTimeStep() const { return m_TimeStep; }
+
+  void setTimeStep(unsigned pTime) { m_TimeStep = pTime; }
+
 private:
   // Graph IR field
   std::shared_ptr<xGraph> m_RootTensorGraph;
@@ -238,6 +242,10 @@ private:
   ComputeOperandList m_ComputeOperands;
   ComputeDefineList m_ComputeDefines;
   ValueList m_Values;
+
+  // Update time step. It's updated by PassManager when ModulePass modify
+  // Module.
+  unsigned m_TimeStep;
 };
 
 template<> void Module::print<Module::OpsetImport>(std::ostream& pOS) const;

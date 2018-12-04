@@ -13,27 +13,17 @@
 
 namespace onnc {
 
-class BuildSlotIndexes;
-
 /** \class LiveIntervals
  *  \brief Build live intervals for all onnc::Value of onnc::Module.
- *         Provide utilities for live interval queries.
+ *         Save the building result in LiveIntervalsData.
  */
 class LiveIntervals : public ModulePass
 {
 public:
   static char ID;
 
-  typedef std::unordered_map<Value*, LiveInterval*> ValueIntervalMap;
-
-  typedef std::vector<LiveInterval*> LIs;
-
 public:
-  LiveIntervals()
-    : ModulePass(LiveIntervals::ID), m_ValIntrvls(), m_SlotIndexes(nullptr) {
-  }
-
-  virtual ~LiveIntervals() { clear(); }
+  LiveIntervals() : ModulePass(LiveIntervals::ID) {}
 
   ReturnType runOnModule(Module& pModule) override;
 
@@ -44,40 +34,11 @@ public:
 
   StringRef getPassName() const override { return "LiveIntervals"; }
 
-  bool hasInterval(const Value* pV) const;
-
-  const LiveInterval* getInterval(const Value* pV) const;
-
-  /// Remove a live interval pV from liveness table.
-  void removeLiveInterval(const Value* pV);
-
-  /// Get internal data structure.
-  ValueIntervalMap& getAllIntervals() { return m_ValIntrvls; }
-
-  /// Get all live intervals and sort them by start slot index in increasing
-  /// order.
-  const LIs getSortedIntervals() const;
-
-  unsigned getNumSlots() const { return m_SlotIndexes->getNumSlots(); }
-
-  SlotIndex getSlotIndex(const ComputeOperator* pOp) const
-  {
-    return m_SlotIndexes->getSlotIndex(pOp);
-  }
-
   void print(OStream& pOS, const Module* pModule) const override;
 
 private:
-  /// Delete LiveInterval object.
-  void clear();
-
-  LiveInterval* createEmptyLiveInterval(Value* pV);
-
-  void computeValueInterval(LiveInterval& pLI);
-
-private:
-  ValueIntervalMap m_ValIntrvls;
-  BuildSlotIndexes* m_SlotIndexes;
+  void computeValueInterval(LiveInterval& pLI,
+                            const BuildSlotIndexes& pSlotIndexes);
 };
 
 LiveIntervals* CreateLiveIntervalsPass();

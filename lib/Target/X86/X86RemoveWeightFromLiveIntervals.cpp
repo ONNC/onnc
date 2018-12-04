@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86RemoveWeightFromLiveIntervals.h"
-#include <onnc/CodeGen/LiveIntervals.h>
+#include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/Core/PassAnalysisSupport.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -18,7 +18,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType X86RemoveWeightFromLiveIntervals::runOnModule(Module& pModule)
 {
-  LiveIntervals* liveIntrvlPass = getAnalysis<LiveIntervals>();
+  LiveIntervalsData* liveIntrvlPass = getAnalysis<LiveIntervalsData>();
 
   for (auto& valIt : pModule.getValueList()) {
     Value* v = valIt.value();
@@ -35,7 +35,7 @@ Pass::ReturnType X86RemoveWeightFromLiveIntervals::runOnModule(Module& pModule)
 void X86RemoveWeightFromLiveIntervals::getAnalysisUsage(
   AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LiveIntervals::ID);
+  pUsage.addRequiredID(LiveIntervalsData::ID);
 }
 
 //===----------------------------------------------------------------------===//
