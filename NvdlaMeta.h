@@ -53,6 +53,7 @@ class NvdlaDlaOperation
 public:
   NvdlaDlaOperation() {
     // XXX: C++ is zero-initialized, so we need no memset(0).
+    // TODO: use initialized member list.
     memset(&op_dep, 0, sizeof(op_dep));
     memset(&op_desc, 0, sizeof(op_desc));
     memset(&op_surf, 0, sizeof(op_surf));
@@ -76,6 +77,7 @@ class NvdlaEmuOperation
 {
 public:
   NvdlaEmuOperation() {
+    // TODO: use initialized member list.
     memset(&op_desc, 0, sizeof(op_desc));
     memset(&op_buf, 0, sizeof(op_buf));
   }
@@ -89,6 +91,7 @@ class NvdlaBackendMeta
 {
 public:
   NvdlaBackendMeta() {
+    // TODO: use initialized member list.
     m_NumLUTs = 0;
     m_NumBlobs = 0;
     m_Loadable = priv::LoadableFactory::newLoadable();
@@ -208,7 +211,8 @@ enum nvdla_cube_type {
 class NvdlaCubeInfo
 {
 public:
-  NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es){
+  NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es) {
+    // TODO: use initialized member list.
     element_size = es;
     dim_n = n;
     dim_c = c;
@@ -267,6 +271,7 @@ public:
   }
 
   int getReducedBanks() {
+    // TODO: should be a constant member function
     switch(mode) {
       case NVDLA_CUBE_FEATURE:
         return banks;
@@ -281,6 +286,7 @@ public:
   }
 
   void reduceBanks() {
+    // TODO: should be a constant member function
     switch(mode) {
       case NVDLA_CUBE_FEATURE:
         break;
