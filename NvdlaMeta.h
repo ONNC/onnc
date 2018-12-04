@@ -1,5 +1,12 @@
-#ifndef _NVDLA_META_H_
-#define _NVDLA_META_H_
+//===- NvdlaMeta.h --------------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef TARGET_NVDLA_NVDLA_META_H
+#define TARGET_NVDLA_NVDLA_META_H
 
 #include <algorithm>
 #include <cassert>
