@@ -100,5 +100,6 @@ AC_CONFIG_FILES([tools/onnc/Makefile])
 AC_CONFIG_FILES([tools/readonnx/Makefile])
 AC_CONFIG_FILES([tools/onnc-jit/Makefile])
 AC_CONFIG_FILES([tools/onni/Makefile])
+AC_CONFIG_FILES([cmake/ONNCConfig.cmake])
 
 AC_OUTPUT
