@@ -33,6 +33,10 @@
 #include <bmnetc/foo.h>
 #endif
 
+#ifdef NDEBUG
+#define ENABLE_DEBUG()
+#endif
+
 using namespace onnc;
 
 static AboutData
