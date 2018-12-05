@@ -124,6 +124,8 @@ public:
   /// @retval true Success
   bool sync();
 
+  inline Statistics& clear() { return reset(); };
+
 protected:
   StatisticsGroup* m_pGroup;
   AccessMode m_AccessMode;

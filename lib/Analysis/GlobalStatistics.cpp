@@ -65,7 +65,7 @@ static ManagedStatic<internal::SkyGlobalPrivate> g_Stat;
 // Initialization - JSON configure
 //===----------------------------------------------------------------------===//
 
-void onnc::ClearConfigure()
+void onnc::ClearStats()
 {
   g_Stat->reset();
 }

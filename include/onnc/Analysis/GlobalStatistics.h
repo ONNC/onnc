@@ -21,7 +21,7 @@ Statistics* stat();
 
 
 /// Clear global::config()
-void ClearConfigure();
+void ClearStats();
 
 
 } // namespace of skymizer
