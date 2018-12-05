@@ -40,6 +40,7 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
   }
 
   std::string str2("{\"Skymizer\":\"ONNC\"}");
+  global::stat()->clear();
   global::stat()->read(str2);
   global::stat()->addGroup("CountOperatorsPass");
 
