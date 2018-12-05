@@ -14,7 +14,7 @@ namespace onnc {
 
 namespace global {
 
-Statistics* GlobalStat();
+Statistics* stat();
 
 
 } // namespace of global
