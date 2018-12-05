@@ -58,7 +58,7 @@ static ManagedStatic<internal::SkyGlobalPrivate> g_SkyGlobal;
 static ManagedStatic<Cassette> g_AppCassette;
 static ManagedStatic<Cassette> g_SysCassette;
 */
-static ManagedStatic<internal::SkyGlobalPrivate> g_GlobalStat;
+static ManagedStatic<internal::SkyGlobalPrivate> g_Stat;
 
 
 //===----------------------------------------------------------------------===//
@@ -67,16 +67,16 @@ static ManagedStatic<internal::SkyGlobalPrivate> g_GlobalStat;
 
 void onnc::ClearConfigure()
 {
-  g_GlobalStat->reset();
+  g_Stat->reset();
 }
 
 
 //===----------------------------------------------------------------------===//
 // global
 //===----------------------------------------------------------------------===//
-Statistics* global::GlobalStat()
+Statistics* global::stat()
 {
-  return g_GlobalStat->statistics();
+  return g_Stat->statistics();
 }
 
 

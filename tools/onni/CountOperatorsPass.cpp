@@ -40,11 +40,11 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
   }
 
   std::string str2("{\"Skymizer\":\"ONNC\"}");
-  global::GlobalStat()->read(str2);
-  global::GlobalStat()->addGroup("CountOperatorsPass");
+  global::stat()->read(str2);
+  global::stat()->addGroup("CountOperatorsPass");
 
   for(auto mapIter = count.begin(); mapIter != count.end(); ++mapIter){
-    global::GlobalStat()->group("CountOperatorsPass").\
+    global::stat()->group("CountOperatorsPass").\
     writeEntry(mapIter->first, mapIter->second);
   }
 
@@ -72,7 +72,7 @@ void CountOperatorsPass::printFooter(OStream &pOS) const {
 
 void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
   printHeader(pOS);
-  StatisticsGroup group = global::GlobalStat()->group("CountOperatorsPass");
+  StatisticsGroup group = global::stat()->group("CountOperatorsPass");
   StringList opList = group.entryList();
   for(auto listItr = opList.begin(); listItr != opList.end(); ++listItr){
     pOS << m_Prefix << std::setw(m_Width.first) << *listItr << SEP
