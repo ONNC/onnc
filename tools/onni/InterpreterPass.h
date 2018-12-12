@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_INTERPRETER_PASS_H
 #define ONNC_INTERPRETER_PASS_H
-#include "Interpreter.h"
+#include <onnc/Runtime/Interpreter.h>
 #include <onnc/Core/ModulePass.h>
 
 namespace onnc {

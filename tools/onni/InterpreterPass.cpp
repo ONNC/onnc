@@ -7,8 +7,6 @@
 //===----------------------------------------------------------------------===//
 #include "InterpreterPass.h"
 
-#include "Interpreter.h"
-
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
