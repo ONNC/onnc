@@ -47,6 +47,9 @@ Pass::ReturnType X86FuseConvRelu::runOnComputeGraph(ComputeGraph& pCG)
 
     ret |= Pass::kModuleChanged;
   }
+
+  pCG.topologicalSort();
+
   return ret;
 }
 
