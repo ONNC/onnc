@@ -16,22 +16,22 @@ char X86ConvRelu::ID = 0;
 //===----------------------------------------------------------------------===//
 void X86ConvRelu::printAttributes(std::ostream& pOS) const
 {
-  // m_Conv->printAttributes(pOS);
-  // m_Relu->printAttributes(pOS);
+  m_Conv.printAttributes(pOS);
+  m_Relu.printAttributes(pOS);
 }
 
 void X86ConvRelu::accept(ComputeVisitor &pV)
 {
-  // X86Visitor* visitor = dyn_cast<X86Visitor>(&pV);
-  // if (nullptr != visitor)
-  //   visitor->visit(*this);
+  X86ComputeVisitor* visitor = dyn_cast<X86ComputeVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }
 
 void X86ConvRelu::accept(ComputeVisitor &pV) const
 {
-  // X86Visitor* visitor = dyn_cast<X86Visitor>(&pV);
-  // if (nullptr != visitor)
-  //  visitor->visit(*this);
+  X86ComputeVisitor* visitor = dyn_cast<X86ComputeVisitor>(&pV);
+  if (nullptr != visitor)
+    visitor->visit(*this);
 }
 
 bool X86ConvRelu::classof(const ComputeOperator* pOp)

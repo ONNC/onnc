@@ -9,7 +9,9 @@
 #define TARGET_X86_X86_CONV_RELU_H
 
 #include <onnc/IR/ComputeOperator.h>
-#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/Compute/Relu.h>
+#include "X86ComputeVisitor.h"
 
 namespace onnc {
 
@@ -19,8 +21,8 @@ public:
   static char ID;
 
 public:
-  X86ConvRelu()
-    : ComputeOperator("X86ConvRelu", ID) {
+  X86ConvRelu(Conv &pConv, Relu &pRelu)
+    : ComputeOperator("X86ConvRelu", ID), m_Conv(pConv), m_Relu(pRelu) {
   }
 
   virtual ~X86ConvRelu() { }
@@ -32,6 +34,9 @@ public:
   void accept(ComputeVisitor& pV) const override;
 
   static bool classof(const ComputeOperator* pOp);
+
+  Conv m_Conv;
+  Relu m_Relu;
 };
 
 } // namespace of onnc
