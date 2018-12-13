@@ -1,6 +1,7 @@
 
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${SKYPAT_INCLUDE_DIRS})
+include_directories(${PROTOBUF_INCLUDE_DIR})
 
 add_definitions(-DTOPDIR="${onnc_SOURCE_DIR}")
 add_definitions(-DBUILDDIR="${onnc_BINARY_DIR}")

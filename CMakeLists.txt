@@ -116,6 +116,11 @@ if(USE_LLVM)
 endif(USE_LLVM)
 #  Protobuf
 find_package(Protobuf REQUIRED)
+#  glog
+find_package(Glog REQUIRED)
+message(STATUS "[${PACKAGE}] Using glog include at ${GLOG_INCLUDE_DIR}")
+include_directories(${GLOG_INCLUDE_DIR})
+link_directories(${GLOG_LIBRARY_DIR})
 
 ####################
 # Other
