@@ -488,7 +488,8 @@ AM_LFLAGS = -olex.yy.c
 
 #####################################
 # Target-depednet files and settings
-ONNC_TARGET_SOURCES = Target/Target.cpp \
+ONNC_TARGET_SOURCES = Target/Platform.cpp \
+	Target/Target.cpp \
 	Target/TargetOptions.cpp \
 	Target/TargetRegistry.cpp \
 	Target/TargetStandardPasses.cpp \
@@ -496,6 +497,10 @@ ONNC_TARGET_SOURCES = Target/Target.cpp \
 
 if ENABLE_X86_TARGET
 include $(srcdir)/Target/X86/Makefile.am
+endif
+
+if ENABLE_NVDLA_TARGET
+include $(srcdir)/Target/NVDLA/Makefile.am
 endif
 
 # FIXME: embraced by flag?
