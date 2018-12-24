@@ -126,6 +126,23 @@ public:
 
   inline Statistics& clear() { return reset(); };
 
+  /// Add a counter with int type. The default description is "no description"
+  /// @retval true Success
+  bool addCounter(StringRef pName);
+  bool addCounter(StringRef pName, StringRef pDesc);
+
+  /// increase counter by 1
+  /// @retval true Success
+  bool increaseCounter(StringRef pName);
+
+  /// print counter name, counter value, and its description
+  void printCounter(StringRef pName, OStream& pOS);
+
+  /// print all key in Counter group
+  /// @retval StringList
+  StringList counterList() const;
+  
+
 protected:
   StatisticsGroup* m_pGroup;
   AccessMode m_AccessMode;

@@ -205,3 +205,47 @@ bool Statistics::sync()
   }
   return true;
 }
+
+bool Statistics::addCounter(StringRef pName)
+{
+  std::string str("no description");
+  return addCounter(pName, StringRef(str)); 
+}
+
+bool Statistics::addCounter(StringRef pName, StringRef pDesc)
+{
+  Statistics* gStat = global::stats();
+  if (gStat->group("Counter").hasEntry(pName))
+    return false;
+  gStat->group("Counter").writeEntry(pName, 0);
+  gStat->group("Counter_Desc").writeEntry(pName, pDesc);
+  return true;
+}
+
+bool Statistics::increaseCounter(StringRef pName)
+{
+  Statistics* gStat = global::stats();
+  if (! gStat->group("Counter").hasEntry(pName))
+    return false;
+  int entry_value = gStat->group("Counter").readEntry(pName, 0) + 1;
+  gStat->group("Counter").writeEntry(pName, entry_value);
+  return true;
+}
+
+void Statistics::printCounter(StringRef pName, OStream &pOS)
+{
+  Statistics* gStat = global::stats();
+  if (! gStat->group("Counter").hasEntry(pName))
+    return;
+  pOS << pName << "," 
+      << gStat->group("Counter").readEntry(pName, 0) << ","
+      << gStat->group("Counter_Desc").readEntry(pName, "no value") 
+      // please note that this magic string comes from StatisticsTest.cpp.
+      // I guess it's becuase readEntry is implemented by template.
+      << std:: endl;
+}
+
+StringList Statistics::counterList() const
+{
+  return global::stats()->group("Counter").entryList();
+}

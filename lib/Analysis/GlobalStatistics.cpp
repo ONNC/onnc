@@ -76,7 +76,10 @@ void onnc::ClearStats()
 //===----------------------------------------------------------------------===//
 Statistics* global::stats()
 {
-  return g_Stat->statistics();
+  Statistics* stats = g_Stat->statistics();
+  stats->addGroup("Counter");
+  stats->addGroup("Counter_Desc");
+  return stats;
 }
 
 
