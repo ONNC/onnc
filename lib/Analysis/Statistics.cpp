@@ -23,6 +23,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Statistics::Statistics()
   : m_pGroup(NULL), m_AccessMode(kReadOnly), m_FilePath(), m_Value() {
+  std::string str("{\"Skymizer\":\"ONNC\"}");
+  read(StringRef(str));
 }
 
 Statistics::Statistics(StringRef pContent)

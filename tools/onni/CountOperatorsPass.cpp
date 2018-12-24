@@ -39,9 +39,6 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     ++m_Total;
   }
 
-  std::string str2("{\"Skymizer\":\"ONNC\"}");
-  global::stats()->clear();
-  global::stats()->read(str2);
   global::stats()->addGroup("CountOperatorsPass");
 
   for(auto mapIter = count.begin(); mapIter != count.end(); ++mapIter){
