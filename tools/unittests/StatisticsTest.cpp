@@ -49,7 +49,7 @@ private:
 SKYPAT_F(StatisticsTest, invalid_statistics)
 {
   Statistics statistics1;
-  EXPECT_FALSE(statistics1.isValid());
+  EXPECT_TRUE(statistics1.isValid());
 
   StringRef str2;
   Statistics statistics2(str2);
