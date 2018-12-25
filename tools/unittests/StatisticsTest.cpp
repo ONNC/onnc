@@ -49,7 +49,7 @@ private:
 SKYPAT_F(StatisticsTest, invalid_statistics)
 {
   Statistics statistics1;
-  EXPECT_TRUE(statistics1.isValid());
+  EXPECT_FALSE(statistics1.isValid());
 
   StringRef str2;
   Statistics statistics2(str2);
@@ -144,7 +144,9 @@ SKYPAT_F(StatisticsTest, read_str)
 
   StringList group_list1 = statistics1.groupList();
   StringList group_list2 = statistics2.groupList();
-  ASSERT_EQ(group_list1.size(), group_list2.size());
+  ASSERT_EQ(group_list1.size(), group_list2.size())
+    << "group_list1 size: " << group_list1.size()
+    << "\ngroup_list2 size: " << group_list2.size();
 
   StringList::iterator iter1 = group_list1.begin();
   StringList::iterator iter2 = group_list2.begin();

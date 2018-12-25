@@ -34,6 +34,7 @@ public:
 
 public:
   /// Default constructor
+  /// Default constructor is invalid because we don't read anything.
   Statistics();
 
   /// Read the configuration from string @ref pContent
