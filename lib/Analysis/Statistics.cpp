@@ -222,12 +222,22 @@ bool Statistics::addCounter(StringRef pName, StringRef pDesc)
   return true;
 }
 
-bool Statistics::increaseCounter(StringRef pName)
+bool Statistics::increaseCounter(StringRef pName, unsigned int incNumber)
 {
   Statistics* gStat = global::stats();
   if (! gStat->group("Counter").hasEntry(pName))
     return false;
-  int entry_value = gStat->group("Counter").readEntry(pName, 0) + 1;
+  int entry_value = gStat->group("Counter").readEntry(pName, 0) + incNumber;
+  gStat->group("Counter").writeEntry(pName, entry_value);
+  return true;
+}
+
+bool Statistics::decreaseCounter(StringRef pName, unsigned int decNumber)
+{
+  Statistics* gStat = global::stats();
+  if (! gStat->group("Counter").hasEntry(pName))
+    return false;
+  int entry_value = gStat->group("Counter").readEntry(pName, 0) - decNumber;
   gStat->group("Counter").writeEntry(pName, entry_value);
   return true;
 }
@@ -248,4 +258,13 @@ void Statistics::printCounter(StringRef pName, OStream &pOS)
 StringList Statistics::counterList() const
 {
   return global::stats()->group("Counter").entryList();
+}
+
+bool Statistics::resetCounter(StringRef pName, int initNum)
+{
+  Statistics* gStat = global::stats();
+  if (! gStat->group("Counter").hasEntry(pName))
+    return false;
+  gStat->group("Counter").writeEntry(pName, initNum);
+  return true;
 }

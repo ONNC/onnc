@@ -131,9 +131,12 @@ public:
   bool addCounter(StringRef pName);
   bool addCounter(StringRef pName, StringRef pDesc);
 
-  /// increase counter by 1
+  /// increase counter, default by 1
   /// @retval true Success
-  bool increaseCounter(StringRef pName);
+  bool increaseCounter(StringRef pName, unsigned int incNumber=1);
+  /// decrease counter, default by 1
+  /// @retval true Success
+  bool decreaseCounter(StringRef pName, unsigned int decNumber=1);
 
   /// print counter name, counter value, and its description
   void printCounter(StringRef pName, OStream& pOS);
@@ -141,7 +144,10 @@ public:
   /// print all key in Counter group
   /// @retval StringList
   StringList counterList() const;
-  
+
+  /// reset counter as initNum, default is 0
+  /// @retval true Success
+  bool resetCounter(StringRef pName, int initNum=0);  
 
 protected:
   StatisticsGroup* m_pGroup;
