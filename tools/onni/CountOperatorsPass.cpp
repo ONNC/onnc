@@ -34,9 +34,9 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     if (dyn_cast<Initializer>(&cm)) continue;
     if (dyn_cast<OutputOperator>(&cm)) continue;
     onnc::StringRef name = cm.name(); 
-    std::string str("count for ");
-    str.append(name);
-    global::stats()->addCounter(name, str);
+    std::string desc("count for ");
+    desc.append(name);
+    global::stats()->addCounter(name, desc);
     global::stats()->increaseCounter(name);
     op_len = std::max(op_len, name.size());
     ++m_Total;
