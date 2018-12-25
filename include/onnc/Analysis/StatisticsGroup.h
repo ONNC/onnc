@@ -1,8 +1,8 @@
 //===- StatisticsGroup.h ---------------------------------------------------===//
 //
-//                               Skymizer
+//                             The ONNC Project
 //
-// Copyright (C) 2013, 2014, Skymizer Inc.. All rights reserved.
+// See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ANALYSIS_STATISTICS_GROUP_H

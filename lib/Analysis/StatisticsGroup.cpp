@@ -1,8 +1,8 @@
 //===- StatisticsGroup.cpp -------------------------------------------------===//
 //
-//                               Skymizer
+//                             The ONNC Project
 //
-// Copyright (C) 2013, 2014, Skymizer Inc.. All rights reserved.
+// See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/StatisticsGroup.h>
