@@ -327,10 +327,12 @@ ONNC_SOURCES = \
 	Support/Dragon/Path.inc \
 	Support/Dragon/FileSystem.inc \
 	JSON/Array.cpp \
+	JSON/Group.cpp \
 	JSON/Object.cpp \
 	JSON/Value.cpp \
 	JSON/JsonParser.ypp \
 	JSON/JsonScanner.lpp \
+	JSON/Storage.cpp \
 	JSON/String.cpp \
 	JSON/Notation.cpp \
 	Diagnostic/Diagnostic.cpp \
