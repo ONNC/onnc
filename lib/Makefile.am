@@ -259,7 +259,6 @@ ONNC_SOURCES = \
 	Analysis/SplitNode.cpp \
 	Analysis/UpdateGraphOutputSize.cpp \
 	Analysis/Statistics.cpp \
-	Analysis/StatisticsGroup.cpp \
 	Analysis/GlobalStatistics.cpp \
 	CodeGen/BuildMemOperand.cpp \
 	CodeGen/FuseInplaceValue.cpp \

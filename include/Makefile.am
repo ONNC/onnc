@@ -51,6 +51,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/Target/DLATargetBackend.h \
 	onnc/Target/Target.h \
 	onnc/JSON/Array.h \
+	onnc/JSON/Group.h \
+	onnc/JSON/Storage.h \
 	onnc/JSON/String.h \
 	onnc/JSON/Object.h \
 	onnc/JSON/Value.h \
@@ -419,7 +421,6 @@ nobase_nodist_include_HEADERS = \
 	onnc/Analysis/NodeIRScheduler.h \
 	onnc/Analysis/LivenessAnalysis.h \
 	onnc/Analysis/Statistics.h \
-	onnc/Analysis/StatisticsGroup.h \
 	onnc/Analysis/GlobalStatistics.h \
 	onnc/IRReader/ONNXReader.h \
 	onnc/ADT/ConstSwitch.h \
