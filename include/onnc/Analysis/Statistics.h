@@ -57,14 +57,15 @@ public:
   /// Destructor. If @ref accessMode() is writable, then write back the value.
   virtual ~Statistics() { }
 
-  /// Add a counter with int type. The default description is "no description"
+  /// Add a counter.
   /// @retval true Success
-  bool addCounter(StringRef pName);
-  bool addCounter(StringRef pName, StringRef pDesc);
+  /// @retval false The counter has been added.
+  bool addCounter(StringRef pName, StringRef pDesc = "no description");
 
   /// increase counter, default by 1
   /// @retval true Success
   bool increaseCounter(StringRef pName, unsigned int incNumber=1);
+
   /// decrease counter, default by 1
   /// @retval true Success
   bool decreaseCounter(StringRef pName, unsigned int decNumber=1);

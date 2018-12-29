@@ -41,12 +41,6 @@ Statistics::Statistics(const Path& pFilePath, json::Storage::AccessMode pMode)
   : json::Storage(pFilePath, pMode) {
 }
 
-bool Statistics::addCounter(StringRef pName)
-{
-  std::string str("no description");
-  return addCounter(pName, StringRef(str)); 
-}
-
 bool Statistics::addCounter(StringRef pName, StringRef pDesc)
 {
   Statistics* gStat = global::stats();
