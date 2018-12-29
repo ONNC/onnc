@@ -67,8 +67,8 @@ void CountOperatorsPass::printFooter(OStream &pOS) const {
 
 void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
   printHeader(pOS);
-  StatisticsGroup group = global::stats()->group("Counter");
-  StatisticsGroup descGroup = global::stats()->group("Counter_Desc");
+  json::Group group = global::stats()->group("Counter");
+  json::Group descGroup = global::stats()->group("Counter_Desc");
   StringList opList = global::stats()->counterList();
   for(auto listItr = opList.begin(); listItr != opList.end(); ++listItr){
     pOS << m_Prefix << std::setw(m_Width.first) << *listItr << SEP
