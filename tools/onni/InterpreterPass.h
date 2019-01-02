@@ -39,7 +39,7 @@ private:
   char *m_pInputMem;
   unsigned int m_Verbose;
   bool m_DryRun;
-  Interpreter m_Interpreter;
+  std::unique_ptr<Interpreter> m_pInterpreter;
 };
 
 // XXX: Experimental
