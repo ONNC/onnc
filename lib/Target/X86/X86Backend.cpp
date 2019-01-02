@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86Backend.h"
+#include "X86Interpreter.h"
 #include "X86FuseConvRelu.h"
 #include "X86InplaceValueFusible.h"
 #include "X86RemoveWeightFromLiveIntervals.h"
@@ -183,6 +184,10 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 void X86Backend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   // TODO
+}
+
+Interpreter *X86Backend::createTargetInterpreter() const {
+  return new X86Interpreter();
 }
 
 void X86Backend::RegisterLowers(LowerRegistry& pRegistry) const
