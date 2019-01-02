@@ -1,16 +1,16 @@
-//===- StatisticsGroup.cpp -------------------------------------------------===//
+//===- Group.cpp ----------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Analysis/StatisticsGroup.h>
-#include <onnc/Analysis/Statistics.h>
+#include <onnc/JSON/Group.h>
+#include <onnc/JSON/Storage.h>
 #include <onnc/Support/ManagedStatic.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 
-using namespace onnc;
+namespace onnc {
 
 static ManagedStatic<json::Object> g_NullObject;
 
@@ -40,19 +40,21 @@ static inline bool CheckList(const json::Object& pObject, StringRef pName)
   return pObject.get(pName).isArray();
 }
 
+namespace json {
+
 //===----------------------------------------------------------------------===//
-// StatisticsGroup::GroupIterator
+// Group::GroupIterator
 //===----------------------------------------------------------------------===//
-StatisticsGroup::GroupIterator::GroupIterator()
+Group::GroupIterator::GroupIterator()
   : m_pObject(NULL) {
 }
 
-StatisticsGroup::GroupIterator::GroupIterator(const json::Object::iterator& pPtr,
+Group::GroupIterator::GroupIterator(const json::Object::iterator& pPtr,
                                              json::Object& pObject)
   : m_Ptr(pPtr), m_pObject(&pObject) {
 }
 
-StatisticsGroup::GroupIterator& StatisticsGroup::GroupIterator::next()
+Group::GroupIterator& Group::GroupIterator::next()
 {
   if (NULL == m_pObject)
     return *this;
@@ -65,29 +67,29 @@ StatisticsGroup::GroupIterator& StatisticsGroup::GroupIterator::next()
   return *this;
 }
 
-StringRef StatisticsGroup::GroupIterator::name() const
+StringRef Group::GroupIterator::name() const
 {
   return m_Ptr->key();
 }
 
-StatisticsGroup StatisticsGroup::GroupIterator::group()
+Group Group::GroupIterator::group()
 {
-  return StatisticsGroup(m_Ptr->value().asObject());
+  return Group(m_Ptr->value().asObject());
 }
 
 //===----------------------------------------------------------------------===//
-// StatisticsGroup::ValueIterator
+// Group::ValueIterator
 //===----------------------------------------------------------------------===//
-StatisticsGroup::ValueIterator::ValueIterator()
+Group::ValueIterator::ValueIterator()
   : m_pArray(nullptr) {
 }
 
-StatisticsGroup::ValueIterator::ValueIterator(const json::Array::iterator& pPtr,
+Group::ValueIterator::ValueIterator(const json::Array::iterator& pPtr,
                                              json::Array& pArray)
   : m_Ptr(pPtr), m_pArray(&pArray) {
 }
 
-StatisticsGroup::ValueIterator& StatisticsGroup::ValueIterator::next()
+Group::ValueIterator& Group::ValueIterator::next()
 {
   if (nullptr != m_pArray) {
     // go to the next group
@@ -99,35 +101,35 @@ StatisticsGroup::ValueIterator& StatisticsGroup::ValueIterator::next()
   return *this;
 }
 
-StatisticsGroup StatisticsGroup::ValueIterator::group()
+Group Group::ValueIterator::group()
 {
-  return StatisticsGroup(m_Ptr->asObject());
+  return Group(m_Ptr->asObject());
 }
 
 //===----------------------------------------------------------------------===//
-// StatisticsGroup
+// Group
 //===----------------------------------------------------------------------===//
-StatisticsGroup::StatisticsGroup(Statistics& pParent, StringRef pName)
+Group::Group(Storage& pParent, StringRef pName)
   : m_pObject(pParent.group(pName).m_pObject) {
 }
 
-StatisticsGroup::StatisticsGroup(json::Object& pObject)
+Group::Group(json::Object& pObject)
   : m_pObject(&pObject) {
 }
 
-StatisticsGroup StatisticsGroup::group(StringRef pName)
+Group Group::group(StringRef pName)
 {
   if (hasGroup(pName))
-    return StatisticsGroup((*m_pObject)[pName].asObject());
+    return Group((*m_pObject)[pName].asObject());
   return Null();
 }
 
-bool StatisticsGroup::hasGroup(StringRef pGroup) const
+bool Group::hasGroup(StringRef pGroup) const
 {
   return CheckGroup(*m_pObject, pGroup);
 }
 
-bool StatisticsGroup::deleteGroup(StringRef pName)
+bool Group::deleteGroup(StringRef pName)
 {
   if (!hasGroup(pName))
     return false;
@@ -136,7 +138,7 @@ bool StatisticsGroup::deleteGroup(StringRef pName)
   return true;
 }
 
-StatisticsGroup StatisticsGroup::addGroup(StringRef pName, bool* pExist)
+Group Group::addGroup(StringRef pName, bool* pExist)
 {
   if (hasGroup(pName)) {
     if (nullptr != pExist)
@@ -150,47 +152,47 @@ StatisticsGroup StatisticsGroup::addGroup(StringRef pName, bool* pExist)
   return this->group(pName);
 }
 
-StringList StatisticsGroup::groupList() const
+StringList Group::groupList() const
 {
   StringList result;
   groupList(result);
   return result;
 }
 
-bool StatisticsGroup::hasEntry(StringRef pName) const
+bool Group::hasEntry(StringRef pName) const
 {
   return m_pObject->hasValue(pName);
 }
 
-StringList StatisticsGroup::entryList() const
+StringList Group::entryList() const
 {
   StringList result;
   entryList(result);
   return result;
 }
 
-void StatisticsGroup::clear()
+void Group::clear()
 {
   m_pObject->clear();
 }
 
-bool StatisticsGroup::isEmpty() const
+bool Group::isEmpty() const
 {
   return (m_pObject->begin() == m_pObject->end());
 }
 
-bool StatisticsGroup::isNull() const
+bool Group::isNull() const
 {
   return (m_pObject == &(*g_NullObject));
 }
 
-StatisticsGroup StatisticsGroup::Null()
+Group Group::Null()
 {
-  return StatisticsGroup(*g_NullObject);
+  return Group(*g_NullObject);
 }
 
 #define READ_ENTRY(TYPE, NAME) \
-TYPE StatisticsGroup::readEntry(StringRef pKey, TYPE pDefault) const \
+TYPE Group::readEntry(StringRef pKey, TYPE pDefault) const \
 { \
   if (!m_pObject->hasValue(pKey) || !(*m_pObject)[pKey].is##NAME()) \
     return pDefault; \
@@ -204,22 +206,22 @@ READ_ENTRY(long,          Integer)
 READ_ENTRY(double,        Floating)
 READ_ENTRY(bool,          Bool)
 
-StringRef StatisticsGroup::readEntry(StringRef pKey, const char* pDefault) const
+StringRef Group::readEntry(StringRef pKey, const char* pDefault) const
 {
   return readEntry(pKey, StringRef(pDefault));
 }
 
-StringRef StatisticsGroup::readEntry(StringRef pKey, const std::string& pDefault) const
+StringRef Group::readEntry(StringRef pKey, const std::string& pDefault) const
 {
   return readEntry(pKey, pDefault.c_str());
 }
 
-Path StatisticsGroup::readEntry(StringRef pKey, const Path& pDefault) const
+Path Group::readEntry(StringRef pKey, const Path& pDefault) const
 {
   return Path(this->readEntry(pKey, pDefault.native().c_str()));
 }
 
-StringList StatisticsGroup::readEntry(StringRef pKey, const StringList& pDefault) const
+StringList Group::readEntry(StringRef pKey, const StringList& pDefault) const
 {
   if (!CheckList(*m_pObject, pKey))
     return pDefault; // cause a copy
@@ -236,7 +238,7 @@ StringList StatisticsGroup::readEntry(StringRef pKey, const StringList& pDefault
 }
 
 #define READ_LIST(TYPE, NAME) std::vector<TYPE> \
-StatisticsGroup::readEntry(StringRef pKey, const std::vector<TYPE>& pDefault) const \
+Group::readEntry(StringRef pKey, const std::vector<TYPE>& pDefault) const \
 { \
   if (!CheckList(*m_pObject, pKey)) \
     return pDefault; \
@@ -258,17 +260,17 @@ READ_LIST(float,  Floating)
 READ_LIST(double, Floating)
 READ_LIST(bool,   Bool)
 
-void StatisticsGroup::writeEntry(StringRef pKey, StringRef pValue)
+void Group::writeEntry(StringRef pKey, StringRef pValue)
 {
   m_pObject->write(pKey, pValue);
 }
 
-void StatisticsGroup::writeEntry(StringRef pKey, const Path& pValue)
+void Group::writeEntry(StringRef pKey, const Path& pValue)
 {
   m_pObject->write(pKey, pValue.native());
 }
 
-void StatisticsGroup::groupList(StringList& pGrpNames) const
+void Group::groupList(StringList& pGrpNames) const
 {
   json::Object::iterator val, vEnd = m_pObject->end();
   for (val = m_pObject->begin(); val != vEnd; ++val) {
@@ -277,7 +279,7 @@ void StatisticsGroup::groupList(StringList& pGrpNames) const
   }
 }
 
-void StatisticsGroup::entryList(StringList& pEntryNames) const
+void Group::entryList(StringList& pEntryNames) const
 {
   json::Object::iterator val, vEnd = m_pObject->end();
   for (val = m_pObject->begin(); val != vEnd; ++val) {
@@ -286,7 +288,7 @@ void StatisticsGroup::entryList(StringList& pEntryNames) const
   }
 }
 
-StatisticsGroup::GroupIterator StatisticsGroup::gBegin()
+Group::GroupIterator Group::gBegin()
 {
   // go to the first group.
   json::Object::iterator val = m_pObject->begin();
@@ -296,12 +298,12 @@ StatisticsGroup::GroupIterator StatisticsGroup::gBegin()
   return GroupIterator(val, *m_pObject);
 }
 
-StatisticsGroup::GroupIterator StatisticsGroup::gEnd()
+Group::GroupIterator Group::gEnd()
 {
   return GroupIterator(m_pObject->end(), *m_pObject);
 }
 
-StatisticsGroup::ValueIterator StatisticsGroup::vBegin(StringRef pName)
+Group::ValueIterator Group::vBegin(StringRef pName)
 {
   if (!CheckList(*m_pObject, pName))
     return ValueIterator();
@@ -309,10 +311,13 @@ StatisticsGroup::ValueIterator StatisticsGroup::vBegin(StringRef pName)
   return ValueIterator(val.begin(), val);
 }
 
-StatisticsGroup::ValueIterator StatisticsGroup::vEnd(StringRef pName)
+Group::ValueIterator Group::vEnd(StringRef pName)
 {
   if (!CheckList(*m_pObject, pName))
     return ValueIterator();
   json::Array& val = (*m_pObject)[pName].asArray();
   return ValueIterator(val.end(), val);
 }
+
+} // namespace of json
+} // namespace of onnc

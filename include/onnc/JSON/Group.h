@@ -1,12 +1,12 @@
-//===- StatisticsGroup.h ---------------------------------------------------===//
+//===- Group.h ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_ANALYSIS_STATISTICS_GROUP_H
-#define ONNC_ANALYSIS_STATISTICS_GROUP_H
+#ifndef ONNC_JSON_GROUP_H
+#define ONNC_JSON_GROUP_H
 #include <onnc/Support/Path.h>
 #include <onnc/JSON/Array.h>
 #include <onnc/JSON/Object.h>
@@ -16,12 +16,13 @@
 #include <vector>
 
 namespace onnc {
+namespace json {
 
-class Statistics;
+class Storage;
 
-/** \class StatisticsGroup
+/** \class Group
  */
-class StatisticsGroup
+class Group
 {
 public:
   class GroupIterator
@@ -33,14 +34,14 @@ public:
 
     StringRef name() const;
 
-    StatisticsGroup group();
+    Group group();
 
     bool operator==(const GroupIterator& pX) const { return (m_Ptr == pX.m_Ptr); }
 
     bool operator!=(const GroupIterator& pX) const { return (m_Ptr != pX.m_Ptr); }
 
   private:
-    friend class StatisticsGroup;
+    friend class Group;
 
     GroupIterator(const json::Object::iterator& pPtr, json::Object& pObject);
 
@@ -56,18 +57,18 @@ public:
 
     ValueIterator& next();
 
-    StatisticsGroup group();
+    Group group();
 
     ValueIterator& operator++() { return next(); }
 
-    StatisticsGroup operator*() { return group(); }
+    Group operator*() { return group(); }
 
     bool operator==(const ValueIterator& pX) const { return (m_Ptr == pX.m_Ptr); }
 
     bool operator!=(const ValueIterator& pX) const { return (m_Ptr != pX.m_Ptr); }
 
   private:
-    friend class StatisticsGroup;
+    friend class Group;
 
     ValueIterator(const json::Array::iterator& pPtr, json::Array& pArray);
 
@@ -79,14 +80,14 @@ public:
   typedef GroupIterator iterator;
 
 public:
-  StatisticsGroup(Statistics& pParent, StringRef pName);
+  Group(Storage& pParent, StringRef pName);
 
-  ~StatisticsGroup() { }
+  ~Group() { }
 
   /// group - Return the sub-group @ref pName.
   /// This function is unsafe. If there is no sub-group named @ref pKey, then
   /// the function behavior is undefined.
-  StatisticsGroup group(StringRef pName);
+  Group group(StringRef pName);
 
   /// hasGroup - Check whether @ref pName sub-group exists or not.
   bool hasGroup(StringRef pName) const;
@@ -99,7 +100,7 @@ public:
   ///
   /// @param[out] pExist Whether or not the group exists.
   /// @return The group named @ref pName.
-  StatisticsGroup addGroup(StringRef pName, bool* pExist = nullptr);
+  Group addGroup(StringRef pName, bool* pExist = nullptr);
 
   /// Returns a list of groups that are known about.
   StringList groupList() const;
@@ -138,7 +139,7 @@ public:
   bool isNull() const;
 
   /// Null - return a null object
-  static StatisticsGroup Null();
+  static Group Null();
 
   /// Reads the integer value of an entry specified by @ref pKey
   /// If the entry doesn't exist, then return pDefault.
@@ -226,15 +227,16 @@ public:
   }
 
   /// Constructor - public for testing.
-  explicit StatisticsGroup(json::Object& pObject);
+  explicit Group(json::Object& pObject);
 
 private:
-  friend class Statistics;
+  friend class Storage;
 
 private:
   json::Object* m_pObject;
 };
 
+} // namespace of json
 } // namespace of skymizer
 
 #endif

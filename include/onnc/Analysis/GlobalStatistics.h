@@ -8,7 +8,6 @@
 #ifndef ONNC_ANALYSIS_GLOBALSTATISTICS_H
 #define ONNC_ANALYSIS_GLOBALSTATISTICS_H
 #include <onnc/Analysis/Statistics.h>
-#include <onnc/Analysis/StatisticsGroup.h>
 
 namespace onnc {
 

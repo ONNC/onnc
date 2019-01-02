@@ -108,8 +108,8 @@ SKYPAT_F(StatisticsTest, merge_null)
   path.append("/tools/unittests/data/empty.json");
 
   Statistics statistics(path, Statistics::kReadOnly);
-  EXPECT_TRUE(StatisticsGroup::Null().isNull());
-  statistics.merge("null", StatisticsGroup::Null());
+  EXPECT_TRUE(json::Group::Null().isNull());
+  statistics.merge("null", json::Group::Null());
 
   EXPECT_TRUE(statistics.hasGroup("null"));
   EXPECT_TRUE(statistics.group("null").isEmpty());
@@ -225,8 +225,8 @@ SKYPAT_F(StatisticsTest, read_entry_wrong_type)
 SKYPAT_F(StatisticsTest, read_entry_group_iterator)
 {
   Statistics statistics("{ \"group1\": { \"value\": 1 }, \"group2\": { \"value\": 2 } }");
-  StatisticsGroup::GroupIterator group = statistics.top().gBegin();
-  StatisticsGroup::GroupIterator end = statistics.top().gEnd();
+  json::Group::GroupIterator group = statistics.top().gBegin();
+  json::Group::GroupIterator end = statistics.top().gEnd();
 
   ASSERT_FALSE(group == end);
   EXPECT_EQ(group.name(), "group1");
@@ -242,8 +242,8 @@ SKYPAT_F(StatisticsTest, read_entry_group_iterator)
 SKYPAT_F(StatisticsTest, read_entry_value_iterator)
 {
   Statistics statistics("{ \"group\": [{ \"value\": 1 }, { \"value\": 2 }] }");
-  StatisticsGroup::ValueIterator group = statistics.top().vBegin("group");
-  StatisticsGroup::ValueIterator end = statistics.top().vEnd("group");
+  json::Group::ValueIterator group = statistics.top().vBegin("group");
+  json::Group::ValueIterator end = statistics.top().vEnd("group");
 
   ASSERT_FALSE(group == end);
   EXPECT_EQ(group.group().readEntry("value", 0), 1);
@@ -265,7 +265,7 @@ SKYPAT_F(StatisticsTest, read_only_cannot_write)
   Statistics statistics(tester.target(), Statistics::kReadWrite);
   EXPECT_TRUE(statistics.isValid()); //< able to read
 
-  StatisticsGroup group = statistics.addGroup("group");
+  json::Group group = statistics.addGroup("group");
   group.writeEntry("test", "value");
   StringRef value = statistics.group("group").readEntry("test", "no value");
   EXPECT_TRUE_MSG(value.equals("value"), value);
@@ -303,7 +303,7 @@ SKYPAT_F(StatisticsTest, multiple_writes)
   ASSERT_TRUE(chmod(tester.target(), 0644));
 
   Statistics statistics(tester.target(), Statistics::kReadWrite);
-  StatisticsGroup group = statistics.addGroup("group");
+  json::Group group = statistics.addGroup("group");
 
   // write identical key twice.
   group.writeEntry("test", "value1");
@@ -329,7 +329,7 @@ SKYPAT_F(StatisticsTest, statistics_impl_read)
   json::Value value;
   reader.parse(path, value); 
 
-  StatisticsGroup impl(value.asObject());
+  json::Group impl(value.asObject());
 
   StringRef value13 = impl.group("group1").readEntry("gkey3", "no value");
   EXPECT_TRUE(value13.equals("value13"));
@@ -352,7 +352,7 @@ SKYPAT_F(StatisticsTest, statistics_impl_read)
 SKYPAT_F(StatisticsTest, statistics_impl_write)
 {
   json::Object obj;
-  StatisticsGroup impl(obj);
+  json::Group impl(obj);
 
   impl.writeEntry("key1", 1);
   impl.writeEntry("key2", 2.2);
