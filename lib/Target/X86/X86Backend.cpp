@@ -134,6 +134,11 @@
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
 using namespace onnc;
 
+cl::opt<bool>
+onnc::EnableX86FuseConvRelu("enable-x86-fuse-conv-relu", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Enable x86 fuse conv relu."));
+
 //===----------------------------------------------------------------------===//
 // X86Backend
 //===----------------------------------------------------------------------===//
@@ -153,9 +158,9 @@ void X86Backend::addTensorSel(PassManager& pPM)
   // standard Tensor selection passes.
   addStandardTensorSel(pPM, *this);
 
-  // CreateX86FuseConvReluPass is an example pass.
-  // We don't really want to use it since it doesn't work so far.
-  //pPM.add(CreateX86FuseConvReluPass());
+  if (EnableX86FuseConvRelu) {
+    pPM.add(CreateX86FuseConvReluPass());
+  }
 }
 
 void X86Backend::addMemAlloc(PassManager& pPM)

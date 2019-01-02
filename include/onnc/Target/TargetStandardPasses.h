@@ -11,7 +11,10 @@
 
 namespace onnc {
 
+// TODO: This is temporary solution. Remove this After Configuration facility
+//       finished.
 extern cl::opt<std::string> LinearScanAlgo;
+extern cl::opt<bool> EnableX86FuseConvRelu;
 
 class PassManager;
 class TargetBackend;

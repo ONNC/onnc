@@ -88,6 +88,7 @@ static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
 int main(int pArgc, char* pArgv[])
 {
   apply(cl::about(g_About), &LinearScanAlgo);
+  apply(cl::about(g_About), &EnableX86FuseConvRelu);
   ONNIApp onni(pArgc, pArgv);
 
   // -verbose=level
