@@ -45,6 +45,14 @@ namespace json {
  *  a parent group. @ref Storage::group and @ref Group::group returns child
  *  group.
  *
+ *  In case that you uses storage as a member variable, you might want the
+ *  storage object is invalid and can postpone open/read calls. You can add
+ *  a dummy integer in the constructor parameter. Here is the example:
+ *  \code
+ *  json::Storage storage(0);
+ *  storage.read("{ }");
+ *  \endcode
+ *
  *  An entry is a key-value pair.
  *  A key must be a string, used to identify an entry. A value can be multiple
  *  types:
@@ -66,9 +74,18 @@ public:
     kReadWrite ///< Opened, and will write back to JSON file in destructor.
   };
 
+  enum {
+    Empty
+  };
+
 public:
-  /// Default constructor. A invalid storage, because we didn't read any thing.
+  /// Default constructor. It is equivalent to Storage("{ }")
   Storage();
+
+  /// Constructor with dummy integer. This is a invalid storage (not read
+  /// anything).
+  /// This constructor is used to postpone open/read calls.
+  explicit Storage(int);
 
   /// Read the JSON object from string @ref pContent
   /// 

@@ -109,12 +109,26 @@ Group Group::ValueIterator::group()
 //===----------------------------------------------------------------------===//
 // Group
 //===----------------------------------------------------------------------===//
+Group::Group()
+  : m_pObject(&*g_NullObject) {
+}
+
 Group::Group(Storage& pParent, StringRef pName)
   : m_pObject(pParent.group(pName).m_pObject) {
 }
 
 Group::Group(json::Object& pObject)
   : m_pObject(&pObject) {
+}
+
+Group::Group(const Group& pOther)
+  : m_pObject(pOther.m_pObject) {
+}
+
+Group& Group::operator=(const Group& pOther)
+{
+  m_pObject = pOther.m_pObject;
+  return *this;
 }
 
 Group Group::group(StringRef pName)

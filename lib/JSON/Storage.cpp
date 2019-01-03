@@ -24,7 +24,11 @@ namespace json {
 //===----------------------------------------------------------------------===//
 Storage::Storage()
   : m_pGroup(NULL), m_AccessMode(kReadOnly), m_FilePath(), m_Value() {
-  // read nothing
+  read("{ }");
+}
+
+Storage::Storage(int)
+  : m_pGroup(NULL), m_AccessMode(kReadOnly), m_FilePath(), m_Value() {
 }
 
 Storage::Storage(StringRef pContent)
