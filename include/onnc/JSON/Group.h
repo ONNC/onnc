@@ -80,9 +80,16 @@ public:
   typedef GroupIterator iterator;
 
 public:
+  /// default constructor is a Null group.
+  Group();
+
   Group(Storage& pParent, StringRef pName);
 
+  Group(const Group& pOther);
+
   ~Group() { }
+
+  Group& operator=(const Group& pOther);
 
   /// group - Return the sub-group @ref pName.
   /// This function is unsafe. If there is no sub-group named @ref pKey, then
