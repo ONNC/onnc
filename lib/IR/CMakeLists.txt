@@ -15,6 +15,7 @@ add_libonnc_src(
     ONNXUtils.cpp
     IRBuilder.cpp
     Quadruple.cpp
+    CodeEmit.cpp
     Compute/ATen.cpp
     Compute/Abs.cpp
     Compute/Acos.cpp
