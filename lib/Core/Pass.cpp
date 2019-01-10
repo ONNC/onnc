@@ -40,17 +40,9 @@ void Pass::dump()
 
 Pass::ReturnType Pass::run(Module& pModule)
 {
-  ModulePass* pass = dyn_cast<ModulePass>(this);
+  ModulePass* pass = dynamic_cast<ModulePass*>(this);
   if (nullptr != pass) {
     return pass->runOnModule(pModule);
   }
   return kPassFailure;
-}
-
-//===----------------------------------------------------------------------===//
-// ModulePass
-//===----------------------------------------------------------------------===//
-ModulePass::~ModulePass()
-{
-  // Force out-of-line virtual method.
 }

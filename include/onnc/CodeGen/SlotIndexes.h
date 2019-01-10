@@ -9,7 +9,7 @@
 #define ONNC_SLOT_INDEXES_H
 #include <onnc/ADT/IList.h>
 #include <onnc/ADT/IListNode.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/Support/IOStream.h>
 
@@ -82,19 +82,17 @@ private:
  *  \brief Assign slot index to each ComputeOperator, slot index is used by
  *         liveness related passes.
  */
-class BuildSlotIndexes : public ModulePass
+class BuildSlotIndexes : public DefaultModulePass<BuildSlotIndexes>
 {
 public:
   typedef IList<TimeSlot> TimeSlotList;
   typedef std::unordered_map<ComputeOperator*, SlotIndex> COpToSlotIdxMap;
 
-  static char ID;
-
   static constexpr unsigned OperatorDist = 1;
 
 public:
   BuildSlotIndexes()
-    : ModulePass(ID), m_TSList(), m_StartIdx(0) {
+    : m_TSList(), m_StartIdx(0) {
   }
 
   virtual ~BuildSlotIndexes()

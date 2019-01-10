@@ -7,18 +7,15 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_GEN_RUNTIME_INFO_PASS_H
 #define ONNC_TARGET_TG_GEN_RUNTIME_INFO_PASS_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/Support/Path.h>
 #include "BM188xBackend.h"
 
 namespace onnc {
 namespace BM188X {
 
-class GenRuntimeInfoPass : public ModulePass
+class GenRuntimeInfoPass : public DefaultModulePass<GenRuntimeInfoPass>
 {
-public:
-  static char ID;
-
 public:
   GenRuntimeInfoPass(BM1880Backend* pBackend, const Path &pOutFile);
 

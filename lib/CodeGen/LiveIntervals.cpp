@@ -37,7 +37,7 @@ Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
 
 void LiveIntervals::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(BuildSlotIndexes::ID);
+  pUsage.addRequired<BuildSlotIndexes>();
 }
 
 bool LiveIntervals::hasInterval(const Value* pV) const
@@ -122,8 +122,6 @@ void LiveIntervals::computeValueInterval(LiveInterval& pLI)
 //===----------------------------------------------------------------------===//
 // LiveIntervals Factory method
 //===----------------------------------------------------------------------===//
-char LiveIntervals::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(LiveIntervals, "LiveIntervals")

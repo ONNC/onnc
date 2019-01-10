@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
 #include <onnc/Core/Pass.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/Core/PassRegistry.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Core/AnalysisUsage.h>
@@ -21,61 +21,50 @@ namespace {
 
 /** \class A
  */
-class A : public ModulePass
+class A : public DefaultModulePass<A>
 {
 public:
-  static char ID;
-
-  A() : ModulePass(ID) { }
+  A() = default;
 
   ReturnType runOnModule(Module &pModule) { return kModuleChanged; }
 
   StringRef getPassName() const { return "A"; }
 };
 
-char A::ID = 0;
-
 /** \class B
  */
-class B : public ModulePass
+class B : public DefaultModulePass<B>
 {
-public:
-  static char ID;
 
 public:
-  B() : ModulePass(ID) { }
+  B() = default;
 
   ReturnType runOnModule(Module &pModule) { return kModuleChanged; }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const {
-    pUsage.addRequiredID(A::ID);
+    pUsage.addRequired<A>();
   }
 
   StringRef getPassName() const { return "B"; }
 };
 
-char B::ID = 0;
-
 /** \class C
  */
-class C : public ModulePass
+class C : public DefaultModulePass<C>
 {
 public:
-  static char ID;
-  C() : ModulePass(ID), data(0x12) { }
+  C() : data(0x12) { }
   ReturnType runOnModule(Module &pModule) { return kModuleChanged; }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const {
-    pUsage.addRequiredID(A::ID);
-    pUsage.addRequiredID(B::ID);
+    pUsage.addRequired<A>();
+    pUsage.addRequired<B>();
   }
 
   StringRef getPassName() const { return "C"; }
 
   int data;
 };
-
-char C::ID = 0;
 
 } // anonymous namespace
 
@@ -140,10 +129,10 @@ SKYPAT_F(PassManagerTest, query_passes)
   ASSERT_EQ(registry.numOfPasses(), 3);
   ASSERT_FALSE(registry.isEmpty());
 
-  const PassInfo* info = registry.getPassInfo(&C::ID);
+  const PassInfo* info = registry.getPassInfo(C::id());
   EXPECT_TRUE(info->getPassName().equals("C"));
   Pass* pass = info->makePass();
-  EXPECT_EQ(((C*)pass)->data, 0x12);
+  EXPECT_EQ(dynamic_cast<C*>(pass)->data, 0x12);
 
   PassManager pm(registry);
   pm.add(pass);
@@ -171,46 +160,38 @@ SKYPAT_F(PassManagerTest, add_dependent_passes)
   EXPECT_EQ(pm.size(), 3);
 }
 
-class X : public ModulePass
+class X : public DefaultModulePass<X>
 {
 public:
-  static char ID;
-
-  X() : ModulePass(ID) { }
+  X() = default;
 
   ReturnType runOnModule(Module &pModule) override { return kModuleChanged; }
 
   StringRef getPassName() const override { return "X"; }
 };
 
-char X::ID = 0;
 INITIALIZE_PASS(X, "X")
 
-class Y : public ModulePass
+class Y : public DefaultModulePass<Y>
 {
 public:
-  static char ID;
-
-  Y() : ModulePass(ID) { }
+  Y() = default;
 
   ReturnType runOnModule(Module &pModule) override { return kModuleNoChanged; }
 
   StringRef getPassName() const override { return "Y"; }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override {
-    pUsage.addRequiredID(X::ID);
+    pUsage.addRequired<X>();
   }
 };
 
-char Y::ID = 0;
 INITIALIZE_PASS(Y, "Y")
 
-class Z : public ModulePass
+class Z : public DefaultModulePass<Z>
 {
 public:
-  static char ID;
-
-  Z() : ModulePass(ID) { }
+  Z() = default;
 
   ReturnType runOnModule(Module &pModule) override {
     static int c = 0;
@@ -223,13 +204,12 @@ public:
   }
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override {
-    pUsage.addRequiredID(Y::ID);
+    pUsage.addRequired<Y>();
   }
 
   StringRef getPassName() const override { return "Z"; }
 };
 
-char Z::ID = 0;
 INITIALIZE_PASS(Z, "Z")
 
 SKYPAT_F(PassManagerTest, run_test_1)

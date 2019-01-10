@@ -20,13 +20,11 @@ using namespace onnc;
 namespace {
 
 class UpdateCtablePass : public GraphBuildingPass
+                       , public GeneratePassIdFor<UpdateCtablePass>
 {
 public:
-  static char ID;
-
-public:
   UpdateCtablePass(BM1880Backend *pBackend)
-      : GraphBuildingPass(ID), m_pBackend(pBackend)
+      : m_pBackend(pBackend)
   {
   }
 
@@ -50,8 +48,6 @@ Pass::ReturnType UpdateCtablePass::runOnGraphs(xGraph &pTG,
   }
   return Pass::kModuleChanged;
 }
-
-char UpdateCtablePass::ID = 0;
 
 ModulePass *onnc::createUpdateCtablePass(BM1880Backend *pBackend)
 {

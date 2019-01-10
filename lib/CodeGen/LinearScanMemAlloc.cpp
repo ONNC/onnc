@@ -41,7 +41,7 @@ static uint64_t GetAlignedAddr(uint64_t pAddr, uint64_t pAlignment)
 // LinearScanMemAlloc
 //===----------------------------------------------------------------------===//
 LinearScanMemAlloc::LinearScanMemAlloc(TargetBackend* pTarget)
-  : ModulePass(ID), m_MemAllocData(nullptr),
+  : m_MemAllocData(nullptr),
     m_LIPass(nullptr), m_LiveMatPass(nullptr) {
   m_TMI = pTarget->getMemInfo();
 }
@@ -77,9 +77,9 @@ Pass::ReturnType LinearScanMemAlloc::runOnModule(Module& pModule)
 
 void LinearScanMemAlloc::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LiveIntervals::ID);
-  pUsage.addRequiredID(LiveValueMatrix::ID);
-  pUsage.addRequiredID(MemAllocData::ID);
+  pUsage.addRequired<LiveIntervals>();
+  pUsage.addRequired<LiveValueMatrix>();
+  pUsage.addRequired<MemAllocData>();
 }
 
 void LinearScanMemAlloc::print(OStream& pOS, const Module* pModule) const
@@ -162,8 +162,6 @@ LinearScanMemAlloc::getAnEmptyRegion(
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char LinearScanMemAlloc::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_TB_PASS(LinearScanMemAlloc, "LinearScanMemAlloc")

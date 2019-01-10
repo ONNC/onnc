@@ -8,7 +8,7 @@
 #ifndef ONNC_CODEGEN_LIVE_INTERVALS_H
 #define ONNC_CODEGEN_LIVE_INTERVALS_H
 #include <onnc/CodeGen/LiveInterval.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/Core/PassSupport.h>
 
 namespace onnc {
@@ -19,18 +19,16 @@ class BuildSlotIndexes;
  *  \brief Build live intervals for all onnc::Value of onnc::Module.
  *         Provide utilities for live interval queries.
  */
-class LiveIntervals : public ModulePass
+class LiveIntervals : public DefaultModulePass<LiveIntervals>
 {
 public:
-  static char ID;
-
   typedef std::unordered_map<Value*, LiveInterval*> ValueIntervalMap;
 
   typedef std::vector<LiveInterval*> LIs;
 
 public:
   LiveIntervals()
-    : ModulePass(LiveIntervals::ID), m_ValIntrvls(), m_SlotIndexes(nullptr) {
+    : m_ValIntrvls(), m_SlotIndexes(nullptr) {
   }
 
   virtual ~LiveIntervals() { clear(); }

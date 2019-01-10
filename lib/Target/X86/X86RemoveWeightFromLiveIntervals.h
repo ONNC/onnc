@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86_REMOVE_WEIGHT_FROM_LIVE_INTERVALS_H
 #define TARGET_X86_X86_REMOVE_WEIGHT_FROM_LIVE_INTERVALS_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 
 namespace onnc {
 
@@ -16,15 +16,10 @@ namespace onnc {
  *         pass doesn't have to allocate memory for weights. This pass remove
  *         weights from live interval.
  */
-class X86RemoveWeightFromLiveIntervals : public ModulePass
+class X86RemoveWeightFromLiveIntervals : public DefaultModulePass<X86RemoveWeightFromLiveIntervals>
 {
 public:
-  static char ID;
-
-public:
-  X86RemoveWeightFromLiveIntervals()
-    : ModulePass(ID) {
-  }
+  X86RemoveWeightFromLiveIntervals() = default;
 
   ReturnType runOnModule(Module& pModule) override;
 

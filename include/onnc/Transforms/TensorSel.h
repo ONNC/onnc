@@ -18,10 +18,8 @@ namespace onnc {
  *  ComputeGraph objects for subgraph in ONNX.
  */
 class TensorSel : public GraphBuildingPass
+                , public GeneratePassIdFor<TensorSel>
 {
-public:
-  static char ID;
-
 public:
   TensorSel(const TargetBackend* pBackend = nullptr);
 

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <utility>
 
 namespace onnc {
 // TODO: Use Data Pass.
@@ -24,7 +25,7 @@ template<typename Data>
 class Statistics : public ModulePass
 {
 public:
-  ~Statistics() override {}
+  virtual ~Statistics() = default;
 
   operator Data&() { return m_Data; }
   operator const Data&() const { return m_Data; }
@@ -33,8 +34,7 @@ public:
   }
 
 protected:
-  Statistics(char& pPassID)
-    : ModulePass(pPassID) { }
+  Statistics() = default;
 
 private:
   Data m_Data;
@@ -52,11 +52,11 @@ template<typename Key, typename Data>
 class OneDStatistic : public Statistics<std::unordered_map<Key, Data>>
 {
 public:
-  ~OneDStatistic() override {}
+  virtual ~OneDStatistic() = default;
 
 protected:
-  explicit OneDStatistic(char& pPassID, std::string pPrefix)
-    : Statistics<std::unordered_map<Key, Data>>(pPassID), m_Prefix(pPrefix) { }
+  explicit OneDStatistic(std::string pPrefix)
+    : m_Prefix(std::move(pPrefix)) { }
 
   const char *SEP = " |";
   std::string m_Prefix;

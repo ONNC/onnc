@@ -12,10 +12,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // GraphBuildingPass
 //===----------------------------------------------------------------------===//
-GraphBuildingPass::GraphBuildingPass(char& pPassID)
-  : ModulePass(pPassID) {
-}
-
 Pass::ReturnType GraphBuildingPass::runOnModule(::onnc::Module &pModule)
 {
   if (!pModule.hasRootTensorGraph())

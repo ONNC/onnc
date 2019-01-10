@@ -1,4 +1,5 @@
 #include <memory>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/IR/Dump.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <string>
@@ -7,11 +8,10 @@ using namespace onnc;
 
 namespace {
 
-class ONNCModulePrinter : public ModulePass
+class ONNCModulePrinter : public DefaultModulePass<ONNCModulePrinter>
 {
 public:
-  static char ID;
-  ONNCModulePrinter() : ModulePass(ID) {}
+  ONNCModulePrinter() = default;
 
   StringRef getPassName() const override { return "ONNCModulePrinter"; }
   
@@ -24,7 +24,6 @@ public:
 
 } // anonymous namespace
 
-char ONNCModulePrinter::ID = 0;
 ModulePass *onnc::createONNCModulePrinterPass()
 {
   return new ONNCModulePrinter();

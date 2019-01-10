@@ -11,6 +11,8 @@
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Support/OStream.h>
 
+#include <type_traits>
+
 namespace onnc {
 
 class AnalysisUsage;
@@ -41,14 +43,14 @@ public:
   typedef uint32_t ReturnType;
 
 public:
-  explicit Pass(Kind pKind, char& pPassID)
-    : m_Kind(pKind), m_PassID(&pPassID), m_pResolver(nullptr) { }
+  Pass()
+    : m_pResolver{nullptr} { }
 
   virtual ~Pass();
 
-  Kind getPassKind() const { return m_Kind; }
+  virtual Kind getPassKind() const = 0;
 
-  AnalysisID getPassID() const { return m_PassID; }
+  virtual AnalysisID getPassID() const = 0;
 
   virtual StringRef getPassName() const;
 
@@ -96,9 +98,29 @@ public:
   static bool IsFailed(ReturnType pR) { return (0x0 != (pR & kPassFailure)); }
 
 private:
-  Kind m_Kind;
-  AnalysisID m_PassID;
   AnalysisResolver* m_pResolver;
+};
+
+template <
+  typename PassType,
+  typename = typename std::enable_if<
+    std::is_class<PassType>::value
+  >::type
+>
+class GeneratePassIdFor : virtual public Pass
+{
+public:
+  GeneratePassIdFor() = default;
+  virtual ~GeneratePassIdFor() = default;
+
+  AnalysisID getPassID() const override {
+    return id();
+  }
+
+  static AnalysisID id() {
+    static const char var{};
+    return &var;
+  }
 };
 
 } // namespace of onnc

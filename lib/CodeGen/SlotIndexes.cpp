@@ -79,8 +79,6 @@ void BuildSlotIndexes::print(OStream& pOS, const Module* pModule) const
 //===----------------------------------------------------------------------===//
 // BuildSlotIndexes Factory method
 //===----------------------------------------------------------------------===//
-char BuildSlotIndexes::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(BuildSlotIndexes, "BuildSlotIndexes")

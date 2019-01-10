@@ -8,6 +8,7 @@
 #include <onnc/IR/Module.h>
 #include <onnc/IR/ONNCNodeNameGen.h>
 #include <onnc/Config/ONNX.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <string>
 #include <algorithm>
 #include <map>
@@ -46,11 +47,10 @@ using namespace onnc;
 
 namespace {
 
-class ONNCNodeNameGen : public ModulePass
+class ONNCNodeNameGen : public DefaultModulePass<ONNCNodeNameGen>
 {
 public:
-  static char ID;
-  ONNCNodeNameGen() : ModulePass(ID) {}
+  ONNCNodeNameGen() = default;
 
   Pass::ReturnType runOnModule(Module &pModule) override
   {
@@ -68,5 +68,4 @@ public:
 
 } // anonymous namespace
 
-char ONNCNodeNameGen::ID = 0;
 ModulePass *onnc::createONNCNodeNameGenPass() { return new ONNCNodeNameGen(); }

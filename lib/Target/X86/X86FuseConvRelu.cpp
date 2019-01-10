@@ -98,8 +98,6 @@ X86ConvRelu* X86FuseConvRelu::mergeConvRelu(ComputeGraph& pCG,
 //===----------------------------------------------------------------------===//
 // X86FuseConvRelu Factory method
 //===----------------------------------------------------------------------===//
-char X86FuseConvRelu::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(X86FuseConvRelu, "X86FuseConvRelu")

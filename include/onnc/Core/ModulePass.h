@@ -11,16 +11,19 @@
 
 namespace onnc {
 
-/** \class onnc::Pass
+/** \class onnc::ModulePass
  *  \brief encapsulate transformation algorithms.
  */
-class ModulePass : public Pass
+class ModulePass : virtual public Pass
 {
 public:
-  explicit ModulePass(char& pPassID)
-    : Pass(kPT_Module, pPassID) { }
+  ModulePass() = default;
 
-  ~ModulePass() override;
+  virtual ~ModulePass() = default;
+
+  Kind getPassKind() const override {
+    return Pass::kPT_Module;
+  }
 
   /// Virtual method overridden by subclasses to process the module
   /// being operated on.

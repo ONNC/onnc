@@ -36,14 +36,12 @@ Pass::ReturnType SetMemOperand::runOnModule(Module& pModule)
 
 void SetMemOperand::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(MemAllocData::ID);
+  pUsage.addRequired<MemAllocData>();
 }
 
 //===----------------------------------------------------------------------===//
 // SetMemOperand Factory method
 //===----------------------------------------------------------------------===//
-char SetMemOperand::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(SetMemOperand, "SetMemOperand")

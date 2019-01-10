@@ -7,21 +7,16 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_ENCODE_INSTRUCTIONS_PASS_H
 #define ONNC_TARGET_TG_ENCODE_INSTRUCTIONS_PASS_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/Core/PassSupport.h>
 
 namespace onnc {
 class ComputeVisitor;
 
-class EncodeInstructions : public ModulePass
+class EncodeInstructions : public DefaultModulePass<EncodeInstructions>
 {
 public:
-  static char ID;
-
-public:
-  EncodeInstructions(ComputeVisitor *pInstVisitor);
-
-  EncodeInstructions(ComputeVisitor *pInstVisitor, char& pPassID);
+  explicit EncodeInstructions(ComputeVisitor *pInstVisitor);
 
   StringRef getPassName() const override { return "EncodeInstructions"; }
 

@@ -21,13 +21,11 @@ class TargetBackend;
  *  \brief Count & print Operators count statistics
  */
 class CountOperatorsPass : public OneDStatistic<std::string, int>
+                         , public GeneratePassIdFor<CountOperatorsPass>
 {
 public:
-  static char ID;
-
-public:
   CountOperatorsPass(const std::string &pPrefix)
-      : OneDStatistic(ID, pPrefix) {}
+      : OneDStatistic(pPrefix) {}
 
   ReturnType runOnModule(Module& pModule) override;
 

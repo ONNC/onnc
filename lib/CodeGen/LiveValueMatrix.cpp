@@ -93,7 +93,7 @@ void LiveValueMatrix::buildStartWithEndWith()
 
 void LiveValueMatrix::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LiveIntervals::ID);
+  pUsage.addRequired<LiveIntervals>();
 }
 
 void LiveValueMatrix::print(OStream& pOS, const Module* pModule) const
@@ -127,8 +127,6 @@ void LiveValueMatrix::clear()
 //===----------------------------------------------------------------------===//
 // BuildSlotIndexes Factory method
 //===----------------------------------------------------------------------===//
-char LiveValueMatrix::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(LiveValueMatrix, "LiveValueMatrix")

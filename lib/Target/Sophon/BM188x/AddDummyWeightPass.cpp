@@ -14,7 +14,7 @@
 #include "PatternMatch.h"
 #include <algorithm>
 #include <onnc/ADT/StringRef.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Config/ONNX.h>
@@ -26,15 +26,10 @@ using namespace PatternMatch;
 
 namespace {
 
-class AddDummyWeight : public ModulePass
+class AddDummyWeight : public DefaultModulePass<AddDummyWeight>
 {
 public:
-  static char ID;
-
-public:
-  AddDummyWeight()
-    : ModulePass(ID) {
-  }
+  AddDummyWeight() = default;
 
   StringRef getPassName() const override { return "AddDummyWeight"; }
   
@@ -66,8 +61,6 @@ static void addInitializerBase(xGraph *pGraph, const xValue *pValue)
     pGraph->addInitializer(newTensor, name);
   }
 }
-
-char AddDummyWeight::ID = 0;
 
 Pass::ReturnType AddDummyWeight::runOnModule(Module &pModule)
 {

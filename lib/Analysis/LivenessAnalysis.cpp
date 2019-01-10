@@ -69,10 +69,6 @@ bool LiveInterval::intersect(const LiveInterval& pLive) const
 //===----------------------------------------------------------------------===//
 // GraphLivenessAnalysis
 //===----------------------------------------------------------------------===//
-GraphLivenessAnalysis::GraphLivenessAnalysis()
-  : ModulePass(ID), m_LiveIntervals() {
-}
-
 Pass::ReturnType GraphLivenessAnalysis::runOnModule(Module &pModule)
 {
   calculateLiveness(*pModule.getGraphIR());
@@ -167,8 +163,6 @@ void GraphLivenessAnalysis::clear()
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char GraphLivenessAnalysis::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(GraphLivenessAnalysis, "GraphLivenessAnalysis")

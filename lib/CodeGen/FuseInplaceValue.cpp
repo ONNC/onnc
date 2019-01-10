@@ -62,8 +62,6 @@ Pass::ReturnType FuseInplaceValue::runOnComputeGraph(ComputeGraph& pCG)
 //===----------------------------------------------------------------------===//
 // FuseInplaceValue Factory method
 //===----------------------------------------------------------------------===//
-char FuseInplaceValue::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(FuseInplaceValue, "FuseInplaceValue")

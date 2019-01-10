@@ -16,14 +16,12 @@ namespace onnc {
  *  initializers to ComputeOperators
  */
 class BuildInitializers : public GraphBuildingPass
+                        , public GeneratePassIdFor<BuildInitializers>
 {
 public:
-  static char ID;
+  BuildInitializers() = default;
 
-public:
-  BuildInitializers() : GraphBuildingPass(ID) { }
-
-  ~BuildInitializers() { }
+  ~BuildInitializers() = default;
 
   Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) override;
 

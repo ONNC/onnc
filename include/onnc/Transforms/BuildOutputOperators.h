@@ -15,14 +15,12 @@ namespace onnc {
  *  \brief BuildOutputOperators add OutputOperator objects in ComputeGraph.
  */
 class BuildOutputOperators : public GraphBuildingPass
+                           , public GeneratePassIdFor<BuildOutputOperators>
 {
 public:
-  static char ID;
+  BuildOutputOperators() = default;
 
-public:
-  BuildOutputOperators() : GraphBuildingPass(ID) { }
-
-  ~BuildOutputOperators() { }
+  ~BuildOutputOperators() = default;
 
   Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) override;
 

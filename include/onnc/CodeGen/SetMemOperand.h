@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_SET_MEM_OPERAND_H
 #define ONNC_CODEGEN_SET_MEM_OPERAND_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 
 namespace onnc {
 
@@ -15,15 +15,10 @@ namespace onnc {
  *  \brief Setup start and length for ComputeMemOperand according to memory
  *         allocation result
  */
-class SetMemOperand : public ModulePass
+class SetMemOperand : public DefaultModulePass<SetMemOperand>
 {
 public:
-  static char ID;
-
-public:
-  SetMemOperand()
-    : ModulePass(ID) {
-  }
+  SetMemOperand() = default;
 
   StringRef getPassName() const override { return "SetMemOperand"; }
 

@@ -13,20 +13,17 @@
 #include "BM188xBackend.h"
 #include <fstream>
 #include <onnc/Config/ONNX.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 
 using namespace onnc;
 namespace {
 
-class ONNXDumpOpt : public ModulePass
+class ONNXDumpOpt : public DefaultModulePass<ONNXDumpOpt>
 {
 public:
-  static char ID;
-
-public:
-  ONNXDumpOpt(BM1880Backend *pBackend) : ModulePass(ID), m_pBackend(pBackend) {}
+  ONNXDumpOpt(BM1880Backend *pBackend) : m_pBackend(pBackend) {}
 
   Pass::ReturnType runOnModule(Module &pModule) override;
 
@@ -34,14 +31,11 @@ private:
   BM1880Backend *m_pBackend; // NOLINT
 };
 
-class ONNXDumpQuantized : public ModulePass
+class ONNXDumpQuantized : public DefaultModulePass<ONNXDumpQuantized>
 {
 public:
-  static char ID;
-
-public:
   ONNXDumpQuantized(BM1880Backend *pBackend)
-      : ModulePass(ID), m_pBackend(pBackend)
+      : m_pBackend(pBackend)
   {
   }
 
@@ -52,9 +46,6 @@ private:
 };
 
 } // namespace
-
-char ONNXDumpOpt::ID = 0;
-char ONNXDumpQuantized::ID = 0;
 
 ModulePass *onnc::createONNXDumpOptPass(BM1880Backend *pBackend)
 {

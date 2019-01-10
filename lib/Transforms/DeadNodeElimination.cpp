@@ -16,10 +16,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // DeadNodeElimination
 //===----------------------------------------------------------------------===//
-DeadNodeElimination::DeadNodeElimination()
-  : ModulePass(ID) {
-}
-
 Pass::ReturnType DeadNodeElimination::runOnModule(::onnc::Module &pModule)
 {
   xGraph* graph = pModule.getRootTensorGraph();
@@ -37,8 +33,6 @@ Pass::ReturnType DeadNodeElimination::runOnModule(::onnc::Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char DeadNodeElimination::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(DeadNodeElimination, "DeadNodeElimination")
