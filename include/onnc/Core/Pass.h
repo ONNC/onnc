@@ -11,7 +11,6 @@
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Support/OStream.h>
 
-#include <cstdint>
 #include <type_traits>
 
 namespace onnc {
@@ -38,10 +37,10 @@ public:
   };
 
   /// Identity of a pass
-  typedef std::uintptr_t AnalysisID;
+  typedef const void* AnalysisID;
 
   /// ReturnType is an union of PassResult
-  typedef std::uint32_t ReturnType;
+  typedef uint32_t ReturnType;
 
 public:
   Pass()
@@ -120,7 +119,7 @@ public:
 
   static AnalysisID id() {
     static const char var{};
-    return reinterpret_cast<AnalysisID>(&var);
+    return &var;
   }
 };
 
