@@ -44,6 +44,7 @@ Quadruple::ArchType onnc::ParseArch(StringRef pArchName)
     .Case("sparcv9", Quadruple::sparcv9)
     .Case("tce", Quadruple::tce)
     .Case("xcore", Quadruple::xcore)
+    .Case("nvdla", Quadruple::nvdla)
     .Case("nvptx", Quadruple::nvptx)
     .Case("nvptx64", Quadruple::nvptx64)
     .Case("le32", Quadruple::le32)
@@ -76,6 +77,10 @@ Quadruple::SubArchType onnc::ParseSubArch(StringRef pSubArchName)
     .EndsWith("v5t", Quadruple::ARMSubArch_v5)
     .EndsWith("v5te", Quadruple::ARMSubArch_v5te)
     .EndsWith("v4t", Quadruple::ARMSubArch_v4t)
+    .EndsWith("fp32", Quadruple::NvDlaSubArch_fp32)
+    .EndsWith("fp16", Quadruple::NvDlaSubArch_fp16)
+    .EndsWith("i16", Quadruple::NvDlaSubArch_int16)
+    .EndsWith("i8", Quadruple::NvDlaSubArch_int8)
     .EndsWith("v1680", Quadruple::SophonSubArch_vBM1680)
     .EndsWith("v1682", Quadruple::SophonSubArch_vBM1682)
     .EndsWith("v1880", Quadruple::SophonSubArch_vBM1880)
@@ -327,6 +332,15 @@ onnc::ArchToName(Quadruple::ArchType pType, Quadruple::SubArchType pSubType)
     case Quadruple::x86_64:      return "x86_64";
     case Quadruple::xcore:       return "xcore";
     case Quadruple::mblaze:      return "mblaze";
+    case Quadruple::nvdla: {
+      switch(pSubType) {
+        case Quadruple::NvDlaSubArch_fp32:  return "nvdlafp32";
+        case Quadruple::NvDlaSubArch_fp16:  return "nvdlafp16";
+        case Quadruple::NvDlaSubArch_int16: return "nvdlai16";
+        case Quadruple::NvDlaSubArch_int8:  return "nvdlai8";
+        default: return "nvdla";
+      }
+    }
     case Quadruple::nvptx:       return "nvptx";
     case Quadruple::nvptx64:     return "nvptx64";
     case Quadruple::le32:        return "le32";
@@ -528,6 +542,7 @@ static unsigned getArchBitWidth(Quadruple::ArchType pArch)
   case Quadruple::mblaze:
   case Quadruple::mips:
   case Quadruple::mipsel:
+  case Quadruple::nvdla:
   case Quadruple::nvptx:
   case Quadruple::ppc:
   case Quadruple::r600:
@@ -573,6 +588,7 @@ static unsigned getPointerBitWidth(Quadruple::ArchType pArch)
   case Quadruple::mblaze:
   case Quadruple::mips:
   case Quadruple::mipsel:
+  case Quadruple::nvdla:
   case Quadruple::nvptx:
   case Quadruple::ppc:
   case Quadruple::r600:
@@ -863,7 +879,14 @@ bool Quadruple::isArch32Bit() const
 
 bool Quadruple::isArch16Bit() const
 {
+  if (Quadruple::NvDlaSubArch_int16 == getSubArch())
+    return true;
   return (16 == getArchBitWidth(getArch()));
+}
+
+bool Quadruple::isArch8Bit() const
+{
+  return (Quadruple::NvDlaSubArch_int8 == getSubArch());
 }
 
 bool Quadruple::isPointer64Bit() const
@@ -873,11 +896,15 @@ bool Quadruple::isPointer64Bit() const
 
 bool Quadruple::isPointer32Bit() const
 {
+  if (Quadruple::NvDlaSubArch_fp32 == getSubArch())
+    return true;
   return (32 == getPointerBitWidth(getArch()));
 }
 
 bool Quadruple::isPointer16Bit() const
 {
+  if (Quadruple::NvDlaSubArch_fp16 == getSubArch())
+    return true;
   return (16 == getPointerBitWidth(getArch()));
 }
 
