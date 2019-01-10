@@ -1,16 +1,16 @@
-//===- NvdlaTargetMemInfo.cpp ------------------------------------------===//
+//===- NvDlaTargetMemInfo.cpp ------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaTargetMemInfo.h"
+#include "NvDlaTargetMemInfo.h"
 #include <onnc/IR/Compute/Tensor.h>
 
 using namespace onnc;
 
-MemSize NvdlaTargetMemInfo::getTensorMemorySize(const Tensor& pVal)
+MemSize NvDlaTargetMemInfo::getTensorMemorySize(const Tensor& pVal)
 {
   uint64_t align, size;
   switch (pVal.kind()) {

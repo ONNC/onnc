@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaTaskSubmitPass.h"
+#include "NvDlaTaskSubmitPass.h"
 
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
@@ -14,20 +14,20 @@
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
-#include "NvdlaMeta.h"
+#include "NvDlaMeta.h"
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// NvdlaTaskSubmitPass
+// NvDlaTaskSubmitPass
 //===----------------------------------------------------------------------===//
-NvdlaTaskSubmitPass::NvdlaTaskSubmitPass(TargetBackend *pBackend,
-                  NvdlaBackendMeta *pMeta)
+NvDlaTaskSubmitPass::NvDlaTaskSubmitPass(TargetBackend *pBackend,
+                  NvDlaBackendMeta *pMeta)
   : ModulePass(ID),
     m_pBackend(pBackend), m_pMeta(pMeta){
 }
 
-Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
+Pass::ReturnType NvDlaTaskSubmitPass::runOnModule(Module &pModule)
 {
 
   int dla_start;
@@ -82,7 +82,7 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
     NvU8 *blob_data = new NvU8[b.size];
     struct dla_common_op_desc *op_blob = (struct dla_common_op_desc*)blob_data;
     for(int i = 0; i < m_pMeta->m_DLAOperationList.size(); i++){
-      NvdlaDlaOperation *op = m_pMeta->m_DLAOperationList[i];
+      NvDlaDlaOperation *op = m_pMeta->m_DLAOperationList[i];
       memcpy(op_blob+i, &(op->op_dep), sizeof(struct dla_common_op_desc));
     }
 
@@ -104,7 +104,7 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
     NvU8 *blob_data = new NvU8[b.size];
     union dla_operation_container *op_blob = (union dla_operation_container*)blob_data;
     for(int i = 0; i < m_pMeta->m_DLAOperationList.size(); i++){
-      NvdlaDlaOperation *op = m_pMeta->m_DLAOperationList[i];
+      NvDlaDlaOperation *op = m_pMeta->m_DLAOperationList[i];
       memcpy(op_blob+i, &(op->op_desc), sizeof(union dla_operation_container));
     }
 
@@ -126,7 +126,7 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
     NvU8 *blob_data = new NvU8[b.size];
     union dla_surface_container *op_blob = (union dla_surface_container*)blob_data;
     for(int i = 0; i < m_pMeta->m_DLAOperationList.size(); i++){
-      NvdlaDlaOperation *op = m_pMeta->m_DLAOperationList[i];
+      NvDlaDlaOperation *op = m_pMeta->m_DLAOperationList[i];
       memcpy(op_blob+i, &(op->op_surf), sizeof(union dla_surface_container));
     }
 
@@ -235,7 +235,7 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
       NvU8 *blob_data = new NvU8[b.size];
       union emu_operation_container *op_blob = (union emu_operation_container*)blob_data;
       for(int i = 0; i < m_pMeta->m_EMUOperationList.size(); i++){
-        NvdlaEmuOperation *op = m_pMeta->m_EMUOperationList[i];
+        NvDlaEmuOperation *op = m_pMeta->m_EMUOperationList[i];
         memcpy(op_blob+i, &(op->op_desc), sizeof(union emu_operation_container));
       }
 
@@ -258,7 +258,7 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
       NvU8 *blob_data = new NvU8[b.size];
       union emu_operation_buffer_container *op_blob = (union emu_operation_buffer_container*)blob_data;
       for(int i = 0; i < m_pMeta->m_EMUOperationList.size(); i++){
-        NvdlaEmuOperation *op = m_pMeta->m_EMUOperationList[i];
+        NvDlaEmuOperation *op = m_pMeta->m_EMUOperationList[i];
         memcpy(op_blob+i, &(op->op_buf), sizeof(union emu_operation_buffer_container));
       }
 
@@ -310,7 +310,7 @@ Pass::ReturnType NvdlaTaskSubmitPass::runOnModule(Module &pModule)
   return Pass::kModuleNoChanged;
 }
 
-int NvdlaTaskSubmitPass::submitEvent(int task_id, int event_type)
+int NvDlaTaskSubmitPass::submitEvent(int task_id, int event_type)
 {
   ILoadable::EventListEntry ele;
   ele.id = m_pMeta->m_EventListEntries.size();
@@ -322,7 +322,7 @@ int NvdlaTaskSubmitPass::submitEvent(int task_id, int event_type)
   return ele.id;
 }
 
-int NvdlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
+int NvDlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
 {
   int aid = m_pMeta->m_AddressListEntries.size();
 
@@ -353,9 +353,9 @@ int NvdlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char NvdlaTaskSubmitPass::ID = 0;
+char NvDlaTaskSubmitPass::ID = 0;
 
-NvdlaTaskSubmitPass *onnc::CreateNvdlaTaskSubmitPass(TargetBackend *pBackend,
-                                              NvdlaBackendMeta *pMeta) {
-  return new NvdlaTaskSubmitPass(pBackend, pMeta);
+NvDlaTaskSubmitPass *onnc::CreateNvDlaTaskSubmitPass(TargetBackend *pBackend,
+                                              NvDlaBackendMeta *pMeta) {
+  return new NvDlaTaskSubmitPass(pBackend, pMeta);
 }

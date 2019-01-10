@@ -1,4 +1,4 @@
-//===- NvdlaTargetMemInfo.h --------------------------------------------===//
+//===- NvDlaTargetMemInfo.h --------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,7 +11,7 @@
 
 namespace onnc {
 
-class NvdlaTargetMemInfo : public TargetMemInfo
+class NvDlaTargetMemInfo : public TargetMemInfo
 {
 public:
   MemSize getTensorMemorySize(const Tensor& pVal) override;

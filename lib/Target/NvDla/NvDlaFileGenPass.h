@@ -5,42 +5,37 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_NVDLAMEMINFO_PASS_H
-#define ONNC_NVDLAMEMINFO_PASS_H
+#ifndef ONNC_NVDLAM_FILEGEN_PASS_H
+#define ONNC_NVDLAM_FILEGEN_PASS_H
 
 #include <onnc/Core/ModulePass.h>
 
-#include "NvdlaMeta.h"
+#include "NvDlaMeta.h"
 
 namespace onnc {
 
 class TargetBackend;
 
-// XXX: Experimental
-
-/** \class InterpreterPass
- *  \brief Run interpreter.
- */
-class NvdlaMemInfoPass : public ModulePass
+class NvDlaFileGenPass : public ModulePass
 {
 public:
   static char ID;
 
 public:
-  NvdlaMemInfoPass(TargetBackend *pBackend,
-                  NvdlaBackendMeta *pMeta);
+  NvDlaFileGenPass(TargetBackend *pBackend,
+                  NvDlaBackendMeta *pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
 
   TargetBackend *m_pBackend;
-  NvdlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta *m_pMeta;
 };
 
 // XXX: Experimental
-NvdlaMemInfoPass *CreateNvdlaMemInfoPass(TargetBackend *pBackend,
-                                          NvdlaBackendMeta *pMeta);
+NvDlaFileGenPass *CreateNvDlaFileGenPass(TargetBackend *pBackend,
+                                          NvDlaBackendMeta *pMeta);
 
 } // namespace of onnc
 

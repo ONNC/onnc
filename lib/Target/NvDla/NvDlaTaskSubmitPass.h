@@ -10,20 +10,20 @@
 
 #include <onnc/Core/ModulePass.h>
 
-#include "NvdlaMeta.h"
+#include "NvDlaMeta.h"
 
 namespace onnc {
 
 class TargetBackend;
 
-class NvdlaTaskSubmitPass : public ModulePass
+class NvDlaTaskSubmitPass : public ModulePass
 {
 public:
   static char ID;
 
 public:
-  NvdlaTaskSubmitPass(TargetBackend *pBackend,
-                  NvdlaBackendMeta *pMeta);
+  NvDlaTaskSubmitPass(TargetBackend *pBackend,
+                  NvDlaBackendMeta *pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
   int submitEvent(int task_id, int event_type);
@@ -32,12 +32,12 @@ public:
 private:
 
   TargetBackend *m_pBackend;
-  NvdlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta *m_pMeta;
 };
 
 // XXX: Experimental
-NvdlaTaskSubmitPass *CreateNvdlaTaskSubmitPass(TargetBackend *pBackend,
-                                          NvdlaBackendMeta *pMeta);
+NvDlaTaskSubmitPass *CreateNvDlaTaskSubmitPass(TargetBackend *pBackend,
+                                          NvDlaBackendMeta *pMeta);
 
 } // namespace of onnc
 

@@ -1,4 +1,4 @@
-//===- NvdlaBackend.h -------------------------------------------------------===//
+//===- NvDlaBackend.h -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -10,17 +10,17 @@
 #include <string>
 #include <onnc/Target/TargetBackend.h>
 
-#include "NvdlaMeta.h"
+#include "NvDlaMeta.h"
 #include "CodeEmitVisitor.h"
 
 namespace onnc {
 
-class NvdlaBackend : public TargetBackend
+class NvDlaBackend : public TargetBackend
 {
 public:
-  NvdlaBackend(const TargetOptions& pOptions);
+  NvDlaBackend(const TargetOptions& pOptions);
 
-  virtual ~NvdlaBackend();
+  virtual ~NvDlaBackend();
 
   void addTensorSel(PassManager& pPM) override;
 
@@ -53,7 +53,7 @@ public:
   std::vector<ILoadable::EventListEntry> m_EventListEntries;
 #endif
 
-  NvdlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta *m_pMeta;
   nvdla::CodeEmitVisitor m_CodeEmitVisitor;
   //Loadable m_loadable;
 };

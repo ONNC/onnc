@@ -5,14 +5,14 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaMeta.h"
+#include "NvDlaMeta.h"
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// NvdlaDlaOperation
+// NvDlaDlaOperation
 //===----------------------------------------------------------------------===//
-NvdlaDlaOperation::NvdlaDlaOperation()
+NvDlaDlaOperation::NvDlaDlaOperation()
 {
     // XXX: C++ is zero-initialized, so we need no memset(0).
     // TODO: use initialized member list.
@@ -28,9 +28,9 @@ NvdlaDlaOperation::NvdlaDlaOperation()
 }
 
 //===----------------------------------------------------------------------===//
-// NvdlaEmuOperation
+// NvDlaEmuOperation
 //===----------------------------------------------------------------------===//
-NvdlaEmuOperation::NvdlaEmuOperation()
+NvDlaEmuOperation::NvDlaEmuOperation()
 {
   // TODO: use initialized member list.
   memset(&op_desc, 0, sizeof(op_desc));
@@ -38,9 +38,9 @@ NvdlaEmuOperation::NvdlaEmuOperation()
 }
 
 //===----------------------------------------------------------------------===//
-// NvdlaBackendMeta
+// NvDlaBackendMeta
 //===----------------------------------------------------------------------===//
-NvdlaBackendMeta::NvdlaBackendMeta()
+NvDlaBackendMeta::NvDlaBackendMeta()
   : m_NumLUTs(0), m_NumBlobs(0), m_pPrevOp(nullptr) {
 
   m_Loadable = priv::LoadableFactory::newLoadable();
@@ -71,7 +71,7 @@ NvdlaBackendMeta::NvdlaBackendMeta()
   }
 }
 
-NvdlaBackendMeta::~NvdlaBackendMeta()
+NvDlaBackendMeta::~NvDlaBackendMeta()
 {
   std::map<std::string, Loadable::Symbol>::iterator it;
   for (it = m_Symbols.begin(); it != m_Symbols.end(); it++) {
@@ -80,16 +80,16 @@ NvdlaBackendMeta::~NvdlaBackendMeta()
       delete[] symbol.data;
   }
 
-  std::vector<NvdlaDlaOperation*>::iterator op_dla;
+  std::vector<NvDlaDlaOperation*>::iterator op_dla;
   for (op_dla = m_DLAOperationList.begin(); op_dla != m_DLAOperationList.end(); op_dla++) {
-    NvdlaDlaOperation *op = *op_dla;
+    NvDlaDlaOperation *op = *op_dla;
     NVDLA_DBG("op DLA release - %p\n", op);
     delete op;
   }
 
-  std::vector<NvdlaEmuOperation*>::iterator op_emu;
+  std::vector<NvDlaEmuOperation*>::iterator op_emu;
   for (op_emu = m_EMUOperationList.begin(); op_emu != m_EMUOperationList.end(); op_emu++) {
-    NvdlaEmuOperation *op = *op_emu;
+    NvDlaEmuOperation *op = *op_emu;
     NVDLA_DBG("op EMU release - %p\n", op);
     delete op;
   }
@@ -114,9 +114,9 @@ NvdlaBackendMeta::~NvdlaBackendMeta()
 }
 
 //===----------------------------------------------------------------------===//
-// NvdlaCubeInfo
+// NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
-NvdlaCubeInfo::NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es)
+NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es)
   : mode(m), element_size(es), dim_n(n), dim_c(c), dim_h(h), dim_w(w),
     reduced(false) {
   switch(mode) {
@@ -168,7 +168,7 @@ NvdlaCubeInfo::NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
   } // end of switch
 }
 
-int NvdlaCubeInfo::getReducedBanks() const
+int NvDlaCubeInfo::getReducedBanks() const
 {
   switch(mode) {
     case NVDLA_CUBE_FEATURE:
@@ -184,7 +184,7 @@ int NvdlaCubeInfo::getReducedBanks() const
   return 0; //< is the default value correct?
 }
 
-void NvdlaCubeInfo::reduceBanks()
+void NvDlaCubeInfo::reduceBanks()
 {
   switch(mode) {
     case NVDLA_CUBE_FEATURE:

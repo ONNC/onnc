@@ -1,17 +1,17 @@
-//===- NvdlaBackend.cpp -----------------------------------------------------===//
+//===- NvDlaBackend.cpp -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaBackend.h"
-#include "TargetInfo/NvdlaTargetInfo.h"
-#include "TargetInfo/NvdlaTargetMemInfo.h"
-#include "NvdlaMemInfoPass.h"
+#include "NvDlaBackend.h"
+#include "TargetInfo/NvDlaTargetInfo.h"
+#include "TargetInfo/NvDlaTargetMemInfo.h"
+#include "NvDlaMemInfoPass.h"
 #include "CodeEmitVisitor.h"
-#include "NvdlaTaskSubmitPass.h"
-#include "NvdlaFileGenPass.h"
+#include "NvDlaTaskSubmitPass.h"
+#include "NvDlaFileGenPass.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -58,15 +58,15 @@
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// NvdlaBackend
+// NvDlaBackend
 //===----------------------------------------------------------------------===//
-NvdlaBackend::NvdlaBackend(const TargetOptions& pOptions)
+NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend(pOptions) {
-  m_pMemInfo = new NvdlaTargetMemInfo();
-  m_pMeta = new NvdlaBackendMeta();
+  m_pMemInfo = new NvDlaTargetMemInfo();
+  m_pMeta = new NvDlaBackendMeta();
 }
 
-NvdlaBackend::~NvdlaBackend()
+NvDlaBackend::~NvDlaBackend()
 {
   // clear the contents of loadable before delete
   delete m_pMeta;
@@ -74,9 +74,9 @@ NvdlaBackend::~NvdlaBackend()
 }
 
 
-void NvdlaBackend::addTensorSel(PassManager& pPM)
+void NvDlaBackend::addTensorSel(PassManager& pPM)
 {
-  errs() << "Nvdla is invoked\n";
+  errs() << "NvDla is invoked\n";
 
   // Do ONNX graph IR optimization here.
 
@@ -88,7 +88,7 @@ void NvdlaBackend::addTensorSel(PassManager& pPM)
   // adds your ONNC IR operators.
 }
 
-void NvdlaBackend::addTensorSched(PassManager& pPM)
+void NvDlaBackend::addTensorSched(PassManager& pPM)
 {
   // After method AddTensorSel, operators have been scheduled in an
   // topological order, which totally respects the data dependency.
@@ -96,7 +96,7 @@ void NvdlaBackend::addTensorSched(PassManager& pPM)
   // Add a scheduling optimization pass here.
 }
 
-void NvdlaBackend::addMemAlloc(PassManager& pPM)
+void NvDlaBackend::addMemAlloc(PassManager& pPM)
 {
   // Input: Module
   // Output: LiveIntervals
@@ -111,18 +111,18 @@ void NvdlaBackend::addMemAlloc(PassManager& pPM)
   addStandardSetMemOperands(pPM);
 }
 
-void NvdlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
+void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
 
   m_CodeEmitVisitor.m_pMeta = m_pMeta;
-  pPM.add(CreateNvdlaMemInfoPass(this, m_pMeta));
+  pPM.add(CreateNvDlaMemInfoPass(this, m_pMeta));
   pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
-  pPM.add(CreateNvdlaTaskSubmitPass(this, m_pMeta));
-  pPM.add(CreateNvdlaFileGenPass(this, m_pMeta));
+  pPM.add(CreateNvDlaTaskSubmitPass(this, m_pMeta));
+  pPM.add(CreateNvDlaFileGenPass(this, m_pMeta));
 
 }
 
-void NvdlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
+void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 {
   //CONV
   pRegistry.emplace<ConvLower>();
@@ -165,13 +165,13 @@ void NvdlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateNvdlaBackend(const TargetOptions& pOptions)
+TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions)
 {
-  return new NvdlaBackend(pOptions);
+  return new NvDlaBackend(pOptions);
 }
 
-extern "C" void InitializeNvdlaONNCBackend()
+extern "C" void InitializeNvDlaONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheNvdlaTarget(),
-      CreateNvdlaBackend);
+  onnc::TargetRegistry::RegisterTargetBackend(getTheNvDlaTarget(),
+      CreateNvDlaBackend);
 }

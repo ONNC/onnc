@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaMemInfoPass.h"
+#include "NvDlaMemInfoPass.h"
 
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
@@ -20,15 +20,15 @@
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// NvdlaMemInfoPass
+// NvDlaMemInfoPass
 //===----------------------------------------------------------------------===//
-NvdlaMemInfoPass::NvdlaMemInfoPass(TargetBackend *pBackend,
-                  NvdlaBackendMeta *pMeta)
+NvDlaMemInfoPass::NvDlaMemInfoPass(TargetBackend *pBackend,
+                  NvDlaBackendMeta *pMeta)
   : ModulePass(ID),
     m_pBackend(pBackend), m_pMeta(pMeta){
 }
 
-Pass::ReturnType NvdlaMemInfoPass::runOnModule(Module &pModule)
+Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
 {
   // [0] entry of memory & address list
   {
@@ -128,7 +128,7 @@ Pass::ReturnType NvdlaMemInfoPass::runOnModule(Module &pModule)
         int idx = 0;
         for (auto i: t->getDimensions())
           dims[idx++] = i;
-        NvdlaCubeInfo cubeinfo(NVDLA_CUBE_FEATURE, dims[0], dims[1], dims[2], dims[3], sizeof(unsigned short));
+        NvDlaCubeInfo cubeinfo(NVDLA_CUBE_FEATURE, dims[0], dims[1], dims[2], dims[3], sizeof(unsigned short));
         mle.size = cubeinfo.size;
 
         mle.alignment = 4096;
@@ -211,9 +211,9 @@ Pass::ReturnType NvdlaMemInfoPass::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char NvdlaMemInfoPass::ID = 0;
+char NvDlaMemInfoPass::ID = 0;
 
-NvdlaMemInfoPass *onnc::CreateNvdlaMemInfoPass(TargetBackend *pBackend,
-                                              NvdlaBackendMeta *pMeta) {
-  return new NvdlaMemInfoPass(pBackend, pMeta);
+NvDlaMemInfoPass *onnc::CreateNvDlaMemInfoPass(TargetBackend *pBackend,
+                                              NvDlaBackendMeta *pMeta) {
+  return new NvDlaMemInfoPass(pBackend, pMeta);
 }

@@ -1,4 +1,4 @@
-//===- NvdlaTargetInfo.h ----------------------------------------------------===//
+//===- NvDlaTargetInfo.h ----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -11,7 +11,7 @@
 
 namespace onnc {
 
-Target& getTheNvdlaTarget();
+Target& getTheNvDlaTarget();
 
 } // namespace of onnc
 

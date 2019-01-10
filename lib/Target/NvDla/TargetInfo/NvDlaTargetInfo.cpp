@@ -1,11 +1,11 @@
-//===- NvdlaTargetInfo.cpp --------------------------------------------------===//
+//===- NvDlaTargetInfo.cpp --------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaTargetInfo.h"
+#include "NvDlaTargetInfo.h"
 #include <onnc/IR/Quadruple.h>
 #include <onnc/Target/TargetRegistry.h>
 
@@ -16,7 +16,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 
   
-static unsigned int NvdlaMatchFn(const Quadruple& pQuadruple)
+static unsigned int NvDlaMatchFn(const Quadruple& pQuadruple)
 {
   unsigned int score = 0;
   if (Quadruple::nvdla == pQuadruple.getArch()) {
@@ -27,14 +27,14 @@ static unsigned int NvdlaMatchFn(const Quadruple& pQuadruple)
 }
 
 
-Target& onnc::getTheNvdlaTarget()
+Target& onnc::getTheNvDlaTarget()
 {
   static Target nvdla_target;
   return nvdla_target;
 }
 
 
-extern "C" void InitializeNvdlaONNCPlatform() {
-  onnc::TargetRegistry::RegisterTarget(onnc::getTheNvdlaTarget(), "nvdla",
-                                       "Nvdla DLA", NvdlaMatchFn);
+extern "C" void InitializeNvDlaONNCPlatform() {
+  onnc::TargetRegistry::RegisterTarget(onnc::getTheNvDlaTarget(), "nvdla",
+                                       "NvDla DLA", NvDlaMatchFn);
 }

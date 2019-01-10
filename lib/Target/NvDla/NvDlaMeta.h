@@ -1,4 +1,4 @@
-//===- NvdlaMeta.h --------------------------------------------------------===//
+//===- NvDlaMeta.h --------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -48,41 +48,41 @@ typedef std::unordered_map<Value *, int> MemoryIdxTable;
 typedef std::unordered_map<const Tensor *, const Tensor *> RemapTable;
 typedef std::unordered_map<const Tensor *, concat_meta> ConcatTable;
 
-/** \class NvdlaDlaOperation
+/** \class NvDlaDlaOperation
  *  \brief
  */
-class NvdlaDlaOperation
+class NvDlaDlaOperation
 {
 public:
   struct dla_common_op_desc op_dep;
 
 public:
-  NvdlaDlaOperation();
+  NvDlaDlaOperation();
 
 public:
   union dla_operation_container op_desc;
   union dla_surface_container op_surf;
 };
 
-/** \class NvdlaEmuOperation
+/** \class NvDlaEmuOperation
  *  \brief
  */
-class NvdlaEmuOperation
+class NvDlaEmuOperation
 {
 public:
-  NvdlaEmuOperation();
+  NvDlaEmuOperation();
 
 public:
   union emu_operation_container op_desc;
   union emu_operation_buffer_container op_buf;
 };
 
-class NvdlaBackendMeta
+class NvDlaBackendMeta
 {
 public:
-  NvdlaBackendMeta();
+  NvDlaBackendMeta();
 
-  ~NvdlaBackendMeta() {
+  ~NvDlaBackendMeta();
 
 public:
   // memory allocation information for runtime (firmwares, memory buffer)
@@ -107,13 +107,13 @@ public:
   struct dla_network_desc  m_DlaNetworkDesc;
   //struct dla_lut_param m_LrnDefaultLutParam;
   int m_NumLUTs;
-  std::vector<NvdlaDlaOperation *> m_DLAOperationList;
+  std::vector<NvDlaDlaOperation *> m_DLAOperationList;
   std::vector<dla_lut_param *> m_LUTList;
-  NvdlaDlaOperation *m_pDepOp[DLA_OP_NUM];
-  NvdlaDlaOperation *m_pPrevOp;
+  NvDlaDlaOperation *m_pDepOp[DLA_OP_NUM];
+  NvDlaDlaOperation *m_pPrevOp;
 
   emu_network_desc  m_EmuNetworkDesc;
-  std::vector<NvdlaEmuOperation *> m_EMUOperationList;
+  std::vector<NvDlaEmuOperation *> m_EMUOperationList;
 
   MemoryIdxTable m_MemIdxTable;
   RemapTable m_ReshapeTable;
@@ -128,16 +128,16 @@ enum nvdla_cube_type {
   NVDLA_CUBE_WEIGHT
 };
 
-class NvdlaCubeInfo
+class NvDlaCubeInfo
 {
 public:
-  NvdlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es);
+  NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es);
 
   int getReducedBanks() const;
 
   void reduceBanks();
 
-  ~NvdlaCubeInfo() { /* do nothing*/ }
+  ~NvDlaCubeInfo() { /* do nothing*/ }
 
 public:
   nvdla_cube_type mode;

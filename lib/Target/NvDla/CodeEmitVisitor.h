@@ -12,7 +12,7 @@
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/ComputeVisitor.h>
-#include "NvdlaMeta.h"
+#include "NvDlaMeta.h"
 
 namespace onnc {
 
@@ -21,7 +21,7 @@ namespace nvdla {
 class CodeEmitVisitor : public ComputeVisitor
 {
 public:
-  NvdlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta *m_pMeta;
   static char ID;
 
   /// ONNC defined operators @{
@@ -46,10 +46,10 @@ public:
   int packWeight(const Tensor *t, int dims[4], int gidx);
   int packBias(const Tensor *t, int dims[4], int gidx);
 
-  void issueEmuOp(NvdlaEmuOperation *op);
+  void issueEmuOp(NvDlaEmuOperation *op);
   int issueEmuAddr(int mid);
-  void issueDlaOp(NvdlaDlaOperation *op, NvdlaDlaOperation *op_fuse, NvdlaDlaOperation *op_prev);
-  int issueDlaAddr(int mid, NvdlaCubeInfo cube, int groups, int gidx, int hofs);
+  void issueDlaOp(NvDlaDlaOperation *op, NvDlaDlaOperation *op_fuse, NvDlaDlaOperation *op_prev);
+  int issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
 };
 
 } // namespace nvdla

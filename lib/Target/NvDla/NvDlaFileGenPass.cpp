@@ -5,7 +5,7 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "NvdlaFileGenPass.h"
+#include "NvDlaFileGenPass.h"
 
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
@@ -18,15 +18,15 @@
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// NvdlaFileGenPass
+// NvDlaFileGenPass
 //===----------------------------------------------------------------------===//
-NvdlaFileGenPass::NvdlaFileGenPass(TargetBackend *pBackend,
-                  NvdlaBackendMeta *pMeta)
+NvDlaFileGenPass::NvDlaFileGenPass(TargetBackend *pBackend,
+                  NvDlaBackendMeta *pMeta)
   : ModulePass(ID),
     m_pBackend(pBackend), m_pMeta(pMeta){
 }
 
-Pass::ReturnType NvdlaFileGenPass::runOnModule(Module &pModule)
+Pass::ReturnType NvDlaFileGenPass::runOnModule(Module &pModule)
 {
   //file output
   //priv::LoadableFactory::LoadablePrivPair loadable = priv::LoadableFactory::newLoadable();
@@ -44,9 +44,9 @@ Pass::ReturnType NvdlaFileGenPass::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char NvdlaFileGenPass::ID = 0;
+char NvDlaFileGenPass::ID = 0;
 
-NvdlaFileGenPass *onnc::CreateNvdlaFileGenPass(TargetBackend *pBackend,
-                                              NvdlaBackendMeta *pMeta) {
-  return new NvdlaFileGenPass(pBackend, pMeta);
+NvDlaFileGenPass *onnc::CreateNvDlaFileGenPass(TargetBackend *pBackend,
+                                              NvDlaBackendMeta *pMeta) {
+  return new NvDlaFileGenPass(pBackend, pMeta);
 }

@@ -1,14 +1,14 @@
 ONNC_TARGET_SOURCES += \
-  Target/Nvdla/NvdlaBackend.cpp \
-  Target/Nvdla/CodeEmitVisitor.cpp \
-  Target/Nvdla/Loadable.cpp \
-  Target/Nvdla/NvdlaMeta.cpp \
-  Target/Nvdla/NvdlaMemInfoPass.cpp \
-  Target/Nvdla/NvdlaFileGenPass.cpp \
-  Target/Nvdla/NvdlaTaskSubmitPass.cpp \
-  Target/Nvdla/fp16.c \
-  Target/Nvdla/TargetInfo/NvdlaTargetInfo.cpp \
-  Target/Nvdla/TargetInfo/NvdlaTargetMemInfo.cpp
+  Target/NvDla/NvDlaBackend.cpp \
+  Target/NvDla/CodeEmitVisitor.cpp \
+  Target/NvDla/Loadable.cpp \
+  Target/NvDla/NvDlaMeta.cpp \
+  Target/NvDla/NvDlaMemInfoPass.cpp \
+  Target/NvDla/NvDlaFileGenPass.cpp \
+  Target/NvDla/NvDlaTaskSubmitPass.cpp \
+  Target/NvDla/fp16.c \
+  Target/NvDla/TargetInfo/NvDlaTargetInfo.cpp \
+  Target/NvDla/TargetInfo/NvDlaTargetMemInfo.cpp
 
 ONNC_INCLUDES += \
-  -I${srcdir}/Target/Nvdla/include
+  -I${srcdir}/Target/NvDla/include
