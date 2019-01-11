@@ -103,45 +103,6 @@ private:
   AnalysisResolver* m_pResolver;
 };
 
-template <
-  typename PassType,
-  typename = typename std::enable_if<
-    std::is_class<PassType>::value
-  >::type
->
-class GenerateDefaultPassIdFor : virtual public Pass
-{
-public:
-  GenerateDefaultPassIdFor() = default;
-  virtual ~GenerateDefaultPassIdFor() = default;
-
-  AnalysisID getPassID() const override {
-    return id();
-  }
-
-  static AnalysisID id() {
-    static const char var{};
-    return reinterpret_cast<AnalysisID>(&var);
-  }
-};
-
-template <
-  typename PassType,
-  typename = typename std::enable_if<
-    std::is_class<PassType>::value
-  >::type
->
-class GenerateDefaultPassNameFor : virtual public Pass
-{
-public:
-  GenerateDefaultPassNameFor() = default;
-  virtual ~GenerateDefaultPassNameFor() = default;
-
-  StringRef getPassName() const override {
-    return typeid(PassType).name();
-  }
-};
-
 } // namespace of onnc
 
 #endif

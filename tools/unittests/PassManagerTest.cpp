@@ -132,7 +132,7 @@ SKYPAT_F(PassManagerTest, query_passes)
   const PassInfo* info = registry.getPassInfo(C::id());
   EXPECT_TRUE(info->getPassName().equals("C"));
   Pass* pass = info->makePass();
-  EXPECT_EQ(dynamic_cast<C*>(pass)->data, 0x12);
+  EXPECT_EQ(static_cast<C*>(pass)->data, 0x12);
 
   PassManager pm(registry);
   pm.add(pass);

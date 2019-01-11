@@ -11,6 +11,8 @@
 #include <onnc/Core/AnalysisResolver.h>
 #include <onnc/Core/AnalysisUsage.h>
 
+#include <cassert>
+
 //===----------------------------------------------------------------------===//
 // Implementation of Pass's template member functions
 //===----------------------------------------------------------------------===//
@@ -22,7 +24,7 @@ AnalysisType* Pass::getAnalysis() const
   static_assert(std::is_base_of<Pass, AnalysisType>::value);
 
   assert(hasResolver() && "Pass not reside a PassManager object!");
-  return dynamic_cast<AnalysisType*>(getResolver()->find(AnalysisType::id()));
+  return static_cast<AnalysisType*>(getResolver()->find(AnalysisType::id()));
 }
 
 } // namespace onnc

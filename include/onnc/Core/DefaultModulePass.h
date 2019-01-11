@@ -26,7 +26,6 @@ template <
   >::type
 >
 class DefaultModulePass : public ParentType
-                        , public GenerateDefaultPassIdFor<PassType>
 {
 public:
   using BaseType = DefaultModulePass;
@@ -37,6 +36,19 @@ public:
   { }
 
   virtual ~DefaultModulePass() = default;
+
+  typename ParentType::AnalysisID getPassID() const override {
+    return id();
+  }
+
+  static typename ParentType::AnalysisID id() {
+    static const char var{};
+    return reinterpret_cast<typename ParentType::AnalysisID>(&var);
+  }
+
+  StringRef getPassName() const override {
+    return typeid(PassType).name();
+  }
 };
 
 } // namespace of onnc

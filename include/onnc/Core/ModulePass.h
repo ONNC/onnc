@@ -16,7 +16,7 @@ namespace onnc {
 /** \class onnc::ModulePass
  *  \brief encapsulate transformation algorithms.
  */
-class ModulePass : virtual public Pass
+class ModulePass : public Pass
 {
 public:
   ModulePass() = default;
