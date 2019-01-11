@@ -9,6 +9,8 @@
 #define ONNC_CORE_MODULE_PASS_H
 #include <onnc/Core/Pass.h>
 
+#include <cassert>
+
 namespace onnc {
 
 /** \class onnc::ModulePass
@@ -30,6 +32,7 @@ public:
   virtual ReturnType runOnModule(Module &pModule) = 0;
 
   static bool classof(const Pass* pPass) {
+      assert(pPass != nullptr);
       return kPT_Module == pPass->getPassKind();
   }
 };
