@@ -16,7 +16,7 @@ namespace onnc {
  *  initializers to ComputeOperators
  */
 class BuildInitializers : public GraphBuildingPass
-                        , public GeneratePassIdFor<BuildInitializers>
+                        , public GenerateDefaultPassIdFor<BuildInitializers>
 {
 public:
   BuildInitializers() = default;

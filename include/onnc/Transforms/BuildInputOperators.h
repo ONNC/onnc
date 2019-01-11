@@ -15,7 +15,7 @@ namespace onnc {
  *  \brief BuildInputOperators add InputOperator objects in ComputeGraph.
  */
 class BuildInputOperators : public GraphBuildingPass
-                          , public GeneratePassIdFor<BuildInputOperators>
+                          , public GenerateDefaultPassIdFor<BuildInputOperators>
 {
 public:
   BuildInputOperators() = default;

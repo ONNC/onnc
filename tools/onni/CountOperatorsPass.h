@@ -21,7 +21,7 @@ class TargetBackend;
  *  \brief Count & print Operators count statistics
  */
 class CountOperatorsPass : public OneDStatistic<std::string, int>
-                         , public GeneratePassIdFor<CountOperatorsPass>
+                         , public GenerateDefaultPassIdFor<CountOperatorsPass>
 {
 public:
   CountOperatorsPass(const std::string &pPrefix)

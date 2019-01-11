@@ -15,7 +15,7 @@ namespace onnc {
 namespace BM188X {
 
 class AddLutTablePass : public GraphBuildingPass
-                      , public GeneratePassIdFor<AddLutTablePass>
+                      , public GenerateDefaultPassIdFor<AddLutTablePass>
 {
 public:
   AddLutTablePass(onnc::DLATargetBackend* pBackend)

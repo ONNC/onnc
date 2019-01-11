@@ -23,7 +23,8 @@ template <
   >::type
 >
 class DefaultModulePass : public ModulePass
-                        , public GeneratePassIdFor<PassType>
+                        , public GenerateDefaultPassIdFor<PassType>
+                        , public GenerateDefaultPassNameFor<PassType>
 { };
 
 } // namespace of onnc

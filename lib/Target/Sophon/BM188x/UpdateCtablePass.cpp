@@ -20,7 +20,7 @@ using namespace onnc;
 namespace {
 
 class UpdateCtablePass : public GraphBuildingPass
-                       , public GeneratePassIdFor<UpdateCtablePass>
+                       , public GenerateDefaultPassIdFor<UpdateCtablePass>
 {
 public:
   UpdateCtablePass(BM1880Backend *pBackend)

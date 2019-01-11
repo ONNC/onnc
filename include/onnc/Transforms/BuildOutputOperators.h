@@ -15,7 +15,7 @@ namespace onnc {
  *  \brief BuildOutputOperators add OutputOperator objects in ComputeGraph.
  */
 class BuildOutputOperators : public GraphBuildingPass
-                           , public GeneratePassIdFor<BuildOutputOperators>
+                           , public GenerateDefaultPassIdFor<BuildOutputOperators>
 {
 public:
   BuildOutputOperators() = default;
