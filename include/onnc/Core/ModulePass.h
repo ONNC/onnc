@@ -22,15 +22,15 @@ public:
   virtual ~ModulePass() = default;
 
   Kind getPassKind() const override {
-    return Pass::kPT_Module;
+    return kPT_Module;
   }
 
   /// Virtual method overridden by subclasses to process the module
   /// being operated on.
-  virtual Pass::ReturnType runOnModule(Module &pModule) = 0;
+  virtual ReturnType runOnModule(Module &pModule) = 0;
 
   static bool classof(const Pass* pPass) {
-      return Pass::kPT_Module == pPass->getPassKind();
+      return kPT_Module == pPass->getPassKind();
   }
 };
 
