@@ -10,6 +10,7 @@
 #include <onnc/Core/ModulePass.h>
 
 #include <type_traits>
+#include <utility>
 
 namespace onnc {
 
@@ -18,14 +19,25 @@ namespace onnc {
  */
 template <
   typename PassType,
+  typename ParentType = ModulePass,
   typename = typename std::enable_if<
     std::is_class<PassType>::value
+    && std::is_base_of<ModulePass, ParentType>::value
   >::type
 >
-class DefaultModulePass : public ModulePass
+class DefaultModulePass : public ParentType
                         , public GenerateDefaultPassIdFor<PassType>
-                        , public GenerateDefaultPassNameFor<PassType>
-{ };
+{
+public:
+  using BaseType = DefaultModulePass;
+
+  template <typename... Args>
+  DefaultModulePass(Args&&... args)
+    : ParentType(std::forward<Args>(args)...)
+  { }
+
+  virtual ~DefaultModulePass() = default;
+};
 
 } // namespace of onnc
 

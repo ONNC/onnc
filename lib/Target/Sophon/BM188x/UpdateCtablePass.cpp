@@ -13,14 +13,14 @@
 
 #include "BM188xBackend.h"
 #include "UpdateVisitor.h"
+#include <onnc/Core/DefaultModulePass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 
 using namespace onnc;
 
 namespace {
 
-class UpdateCtablePass : public GraphBuildingPass
-                       , public GenerateDefaultPassIdFor<UpdateCtablePass>
+class UpdateCtablePass : public DefaultModulePass<UpdateCtablePass, GraphBuildingPass>
 {
 public:
   UpdateCtablePass(BM1880Backend *pBackend)

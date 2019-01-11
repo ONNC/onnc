@@ -8,6 +8,7 @@
 #ifndef ONNC_COUNT_OPERATORS_PASS_H
 #define ONNC_COUNT_OPERATORS_PASS_H
 #include "Statistics.h"
+#include <onnc/Core/DefaultModulePass.h>
 
 #include <string>
 
@@ -20,12 +21,11 @@ class TargetBackend;
 /** \class CountOperatorsPass
  *  \brief Count & print Operators count statistics
  */
-class CountOperatorsPass : public OneDStatistic<std::string, int>
-                         , public GenerateDefaultPassIdFor<CountOperatorsPass>
+class CountOperatorsPass : public DefaultModulePass<CountOperatorsPass, OneDStatistic<std::string, int>>
 {
 public:
   CountOperatorsPass(const std::string &pPrefix)
-      : OneDStatistic(pPrefix) {}
+      : BaseType(pPrefix) {}
 
   ReturnType runOnModule(Module& pModule) override;
 
