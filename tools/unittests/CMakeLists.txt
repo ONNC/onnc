@@ -1,6 +1,7 @@
 
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${SKYPAT_INCLUDE_DIRS})
+include_directories(${PROTOBUF_INCLUDE_DIR})
 
 add_definitions(-DTOPDIR="${onnc_SOURCE_DIR}")
 add_definitions(-DBUILDDIR="${onnc_BINARY_DIR}")
@@ -31,7 +32,7 @@ add_onnc_test(Any AnyTest.cpp)
 add_onnc_test(BinaryTree BinaryTreeTest.cpp)
 add_onnc_test(StringSwitch StringSwitchTest.cpp)
 add_onnc_test(StringMap StringMapTest.cpp)
-add_onnc_test(Json JsonValueTest.cpp JsonObjectTest.cpp)
+add_onnc_test(Json JsonValueTest.cpp JsonObjectTest.cpp StorageTest.cpp)
 add_onnc_test(ComputeIR ComputeIRTest.cpp)
 add_onnc_test(TensorSel TensorSelTest.cpp)
 add_onnc_test(MemAllocTest MemAllocTest.cpp)

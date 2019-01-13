@@ -12,6 +12,8 @@
 
 namespace onnc {
 
+class LiveIntervalsData;
+
 /** \class LiveValueMatrix
  *  \brief Track live interference between onnc::Value pairs. Provide utilities
  *         for live interference queries.
@@ -68,10 +70,10 @@ public:
 
   void print(OStream& pOS, const Module* pModule) const override;
 
-private:
   /// Delete LiveInterval object.
-  void clear();
+  void clear() override;
 
+private:
   /// For each SlotIndex (ComputeOperator):
   /// 1. Find live intervals which start from SlotIndex i, then add these
   ///    intervals' segments to m_StartWith[i]
@@ -106,7 +108,7 @@ private:
   /// User count of a LiveInterval in current live segment set.
   LICount m_CurLISet;
 
-  LiveIntervals* m_LIPass;
+  LiveIntervalsData* m_LIDataPass;
 };
 
 LiveValueMatrix* CreateLiveValueMatrixPass();

@@ -1,0 +1,5 @@
+# This file provides information and services to the final user.
+
+set(ONNC_INCLUDE_DIRS "@LIBONNC_INCLUDES@")
+set(ONNC_LDFLAGS "@LIBONNC_LIBS@")
+set(ONNC_LIBRARY_DIR "@LIBONNC_LIBS@")

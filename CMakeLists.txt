@@ -6,16 +6,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ####################
 #  General settings
 include(option)
-option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Debug Release Regression Optimized)
+option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Normal Debug Release)
 option(ENABLE_PTHREAD "use pthreads" ON)
 set(HAVE_PTHREADS ${ENABLE_PTHREAD})
-option(ENABLE_UNITTEST "enable unittest" ON)
 option(ENABLE_CLOCK_GETTIME "enable clock_gettime()" ON)
 option(ENABLE_GETTIMEOFDAY "enable gettimeofday()" ON)
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    option(ENABLE_UNITTEST "enable unittest" ON)
-else()
+if(CMAKE_BUILD_TYPE STREQUAL Release)
     option(ENABLE_UNITTEST "enable unittest" OFF)
+else()
+    option(ENABLE_UNITTEST "enable unittest" ON)
 endif()
 
 ####################
@@ -117,6 +116,11 @@ if(USE_LLVM)
 endif(USE_LLVM)
 #  Protobuf
 find_package(Protobuf REQUIRED)
+#  glog
+find_package(Glog REQUIRED)
+message(STATUS "[${PACKAGE}] Using glog include at ${GLOG_INCLUDE_DIR}")
+include_directories(${GLOG_INCLUDE_DIR})
+link_directories(${GLOG_LIBRARY_DIR})
 
 ####################
 # Other
@@ -132,3 +136,4 @@ configure_file(include/onnc/Config/Config.h.cmake.in include/onnc/Config/Config.
 configure_file(include/onnc/Config/ONNX.h.in include/onnc/Config/ONNX.h @ONLY)
 configure_file(include/onnc/Config/Platforms.def.in include/onnc/Config/Platforms.def @ONLY)
 configure_file(include/onnc/Config/Backends.def.in include/onnc/Config/Backends.def @ONLY)
+configure_file(cmake/ONNCConfig.cmake.in cmake/ONNCConfig.cmake @ONLY)

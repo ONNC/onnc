@@ -116,11 +116,11 @@ public:
 
   void print(OStream& pOS, const Module* pModule) const override;
 
+  /// delete TimeSlots of m_TSList, clear containers, and reset start index.
+  void clear() override;
+
 private:
   TimeSlot* createTimeSlot(ComputeOperator& pOp, unsigned pIdx);
-
-  /// delete TimeSlots of m_TSList, clear containers, and reset start index.
-  void clear();
 
 private:
   TimeSlotList m_TSList;

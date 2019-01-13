@@ -17,10 +17,12 @@ add_custom_target(gen_json_scanner
 
 add_libonnc_src(
     Array.cpp
+    Group.cpp
     JsonParser.cpp
     JsonScanner.cpp
     Notation.cpp
     Object.cpp
+    Storage.cpp
     String.cpp
     Value.cpp)
 

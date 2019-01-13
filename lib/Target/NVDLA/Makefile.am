@@ -1,0 +1,2 @@
+ONNC_TARGET_SOURCES += \
+  Target/NVDLA/NVDLABackend.cpp

@@ -1,26 +1,27 @@
 nobase_nodist_include_HEADERS = \
-    onnc/Config/Platforms.def \
-    onnc/Config/Backends.def \
-    onnc/Config/ONNX.h \
-    onnc/Diagnostic/DiagCommonKinds.inc \
-    onnc/Diagnostic/Bits/Engine.tcc \
-    onnc/IR/Bits/IRBuilder.tcc \
-    onnc/IR/Bits/ComputeGraph.tcc \
-    onnc/Support/Bits/StringBuf.tcc \
-    onnc/Support/Bits/IFStream.tcc \
-    onnc/Support/Bits/OStrStream.tcc \
-    onnc/Support/Bits/OFStream.tcc \
-    onnc/Support/Bits/FileBuf.tcc \
-    onnc/Support/Bits/IndentOStreamBuf.tcc \
-    onnc/Support/Bits/ObjectPool.tcc \
-    onnc/Support/Bits/OStream.tcc \
-    onnc/Support/Bits/IStrStream.tcc \
-    onnc/ADT/Bits/IList.tcc \
-    onnc/ADT/Bits/Any.tcc \
-    onnc/ADT/Bits/HashIterator.tcc \
-    onnc/ADT/Bits/HashTable.tcc \
-    onnc/ADT/Bits/HashBase.tcc \
-    onnc/ADT/Bits/Digraph.tcc \
+  onnc/Config/Platforms.def \
+  onnc/Config/Backends.def \
+  onnc/Config/ONNX.h \
+  onnc/Diagnostic/DiagCommonKinds.inc \
+  onnc/Diagnostic/Bits/Engine.tcc \
+  onnc/IR/CodeEmit.h \
+  onnc/IR/Bits/IRBuilder.tcc \
+  onnc/IR/Bits/ComputeGraph.tcc \
+  onnc/Support/Bits/StringBuf.tcc \
+  onnc/Support/Bits/IFStream.tcc \
+  onnc/Support/Bits/OStrStream.tcc \
+  onnc/Support/Bits/OFStream.tcc \
+  onnc/Support/Bits/FileBuf.tcc \
+  onnc/Support/Bits/IndentOStreamBuf.tcc \
+  onnc/Support/Bits/ObjectPool.tcc \
+  onnc/Support/Bits/OStream.tcc \
+  onnc/Support/Bits/IStrStream.tcc \
+  onnc/ADT/Bits/IList.tcc \
+  onnc/ADT/Bits/Any.tcc \
+  onnc/ADT/Bits/HashIterator.tcc \
+  onnc/ADT/Bits/HashTable.tcc \
+  onnc/ADT/Bits/HashBase.tcc \
+  onnc/ADT/Bits/Digraph.tcc \
 	onnc/Config/Config.h \
 	onnc/Support/DataTypes.h \
 	onnc/Diagnostic/StreamLog.h \
@@ -50,6 +51,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/Target/DLATargetBackend.h \
 	onnc/Target/Target.h \
 	onnc/JSON/Array.h \
+	onnc/JSON/Group.h \
+	onnc/JSON/Storage.h \
 	onnc/JSON/String.h \
 	onnc/JSON/Object.h \
 	onnc/JSON/Value.h \
@@ -417,6 +420,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/Analysis/UpdateGraphOutputSize.h \
 	onnc/Analysis/NodeIRScheduler.h \
 	onnc/Analysis/LivenessAnalysis.h \
+	onnc/Analysis/Statistics.h \
+	onnc/Analysis/GlobalStatistics.h \
 	onnc/IRReader/ONNXReader.h \
 	onnc/ADT/ConstSwitch.h \
 	onnc/ADT/If.h \

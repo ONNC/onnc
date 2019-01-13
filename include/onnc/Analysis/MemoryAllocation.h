@@ -55,6 +55,8 @@ public:
 
   void print(OStream& pOS, const Module* pModule) const override;
 
+  void clear() override;
+
 private:
   /// Return total size of this allocation.
   uint64_t allocByLiveness(xGraph &pGraph,
@@ -63,8 +65,6 @@ private:
 
   /// delete MemAllocEntries of graph.
   void clearGraphAlloc(xGraph *pGraph);
-
-  void clear();
 
 private:
   GraphMemAllocList m_GraphMemAllocList;
