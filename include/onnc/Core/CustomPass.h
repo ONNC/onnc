@@ -32,6 +32,7 @@ public:
 
   template <typename... Args>
   CustomPass(Args&&... args)
+    noexcept(std::is_nothrow_constructible<ParentType, Args...>::value)
     : ParentType(std::forward<Args>(args)...)
   { }
 
@@ -41,7 +42,7 @@ public:
     return id();
   }
 
-  static typename ParentType::AnalysisID id() {
+  static typename ParentType::AnalysisID id() noexcept {
     static const char var{};
     return reinterpret_cast<typename ParentType::AnalysisID>(&var);
   }
