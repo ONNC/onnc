@@ -21,7 +21,7 @@ using namespace onnc;
 // It is reduced to an adapter of StatisticsPrivate.
 //===----------------------------------------------------------------------===//
 Statistics::Statistics()
-  : json::Storage(json::Storage::Empty) {
+  : json::Storage() {
 }
 
 Statistics::Statistics(StringRef pContent)
