@@ -45,12 +45,12 @@ public:
   typedef std::uint32_t ReturnType;
 
 public:
-  Pass()
-    : m_pResolver{nullptr} { }
+  explicit Pass(Kind pKind) noexcept
+    : m_Kind{pKind}, m_pResolver{nullptr} { }
 
   virtual ~Pass();
 
-  virtual Kind getPassKind() const = 0;
+  Kind getPassKind() const { return m_Kind; }
 
   virtual AnalysisID getPassID() const = 0;
 
@@ -100,6 +100,7 @@ public:
   static bool IsFailed(ReturnType pR) { return (0x0 != (pR & kPassFailure)); }
 
 private:
+  const Kind m_Kind;
   AnalysisResolver* m_pResolver;
 };
 

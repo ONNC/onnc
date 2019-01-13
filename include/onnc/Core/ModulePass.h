@@ -19,13 +19,10 @@ namespace onnc {
 class ModulePass : public Pass
 {
 public:
-  ModulePass() = default;
+  ModulePass() noexcept
+    : Pass(kPT_Module) { }
 
   virtual ~ModulePass() = default;
-
-  Kind getPassKind() const override {
-    return kPT_Module;
-  }
 
   /// Virtual method overridden by subclasses to process the module
   /// being operated on.
