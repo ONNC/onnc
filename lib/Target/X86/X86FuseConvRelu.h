@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_X86_X86_FUSE_CONV_RELU_H
 #define TARGET_X86_X86_FUSE_CONV_RELU_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -18,7 +18,7 @@ class X86ConvRelu;
 /** \class X86FuseConvRelu
  *  \brief Fuse conv and relu to X86ConvRelu operator.
  */
-class X86FuseConvRelu : public DefaultModulePass<X86FuseConvRelu>
+class X86FuseConvRelu : public CustomPass<X86FuseConvRelu>
 {
 public:
   X86FuseConvRelu() = default;

@@ -11,7 +11,7 @@
 //
 //===---------------------------------------------------------------------===//
 #include "BM188xBackend.h"
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Config/ONNX.h>
@@ -20,7 +20,7 @@ using namespace onnc;
 
 namespace {
 
-class PrepareCtable : public DefaultModulePass<PrepareCtable>
+class PrepareCtable : public CustomPass<PrepareCtable>
 {
 public:
   PrepareCtable(BM1880Backend *pBackend) : m_pBackend(pBackend)

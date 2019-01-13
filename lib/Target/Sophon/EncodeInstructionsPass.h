@@ -7,13 +7,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_ENCODE_INSTRUCTIONS_PASS_H
 #define ONNC_TARGET_TG_ENCODE_INSTRUCTIONS_PASS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 
 namespace onnc {
 class ComputeVisitor;
 
-class EncodeInstructions : public DefaultModulePass<EncodeInstructions>
+class EncodeInstructions : public CustomPass<EncodeInstructions>
 {
 public:
   explicit EncodeInstructions(ComputeVisitor *pInstVisitor);

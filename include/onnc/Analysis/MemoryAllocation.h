@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_MEMORY_ALLOCATION_H
 #define ONNC_MEMORY_ALLOCATION_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Config/ONNX.h>
@@ -35,7 +35,7 @@ typedef std::unordered_map<const xValue *, MemSize> ValMemSizeMap;
 /** \class MemoryAllocation
  *  Perform memory allocation and generate allocation map.
  */
-class MemoryAllocation : public DefaultModulePass<MemoryAllocation>
+class MemoryAllocation : public CustomPass<MemoryAllocation>
 {
 public:
   typedef std::unordered_map<xGraph *, MemAllocList> GraphMemAllocList;

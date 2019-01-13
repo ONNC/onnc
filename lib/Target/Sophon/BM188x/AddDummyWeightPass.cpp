@@ -14,7 +14,7 @@
 #include "PatternMatch.h"
 #include <algorithm>
 #include <onnc/ADT/StringRef.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/Sophon/BM188x/common_calibration2.pb.h>
 #include <onnc/Config/ONNX.h>
@@ -26,7 +26,7 @@ using namespace PatternMatch;
 
 namespace {
 
-class AddDummyWeight : public DefaultModulePass<AddDummyWeight>
+class AddDummyWeight : public CustomPass<AddDummyWeight>
 {
 public:
   AddDummyWeight() = default;

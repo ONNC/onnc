@@ -7,14 +7,14 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_MEM_ALLOC_DATA_H
 #define ONNC_CODEGEN_MEM_ALLOC_DATA_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
 /** \class MemAllocData
  *  \brief The pass is a data pass for saving memory allocation result.
  */
-class MemAllocData : public DefaultModulePass<MemAllocData>
+class MemAllocData : public CustomPass<MemAllocData>
 {
 public:
   struct AllocEntry

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_ONNX_OPT_PASS_H
 #define ONNC_ONNX_OPT_PASS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -18,7 +18,7 @@ class TargetBackend;
 /** \class OnnxOptPass
  *  \brief [ONNX IR] Call ONNX optimizer
  */
-class OnnxOptPass : public DefaultModulePass<OnnxOptPass>
+class OnnxOptPass : public CustomPass<OnnxOptPass>
 {
 public:
   OnnxOptPass() = default;

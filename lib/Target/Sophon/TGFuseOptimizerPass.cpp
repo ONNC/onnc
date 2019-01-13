@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #include "TG.h"
 #include "TGBackend.h"
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Dump.h>
 #include <onnc/Config/ONNX.h>
@@ -21,7 +21,7 @@ using namespace onnc;
 
 namespace {
 
-class ONNXFuseOpt : public DefaultModulePass<ONNXFuseOpt>
+class ONNXFuseOpt : public CustomPass<ONNXFuseOpt>
 {
 public:
   ONNXFuseOpt(TGBackend *pTarget) : m_pTarget(pTarget) {}

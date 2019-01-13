@@ -1,12 +1,12 @@
-//===- DefaultModulePass.h -------------------------------------------------------===//
+//===- CustomPass.h -------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_CORE_DEFAULT_MODULE_PASS_H
-#define ONNC_CORE_DEFAULT_MODULE_PASS_H
+#ifndef ONNC_CORE_CUSTOM_PASS_H
+#define ONNC_CORE_CUSTOM_PASS_H
 #include <onnc/Core/ModulePass.h>
 
 #include <type_traits>
@@ -14,7 +14,7 @@
 
 namespace onnc {
 
-/** \class onnc::DefaultModulePass
+/** \class onnc::CustomPass
  *  \brief default module class which implements most of the pure virtual methods
  */
 template <
@@ -25,17 +25,17 @@ template <
     && std::is_base_of<ModulePass, ParentType>::value
   >::type
 >
-class DefaultModulePass : public ParentType
+class CustomPass : public ParentType
 {
 public:
-  using BaseType = DefaultModulePass;
+  using BaseType = CustomPass;
 
   template <typename... Args>
-  DefaultModulePass(Args&&... args)
+  CustomPass(Args&&... args)
     : ParentType(std::forward<Args>(args)...)
   { }
 
-  virtual ~DefaultModulePass() = default;
+  virtual ~CustomPass() = default;
 
   typename ParentType::AnalysisID getPassID() const override {
     return id();

@@ -8,7 +8,7 @@
 #ifndef ONNC_INTERPRETER_PASS_H
 #define ONNC_INTERPRETER_PASS_H
 #include <onnc/Runtime/Interpreter.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -19,7 +19,7 @@ class TargetBackend;
 /** \class InterpreterPass
  *  \brief Run interpreter.
  */
-class InterpreterPass : public DefaultModulePass<InterpreterPass>
+class InterpreterPass : public CustomPass<InterpreterPass>
 {
 public:
   InterpreterPass(TargetBackend *pBackend,

@@ -7,14 +7,14 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_BOOK_ONNX_GRAPHS_H
 #define ONNC_BOOK_ONNX_GRAPHS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
 /** \class BookONNXGraphs
  *  \brief BookONNXGraphs
  */
-class BookONNXGraphs : public DefaultModulePass<BookONNXGraphs>
+class BookONNXGraphs : public CustomPass<BookONNXGraphs>
 {
 public:
   BookONNXGraphs() = default;

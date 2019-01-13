@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_FUSE_INPLACE_VALUE_H
 #define ONNC_CODEGEN_FUSE_INPLACE_VALUE_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -20,7 +20,7 @@ class ComputeOperator;
  *  \note The pass break SSA form, the compute graph is no longer valid in
  *        terms of graph topology.
  */
-class FuseInplaceValue : public DefaultModulePass<FuseInplaceValue>
+class FuseInplaceValue : public CustomPass<FuseInplaceValue>
 {
 public:
   typedef bool (*IsFusible)(const ComputeOperator& pOp);

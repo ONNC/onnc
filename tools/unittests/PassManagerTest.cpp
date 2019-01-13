@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <skypat/skypat.h>
 #include <onnc/Core/Pass.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassRegistry.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Core/AnalysisUsage.h>
@@ -21,7 +21,7 @@ namespace {
 
 /** \class A
  */
-class A : public DefaultModulePass<A>
+class A : public CustomPass<A>
 {
 public:
   A() = default;
@@ -33,7 +33,7 @@ public:
 
 /** \class B
  */
-class B : public DefaultModulePass<B>
+class B : public CustomPass<B>
 {
 
 public:
@@ -50,7 +50,7 @@ public:
 
 /** \class C
  */
-class C : public DefaultModulePass<C>
+class C : public CustomPass<C>
 {
 public:
   C() : data(0x12) { }
@@ -160,7 +160,7 @@ SKYPAT_F(PassManagerTest, add_dependent_passes)
   EXPECT_EQ(pm.size(), 3);
 }
 
-class X : public DefaultModulePass<X>
+class X : public CustomPass<X>
 {
 public:
   X() = default;
@@ -172,7 +172,7 @@ public:
 
 INITIALIZE_PASS(X, "X")
 
-class Y : public DefaultModulePass<Y>
+class Y : public CustomPass<Y>
 {
 public:
   Y() = default;
@@ -188,7 +188,7 @@ public:
 
 INITIALIZE_PASS(Y, "Y")
 
-class Z : public DefaultModulePass<Z>
+class Z : public CustomPass<Z>
 {
 public:
   Z() = default;

@@ -7,12 +7,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_CODE_EMIT_H
 #define ONNC_IR_CODE_EMIT_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Support/IOStream.h>
 
 namespace onnc {
 
-class CodeEmit : public DefaultModulePass<CodeEmit>
+class CodeEmit : public CustomPass<CodeEmit>
 {
 public:
   CodeEmit(ComputeVisitor& pCodeEmitVisitor)

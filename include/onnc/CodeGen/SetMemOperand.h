@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_SET_MEM_OPERAND_H
 #define ONNC_CODEGEN_SET_MEM_OPERAND_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -15,7 +15,7 @@ namespace onnc {
  *  \brief Setup start and length for ComputeMemOperand according to memory
  *         allocation result
  */
-class SetMemOperand : public DefaultModulePass<SetMemOperand>
+class SetMemOperand : public CustomPass<SetMemOperand>
 {
 public:
   SetMemOperand() = default;

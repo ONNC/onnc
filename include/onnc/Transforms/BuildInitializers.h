@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_BUILD_INITIALIZERS_H
 #define ONNC_TRANSFORM_BUILD_INITIALIZERS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 
 namespace onnc {
@@ -16,7 +16,7 @@ namespace onnc {
  *  \brief BuildInitializers creates ComputeGraph objects and converts ONNX's
  *  initializers to ComputeOperators
  */
-class BuildInitializers : public DefaultModulePass<BuildInitializers, GraphBuildingPass>
+class BuildInitializers : public CustomPass<BuildInitializers, GraphBuildingPass>
 {
 public:
   BuildInitializers() = default;

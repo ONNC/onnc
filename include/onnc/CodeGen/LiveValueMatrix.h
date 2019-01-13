@@ -9,7 +9,7 @@
 #define ONNC_CODEGEN_LIVE_VALUE_MATRIX_H
 #include <onnc/ADT/IListNode.h>
 #include <onnc/CodeGen/LiveInterval.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -21,7 +21,7 @@ namespace onnc {
  *         allocate non-overlapping physical memory for values that have
  *         interfering live range. 
  */
-class LiveValueMatrix : public DefaultModulePass<LiveValueMatrix>
+class LiveValueMatrix : public CustomPass<LiveValueMatrix>
 {
 public:
   struct LiveSegment

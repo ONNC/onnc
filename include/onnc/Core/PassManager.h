@@ -8,7 +8,7 @@
 #ifndef ONNC_CORE_PASS_MANAGER_H
 #define ONNC_CORE_PASS_MANAGER_H
 #include <onnc/Core/Pass.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassInfo.h>
 #include <onnc/Core/PassRegistry.h>
 #include <onnc/IR/Module.h>
@@ -92,7 +92,7 @@ private:
   };
 
   /// The start pass for lattice.
-  struct StartPass : public DefaultModulePass<StartPass>
+  struct StartPass : public CustomPass<StartPass>
   {
   public:
     StartPass() = default;

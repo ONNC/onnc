@@ -8,7 +8,7 @@
 #include <onnc/IR/Module.h>
 #include <onnc/IR/ONNCNodeNameGen.h>
 #include <onnc/Config/ONNX.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <string>
 #include <algorithm>
 #include <map>
@@ -47,7 +47,7 @@ using namespace onnc;
 
 namespace {
 
-class ONNCNodeNameGen : public DefaultModulePass<ONNCNodeNameGen>
+class ONNCNodeNameGen : public CustomPass<ONNCNodeNameGen>
 {
 public:
   ONNCNodeNameGen() = default;

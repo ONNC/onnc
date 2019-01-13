@@ -9,7 +9,7 @@
 #define ONNC_SLOT_INDEXES_H
 #include <onnc/ADT/IList.h>
 #include <onnc/ADT/IListNode.h>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/Support/IOStream.h>
 
@@ -82,7 +82,7 @@ private:
  *  \brief Assign slot index to each ComputeOperator, slot index is used by
  *         liveness related passes.
  */
-class BuildSlotIndexes : public DefaultModulePass<BuildSlotIndexes>
+class BuildSlotIndexes : public CustomPass<BuildSlotIndexes>
 {
 public:
   typedef IList<TimeSlot> TimeSlotList;

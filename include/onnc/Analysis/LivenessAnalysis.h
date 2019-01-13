@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_LIVENESS_ANALYSIS_H
 #define ONNC_LIVENESS_ANALYSIS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Config/ONNX.h>
 #include <string>
@@ -44,7 +44,7 @@ protected:
 
 /** \class GraphLivenessAnalysis
  */
-class GraphLivenessAnalysis : public DefaultModulePass<GraphLivenessAnalysis>
+class GraphLivenessAnalysis : public CustomPass<GraphLivenessAnalysis>
 {
 public:
   typedef std::vector<LiveInterval*> LiveIntervalList;

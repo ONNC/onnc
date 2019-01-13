@@ -7,13 +7,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TG_BUILD_MEM_OPND_PASS_H
 #define ONNC_TARGET_TG_BUILD_MEM_OPND_PASS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <vector>
 
 namespace onnc {
 
-class BuildMemOpnd : public DefaultModulePass<BuildMemOpnd>
+class BuildMemOpnd : public CustomPass<BuildMemOpnd>
 {
 public:
   typedef std::map<const onnc::Value *, ComputeMemOperand *> ValMemOpndMap;

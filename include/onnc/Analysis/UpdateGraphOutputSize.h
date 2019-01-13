@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_UPDATE_GRAPH_OUTPUT_SIZE_H
 #define ONNC_UPDATE_GRAPH_OUTPUT_SIZE_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Config/ONNX.h>
 
@@ -17,7 +17,7 @@ namespace onnc {
  *  onnx framework didn't update output value's dimension, so this pass is
  *  used to fill correct output dimension for each output value.
  */
-class UpdateGraphOutputSize : public DefaultModulePass<UpdateGraphOutputSize>
+class UpdateGraphOutputSize : public CustomPass<UpdateGraphOutputSize>
 {
 public:
   UpdateGraphOutputSize();

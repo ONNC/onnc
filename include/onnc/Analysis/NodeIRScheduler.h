@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef NODE_IR_SCHEDULER_H
 #define NODE_IR_SCHEDULER_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Target/DLATargetBackend.h>
 #include <onnc/Target/TargetTransformInfo.h>
@@ -28,7 +28,7 @@ typedef std::vector<xNode *> Nodes;
  *  \brief onnx Graph IR scheduler. Reorder IR, especially load/store for
  *         better, even maximum performance.
  */
-class NodeIRScheduler : public DefaultModulePass<NodeIRScheduler>
+class NodeIRScheduler : public CustomPass<NodeIRScheduler>
 {
 public:
   struct ExeResUser

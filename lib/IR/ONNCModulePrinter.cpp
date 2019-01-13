@@ -1,5 +1,5 @@
 #include <memory>
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/IR/Dump.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <string>
@@ -8,7 +8,7 @@ using namespace onnc;
 
 namespace {
 
-class ONNCModulePrinter : public DefaultModulePass<ONNCModulePrinter>
+class ONNCModulePrinter : public CustomPass<ONNCModulePrinter>
 {
 public:
   ONNCModulePrinter() = default;

@@ -8,7 +8,7 @@
 #ifndef ONNC_TARGET_TG_GEN_WEIGHT_PASS_H
 #define ONNC_TARGET_TG_GEN_WEIGHT_PASS_H
 #include "../TGBackend.h"
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Support/Path.h>
 #include <onnc/Support/DataTypes.h>
 #include <onnc/IR/ComputeMemOperand.h>
@@ -18,7 +18,7 @@
 namespace onnc {
 namespace BM188X {
 
-class GenWeightPass : public DefaultModulePass<GenWeightPass>
+class GenWeightPass : public CustomPass<GenWeightPass>
 {
 public:
   typedef int8_t DataType;

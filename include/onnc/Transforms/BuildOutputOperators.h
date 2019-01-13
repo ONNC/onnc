@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_BUILD_OUTPUT_OPERATORS_H
 #define ONNC_TRANSFORM_BUILD_OUTPUT_OPERATORS_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 
 namespace onnc {
@@ -15,7 +15,7 @@ namespace onnc {
 /** \class BuildOutputOperators
  *  \brief BuildOutputOperators add OutputOperator objects in ComputeGraph.
  */
-class BuildOutputOperators : public DefaultModulePass<BuildOutputOperators, GraphBuildingPass>
+class BuildOutputOperators : public CustomPass<BuildOutputOperators, GraphBuildingPass>
 {
 public:
   BuildOutputOperators() = default;

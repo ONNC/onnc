@@ -8,10 +8,10 @@
 #ifndef ONNC_REMOVE_TRAINING_NODES_H
 #define ONNC_REMOVE_TRAINING_NODES_H
 
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-class RemoveTrainingNodes : public DefaultModulePass<RemoveTrainingNodes>
+class RemoveTrainingNodes : public CustomPass<RemoveTrainingNodes>
 {
 
 public:

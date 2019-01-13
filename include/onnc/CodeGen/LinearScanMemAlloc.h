@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_LINEAR_SCAN_MEM_ALLOC_H
 #define ONNC_CODEGEN_LINEAR_SCAN_MEM_ALLOC_H
-#include <onnc/Core/DefaultModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/CodeGen/MemAllocData.h>
 
 namespace onnc {
@@ -21,7 +21,7 @@ class TargetMemInfo;
 /** \class LinearScanMemAlloc
  *  \brief Linear memory allocation for each value considering value's liveness.
  */
-class LinearScanMemAlloc : public DefaultModulePass<LinearScanMemAlloc>
+class LinearScanMemAlloc : public CustomPass<LinearScanMemAlloc>
 {
 public:
   using AllocEntry = MemAllocData::AllocEntry;
