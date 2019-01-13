@@ -12,8 +12,6 @@
 #include <onnc/Support/OStream.h>
 
 #include <cstdint>
-#include <type_traits>
-#include <typeinfo>
 
 namespace onnc {
 

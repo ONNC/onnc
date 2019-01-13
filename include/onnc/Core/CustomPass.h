@@ -10,6 +10,7 @@
 #include <onnc/Core/ModulePass.h>
 
 #include <type_traits>
+#include <typeinfo>
 #include <utility>
 
 namespace onnc {
