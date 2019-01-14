@@ -8,6 +8,7 @@
 #ifndef ONNC_CORE_MODULE_PASS_H
 #define ONNC_CORE_MODULE_PASS_H
 #include <onnc/Core/Pass.h>
+#include <onnc/IR/Module.h>
 
 #include <cassert>
 
