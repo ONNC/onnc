@@ -1,0 +1,16 @@
+{
+  "group1" : {
+    "gkey1" : 10,
+    "gkey2" : 1.1,
+    "gkey3" : "value13",
+    "gkey4" : [ "1", "2", "3" ]
+  },
+  "group2" : {
+    "g2key1" : 22,
+    "g2key2" : 2.2,
+    "g2key3" : "value23"
+  },
+  "group3" : {
+    "int_list" : [ 1, 2, 3]
+  }
+}

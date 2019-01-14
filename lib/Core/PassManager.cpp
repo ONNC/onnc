@@ -23,14 +23,16 @@ PassManager::PassManager()
   : m_pPassRegistry(onnc::GetPassRegistry()),
     m_Dependencies(), m_AvailableAnalysis(),
     m_RunState(),
-    m_pStart(m_Dependencies.addNode(new StartPass())) {
+    m_pStart(m_Dependencies.addNode(new StartPass())),
+    m_TimeStep(0) {
 }
 
 PassManager::PassManager(PassRegistry& pRegistry)
   : m_pPassRegistry(&pRegistry),
     m_Dependencies(), m_AvailableAnalysis(),
     m_RunState(),
-    m_pStart(m_Dependencies.addNode(new StartPass())) {
+    m_pStart(m_Dependencies.addNode(new StartPass())),
+    m_TimeStep(0) {
 }
 
 PassManager::~PassManager()
@@ -41,12 +43,14 @@ PassManager::~PassManager()
 // Use depth search first to build up a sub-graph of dependenciess.
 void PassManager::add(Pass* pPass, State& pState)
 {
-  doAdd(pPass, nullptr, pState);
+  addPassToDependencyGraph(pPass, nullptr);
+  addPassToExeQueue(pPass, pState);
 }
 
 void PassManager::add(Pass* pPass, TargetBackend* pBackend, State& pState)
 {
-  doAdd(pPass, pBackend, pState);
+  addPassToDependencyGraph(pPass, pBackend);
+  addPassToExeQueue(pPass, pState);
 }
 
 // Use depth search first to build up a sub-graph of dependenciess.
@@ -60,11 +64,21 @@ void PassManager::add(Pass* pPass, TargetBackend* pBackend)
   add(pPass, pBackend, m_RunState);
 }
 
-/// Add a pass by DSF order
-void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
+void PassManager::addPassToExeQueue(Pass* pPass, State& pState)
 {
-  pState.execution.push_back(pPass->getPassID());
+  State s;
+  s.execution.push_back(pPass->getPassID());
+  UpdateExecutionOrder(s.execution);
 
+  // Concate the two execution queue.
+  pState.execution.insert(pState.execution.end(),
+                          s.execution.begin(), s.execution.end());
+
+}
+
+/// Add a pass by DSF order
+void PassManager::addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend)
+{
   // If the pass is already in the dependency graph, then we don't
   // need to add it into the graph.
   if (hasAdded(pPass->getPassID()))
@@ -126,8 +140,18 @@ void PassManager::doAdd(Pass* pPass, TargetBackend* pBackend, State& pState)
   } // leave stacking
 }
 
+void PassManager::initRunState(Module& pModule, State& pState)
+{
+  m_TimeStep = 0;
+  pModule.setTimeStep(1);
+  for (Pass::AnalysisID id : pState.execution)
+    lookup(id)->setTimeStep(0);
+}
+
 bool PassManager::run(Module& pModule, State& pState)
 {
+  initRunState(pModule, pState);
+
   while (!pState.execution.empty()) {
     if (!step(pModule, pState))
       return false;
@@ -146,16 +170,27 @@ bool PassManager::step(Module& pModule, State& pState)
   if (nullptr == node)
     return Pass::kPassFailure;
   pState.pass = node->pass;
+  pState.executed = false;
 
-  Pass::ReturnType result = doRun(*pState.pass, pModule);
+  Pass::ReturnType result = Pass::kModuleNoChanged;
+  if (needRun(*pState.pass, pModule)) {
+    ++m_TimeStep;
+    pState.pass->clear();
+    pState.pass->setTimeStep(m_TimeStep);
+    pState.pass->setModule(&pModule);
+    pState.executed = true;
+    result = doRun(*pState.pass, pModule);
+  }
+
   if (Pass::IsFailed(result))
     return false;
 
+  if (Pass::IsRevised(result))
+    pModule.setTimeStep(m_TimeStep);
+
   if (Pass::IsRetry(result)) {
-    if (Pass::IsRevised(result)) {
-      UpdateExecutionOrder(pState.execution);
-      pState.changed = false;
-    }
+    UpdateExecutionOrder(pState.execution);
+    pState.changed = false;
   }
   else { //< not retry
     if (Pass::IsRevised(result))
@@ -169,6 +204,26 @@ bool PassManager::step(Module& pModule, State& pState)
 bool PassManager::step(Module& pModule)
 {
   return step(pModule, m_RunState);
+}
+
+bool PassManager::needRun(Pass& pPass, Module& pModule)
+{
+  if (pPass.getModule() != &pModule)
+    return true;
+
+  if (pModule.getTimeStep() > pPass.getTimeStep())
+    return true;
+
+  AnalysisUsage usage;
+  pPass.getAnalysisUsage(usage);
+
+  for (Pass::AnalysisID& use : usage) {
+    DepNode* dep_node = findNode(use);
+    Pass* depPass = dep_node->pass;
+    if (depPass->getTimeStep() > pPass.getTimeStep())
+      return true;
+  }
+  return false;
 }
 
 Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)
@@ -190,9 +245,9 @@ Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)
   return result;
 }
 
-PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID)
+PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID) const
 {
-  AvailableAnalysisMap::iterator entry = m_AvailableAnalysis.find(pID);
+  AvailableAnalysisMap::const_iterator entry = m_AvailableAnalysis.find(pID);
   if (m_AvailableAnalysis.end() == entry)
     return nullptr;
   return entry->second;
@@ -217,6 +272,27 @@ Pass* PassManager::lookup(Pass::AnalysisID pID)
     return nullptr;
 
   return node->pass;
+}
+
+void PassManager::printState(const State& pState, OStream& pOS) const
+{
+  pOS << "Execution queue: ";
+  if (pState.execution.empty()) {
+    pOS << "empty." << std::endl;
+    return;
+  }
+
+  pOS << "Start";
+  for (Pass::AnalysisID id : pState.execution) {
+    DepNode* node = findNode(id);
+    pOS << " -> " << node->pass->getPassName();
+  }
+  pOS << std::endl;
+}
+
+void PassManager::dumpState(const State& pState) const
+{
+  printState(pState, errs());
 }
 
 bool PassManager::hasAdded(Pass::AnalysisID pID) const

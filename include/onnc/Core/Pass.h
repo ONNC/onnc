@@ -44,7 +44,8 @@ public:
 
 public:
   explicit Pass(Kind pKind) noexcept
-    : m_Kind{pKind}, m_pResolver{nullptr} { }
+    : m_Kind{pKind}, m_pResolver{nullptr},
+      m_TimeStep(0), m_Module(nullptr) { }
 
   virtual ~Pass();
 
@@ -64,6 +65,8 @@ public:
   /// Virtual method overridden by subclasses to do any necessary
   /// finalization before any pass is run.
   virtual ReturnType doFinalization(Module& pModule) { return kModuleNoChanged; }
+
+  virtual void clear() {}
 
   /// Print out the internal state of the pass.
   /// Beware that the module pointer MAY be null.
@@ -97,9 +100,25 @@ public:
   /// the 3rd bit is set
   static bool IsFailed(ReturnType pR) { return (0x0 != (pR & kPassFailure)); }
 
+  unsigned getTimeStep() const { return m_TimeStep; }
+
+  void setTimeStep(unsigned pTime) { m_TimeStep = pTime; }
+
+  const Module* getModule() const { return m_Module; }
+
+  void setModule(Module* pM) { m_Module = pM; }
+
 private:
   const Kind m_Kind;
   AnalysisResolver* m_pResolver;
+
+  // Executing time step. m_TimeStep and m_Module are used by PassManager to
+  // decide whether a pass needs to execute.
+  // @see PassManager::m_TimeStep
+  unsigned m_TimeStep;
+
+  // Module that pass is processing.
+  Module* m_Module;
 };
 
 } // namespace of onnc

@@ -24,6 +24,8 @@ public:
   ReturnType runOnModule(Module& pModule) override;
 
   void getAnalysisUsage(AnalysisUsage& pUsage) const override;
+
+  StringRef getPassName() const override { return "X86RemoveWeightFromLiveIntervals"; }
 };
 
 X86RemoveWeightFromLiveIntervals* CreateX86RemoveWeightFromLiveIntervalsPass();

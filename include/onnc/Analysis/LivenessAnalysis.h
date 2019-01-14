@@ -60,11 +60,11 @@ public:
 
   void print(OStream& pOS, const Module* pModule) const override;
 
+  /// delete LiveIntervals in m_LiveIntervals
+  void clear() override;
+
 private:
   void calculateLiveness(xGraph &pGraph);
-
-  /// delete LiveIntervals in m_LiveIntervals
-  void clear();
 
 private:
   LiveIntervalList m_LiveIntervals;

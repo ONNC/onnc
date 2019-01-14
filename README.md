@@ -20,7 +20,7 @@ model and avoid re-inventing these intricate optimization algorithms.
 
 ## How to contribute
 
-* Please see [contribute guidline](https://github.com/ONNC/onnc/CONTRIBUTING.md)
+* Please see [contribute guidline](https://github.com/ONNC/onnc/blob/master/CONTRIBUTING.md)
  
 ## Directory Structure
 * README.md - This document
@@ -143,21 +143,21 @@ SYNOPSIS
         onni [options ...]
 
 DESCRIPTION
-        model        <path>       The onnx model file
-        input        <path>       The input file
-        -o           <string>     The output file
-        --help                    Show this manual.
-        --verbose    =<number>    Set verbose level to <number> (default is 1).
-        -v                        One -v increases one verbose level.
-        --quiet                   Set verbose level to 0.
-        --dry-run                 Do not do the inference, just print statistics.
-        --onnx-opt                Enable onnx optimizer
-        -mquadruple  <string>     target quadruple
-        -march       <string>     target architecture
+        model        <path>       The onnx model file                               
+        input        <path>       The input file                                    
+        -o           <string>     The output file                                   
+        --help                    Show this manual.                                 
+        --verbose    =<number>    Set verbose level to <number> (default is 1).     
+        -v                        One -v increases one verbose level.               
+        --quiet                   Set verbose level to 0.                           
+        --dry-run                 Do not do the inference, just print statistics.   
+        --onnx-opt                Enable onnx optimizer                             
+        -mquadruple  <string>     target quadruple                                  
+        -march       <string>     target architecture                               
 
 COPYRIGHT
         onni version 0.1.0
-        https://www.onnc.com
+        https://onnc.ai
 ```
 
 ## Use onni to inference model from ONNX model zoo:

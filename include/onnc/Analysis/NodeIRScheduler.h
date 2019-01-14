@@ -68,6 +68,13 @@ public:
 
   void print(OStream& pOS, const Module* pModule) const override;
 
+  void clear() override
+  {
+    m_SchedTimeLine.clear();
+    m_ExeResUsers.clear();
+    m_CurCycle = 0;
+  }
+
 private:
   Nodes greedyPickNextNodes(Nodes &pCands);
 
@@ -78,13 +85,6 @@ private:
   void addExeResUser(const ExeResource *pExeRes, xNode *pUser);
 
   Nodes issue();
-
-  void clear()
-  {
-    m_SchedTimeLine.clear();
-    m_ExeResUsers.clear();
-    m_CurCycle = 0;
-  }
 
 private:
   DLATargetBackend* m_DLATB;

@@ -243,7 +243,7 @@ void ComputeGraph::print(std::ostream& pOS) const
 void ComputeGraph::print(json::Value& pValue) const
 {
     const_iterator nodeIter = begin();
-    for(nodeIter; nodeIter != end(); ++nodeIter){
+    for(; nodeIter != end(); ++nodeIter){
       nodeIter->print(pValue);
     }
 }

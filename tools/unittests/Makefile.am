@@ -9,13 +9,15 @@ TEST_SOURCES = DigraphTest.cpp \
 	BinaryTreeTest.cpp \
 	StringSwitchTest.cpp \
 	StringMapTest.cpp \
+	StorageTest.cpp \
 	JsonValueTest.cpp \
 	JsonObjectTest.cpp \
 	ComputeIRTest.cpp \
 	TensorSelTest.cpp \
 	MemAllocTest.cpp \
 	ComputeGraphTest.cpp \
-	ONNXReaderTest.cpp
+	ONNXReaderTest.cpp \
+  StatisticsTest.cpp
 endif
 
 if ENABLE_REGRESSION

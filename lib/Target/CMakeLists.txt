@@ -1,4 +1,5 @@
 add_libonnc_src(
+    Platform.cpp
     Target.cpp 
     TargetOptions.cpp
     TargetRegistry.cpp

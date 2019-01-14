@@ -4,6 +4,7 @@ add_libonnc_src(
     LinearScanMemAlloc.cpp
     LiveInterval.cpp
     LiveIntervals.cpp
+    LiveIntervalsData.cpp
     LiveValueMatrix.cpp
     MemAllocData.cpp
     SetMemOperand.cpp
