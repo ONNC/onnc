@@ -25,8 +25,8 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Analysis/GlobalStatistics.h>
 
-#include <string>
 #include <fstream>
+#include <memory>
 #include <string>
 
 using namespace onnc;
@@ -72,7 +72,7 @@ int ONNIApp::run()
     pm.add(CreateOnnxOptPass());
   }
 
-  TargetBackend* backend = target->createBackend(options().target());
+  const auto backend = std::unique_ptr<TargetBackend>{target->createBackend(options().target())};
   backend->addTensorSel(pm);
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
@@ -103,7 +103,7 @@ int ONNIApp::run()
     input_mem = std::make_unique<char[]>(raw_data_str.size());
     memcpy(input_mem.get(), raw_data_str.data(), raw_data_str.size());
   }
-  pm.add(CreateInterpreterPass(backend, input_mem.get(),
+  pm.add(CreateInterpreterPass(backend.get(), input_mem.get(),
                                options().verbose(), options().dryRun()));
 
   pm.run(module);
