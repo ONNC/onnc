@@ -81,7 +81,7 @@ int ONNIApp::run()
   }
 
   // FIXME: Use onnc-runtime to handle input
-  char *input_mem = NULL;
+  std::unique_ptr<char[]> input_mem;
   if (!options().dryRun()) {
     if (!exists(options().input())) {
       errs() << Color::MAGENTA << "Fatal" << Color::RESET
@@ -100,10 +100,10 @@ int ONNIApp::run()
     std::ifstream input_fin(options().input().native());
     tensor.ParseFromIstream(&input_fin);
     const std::string &raw_data_str = tensor.raw_data();
-    input_mem = new char[raw_data_str.size()];
-    memcpy(input_mem, raw_data_str.data(), raw_data_str.size());
+    input_mem = std::make_unique<char[]>(raw_data_str.size());
+    memcpy(input_mem.get(), raw_data_str.data(), raw_data_str.size());
   }
-  pm.add(CreateInterpreterPass(backend, input_mem,
+  pm.add(CreateInterpreterPass(backend, input_mem.get(),
                                options().verbose(), options().dryRun()));
 
   pm.run(module);
@@ -116,6 +116,5 @@ int ONNIApp::run()
     }
     errs() << "==== end again of printing CountOperatorsPass ====\n";
   }
-  delete input_mem;
   return EXIT_SUCCESS;
 }
