@@ -105,7 +105,6 @@ public:
   void destroy(pointer pObject)
   {
     pObject->~DataType();
-    deallocate(pObject);
   }
 };
 
