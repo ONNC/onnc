@@ -75,7 +75,7 @@ xGraph* IRBuilder::CreateTensorGraph()
 {
   xGraph* result = new xGraph();
   getInsertionPoint().setTensorGraph(*result);
-  getModule().delegate(*getTensorGraph());
+  getModule().delegate(getTensorGraph());
   return getTensorGraph();
 }
 
@@ -84,7 +84,7 @@ xGraph* IRBuilder::CreateTensorGraph(StringRef pName)
 {
   xGraph* result = new xGraph();
   getInsertionPoint().setTensorGraph(*result);
-  getModule().delegate(*getTensorGraph());
+  getModule().delegate(getTensorGraph());
   getTensorGraph()->setName(pName);
   return getTensorGraph();
 }
