@@ -11,20 +11,9 @@
 #include <onnc/Config/ONNX.h>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/Transforms/DeadNodeElimination.h>
+#include <onnc/Transforms/TransformUtils.h>
 
 using namespace onnc;
-
-namespace {
-  void dropOutputs(xNode& node)
-  {
-    while (0 < node.outputs().size()) {
-      const auto lastIndex = node.outputs().size() - 1;
-      auto* lastValue = node.outputs()[lastIndex];
-      node.eraseOutput(lastIndex);
-      delete lastValue;
-    }
-  }
-} // anonymous namespace
 
 //===----------------------------------------------------------------------===//
 // DeadNodeElimination

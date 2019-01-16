@@ -8,20 +8,9 @@
 #include <onnc/Config/ONNX.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
+#include <onnc/Transforms/TransformUtils.h>
 
 using namespace onnc;
-
-namespace {
-  void dropOutputs(xNode& node)
-  {
-    while (0 < node.outputs().size()) {
-      const auto lastIndex = node.outputs().size() - 1;
-      auto* lastValue = node.outputs()[lastIndex];
-      node.eraseOutput(lastIndex);
-      delete lastValue;
-    }
-  }
-} // anonymous namespace
 
 Pass::ReturnType RemoveTrainingNodes::runOnModule(::onnc::Module &pModule)
 {
