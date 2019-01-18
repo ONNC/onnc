@@ -8,7 +8,7 @@
 #ifndef ONNC_NVDLAM_TASKSUBMIT_PASS_H
 #define ONNC_NVDLAM_TASKSUBMIT_PASS_H
 
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 #include "NvDlaMeta.h"
 
@@ -16,11 +16,8 @@ namespace onnc {
 
 class TargetBackend;
 
-class NvDlaTaskSubmitPass : public ModulePass
+class NvDlaTaskSubmitPass : public CustomPass<NvDlaTaskSubmitPass>
 {
-public:
-  static char ID;
-
 public:
   NvDlaTaskSubmitPass(TargetBackend *pBackend,
                   NvDlaBackendMeta *pMeta);

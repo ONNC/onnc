@@ -22,8 +22,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 NvDlaFileGenPass::NvDlaFileGenPass(TargetBackend *pBackend,
                   NvDlaBackendMeta *pMeta)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pMeta(pMeta){
+  : m_pBackend(pBackend), m_pMeta(pMeta){
 }
 
 Pass::ReturnType NvDlaFileGenPass::runOnModule(Module &pModule)
@@ -44,8 +43,6 @@ Pass::ReturnType NvDlaFileGenPass::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char NvDlaFileGenPass::ID = 0;
-
 NvDlaFileGenPass *onnc::CreateNvDlaFileGenPass(TargetBackend *pBackend,
                                               NvDlaBackendMeta *pMeta) {
   return new NvDlaFileGenPass(pBackend, pMeta);

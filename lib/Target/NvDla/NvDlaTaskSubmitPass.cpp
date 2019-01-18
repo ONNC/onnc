@@ -23,8 +23,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 NvDlaTaskSubmitPass::NvDlaTaskSubmitPass(TargetBackend *pBackend,
                   NvDlaBackendMeta *pMeta)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pMeta(pMeta){
+  : m_pBackend(pBackend), m_pMeta(pMeta){
 }
 
 Pass::ReturnType NvDlaTaskSubmitPass::runOnModule(Module &pModule)
@@ -353,8 +352,6 @@ int NvDlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char NvDlaTaskSubmitPass::ID = 0;
-
 NvDlaTaskSubmitPass *onnc::CreateNvDlaTaskSubmitPass(TargetBackend *pBackend,
                                               NvDlaBackendMeta *pMeta) {
   return new NvDlaTaskSubmitPass(pBackend, pMeta);

@@ -8,7 +8,7 @@
 #ifndef ONNC_NVDLAMEMINFO_PASS_H
 #define ONNC_NVDLAMEMINFO_PASS_H
 
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 #include "NvDlaMeta.h"
 
@@ -21,11 +21,8 @@ class TargetBackend;
 /** \class InterpreterPass
  *  \brief Run interpreter.
  */
-class NvDlaMemInfoPass : public ModulePass
+class NvDlaMemInfoPass : public CustomPass<NvDlaMemInfoPass>
 {
-public:
-  static char ID;
-
 public:
   NvDlaMemInfoPass(TargetBackend *pBackend,
                   NvDlaBackendMeta *pMeta);
