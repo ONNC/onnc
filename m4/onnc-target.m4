@@ -22,7 +22,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
 
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
-    all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM NVDLA Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX"
+    all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM NvDla Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX"
         ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
@@ -51,8 +51,8 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
         AC_DEFINE(ENABLE_ARM_TARGET, 1, [define ARM target])
         ;;
     nvdla)
-        TARGETS_TO_BUILD="NVDLA $TARGETS_TO_BUILD"
-        AC_DEFINE(ENABLE_NVDLA_TARGET, 1, [define NVDLA target])
+        TARGETS_TO_BUILD="NvDla $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_NVDLA_TARGET, 1, [define NvDla target])
         ;;
     mips)     TARGETS_TO_BUILD="Mips $TARGETS_TO_BUILD" ;;
     hexagon)  TARGETS_TO_BUILD="Hexagon $TARGETS_TO_BUILD" ;;
@@ -96,7 +96,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AM_CONDITIONAL([ENABLE_X86_TARGET],     [ test "${TARGETS_TO_BUILD/X86}"     != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_AArch64_TARGET], [ test "${TARGETS_TO_BUILD/AArch64}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_ARM_TARGET],     [ test "${TARGETS_TO_BUILD/ARM}"     != "${TARGETS_TO_BUILD}" ])
-  AM_CONDITIONAL([ENABLE_NVDLA_TARGET],   [ test "${TARGETS_TO_BUILD/NVDLA}"   != "${TARGETS_TO_BUILD}" ])
+  AM_CONDITIONAL([ENABLE_NVDLA_TARGET],   [ test "${TARGETS_TO_BUILD/NvDla}"   != "${TARGETS_TO_BUILD}" ])
 
   dnl include target-dependent autoconf function calls.
   AM_COND_IF([ENABLE_X86_TARGET],     [m4_include(m4/targets/x86.m4)])
