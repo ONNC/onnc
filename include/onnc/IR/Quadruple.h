@@ -66,6 +66,7 @@ public:
     x86_64,      // X86-64: amd64, x86_64
     xcore,       // XCore: xcore
     mblaze,      // MBlaze: mblaze
+    nvdla,       // NvDla
     nvptx,       // NVPTX: 32-bit
     nvptx64,     // NVPTX: 64-bit
     le32,        // le32: generic little-endian 32-bit CPU (PNaCl / Emscripten)
@@ -90,6 +91,10 @@ public:
     ARMSubArch_v5,
     ARMSubArch_v5te,
     ARMSubArch_v4t,
+    NvDlaSubArch_fp32,
+    NvDlaSubArch_fp16,
+    NvDlaSubArch_int16,
+    NvDlaSubArch_int8,
     SophonSubArch_vBM1680,
     SophonSubArch_vBM1682,
     SophonSubArch_vBM1880,
@@ -374,6 +379,9 @@ public:
 
   /// Test whether the data-path width is 16-bit
   bool isArch16Bit() const;
+
+  /// Test whether the data-path width is 8-bit
+  bool isArch8Bit() const;
 
   /// \brief Test whether the pointer width is 64-bit
   /// Note that some 64-bit architecture remains 32-bit pointer width, for
