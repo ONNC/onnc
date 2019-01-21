@@ -29,9 +29,6 @@ private:
   NvDlaBackendMeta *m_pMeta;
 };
 
-// XXX: Experimental
-NvDlaTaskSubmitPass *CreateNvDlaTaskSubmitPass(NvDlaBackendMeta *pMeta);
-
 } // namespace of onnc
 
 #endif

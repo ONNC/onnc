@@ -27,9 +27,6 @@ private:
   NvDlaBackendMeta *m_pMeta;
 };
 
-// XXX: Experimental
-NvDlaFileGenPass *CreateNvDlaFileGenPass(NvDlaBackendMeta *pMeta);
-
 } // namespace of onnc
 
 #endif

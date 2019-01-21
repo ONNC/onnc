@@ -204,11 +204,3 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
   }
   return Pass::kModuleNoChanged;
 }
-
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-NvDlaMemInfoPass *onnc::CreateNvDlaMemInfoPass(NvDlaBackendMeta *pMeta) {
-  return new NvDlaMemInfoPass(pMeta);
-}

@@ -347,10 +347,3 @@ int NvDlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
   m_pMeta->m_AddressListEntries.push_back(ale);
   return aid;
 }
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-NvDlaTaskSubmitPass *onnc::CreateNvDlaTaskSubmitPass(NvDlaBackendMeta *pMeta) {
-  return new NvDlaTaskSubmitPass(pMeta);
-}
