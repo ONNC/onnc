@@ -103,9 +103,7 @@ public:
   { return size_t(-1) / sizeof(DataType); }
 
   void destroy(pointer pObject)
-  {
-    pObject->~DataType();
-  }
+  { pObject->~DataType(); }
 };
 
 template<class ValueType,
