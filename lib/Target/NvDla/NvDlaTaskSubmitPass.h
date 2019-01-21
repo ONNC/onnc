@@ -19,22 +19,18 @@ class TargetBackend;
 class NvDlaTaskSubmitPass : public CustomPass<NvDlaTaskSubmitPass>
 {
 public:
-  NvDlaTaskSubmitPass(TargetBackend *pBackend,
-                  NvDlaBackendMeta *pMeta);
+  explicit NvDlaTaskSubmitPass(NvDlaBackendMeta *pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
   int submitEvent(int task_id, int event_type);
   int submitMemAllocAddress(int size, std::string blob_name);
 
 private:
-
-  TargetBackend *m_pBackend;
   NvDlaBackendMeta *m_pMeta;
 };
 
 // XXX: Experimental
-NvDlaTaskSubmitPass *CreateNvDlaTaskSubmitPass(TargetBackend *pBackend,
-                                          NvDlaBackendMeta *pMeta);
+NvDlaTaskSubmitPass *CreateNvDlaTaskSubmitPass(NvDlaBackendMeta *pMeta);
 
 } // namespace of onnc
 
