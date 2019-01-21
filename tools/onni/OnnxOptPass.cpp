@@ -48,8 +48,6 @@ Pass::ReturnType OnnxOptPass::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char OnnxOptPass::ID = 0;
-
 OnnxOptPass *onnc::CreateOnnxOptPass() {
   return new OnnxOptPass();
 }

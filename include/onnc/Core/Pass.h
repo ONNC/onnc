@@ -11,6 +11,8 @@
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Support/OStream.h>
 
+#include <cstdint>
+
 namespace onnc {
 
 class AnalysisUsage;
@@ -35,21 +37,21 @@ public:
   };
 
   /// Identity of a pass
-  typedef const void* AnalysisID;
+  typedef std::intptr_t AnalysisID;
 
   /// ReturnType is an union of PassResult
-  typedef uint32_t ReturnType;
+  typedef std::uint32_t ReturnType;
 
 public:
-  explicit Pass(Kind pKind, char& pPassID)
-    : m_Kind(pKind), m_PassID(&pPassID), m_pResolver(nullptr),
+  explicit Pass(Kind pKind) noexcept
+    : m_Kind{pKind}, m_pResolver{nullptr},
       m_TimeStep(0), m_Module(nullptr) { }
 
   virtual ~Pass();
 
   Kind getPassKind() const { return m_Kind; }
 
-  AnalysisID getPassID() const { return m_PassID; }
+  virtual AnalysisID getPassID() const = 0;
 
   virtual StringRef getPassName() const;
 
@@ -107,8 +109,7 @@ public:
   void setModule(Module* pM) { m_Module = pM; }
 
 private:
-  Kind m_Kind;
-  AnalysisID m_PassID;
+  const Kind m_Kind;
   AnalysisResolver* m_pResolver;
 
   // Executing time step. m_TimeStep and m_Module are used by PassManager to

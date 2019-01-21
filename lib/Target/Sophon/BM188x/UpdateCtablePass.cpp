@@ -13,20 +13,18 @@
 
 #include "BM188xBackend.h"
 #include "UpdateVisitor.h"
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 
 using namespace onnc;
 
 namespace {
 
-class UpdateCtablePass : public GraphBuildingPass
+class UpdateCtablePass : public CustomPass<UpdateCtablePass, GraphBuildingPass>
 {
 public:
-  static char ID;
-
-public:
   UpdateCtablePass(BM1880Backend *pBackend)
-      : GraphBuildingPass(ID), m_pBackend(pBackend)
+      : m_pBackend(pBackend)
   {
   }
 
@@ -50,8 +48,6 @@ Pass::ReturnType UpdateCtablePass::runOnGraphs(xGraph &pTG,
   }
   return Pass::kModuleChanged;
 }
-
-char UpdateCtablePass::ID = 0;
 
 ModulePass *onnc::createUpdateCtablePass(BM1880Backend *pBackend)
 {

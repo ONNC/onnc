@@ -81,7 +81,7 @@ static void InsertLoadStoreNode(xGraph &pGraph)
 // NodeIRScheduler
 //===----------------------------------------------------------------------===//
 NodeIRScheduler::NodeIRScheduler(DLATargetBackend* pDLATB)
-  : ModulePass(ID), m_DLATB(pDLATB), m_CurCycle(0) {
+  : m_DLATB(pDLATB), m_CurCycle(0) {
 }
 
 NodeIRScheduler::~NodeIRScheduler()
@@ -263,7 +263,7 @@ Pass::ReturnType NodeIRScheduler::runOnGraph(xGraph &pGraph)
 
 void NodeIRScheduler::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(UpdateGraphOutputSize::ID);
+  pUsage.addRequired<UpdateGraphOutputSize>();
 }
 
 void NodeIRScheduler::print(OStream& pOS, const Module* pModule) const
@@ -305,8 +305,6 @@ void NodeIRScheduler::inorderSingleIssueSchedule(Module& pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char NodeIRScheduler::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_DLA_PASS(NodeIRScheduler, "NodeIRScheduler")

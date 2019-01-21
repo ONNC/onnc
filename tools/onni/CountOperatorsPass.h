@@ -8,6 +8,7 @@
 #ifndef ONNC_COUNT_OPERATORS_PASS_H
 #define ONNC_COUNT_OPERATORS_PASS_H
 #include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Analysis/Statistics.h>
 #include <iomanip>
 #include <iostream>
@@ -22,21 +23,18 @@ class TargetBackend;
 /** \class CountOperatorsPass
  *  \brief Count & print Operators count statistics
  */
-class CountOperatorsPass : public ModulePass
+class CountOperatorsPass : public CustomPass<CountOperatorsPass>
 {
 public:
-  static char ID;
-
-public:
   CountOperatorsPass(const std::string &pPrefix)
-      : ModulePass(ID), m_Prefix(pPrefix) {}
+      : m_Prefix(pPrefix) {}
 
   Pass::ReturnType runOnModule(Module& pModule) override;
   StringRef getPassName() const override { return "CountOperatorsPass"; }
   void print(OStream& pOS, const Module* pModule) const override;
 
 private:
-  ~CountOperatorsPass() override {}
+  virtual ~CountOperatorsPass() = default;
 
   std::pair<int, int> printHeader(OStream &pOS) const;
   void printFooter(OStream &pOS) const;

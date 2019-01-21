@@ -81,8 +81,6 @@ LiveInterval* LiveIntervalsData::createEmptyLiveInterval(Value* pV)
 //===----------------------------------------------------------------------===//
 // LiveIntervalsData Factory method
 //===----------------------------------------------------------------------===//
-char LiveIntervalsData::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(LiveIntervalsData, "LiveIntervalsData")

@@ -19,19 +19,16 @@ class BuildSlotIndexes;
  *  \brief A data pass containing live intervals of all onnc::Value in an
  *         onnc::Module. Provide utilities for live interval queries.
  */
-class LiveIntervalsData : public ModulePass
+class LiveIntervalsData : public CustomPass<LiveIntervalsData>
 {
 public:
-  static char ID;
-
   typedef std::unordered_map<Value*, LiveInterval*> ValueIntervalMap;
 
   typedef std::vector<LiveInterval*> LIs;
 
 public:
   LiveIntervalsData()
-    : ModulePass(LiveIntervalsData::ID),
-      m_ValIntrvls(), m_SlotIndexes(nullptr) {
+    : m_SlotIndexes(nullptr) {
   }
 
   virtual ~LiveIntervalsData() { clear(); }

@@ -12,7 +12,7 @@
 //===---------------------------------------------------------------------===//
 #include "TG.h"
 #include "TGBackend.h"
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Dump.h>
 #include <onnc/Config/ONNX.h>
@@ -21,13 +21,10 @@ using namespace onnc;
 
 namespace {
 
-class ONNXFuseOpt : public ModulePass
+class ONNXFuseOpt : public CustomPass<ONNXFuseOpt>
 {
 public:
-  static char ID;
-
-public:
-  ONNXFuseOpt(TGBackend *pTarget) : ModulePass(ID), m_pTarget(pTarget) {}
+  ONNXFuseOpt(TGBackend *pTarget) : m_pTarget(pTarget) {}
 
   StringRef getPassName() const override { return "ONNXFuseOpt"; }
   
@@ -47,8 +44,6 @@ Pass::ReturnType ONNXFuseOpt::runOnModule(Module &pModule)
   bool changed = TFO->FuseOptimization(graph, pModule.getSetId()[""]);
   return changed ? Pass::kModuleChanged : Pass::kModuleNoChanged;
 }
-
-char ONNXFuseOpt::ID = 0;
 
 ModulePass *onnc::createONNXFuseOptPass(TGBackend *pTarget)
 {

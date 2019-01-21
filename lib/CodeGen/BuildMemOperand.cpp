@@ -65,8 +65,6 @@ void BuildMemOperand::createMemOperandsOfNode(ComputeGraph& pCG,
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char BuildMemOperand::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(BuildMemOperand, "BuildMemOperand")

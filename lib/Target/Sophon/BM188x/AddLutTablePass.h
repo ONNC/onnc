@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_SOPHON_BM188X_ADD_LUT_TABLE_PASS_H
 #define ONNC_TARGET_SOPHON_BM188X_ADD_LUT_TABLE_PASS_H
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Target/DLATargetBackend.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 #include <onnc/Config/ONNX.h>
@@ -14,14 +15,11 @@
 namespace onnc {
 namespace BM188X {
 
-class AddLutTablePass : public GraphBuildingPass
+class AddLutTablePass : public CustomPass<AddLutTablePass, GraphBuildingPass>
 {
 public:
-  static char ID;
-
-public:
   AddLutTablePass(onnc::DLATargetBackend* pBackend)
-    : GraphBuildingPass(ID), m_pTarget(pBackend)
+    : m_pTarget(pBackend)
   {
   }
 

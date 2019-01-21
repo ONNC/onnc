@@ -35,14 +35,12 @@ Pass::ReturnType X86RemoveWeightFromLiveIntervals::runOnModule(Module& pModule)
 void X86RemoveWeightFromLiveIntervals::getAnalysisUsage(
   AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(LiveIntervalsData::ID);
+  pUsage.addRequired<LiveIntervalsData>();
 }
 
 //===----------------------------------------------------------------------===//
 // X86RemoveWeightFromLiveIntervals Factory method
 //===----------------------------------------------------------------------===//
-char X86RemoveWeightFromLiveIntervals::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(X86RemoveWeightFromLiveIntervals,

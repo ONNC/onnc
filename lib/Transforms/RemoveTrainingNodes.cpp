@@ -11,8 +11,6 @@
 
 using namespace onnc;
 
-RemoveTrainingNodes::RemoveTrainingNodes() : ModulePass(ID) {}
-
 Pass::ReturnType RemoveTrainingNodes::runOnModule(::onnc::Module &pModule)
 {
   xGraph *graph = pModule.getRootTensorGraph();
@@ -29,8 +27,6 @@ Pass::ReturnType RemoveTrainingNodes::runOnModule(::onnc::Module &pModule)
   }
   return isChanged;
 }
-
-char RemoveTrainingNodes::ID = 0;
 
 ModulePass *onnc::CreateRemoveTrainingNodesPass()
 {
