@@ -63,7 +63,9 @@ using namespace onnc;
 // NvDlaBackend
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
-  : TargetBackend(pOptions) {
+  : TargetBackend{pOptions}
+  , m_pMeta{}
+  , m_CodeEmitVisitor{m_pMeta} {
   m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
 
@@ -106,7 +108,6 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  m_CodeEmitVisitor.m_pMeta = &m_pMeta;
   pPM.add(CreateNvDlaMemInfoPass(&m_pMeta));
   pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
   pPM.add(CreateNvDlaTaskSubmitPass(&m_pMeta));

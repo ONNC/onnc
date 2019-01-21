@@ -21,7 +21,9 @@ namespace nvdla {
 class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
 public:
-  NvDlaBackendMeta *m_pMeta;
+  explicit CodeEmitVisitor(NvDlaBackendMeta &meta) noexcept
+  : m_pMeta{meta}
+  { }
 
   /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
@@ -49,6 +51,9 @@ public:
   int issueEmuAddr(int mid);
   void issueDlaOp(NvDlaDlaOperation *op, NvDlaDlaOperation *op_fuse, NvDlaDlaOperation *op_prev);
   int issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
+
+private:
+  NvDlaBackendMeta &m_pMeta;
 };
 
 } // namespace nvdla
