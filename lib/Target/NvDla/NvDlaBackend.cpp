@@ -63,13 +63,11 @@ using namespace onnc;
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend(pOptions) {
   m_pMemInfo = new NvDlaTargetMemInfo();
-  m_pMeta = new NvDlaBackendMeta();
 }
 
 NvDlaBackend::~NvDlaBackend()
 {
   // clear the contents of loadable before delete
-  delete m_pMeta;
   delete m_pMemInfo;
 }
 
@@ -113,11 +111,11 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  m_CodeEmitVisitor.m_pMeta = m_pMeta;
-  pPM.add(CreateNvDlaMemInfoPass(m_pMeta));
+  m_CodeEmitVisitor.m_pMeta = &m_pMeta;
+  pPM.add(CreateNvDlaMemInfoPass(&m_pMeta));
   pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
-  pPM.add(CreateNvDlaTaskSubmitPass(m_pMeta));
-  pPM.add(CreateNvDlaFileGenPass(m_pMeta));
+  pPM.add(CreateNvDlaTaskSubmitPass(&m_pMeta));
+  pPM.add(CreateNvDlaFileGenPass(&m_pMeta));
 }
 
 void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
