@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include "NvDlaBackend.h"
 #include "TargetInfo/NvDlaTargetInfo.h"
 #include "TargetInfo/NvDlaTargetMemInfo.h"
@@ -62,15 +64,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend(pOptions) {
-  m_pMemInfo = new NvDlaTargetMemInfo();
+  m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
-
-NvDlaBackend::~NvDlaBackend()
-{
-  // clear the contents of loadable before delete
-  delete m_pMemInfo;
-}
-
 
 void NvDlaBackend::addTensorSel(PassManager& pPM)
 {

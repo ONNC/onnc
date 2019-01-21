@@ -17,7 +17,7 @@ class VanillaBackend : public TargetBackend
 public:
   VanillaBackend(const TargetOptions& pOptions);
 
-  virtual ~VanillaBackend();
+  virtual ~VanillaBackend() = default;
 
   void addTensorSel(PassManager& pPM) override;
 
