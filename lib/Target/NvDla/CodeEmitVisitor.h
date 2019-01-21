@@ -11,18 +11,17 @@
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
-#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/CustomVisitor.h>
 #include "NvDlaMeta.h"
 
 namespace onnc {
 
 namespace nvdla {
 
-class CodeEmitVisitor : public ComputeVisitor
+class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
 public:
   NvDlaBackendMeta *m_pMeta;
-  static char ID;
 
   /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;

@@ -8,7 +8,7 @@
 #ifndef ONNC_TARGET_X86_X86_COMPUTE_VISITOR_H
 #define ONNC_TARGET_X86_X86_COMPUTE_VISITOR_H
 
-#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/CustomVisitor.h>
 
 namespace onnc {
 
@@ -16,14 +16,12 @@ class X86ConvRelu;
 
 /** \class X86ComputeVisitor
  */
-class X86ComputeVisitor : public ComputeVisitor
+class X86ComputeVisitor : public CustomVisitor<X86ComputeVisitor>
 {
 public:
-  static char ID;
+  X86ComputeVisitor() = default;
 
-  X86ComputeVisitor() : ComputeVisitor(ID) { }
-
-  using ComputeVisitor::visit;
+  using BaseType::visit;
   virtual void visit(const X86ConvRelu&) { }
   virtual void visit(X86ConvRelu&) { }
 
