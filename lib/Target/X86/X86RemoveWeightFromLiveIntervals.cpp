@@ -38,17 +38,8 @@ void X86RemoveWeightFromLiveIntervals::getAnalysisUsage(
   pUsage.addRequired<LiveIntervalsData>();
 }
 
-//===----------------------------------------------------------------------===//
-// X86RemoveWeightFromLiveIntervals Factory method
-//===----------------------------------------------------------------------===//
 namespace onnc
 {
   INITIALIZE_PASS(X86RemoveWeightFromLiveIntervals,
                   "X86RemoveWeightFromLiveIntervals")
-}
-
-X86RemoveWeightFromLiveIntervals*
-onnc::CreateX86RemoveWeightFromLiveIntervalsPass()
-{
-  return new X86RemoveWeightFromLiveIntervals();
 }

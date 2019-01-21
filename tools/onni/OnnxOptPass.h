@@ -26,8 +26,6 @@ public:
   ReturnType runOnModule(Module& pModule) override;
 };
 
-OnnxOptPass *CreateOnnxOptPass();
-
 } // namespace of onnc
 
 #endif

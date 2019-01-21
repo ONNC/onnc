@@ -55,9 +55,6 @@ private:
   }
 };
 
-// XXX: Experimental
-CountOperatorsPass *CreateCountOperatorsPass(const std::string &pPrefix);
-
 } // namespace of onnc
 
 #endif

@@ -39,12 +39,6 @@ private:
   std::unique_ptr<Interpreter> m_pInterpreter;
 };
 
-// XXX: Experimental
-InterpreterPass *CreateInterpreterPass(TargetBackend *pBackend,
-                                       char *pInputMem,
-                                       unsigned int pVerbose,
-                                       bool pIsDryRun);
-
 } // namespace of onnc
 
 #endif

@@ -40,9 +40,6 @@ private:
   IsFusible m_IsFusibleFn;
 };
 
-ModulePass*
-CreateFuseInplaceValuePass(FuseInplaceValue::IsFusible pCheckFusibleFn);
-
 } // namespace onnc
 
 #endif
