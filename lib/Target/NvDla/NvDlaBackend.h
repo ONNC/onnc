@@ -20,7 +20,7 @@ class NvDlaBackend : public TargetBackend
 public:
   NvDlaBackend(const TargetOptions& pOptions);
 
-  virtual ~NvDlaBackend();
+  virtual ~NvDlaBackend() = default;
 
   void addTensorSel(PassManager& pPM) override;
 

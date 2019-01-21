@@ -49,6 +49,7 @@
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 
+#include <memory>
 
 using namespace onnc;
 
@@ -57,12 +58,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 VanillaBackend::VanillaBackend(const TargetOptions& pOptions)
   : TargetBackend(pOptions) { 
-  m_pMemInfo = new VanillaTargetMemInfo();
-}
-
-VanillaBackend::~VanillaBackend()
-{
-  delete m_pMemInfo;
+  m_pMemInfo = std::make_unique<VanillaTargetMemInfo>();
 }
 
 void VanillaBackend::addTensorSel(PassManager& pPM)

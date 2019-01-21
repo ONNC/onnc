@@ -54,6 +54,7 @@
 
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 
+#include <memory>
 
 using namespace onnc;
 
@@ -65,12 +66,7 @@ NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   , m_pMeta{}
   , m_CodeEmitVisitor{m_pMeta}
 {
-  m_pMemInfo = new NvDlaTargetMemInfo();
-}
-
-NvDlaBackend::~NvDlaBackend()
-{
-  delete m_pMemInfo;
+  m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
 
 void NvDlaBackend::addTensorSel(PassManager& pPM)
