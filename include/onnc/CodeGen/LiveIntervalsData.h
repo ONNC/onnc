@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_LIVE_INTERVALS_DATA_H
 #define ONNC_CODEGEN_LIVE_INTERVALS_DATA_H
+#include <memory>
+
 #include <onnc/CodeGen/LiveInterval.h>
 #include <onnc/Core/ModulePass.h>
 #include <onnc/Core/PassSupport.h>
@@ -22,7 +24,7 @@ class BuildSlotIndexes;
 class LiveIntervalsData : public CustomPass<LiveIntervalsData>
 {
 public:
-  typedef std::unordered_map<Value*, LiveInterval*> ValueIntervalMap;
+  typedef std::unordered_map<Value*, std::unique_ptr<LiveInterval>> ValueIntervalMap;
 
   typedef std::vector<LiveInterval*> LIs;
 
@@ -31,7 +33,7 @@ public:
     : m_SlotIndexes(nullptr) {
   }
 
-  virtual ~LiveIntervalsData() { clear(); }
+  virtual ~LiveIntervalsData() = default;
 
   //===--------------------------------------------------------------------===//
   // Pass methods.

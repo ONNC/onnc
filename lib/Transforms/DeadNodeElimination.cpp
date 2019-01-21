@@ -5,11 +5,12 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Transforms/DeadNodeElimination.h>
+#include <iostream>
+
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Config/ONNX.h>
 #include <onnc/IR/ONNXUtils.h>
-#include <iostream>
+#include <onnc/Transforms/DeadNodeElimination.h>
 
 using namespace onnc;
 
@@ -23,8 +24,10 @@ Pass::ReturnType DeadNodeElimination::runOnModule(::onnc::Module &pModule)
   for (auto it = graph->begin(); it != graph->end(); ++it) {
     xNode* n = *it;
     // Remove 'undefined' node.
-    if (n->kind() == xBuiltinSymbol::kUndefined)
+    if (n->kind() == xBuiltinSymbol::kUndefined) {
+      dropOutputs(*n);
       it.destroyCurrent();
+    }
   }
 
   return Pass::kModuleChanged;

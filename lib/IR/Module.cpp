@@ -157,23 +157,18 @@ Module::~Module()
 
 Module& Module::delegate(std::unique_ptr<xGraph> pGraph)
 {
-  if (m_RootTensorGraph)
-    m_RootTensorGraph.reset();
-  return delegate(*pGraph.release());
+  assert(pGraph != nullptr);
+
+  m_RootTensorGraph = std::move(pGraph);
+  return delegateImpl();
 }
 
-Module& Module::delegate(xGraph& pGraph)
+Module& Module::delegate(xGraph* pGraph)
 {
-  m_RootTensorGraph.reset(&pGraph);
+  assert(pGraph != nullptr);
 
-  bool exist = false;
-  TensorGraphList::entry_type* entry = nullptr;
-  if (m_RootTensorGraph->has_name())
-    entry = m_TensorGraphs.insert(m_RootTensorGraph->name(), exist);
-  else
-    entry = m_TensorGraphs.insert("top-level", exist);
-  entry->setValue(m_RootTensorGraph.get());
-  return *this;
+  m_RootTensorGraph.reset(pGraph);
+  return delegateImpl();
 }
 
 bool Module::recordSubgraph(xGraph& pSubgraph)
@@ -439,4 +434,18 @@ void Module::OnnxInfo::print(std::ostream& pOS) const
 void Module::OnnxInfo::dump() const
 {
   print(errs());
+}
+
+Module& Module::delegateImpl()
+{
+  assert(m_RootTensorGraph != nullptr);
+
+  bool exist = false;
+  TensorGraphList::entry_type* entry = nullptr;
+  if (m_RootTensorGraph->has_name())
+    entry = m_TensorGraphs.insert(m_RootTensorGraph->name(), exist);
+  else
+    entry = m_TensorGraphs.insert("top-level", exist);
+  entry->setValue(m_RootTensorGraph.get());
+  return *this;
 }

@@ -43,6 +43,8 @@ bool IsTranspose(const xNode& pNode, const xBuiltinSymbol pAttr);
 
 LongInts GetValueSizes(const xValue& pVal);
 
+void dropOutputs(xNode& node);
+
 } // namespace onnc
 
 #endif

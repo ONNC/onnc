@@ -83,10 +83,10 @@ void LiveValueMatrix::buildStartWithEndWith()
                 "Assume OperatorDist is 1.");
 
   for (auto& liIter : m_LIDataPass->getAllIntervals()) {
-    LiveInterval* li = liIter.second;
+    auto& li = liIter.second;
     for (const LiveInterval::Segment& s : li->getSegments()) {
-      m_StartWith[s.m_Start.getIndex()].emplace_back(li, s);
-      m_EndWith[s.m_End.getIndex()].emplace_back(li, s);
+      m_StartWith[s.m_Start.getIndex()].emplace_back(li.get(), s);
+      m_EndWith[s.m_End.getIndex()].emplace_back(li.get(), s);
     }
   }
 }

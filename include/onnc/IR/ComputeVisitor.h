@@ -143,6 +143,7 @@ public:
 
 public:
   ComputeVisitor() : m_VisitorID(nullptr) { }
+  virtual ~ComputeVisitor() = default;
 
   ComputeVisitor(char& pID) : m_VisitorID(&pID) { }
 
