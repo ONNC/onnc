@@ -113,13 +113,11 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-
   m_CodeEmitVisitor.m_pMeta = m_pMeta;
-  pPM.add(CreateNvDlaMemInfoPass(this, m_pMeta));
+  pPM.add(CreateNvDlaMemInfoPass(m_pMeta));
   pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
   pPM.add(CreateNvDlaTaskSubmitPass(this, m_pMeta));
   pPM.add(CreateNvDlaFileGenPass(this, m_pMeta));
-
 }
 
 void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const

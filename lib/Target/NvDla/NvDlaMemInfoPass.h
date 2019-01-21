@@ -24,20 +24,16 @@ class TargetBackend;
 class NvDlaMemInfoPass : public CustomPass<NvDlaMemInfoPass>
 {
 public:
-  NvDlaMemInfoPass(TargetBackend *pBackend,
-                  NvDlaBackendMeta *pMeta);
+  explicit NvDlaMemInfoPass(NvDlaBackendMeta *pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
-
-  TargetBackend *m_pBackend;
   NvDlaBackendMeta *m_pMeta;
 };
 
 // XXX: Experimental
-NvDlaMemInfoPass *CreateNvDlaMemInfoPass(TargetBackend *pBackend,
-                                          NvDlaBackendMeta *pMeta);
+NvDlaMemInfoPass *CreateNvDlaMemInfoPass(NvDlaBackendMeta *pMeta);
 
 } // namespace of onnc
 
