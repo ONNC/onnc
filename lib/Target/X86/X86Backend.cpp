@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include "X86Backend.h"
 #include "X86Interpreter.h"
 #include "X86FuseConvRelu.h"
@@ -144,12 +146,7 @@ onnc::EnableX86FuseConvRelu("enable-x86-fuse-conv-relu", cl::kLong, cl::kOptiona
 //===----------------------------------------------------------------------===//
 X86Backend::X86Backend(const TargetOptions& pOptions)
   : NPUTargetBackend(pOptions) {
-  m_pMemInfo = new X86TargetMemInfo();
-}
-
-X86Backend::~X86Backend()
-{
-  delete m_pMemInfo;
+  m_pMemInfo = std::make_unique<X86TargetMemInfo>();
 }
 
 void X86Backend::addTensorSel(PassManager& pPM)

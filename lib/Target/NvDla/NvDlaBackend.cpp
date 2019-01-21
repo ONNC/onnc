@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include "NvDlaBackend.h"
 #include "TargetInfo/NvDlaTargetInfo.h"
 #include "TargetInfo/NvDlaTargetMemInfo.h"
@@ -61,18 +63,11 @@ using namespace onnc;
 // NvDlaBackend
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
-  : TargetBackend(pOptions) {
-  m_pMemInfo = new NvDlaTargetMemInfo();
-  m_pMeta = new NvDlaBackendMeta();
+  : TargetBackend{pOptions}
+  , m_pMeta{}
+  , m_CodeEmitVisitor{m_pMeta} {
+  m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
-
-NvDlaBackend::~NvDlaBackend()
-{
-  // clear the contents of loadable before delete
-  delete m_pMeta;
-  delete m_pMemInfo;
-}
-
 
 void NvDlaBackend::addTensorSel(PassManager& pPM)
 {
@@ -113,13 +108,10 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-
-  m_CodeEmitVisitor.m_pMeta = m_pMeta;
-  pPM.add(CreateNvDlaMemInfoPass(this, m_pMeta));
+  pPM.add(CreateNvDlaMemInfoPass(&m_pMeta));
   pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
-  pPM.add(CreateNvDlaTaskSubmitPass(this, m_pMeta));
-  pPM.add(CreateNvDlaFileGenPass(this, m_pMeta));
-
+  pPM.add(CreateNvDlaTaskSubmitPass(&m_pMeta));
+  pPM.add(CreateNvDlaFileGenPass(&m_pMeta));
 }
 
 void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const

@@ -7,17 +7,15 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_VANILLA_CODE_EMIT_VISITOR_H
 #define TARGET_VANILLA_CODE_EMIT_VISITOR_H
-#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/CustomVisitor.h>
 
 namespace onnc {
 
 namespace vanilla {
 
-class CodeEmitVisitor : public ComputeVisitor
+class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
 public:
-  static char ID;
-
   /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
   void visit(const InputOperator& pInputOperator) override;

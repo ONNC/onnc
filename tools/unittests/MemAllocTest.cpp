@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include <onnc/ADT/StringList.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/FuseInplaceValue.h>
@@ -244,12 +246,10 @@ public:
 class VTargetBackend : public TargetBackend
 {
 public:
-  VTargetBackend(const TargetOptions& pOptions)
+  explicit VTargetBackend(const TargetOptions& pOptions)
     : TargetBackend(pOptions) {
-    m_pMemInfo = &m_VTMI;
+    m_pMemInfo = std::make_unique<VTargetMemInfo>();
   }
-
-  VTargetMemInfo m_VTMI;
 };
 
 //===----------------------------------------------------------------------===//

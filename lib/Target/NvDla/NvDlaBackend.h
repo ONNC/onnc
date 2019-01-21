@@ -20,7 +20,7 @@ class NvDlaBackend : public TargetBackend
 public:
   NvDlaBackend(const TargetOptions& pOptions);
 
-  virtual ~NvDlaBackend();
+  virtual ~NvDlaBackend() = default;
 
   void addTensorSel(PassManager& pPM) override;
 
@@ -53,7 +53,7 @@ public:
   std::vector<ILoadable::EventListEntry> m_EventListEntries;
 #endif
 
-  NvDlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta m_pMeta;
   nvdla::CodeEmitVisitor m_CodeEmitVisitor;
   //Loadable m_loadable;
 };

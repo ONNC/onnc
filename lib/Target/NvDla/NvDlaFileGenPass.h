@@ -19,20 +19,16 @@ class TargetBackend;
 class NvDlaFileGenPass : public CustomPass<NvDlaFileGenPass>
 {
 public:
-  NvDlaFileGenPass(TargetBackend *pBackend,
-                  NvDlaBackendMeta *pMeta);
+  explicit NvDlaFileGenPass(NvDlaBackendMeta *pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
-
-  TargetBackend *m_pBackend;
   NvDlaBackendMeta *m_pMeta;
 };
 
 // XXX: Experimental
-NvDlaFileGenPass *CreateNvDlaFileGenPass(TargetBackend *pBackend,
-                                          NvDlaBackendMeta *pMeta);
+NvDlaFileGenPass *CreateNvDlaFileGenPass(NvDlaBackendMeta *pMeta);
 
 } // namespace of onnc
 

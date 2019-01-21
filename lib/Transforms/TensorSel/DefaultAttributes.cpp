@@ -14,12 +14,13 @@
 #include <onnc/IR/Compute/AveragePool.h>
 #include <onnc/IR/Compute/LpPool.h>
 #include <onnc/IR/Compute/Transpose.h>
+#include <onnc/IR/CustomVisitor.h>
 
 using namespace onnc;
 
 namespace {
 
-class DefaultAttributes : public ComputeVisitor {
+class DefaultAttributes : public CustomVisitor<DefaultAttributes> {
 public:
   DefaultAttributes(xNode &pNode) : m_Node(pNode) {}
 

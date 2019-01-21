@@ -22,9 +22,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // NvDlaMemInfoPass
 //===----------------------------------------------------------------------===//
-NvDlaMemInfoPass::NvDlaMemInfoPass(TargetBackend *pBackend,
-                  NvDlaBackendMeta *pMeta)
-  : m_pBackend(pBackend), m_pMeta(pMeta){
+NvDlaMemInfoPass::NvDlaMemInfoPass(NvDlaBackendMeta *pMeta)
+  : m_pMeta{pMeta} {
 }
 
 Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
@@ -210,7 +209,6 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-NvDlaMemInfoPass *onnc::CreateNvDlaMemInfoPass(TargetBackend *pBackend,
-                                              NvDlaBackendMeta *pMeta) {
-  return new NvDlaMemInfoPass(pBackend, pMeta);
+NvDlaMemInfoPass *onnc::CreateNvDlaMemInfoPass(NvDlaBackendMeta *pMeta) {
+  return new NvDlaMemInfoPass(pMeta);
 }

@@ -13,6 +13,7 @@
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Value.h>
 #include <onnc/IR/ComputeMemOperand.h>
+#include <onnc/IR/CustomVisitor.h>
 #include <unordered_map>
 
 namespace onnc {
@@ -143,7 +144,9 @@ public:
 
 // TODO: Re-design BasicInterpreter.
 template<typename OperatorVisitorT = ComputeVisitor>
-class InterpreterVisitor : public OperatorVisitorT, public BasicInterpreter
+class InterpreterVisitor
+  : public CustomVisitor<InterpreterVisitor<OperatorVisitorT>, OperatorVisitorT>
+  , public BasicInterpreter
 {
 public:
   void visit(Abs& pAbs) override { BasicInterpreter::visit(pAbs); }
@@ -271,7 +274,7 @@ protected:
 
 public:
   Interpreter()
-      : m_pIV{std::make_unique<ComputeVisitor>()} {}
+      : m_pIV{std::make_unique<InterpreterVisitor<>>()} {}
   Interpreter(const Interpreter&) = delete;
   virtual ~Interpreter() = default;
 
