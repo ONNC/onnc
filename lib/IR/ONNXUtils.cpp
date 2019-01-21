@@ -191,3 +191,12 @@ LongInts onnc::GetValueSizes(const xValue& pVal)
     sizes.emplace_back(dim.dim);
   return sizes;
 }
+
+void onnc::dropOutputs(xNode& node)
+{
+  while (0 < node.outputs().size()) {
+    const auto lastIndex = node.outputs().size() - 1;
+    auto lastValue = std::unique_ptr<xValue>{node.outputs()[lastIndex]};
+    node.eraseOutput(lastIndex);
+  }
+}

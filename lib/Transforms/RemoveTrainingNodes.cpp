@@ -7,8 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Config/ONNX.h>
 #include <onnc/Core/ModulePass.h>
+#include <onnc/IR/ONNXUtils.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
-#include <onnc/Transforms/TransformUtils.h>
 
 using namespace onnc;
 
