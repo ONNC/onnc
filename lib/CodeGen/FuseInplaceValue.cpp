@@ -59,16 +59,7 @@ Pass::ReturnType FuseInplaceValue::runOnComputeGraph(ComputeGraph& pCG)
   return ret;
 }
 
-//===----------------------------------------------------------------------===//
-// FuseInplaceValue Factory method
-//===----------------------------------------------------------------------===//
 namespace onnc
 {
   INITIALIZE_PASS(FuseInplaceValue, "FuseInplaceValue")
-}
-
-ModulePass*
-onnc::CreateFuseInplaceValuePass(FuseInplaceValue::IsFusible pCheckFusibleFn)
-{
-  return new FuseInplaceValue(pCheckFusibleFn);
 }

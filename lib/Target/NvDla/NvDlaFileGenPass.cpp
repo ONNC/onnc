@@ -37,11 +37,3 @@ Pass::ReturnType NvDlaFileGenPass::runOnModule(Module &pModule)
   m_pMeta->m_Loadable.priv()->serialize();
   return Pass::kModuleNoChanged;
 }
-
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-NvDlaFileGenPass *onnc::CreateNvDlaFileGenPass(NvDlaBackendMeta *pMeta) {
-  return new NvDlaFileGenPass(pMeta);
-}

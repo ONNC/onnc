@@ -248,13 +248,3 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
 
   return Pass::kModuleNoChanged;
 }
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-InterpreterPass *onnc::CreateInterpreterPass(TargetBackend *pBackend,
-                                             char *pInputMem,
-                                             unsigned int pVerbose,
-                                             bool pIsDryRun) {
-  return new InterpreterPass(pBackend, pInputMem, pVerbose, pIsDryRun);
-}

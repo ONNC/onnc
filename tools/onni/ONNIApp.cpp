@@ -69,7 +69,7 @@ int ONNIApp::run()
   PassManager pm;
 
   if (options().onnxOpt()) {
-    pm.add(CreateOnnxOptPass());
+    pm.add<OnnxOptPass>();
   }
 
   const auto backend = std::unique_ptr<TargetBackend>{target->createBackend(options().target())};
@@ -77,7 +77,7 @@ int ONNIApp::run()
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   if (options().verbose() >= 3) {
-    pm.add(CreateCountOperatorsPass("[Statistics] "));
+    pm.add<CountOperatorsPass>("[Statistics] ");
   }
 
   // FIXME: Use onnc-runtime to handle input
@@ -103,8 +103,8 @@ int ONNIApp::run()
     input_mem = std::make_unique<char[]>(raw_data_str.size());
     memcpy(input_mem.get(), raw_data_str.data(), raw_data_str.size());
   }
-  pm.add(CreateInterpreterPass(backend.get(), input_mem.get(),
-                               options().verbose(), options().dryRun()));
+  pm.add<InterpreterPass>(backend.get(), input_mem.get(),
+                          options().verbose(), options().dryRun());
 
   pm.run(module);
 

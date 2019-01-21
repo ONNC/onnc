@@ -38,8 +38,6 @@ private:
   X86ConvRelu* mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu);
 };
 
-X86FuseConvRelu* CreateX86FuseConvReluPass();
-
 } // namespace of onnc
 
 #endif

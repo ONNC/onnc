@@ -44,10 +44,3 @@ Pass::ReturnType OnnxOptPass::runOnModule(Module &pModule)
 
   return Pass::kModuleChanged;
 }
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-OnnxOptPass *onnc::CreateOnnxOptPass() {
-  return new OnnxOptPass();
-}

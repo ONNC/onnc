@@ -436,7 +436,7 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   PassRegistry registry;
   PassManager passMgr(registry);
   addStandardCreateLiveIntervals(passMgr);
-  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  passMgr.add<X86RemoveWeightFromLiveIntervals>();
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
@@ -484,9 +484,9 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
 
   PassRegistry registry;
   PassManager passMgr(registry);
-  passMgr.add(CreateFuseInplaceValuePass(VTargetIsInplaceValueFusible));
+  passMgr.add<FuseInplaceValue>(VTargetIsInplaceValueFusible);
   addStandardCreateLiveIntervals(passMgr);
-  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  passMgr.add<X86RemoveWeightFromLiveIntervals>();
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
