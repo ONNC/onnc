@@ -28,11 +28,7 @@ CounterIterator& CounterIterator::next()
 
   do {
     m_Iterator.next();
-    if (m_Iterator.isEnd()) { // reach the end
-      m_pStatistics = nullptr;
-      return *this;
-    }
-  } while (Counter::IsCounter(m_Iterator.group()));
+  } while (!Counter::IsCounter(m_Iterator.group()));
   return *this;
 }
 
