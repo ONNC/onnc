@@ -152,7 +152,6 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 
 }
 
-
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
@@ -163,6 +162,6 @@ TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions)
 
 extern "C" void InitializeNvDlaONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheNvDlaTarget(),
+  onnc::TargetRegistry::RegisterTargetBackend(getFp16NvDlaTarget(),
       CreateNvDlaBackend);
 }

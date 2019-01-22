@@ -11,7 +11,7 @@
 
 namespace onnc {
 
-Target& getTheNvDlaTarget();
+Target& getFp16NvDlaTarget();
 
 } // namespace of onnc
 
