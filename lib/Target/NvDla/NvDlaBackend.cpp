@@ -62,10 +62,9 @@ using namespace onnc;
 // NvDlaBackend
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
-  : TargetBackend{pOptions}
-  , m_pMeta{}
-  , m_CodeEmitVisitor{m_pMeta}
-{
+  : TargetBackend{pOptions},
+    m_pMeta{},
+    m_CodeEmitVisitor{m_pMeta} {
   m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
 
