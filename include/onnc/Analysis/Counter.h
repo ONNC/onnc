@@ -30,6 +30,8 @@ namespace onnc {
  *
  *  In case users want to claim a Counter object and then posphone assignment of
  *  value, we also provide default constructor and assign operator for this case.
+ *  @ref Counter::isValid return true if a Counter object already has well-settled
+ *  group.
  */
 class Counter
 {
@@ -89,7 +91,7 @@ public:
 
   /// If a counter wasn't given a group, it isn't active.
   /// A Counter object created by default constructor is invalid.
-  bool isActive() const;
+  bool isValid() const;
 
   /// follow the origin value designed by evan li.
   /// print "[name], [value], [description]\n"

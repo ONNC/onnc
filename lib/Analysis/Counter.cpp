@@ -48,6 +48,9 @@ Counter& Counter::reset(int pNumber)
 
 Counter& Counter::increase()
 {
+  if (!isValid())
+    return *this;
+
   int number = m_Group.readEntry(g_ValueKey, g_ValueDef);
   ++number;
   m_Group.writeEntry(g_ValueKey, number);
@@ -56,6 +59,9 @@ Counter& Counter::increase()
 
 Counter& Counter::decrease()
 {
+  if (!isValid())
+    return *this;
+
   int number = m_Group.readEntry(g_ValueKey, g_ValueDef);
   --number;
   m_Group.writeEntry(g_ValueKey, number);
@@ -82,7 +88,7 @@ void Counter::setDescription(StringRef pDesc)
   m_Group.writeEntry(g_DescKey, pDesc);
 }
 
-bool Counter::isActive() const
+bool Counter::isValid() const
 {
   int type = m_Group.readEntry(g_TypeKey, g_TypeValue + 1);
 
