@@ -130,6 +130,9 @@
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
+
+#include <memory>
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
@@ -137,12 +140,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 X86Backend::X86Backend(const TargetOptions& pOptions)
   : NPUTargetBackend(pOptions) {
-  m_pMemInfo = new X86TargetMemInfo();
-}
-
-X86Backend::~X86Backend()
-{
-  delete m_pMemInfo;
+  m_pMemInfo = std::make_unique<X86TargetMemInfo>();
 }
 
 void X86Backend::addTensorSel(PassManager& pPM)

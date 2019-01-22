@@ -17,7 +17,7 @@ class X86Backend : public NPUTargetBackend
 public:
   X86Backend(const TargetOptions& pOptions);
 
-  virtual ~X86Backend();
+  virtual ~X86Backend() = default;
 
   void addTensorSel(PassManager& pPM) override;
 
