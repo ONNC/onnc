@@ -7,7 +7,28 @@
 //===----------------------------------------------------------------------===//
 #include "NvDlaMeta.h"
 
+#include <algorithm>
+#include <cstring>
+#include <iterator>
+#include <memory>
+#include <type_traits>
+
 using namespace onnc;
+
+namespace onnc {
+namespace detail {
+  template <typename T, std::size_t N>
+  constexpr std::size_t size(const T(&)[N]) noexcept {
+    return N;
+  }
+
+  template <typename T>
+  void clear_bytes(T& object) {
+    static_assert(std::is_trivial<T>::value);
+    std::memset(std::addressof(object), 0, sizeof(object));
+  }
+} // namespace detail
+} // namespace onnc
 
 //===----------------------------------------------------------------------===//
 // NvDlaDlaOperation
@@ -43,12 +64,19 @@ NvDlaEmuOperation::NvDlaEmuOperation()
 NvDlaBackendMeta::NvDlaBackendMeta()
   : m_NumLUTs(0), m_NumBlobs(0), m_pPrevOp(nullptr) {
 
+  using namespace detail;
+  using std::begin;
+  using std::end;
+
   m_Loadable = priv::LoadableFactory::newLoadable();
 
-  for(int i = 0; i < DLA_OP_NUM; i++){
-    m_pDepOp[i] = NULL;
-    m_DlaNetworkDesc.op_head[i] = -1;
+  std::fill(begin(m_pDepOp), end(m_pDepOp), nullptr);
+
+  clear_bytes(m_DlaNetworkDesc);
+  for (std::size_t idx = 0; idx < size(m_DlaNetworkDesc.op_head); ++idx) {
+    m_DlaNetworkDesc.op_head[idx] = -1;
   }
+  clear_bytes(m_EmuNetworkDesc);
 
   {
     struct dla_lut_param *default_lut_param = new dla_lut_param();
