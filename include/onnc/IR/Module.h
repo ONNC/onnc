@@ -36,7 +36,7 @@ public:
   typedef ComputeGraphList::iterator cg_iterator;
   typedef ComputeGraphList::const_iterator const_cg_iterator;
 
-  typedef std::unordered_set<ComputeOperand*> ComputeOperandList;
+  typedef ComputeGraph::ArcList ComputeOperandList;
   typedef std::vector<onnc::Define*> ComputeDefineList;
 
   typedef StringMap<Value*> ValueList;
