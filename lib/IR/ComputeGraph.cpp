@@ -8,6 +8,9 @@
 #include <onnc/IR/ComputeGraph.h>
 #include <onnc/IR/Module.h>
 
+#include <algorithm>
+#include <iterator>
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
@@ -77,6 +80,8 @@ void ComputeGraph::erase(ComputeOperator& pNode)
 
 void ComputeGraph::erase(ComputeOperand& pArc)
 {
+  using std::begin;
+  using std::end;
   // 1. remove from the fan-out list
   if (nullptr != pArc.prev_out) {
     pArc.prev_out->next_out = pArc.next_out;
@@ -102,10 +107,13 @@ void ComputeGraph::erase(ComputeOperand& pArc)
   }
 
   // 3. remove from the arc list
-  m_ArcList.erase(&pArc);
+  const auto found = std::find(begin(m_ArcList), end(m_ArcList), &pArc);
+  if (found != end(m_ArcList)) {
+    m_ArcList.erase(found);
 
-  // 4. remove the memory space since it is delegated.
-  delete &pArc;
+    // 4. remove the memory space since it is delegated.
+    delete &pArc;
+  }
 }
 
 void ComputeGraph::erase(Value& pVal)
