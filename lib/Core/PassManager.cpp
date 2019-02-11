@@ -23,20 +23,24 @@ using namespace onnc;
 // PassManager
 //===----------------------------------------------------------------------===//
 PassManager::PassManager()
-  : m_pPassRegistry(onnc::GetPassRegistry()),
-    m_depGraph(), m_depNodes(),
-    m_RunState(),
-    m_pStart(m_depGraph.addNode(StartPass::id())),
-    m_TimeStep(0) {
-}
+  : m_pPassRegistry{onnc::GetPassRegistry()}
+  , m_depGraph{}
+  , m_depNodes{}
+  , m_passStore{}
+  , m_RunState{}
+  , m_pStart{m_depGraph.addNode(StartPass::id())}
+  , m_TimeStep{0u}
+{ }
 
 PassManager::PassManager(PassRegistry& pRegistry)
-  : m_pPassRegistry(&pRegistry),
-    m_depGraph(), m_depNodes(),
-    m_RunState(),
-    m_pStart(m_depGraph.addNode(StartPass::id())),
-    m_TimeStep(0) {
-}
+  : m_pPassRegistry{&pRegistry}
+  , m_depGraph{}
+  , m_depNodes()
+  , m_passStore{}
+  , m_RunState{}
+  , m_pStart{m_depGraph.addNode(StartPass::id())}
+  , m_TimeStep(0u)
+{ }
 
 // Use depth search first to build up a sub-graph of dependenciess.
 PassManager& PassManager::add(Pass* pPass, State& pState)
@@ -402,11 +406,12 @@ Pass* PassManager::getLastExecuted(Pass::AnalysisID passId) const
 void PassManager::setLastExecuted(Pass& pass)
 {
   const auto passId = pass.getPassID();
-  if (m_lastExecuted.find(passId) != end(m_lastExecuted)) {
-    return;
+  const auto found = m_lastExecuted.find(passId);
+  if (found != end(m_lastExecuted)) {
+    found->second = &pass;
+  } else {
+    m_lastExecuted.emplace(passId, &pass);
   }
-
-  m_lastExecuted.emplace(passId, &pass);
 }
 
 Pass* PassManager::getLastExecutedOrFromStore(Pass::AnalysisID passId) const

@@ -181,7 +181,9 @@ private:
   void addPassToExeQueue(Pass* pPass, State& pState);
 
   bool hasLastExecuted(Pass::AnalysisID passId) const;
+
   Pass* getLastExecuted(Pass::AnalysisID passId) const;
+
   void setLastExecuted(Pass& pass);
 
   Pass* getLastExecutedOrFromStore(Pass::AnalysisID passId) const;
