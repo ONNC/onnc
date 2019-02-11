@@ -25,9 +25,15 @@ Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
     ComputeGraph::iterator nodeIt, nEnd = cg->value()->end();
     for (nodeIt = cg->value()->begin(); nodeIt != nEnd; ++nodeIt) {
       for (int i = 0; i < nodeIt->getNumOfOutputs(); ++i) {
-        Value* v = nodeIt->getOutput(i);
-        LiveInterval &liveintrvl = *liData.createEmptyLiveInterval(v);
-        computeValueInterval(liveintrvl, slotIndexes);
+        Value * const value = nodeIt->getOutput(i);
+        assert(value != nullptr);
+
+        if (liData.hasInterval(value)) {
+          continue;
+        }
+
+        LiveInterval * const interval = liData.createEmptyLiveInterval(value);
+        computeValueInterval(*interval, slotIndexes);
       }
     }
   }
