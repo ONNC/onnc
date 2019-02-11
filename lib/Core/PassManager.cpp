@@ -270,8 +270,9 @@ Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)
   // finalize the pass
   result |= pPass.doFinalization(pModule);
 
-  if (Pass::IsRetry(result) || Pass::IsFailed(result))
+  if (Pass::IsRetry(result) || Pass::IsFailed(result)) {
     return result;
+  }
 
   setLastExecuted(pPass);
 
@@ -288,7 +289,8 @@ PassManager::DepNode* PassManager::findNode(Pass::AnalysisID pID) const
   return found->second;
 }
 
-PassManager::DepNode* PassManager::addNode(Pass::AnalysisID passId) {
+PassManager::DepNode* PassManager::addNode(Pass::AnalysisID passId)
+{
   if (hasAdded(passId)) {
     return m_depNodes.find(passId)->second;
   }
@@ -415,7 +417,6 @@ Pass* PassManager::getLastExecutedOrFromStore(Pass::AnalysisID passId) const
 
   return getPass(passId);
 }
-
 
 Pass* PassManager::getPass(Pass::AnalysisID passId) const
 {
