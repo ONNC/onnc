@@ -15,6 +15,8 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/IR/Module.h>
 
+#include <memory>
+
 using namespace skypat;
 using namespace onnc;
 
@@ -132,16 +134,15 @@ SKYPAT_F(PassManagerTest, query_passes)
 
   const PassInfo* info = registry.getPassInfo(C::id());
   EXPECT_TRUE(info->getPassName().equals("C"));
-  Pass* pass = info->makePass();
-  EXPECT_EQ(static_cast<C*>(pass)->data, 0x12);
+  const auto pass = std::unique_ptr<Pass>{info->makePass()};
+  EXPECT_EQ(static_cast<const C*>(pass.get())->data, 0x12);
 
   PassManager pm(registry);
-  pm.add(pass);
+  pm.add<C>();
   EXPECT_EQ(pm.size(), 3);
 
-  pm.add(pass);
-  // no additional passes
-  EXPECT_EQ(pm.size(), 3);
+  pm.add<C>();
+  EXPECT_EQ(pm.size(), 4);
 
   Module module;
   EXPECT_TRUE(pm.run(module));
@@ -153,12 +154,12 @@ SKYPAT_F(PassManagerTest, add_dependent_passes)
   InitializeAPass(registry);
 
   PassManager pm(registry);
-  pm.add(new B());
+  pm.add<B>();
   EXPECT_EQ(pm.size(), 2);
-  pm.add(new A());
-  EXPECT_EQ(pm.size(), 2);
-  pm.add(new C());
+  pm.add<A>();
   EXPECT_EQ(pm.size(), 3);
+  pm.add<C>();
+  EXPECT_EQ(pm.size(), 4);
 }
 
 class X : public CustomPass<X>
@@ -469,7 +470,7 @@ SKYPAT_F(PassManagerTest, run_modifier_test)
   ASSERT_TRUE(state.executed);
   process += state.pass->getPassName();
 
-  P2* p2 = (P2*)pm.lookup(P2::id());
+  P2* p2 = (P2*)pm.getPass(P2::id());
   ASSERT_EQ(p2->data, 12);
 
   errs() << process << std::endl;

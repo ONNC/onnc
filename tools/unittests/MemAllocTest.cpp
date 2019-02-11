@@ -441,13 +441,13 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   addStandardSetMemOperands(passMgr);
 
   LiveIntervalsData* liData =
-    static_cast<LiveIntervalsData*>(passMgr.lookup(LiveIntervalsData::id()));
+    static_cast<LiveIntervalsData*>(passMgr.getPass(LiveIntervalsData::id()));
 
   LiveValueMatrix* liveMat =
-    static_cast<LiveValueMatrix*>(passMgr.lookup(LiveValueMatrix::id()));
+    static_cast<LiveValueMatrix*>(passMgr.getPass(LiveValueMatrix::id()));
 
   MemAllocData* memAllocData =
-    static_cast<MemAllocData*>(passMgr.lookup(MemAllocData::id()));
+    static_cast<MemAllocData*>(passMgr.getPass(MemAllocData::id()));
 
   Module module;
   CreateAlexNet(module);
@@ -493,7 +493,7 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
   passMgr.dumpState(passMgr.state());
 
   MemAllocData* memAllocData =
-    static_cast<MemAllocData*>(passMgr.lookup(MemAllocData::id()));
+    static_cast<MemAllocData*>(passMgr.getPass(MemAllocData::id()));
 
   Module module;
   ComputeGraph& cg = CreateAlexNet(module);
