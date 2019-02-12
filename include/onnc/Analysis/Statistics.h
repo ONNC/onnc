@@ -31,6 +31,12 @@ public:
   /// Default constructor is invalid because we don't read anything.
   Statistics();
 
+  Statistics(const Statistics&) = delete;
+  Statistics(Statistics&&) = delete;
+
+  Statistics& operator=(const Statistics&) = delete;
+  Statistics& operator=(Statistics&&) = delete;
+
   /// Read the configuration from string @ref pContent
   /// 
   /// @param[in] pContent The content of a configuration file
