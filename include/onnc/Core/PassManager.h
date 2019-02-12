@@ -127,10 +127,12 @@ private:
   struct DepNode : public DigraphNode<DepNode>
   {
   public:
-    DepNode(Pass::AnalysisID passId) : passId{passId} { }
+    explicit DepNode(Pass::AnalysisID passId) noexcept
+      : passId{passId}
+    { }
 
   public:
-    Pass::AnalysisID passId;
+    const Pass::AnalysisID passId;
   };
 
   /// The start pass for lattice.
