@@ -24,7 +24,7 @@ namespace onnc {
  *  StringRef image = config.group("General").readEntry("image", "look.jpg");
  *  \endcode
  */
-class Statistics : public json::Storage 
+class Statistics : public json::Storage
 {
 public:
   /// Default constructor
