@@ -36,8 +36,8 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     onnc::StringRef name = cm.name(); 
     std::string desc("count for ");
     desc.append(name);
-    global::stats()->addCounter(name, desc);
-    global::stats()->increaseCounter(name);
+    global::stats().addCounter(name, desc);
+    global::stats().increaseCounter(name);
     op_len = std::max(op_len, name.size());
     ++m_Total;
   }
@@ -67,9 +67,9 @@ void CountOperatorsPass::printFooter(OStream &pOS) const {
 
 void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
   printHeader(pOS);
-  json::Group group = global::stats()->group("Counter");
-  json::Group descGroup = global::stats()->group("Counter_Desc");
-  StringList opList = global::stats()->counterList();
+  json::Group group = global::stats().group("Counter");
+  json::Group descGroup = global::stats().group("Counter_Desc");
+  StringList opList = global::stats().counterList();
   for(auto listItr = opList.begin(); listItr != opList.end(); ++listItr){
     pOS << m_Prefix << std::setw(m_Width.first) << *listItr << SEP
         << std::setw(m_Width.second) << group.readEntry(*listItr, 0) << SEP

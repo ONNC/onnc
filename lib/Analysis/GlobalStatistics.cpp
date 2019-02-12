@@ -31,9 +31,9 @@ public:
 
   ~SkyGlobalPrivate() = default;
 
-  Statistics* read(const Path& pConfig, Statistics::AccessMode pMode);
+  Statistics& read(const Path& pConfig, Statistics::AccessMode pMode);
 
-  Statistics* statistics() { return m_pStat.get(); }
+  Statistics& statistics() { return *m_pStat; }
 
   void reset();
 
@@ -60,11 +60,11 @@ void onnc::ClearStats()
 //===----------------------------------------------------------------------===//
 // global
 //===----------------------------------------------------------------------===//
-Statistics* global::stats()
+Statistics& global::stats()
 {
-  Statistics* stats = g_Stat->statistics();
-  stats->addGroup("Counter");
-  stats->addGroup("Counter_Desc");
+  auto& stats = g_Stat->statistics();
+  stats.addGroup("Counter");
+  stats.addGroup("Counter_Desc");
   return stats;
 }
 
@@ -76,11 +76,11 @@ internal::SkyGlobalPrivate::SkyGlobalPrivate()
   : m_pStat(std::make_unique<Statistics>()) {
 }
 
-Statistics*
+Statistics&
 internal::SkyGlobalPrivate::read(const Path& pConfig, Statistics::AccessMode pMode)
 {
   m_pStat->open(pConfig, pMode);
-  return m_pStat.get();
+  return *m_pStat;
 }
 
 void internal::SkyGlobalPrivate::reset()

@@ -96,9 +96,9 @@ int ONNIApp::run()
 
   if (options().verbose() >= 3) {
     errs() << "==== print CountOperatorsPass result again ====\n";
-    StringList opList = global::stats()->counterList();
+    StringList opList = global::stats().counterList();
     for(auto listItr=opList.begin(); listItr != opList.end(); ++listItr){
-      global::stats()->printCounter(*listItr, errs());
+      global::stats().printCounter(*listItr, errs());
     }
     errs() << "==== end again of printing CountOperatorsPass ====\n";
   }

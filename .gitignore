@@ -5,3 +5,4 @@ configure
 autom4te.cache
 build*
 .vscode
+*.swp
