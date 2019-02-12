@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/Counter.h>
 
+#include <utility>
+
 namespace onnc {
 
 /// A counter is a JSON object with this format:
@@ -28,6 +30,10 @@ static const int   g_ValueDef = (unsigned(-1) - 1);
 //===----------------------------------------------------------------------===//
 Counter::Counter()
   : m_Group() {
+}
+
+Counter::Counter(json::Group group)
+  : m_Group{std::move(group)} {
 }
 
 Counter::Counter(const Counter& pOther)
@@ -120,16 +126,14 @@ Counter Counter::Create(json::Group& pParent, StringRef pName, int pValue,
   bool exist = false;
   json::Group group = pParent.addGroup(pName, &exist);
   if (exist)
-    return Counter();
+    return Counter{};
 
   group.writeEntry(g_NameKey, pName);
   group.writeEntry(g_TypeKey, g_TypeValue);
   group.writeEntry(g_DescKey, pDesc);
   group.writeEntry(g_ValueKey, pValue);
 
-  Counter result;
-  result.m_Group = group;
-  return result;
+  return Counter{group};
 }
 
 bool Counter::IsCounter(const json::Group& pGroup)
