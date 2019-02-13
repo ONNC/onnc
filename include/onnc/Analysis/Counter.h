@@ -49,13 +49,6 @@ public:
 
   Counter(StringRef pName, int pValue = 0, StringRef pDesc = "none");
 
-private:
-  /// Conversion constructor. This create a counter with an associated group object.
-  /// The @ref Counter::Create() method can create Counter objects by invoking this
-  /// constructor, and the created counter objects are all valid.
-  explicit Counter(json::Group group);
-
-public:
   /// Assignment. Since a Counter object is just an abstract interface of a
   /// json::Group object, this assignment shall not create new json::Group object;
   /// the assignment operator just create a new representation of the original

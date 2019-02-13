@@ -30,10 +30,6 @@ static const int   g_ValueDef = (unsigned(-1) - 1);
 //===----------------------------------------------------------------------===//
 // Counter
 //===----------------------------------------------------------------------===//
-Counter::Counter(json::Group group)
-  : m_Group{std::move(group)} {
-}
-
 Counter::Counter(const Counter& pOther)
   : m_Group(pOther.m_Group) {
 }
