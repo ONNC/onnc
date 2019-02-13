@@ -54,6 +54,7 @@ Quadruple::ArchType onnc::ParseArch(StringRef pArchName)
     .Case("sophon", Quadruple::sophon)
     .StartsWith("sophonv", Quadruple::sophon)
     .Case("vanilla", Quadruple::vanilla)
+    .Case("clang", Quadruple::clang)
     .Default(Quadruple::UnknownArch);
 }
 
@@ -356,6 +357,7 @@ onnc::ArchToName(Quadruple::ArchType pType, Quadruple::SubArchType pSubType)
       }
     }
     case Quadruple::vanilla:     return "vanilla";
+    case Quadruple::clang: return "clang";
     case Quadruple::UnknownArch:
     default: return "unknown";
   }
@@ -529,6 +531,9 @@ static unsigned getArchBitWidth(Quadruple::ArchType pArch)
   case Quadruple::UnknownArch:
     return 0;
 
+  case Quadruple::clang:
+    return 8;
+
   case Quadruple::vanilla:
     return 8;
   
@@ -574,6 +579,9 @@ static unsigned getPointerBitWidth(Quadruple::ArchType pArch)
   switch (pArch) {
   case Quadruple::UnknownArch:
     return 0;
+
+  case Quadruple::clang:
+    return 8;
 
   case Quadruple::vanilla:
     return 8;

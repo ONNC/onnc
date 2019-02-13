@@ -512,6 +512,7 @@ endif
 
 # FIXME: embraced by flag?
 include $(srcdir)/Target/Vanilla/Makefile.am
+include $(srcdir)/Target/CLang/Makefile.am
 
 #####################################
 # Build shared libraries
