@@ -41,19 +41,21 @@ public:
   /// decrease its value.
   Counter() = delete;
 
+  Counter(StringRef pName, int pValue = 0, StringRef pDesc = "none");
+
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,
   /// this copy shall not create new json::Group object; the copy operator
   /// just create a new representation of the original json::Group object.
-  Counter(const Counter& pOther);
-
-  Counter(StringRef pName, int pValue = 0, StringRef pDesc = "none");
+  Counter(const Counter& pOther) = default;
+  Counter(Counter& pOther) = default;
 
   /// Assignment. Since a Counter object is just an abstract interface of a
   /// json::Group object, this assignment shall not create new json::Group object;
   /// the assignment operator just create a new representation of the original
   /// json::Group object.
-  Counter& operator=(const Counter& pOther);
+  Counter& operator=(const Counter& pOther) = default;
+  Counter& operator=(Counter&& pOther) = default;
 
   ~Counter() = default;
 
