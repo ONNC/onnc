@@ -53,31 +53,9 @@ Counter::Counter(StringRef pName, value_type pValue, StringRef pDesc)
   }
 }
 
-Counter& Counter::reset(value_type pNumber)
+Counter& Counter::operator=(value_type pNumber)
 {
   m_Group.writeEntry(g_ValueKey, pNumber);
-  return *this;
-}
-
-Counter& Counter::increase()
-{
-  if (!isValid())
-    return *this;
-
-  value_type number = m_Group.readEntry(g_ValueKey, g_ValueDef);
-  ++number;
-  m_Group.writeEntry(g_ValueKey, number);
-  return *this;
-}
-
-Counter& Counter::decrease()
-{
-  if (!isValid())
-    return *this;
-
-  value_type number = m_Group.readEntry(g_ValueKey, g_ValueDef);
-  --number;
-  m_Group.writeEntry(g_ValueKey, number);
   return *this;
 }
 
@@ -101,6 +79,48 @@ void Counter::setDescription(StringRef pDesc)
   m_Group.writeEntry(g_DescKey, pDesc);
 }
 
+Counter::operator value_type() const
+{
+  return m_Group.readEntry(g_ValueKey, g_ValueDef);
+}
+
+Counter& Counter::operator++()
+{
+  return (*this) += 1;
+}
+
+Counter& Counter::operator++(int)
+{
+  return ++(*this);
+}
+
+Counter& Counter::operator--()
+{
+  return (*this) -= 1;
+}
+
+Counter& Counter::operator--(int)
+{
+  return --(*this);
+}
+
+Counter& Counter::operator+=(value_type number)
+{
+  if (!isValid()) {
+    assert(false && "update an invalid counter");
+    return *this;
+  }
+
+  const auto original = static_cast<value_type>(*this);
+  return (*this) = (original + number);
+}
+
+Counter& Counter::operator-=(value_type number)
+{
+  static_assert(std::is_signed<value_type>::value);
+  return (*this) += (-number);
+}
+
 bool Counter::isValid() const
 {
   int type = m_Group.readEntry(g_TypeKey, g_TypeValue + 1);
@@ -109,20 +129,22 @@ bool Counter::isValid() const
   return (g_TypeValue == type);
 }
 
-void Counter::print(std::ostream& pOS) const
-{
-  pOS << name() << "," << std::dec << value();
-  if (!getDescription().empty())
-      pOS << "," << getDescription();
-  pOS << std::endl; 
-}
-
 bool Counter::IsCounter(const json::Group& pGroup)
 {
   int type = pGroup.readEntry(g_TypeKey, g_TypeValue + 1);
 
   // the group have neither "type" entry nor right type.
   return (g_TypeValue == type);
+}
+
+std::ostream& operator<<(std::ostream& stream, const Counter& counter)
+{
+  return stream << "counter("
+                << "name=\"" << counter.name() << "\""
+                << ",value=\"" << std::dec << counter.value() << "\""
+                << ",desc=\"" << counter.getDescription() << "\""
+                << ")"
+                ;
 }
 
 } // namespace of onnc

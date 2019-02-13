@@ -66,8 +66,8 @@ public:
 
   ~Counter() = default;
 
-  /// reset the counter to @ref pNumber.
-  Counter& reset(value_type pNumber = 0);
+  /// update counter value by given @ref pNumber.
+  Counter& operator=(value_type pNumber);
 
   /// increase one unit
   Counter& increase();
@@ -88,25 +88,25 @@ public:
   void setDescription(StringRef pDesc);
 
   /// Casting operator. Cast to the value.
-  operator value_type() const { return value(); }
+  operator value_type() const;
 
-  Counter& operator++() { return increase(); }
+  Counter& operator++();
 
   /// The postfix form of ++.
-  void operator++(int) { increase(); }
+  Counter& operator++(int);
 
-  Counter& operator--() { return decrease(); }
+  Counter& operator--();
 
   /// The postfix form of --.
-  void operator--(int) { decrease(); }
+  Counter& operator--(int);
+
+  Counter& operator+=(value_type number);
+
+  Counter& operator-=(value_type number);
 
   /// If a counter wasn't given a group, it isn't active.
   /// A Counter object created by default constructor is invalid.
   bool isValid() const;
-
-  /// follow the origin value designed by evan li.
-  /// print "[name], [value], [description]\n"
-  void print(std::ostream& pOS) const;
 
   /// Convert a well-settle json::Group object into a counter
   /// @return A inactive counter if the group is not well-settled.
@@ -115,14 +115,11 @@ public:
   /// @retval true pGroup is a counter group.
   static bool IsCounter(const json::Group& pGroup);
 
-protected:
+private:
   json::Group m_Group;
 };
 
-inline std::ostream& operator<<(std::ostream& pOS, const Counter& pCounter) {
-  pCounter.print(pOS);
-  return pOS;
-}
+std::ostream& operator<<(std::ostream& stream, const Counter& counter);
 
 } // namespace of onnc
 
