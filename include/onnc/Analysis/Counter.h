@@ -44,6 +44,10 @@ public:
   /// decrease its value.
   Counter() = delete;
 
+  /// Constructor. Users can get or create counter be give a name. If there
+  /// is already a counter with the same name, just get the existing counter.
+  /// otherwise create a new counter with that name. Users can also provide
+  /// a default value and description for the counter.
   Counter(StringRef pName, value_type pValue = 0, StringRef pDesc = "none");
 
   /// Copy constructor. Copy the value of the counter from the others. Since
