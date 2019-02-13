@@ -142,7 +142,7 @@ std::ostream& operator<<(std::ostream& stream, const Counter& counter)
 {
   return stream << "counter("
                 << "name=\"" << counter.name() << "\""
-                << ",value=\"" << std::dec << static_cast<Counter::value_type>(counter) << "\""
+                << ",value=" << std::dec << static_cast<Counter::value_type>(counter)
                 << ",desc=\"" << counter.desc() << "\""
                 << ")"
                 ;
