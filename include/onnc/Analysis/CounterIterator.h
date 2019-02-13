@@ -18,7 +18,7 @@ namespace onnc {
 
 namespace view {
   struct counter_view_adaptor_tag {};
-  static constexpr counter_view_adaptor_tag counters;
+  static constexpr counter_view_adaptor_tag counter;
 }
 
 class Statistics;

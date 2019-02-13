@@ -38,9 +38,6 @@ class Counter final
 public:
   using value_type = int;
 
-  static constexpr value_type defaultValue  = 0;
-  static constexpr char       defaultDesc[] = "none";
-
 public:
   friend bool isValid(const Counter&);
 
@@ -53,7 +50,7 @@ public:
   /// is already a counter with the same name, just get the existing counter.
   /// otherwise create a new counter with that name. Users can also provide
   /// a default value and description for the counter.
-  Counter(StringRef pName, value_type pValue = defaultValue, StringRef pDesc = defaultDesc);
+  Counter(StringRef pName, value_type pValue = 0, StringRef pDesc = "none");
 
   /// Conversion constructor. This create a counter with an associated group object.
   /// The @ref Counter::Create() method can create Counter objects by invoking this

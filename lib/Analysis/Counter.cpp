@@ -66,7 +66,7 @@ StringRef Counter::name() const
 
 StringRef Counter::desc() const
 {
-  return m_Group.readEntry(g_DescKey, defaultDesc);
+  return m_Group.readEntry(g_DescKey, "");
 }
 
 Counter& Counter::desc(StringRef pDesc)
