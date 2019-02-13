@@ -61,7 +61,7 @@ public:
   /// this copy shall not create new json::Group object; the copy operator
   /// just create a new representation of the original json::Group object.
   Counter(const Counter& pOther) = default;
-  Counter(Counter& pOther) = default;
+  Counter(Counter&& pOther) = default;
 
 public:
   /// Assignment. Since a Counter object is just an abstract interface of a
