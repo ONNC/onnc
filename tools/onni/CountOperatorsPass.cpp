@@ -39,8 +39,8 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     std::string desc("count for ");
     desc.append(name);
 
-    Counter counter{name, 0, desc};
-    ++counter;
+    Counter{name, 0, desc}++;
+
     op_len = std::max(op_len, name.size());
     ++m_Total;
   }
