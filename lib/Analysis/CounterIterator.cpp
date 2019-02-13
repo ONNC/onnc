@@ -28,7 +28,7 @@ CounterIterator& CounterIterator::next()
 
   do {
     m_Iterator.next();
-  } while (!Counter::IsCounter(m_Iterator.group()));
+  } while (!isCounter(m_Iterator.group()));
   return *this;
 }
 

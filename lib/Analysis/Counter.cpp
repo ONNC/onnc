@@ -35,7 +35,7 @@ Counter::Counter(StringRef pName, value_type pValue, StringRef pDesc)
   auto counterGroup = global::stats().getCounterGroup();
   if (counterGroup.hasGroup(pName)) {
     auto selfGroup = counterGroup.group(pName);
-    if (!IsCounter(selfGroup)) {
+    if (!isCounter(selfGroup)) {
       assert(false && "attempt to create counter by existing non-counter group");
       return;
     }
@@ -64,14 +64,15 @@ StringRef Counter::name() const
   return m_Group.readEntry(g_NameKey, StringRef());
 }
 
-StringRef Counter::getDescription() const
+StringRef Counter::desc() const
 {
   return m_Group.readEntry(g_DescKey, defaultDesc);
 }
 
-void Counter::setDescription(StringRef pDesc)
+Counter& Counter::desc(StringRef pDesc)
 {
   m_Group.writeEntry(g_DescKey, pDesc);
+  return *this;
 }
 
 Counter::operator value_type() const
@@ -118,7 +119,7 @@ Counter& Counter::operator-=(value_type number)
 
 Counter::Counter(json::Group group)
   : m_Group{std::move(group)} {
-  assert(IsCounter(m_Group) && "create object by non-counter group");
+  assert(isCounter(m_Group) && "create object by non-counter group");
 }
 
 bool isValid(const Counter& counter)
@@ -142,7 +143,7 @@ std::ostream& operator<<(std::ostream& stream, const Counter& counter)
   return stream << "counter("
                 << "name=\"" << counter.name() << "\""
                 << ",value=\"" << std::dec << static_cast<Counter::value_type>(counter) << "\""
-                << ",desc=\"" << counter.getDescription() << "\""
+                << ",desc=\"" << counter.desc() << "\""
                 << ")"
                 ;
 }

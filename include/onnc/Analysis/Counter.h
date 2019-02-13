@@ -80,10 +80,10 @@ public:
   StringRef name() const;
 
   /// The description of the counter.
-  StringRef getDescription() const;
+  StringRef desc() const;
 
   /// Set description.
-  void setDescription(StringRef pDesc);
+  Counter& desc(StringRef pDesc);
 
   /// Casting operator. Cast to the value.
   operator value_type() const;
