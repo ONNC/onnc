@@ -38,6 +38,9 @@ class Counter final
 public:
   using value_type = int;
 
+  static constexpr value_type defaultValue  = 0;
+  static constexpr char       defaultDesc[] = "none";
+
 public:
   friend class CounterIterator;
 
@@ -50,7 +53,7 @@ public:
   /// is already a counter with the same name, just get the existing counter.
   /// otherwise create a new counter with that name. Users can also provide
   /// a default value and description for the counter.
-  Counter(StringRef pName, value_type pValue = 0, StringRef pDesc = "none");
+  Counter(StringRef pName, value_type pValue = defaultValue, StringRef pDesc = defaultDesc);
 
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,

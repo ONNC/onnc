@@ -71,7 +71,7 @@ StringRef Counter::name() const
 
 StringRef Counter::getDescription() const
 {
-  return m_Group.readEntry(g_DescKey, "none");
+  return m_Group.readEntry(g_DescKey, defaultDesc);
 }
 
 void Counter::setDescription(StringRef pDesc)
