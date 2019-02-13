@@ -355,6 +355,7 @@ ONNC_SOURCES = \
 	Option/Option.cpp \
 	Option/OptionPool.cpp \
 	Option/OptParser.cpp \
+	Runtime/Interpreter.cpp \
 	Runtime/onnc-runtime.c \
 	Runtime/operator/abs.c \
 	Runtime/operator/acos.c \
@@ -506,7 +507,7 @@ include $(srcdir)/Target/X86/Makefile.am
 endif
 
 if ENABLE_NVDLA_TARGET
-include $(srcdir)/Target/NVDLA/Makefile.am
+include $(srcdir)/Target/NvDla/Makefile.am
 endif
 
 # FIXME: embraced by flag?

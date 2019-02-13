@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_LINEAR_SCAN_MEM_ALLOC_H
 #define ONNC_CODEGEN_LINEAR_SCAN_MEM_ALLOC_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/CodeGen/MemAllocData.h>
 
 namespace onnc {
@@ -21,11 +21,9 @@ class TargetMemInfo;
 /** \class LinearScanMemAlloc
  *  \brief Linear memory allocation for each value considering value's liveness.
  */
-class LinearScanMemAlloc : public ModulePass
+class LinearScanMemAlloc : public CustomPass<LinearScanMemAlloc>
 {
 public:
-  static char ID;
-
   using AllocEntry = MemAllocData::AllocEntry;
 
   typedef std::vector<AllocEntry> AllocEntries;
@@ -48,7 +46,8 @@ private:
 
   AllocEntry getAnEmptyRegion(const AllocEntries& pAllocs,
                               uint64_t pRequiredSize,
-                              uint64_t pAlignment) const;
+                              uint64_t pAlignment,
+                              uint64_t pRight) const;
 private:
   MemAllocData* m_MemAllocData;
   LiveIntervalsData* m_LIDataPass;

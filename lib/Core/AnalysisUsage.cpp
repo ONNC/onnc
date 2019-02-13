@@ -17,9 +17,3 @@ AnalysisUsage& AnalysisUsage::addRequiredID(Pass::AnalysisID pID)
   m_Required.push_back(pID);
   return *this;
 }
-
-AnalysisUsage& AnalysisUsage::addRequiredID(char& pID)
-{
-  m_Required.push_back(&pID);
-  return *this;
-}

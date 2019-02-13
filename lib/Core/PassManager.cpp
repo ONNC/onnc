@@ -16,7 +16,6 @@
 
 using namespace onnc;
 
-char PassManager::StartPass::ID = 0;
 //===----------------------------------------------------------------------===//
 // PassManager
 //===----------------------------------------------------------------------===//
@@ -36,33 +35,30 @@ PassManager::PassManager(PassRegistry& pRegistry)
     m_TimeStep(0) {
 }
 
-PassManager::~PassManager()
-{
-  m_Dependencies.clear();
-}
-
 // Use depth search first to build up a sub-graph of dependenciess.
-void PassManager::add(Pass* pPass, State& pState)
+PassManager& PassManager::add(Pass* pPass, State& pState)
 {
   addPassToDependencyGraph(pPass, nullptr);
   addPassToExeQueue(pPass, pState);
+  return *this;
 }
 
-void PassManager::add(Pass* pPass, TargetBackend* pBackend, State& pState)
+PassManager& PassManager::add(Pass* pPass, TargetBackend* pBackend, State& pState)
 {
   addPassToDependencyGraph(pPass, pBackend);
   addPassToExeQueue(pPass, pState);
+  return *this;
 }
 
 // Use depth search first to build up a sub-graph of dependenciess.
-void PassManager::add(Pass* pPass)
+PassManager& PassManager::add(Pass* pPass)
 {
-  add(pPass, m_RunState);
+  return add(pPass, m_RunState);
 }
 
-void PassManager::add(Pass* pPass, TargetBackend* pBackend)
+PassManager& PassManager::add(Pass* pPass, TargetBackend* pBackend)
 {
-  add(pPass, pBackend, m_RunState);
+  return add(pPass, pBackend, m_RunState);
 }
 
 void PassManager::addPassToExeQueue(Pass* pPass, State& pState)

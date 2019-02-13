@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include "VanillaBackend.h"
 #include "TargetInfo/VanillaTargetInfo.h"
 #include "TargetInfo/VanillaTargetMemInfo.h"
@@ -57,12 +59,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 VanillaBackend::VanillaBackend(const TargetOptions& pOptions)
   : TargetBackend(pOptions) { 
-  m_pMemInfo = new VanillaTargetMemInfo();
-}
-
-VanillaBackend::~VanillaBackend()
-{
-  delete m_pMemInfo;
+  m_pMemInfo = std::make_unique<VanillaTargetMemInfo>();
 }
 
 void VanillaBackend::addTensorSel(PassManager& pPM)

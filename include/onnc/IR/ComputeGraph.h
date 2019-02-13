@@ -19,6 +19,7 @@
 #include <onnc/JSON/Value.h>
 #include <iosfwd>
 #include <set>
+#include <list>
 
 namespace onnc {
 
@@ -29,7 +30,7 @@ class Module;
 class ComputeGraph
 {
 public:
-  typedef std::unordered_set<ComputeOperand*> ArcList;
+  typedef std::list<ComputeOperand*> ArcList;
 
   typedef StringMap<Value*> ValueList;
 
@@ -118,6 +119,8 @@ public:
   const_iterator begin() const;
 
   const_iterator end() const;
+
+  void topologicalSort();
 
   dfs_iterator dfs_begin();
 

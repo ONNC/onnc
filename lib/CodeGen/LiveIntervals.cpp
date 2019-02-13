@@ -20,10 +20,22 @@ Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
   LiveIntervalsData& liData = *getAnalysis<LiveIntervalsData>();
   liData.setSlotIndexes(&slotIndexes);
 
-  for (auto& valIt : pModule.getValueList()) {
-    Value* v = valIt.value();
-    LiveInterval& liveintrvl = *liData.createEmptyLiveInterval(v);
-    computeValueInterval(liveintrvl, slotIndexes);
+  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
+  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg) {
+    ComputeGraph::iterator nodeIt, nEnd = cg->value()->end();
+    for (nodeIt = cg->value()->begin(); nodeIt != nEnd; ++nodeIt) {
+      for (int i = 0; i < nodeIt->getNumOfOutputs(); ++i) {
+        Value * const value = nodeIt->getOutput(i);
+        assert(value != nullptr);
+
+        if (liData.hasInterval(value)) {
+          continue;
+        }
+
+        LiveInterval * const interval = liData.createEmptyLiveInterval(value);
+        computeValueInterval(*interval, slotIndexes);
+      }
+    }
   }
 
   return Pass::kModuleNoChanged;
@@ -31,8 +43,8 @@ Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
 
 void LiveIntervals::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(BuildSlotIndexes::ID);
-  pUsage.addRequiredID(LiveIntervalsData::ID);
+  pUsage.addRequired<BuildSlotIndexes>();
+  pUsage.addRequired<LiveIntervalsData>();
 }
 
 void LiveIntervals::print(OStream& pOS, const Module* pModule) const
@@ -60,8 +72,6 @@ void LiveIntervals::computeValueInterval(LiveInterval& pLI,
 //===----------------------------------------------------------------------===//
 // LiveIntervals Factory method
 //===----------------------------------------------------------------------===//
-char LiveIntervals::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(LiveIntervals, "LiveIntervals")

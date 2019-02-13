@@ -5,7 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "Interpreter.h"
+#include <onnc/Runtime/Interpreter.h>
+
 #include <onnc/Support/IOStream.h>
 
 #include <onnc/IR/Compute/Abs.h>
@@ -131,9 +132,9 @@ extern "C" {
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// Interpreter
+// BasicInterpreter
 //===----------------------------------------------------------------------===//
-void Interpreter::visit(Abs& pOp) {
+void BasicInterpreter::visit(Abs& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -161,7 +162,7 @@ void Interpreter::visit(Abs& pOp) {
 };
 
 
-void Interpreter::visit(Acos& pOp) {
+void BasicInterpreter::visit(Acos& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -189,7 +190,7 @@ void Interpreter::visit(Acos& pOp) {
 };
 
 
-void Interpreter::visit(Add& pOp) {
+void BasicInterpreter::visit(Add& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -224,7 +225,7 @@ void Interpreter::visit(Add& pOp) {
 };
 
 
-void Interpreter::visit(And& pOp) {
+void BasicInterpreter::visit(And& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -259,7 +260,7 @@ void Interpreter::visit(And& pOp) {
 };
 
 
-void Interpreter::visit(ArgMax& pOp) {
+void BasicInterpreter::visit(ArgMax& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -289,7 +290,7 @@ void Interpreter::visit(ArgMax& pOp) {
 };
 
 
-void Interpreter::visit(ArgMin& pOp) {
+void BasicInterpreter::visit(ArgMin& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -319,7 +320,7 @@ void Interpreter::visit(ArgMin& pOp) {
 };
 
 
-void Interpreter::visit(Asin& pOp) {
+void BasicInterpreter::visit(Asin& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -347,7 +348,7 @@ void Interpreter::visit(Asin& pOp) {
 };
 
 
-void Interpreter::visit(Atan& pOp) {
+void BasicInterpreter::visit(Atan& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -375,7 +376,7 @@ void Interpreter::visit(Atan& pOp) {
 };
 
 
-void Interpreter::visit(AveragePool& pOp) {
+void BasicInterpreter::visit(AveragePool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -420,7 +421,7 @@ void Interpreter::visit(AveragePool& pOp) {
 };
 
 
-void Interpreter::visit(BatchNormalization& pOp) {
+void BasicInterpreter::visit(BatchNormalization& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -528,7 +529,7 @@ void Interpreter::visit(BatchNormalization& pOp) {
 };
 
 
-void Interpreter::visit(Cast& pOp) {
+void BasicInterpreter::visit(Cast& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -556,7 +557,7 @@ void Interpreter::visit(Cast& pOp) {
 };
 
 
-void Interpreter::visit(Ceil& pOp) {
+void BasicInterpreter::visit(Ceil& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -584,7 +585,7 @@ void Interpreter::visit(Ceil& pOp) {
 };
 
 
-void Interpreter::visit(Clip& pOp) {
+void BasicInterpreter::visit(Clip& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -614,7 +615,7 @@ void Interpreter::visit(Clip& pOp) {
 };
 
 
-void Interpreter::visit(Concat& pOp) {
+void BasicInterpreter::visit(Concat& pOp) {
   // Prepare input
   int32_t input_inputs_ntensor = pOp.getNumOfInputs() - 0;
   void *input_inputs[input_inputs_ntensor];
@@ -655,7 +656,7 @@ void Interpreter::visit(Concat& pOp) {
 };
 
 
-void Interpreter::visit(Constant& pOp) {
+void BasicInterpreter::visit(Constant& pOp) {
   // Prepare input
   
   // Prepare output
@@ -678,7 +679,7 @@ void Interpreter::visit(Constant& pOp) {
 };
 
 
-void Interpreter::visit(Conv& pOp) {
+void BasicInterpreter::visit(Conv& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -747,7 +748,7 @@ void Interpreter::visit(Conv& pOp) {
 };
 
 
-void Interpreter::visit(ConvTranspose& pOp) {
+void BasicInterpreter::visit(ConvTranspose& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -826,7 +827,7 @@ void Interpreter::visit(ConvTranspose& pOp) {
 };
 
 
-void Interpreter::visit(Cos& pOp) {
+void BasicInterpreter::visit(Cos& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -854,7 +855,7 @@ void Interpreter::visit(Cos& pOp) {
 };
 
 
-void Interpreter::visit(DepthToSpace& pOp) {
+void BasicInterpreter::visit(DepthToSpace& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -882,7 +883,7 @@ void Interpreter::visit(DepthToSpace& pOp) {
 };
 
 
-void Interpreter::visit(Div& pOp) {
+void BasicInterpreter::visit(Div& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -917,7 +918,7 @@ void Interpreter::visit(Div& pOp) {
 };
 
 
-void Interpreter::visit(Dropout& pOp) {
+void BasicInterpreter::visit(Dropout& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -957,7 +958,7 @@ void Interpreter::visit(Dropout& pOp) {
 };
 
 
-void Interpreter::visit(Elu& pOp) {
+void BasicInterpreter::visit(Elu& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -985,7 +986,7 @@ void Interpreter::visit(Elu& pOp) {
 };
 
 
-void Interpreter::visit(Equal& pOp) {
+void BasicInterpreter::visit(Equal& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -1020,7 +1021,7 @@ void Interpreter::visit(Equal& pOp) {
 };
 
 
-void Interpreter::visit(Exp& pOp) {
+void BasicInterpreter::visit(Exp& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1048,7 +1049,7 @@ void Interpreter::visit(Exp& pOp) {
 };
 
 
-void Interpreter::visit(Expand& pOp) {
+void BasicInterpreter::visit(Expand& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1083,7 +1084,7 @@ void Interpreter::visit(Expand& pOp) {
 };
 
 
-void Interpreter::visit(Flatten& pOp) {
+void BasicInterpreter::visit(Flatten& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1111,7 +1112,7 @@ void Interpreter::visit(Flatten& pOp) {
 };
 
 
-void Interpreter::visit(Floor& pOp) {
+void BasicInterpreter::visit(Floor& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1139,7 +1140,7 @@ void Interpreter::visit(Floor& pOp) {
 };
 
 
-void Interpreter::visit(GRU& pOp) {
+void BasicInterpreter::visit(GRU& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1255,7 +1256,7 @@ void Interpreter::visit(GRU& pOp) {
 };
 
 
-void Interpreter::visit(Gather& pOp) {
+void BasicInterpreter::visit(Gather& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -1290,7 +1291,7 @@ void Interpreter::visit(Gather& pOp) {
 };
 
 
-void Interpreter::visit(Gemm& pOp) {
+void BasicInterpreter::visit(Gemm& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -1338,7 +1339,7 @@ void Interpreter::visit(Gemm& pOp) {
 };
 
 
-void Interpreter::visit(GlobalAveragePool& pOp) {
+void BasicInterpreter::visit(GlobalAveragePool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1366,7 +1367,7 @@ void Interpreter::visit(GlobalAveragePool& pOp) {
 };
 
 
-void Interpreter::visit(GlobalLpPool& pOp) {
+void BasicInterpreter::visit(GlobalLpPool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1394,7 +1395,7 @@ void Interpreter::visit(GlobalLpPool& pOp) {
 };
 
 
-void Interpreter::visit(GlobalMaxPool& pOp) {
+void BasicInterpreter::visit(GlobalMaxPool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1422,7 +1423,7 @@ void Interpreter::visit(GlobalMaxPool& pOp) {
 };
 
 
-void Interpreter::visit(Greater& pOp) {
+void BasicInterpreter::visit(Greater& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -1457,7 +1458,7 @@ void Interpreter::visit(Greater& pOp) {
 };
 
 
-void Interpreter::visit(HardSigmoid& pOp) {
+void BasicInterpreter::visit(HardSigmoid& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1487,7 +1488,7 @@ void Interpreter::visit(HardSigmoid& pOp) {
 };
 
 
-void Interpreter::visit(Hardmax& pOp) {
+void BasicInterpreter::visit(Hardmax& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1515,7 +1516,7 @@ void Interpreter::visit(Hardmax& pOp) {
 };
 
 
-void Interpreter::visit(Identity& pOp) {
+void BasicInterpreter::visit(Identity& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1543,7 +1544,7 @@ void Interpreter::visit(Identity& pOp) {
 };
 
 
-void Interpreter::visit(InstanceNormalization& pOp) {
+void BasicInterpreter::visit(InstanceNormalization& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1585,7 +1586,7 @@ void Interpreter::visit(InstanceNormalization& pOp) {
 };
 
 
-void Interpreter::visit(LRN& pOp) {
+void BasicInterpreter::visit(LRN& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1619,7 +1620,7 @@ void Interpreter::visit(LRN& pOp) {
 };
 
 
-void Interpreter::visit(LSTM& pOp) {
+void BasicInterpreter::visit(LSTM& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1771,7 +1772,7 @@ void Interpreter::visit(LSTM& pOp) {
 };
 
 
-void Interpreter::visit(LeakyRelu& pOp) {
+void BasicInterpreter::visit(LeakyRelu& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1799,7 +1800,7 @@ void Interpreter::visit(LeakyRelu& pOp) {
 };
 
 
-void Interpreter::visit(Less& pOp) {
+void BasicInterpreter::visit(Less& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -1834,7 +1835,7 @@ void Interpreter::visit(Less& pOp) {
 };
 
 
-void Interpreter::visit(Log& pOp) {
+void BasicInterpreter::visit(Log& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1862,7 +1863,7 @@ void Interpreter::visit(Log& pOp) {
 };
 
 
-void Interpreter::visit(LogSoftmax& pOp) {
+void BasicInterpreter::visit(LogSoftmax& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1890,7 +1891,7 @@ void Interpreter::visit(LogSoftmax& pOp) {
 };
 
 
-void Interpreter::visit(LpNormalization& pOp) {
+void BasicInterpreter::visit(LpNormalization& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -1920,7 +1921,7 @@ void Interpreter::visit(LpNormalization& pOp) {
 };
 
 
-void Interpreter::visit(LpPool& pOp) {
+void BasicInterpreter::visit(LpPool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -1965,7 +1966,7 @@ void Interpreter::visit(LpPool& pOp) {
 };
 
 
-void Interpreter::visit(MatMul& pOp) {
+void BasicInterpreter::visit(MatMul& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -2000,7 +2001,7 @@ void Interpreter::visit(MatMul& pOp) {
 };
 
 
-void Interpreter::visit(Max& pOp) {
+void BasicInterpreter::visit(Max& pOp) {
   // Prepare input
   int32_t input_data_0_ntensor = pOp.getNumOfInputs() - 0;
   void *input_data_0[input_data_0_ntensor];
@@ -2030,7 +2031,7 @@ void Interpreter::visit(Max& pOp) {
 };
 
 
-void Interpreter::visit(MaxPool& pOp) {
+void BasicInterpreter::visit(MaxPool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2087,7 +2088,7 @@ void Interpreter::visit(MaxPool& pOp) {
 };
 
 
-void Interpreter::visit(MaxRoiPool& pOp) {
+void BasicInterpreter::visit(MaxRoiPool& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2127,7 +2128,7 @@ void Interpreter::visit(MaxRoiPool& pOp) {
 };
 
 
-void Interpreter::visit(Mean& pOp) {
+void BasicInterpreter::visit(Mean& pOp) {
   // Prepare input
   int32_t input_data_0_ntensor = pOp.getNumOfInputs() - 0;
   void *input_data_0[input_data_0_ntensor];
@@ -2157,7 +2158,7 @@ void Interpreter::visit(Mean& pOp) {
 };
 
 
-void Interpreter::visit(Min& pOp) {
+void BasicInterpreter::visit(Min& pOp) {
   // Prepare input
   int32_t input_data_0_ntensor = pOp.getNumOfInputs() - 0;
   void *input_data_0[input_data_0_ntensor];
@@ -2187,7 +2188,7 @@ void Interpreter::visit(Min& pOp) {
 };
 
 
-void Interpreter::visit(Mul& pOp) {
+void BasicInterpreter::visit(Mul& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -2222,7 +2223,7 @@ void Interpreter::visit(Mul& pOp) {
 };
 
 
-void Interpreter::visit(Multinomial& pOp) {
+void BasicInterpreter::visit(Multinomial& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -2254,7 +2255,7 @@ void Interpreter::visit(Multinomial& pOp) {
 };
 
 
-void Interpreter::visit(Neg& pOp) {
+void BasicInterpreter::visit(Neg& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2282,7 +2283,7 @@ void Interpreter::visit(Neg& pOp) {
 };
 
 
-void Interpreter::visit(Not& pOp) {
+void BasicInterpreter::visit(Not& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2310,7 +2311,7 @@ void Interpreter::visit(Not& pOp) {
 };
 
 
-void Interpreter::visit(Or& pOp) {
+void BasicInterpreter::visit(Or& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -2345,7 +2346,7 @@ void Interpreter::visit(Or& pOp) {
 };
 
 
-void Interpreter::visit(PRelu& pOp) {
+void BasicInterpreter::visit(PRelu& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2380,7 +2381,7 @@ void Interpreter::visit(PRelu& pOp) {
 };
 
 
-void Interpreter::visit(Pad& pOp) {
+void BasicInterpreter::visit(Pad& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2415,7 +2416,7 @@ void Interpreter::visit(Pad& pOp) {
 };
 
 
-void Interpreter::visit(Pow& pOp) {
+void BasicInterpreter::visit(Pow& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2450,7 +2451,7 @@ void Interpreter::visit(Pow& pOp) {
 };
 
 
-void Interpreter::visit(RNN& pOp) {
+void BasicInterpreter::visit(RNN& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2564,7 +2565,7 @@ void Interpreter::visit(RNN& pOp) {
 };
 
 
-void Interpreter::visit(RandomNormal& pOp) {
+void BasicInterpreter::visit(RandomNormal& pOp) {
   // Prepare input
   
   // Prepare output
@@ -2598,7 +2599,7 @@ void Interpreter::visit(RandomNormal& pOp) {
 };
 
 
-void Interpreter::visit(RandomNormalLike& pOp) {
+void BasicInterpreter::visit(RandomNormalLike& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -2632,7 +2633,7 @@ void Interpreter::visit(RandomNormalLike& pOp) {
 };
 
 
-void Interpreter::visit(RandomUniform& pOp) {
+void BasicInterpreter::visit(RandomUniform& pOp) {
   // Prepare input
   
   // Prepare output
@@ -2666,7 +2667,7 @@ void Interpreter::visit(RandomUniform& pOp) {
 };
 
 
-void Interpreter::visit(RandomUniformLike& pOp) {
+void BasicInterpreter::visit(RandomUniformLike& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -2700,7 +2701,7 @@ void Interpreter::visit(RandomUniformLike& pOp) {
 };
 
 
-void Interpreter::visit(Reciprocal& pOp) {
+void BasicInterpreter::visit(Reciprocal& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -2728,7 +2729,7 @@ void Interpreter::visit(Reciprocal& pOp) {
 };
 
 
-void Interpreter::visit(ReduceL1& pOp) {
+void BasicInterpreter::visit(ReduceL1& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2761,7 +2762,7 @@ void Interpreter::visit(ReduceL1& pOp) {
 };
 
 
-void Interpreter::visit(ReduceL2& pOp) {
+void BasicInterpreter::visit(ReduceL2& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2794,7 +2795,7 @@ void Interpreter::visit(ReduceL2& pOp) {
 };
 
 
-void Interpreter::visit(ReduceLogSum& pOp) {
+void BasicInterpreter::visit(ReduceLogSum& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2827,7 +2828,7 @@ void Interpreter::visit(ReduceLogSum& pOp) {
 };
 
 
-void Interpreter::visit(ReduceLogSumExp& pOp) {
+void BasicInterpreter::visit(ReduceLogSumExp& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2860,7 +2861,7 @@ void Interpreter::visit(ReduceLogSumExp& pOp) {
 };
 
 
-void Interpreter::visit(ReduceMax& pOp) {
+void BasicInterpreter::visit(ReduceMax& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2893,7 +2894,7 @@ void Interpreter::visit(ReduceMax& pOp) {
 };
 
 
-void Interpreter::visit(ReduceMean& pOp) {
+void BasicInterpreter::visit(ReduceMean& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2926,7 +2927,7 @@ void Interpreter::visit(ReduceMean& pOp) {
 };
 
 
-void Interpreter::visit(ReduceMin& pOp) {
+void BasicInterpreter::visit(ReduceMin& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2959,7 +2960,7 @@ void Interpreter::visit(ReduceMin& pOp) {
 };
 
 
-void Interpreter::visit(ReduceProd& pOp) {
+void BasicInterpreter::visit(ReduceProd& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -2992,7 +2993,7 @@ void Interpreter::visit(ReduceProd& pOp) {
 };
 
 
-void Interpreter::visit(ReduceSum& pOp) {
+void BasicInterpreter::visit(ReduceSum& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3025,7 +3026,7 @@ void Interpreter::visit(ReduceSum& pOp) {
 };
 
 
-void Interpreter::visit(ReduceSumSquare& pOp) {
+void BasicInterpreter::visit(ReduceSumSquare& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3058,7 +3059,7 @@ void Interpreter::visit(ReduceSumSquare& pOp) {
 };
 
 
-void Interpreter::visit(Relu& pOp) {
+void BasicInterpreter::visit(Relu& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3086,7 +3087,7 @@ void Interpreter::visit(Relu& pOp) {
 };
 
 
-void Interpreter::visit(Reshape& pOp) {
+void BasicInterpreter::visit(Reshape& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3121,7 +3122,7 @@ void Interpreter::visit(Reshape& pOp) {
 };
 
 
-void Interpreter::visit(Selu& pOp) {
+void BasicInterpreter::visit(Selu& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3151,7 +3152,7 @@ void Interpreter::visit(Selu& pOp) {
 };
 
 
-void Interpreter::visit(Shape& pOp) {
+void BasicInterpreter::visit(Shape& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3179,7 +3180,7 @@ void Interpreter::visit(Shape& pOp) {
 };
 
 
-void Interpreter::visit(Sigmoid& pOp) {
+void BasicInterpreter::visit(Sigmoid& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3207,7 +3208,7 @@ void Interpreter::visit(Sigmoid& pOp) {
 };
 
 
-void Interpreter::visit(Sin& pOp) {
+void BasicInterpreter::visit(Sin& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3235,7 +3236,7 @@ void Interpreter::visit(Sin& pOp) {
 };
 
 
-void Interpreter::visit(Size& pOp) {
+void BasicInterpreter::visit(Size& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3263,7 +3264,7 @@ void Interpreter::visit(Size& pOp) {
 };
 
 
-void Interpreter::visit(Slice& pOp) {
+void BasicInterpreter::visit(Slice& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3304,7 +3305,7 @@ void Interpreter::visit(Slice& pOp) {
 };
 
 
-void Interpreter::visit(Softmax& pOp) {
+void BasicInterpreter::visit(Softmax& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3332,7 +3333,7 @@ void Interpreter::visit(Softmax& pOp) {
 };
 
 
-void Interpreter::visit(Softplus& pOp) {
+void BasicInterpreter::visit(Softplus& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3360,7 +3361,7 @@ void Interpreter::visit(Softplus& pOp) {
 };
 
 
-void Interpreter::visit(Softsign& pOp) {
+void BasicInterpreter::visit(Softsign& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3388,7 +3389,7 @@ void Interpreter::visit(Softsign& pOp) {
 };
 
 
-void Interpreter::visit(SpaceToDepth& pOp) {
+void BasicInterpreter::visit(SpaceToDepth& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3416,7 +3417,7 @@ void Interpreter::visit(SpaceToDepth& pOp) {
 };
 
 
-void Interpreter::visit(Split& pOp) {
+void BasicInterpreter::visit(Split& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3451,7 +3452,7 @@ void Interpreter::visit(Split& pOp) {
 };
 
 
-void Interpreter::visit(Sqrt& pOp) {
+void BasicInterpreter::visit(Sqrt& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3479,7 +3480,7 @@ void Interpreter::visit(Sqrt& pOp) {
 };
 
 
-void Interpreter::visit(Squeeze& pOp) {
+void BasicInterpreter::visit(Squeeze& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3510,7 +3511,7 @@ void Interpreter::visit(Squeeze& pOp) {
 };
 
 
-void Interpreter::visit(Sub& pOp) {
+void BasicInterpreter::visit(Sub& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -3545,7 +3546,7 @@ void Interpreter::visit(Sub& pOp) {
 };
 
 
-void Interpreter::visit(Sum& pOp) {
+void BasicInterpreter::visit(Sum& pOp) {
   // Prepare input
   int32_t input_data_0_ntensor = pOp.getNumOfInputs() - 0;
   void *input_data_0[input_data_0_ntensor];
@@ -3575,7 +3576,7 @@ void Interpreter::visit(Sum& pOp) {
 };
 
 
-void Interpreter::visit(Tan& pOp) {
+void BasicInterpreter::visit(Tan& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3603,7 +3604,7 @@ void Interpreter::visit(Tan& pOp) {
 };
 
 
-void Interpreter::visit(Tanh& pOp) {
+void BasicInterpreter::visit(Tanh& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3631,7 +3632,7 @@ void Interpreter::visit(Tanh& pOp) {
 };
 
 
-void Interpreter::visit(Tile& pOp) {
+void BasicInterpreter::visit(Tile& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3666,7 +3667,7 @@ void Interpreter::visit(Tile& pOp) {
 };
 
 
-void Interpreter::visit(TopK& pOp) {
+void BasicInterpreter::visit(TopK& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3703,7 +3704,7 @@ void Interpreter::visit(TopK& pOp) {
 };
 
 
-void Interpreter::visit(Transpose& pOp) {
+void BasicInterpreter::visit(Transpose& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3734,7 +3735,7 @@ void Interpreter::visit(Transpose& pOp) {
 };
 
 
-void Interpreter::visit(Unsqueeze& pOp) {
+void BasicInterpreter::visit(Unsqueeze& pOp) {
   // Prepare input
   Tensor *input_data_t = pOp.getInput(0);
   void *input_data = m_ATable[input_data_t];
@@ -3765,7 +3766,7 @@ void Interpreter::visit(Unsqueeze& pOp) {
 };
 
 
-void Interpreter::visit(Upsample& pOp) {
+void BasicInterpreter::visit(Upsample& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3798,7 +3799,7 @@ void Interpreter::visit(Upsample& pOp) {
 };
 
 
-void Interpreter::visit(Xor& pOp) {
+void BasicInterpreter::visit(Xor& pOp) {
   // Prepare input
   Tensor *input_A_t = pOp.getInput(0);
   void *input_A = m_ATable[input_A_t];
@@ -3833,7 +3834,7 @@ void Interpreter::visit(Xor& pOp) {
 };
 
 
-void Interpreter::visit(ATen& pOp) {
+void BasicInterpreter::visit(ATen& pOp) {
   // Prepare input
   int32_t input_input_ntensor = pOp.getNumOfInputs() - 0;
   void *input_input[input_input_ntensor];
@@ -3865,7 +3866,7 @@ void Interpreter::visit(ATen& pOp) {
 };
 
 
-void Interpreter::visit(Affine& pOp) {
+void BasicInterpreter::visit(Affine& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -3895,7 +3896,7 @@ void Interpreter::visit(Affine& pOp) {
 };
 
 
-void Interpreter::visit(ConstantFill& pOp) {
+void BasicInterpreter::visit(ConstantFill& pOp) {
   // Prepare input
   Tensor *input_input_t = NULL;
   void *input_input = NULL;
@@ -3942,7 +3943,7 @@ void Interpreter::visit(ConstantFill& pOp) {
 };
 
 
-void Interpreter::visit(Crop& pOp) {
+void BasicInterpreter::visit(Crop& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -3978,7 +3979,7 @@ void Interpreter::visit(Crop& pOp) {
 };
 
 
-void Interpreter::visit(GRUUnit& pOp) {
+void BasicInterpreter::visit(GRUUnit& pOp) {
   // Prepare input
   Tensor *input_hidden_prev_t = pOp.getInput(0);
   void *input_hidden_prev = m_ATable[input_hidden_prev_t];
@@ -4027,7 +4028,7 @@ void Interpreter::visit(GRUUnit& pOp) {
 };
 
 
-void Interpreter::visit(GivenTensorFill& pOp) {
+void BasicInterpreter::visit(GivenTensorFill& pOp) {
   // Prepare input
   Tensor *input_shape_t = NULL;
   void *input_shape = NULL;
@@ -4075,7 +4076,7 @@ void Interpreter::visit(GivenTensorFill& pOp) {
 };
 
 
-void Interpreter::visit(ImageScaler& pOp) {
+void BasicInterpreter::visit(ImageScaler& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -4108,7 +4109,7 @@ void Interpreter::visit(ImageScaler& pOp) {
 };
 
 
-void Interpreter::visit(MeanVarianceNormalization& pOp) {
+void BasicInterpreter::visit(MeanVarianceNormalization& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -4138,7 +4139,7 @@ void Interpreter::visit(MeanVarianceNormalization& pOp) {
 };
 
 
-void Interpreter::visit(ParametricSoftplus& pOp) {
+void BasicInterpreter::visit(ParametricSoftplus& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
@@ -4168,7 +4169,7 @@ void Interpreter::visit(ParametricSoftplus& pOp) {
 };
 
 
-void Interpreter::visit(Scale& pOp) {
+void BasicInterpreter::visit(Scale& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -4196,7 +4197,7 @@ void Interpreter::visit(Scale& pOp) {
 };
 
 
-void Interpreter::visit(ScaledTanh& pOp) {
+void BasicInterpreter::visit(ScaledTanh& pOp) {
   // Prepare input
   Tensor *input_input_t = pOp.getInput(0);
   void *input_input = m_ATable[input_input_t];
@@ -4226,7 +4227,7 @@ void Interpreter::visit(ScaledTanh& pOp) {
 };
 
 
-void Interpreter::visit(ThresholdedRelu& pOp) {
+void BasicInterpreter::visit(ThresholdedRelu& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];

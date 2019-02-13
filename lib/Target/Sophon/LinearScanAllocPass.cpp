@@ -23,10 +23,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // LinearScanAlloc
 //===----------------------------------------------------------------------===//
-char LinearScanAlloc::ID = 0;
-
 LinearScanAlloc::LinearScanAlloc(TGBackend *pTarget)
-    : ModulePass(ID), m_pTarget(pTarget)
+    : m_pTarget(pTarget)
 {
 }
 
@@ -124,7 +122,7 @@ void LinearScanAlloc::linearScanAllocMem(
 
 void LinearScanAlloc::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(BuildMemOpnd::ID);
+  pUsage.addRequired<BuildMemOpnd>();
 }
 
 ModulePass *onnc::CreateLinearScanAllocPass(TGBackend *pTarget)

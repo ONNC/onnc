@@ -24,6 +24,12 @@
 /* define x86_64 target */
 #cmakedefine ENABLE_X86_TARGET 1
 
+/* define vanilla target */
+#cmakedefine ENABLE_VANILLA_TARGET 1
+
+/* define nvdla target */
+#cmakedefine ENABLE_NVDLA_TARGET 1
+
 /* Enable clock_gettime */
 #cmakedefine ENABLE_CLOCK_GETTIME 1
 

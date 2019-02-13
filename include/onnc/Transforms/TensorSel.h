@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_TENSOR_SELECTION_H
 #define ONNC_TRANSFORM_TENSOR_SELECTION_H
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 #include <onnc/Target/TargetBackend.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>
@@ -17,11 +18,8 @@ namespace onnc {
  *  \brief TensorSel converts ONNX node to ComputeOperator and creates
  *  ComputeGraph objects for subgraph in ONNX.
  */
-class TensorSel : public GraphBuildingPass
+class TensorSel : public CustomPass<TensorSel, GraphBuildingPass>
 {
-public:
-  static char ID;
-
 public:
   TensorSel(const TargetBackend* pBackend = nullptr);
 

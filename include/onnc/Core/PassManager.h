@@ -7,13 +7,18 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CORE_PASS_MANAGER_H
 #define ONNC_CORE_PASS_MANAGER_H
+
+#include <deque>
+#include <map>
+#include <type_traits>
+#include <utility>
+
 #include <onnc/Core/Pass.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassInfo.h>
 #include <onnc/Core/PassRegistry.h>
 #include <onnc/IR/Module.h>
 #include <onnc/ADT/Digraph.h>
-#include <map>
 
 namespace onnc {
 
@@ -47,18 +52,24 @@ public:
 
   /// PassManager is responsible to release all passes being added and created
   /// during adding passes.
-  ~PassManager();
+  ~PassManager() = default;
 
   /// add pPass to:
   /// 1. dependency graph (ignore if pPass.getPassID() has been added before)
   /// 2. execution queue.
-  void add(Pass* pPass);
+  template <typename PassType, typename... Args>
+  PassManager& add(Args&&... args) {
+    static_assert(std::is_base_of<Pass, PassType>::value);
+    return add(new PassType(std::forward<Args>(args)...));
+  }
 
-  void add(Pass* pPass, TargetBackend* pBackend);
+  PassManager& add(Pass* pPass);
 
-  void add(Pass* pPass, State& pState);
+  PassManager& add(Pass* pPass, TargetBackend* pBackend);
 
-  void add(Pass* pPass, TargetBackend* pBackend, State& pState);
+  PassManager& add(Pass* pPass, State& pState);
+
+  PassManager& add(Pass* pPass, TargetBackend* pBackend, State& pState);
 
   /// PassManager::run behaviour:
   /// 1. If a pass dependents on other passes (cyclic dependency is disallowed),
@@ -116,13 +127,10 @@ private:
   };
 
   /// The start pass for lattice.
-  struct StartPass : public ModulePass
+  struct StartPass : public CustomPass<StartPass>
   {
   public:
-    static char ID;
-
-  public:
-    StartPass() : ModulePass(ID) { }
+    StartPass() = default;
 
     Pass::ReturnType runOnModule(Module &pModule) override
     {

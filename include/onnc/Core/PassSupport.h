@@ -14,20 +14,20 @@ namespace onnc {
 class TargetBackend;
 
 #define INITIALIZE_PASS(pass_name, name)                                      \
-  void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
+  void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {                \
     PassInfo *info = new PassInfo(                                            \
         name,                                                                 \
-        &pass_name::ID,                                                       \
+        pass_name::id(),                                                      \
         PassInfo::PassCtorFn(callDefaultCtor<pass_name>));                    \
     pRegistry.registerPass(*info);                                            \
     return info;                                                              \
   }
 
 #define INITIALIZE_TB_PASS_BASE(pass_name, backend_type, name)                \
-  void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {         \
+  void *Initialize##pass_name##Pass(PassRegistry &pRegistry) {                \
     PassInfo *info = new PassInfo(                                            \
       name,                                                                   \
-      &pass_name::ID,                                                         \
+      pass_name::id(),                                                        \
       PassInfo::PassCtorFn(callDefaultCtor<pass_name>),                       \
       PassInfo::PassTargetCtorFn(                                             \
           callTargetBackendCtor<pass_name, backend_type>));                   \

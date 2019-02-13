@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CODEGEN_BUILD_MEM_OPERAND_H
 #define ONNC_CODEGEN_BUILD_MEM_OPERAND_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -28,15 +28,10 @@ namespace onnc {
  *         M x onnc::ComputeMemOperand, but these M x onnc::ComputeMemOperand
  *         should have the same memory allocation information.
  */
-class BuildMemOperand : public ModulePass
+class BuildMemOperand : public CustomPass<BuildMemOperand>
 {
 public:
-  static char ID;
-
-public:
-  BuildMemOperand()
-    : ModulePass(ID) {
-  }
+  BuildMemOperand() = default;
 
   StringRef getPassName() const override { return "BuildMemOperand"; }
 

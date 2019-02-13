@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include <onnc/ADT/StringList.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/FuseInplaceValue.h>
@@ -244,12 +246,10 @@ public:
 class VTargetBackend : public TargetBackend
 {
 public:
-  VTargetBackend(const TargetOptions& pOptions)
+  explicit VTargetBackend(const TargetOptions& pOptions)
     : TargetBackend(pOptions) {
-    m_pMemInfo = &m_VTMI;
+    m_pMemInfo = std::make_unique<VTargetMemInfo>();
   }
-
-  VTargetMemInfo m_VTMI;
 };
 
 //===----------------------------------------------------------------------===//
@@ -436,18 +436,18 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   PassRegistry registry;
   PassManager passMgr(registry);
   addStandardCreateLiveIntervals(passMgr);
-  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  passMgr.add<X86RemoveWeightFromLiveIntervals>();
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
   LiveIntervalsData* liData =
-    static_cast<LiveIntervalsData*>(passMgr.lookup(&LiveIntervalsData::ID));
+    static_cast<LiveIntervalsData*>(passMgr.lookup(LiveIntervalsData::id()));
 
   LiveValueMatrix* liveMat =
-    static_cast<LiveValueMatrix*>(passMgr.lookup(&LiveValueMatrix::ID));
+    static_cast<LiveValueMatrix*>(passMgr.lookup(LiveValueMatrix::id()));
 
   MemAllocData* memAllocData =
-    static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));
+    static_cast<MemAllocData*>(passMgr.lookup(MemAllocData::id()));
 
   Module module;
   CreateAlexNet(module);
@@ -484,16 +484,16 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
 
   PassRegistry registry;
   PassManager passMgr(registry);
-  passMgr.add(CreateFuseInplaceValuePass(VTargetIsInplaceValueFusible));
+  passMgr.add<FuseInplaceValue>(VTargetIsInplaceValueFusible);
   addStandardCreateLiveIntervals(passMgr);
-  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  passMgr.add<X86RemoveWeightFromLiveIntervals>();
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
   passMgr.dumpState(passMgr.state());
 
   MemAllocData* memAllocData =
-    static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));
+    static_cast<MemAllocData*>(passMgr.lookup(MemAllocData::id()));
 
   Module module;
   ComputeGraph& cg = CreateAlexNet(module);
@@ -516,4 +516,15 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
     ASSERT_FALSE(memAllocData->hasAlloc(cg.getValue(str)));
 
   ASSERT_TRUE(memAllocData->hasAlloc(cg.getValue("relu2_1")));
+}
+
+#include "../../lib/Target/X86/X86FuseConvRelu.h"
+SKYPAT_F(MemAllocTest, x86_new_ir_test)
+{
+  X86FuseConvRelu x86fuseIr;
+
+  Module module;
+  ComputeGraph& cg = CreateAlexNet(module);
+  x86fuseIr.runOnModule(module);
+  cg.dump();
 }

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_BM188X_VISITOR_H
 #define ONNC_TARGET_BM188X_VISITOR_H
-#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/CustomVisitor.h>
 
 namespace onnc {
 
@@ -34,13 +34,10 @@ class Sum;
 class Transpose;
 class Upsample;
 
-class BM188xVisitor : public ComputeVisitor
+class BM188xVisitor : public CustomVisitor<BM188xVisitor>
 {
 public:
-  static char ID;
-
-public:
-  using ComputeVisitor::visit;
+  using BaseType::visit;
 
   /// const version @{
   virtual void visit(const BM188X::AveragePool& pAveragePool) { }
@@ -118,7 +115,7 @@ public:
   virtual void visit(BM188X::Upsample& pTranspose) { }
   /// }@
 
-  BM188xVisitor();
+  BM188xVisitor() = default;
 
   /// for dyn_cast
   static bool classof(const ComputeVisitor* pVisitor);

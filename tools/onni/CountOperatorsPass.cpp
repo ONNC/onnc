@@ -80,12 +80,3 @@ void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
   }
   printFooter(pOS);
 }
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-char CountOperatorsPass::ID = 0;
-
-CountOperatorsPass *onnc::CreateCountOperatorsPass(const std::string &pPrefix) {
-  return new CountOperatorsPass(pPrefix);
-}

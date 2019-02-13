@@ -10,19 +10,12 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
-char BM188xVisitor::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // BM188xVisitor
 //===----------------------------------------------------------------------===//
-BM188xVisitor::BM188xVisitor()
-    : ComputeVisitor(ID)
-{
-}
-
 bool BM188xVisitor::classof(const ComputeVisitor* pVisitor)
 {
-  if (nullptr != pVisitor && pVisitor->hasVisitorID())
-    return (pVisitor->getVisitorID() == &ID);
+  if (nullptr != pVisitor)
+    return (pVisitor->getVisitorID() == id());
   return false;
 }

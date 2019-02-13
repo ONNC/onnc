@@ -11,6 +11,7 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Config/AboutData.h>
+#include <onnc/Target/TargetStandardPasses.h>
 
 using namespace onnc;
 
@@ -86,6 +87,8 @@ static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
 //===----------------------------------------------------------------------===//
 int main(int pArgc, char* pArgv[])
 {
+  apply(cl::about(g_About), &LinearScanAlgo);
+  apply(cl::about(g_About), &EnableX86FuseConvRelu);
   ONNIApp onni(pArgc, pArgv);
 
   // -verbose=level
@@ -125,17 +128,7 @@ int main(int pArgc, char* pArgv[])
   }
   onni.options().setModel(OptModel);
 
-  // check onnx model
-  if (!exists(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file not found: " << OptInput << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (!is_regular(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file is not a regular file: " << OptInput << std::endl;
-    return EXIT_FAILURE;
-  }
+  // set onnx input
   onni.options().setInput(OptInput);
 
   // check output

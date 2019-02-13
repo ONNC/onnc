@@ -8,17 +8,14 @@
 #ifndef ONNC_TARGET_TG_LINEAR_SCAN_ALLOC_PASS_H
 #define ONNC_TARGET_TG_LINEAR_SCAN_ALLOC_PASS_H
 #include "BuildMemOpndPass.h"
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 
 namespace onnc {
 class TGBackend;
 
-class LinearScanAlloc : public ModulePass
+class LinearScanAlloc : public CustomPass<LinearScanAlloc>
 {
-public:
-  static char ID;
-
 public:
   LinearScanAlloc(TGBackend *pTarget);
 

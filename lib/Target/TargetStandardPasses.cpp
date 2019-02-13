@@ -24,7 +24,16 @@
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 
+#include <onnc/Option/CommandLine.h>
+
 using namespace onnc;
+
+cl::opt<std::string>
+onnc::LinearScanAlgo("fLinearScanAlgo",
+                     cl::kShort, cl::kOptional,
+                     cl::kValueOptional, cl::kEqualSeparated,
+                     cl::init("first-fit"),
+                     cl::desc("Select linear scan algorithm: first-fit, best-fit. (default is first-fit)"));
 
 //===----------------------------------------------------------------------===//
 // TargetStandardPasses

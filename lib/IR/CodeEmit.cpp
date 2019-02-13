@@ -37,8 +37,6 @@ Pass::ReturnType CodeEmit::runOnComputeGraph(ComputeGraph& pCG)
 //===----------------------------------------------------------------------===//
 // CodeEmit factory method
 //===----------------------------------------------------------------------===//
-char CodeEmit::ID = 0;
-
 #if 0
 //FIXME a pass class with input parameter cannot be initialized?
 namespace onnc

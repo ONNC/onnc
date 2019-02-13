@@ -20,7 +20,7 @@ namespace onnc {
 class GraphBuildingPass : public ModulePass
 {
 public:
-  GraphBuildingPass(char& pPassID);
+  GraphBuildingPass() = default;
 
   virtual ~GraphBuildingPass() { }
 

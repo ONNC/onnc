@@ -9,6 +9,7 @@
 #define ONNC_CODEGEN_LIVE_VALUE_MATRIX_H
 #include <onnc/ADT/IListNode.h>
 #include <onnc/CodeGen/LiveInterval.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -22,7 +23,7 @@ class LiveIntervalsData;
  *         allocate non-overlapping physical memory for values that have
  *         interfering live range. 
  */
-class LiveValueMatrix : public ModulePass
+class LiveValueMatrix : public CustomPass<LiveValueMatrix>
 {
 public:
   struct LiveSegment
@@ -34,8 +35,6 @@ public:
       : m_LI(pLI), m_Segment(pSeg) {
     }
   };
-
-  static char ID;
 
   typedef std::vector<LiveInterval*> LIs;
 
@@ -50,9 +49,7 @@ public:
   typedef std::unordered_map<LiveInterval*, unsigned> LICount;
 
 public:
-  LiveValueMatrix()
-    : ModulePass(ID) {
-  }
+  LiveValueMatrix() = default;
 
   virtual ~LiveValueMatrix() { clear(); }
 

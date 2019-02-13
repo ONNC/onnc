@@ -38,11 +38,6 @@ void Initializer::setTensor(onnc::Tensor& pTensor)
   addOutput(pTensor);
 }
 
-void Initializer::print(std::ostream& pOS) const
-{
-  pOS << name();
-}
-
 bool Initializer::classof(const ComputeOperator* pOp)
 {
   if (nullptr == pOp)

@@ -19,16 +19,9 @@
 
 using namespace onnc;
 
-char BuildMemOpnd::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // BuildMemOpnd
 //===----------------------------------------------------------------------===//
-BuildMemOpnd::BuildMemOpnd()
-    : ModulePass(ID)
-{
-}
-
 Pass::ReturnType BuildMemOpnd::runOnModule(::onnc::Module &pModule)
 {
   clear();

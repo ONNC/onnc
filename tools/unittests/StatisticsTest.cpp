@@ -48,7 +48,7 @@ private:
 //===----------------------------------------------------------------------===//
 SKYPAT_F(StatisticsTest, invalid_statistics)
 {
-  Statistics statistics1;
+  Statistics statistics1(0);
   EXPECT_FALSE(statistics1.isValid());
 
   StringRef str2;
@@ -139,7 +139,7 @@ SKYPAT_F(StatisticsTest, read_str)
     Rope("}")).str());
 
   Statistics statistics1(str);
-  Statistics statistics2;
+  Statistics statistics2(0);
   statistics2.read(str);
 
   StringList group_list1 = statistics1.groupList();
