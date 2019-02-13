@@ -39,6 +39,8 @@ public:
   using value_type = int;
 
 public:
+  friend class CounterIterator;
+
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
   /// decrease its value.
@@ -57,6 +59,7 @@ public:
   Counter(const Counter& pOther) = default;
   Counter(Counter& pOther) = default;
 
+public:
   /// Assignment. Since a Counter object is just an abstract interface of a
   /// json::Group object, this assignment shall not create new json::Group object;
   /// the assignment operator just create a new representation of the original
@@ -108,12 +111,14 @@ public:
   /// A Counter object created by default constructor is invalid.
   bool isValid() const;
 
-  /// Convert a well-settle json::Group object into a counter
-  /// @return A inactive counter if the group is not well-settled.
-  static Counter Get(json::Group pGroup);
-
   /// @retval true pGroup is a counter group.
   static bool IsCounter(const json::Group& pGroup);
+
+private:
+  /// Conversion constructor. This create a counter with an associated group object.
+  /// The @ref Counter::Create() method can create Counter objects by invoking this
+  /// constructor, and the created counter objects are all valid.
+  explicit Counter(json::Group group);
 
 private:
   json::Group m_Group;

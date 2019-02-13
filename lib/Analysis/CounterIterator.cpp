@@ -34,7 +34,7 @@ CounterIterator& CounterIterator::next()
 
 Counter CounterIterator::counter()
 {
-  return Counter::Get(m_Iterator.group());
+  return Counter{m_Iterator.group()};
 }
 
 bool CounterIterator::operator==(const CounterIterator& pOther) const

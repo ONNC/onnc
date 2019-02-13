@@ -44,7 +44,7 @@ Counter::Counter(StringRef pName, value_type pValue, StringRef pDesc)
   } else {
     bool exist = false;
     m_Group = counterGroup.addGroup(pName, &exist);
-    assert(!exist);
+    assert(!exist && "group should be created by only one thread");
 
     m_Group.writeEntry(g_NameKey, pName);
     m_Group.writeEntry(g_TypeKey, g_TypeValue);
@@ -135,6 +135,11 @@ bool Counter::IsCounter(const json::Group& pGroup)
 
   // the group have neither "type" entry nor right type.
   return (g_TypeValue == type);
+}
+
+Counter::Counter(json::Group group)
+  : m_Group{std::move(group)} {
+  assert(IsCounter(m_Group) && "create object by non-counter group");
 }
 
 std::ostream& operator<<(std::ostream& stream, const Counter& counter)
