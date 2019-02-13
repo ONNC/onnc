@@ -24,6 +24,8 @@
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Analysis/GlobalStatistics.h>
+#include <onnc/Analysis/Counter.h>
+#include <onnc/Analysis/CounterIterator.h>
 
 #include <fstream>
 #include <memory>
@@ -110,9 +112,8 @@ int ONNIApp::run()
 
   if (options().verbose() >= 3) {
     errs() << "==== print CountOperatorsPass result again ====\n";
-    StringList opList = global::stats().counterList();
-    for(auto listItr=opList.begin(); listItr != opList.end(); ++listItr){
-      global::stats().printCounter(*listItr, errs());
+    for (auto counter : global::stats() | onnc::view::counter) {
+      std::cout << counter << std::endl;
     }
     errs() << "==== end again of printing CountOperatorsPass ====\n";
   }

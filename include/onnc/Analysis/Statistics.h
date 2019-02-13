@@ -24,12 +24,12 @@ namespace onnc {
  *  StringRef image = config.group("General").readEntry("image", "look.jpg");
  *  \endcode
  */
-class Statistics : public json::Storage
+class Statistics final : public json::Storage
 {
 public:
   /// Default constructor
   /// Default constructor is invalid because we don't read anything.
-  Statistics();
+  Statistics() = default;
 
   Statistics(const Statistics&) = delete;
   Statistics(Statistics&&) = delete;
@@ -61,31 +61,7 @@ public:
   Statistics(const Path& pFile, json::Storage::AccessMode pMode = kReadOnly);
 
   /// Destructor. If @ref accessMode() is writable, then write back the value.
-  virtual ~Statistics() { }
-
-  /// Add a counter.
-  /// @retval true Success
-  /// @retval false The counter has been added.
-  bool addCounter(StringRef pName, StringRef pDesc = "no description");
-
-  /// increase counter, default by 1
-  /// @retval true Success
-  bool increaseCounter(StringRef pName, unsigned int incNumber=1);
-
-  /// decrease counter, default by 1
-  /// @retval true Success
-  bool decreaseCounter(StringRef pName, unsigned int decNumber=1);
-
-  /// print counter name, counter value, and its description
-  void printCounter(StringRef pName, OStream& pOS);
-
-  /// print all key in Counter group
-  /// @retval StringList
-  StringList counterList() const;
-
-  /// reset counter as initNum, default is 0
-  /// @retval true Success
-  bool resetCounter(StringRef pName, int initNum=0);  
+  ~Statistics() = default;
 
   json::Group getCounterGroup() const;
 };
