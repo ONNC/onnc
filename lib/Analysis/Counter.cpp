@@ -131,14 +131,6 @@ void Counter::print(std::ostream& pOS) const
   pOS << std::endl; 
 }
 
-Counter Counter::Get(json::Group pGroup)
-{
-  if (!IsCounter(pGroup))
-    return Counter{};
-
-  return Counter{std::move(pGroup)};
-}
-
 bool Counter::IsCounter(const json::Group& pGroup)
 {
   int type = pGroup.readEntry(g_TypeKey, g_TypeValue + 1);

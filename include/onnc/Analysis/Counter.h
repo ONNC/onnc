@@ -39,7 +39,7 @@ public:
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
   /// decrease its value.
-  Counter() = default;
+  Counter() = delete;
 
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,
