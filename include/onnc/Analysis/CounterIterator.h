@@ -58,7 +58,7 @@ private:
   range_type*    m_pStatistics;
   range_iterator m_Iterator;
 
-  const std::function<bool(range_value_type)> m_Predicate;
+  const std::function<bool(range_const_reference)> m_Predicate;
   const std::function<value_type(range_const_reference)> m_Generator;
 };
 
