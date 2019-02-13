@@ -36,12 +36,15 @@ namespace onnc {
 class Counter final
 {
 public:
+  using value_type = int;
+
+public:
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
   /// decrease its value.
   Counter() = delete;
 
-  Counter(StringRef pName, int pValue = 0, StringRef pDesc = "none");
+  Counter(StringRef pName, value_type pValue = 0, StringRef pDesc = "none");
 
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,
@@ -60,7 +63,7 @@ public:
   ~Counter() = default;
 
   /// reset the counter to @ref pNumber.
-  Counter& reset(int pNumber = 0);
+  Counter& reset(value_type pNumber = 0);
 
   /// increase one unit
   Counter& increase();
@@ -69,7 +72,7 @@ public:
   Counter& decrease();
 
   /// The number of the counter
-  int value() const;
+  value_type value() const;
 
   /// The identity of the counter.
   StringRef name() const;
@@ -81,7 +84,7 @@ public:
   void setDescription(StringRef pDesc);
 
   /// Casting operator. Cast to the value.
-  operator int() const { return value(); }
+  operator value_type() const { return value(); }
 
   Counter& operator++() { return increase(); }
 

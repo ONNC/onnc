@@ -30,7 +30,7 @@ static const int   g_ValueDef = (unsigned(-1) - 1);
 //===----------------------------------------------------------------------===//
 // Counter
 //===----------------------------------------------------------------------===//
-Counter::Counter(StringRef pName, int pValue, StringRef pDesc)
+Counter::Counter(StringRef pName, value_type pValue, StringRef pDesc)
 {
   auto counterGroup = global::stats().getCounterGroup();
   if (counterGroup.hasGroup(pName)) {
@@ -53,7 +53,7 @@ Counter::Counter(StringRef pName, int pValue, StringRef pDesc)
   }
 }
 
-Counter& Counter::reset(int pNumber)
+Counter& Counter::reset(value_type pNumber)
 {
   m_Group.writeEntry(g_ValueKey, pNumber);
   return *this;
@@ -64,7 +64,7 @@ Counter& Counter::increase()
   if (!isValid())
     return *this;
 
-  int number = m_Group.readEntry(g_ValueKey, g_ValueDef);
+  value_type number = m_Group.readEntry(g_ValueKey, g_ValueDef);
   ++number;
   m_Group.writeEntry(g_ValueKey, number);
   return *this;
@@ -75,13 +75,13 @@ Counter& Counter::decrease()
   if (!isValid())
     return *this;
 
-  int number = m_Group.readEntry(g_ValueKey, g_ValueDef);
+  value_type number = m_Group.readEntry(g_ValueKey, g_ValueDef);
   --number;
   m_Group.writeEntry(g_ValueKey, number);
   return *this;
 }
 
-int Counter::value() const
+Counter::value_type Counter::value() const
 {
   return m_Group.readEntry(g_ValueKey, g_ValueDef);
 }
