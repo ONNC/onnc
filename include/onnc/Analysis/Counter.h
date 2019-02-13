@@ -43,6 +43,7 @@ public:
 
 public:
   friend class CounterIterator;
+  friend bool isValid(const Counter&);
 
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
@@ -101,13 +102,6 @@ public:
 
   Counter& operator-=(value_type number);
 
-  /// If a counter wasn't given a group, it isn't active.
-  /// A Counter object created by default constructor is invalid.
-  bool isValid() const;
-
-  /// @retval true pGroup is a counter group.
-  static bool IsCounter(const json::Group& pGroup);
-
 private:
   /// Conversion constructor. This create a counter with an associated group object.
   /// The @ref Counter::Create() method can create Counter objects by invoking this
@@ -117,6 +111,13 @@ private:
 private:
   json::Group m_Group;
 };
+
+/// @retval true pGroup is a counter group.
+bool isCounter(const json::Group& pGroup);
+
+/// If a counter wasn't given a group, it isn't active.
+/// A Counter object created by default constructor is invalid.
+bool isValid(const Counter& counter);
 
 std::ostream& operator<<(std::ostream& stream, const Counter& counter);
 

@@ -101,7 +101,7 @@ Counter& Counter::operator--(int)
 
 Counter& Counter::operator+=(value_type number)
 {
-  if (!isValid()) {
+  if (!isValid(*this)) {
     assert(false && "update an invalid counter");
     return *this;
   }
@@ -116,25 +116,25 @@ Counter& Counter::operator-=(value_type number)
   return (*this) += (-number);
 }
 
-bool Counter::isValid() const
+Counter::Counter(json::Group group)
+  : m_Group{std::move(group)} {
+  assert(IsCounter(m_Group) && "create object by non-counter group");
+}
+
+bool isValid(const Counter& counter)
 {
-  int type = m_Group.readEntry(g_TypeKey, g_TypeValue + 1);
+  int type = counter.m_Group.readEntry(g_TypeKey, g_TypeValue + 1);
 
   // the group have neither "type" entry nor right type.
   return (g_TypeValue == type);
 }
 
-bool Counter::IsCounter(const json::Group& pGroup)
+bool isCounter(const json::Group& pGroup)
 {
   int type = pGroup.readEntry(g_TypeKey, g_TypeValue + 1);
 
   // the group have neither "type" entry nor right type.
   return (g_TypeValue == type);
-}
-
-Counter::Counter(json::Group group)
-  : m_Group{std::move(group)} {
-  assert(IsCounter(m_Group) && "create object by non-counter group");
 }
 
 std::ostream& operator<<(std::ostream& stream, const Counter& counter)
