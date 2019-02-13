@@ -16,6 +16,11 @@
 
 namespace onnc {
 
+namespace view {
+  struct counter_view_adaptor_tag {};
+  static constexpr counter_view_adaptor_tag counters;
+}
+
 class Statistics;
 
 /** \class CounterIterator
@@ -41,7 +46,7 @@ private:
 public:
   CounterIterator();
 
-  CounterIterator(range_type& pStatistics, range_iterator pIter);
+  CounterIterator(range_type& stats, range_iterator iter = range_iterator{});
 
   CounterIterator& operator++();
   CounterIterator operator++(int);
@@ -61,6 +66,31 @@ private:
   const std::function<bool(range_const_reference)> m_Predicate;
   const std::function<value_type(range_const_reference)> m_Generator;
 };
+
+template <typename Iterator>
+class IteratorRange
+{
+public:
+  using iterator = Iterator;
+
+public:
+  IteratorRange() = delete;
+  IteratorRange(iterator first, iterator last)
+    : m_First{first}
+    , m_Last{last}
+  { }
+
+  iterator begin() { return m_First; }
+  iterator begin() const { return m_First; }
+  iterator end() { return m_Last; }
+  iterator end() const { return m_Last; }
+
+private:
+  const iterator m_First;
+  const iterator m_Last;
+};
+
+IteratorRange<CounterIterator> operator|(Statistics&, view::counter_view_adaptor_tag);
 
 } // namespace of onnc
 

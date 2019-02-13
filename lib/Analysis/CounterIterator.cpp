@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/CounterIterator.h>
+#include <onnc/Analysis/Statistics.h>
 
 namespace onnc {
 
@@ -26,10 +27,9 @@ CounterIterator::CounterIterator()
   , m_Generator{internal::toCounter}
 { }
 
-CounterIterator::CounterIterator(Statistics& pStatistics,
-                                 json::Group::GroupIterator pIter)
-  : m_pStatistics{&pStatistics}
-  , m_Iterator{pIter}
+CounterIterator::CounterIterator(range_type& stats, range_iterator iter)
+  : m_pStatistics{&stats}
+  , m_Iterator{iter}
   , m_Predicate{isCounter}
   , m_Generator{internal::toCounter}
 { }
@@ -64,6 +64,14 @@ bool CounterIterator::operator==(const CounterIterator& pOther) const
 {
   return (m_pStatistics == pOther.m_pStatistics &&
           m_Iterator == pOther.m_Iterator);
+}
+
+IteratorRange<CounterIterator> operator|(Statistics& stats, view::counter_view_adaptor_tag)
+{
+  return IteratorRange<CounterIterator>{
+      CounterIterator{stats, stats.getCounterGroup().gBegin()},
+      CounterIterator{stats}
+  };
 }
 
 } // namespace of onnc
