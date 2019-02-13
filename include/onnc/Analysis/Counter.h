@@ -75,15 +75,6 @@ public:
   /// update counter value by given @ref pNumber.
   Counter& operator=(value_type pNumber);
 
-  /// increase one unit
-  Counter& increase();
-
-  /// decrease one unit
-  Counter& decrease();
-
-  /// The number of the counter
-  value_type value() const;
-
   /// The identity of the counter.
   StringRef name() const;
 

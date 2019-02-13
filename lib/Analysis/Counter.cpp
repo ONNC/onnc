@@ -59,11 +59,6 @@ Counter& Counter::operator=(value_type pNumber)
   return *this;
 }
 
-Counter::value_type Counter::value() const
-{
-  return m_Group.readEntry(g_ValueKey, g_ValueDef);
-}
-
 StringRef Counter::name() const
 {
   return m_Group.readEntry(g_NameKey, StringRef());
@@ -146,7 +141,7 @@ std::ostream& operator<<(std::ostream& stream, const Counter& counter)
 {
   return stream << "counter("
                 << "name=\"" << counter.name() << "\""
-                << ",value=\"" << std::dec << counter.value() << "\""
+                << ",value=\"" << std::dec << static_cast<Counter::value_type>(counter) << "\""
                 << ",desc=\"" << counter.getDescription() << "\""
                 << ")"
                 ;
