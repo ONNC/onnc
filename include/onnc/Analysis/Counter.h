@@ -42,7 +42,6 @@ public:
   static constexpr char       defaultDesc[] = "none";
 
 public:
-  friend class CounterIterator;
   friend bool isValid(const Counter&);
 
   /// Default constructor. This create an empty group object without any value.
@@ -55,6 +54,11 @@ public:
   /// otherwise create a new counter with that name. Users can also provide
   /// a default value and description for the counter.
   Counter(StringRef pName, value_type pValue = defaultValue, StringRef pDesc = defaultDesc);
+
+  /// Conversion constructor. This create a counter with an associated group object.
+  /// The @ref Counter::Create() method can create Counter objects by invoking this
+  /// constructor, and the created counter objects are all valid.
+  explicit Counter(json::Group group);
 
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,
@@ -101,12 +105,6 @@ public:
   Counter& operator+=(value_type number);
 
   Counter& operator-=(value_type number);
-
-private:
-  /// Conversion constructor. This create a counter with an associated group object.
-  /// The @ref Counter::Create() method can create Counter objects by invoking this
-  /// constructor, and the created counter objects are all valid.
-  explicit Counter(json::Group group);
 
 private:
   json::Group m_Group;

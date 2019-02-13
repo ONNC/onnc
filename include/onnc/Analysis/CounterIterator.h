@@ -10,6 +10,10 @@
 #include <onnc/JSON/Group.h>
 #include <onnc/Analysis/Counter.h>
 
+#include <functional>
+#include <iterator>
+#include <type_traits>
+
 namespace onnc {
 
 class Statistics;
@@ -22,13 +26,27 @@ class Statistics;
 class CounterIterator
 {
 public:
+  using value_type        = Counter;
+  using reference         = value_type;
+  using iterator_category = std::input_iterator_tag;
+
+private:
+  using range_type            = Statistics;
+  using range_value_type      = json::Group;
+  using range_const_reference = std::add_lvalue_reference<
+                                  std::add_const<range_value_type>::type
+                                >::type;
+  using range_iterator        = json::Group::GroupIterator;
+
+public:
   CounterIterator();
 
-  CounterIterator(Statistics& pStatistics, json::Group::GroupIterator pIter);
+  CounterIterator(range_type& pStatistics, range_iterator pIter);
 
-  CounterIterator& next();
+  CounterIterator& operator++();
+  CounterIterator operator++(int);
 
-  Counter counter();
+  value_type operator*();
 
   bool operator==(const CounterIterator& pOther) const;
 
@@ -37,8 +55,11 @@ public:
   }
 
 private:
-  Statistics* m_pStatistics;
-  json::Group::GroupIterator m_Iterator;
+  range_type*    m_pStatistics;
+  range_iterator m_Iterator;
+
+  const std::function<bool(range_value_type)> m_Predicate;
+  const std::function<value_type(range_const_reference)> m_Generator;
 };
 
 } // namespace of onnc

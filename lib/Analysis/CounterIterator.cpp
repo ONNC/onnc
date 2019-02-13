@@ -9,32 +9,55 @@
 
 namespace onnc {
 
+namespace internal {
+  Counter toCounter(const json::Group& group) {
+    return Counter{group};
+  }
+} // namespace internal
+
+
 //===----------------------------------------------------------------------===//
 // CounterIterator
 //===----------------------------------------------------------------------===//
 CounterIterator::CounterIterator()
-  : m_pStatistics(nullptr), m_Iterator() {
-}
+  : m_pStatistics{nullptr}
+  , m_Iterator{}
+  , m_Predicate{isCounter}
+  , m_Generator{internal::toCounter}
+{ }
 
 CounterIterator::CounterIterator(Statistics& pStatistics,
                                  json::Group::GroupIterator pIter)
-  : m_pStatistics(&pStatistics), m_Iterator(pIter) {
-}
+  : m_pStatistics{&pStatistics}
+  , m_Iterator{pIter}
+  , m_Predicate{isCounter}
+  , m_Generator{internal::toCounter}
+{ }
 
-CounterIterator& CounterIterator::next()
+CounterIterator& CounterIterator::operator++()
 {
-  if (nullptr == m_pStatistics)
+  const range_iterator sentinel{};
+  if (m_pStatistics == nullptr || m_Iterator == sentinel) {
     return *this;
+  }
 
   do {
     m_Iterator.next();
-  } while (!isCounter(m_Iterator.group()));
+  } while (m_Iterator != sentinel && !m_Predicate(m_Iterator.group()));
+
   return *this;
 }
 
-Counter CounterIterator::counter()
+CounterIterator CounterIterator::operator++(int)
 {
-  return Counter{m_Iterator.group()};
+   auto prev = (*this);
+   ++(*this);
+   return prev;
+}
+
+CounterIterator::value_type CounterIterator::operator*()
+{
+  return m_Generator(m_Iterator.group());
 }
 
 bool CounterIterator::operator==(const CounterIterator& pOther) const
