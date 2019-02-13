@@ -33,19 +33,21 @@ namespace onnc {
  *  @ref Counter::isValid return true if a Counter object already has well-settled
  *  group.
  */
-class Counter
+class Counter final
 {
 public:
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
   /// decrease its value.
-  Counter();
+  Counter() = default;
 
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,
   /// this copy shall not create new json::Group object; the copy operator
   /// just create a new representation of the original json::Group object.
   Counter(const Counter& pOther);
+
+  Counter(StringRef pName, int pValue = 0, StringRef pDesc = "none");
 
 private:
   /// Conversion constructor. This create a counter with an associated group object.
@@ -60,7 +62,7 @@ public:
   /// json::Group object.
   Counter& operator=(const Counter& pOther);
 
-  virtual ~Counter() { /* all things in json::Object */ }
+  ~Counter() = default;
 
   /// reset the counter to @ref pNumber.
   Counter& reset(int pNumber = 0);
@@ -107,10 +109,6 @@ public:
   /// Convert a well-settle json::Group object into a counter
   /// @return A inactive counter if the group is not well-settled.
   static Counter Get(json::Group pGroup);
-
-  /// Create a counter and add corresponding group in @ref pParent.
-  static Counter Create(json::Group& pParent, StringRef pName,
-                        int pValue = 0, StringRef pDesc = "none");
 
   /// @retval true pGroup is a counter group.
   static bool IsCounter(const json::Group& pGroup);

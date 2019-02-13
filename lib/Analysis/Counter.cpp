@@ -6,7 +6,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/Counter.h>
+#include <onnc/Analysis/GlobalStatistics.h>
 
+#include <cassert>
 #include <utility>
 
 namespace onnc {
@@ -28,16 +30,35 @@ static const int   g_ValueDef = (unsigned(-1) - 1);
 //===----------------------------------------------------------------------===//
 // Counter
 //===----------------------------------------------------------------------===//
-Counter::Counter()
-  : m_Group() {
-}
-
 Counter::Counter(json::Group group)
   : m_Group{std::move(group)} {
 }
 
 Counter::Counter(const Counter& pOther)
   : m_Group(pOther.m_Group) {
+}
+
+Counter::Counter(StringRef pName, int pValue, StringRef pDesc)
+{
+  auto counterGroup = global::stats().getCounterGroup();
+  if (counterGroup.hasGroup(pName)) {
+    auto selfGroup = counterGroup.group(pName);
+    if (!IsCounter(selfGroup)) {
+      assert(false && "attempt to create counter by existing non-counter group");
+      return;
+    }
+
+    m_Group = selfGroup;
+  } else {
+    bool exist = false;
+    m_Group = counterGroup.addGroup(pName, &exist);
+    assert(!exist);
+
+    m_Group.writeEntry(g_NameKey, pName);
+    m_Group.writeEntry(g_TypeKey, g_TypeValue);
+    m_Group.writeEntry(g_DescKey, pDesc);
+    m_Group.writeEntry(g_ValueKey, pValue);
+  }
 }
 
 Counter& Counter::operator=(const Counter& pOther)
@@ -113,27 +134,9 @@ void Counter::print(std::ostream& pOS) const
 Counter Counter::Get(json::Group pGroup)
 {
   if (!IsCounter(pGroup))
-    return Counter();
-
-  Counter result;
-  result.m_Group = pGroup;
-  return result;
-}
-
-Counter Counter::Create(json::Group& pParent, StringRef pName, int pValue,
-                        StringRef pDesc)
-{
-  bool exist = false;
-  json::Group group = pParent.addGroup(pName, &exist);
-  if (exist)
     return Counter{};
 
-  group.writeEntry(g_NameKey, pName);
-  group.writeEntry(g_TypeKey, g_TypeValue);
-  group.writeEntry(g_DescKey, pDesc);
-  group.writeEntry(g_ValueKey, pValue);
-
-  return Counter{group};
+  return Counter{std::move(pGroup)};
 }
 
 bool Counter::IsCounter(const json::Group& pGroup)

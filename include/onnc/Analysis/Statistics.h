@@ -86,6 +86,8 @@ public:
   /// reset counter as initNum, default is 0
   /// @retval true Success
   bool resetCounter(StringRef pName, int initNum=0);  
+
+  json::Group getCounterGroup() const;
 };
 
 } // namespace of skymizer
