@@ -72,7 +72,7 @@ void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
   printHeader(pOS);
   for (auto counter : global::stats() | onnc::view::counter) {
     pOS << m_Prefix << std::setw(m_Width.first) << counter.name() << SEP
-        << std::setw(m_Width.second) << static_cast<Counter::value_type>(counter) << SEP
+        << std::setw(m_Width.second) << counter << SEP
         << std::setw(m_Width.second) << counter.desc()
         // please note that this magic string comes from StatisticsTest.cpp.
         // I guess it's becuase readEntry is implemented by template.
