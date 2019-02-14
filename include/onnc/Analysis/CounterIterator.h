@@ -80,9 +80,17 @@ public:
     , m_Last{last}
   { }
 
-  iterator begin() { return m_First; }
+  IteratorRange(const IteratorRange&) = default;
+  IteratorRange(IteratorRange&&) = default;
+
+  ~IteratorRange() = default;
+
+  IteratorRange& operator=(const IteratorRange&) = default;
+  IteratorRange& operator=(IteratorRange&&) = default;
+
+  iterator begin() { return const_cast<IteratorRange*>(this)->begin(); }
   iterator begin() const { return m_First; }
-  iterator end() { return m_Last; }
+  iterator end() { return const_cast<IteratorRange*>(this)->end(); }
   iterator end() const { return m_Last; }
 
 private:

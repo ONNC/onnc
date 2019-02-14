@@ -69,8 +69,8 @@ bool CounterIterator::operator==(const CounterIterator& pOther) const
 IteratorRange<CounterIterator> operator|(Statistics& stats, view::counter_view_adaptor_tag)
 {
   return IteratorRange<CounterIterator>{
-      CounterIterator{stats, stats.getCounterGroup().gBegin()},
-      CounterIterator{stats}
+    CounterIterator{stats, stats.getCounterGroup().gBegin()},
+    CounterIterator{stats}
   };
 }
 
