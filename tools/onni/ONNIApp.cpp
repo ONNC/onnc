@@ -28,6 +28,7 @@
 #include <onnc/Analysis/CounterIterator.h>
 
 #include <fstream>
+#include <iomanip>
 #include <memory>
 #include <string>
 
@@ -114,8 +115,8 @@ int ONNIApp::run()
     errs() << "==== print CountOperatorsPass result again ====\n";
     for (auto counter : global::stats() | onnc::view::counter) {
       std::cout << "counter: "
-                << "name=" << counter.name()
-                << ", value=" << counter
+                << "name=" << std::setw(7) << std::left << counter.name()
+                << ", value=" << std::setw(2) << std::right << counter
                 << ", desc=" << counter.desc()
                 << std::endl;
     }
