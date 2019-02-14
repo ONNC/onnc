@@ -75,9 +75,14 @@ Counter& Counter::desc(StringRef pDesc)
   return *this;
 }
 
-Counter::operator value_type() const
+Counter::value_type Counter::value() const
 {
   return m_Group.readEntry(g_ValueKey, g_ValueDef);
+}
+
+Counter::operator value_type() const
+{
+  return value();
 }
 
 Counter& Counter::operator++()
@@ -140,12 +145,7 @@ bool isCounter(const json::Group& pGroup)
 
 std::ostream& operator<<(std::ostream& stream, const Counter& counter)
 {
-  return stream << "counter("
-                << "name=\"" << counter.name() << "\""
-                << ",value=" << std::dec << static_cast<Counter::value_type>(counter)
-                << ",desc=\"" << counter.desc() << "\""
-                << ")"
-                ;
+  return stream << counter.value();
 }
 
 } // namespace of onnc

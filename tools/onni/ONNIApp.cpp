@@ -113,7 +113,11 @@ int ONNIApp::run()
   if (options().verbose() >= 3) {
     errs() << "==== print CountOperatorsPass result again ====\n";
     for (auto counter : global::stats() | onnc::view::counter) {
-      std::cout << counter << std::endl;
+      std::cout << "counter: "
+                << "name=" << counter.name()
+                << ", value=" << counter
+                << ", desc=" << counter.desc()
+                << std::endl;
     }
     errs() << "==== end again of printing CountOperatorsPass ====\n";
   }

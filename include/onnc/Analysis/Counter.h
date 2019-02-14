@@ -86,6 +86,9 @@ public:
   /// Set description.
   Counter& desc(StringRef pDesc);
 
+  /// The value of the counter.
+  value_type value() const;
+
   /// Casting operator. Cast to the value.
   operator value_type() const;
 
