@@ -30,7 +30,7 @@ static const int   g_ValueDef = (unsigned(-1) - 1);
 //===----------------------------------------------------------------------===//
 // Counter
 //===----------------------------------------------------------------------===//
-Counter::Counter(StringRef pName, value_type pValue, StringRef pDesc)
+Counter::Counter(StringRef pName, StringRef pDesc, value_type pValue)
 {
   auto counterGroup = global::stats().getCounterGroup();
   if (counterGroup.hasGroup(pName)) {
@@ -52,6 +52,10 @@ Counter::Counter(StringRef pName, value_type pValue, StringRef pDesc)
     m_Group.writeEntry(g_ValueKey, pValue);
   }
 }
+
+Counter::Counter(StringRef pName, value_type pValue)
+  : Counter{pName, pName, pValue}
+{ }
 
 Counter& Counter::operator=(value_type pNumber)
 {

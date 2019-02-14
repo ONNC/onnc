@@ -47,8 +47,15 @@ public:
   /// Constructor. Users can get or create counter be give a name. If there
   /// is already a counter with the same name, just get the existing counter.
   /// otherwise create a new counter with that name. Users can also provide
-  /// a default value and description for the counter.
-  Counter(StringRef pName, value_type pValue = 0, StringRef pDesc = "none");
+  /// a default description and value for the counter.
+  Counter(StringRef pName, StringRef pDesc, value_type pValue = 0);
+
+  /// Constructor. Users can get or create counter be give a name. If there
+  /// is already a counter with the same name, just get the existing counter.
+  /// otherwise create a new counter with that name. Users can also provide
+  /// a default value for the counter. The description of this counter is
+  /// same as its name.
+  Counter(StringRef pName, value_type pValue = 0);
 
   /// Conversion constructor. This create a counter with an associated group object.
   /// The @ref Counter::Create() method can create Counter objects by invoking this
