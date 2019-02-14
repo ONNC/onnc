@@ -39,8 +39,6 @@ public:
   using value_type = int;
 
 public:
-  friend bool isValid(const Counter&);
-
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
   /// decrease its value.
@@ -106,16 +104,16 @@ public:
 
   Counter& operator-=(value_type number);
 
+  /// If a counter wasn't given a group, it isn't active.
+  /// A Counter object created by default constructor is invalid.
+  static bool isValid(const Counter& counter);
+
 private:
   json::Group m_Group;
 };
 
 /// @retval true pGroup is a counter group.
 bool isCounter(const json::Group& pGroup);
-
-/// If a counter wasn't given a group, it isn't active.
-/// A Counter object created by default constructor is invalid.
-bool isValid(const Counter& counter);
 
 inline std::ostream& operator<<(std::ostream& stream, const Counter& counter)
 {

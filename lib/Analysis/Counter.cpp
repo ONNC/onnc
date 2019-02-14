@@ -127,7 +127,7 @@ Counter::Counter(json::Group group)
   assert(isCounter(m_Group) && "create object by non-counter group");
 }
 
-bool isValid(const Counter& counter)
+bool Counter::isValid(const Counter& counter)
 {
   int type = counter.m_Group.readEntry(g_TypeKey, g_TypeValue + 1);
 
