@@ -88,9 +88,9 @@ public:
   IteratorRange& operator=(const IteratorRange&) = default;
   IteratorRange& operator=(IteratorRange&&) = default;
 
-  iterator begin() { return const_cast<IteratorRange*>(this)->begin(); }
+  iterator begin() { return static_cast<const IteratorRange*>(this)->begin(); }
   iterator begin() const { return m_First; }
-  iterator end() { return const_cast<IteratorRange*>(this)->end(); }
+  iterator end() { return static_cast<const IteratorRange*>(this)->end(); }
   iterator end() const { return m_Last; }
 
 private:
