@@ -143,9 +143,4 @@ bool isCounter(const json::Group& pGroup)
   return (g_TypeValue == type);
 }
 
-std::ostream& operator<<(std::ostream& stream, const Counter& counter)
-{
-  return stream << counter.value();
-}
-
 } // namespace of onnc

@@ -117,7 +117,10 @@ bool isCounter(const json::Group& pGroup);
 /// A Counter object created by default constructor is invalid.
 bool isValid(const Counter& counter);
 
-std::ostream& operator<<(std::ostream& stream, const Counter& counter);
+inline std::ostream& operator<<(std::ostream& stream, const Counter& counter)
+{
+  return stream << counter.value();
+}
 
 } // namespace of onnc
 
