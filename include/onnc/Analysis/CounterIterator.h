@@ -32,7 +32,6 @@ class CounterIterator
 {
 public:
   using value_type        = Counter;
-  using reference         = value_type;
   using iterator_category = std::input_iterator_tag;
 
 private:
@@ -101,5 +100,17 @@ private:
 IteratorRange<CounterIterator> operator|(Statistics&, view::counter_view_adaptor_tag);
 
 } // namespace of onnc
+
+namespace std {
+  template <>
+  struct iterator_traits<onnc::CounterIterator>
+  {
+    using value_type        = onnc::CounterIterator::value_type;
+    using reference         = value_type;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = std::add_pointer<value_type>::type;
+    using iterator_category = onnc::CounterIterator::iterator_category;
+  };
+} // namespace std
 
 #endif
