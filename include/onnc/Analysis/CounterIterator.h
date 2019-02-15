@@ -45,7 +45,7 @@ private:
 public:
   CounterIterator();
 
-  CounterIterator(range_type& stats, range_iterator iter = range_iterator{});
+  CounterIterator(const range_type& stats, range_iterator iter = range_iterator{});
 
   CounterIterator& operator++();
   CounterIterator operator++(int);
@@ -59,8 +59,8 @@ public:
   }
 
 private:
-  range_type*    m_pStatistics;
-  range_iterator m_Iterator;
+  const range_type* m_pStatistics;
+  range_iterator    m_Iterator;
 
   const std::function<bool(range_const_reference)> m_Predicate;
   const std::function<value_type(range_const_reference)> m_Generator;
@@ -97,7 +97,7 @@ private:
   const iterator m_Last;
 };
 
-IteratorRange<CounterIterator> operator|(Statistics&, view::counter_view_adaptor_tag);
+IteratorRange<CounterIterator> operator|(const Statistics& stats, view::counter_view_adaptor_tag);
 
 } // namespace of onnc
 

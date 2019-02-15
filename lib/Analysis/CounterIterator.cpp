@@ -27,7 +27,7 @@ CounterIterator::CounterIterator()
   , m_Generator{internal::toCounter}
 { }
 
-CounterIterator::CounterIterator(range_type& stats, range_iterator iter)
+CounterIterator::CounterIterator(const range_type& stats, range_iterator iter)
   : m_pStatistics{&stats}
   , m_Iterator{iter}
   , m_Predicate{isCounter}
@@ -66,7 +66,7 @@ bool CounterIterator::operator==(const CounterIterator& pOther) const
           m_Iterator == pOther.m_Iterator);
 }
 
-IteratorRange<CounterIterator> operator|(Statistics& stats, view::counter_view_adaptor_tag)
+IteratorRange<CounterIterator> operator|(const Statistics& stats, view::counter_view_adaptor_tag)
 {
   return IteratorRange<CounterIterator>{
     CounterIterator{stats, stats.getCounterGroup().gBegin()},

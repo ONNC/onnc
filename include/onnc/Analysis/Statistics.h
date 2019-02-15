@@ -12,7 +12,8 @@
 #include <onnc/ADT/StringList.h>
 #include <onnc/ADT/Uncopyable.h>
 #include <onnc/JSON/Value.h>
-#include <ostream>
+
+#include <iostream>
 
 namespace onnc {
 
@@ -64,8 +65,11 @@ public:
   ~Statistics() = default;
 
   json::Group getCounterGroup() const;
+
+  std::ostream& print(std::ostream& stream = std::cout, const std::string& separator = "\n") const;
 };
 
-} // namespace of skymizer
+
+} // namespace onnc
 
 #endif
