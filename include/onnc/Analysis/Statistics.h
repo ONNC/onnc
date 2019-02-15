@@ -66,6 +66,8 @@ public:
 
   json::Group getCounterGroup() const;
 
+  /// Print all statistics data to the given stream, entries are separated by
+  /// parameter separator
   std::ostream& print(std::ostream& stream = std::cout, const std::string& separator = "\n") const;
 };
 
