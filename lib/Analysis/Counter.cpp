@@ -9,6 +9,7 @@
 #include <onnc/Analysis/GlobalStatistics.h>
 
 #include <cassert>
+#include <string>
 #include <utility>
 
 namespace onnc {
@@ -28,11 +29,13 @@ static const char* g_DefaultValueKey = "default-value";
 static const int   g_DefaultValueDef = (unsigned(-1) - 3);
 static const char* g_ValueKey = "value";
 static const int   g_ValueDef = (unsigned(-1) - 4);
+static const char* g_AllowPrintKey = "is-print";
+static const bool  g_AllowPrintDef = true;
 
 //===----------------------------------------------------------------------===//
 // Counter
 //===----------------------------------------------------------------------===//
-Counter::Counter(StringRef pName, StringRef pDesc, value_type pValue)
+Counter::Counter(const std::string& pName, const std::string& pDesc, value_type pValue, bool allowPrint)
 {
   auto counterGroup = global::stats().getCounterGroup();
   if (counterGroup.hasGroup(pName)) {
@@ -53,11 +56,12 @@ Counter::Counter(StringRef pName, StringRef pDesc, value_type pValue)
     m_Group.writeEntry(g_DescKey        , pDesc      );
     m_Group.writeEntry(g_DefaultValueKey, pValue     );
     m_Group.writeEntry(g_ValueKey       , pValue     );
+    m_Group.writeEntry(g_AllowPrintKey  , allowPrint );
   }
 }
 
-Counter::Counter(StringRef pName, value_type pValue)
-  : Counter{pName, pName, pValue}
+Counter::Counter(const std::string& pName, value_type pValue, bool allowPrint)
+  : Counter{pName, pName, pValue, allowPrint}
 { }
 
 Counter& Counter::operator=(value_type pNumber)
@@ -85,6 +89,11 @@ Counter& Counter::desc(StringRef pDesc)
 Counter::value_type Counter::value() const
 {
   return m_Group.readEntry(g_ValueKey, g_ValueDef);
+}
+
+bool Counter::isAllowPrint() const
+{
+  return m_Group.readEntry(g_AllowPrintKey, g_AllowPrintDef);
 }
 
 Counter& Counter::reset()

@@ -187,6 +187,15 @@ SKYPAT_F(CounterTest, assignment)
   }
 }
 
+SKYPAT_F(CounterTest, isAllowPrint)
+{
+  const auto name = getNewCounterName();
+
+  EXPECT_EQ((Counter{name, 0, false}.isAllowPrint()), false);
+
+  EXPECT_EQ((Counter{name, 0, true}.isAllowPrint()), false);
+}
+
 SKYPAT_F(CounterTest, reset)
 {
   const auto name = getNewCounterName();

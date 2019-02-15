@@ -47,15 +47,18 @@ public:
   /// Constructor. Users can get or create counter be give a name. If there
   /// is already a counter with the same name, just get the existing counter.
   /// otherwise create a new counter with that name. Users can also provide
-  /// a default description and value for the counter.
-  Counter(StringRef pName, StringRef pDesc, value_type pValue = 0);
+  /// a default description and value for the counter. The parameter allowPrint
+  /// is a flag to decide whether this counter is allowed to be printed by
+  /// @ref global::stats()
+  Counter(const std::string& pName, const std::string& pDesc, value_type pValue = 0, bool allowPrint = true);
 
   /// Constructor. Users can get or create counter be give a name. If there
   /// is already a counter with the same name, just get the existing counter.
   /// otherwise create a new counter with that name. Users can also provide
   /// a default value for the counter. The description of this counter is
-  /// same as its name.
-  Counter(StringRef pName, value_type pValue = 0);
+  /// same as its name. The parameter allowPrint is a flag to decide whether
+  /// this counter is allowed to be printed by @ref global::stats()
+  Counter(const std::string& pName, value_type pValue = 0, bool allowPrint = true);
 
   /// Conversion constructor. This create a counter with an associated group object.
   /// The @ref Counter::Create() method can create Counter objects by invoking this
@@ -93,6 +96,8 @@ public:
 
   /// The value of the counter.
   value_type value() const;
+
+  bool isAllowPrint() const;
 
   /// Reset counter value to the default value
   Counter& reset();
