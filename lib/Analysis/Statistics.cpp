@@ -32,7 +32,7 @@ namespace internal {
      return stream << "Counter{ "
                    << "name=\"" << counter.name() << "\""
                    << ", desc=\"" << counter.desc() << "\""
-                   << ", value=\"" << counter << "\""
+                   << ", value=" << counter
                    << " }" << separator;
   }
 } // namespace internal
