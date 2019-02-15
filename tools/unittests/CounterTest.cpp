@@ -11,6 +11,7 @@
 #include <onnc/Analysis/CounterIterator.h>
 #include <onnc/Analysis/GlobalStatistics.h>
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 
@@ -194,6 +195,29 @@ SKYPAT_F(CounterTest, isAllowPrint)
   EXPECT_EQ((Counter{name, 0, false}.isAllowPrint()), false);
 
   EXPECT_EQ((Counter{name, 0, true}.isAllowPrint()), false);
+}
+
+SKYPAT_F(CounterTest, print)
+{
+  const auto name = getNewCounterName();
+
+  const auto getNumOfNewLines = []() {
+    std::ostringstream oss;
+    global::stats().print(oss, "\n");
+
+    const auto output = oss.str();
+    return std::count(begin(output), end(output), '\n');
+  };
+
+  const auto beforeCreateNotAllowPrint = getNumOfNewLines();
+
+  Counter{getNewCounterName(), 0, false};
+  const auto afterCreateNotAllowPrint = getNumOfNewLines();
+  EXPECT_EQ(beforeCreateNotAllowPrint, afterCreateNotAllowPrint);
+
+  Counter{getNewCounterName(), 0, true};
+  const auto afterCreateAllowPrint = getNumOfNewLines();
+  EXPECT_EQ(beforeCreateNotAllowPrint + 1, afterCreateAllowPrint);
 }
 
 SKYPAT_F(CounterTest, reset)
