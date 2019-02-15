@@ -187,6 +187,19 @@ SKYPAT_F(CounterTest, assignment)
   }
 }
 
+SKYPAT_F(CounterTest, reset)
+{
+  const auto name = getNewCounterName();
+  Counter counter{name, 99};
+  EXPECT_EQ(counter, 99);
+
+  ++counter;
+  EXPECT_EQ(counter, 100);
+
+  counter.reset();
+  EXPECT_EQ(counter, 99);
+}
+
 SKYPAT_F(CounterTest, stream)
 {
   {

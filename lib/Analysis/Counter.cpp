@@ -24,8 +24,10 @@ static const char* g_NameKey = "name";
 static const char* g_TypeKey = "type";
 static const int   g_TypeValue = (unsigned(-1) - 2);
 static const char* g_DescKey = "description";
+static const char* g_DefaultValueKey = "default-value";
+static const int   g_DefaultValueDef = (unsigned(-1) - 3);
 static const char* g_ValueKey = "value";
-static const int   g_ValueDef = (unsigned(-1) - 1);
+static const int   g_ValueDef = (unsigned(-1) - 4);
 
 //===----------------------------------------------------------------------===//
 // Counter
@@ -46,10 +48,11 @@ Counter::Counter(StringRef pName, StringRef pDesc, value_type pValue)
     m_Group = counterGroup.addGroup(pName, &exist);
     assert(!exist && "group should be created by only one thread");
 
-    m_Group.writeEntry(g_NameKey, pName);
-    m_Group.writeEntry(g_TypeKey, g_TypeValue);
-    m_Group.writeEntry(g_DescKey, pDesc);
-    m_Group.writeEntry(g_ValueKey, pValue);
+    m_Group.writeEntry(g_NameKey        , pName      );
+    m_Group.writeEntry(g_TypeKey        , g_TypeValue);
+    m_Group.writeEntry(g_DescKey        , pDesc      );
+    m_Group.writeEntry(g_DefaultValueKey, pValue     );
+    m_Group.writeEntry(g_ValueKey       , pValue     );
   }
 }
 
@@ -82,6 +85,18 @@ Counter& Counter::desc(StringRef pDesc)
 Counter::value_type Counter::value() const
 {
   return m_Group.readEntry(g_ValueKey, g_ValueDef);
+}
+
+Counter& Counter::reset()
+{
+  if (!isValid(*this)) {
+    assert(false && "update an invalid counter");
+    return *this;
+  }
+
+  (*this) = m_Group.readEntry(g_DefaultValueKey, g_DefaultValueDef);
+
+  return *this;
 }
 
 Counter::operator value_type() const

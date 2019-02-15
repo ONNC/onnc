@@ -94,6 +94,9 @@ public:
   /// The value of the counter.
   value_type value() const;
 
+  /// Reset counter value to the default value
+  Counter& reset();
+
   /// Casting operator. Cast to the value.
   operator value_type() const;
 
