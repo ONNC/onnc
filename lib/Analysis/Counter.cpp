@@ -35,7 +35,7 @@ static const bool  g_AllowPrintDef = true;
 //===----------------------------------------------------------------------===//
 // Counter
 //===----------------------------------------------------------------------===//
-Counter::Counter(const std::string& pName, const std::string& pDesc, value_type pValue, bool allowPrint)
+Counter::Counter(StringRef pName, StringRef pDesc, value_type pValue, bool allowPrint)
 {
   auto counterGroup = global::stats().getCounterGroup();
   if (counterGroup.hasGroup(pName)) {
@@ -60,7 +60,7 @@ Counter::Counter(const std::string& pName, const std::string& pDesc, value_type 
   }
 }
 
-Counter::Counter(const std::string& pName, value_type pValue, bool allowPrint)
+Counter::Counter(StringRef pName, value_type pValue, bool allowPrint)
   : Counter{pName, pName, pValue, allowPrint}
 { }
 
