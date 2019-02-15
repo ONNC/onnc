@@ -29,11 +29,11 @@ namespace onnc {
 namespace internal {
   std::ostream& print(std::ostream& stream, const Counter& counter, const std::string& separator)
   {
-     return stream << "Counter{ "
-                   << "name=\"" << counter.name() << "\""
-                   << ", desc=\"" << counter.desc() << "\""
-                   << ", value=" << counter
-                   << " }" << separator;
+    return stream << "Counter{ "
+                  << "name=\"" << counter.name() << "\""
+                  << ", desc=\"" << counter.desc() << "\""
+                  << ", value=" << counter
+                  << " }" << separator;
   }
 } // namespace internal
 } // namespace onnc
@@ -66,7 +66,7 @@ std::ostream& Statistics::print(std::ostream& stream, const std::string& separat
 {
   for (const auto counter : (*this) | view::counter) {
     if (counter.isAllowPrint()) {
-        internal::print(stream, counter, separator);
+      internal::print(stream, counter, separator);
     }
   }
 
