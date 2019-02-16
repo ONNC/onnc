@@ -23,7 +23,6 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
-#include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/Analysis/Counter.h>
 
 #include <fstream>

@@ -7,7 +7,6 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Analysis/Counter.h>
-#include <onnc/Analysis/GlobalStatistics.h>
 #include <skypat/skypat.h>
 
 #include <algorithm>

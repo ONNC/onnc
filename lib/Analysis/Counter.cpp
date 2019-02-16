@@ -6,7 +6,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/Counter.h>
-#include <onnc/Analysis/GlobalStatistics.h>
 
 #include <cassert>
 #include <string>

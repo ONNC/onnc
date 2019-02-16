@@ -9,6 +9,7 @@
 #define ONNC_ANALYSIS_COUNTER_H
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Analysis/Counter.h>
+#include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/JSON/Group.h>
 
 #include <functional>
