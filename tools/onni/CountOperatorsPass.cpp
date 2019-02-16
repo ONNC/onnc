@@ -8,7 +8,6 @@
 #include "CountOperatorsPass.h"
 
 #include <onnc/Analysis/Counter.h>
-#include <onnc/Analysis/CounterIterator.h>
 #include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Initializer.h>

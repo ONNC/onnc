@@ -5,11 +5,10 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <skypat/skypat.h>
 #include <onnc/ADT/StringRef.h>
 #include <onnc/Analysis/Counter.h>
-#include <onnc/Analysis/CounterIterator.h>
 #include <onnc/Analysis/GlobalStatistics.h>
+#include <skypat/skypat.h>
 
 #include <algorithm>
 #include <sstream>

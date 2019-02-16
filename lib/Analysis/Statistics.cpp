@@ -6,7 +6,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Analysis/Counter.h>
-#include <onnc/Analysis/CounterIterator.h>
 #include <onnc/Analysis/Statistics.h>
 #include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/Diagnostic/MsgHandling.h>

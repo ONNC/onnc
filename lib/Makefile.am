@@ -254,7 +254,6 @@ ONNC_SOURCES = \
 	Core/Application.cpp \
 	Core/InitializePasses.cpp \
 	Analysis/Counter.cpp \
-	Analysis/CounterIterator.cpp \
 	Analysis/LivenessAnalysis.cpp \
 	Analysis/MemoryAllocation.cpp \
 	Analysis/NodeIRScheduler.cpp \

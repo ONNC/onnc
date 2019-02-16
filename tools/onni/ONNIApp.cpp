@@ -25,7 +25,6 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/Analysis/Counter.h>
-#include <onnc/Analysis/CounterIterator.h>
 
 #include <fstream>
 #include <iomanip>
