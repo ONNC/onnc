@@ -12,6 +12,7 @@
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/ADT/Bits/DigraphArc.h>
 
+#include <algorithm>
 #include <iterator>
 #include <stack>
 #include <set>
@@ -251,10 +252,22 @@ bool PassManager::needRun(Pass& pPass, Module& pModule)
 
 void PassManager::movePassToStore(Pass* pass)
 {
-   assert(pass != nullptr);
+  assert(pass != nullptr);
 
-   const auto passId = pass->getPassID();
-   m_passStore[passId].emplace_back(std::unique_ptr<Pass>{pass});
+  const auto passId = pass->getPassID();
+
+  // check whether the pass was already added, only add it if
+  // not in the pass store; or issue an error
+  auto& passes = m_passStore[passId];
+  const auto found = std::find_if(
+    begin(passes), end(passes),
+    [pass](const auto& stored) { return stored.get() == pass; }
+  );
+  if (found == end(passes)) {
+    passes.emplace_back(pass);
+  } else {
+    assert(false && "cannot add a pass twice");
+  }
 }
 
 Pass::ReturnType PassManager::doRun(Pass& pPass, Module& pModule)
