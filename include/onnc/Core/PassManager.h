@@ -10,7 +10,9 @@
 
 #include <deque>
 #include <map>
+#include <memory>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
 
 #include <onnc/Core/Pass.h>
@@ -29,8 +31,16 @@ class TargetBackend;
  */
 class PassManager
 {
+private:
+  using PassStore = std::unordered_map<
+    Pass::AnalysisID, std::vector<std::unique_ptr<Pass>>
+  >;
+  using LastExecuted = std::unordered_map<
+    Pass::AnalysisID, Pass*
+  >;
+
 public:
-  typedef std::deque<Pass::AnalysisID> ExecutionOrder;
+  using ExecutionOrder = std::deque<Pass*>;
 
   /// run state
   struct State {
@@ -105,7 +115,7 @@ public:
 
   const State& state() const { return m_RunState; }
 
-  Pass* lookup(Pass::AnalysisID pID);
+  Pass* getPass(Pass::AnalysisID passId) const;
 
   PassRegistry* getPassRegistry() { return m_pPassRegistry; }
 
@@ -117,13 +127,12 @@ private:
   struct DepNode : public DigraphNode<DepNode>
   {
   public:
-    DepNode(Pass* pPass) : pass(pPass) { }
-
-    // since passes are delegated, we release memory in Digraph destruction.
-    ~DepNode() { delete pass; }
+    explicit DepNode(Pass::AnalysisID passId) noexcept
+      : passId{passId}
+    { }
 
   public:
-    Pass *pass;
+    const Pass::AnalysisID passId;
   };
 
   /// The start pass for lattice.
@@ -140,16 +149,15 @@ private:
     StringRef getPassName() const override { return "start"; }
   };
 
-  typedef Digraph<DepNode> PassDependencyLattice;
-
-  typedef std::map<Pass::AnalysisID, DepNode*> AvailableAnalysisMap;
+  using DepGraph = Digraph<DepNode>;
+  using DepNodes = std::unordered_map<Pass::AnalysisID, DepNode*>;
 
 private:
   /// Dependency graph operator: find a node
   DepNode* findNode(Pass::AnalysisID pID) const;
 
   /// Dependency graph operator: add a node
-  DepNode* addNode(Pass& pPass);
+  DepNode* addNode(Pass::AnalysisID passId);
 
   /// Dependency graph operator
   /// @retval true If the pass @ref pID has been added.
@@ -160,7 +168,10 @@ private:
   ///
   /// @note The function can be called multiple times with the same pPass
   ///       without side effect.
-  void addPassToDependencyGraph(Pass* pPass, TargetBackend* pBackend);
+  void addPassToDependencyGraph(Pass::AnalysisID passId, TargetBackend* pBackend);
+
+  /// Move ownership of the parameter pass into this
+  void movePassToStore(Pass* pass);
 
   /// Run the pass
   Pass::ReturnType doRun(Pass& pPass, Module& pModule);
@@ -171,14 +182,26 @@ private:
   /// dependent passes are added to exe queue unconditionally.
   void addPassToExeQueue(Pass* pPass, State& pState);
 
+  bool hasLastExecuted(Pass::AnalysisID passId) const;
+
+  Pass* getLastExecuted(Pass::AnalysisID passId) const;
+
+  void setLastExecuted(Pass& pass);
+
+  Pass* getLastExecutedOrFromStore(Pass::AnalysisID passId) const;
+
 private:
   PassRegistry* m_pPassRegistry;
 
   // a graph describes the dependencies among passes.
-  PassDependencyLattice m_Dependencies;
+  DepGraph m_depGraph;
 
   // A map from ID to node in dependency graph.
-  AvailableAnalysisMap m_AvailableAnalysis;
+  DepNodes m_depNodes;
+
+  LastExecuted m_lastExecuted;
+
+  PassStore m_passStore;
 
   State m_RunState;
 
