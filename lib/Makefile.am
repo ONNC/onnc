@@ -253,6 +253,7 @@ ONNC_SOURCES = \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
 	Core/InitializePasses.cpp \
+	Analysis/Counter.cpp \
 	Analysis/LivenessAnalysis.cpp \
 	Analysis/MemoryAllocation.cpp \
 	Analysis/NodeIRScheduler.cpp \

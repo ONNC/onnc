@@ -23,9 +23,10 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
-#include <onnc/Analysis/GlobalStatistics.h>
+#include <onnc/Analysis/Counter.h>
 
 #include <fstream>
+#include <iomanip>
 #include <memory>
 #include <string>
 
@@ -110,10 +111,7 @@ int ONNIApp::run()
 
   if (options().verbose() >= 3) {
     errs() << "==== print CountOperatorsPass result again ====\n";
-    StringList opList = global::stats()->counterList();
-    for(auto listItr=opList.begin(); listItr != opList.end(); ++listItr){
-      global::stats()->printCounter(*listItr, errs());
-    }
+    global::stats().print();
     errs() << "==== end again of printing CountOperatorsPass ====\n";
   }
   return EXIT_SUCCESS;
