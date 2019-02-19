@@ -97,11 +97,6 @@ bool Counter::isAllowPrint() const
 
 Counter& Counter::reset()
 {
-  if (!isValid(*this)) {
-    assert(false && "update an invalid counter");
-    return *this;
-  }
-
   (*this) = m_Group.readEntry(g_DefaultValueKey, g_DefaultValueDef);
 
   return *this;
@@ -134,11 +129,6 @@ Counter& Counter::operator--(int)
 
 Counter& Counter::operator+=(value_type number)
 {
-  if (!isValid(*this)) {
-    assert(false && "update an invalid counter");
-    return *this;
-  }
-
   const auto original = static_cast<value_type>(*this);
   return (*this) = (original + number);
 }
@@ -149,17 +139,9 @@ Counter& Counter::operator-=(value_type number)
   return (*this) += (-number);
 }
 
-Counter::Counter(json::Group group)
+Counter::Counter(json::Group&& group)
   : m_Group{std::move(group)} {
   assert(isCounter(m_Group) && "create object by non-counter group");
-}
-
-bool Counter::isValid(const Counter& counter)
-{
-  int type = counter.m_Group.readEntry(g_TypeKey, g_TypeValue + 1);
-
-  // the group have neither "type" entry nor right type.
-  return (g_TypeValue == type);
 }
 
 bool isCounter(const json::Group& pGroup)
@@ -171,9 +153,6 @@ bool isCounter(const json::Group& pGroup)
 }
 
 namespace internal {
-  Counter toCounter(const json::Group& group) {
-    return Counter{group};
-  }
 } // namespace internal
 
 //===----------------------------------------------------------------------===//
@@ -183,14 +162,14 @@ CounterIterator::CounterIterator()
   : m_pStatistics{nullptr}
   , m_Iterator{}
   , m_Predicate{isCounter}
-  , m_Generator{internal::toCounter}
+  , m_Generator{toCounter}
 { }
 
 CounterIterator::CounterIterator(const range_type& stats, range_iterator iter)
   : m_pStatistics{&stats}
   , m_Iterator{iter}
   , m_Predicate{isCounter}
-  , m_Generator{internal::toCounter}
+  , m_Generator{toCounter}
 { }
 
 CounterIterator& CounterIterator::operator++()

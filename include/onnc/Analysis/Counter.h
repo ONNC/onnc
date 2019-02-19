@@ -15,6 +15,7 @@
 #include <functional>
 #include <iterator>
 #include <type_traits>
+#include <utility>
 
 namespace onnc {
 
@@ -45,6 +46,8 @@ public:
   using value_type = int;
 
 public:
+  friend class CounterIterator;
+
   /// Default constructor. This create an empty group object without any value.
   /// In this case, the counter object is invalid and users can not increase/
   /// decrease its value.
@@ -65,11 +68,6 @@ public:
   /// same as its name. The parameter allowPrint is a flag to decide whether
   /// this counter is allowed to be printed by @ref global::stats()
   Counter(StringRef pName, value_type pValue = 0, bool allowPrint = true);
-
-  /// Conversion constructor. This create a counter with an associated group object.
-  /// The @ref Counter::Create() method can create Counter objects by invoking this
-  /// constructor, and the created counter objects are all valid.
-  explicit Counter(json::Group group);
 
   /// Copy constructor. Copy the value of the counter from the others. Since
   /// a Counter object is just an abstract interface of a json::Group object,
@@ -125,9 +123,10 @@ public:
 
   Counter& operator-=(value_type number);
 
-  /// If a counter wasn't given a group, it isn't active.
-  /// A Counter object created by default constructor is invalid.
-  static bool isValid(const Counter& counter);
+private:
+  /// Conversion constructor. This create a counter with an associated group object.
+  /// The @ref CounterIterator can create Counter objects by invoking this constructor
+  explicit Counter(json::Group&& group);
 
 private:
   json::Group m_Group;
@@ -181,6 +180,11 @@ public:
 
   bool operator!=(const CounterIterator& pOther) const {
     return !(*this == pOther);
+  }
+
+private:
+  static Counter toCounter(json::Group group) {
+    return Counter{std::move(group)};
   }
 
 private:
