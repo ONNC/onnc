@@ -24,7 +24,7 @@
 
 #include "fp16.h"
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #define NVDLA_DBG printf
 #else
 #define NVDLA_DBG
