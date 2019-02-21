@@ -36,7 +36,6 @@
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
-#include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConcatLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConvLower.h>
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
@@ -131,7 +130,7 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   //pRegistry.emplace<MulLower>();
   //pRegistry.emplace<AddLower>();
   pRegistry.emplace<SumLower>();  // N Adds
-  pRegistry.emplace<BatchNormalizationLower>();
+  // pRegistry.emplace<BatchNormalizationLower>();
 
   //PDP
   pRegistry.emplace<MaxPoolLower>();

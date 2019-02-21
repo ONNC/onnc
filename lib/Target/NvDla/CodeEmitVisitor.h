@@ -42,7 +42,6 @@ public:
   void visit(const Softmax& pSoftmax) override;
   void visit(const Concat& pConcat) override;
   void visit(const Sum& pSum) override;
-  void visit(const BatchNormalization& pNormal) override;
   /// @}
   //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
   void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);
