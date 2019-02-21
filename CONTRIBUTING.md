@@ -5,7 +5,7 @@ please join [mailing list](https://maillist.onnc.ai/) now! now!
 
 1. Ensure your idea have discussed in [mailing list](https://maillist.onnc.ai/).
 1. Post your summary and implementation plan in [Issues](https://github.com/ONNC/onnc/issues).
-1. Implement and run [unittest](https://github.com/ONNC/onnc/CONTRIBUTING.md#running-unittests).
+1. Implement and run [unittest](#running-unittests).
 1. Create Pull Request, then report PR number to corresponding mailing list or Issues.
 
 #### Running unittests
