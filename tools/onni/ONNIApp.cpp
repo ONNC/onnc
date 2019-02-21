@@ -9,7 +9,6 @@
 
 #include "CountOperatorsPass.h"
 #include "InterpreterPass.h"
-#include "OnnxOptPass.h"
 
 #include <onnc/ADT/Color.h>
 #include <onnc/Config/ONNX.h>
@@ -24,6 +23,7 @@
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Analysis/Counter.h>
+#include <onnc/Transforms/OnnxOptPass.h>
 
 #include <fstream>
 #include <iomanip>

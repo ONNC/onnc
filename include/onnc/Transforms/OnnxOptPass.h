@@ -5,13 +5,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_ONNX_OPT_PASS_H
-#define ONNC_ONNX_OPT_PASS_H
+#ifndef ONNC_TRANSFORM_ONNX_OPT_PASS_H
+#define ONNC_TRANSFORM_ONNX_OPT_PASS_H
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-
-class TargetBackend;
 
 // XXX: Experimental
 

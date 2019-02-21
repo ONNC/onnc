@@ -5,11 +5,10 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "OnnxOptPass.h"
-
 #include <onnc/Config/ONNX.h>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/ONNXWrapper/ONNXWrapper.h>
+#include <onnc/Transforms/OnnxOptPass.h>
 
 #include <onnx/optimizer/optimize.h>
 
