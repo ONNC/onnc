@@ -65,8 +65,13 @@ Pass::ReturnType OnnxOptPass::runOnModule(Module &pModule)
   return Pass::kModuleChanged;
 }
 
-OnnxOptPass& OnnxOptPass::add(Option option)
+OnnxOptPass& OnnxOptPass::add(Option option) &
 {
   names.emplace(internal::getOptionName(option));
   return *this;
+}
+
+OnnxOptPass&& OnnxOptPass::add(Option option) &&
+{
+  return static_cast<OnnxOptPass&&>(add(option));
 }

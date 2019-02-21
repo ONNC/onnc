@@ -35,12 +35,13 @@ public:
 
 public:
   OnnxOptPass() = default;
-  OnnxOptPass(const OnnxOptPass&) = delete;
+  OnnxOptPass(const OnnxOptPass&) = default;
   OnnxOptPass(OnnxOptPass&&) = default;
 
   ReturnType runOnModule(Module& pModule) override;
 
-  OnnxOptPass& add(Option option);
+  OnnxOptPass&  add(Option option) &;
+  OnnxOptPass&& add(Option option) &&;
 
 private:
   std::set<std::string> names;
