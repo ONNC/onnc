@@ -126,8 +126,8 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<ReluLower>();
   //pRegistry.emplace<MulLower>();
   //pRegistry.emplace<AddLower>();
-  //pRegistry.emplace<SumLower>();  // N Adds
-  //pRegistry.emplace<BatchNormalizationLower>();
+  pRegistry.emplace<SumLower>();  // N Adds
+  pRegistry.emplace<BatchNormalizationLower>();
 
   //PDP
   pRegistry.emplace<MaxPoolLower>();

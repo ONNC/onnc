@@ -12,9 +12,11 @@
 #include <onnc/IR/Compute/LRN.h>
 #include <onnc/IR/Compute/MaxPool.h>
 #include <onnc/IR/Compute/AveragePool.h>
+#include <onnc/IR/Compute/BatchNormalization.h>
 #include <onnc/IR/Compute/Relu.h>
 #include <onnc/IR/Compute/Gemm.h>
 #include <onnc/IR/Compute/Softmax.h>
+#include <onnc/IR/Compute/Sum.h>
 #include <onnc/IR/Compute/Concat.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -1356,4 +1358,16 @@ void CodeEmitVisitor::issueDlaOp(NvDlaDlaOperation *op, NvDlaDlaOperation *op_fu
     m_pMeta.m_pPrevOp = op;
   }
 
+}
+
+void CodeEmitVisitor::visit(const Sum& pSum)
+{
+  pSum.print(errs());
+  errs() << "\n";
+}
+
+void CodeEmitVisitor::visit(const BatchNormalization& pBatchNormalization)
+{
+  pBatchNormalization.print(errs());
+  errs() << "\n";
 }
