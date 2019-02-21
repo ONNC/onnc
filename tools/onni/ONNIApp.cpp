@@ -35,15 +35,35 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // ONNIApp
 //===----------------------------------------------------------------------===//
+namespace onnc {
+namespace internal {
+  void enableOnnxOptmization(PassManager& passManager)
+  {
+    using Option = OnnxOptPass::Option;
+
+    OnnxOptPass pass;
+    pass.add(Option::extract_constant_to_initializer)
+        .add(Option::fuse_add_bias_into_conv)
+        .add(Option::fuse_bn_into_conv)
+        .add(Option::fuse_consecutive_squeezes)
+        .add(Option::fuse_consecutive_transposes)
+        .add(Option::fuse_transpose_into_gemm)
+        .add(Option::eliminate_identity)
+        .add(Option::eliminate_nop_pad)
+        .add(Option::eliminate_nop_transpose)
+        .add(Option::eliminate_unused_initializer)
+      ;
+
+    passManager.add<OnnxOptPass>(std::move(pass));
+  }
+} // namespace internal
+} // namespace onnc
+
 ONNIApp::ONNIApp(int pArgc, char* pArgv[])
   : onnc::CoreApplication(pArgc, pArgv),
     m_Options() {
   InitializeAllPlatforms();
   InitializeAllBackends();
-}
-
-ONNIApp::~ONNIApp()
-{
 }
 
 int ONNIApp::run()
@@ -70,7 +90,7 @@ int ONNIApp::run()
   PassManager pm;
 
   if (options().onnxOpt()) {
-    pm.add<OnnxOptPass>();
+    internal::enableOnnxOptmization(pm);
   }
 
   const auto backend = std::unique_ptr<TargetBackend>{target->createBackend(options().target())};
