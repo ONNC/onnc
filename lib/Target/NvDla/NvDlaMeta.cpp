@@ -163,6 +163,11 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
 
       {
         int atom_per_channel = (dim_c * element_size + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
+#if FEATURE_ATOM_CUBE_SIZE == 8
+        // FIXME: @cthsieh: I think the nv_small hardware has a different way to calculate this attribute from the nv_full.
+        // Need confirmation.
+        int entry_per_slice = atom_per_channel * dim_w;
+#else
         int entry_per_slice = (atom_per_channel / 4) * dim_w;
         switch((atom_per_channel % 4)) {
           case 3:
@@ -175,22 +180,26 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
             entry_per_slice += (dim_w + 3)/4;
             break;
         } // end of siwtch
+#endif
         eps = entry_per_slice;
       }
-      banks = ((eps * dim_h) + 255)/ 256;
+      banks = ((eps * dim_h) + CBUF_BANK_DEPTH - 1)/ CBUF_BANK_DEPTH;
       break;
     case NVDLA_CUBE_WEIGHT:
-      size = (dim_n * dim_c * dim_h * dim_w * element_size);
+      size = (dim_n * dim_c * dim_h * dim_w * element_size);//FIXME: why not need padding?
       eps = 0;
       stride_channel = element_size;
       stride_line = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
       stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
-      banks = (dim_n * dim_c * dim_h * dim_w * element_size + 128 + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
-      if(banks > 16) {
-        banks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
-        if(banks > 16)
+      //FIXME:                                                 V-- Why needs to multiply this?
+      banks = (dim_n * dim_c * dim_h * dim_w * element_size + WEIGHT_ATOM_CUBE_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+      // Must  at least one bank for data.
+      if(banks > (CBUF_BANK_NUM - 1)) {
+        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+        if(banks > (CBUF_BANK_NUM - 1)) {
           banks /= 2;
-          reduced = true;
+        }
+        reduced = true;//FIXME: Not clear what `reduce` means? 
       }
       break;
   } // end of switch
@@ -202,7 +211,7 @@ int NvDlaCubeInfo::getReducedBanks() const
     case NVDLA_CUBE_FEATURE:
       return banks;
     case NVDLA_CUBE_WEIGHT: {
-      int rbanks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+      int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced) {
         rbanks /= 2;
       }
@@ -218,7 +227,7 @@ void NvDlaCubeInfo::reduceBanks()
     case NVDLA_CUBE_FEATURE:
       break;
     case NVDLA_CUBE_WEIGHT:
-      banks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+      banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced)
         banks /= 2;
       break;

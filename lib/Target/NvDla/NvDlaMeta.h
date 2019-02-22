@@ -24,17 +24,28 @@
 
 #include "fp16.h"
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
 #define NVDLA_DBG printf
-#else
-#define NVDLA_DBG
-#endif
+//#else
+//#define NVDLA_DBG
+//#endif
 
 using namespace nvdla;
 using namespace nvdla::priv;
 
-#define FEATURE_ATOM_CUBE_SIZE  32
-#define WEIGHT_ATOM_CUBE_SIZE  128
+#define FEATURE_ATOM_CUBE_SIZE  8 //32
+#define WEIGHT_ATOM_CUBE_SIZE  8 //128
+
+// FIXME: use macro or variable?
+// ------------------------------
+#define ELEMENT_SIZE 1 // 2
+#define CBUF_BANK_DEPTH 512 // 256
+#define CBUF_BANK_NUM 32 // 16
+#define MAC_ATOMIC_C 8 // 64
+#define MAC_ATOMIC_K 8 // 16
+// ------------------------------
+
+typedef char nv_weight_t;
 
 namespace onnc {
 
