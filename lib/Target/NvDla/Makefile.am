@@ -8,7 +8,9 @@ ONNC_TARGET_SOURCES += \
   Target/NvDla/NvDlaTaskSubmitPass.cpp \
   Target/NvDla/fp16.c \
   Target/NvDla/TargetInfo/NvDlaTargetInfo.cpp \
-  Target/NvDla/TargetInfo/NvDlaTargetMemInfo.cpp
+  Target/NvDla/TargetInfo/NvDlaTargetMemInfo.cpp \
+  Target/NvDla/Compute/NvDlaConvRelu.cpp \
+  Target/NvDla/NvDlaFuseConvReluPass.cpp
 
 ONNC_INCLUDES += \
   -I${srcdir}/Target/NvDla/include

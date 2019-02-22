@@ -12,13 +12,15 @@
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/CustomVisitor.h>
+#include "Compute/NvDlaConvRelu.h"
+#include "NvDlaComputeVisitor.h"
 #include "NvDlaMeta.h"
 
 namespace onnc {
 
 namespace nvdla {
 
-class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
+class CodeEmitVisitor : public NvDlaComputeVisitor
 {
 public:
   explicit CodeEmitVisitor(NvDlaBackendMeta &meta) noexcept
@@ -41,6 +43,8 @@ public:
   void visit(const Gemm& pGemm) override;
   void visit(const Softmax& pSoftmax) override;
   void visit(const Concat& pConcat) override;
+  void visit(const NvDlaConvRelu& pConvRelu) override;
+  
   /// @}
   //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
   void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);

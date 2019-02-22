@@ -12,6 +12,8 @@ add_libonnc_src(
     NvDlaMemInfoPass.cpp
     NvDlaMeta.cpp
     NvDlaTaskSubmitPass.cpp
+    Compute/NvDlaConvRelu.cpp
+    NvDlaFuseConvReluPass.cpp
 )
 
 add_subdirectory(TargetInfo)

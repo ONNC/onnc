@@ -19,6 +19,7 @@
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
+#include "Compute/NvDlaConvRelu.h"
 
 #include "fp16.h"
 
@@ -1133,8 +1134,17 @@ void CodeEmitVisitor::visit(const Concat& pOp) {
   for (int i = 0; i < input_inputs_ntensor; ++i){
     delete [] input_inputs_dims[i];
   }
-};
+}
 
+void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
+{
+  printf("------------------> Hello! ConvRelu is here.\n");
+  pConvRelu.m_Conv.print(errs());
+  errs() << "\n";
+  pConvRelu.m_Relu.print(errs());
+  errs() << "\n";
+  printf("=================== Hello! ConvRelu is here.\n");
+}
 
 int CodeEmitVisitor::packWeight(const Tensor *t, int dims[4], int gidx)
 {
