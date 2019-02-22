@@ -11,7 +11,6 @@
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Relu.h>
-#include "../NvDlaComputeVisitor.h"
 
 namespace onnc {
 
