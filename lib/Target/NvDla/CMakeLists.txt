@@ -16,6 +16,7 @@ add_libonnc_src(
     Compute/NvDlaGemmRelu.cpp
     NvDlaFuseConvReluPass.cpp
     NvDlaFuseGemmReluPass.cpp
+    NvDlaLayerFusionPass.cpp
 )
 
 add_subdirectory(TargetInfo)

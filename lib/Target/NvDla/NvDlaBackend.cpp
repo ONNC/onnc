@@ -16,6 +16,7 @@
 #include "NvDlaFileGenPass.h"
 #include "NvDlaFuseConvReluPass.h"
 #include "NvDlaFuseGemmReluPass.h"
+#include "NvDlaLayerFusionPass.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -83,8 +84,11 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
+  //FIXME: It does not work if using two passes to do two kinds of fusion. The second pass does not work correctly.
+  // Some layers got removed accidentially. If the second pass works alone without the first pass, the second pass works well.
   //pPM.add<NvDlaFuseConvReluPass>();
-  pPM.add<NvDlaFuseGemmReluPass>();
+  //pPM.add<NvDlaFuseGemmReluPass>();
+  pPM.add<NvDlaLayerFusionPass>();
 }
 
 void NvDlaBackend::addTensorSched(PassManager& pPM)
