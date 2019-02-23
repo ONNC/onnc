@@ -10,7 +10,9 @@ ONNC_TARGET_SOURCES += \
   Target/NvDla/TargetInfo/NvDlaTargetInfo.cpp \
   Target/NvDla/TargetInfo/NvDlaTargetMemInfo.cpp \
   Target/NvDla/Compute/NvDlaConvRelu.cpp \
-  Target/NvDla/NvDlaFuseConvReluPass.cpp
+  Target/NvDla/Compute/NvDlaGemmRelu.cpp \
+  Target/NvDla/NvDlaFuseConvReluPass.cpp \
+  Target/NvDla/NvDlaFuseGemmReluPass.cpp
 
 ONNC_INCLUDES += \
   -I${srcdir}/Target/NvDla/include

@@ -1,4 +1,4 @@
-//===- NvDlaFuseConvReluPass.cpp ------------------------------------------===//
+//===- NvDlaFuseGemmReluPass.cpp ------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -6,17 +6,17 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Core/PassSupport.h>
-#include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/Compute/Gemm.h>
 #include <onnc/IR/Compute/Relu.h>
-#include "Compute/NvDlaConvRelu.h"
-#include "NvDlaFuseConvReluPass.h"
+#include "Compute/NvDlaGemmRelu.h"
+#include "NvDlaFuseGemmReluPass.h"
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// FuseConvReluPass
+// NvDlaFuseGemmReluPass
 //===----------------------------------------------------------------------===//
-Pass::ReturnType NvDlaFuseConvReluPass::runOnModule(Module& pModule)
+Pass::ReturnType NvDlaFuseGemmReluPass::runOnModule(Module& pModule)
 {
   Pass::ReturnType ret = Pass::kModuleNoChanged;
   Module::cg_iterator cg, cgEnd = pModule.cgEnd();
@@ -26,7 +26,7 @@ Pass::ReturnType NvDlaFuseConvReluPass::runOnModule(Module& pModule)
   return ret;
 }
 
-Pass::ReturnType NvDlaFuseConvReluPass::runOnComputeGraph(ComputeGraph& pCG)
+Pass::ReturnType NvDlaFuseGemmReluPass::runOnComputeGraph(ComputeGraph& pCG)
 {
   Pass::ReturnType ret = Pass::kModuleNoChanged;
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
@@ -36,13 +36,13 @@ Pass::ReturnType NvDlaFuseConvReluPass::runOnComputeGraph(ComputeGraph& pCG)
     if (!isFusible(*node))
       continue;
 
-    // Create ConvRelu to fuse Conv and Relu.
-    Conv& conv = *(Conv *)node;
-    Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
+    // Create GemmRelu to fuse Gemm and Relu.
+    Gemm& gemm = *(Gemm *)node;
+    Relu& relu = *(Relu *)gemm.getOutput(0)->getUses()[0].getUser();
 
-    mergeConvRelu(pCG, conv, relu);
+    mergeGemmRelu(pCG, gemm, relu);
 
-    pCG.erase(conv);
+    pCG.erase(gemm);
     pCG.erase(relu);
 
     ret |= Pass::kModuleChanged;
@@ -53,14 +53,14 @@ Pass::ReturnType NvDlaFuseConvReluPass::runOnComputeGraph(ComputeGraph& pCG)
   return ret;
 }
 
-bool NvDlaFuseConvReluPass::isFusible(ComputeOperator& pNode)
+bool NvDlaFuseGemmReluPass::isFusible(ComputeOperator& pNode)
 {
-  if (!isa<Conv>(&pNode))
+  if (!isa<Gemm>(&pNode))
     return false;
 
   Value* outv = pNode.getOutput(0);
 
-  // if Conv's result has more than one users, we can't fuse it.
+  // if Gemm's result has more than one users, we can't fuse it.
   if (outv->getUses().size() > 1)
     return false;
 
@@ -70,22 +70,22 @@ bool NvDlaFuseConvReluPass::isFusible(ComputeOperator& pNode)
   return true;
 }
 
-NvDlaConvRelu* NvDlaFuseConvReluPass::mergeConvRelu(ComputeGraph& pCG,
-                                                    Conv& pConv, Relu& pRelu)
+NvDlaGemmRelu* NvDlaFuseGemmReluPass::mergeGemmRelu(ComputeGraph& pCG,
+                                                    Gemm& pGemm, Relu& pRelu)
 {
   Value* outv = pRelu.getOutput(0);
-  Value* out_conv = pConv.getOutput(0);
-  pConv.replaceOutput(0, *outv);
-  pCG.erase(*out_conv);
+  Value* out_gemm = pGemm.getOutput(0);
+  pGemm.replaceOutput(0, *outv);
+  pCG.erase(*out_gemm);
   // FIXME: need move newOp to correct position.
-  NvDlaConvRelu* newOp = pCG.addOperator<NvDlaConvRelu>(pConv, pRelu);
+  NvDlaGemmRelu* newOp = pCG.addOperator<NvDlaGemmRelu>(pGemm, pRelu);
   Value* emptyV = new Value;
 
-  for (unsigned i = 0; i < pConv.getNumOfInputs(); ++i) {
-    newOp->addInput(*pConv.getInput(i));
+  for (unsigned i = 0; i < pGemm.getNumOfInputs(); ++i) {
+    newOp->addInput(*pGemm.getInput(i));
 
     // FIXME: need implement ComputeOperator::removeAllInputs.
-    pConv.replaceInput(i, *emptyV);
+    pGemm.replaceInput(i, *emptyV);
   }
   pRelu.replaceInput(0, *emptyV);
 
@@ -97,5 +97,5 @@ NvDlaConvRelu* NvDlaFuseConvReluPass::mergeConvRelu(ComputeGraph& pCG,
 
 namespace onnc
 {
-  INITIALIZE_PASS(NvDlaFuseConvReluPass, "NvDlaFuseConvReluPass")
+  INITIALIZE_PASS(NvDlaFuseGemmReluPass, "NvDlaFuseGemmReluPass")
 }

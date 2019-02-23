@@ -20,6 +20,7 @@
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include "Compute/NvDlaConvRelu.h"
+#include "Compute/NvDlaGemmRelu.h"
 
 #include "fp16.h"
 
@@ -855,8 +856,8 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     NvDlaCubeInfo binfo(NVDLA_CUBE_FEATURE, input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3], ELEMENT_SIZE);
     NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3], ELEMENT_SIZE);
 
-    if(finfo.banks + winfo.banks > 16){
-      if(finfo.banks + winfo.getReducedBanks() <= 16){
+    if(finfo.banks + winfo.banks > CBUF_BANK_NUM){
+      if(finfo.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM){
         winfo.reduceBanks();
       } else {
         //split
@@ -1446,6 +1447,279 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
   }
 
 }
+
+
+void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
+{
+  printf("------------------> Hello! GemmRelu is here.\n");
+  pGemmRelu.m_Gemm.print(errs());
+  errs() << "\n";
+  pGemmRelu.m_Relu.print(errs());
+  errs() << "\n";
+  printf("=================== Hello! GemmRelu is here.\n");
+
+  const Gemm& pOp = pGemmRelu.m_Gemm;
+  pOp.print(errs());
+  errs() << "\n";
+
+  // Prepare attributes
+  float alpha = pOp.getAlpha().value();
+  float beta = pOp.getBeta().value();
+  int32_t transA = pOp.getTransA().value();
+  int32_t transB = pOp.getTransB().value();
+
+  NVDLA_DBG("GEMM tA[%d] tB[%d] alpha[%f] beta[%f]\n", transA, transB, alpha, beta);
+  if(transA == 0 && transB == 1 && alpha == 1.0 && beta == 1.0){
+    // Prepare input
+    const Tensor *input_A_t = pOp.getInput(0);
+    //void *input_A = m_ATable[input_A_t];
+    int32_t input_A_ndim = input_A_t->getNumOfDimensions();
+    int32_t input_A_dims[4] = {1, 1, 1, 1};
+    for (int i = 0; i < input_A_ndim; ++i) input_A_dims[i] = input_A_t->dimension(i);
+    int A_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_A_t];
+    ILoadable::MemoryListEntry A_mle = m_pMeta.m_MemoryListEntries[A_mid];
+
+    const Tensor *input_B_t = pOp.getInput(1);
+    //void *input_B = m_ATable[input_B_t];
+    int32_t input_B_ndim = input_B_t->getNumOfDimensions();
+    int32_t input_B_dims[4] = {1, 1, 1, 1};
+    for (int i = 0; i < input_B_ndim; ++i) input_B_dims[i] = input_B_t->dimension(i);
+
+    const Tensor *input_C_t = pOp.getInput(2);
+    //void *input_C = m_ATable[input_C_t];
+    int32_t input_C_ndim = input_C_t->getNumOfDimensions();
+    int32_t input_C_dims[4] = {1, 1, 1, 1};
+    for (int i = 0; i < input_C_ndim; ++i) input_C_dims[i] = input_C_t->dimension(i);
+
+    // Prepare output
+    const Tensor *output_Y_t = pOp.getOutput(0);
+    //void *output_Y = m_ATable[output_Y_t];
+    int32_t output_Y_ndim = output_Y_t->getNumOfDimensions();
+    int32_t output_Y_dims[4] = {1, 1, 1, 1};
+    for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
+    int Y_mid = m_pMeta.m_MemIdxTable[(Tensor *)output_Y_t];
+    ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
+
+    NVDLA_DBG(
+      "GEMM A(%d %d %d %d), B(%d %d %d %d), C(%d %d %d %d) Y(%d %d %d %d)\n",
+      input_A_dims[0], input_A_dims[1], input_A_dims[2], input_A_dims[3],
+      input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3],
+      input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3],
+      output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]
+    );
+
+    if(m_pMeta.m_ReshapeTable.find(input_B_t) != m_pMeta.m_ReshapeTable.end()){
+      input_B_t = m_pMeta.m_ReshapeTable[input_B_t];
+    }
+
+    if(m_pMeta.m_ReshapeTable.find(input_A_t) != m_pMeta.m_ReshapeTable.end()){
+      input_A_t = m_pMeta.m_ReshapeTable[input_A_t];
+      //input_A_dims[4] = {1, 1, 1, 1};
+      input_A_ndim = input_A_t->getNumOfDimensions();
+      for (int i = 0; i < input_A_ndim; ++i) input_A_dims[i] = input_A_t->dimension(i);
+      A_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_A_t];
+      A_mle = m_pMeta.m_MemoryListEntries[A_mid];
+      for(int i = 1; i < 4; i++)
+        input_B_dims[i] = input_A_dims[i];
+      NVDLA_DBG(
+        "RESHAPE GEMM FOUND X(%d %d %d %d) new B(%d %d %d %d) ############################\n",
+        input_A_dims[0], input_A_dims[1], input_A_dims[2], input_A_dims[3],
+        input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3]
+      );
+    }
+
+    int B_mid = packWeight(input_B_t, input_B_dims, 0);
+    ILoadable::MemoryListEntry B_mle = m_pMeta.m_MemoryListEntries[B_mid];
+    int C_mid = packBias(input_C_t, input_C_dims, 0);
+    ILoadable::MemoryListEntry C_mle = m_pMeta.m_MemoryListEntries[C_mid];
+
+    NvDlaDlaOperation *conv_op = new NvDlaDlaOperation();
+    NvDlaDlaOperation *add_op = NULL;
+    conv_op->op_dep.op_type = DLA_OP_CONV;
+
+    struct dla_conv_op_desc *conv_desc = (struct dla_conv_op_desc *)(&(conv_op->op_desc));
+    //NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + (input_W_dims[2] - 1), input_X_dims[3], sizeof(short));
+    NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_A_dims[0], input_A_dims[1], input_A_dims[2], input_A_dims[3], ELEMENT_SIZE);
+    NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3], ELEMENT_SIZE);
+    NvDlaCubeInfo binfo(NVDLA_CUBE_FEATURE, input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3], ELEMENT_SIZE);
+    NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3], ELEMENT_SIZE);
+
+    if(finfo.banks + winfo.banks > CBUF_BANK_NUM){
+      if(finfo.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM){
+        winfo.reduceBanks();
+      } else {
+        //split
+        #if 0
+        int restBanks = 16 - winfo.banks;
+        if(restBanks > 0){
+          max_conv_H = (256 * restBanks) / fcube_group.eps;
+          NVDLA_DBG ("max_conv_H: %d\n", max_conv_H);
+        } else {
+          // TODO, return critical error
+        }
+        #endif
+        // TODO, return critical error
+      }
+    }
+
+    conv_desc->conv_mode = CONV_MODE_DIRECT;
+    conv_desc->data_reuse = 0;
+    conv_desc->weight_reuse = 0;
+    conv_desc->weight_reuse = 0;
+    conv_desc->skip_data_rls = 0;
+    conv_desc->skip_weight_rls = 0;
+    conv_desc->entry_per_slice = finfo.eps;
+    conv_desc->data_format = FORMAT_FEATURE;
+    conv_desc->pixel_mapping = 0;
+    conv_desc->fetch_grain = 1;
+    conv_desc->batch = 1;
+    conv_desc->weight_format = WEIGHT_FORMAT_UNCOMPRESSED;
+    conv_desc->data_bank = finfo.banks;
+    conv_desc->weight_bank = winfo.banks;
+    conv_desc->batch_stride = 0;
+    conv_desc->post_extension = 0;
+    conv_desc->pixel_override = 0;
+    conv_desc->release = input_A_dims[2];
+    conv_desc->input_width_csc = finfo.dim_w;
+    conv_desc->input_height_csc = finfo.dim_h;
+    conv_desc->input_channel_csc = finfo.dim_c;
+    conv_desc->kernel_channel_csc = winfo.dim_c;
+    conv_desc->kernel_width_csc = winfo.dim_w;
+    conv_desc->kernel_height_csc = winfo.dim_h;
+    conv_desc->input_width_cmac = output_Y_dims[3];
+    conv_desc->input_height_cmac = output_Y_dims[2];
+    conv_desc->bytes_per_kernel = winfo.dim_c * winfo.dim_h * winfo.dim_w * ELEMENT_SIZE;
+    conv_desc->mean_ry = 0;
+    conv_desc->mean_gu = 0;
+    conv_desc->mean_bv = 0;
+    conv_desc->mean_ax = 0;
+    conv_desc->mean_format = 0;
+    conv_desc->conv_stride_x = 1;
+    conv_desc->conv_stride_y = 1;
+    conv_desc->pad_x_left = 0;
+    conv_desc->pad_x_right = 0;
+    conv_desc->pad_y_bottom = 0;
+    conv_desc->pad_y_top = 0;
+    conv_desc->dilation_x = 1;
+    conv_desc->dilation_y = 1;
+    conv_desc->pra_truncate = 0;
+    conv_desc->in_precision = PRECISION_INT8;
+    conv_desc->out_precision = PRECISION_INT8;
+    conv_desc->out_cvt.scale = 1;
+    conv_desc->out_cvt.enable = 1;
+    conv_desc->pad_val = 0;
+
+    //ILoadable::MemoryListEntry W_mle = m_pMeta.m_MemoryListEntries[W_mid];
+    struct dla_conv_surface_desc *conv_surf = (struct dla_conv_surface_desc*)(&(conv_op->op_surf));
+    conv_surf->weight_data.type = DLA_MEM_MC;
+    conv_surf->weight_data.address = issueDlaAddr(B_mid, winfo, 1, 0, 0);
+    conv_surf->weight_data.size = B_mle.size;
+    conv_surf->weight_data.width = winfo.dim_w;
+    conv_surf->weight_data.height = winfo.dim_h;
+    conv_surf->weight_data.channel = winfo.dim_c;
+    conv_surf->weight_data.line_stride = 0;
+    conv_surf->weight_data.surf_stride = 0;
+    conv_surf->weight_data.plane_stride = 0;
+
+    conv_surf->src_data.type = DLA_MEM_MC;
+    conv_surf->src_data.address = A_mid;
+    conv_surf->src_data.address = issueDlaAddr(A_mid, finfo, 1, 0, 0);
+    conv_surf->src_data.size = A_mle.size;
+    conv_surf->src_data.width = finfo.dim_w;
+    conv_surf->src_data.height = finfo.dim_h;
+    conv_surf->src_data.channel = finfo.dim_c;
+    conv_surf->src_data.line_stride = finfo.stride_line;
+    conv_surf->src_data.surf_stride = finfo.stride_surface;
+    conv_surf->src_data.plane_stride = finfo.stride_plane;
+
+    conv_surf->dst_data.type = DLA_MEM_MC;
+    conv_surf->dst_data.address = issueDlaAddr(Y_mid, oinfo, 1, 0, 0);
+    conv_surf->dst_data.size = Y_mle.size;
+    conv_surf->dst_data.width = oinfo.dim_w;
+    conv_surf->dst_data.height = oinfo.dim_h;
+    conv_surf->dst_data.channel = oinfo.dim_c;
+    conv_surf->dst_data.line_stride = oinfo.stride_line;
+    conv_surf->dst_data.surf_stride = oinfo.stride_surface;
+    conv_surf->dst_data.plane_stride = oinfo.stride_plane;
+
+    // Bias Add
+    {
+      add_op = new NvDlaDlaOperation();
+      add_op->op_dep.op_type = DLA_OP_SDP;
+
+      struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
+      add_desc->src_precision = PRECISION_INT8;
+      add_desc->dst_precision = PRECISION_INT8;
+      add_desc->lut_index = -1;
+      add_desc->conv_mode = 0;
+      add_desc->out_cvt.scale = 1;
+      add_desc->out_cvt.truncate = 0;
+      add_desc->out_cvt.enable = 1;
+      add_desc->out_cvt.offset = 0;
+      add_desc->conv_mode = CONV_MODE_DIRECT;
+      add_desc->batch_num = 1;
+      add_desc->batch_stride = 0;
+      add_desc->x1_op.enable = 1;
+      add_desc->x1_op.alu_type = SDP_ALU_OP_SUM;
+      add_desc->x1_op.type = SDP_OP_ADD;
+      add_desc->x1_op.mode = SDP_OP_PER_KERNEL;
+      add_desc->x1_op.act = ACTIVATION_RELU;
+      add_desc->x1_op.shift_value = 0;
+      add_desc->x1_op.truncate = 0;
+      add_desc->x1_op.precision = PRECISION_INT8;
+      add_desc->x1_op.alu_operand = 0;
+      add_desc->x1_op.mul_operand = 1;
+      add_desc->x1_op.cvt.alu_cvt.scale = 0;
+      add_desc->x1_op.cvt.alu_cvt.truncate = 0;
+      add_desc->x1_op.cvt.alu_cvt.enable = 0;
+      add_desc->x1_op.cvt.alu_cvt.offset = 0;
+      add_desc->x1_op.cvt.mul_cvt.scale = 0;
+      add_desc->x1_op.cvt.mul_cvt.truncate = 0;
+      add_desc->x1_op.cvt.mul_cvt.enable = 0;
+      add_desc->x1_op.cvt.mul_cvt.offset = 0;
+
+      struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
+      add_surf->src_data.type = DLA_MEM_HW;
+      add_surf->src_data.address = -1;
+      add_surf->src_data.size = conv_surf->dst_data.size;
+      add_surf->src_data.width = conv_surf->dst_data.width;
+      add_surf->src_data.height = conv_surf->dst_data.height;
+      add_surf->src_data.channel = conv_surf->dst_data.channel;
+      add_surf->src_data.line_stride = oinfo.stride_line;
+      add_surf->src_data.surf_stride = oinfo.stride_surface;
+      add_surf->src_data.plane_stride = oinfo.stride_plane;
+
+      add_surf->x1_data.type = DLA_MEM_MC;
+      add_surf->x1_data.address = issueDlaAddr(C_mid, binfo, 1, 0, 0);
+      add_surf->x1_data.size = C_mle.size;
+      add_surf->x1_data.width = input_C_dims[3];
+      add_surf->x1_data.height = input_C_dims[2];
+      add_surf->x1_data.channel = input_C_dims[0];
+      add_surf->x1_data.line_stride = binfo.stride_line;
+      add_surf->x1_data.surf_stride = binfo.stride_surface;
+      add_surf->x1_data.plane_stride = binfo.stride_plane;
+
+      add_surf->dst_data.type = DLA_MEM_MC;
+      add_surf->dst_data.address = conv_surf->dst_data.address;
+      add_surf->dst_data.size = conv_surf->dst_data.size;
+      add_surf->dst_data.width = conv_surf->dst_data.width;
+      add_surf->dst_data.height = conv_surf->dst_data.height;
+      add_surf->dst_data.channel = conv_surf->dst_data.channel;
+      add_surf->dst_data.line_stride = conv_surf->dst_data.line_stride;
+      add_surf->dst_data.surf_stride = conv_surf->dst_data.surf_stride;
+      add_surf->dst_data.plane_stride = conv_surf->dst_data.plane_stride;
+
+      conv_surf->dst_data.type = DLA_MEM_HW;
+      conv_surf->dst_data.address = -1;
+      conv_surf->dst_data.line_stride = add_surf->src_data.line_stride;
+      conv_surf->dst_data.surf_stride = add_surf->src_data.surf_stride;
+      conv_surf->dst_data.plane_stride = add_surf->src_data.plane_stride;
+    }
+    issueDlaOp(conv_op, add_op, m_pMeta.m_pPrevOp);
+  }
+  
+}
+
 
 int CodeEmitVisitor::packWeight(const Tensor *t, int dims[4], int gidx)
 {

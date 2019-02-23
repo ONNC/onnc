@@ -15,6 +15,7 @@
 #include "NvDlaTaskSubmitPass.h"
 #include "NvDlaFileGenPass.h"
 #include "NvDlaFuseConvReluPass.h"
+#include "NvDlaFuseGemmReluPass.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -82,7 +83,8 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
-  pPM.add<NvDlaFuseConvReluPass>();
+  //pPM.add<NvDlaFuseConvReluPass>();
+  pPM.add<NvDlaFuseGemmReluPass>();
 }
 
 void NvDlaBackend::addTensorSched(PassManager& pPM)
