@@ -9,8 +9,10 @@
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Gemm.h>
 #include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/Compute/MaxPool.h>
 #include "Compute/NvDlaConvRelu.h"
 #include "Compute/NvDlaGemmRelu.h"
+#include "Compute/NvDlaConvReluMaxPool.h"
 #include "NvDlaLayerFusionPass.h"
 
 using namespace onnc;
@@ -47,7 +49,21 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
     ComputeOperator* node = nodeIt;
 
-    if (isFusibleForConvRelu(*node)) {
+    if (isFusibleForConvReluMaxPool(*node)) {
+      // Create ConvReluMaxPool to fuse Conv, Relu, and MaxPool.
+      Conv& conv = *(Conv *)node;
+      Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
+      MaxPool& maxpool = *(MaxPool *)relu.getOutput(0)->getUses()[0].getUser();
+      
+      mergeConvReluMaxPool(pCG, conv, relu, maxpool);
+
+      pCG.erase(conv);
+      pCG.erase(relu);
+      pCG.erase(maxpool);
+
+      ret |= Pass::kModuleChanged;
+    }
+    else if (isFusibleForConvRelu(*node)) {
       // Create ConvRelu to fuse Conv and Relu.
       Conv& conv = *(Conv *)node;
       Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
@@ -90,6 +106,37 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
   return ret;
 }
 
+bool NvDlaLayerFusionPass::isFusibleForConvReluMaxPool(ComputeOperator& pNode)
+{
+  if (!isa<Conv>(&pNode))
+    return false;
+
+  Value* outv = pNode.getOutput(0);
+
+  // if Conv's result has more than one users, we can't fuse it.
+  if (outv->getUses().size() > 1) {
+    return false;
+  }
+
+  ComputeOperator* secondNode = outv->getUses()[0].getUser();
+  if (!isa<Relu>(secondNode)) {
+    return false;
+  }
+  
+  outv = secondNode->getOutput(0);
+
+  if (outv->getUses().size() > 1) {
+    return false;
+  }
+
+  ComputeOperator* thirdNode = outv->getUses()[0].getUser();
+  if (!isa<MaxPool>(thirdNode)) {
+    return false;
+  }
+  
+  return true;
+}
+
 bool NvDlaLayerFusionPass::isFusibleForConvRelu(ComputeOperator& pNode)
 {
   if (!isa<Conv>(&pNode))
@@ -126,6 +173,35 @@ bool NvDlaLayerFusionPass::isFusibleForGemmRelu(ComputeOperator& pNode)
 }
 
 
+NvDlaConvReluMaxPool* NvDlaLayerFusionPass::mergeConvReluMaxPool(ComputeGraph& pCG,
+                                                          Conv& pConv, Relu& pRelu, MaxPool& pMaxPool)
+{
+  Value* outv = pMaxPool.getOutput(0);
+  Value* out_conv = pConv.getOutput(0);
+  Value* out_relu = pRelu.getOutput(0);
+  pConv.replaceOutput(0, *outv);
+  pRelu.replaceOutput(0, *outv);
+  pCG.erase(*out_conv);
+  pCG.erase(*out_relu);
+  // FIXME: need move newOp to correct position.
+  NvDlaConvReluMaxPool* newOp = pCG.addOperator<NvDlaConvReluMaxPool>(pConv, pRelu, pMaxPool);
+  Value* emptyV = new Value;
+
+  for (unsigned i = 0; i < pConv.getNumOfInputs(); ++i) {
+    newOp->addInput(*pConv.getInput(i));
+
+    // FIXME: need implement ComputeOperator::removeAllInputs.
+    pConv.replaceInput(i, *emptyV);
+  }
+  pRelu.replaceInput(0, *emptyV);
+  pMaxPool.replaceInput(0, *emptyV);
+
+  outv->clearDefine();
+  newOp->addOutput(*outv);
+
+  return newOp;
+}
+
 NvDlaConvRelu* NvDlaLayerFusionPass::mergeConvRelu(ComputeGraph& pCG,
                                                     Conv& pConv, Relu& pRelu)
 {
@@ -150,6 +226,7 @@ NvDlaConvRelu* NvDlaLayerFusionPass::mergeConvRelu(ComputeGraph& pCG,
 
   return newOp;
 }
+
 
 NvDlaGemmRelu* NvDlaLayerFusionPass::mergeGemmRelu(ComputeGraph& pCG,
                                                    Gemm& pGemm, Relu& pRelu)

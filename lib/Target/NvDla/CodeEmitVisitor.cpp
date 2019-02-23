@@ -21,6 +21,7 @@
 #include <onnc/IR/Compute/OutputOperator.h>
 #include "Compute/NvDlaConvRelu.h"
 #include "Compute/NvDlaGemmRelu.h"
+#include "Compute/NvDlaConvReluMaxPool.h"
 
 #include "fp16.h"
 
@@ -1145,7 +1146,7 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
   pConvRelu.m_Relu.print(errs());
   errs() << "\n";
   printf("=================== Hello! ConvRelu is here.\n");
-
+  //FIXME: duplicated from visit(Conv). How to reduce such a redundancy?
   const Conv& pOp = pConvRelu.m_Conv;
   pOp.print(errs());
   errs() << "\n";
@@ -1448,6 +1449,321 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
 
 }
 
+void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
+{
+  printf("------------------> Hello! ConvReluMaxPool is here.\n");
+  pConvReluMaxPool.print(errs());
+  errs() << "\n";
+  pConvReluMaxPool.m_Conv.print(errs());
+  errs() << "\n";
+  pConvReluMaxPool.m_Relu.print(errs());
+  errs() << "\n";
+  pConvReluMaxPool.m_MaxPool.print(errs());
+  errs() << "\n";
+  printf("=================== Hello! ConvReluMaxPool is here.\n");
+#if 0
+  //FIXME: copied from visit(Conv). How to reduce such a redundancy?
+  const Conv& pOp = pConvRelu.m_Conv;
+  pOp.print(errs());
+  errs() << "\n";
+  
+  const Tensor *input_X_t = pOp.getInput(0);
+  //void *input_X = m_ATable[input_X_t];
+  int32_t input_X_ndim = input_X_t->getNumOfDimensions();
+  int32_t input_X_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < input_X_ndim; ++i) input_X_dims[i] = input_X_t->dimension(i);
+  int X_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_X_t];
+  ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
+  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
+
+
+  const Tensor *input_W_t = pOp.getInput(1);
+  //void *input_W = m_ATable[input_W_t];
+  int32_t input_W_ndim = input_W_t->getNumOfDimensions();
+  int32_t input_W_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < input_W_ndim; ++i) input_W_dims[i] = input_W_t->dimension(i);
+
+  const Tensor *input_B_t = NULL;
+  void *input_B = NULL;
+  int32_t input_B_ndim = 0;
+  if (pOp.getNumOfInputs() > 2) {
+    input_B_t = pOp.getInput(2);
+    //input_B = m_ATable[input_B_t];
+    input_B_ndim = input_B_t->getNumOfDimensions();
+  }
+  int32_t input_B_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < input_B_ndim; ++i) input_B_dims[i] = input_B_t->dimension(i);
+  // Prepare output
+
+  const Tensor *output_Y_t = pOp.getOutput(0);
+  //void *output_Y = m_ATable[output_Y_t];
+  int32_t output_Y_ndim = output_Y_t->getNumOfDimensions();
+  int32_t output_Y_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
+  int Y_mid = m_pMeta.m_MemIdxTable[(Tensor *)output_Y_t];
+  ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
+  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3], ELEMENT_SIZE);
+
+  // Prepare attributes
+  const char * auto_pad = pOp.getAutoPad().value().c_str();
+  int32_t number_of_dilations = pOp.getDilations().vector().size();
+  int32_t dilations[2] = {1, 1};
+  for (int i = 0; i < number_of_dilations; ++i) dilations[i] = pOp.getDilations().at(i);
+  int32_t group = pOp.getGroup().value();
+  int32_t number_of_kernel_shape = pOp.getKernelShape().vector().size();
+  int32_t kernel_shape[2] = {1, 1};
+  for (int i = 0; i < number_of_kernel_shape; ++i) kernel_shape[i] = pOp.getKernelShape().at(i);
+  int32_t number_of_pads = pOp.getPads().vector().size();
+  int32_t pads[4] = {0, 0, 0, 0};
+  for (int i = 0; i < number_of_pads; ++i) pads[i] = pOp.getPads().at(i);
+  int32_t number_of_strides = pOp.getStrides().vector().size();
+  int32_t strides[2] = {1, 1};
+  for (int i = 0; i < number_of_strides; ++i) strides[i] = pOp.getStrides().at(i);
+
+  NVDLA_DBG(
+    "d(%d, %d), k(%d, %d) p(%d, %d, %d, %d) s(%d, %d)",
+    dilations[0], dilations[1],
+    kernel_shape[0], kernel_shape[1],
+    pads[0], pads[1], pads[2], pads[3],
+    strides[0], strides[1]
+  );
+
+  if(group > 1){
+    input_X_dims[1] /= group;
+    input_W_dims[0] /= group;
+    input_B_dims[0] /= group;
+    output_Y_dims[1] /= group;
+  }
+
+  NvDlaCubeInfo fcube_group(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
+  NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3], ELEMENT_SIZE);
+  NVDLA_DBG(
+          "conv(%d) f(%d %d %d %d eps:%d banks:%d) w(%d %d %d %d banks:%d) b(%d %d %d %d) y(%d %d %d %d)\n", group,
+          input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], fcube_group.eps, fcube_group.banks,
+          input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3], winfo.banks,
+          input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3],
+          output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]
+        );
+
+  //TODO: pads!!!
+  for(int g = 0; g < group; g++){
+    // Weight Memory allocation, repacking by groups
+    int W_mid = packWeight(input_W_t, input_W_dims, g);
+    int W_addr = issueDlaAddr(W_mid, winfo, 1, 0, 0);
+    int B_mid = -1;
+    int B_addr = -1;
+
+    NvDlaCubeInfo B_info(NVDLA_CUBE_FEATURE, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3], ELEMENT_SIZE);
+    ILoadable::MemoryListEntry B_mle;
+    if (pOp.getNumOfInputs() > 2) {
+      //TODO: packed with FEATURE layout
+      B_mid = packBias(input_B_t, input_B_dims, g);
+      B_mle = m_pMeta.m_MemoryListEntries[B_mid];
+      B_addr = issueDlaAddr(B_mid, B_info, 1, 0, 0);
+    }
+
+    // X, B, Y try to use offset for split & group
+    int pad_size = pads[0] + pads[1];
+    int kernel_size = (input_W_dims[2]-1);
+    int max_conv_H = input_X_dims[2] - kernel_size;
+    if(fcube_group.banks + winfo.banks > CBUF_BANK_NUM){
+      if(fcube_group.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM){
+        winfo.reduceBanks();
+      } else {
+        //split
+        int restBanks = CBUF_BANK_NUM - winfo.banks;
+        if(restBanks > 0){
+          max_conv_H = (CBUF_BANK_DEPTH * restBanks) / fcube_group.eps;
+          NVDLA_DBG ("max_conv_H: %d\n", max_conv_H);
+        } else {
+          // TODO, return critical error
+        }
+      }
+    }
+    //int total_h = input_X_dims[2] - (input_W_dims[2]-1);
+    //int split_H = input_X_dims[2] - (input_W_dims[2]-1);
+    int total_h = input_X_dims[2] - kernel_size;
+    int split_H = max_conv_H;
+    for(int h = 0, dst_h = 0; h < total_h; h += split_H){
+      int pad_top = (h == 0) ? pads[0] : 0;
+      if (max_conv_H != total_h) {
+        split_H = (((max_conv_H - kernel_size + pad_top) / strides[0]) * strides[0]) - pad_top;
+      }
+      int op_h = h + split_H >= total_h ? total_h - h : split_H;
+      int pad_bottom = h + split_H >= total_h ? pads[1] : 0;
+      int output_h = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
+
+      NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
+      NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
+      NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3], ELEMENT_SIZE);
+
+      NvDlaDlaOperation *conv_op = new NvDlaDlaOperation();
+      NvDlaDlaOperation *add_op = NULL;
+      conv_op->op_dep.op_type = DLA_OP_CONV;
+
+      struct dla_conv_op_desc *conv_desc = (struct dla_conv_op_desc *)(&(conv_op->op_desc));
+      conv_desc->conv_mode = CONV_MODE_DIRECT;
+      conv_desc->data_reuse = 0;
+      conv_desc->weight_reuse = h == 0 ? 0 : 1;
+      conv_desc->skip_data_rls = 0;
+      conv_desc->skip_weight_rls = (h + split_H < total_h) ? 1 : 0;
+      conv_desc->entry_per_slice = finfo.eps;
+      conv_desc->data_format = FORMAT_FEATURE;
+      conv_desc->pixel_mapping = 0;
+      conv_desc->fetch_grain = 1;
+      conv_desc->batch = 1;
+      conv_desc->weight_format = WEIGHT_FORMAT_UNCOMPRESSED;
+      conv_desc->data_bank = finfo.banks;
+      conv_desc->weight_bank = winfo.banks;
+      conv_desc->batch_stride = 0;
+      conv_desc->post_extension = 0;
+      conv_desc->pixel_override = 0;
+      conv_desc->release = op_h + kernel_size;
+      conv_desc->input_width_csc = finfo.dim_w;
+      conv_desc->input_height_csc = finfo.dim_h;
+      conv_desc->input_channel_csc = finfo.dim_c;
+      conv_desc->kernel_channel_csc = winfo.dim_c;
+      conv_desc->kernel_width_csc = winfo.dim_w;
+      conv_desc->kernel_height_csc = winfo.dim_h;
+      conv_desc->input_width_cmac = output_Y_dims[3];
+      conv_desc->input_height_cmac = output_h;
+      conv_desc->bytes_per_kernel = winfo.dim_c * winfo.dim_h * winfo.dim_w * ELEMENT_SIZE;
+      conv_desc->mean_ry = 0;
+      conv_desc->mean_gu = 0;
+      conv_desc->mean_bv = 0;
+      conv_desc->mean_ax = 0;
+      conv_desc->mean_format = 0;
+      conv_desc->conv_stride_x = strides[1];
+      conv_desc->conv_stride_y = strides[0];
+      conv_desc->pad_x_left = pads[2];
+      conv_desc->pad_x_right = pads[3];
+      conv_desc->pad_y_top = pad_top;
+      conv_desc->pad_y_bottom = pad_bottom;
+      conv_desc->dilation_x = dilations[1];
+      conv_desc->dilation_y = dilations[0];
+      conv_desc->pra_truncate = 0;
+      conv_desc->in_precision = PRECISION_FP16;
+      conv_desc->out_precision = PRECISION_FP16;
+      conv_desc->out_cvt.scale = 1;
+      conv_desc->out_cvt.enable = 1;
+      conv_desc->pad_val = 0;
+
+      ILoadable::MemoryListEntry W_mle = m_pMeta.m_MemoryListEntries[W_mid];
+      struct dla_conv_surface_desc *conv_surf = (struct dla_conv_surface_desc*)(&(conv_op->op_surf));
+      conv_surf->weight_data.type = DLA_MEM_MC;
+      conv_surf->weight_data.address = W_addr;
+      conv_surf->weight_data.size = W_mle.size;
+      conv_surf->weight_data.width = winfo.dim_w;
+      conv_surf->weight_data.height = winfo.dim_h;
+      conv_surf->weight_data.channel = winfo.dim_c;
+      conv_surf->weight_data.line_stride = 0;
+      conv_surf->weight_data.surf_stride = 0;
+      conv_surf->weight_data.plane_stride = 0;
+
+      conv_surf->src_data.type = DLA_MEM_MC;
+      conv_surf->src_data.address = issueDlaAddr(X_mid, X_cube, group, g, h);
+      conv_surf->src_data.size = finfo.size;
+      conv_surf->src_data.width = finfo.dim_w;
+      conv_surf->src_data.height = finfo.dim_h;
+      conv_surf->src_data.channel = finfo.dim_c;
+      conv_surf->src_data.line_stride = finfo.stride_line;
+      conv_surf->src_data.surf_stride = finfo.stride_surface;
+      conv_surf->src_data.plane_stride = finfo.stride_plane;
+
+      conv_surf->dst_data.type = DLA_MEM_MC;
+      conv_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, group, g, dst_h);
+      conv_surf->dst_data.size = oinfo.size;
+      conv_surf->dst_data.width = oinfo.dim_w;
+      conv_surf->dst_data.height = oinfo.dim_h;
+      conv_surf->dst_data.channel = oinfo.dim_c;
+      conv_surf->dst_data.line_stride = Y_cube.stride_line;
+      conv_surf->dst_data.surf_stride = Y_cube.stride_surface;
+      conv_surf->dst_data.plane_stride = Y_cube.stride_plane;
+
+      // Bias Add
+      if (pOp.getNumOfInputs() > 2){
+        add_op = new NvDlaDlaOperation();
+        add_op->op_dep.op_type = DLA_OP_SDP;
+
+        struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
+        add_desc->src_precision = PRECISION_INT8;
+        add_desc->dst_precision = PRECISION_INT8;
+        add_desc->lut_index = -1;
+        add_desc->conv_mode = 0;
+        add_desc->out_cvt.scale = 1;
+        add_desc->out_cvt.truncate = 0;
+        add_desc->out_cvt.enable = 1;
+        add_desc->out_cvt.offset = 0;
+        add_desc->conv_mode = CONV_MODE_DIRECT;
+        add_desc->batch_num = 1;
+        add_desc->batch_stride = 0;
+        add_desc->x1_op.enable = 1;
+        add_desc->x1_op.alu_type = SDP_ALU_OP_SUM;
+        add_desc->x1_op.type = SDP_OP_ADD;
+        add_desc->x1_op.mode = SDP_OP_PER_KERNEL;
+        add_desc->x1_op.act = ACTIVATION_RELU;
+        add_desc->x1_op.shift_value = 0;
+        add_desc->x1_op.truncate = 0;
+        add_desc->x1_op.precision = PRECISION_INT8;
+        add_desc->x1_op.alu_operand = 0;
+        add_desc->x1_op.mul_operand = 1;
+        add_desc->x1_op.cvt.alu_cvt.scale = 0;
+        add_desc->x1_op.cvt.alu_cvt.truncate = 0;
+        add_desc->x1_op.cvt.alu_cvt.enable = 0;
+        add_desc->x1_op.cvt.alu_cvt.offset = 0;
+        add_desc->x1_op.cvt.mul_cvt.scale = 0;
+        add_desc->x1_op.cvt.mul_cvt.truncate = 0;
+        add_desc->x1_op.cvt.mul_cvt.enable = 0;
+        add_desc->x1_op.cvt.mul_cvt.offset = 0;
+
+        struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
+        add_surf->src_data.type = DLA_MEM_HW;
+        add_surf->src_data.address = -1;
+        add_surf->src_data.size = conv_surf->dst_data.size;
+        add_surf->src_data.width = conv_surf->dst_data.width;
+        add_surf->src_data.height = conv_surf->dst_data.height;
+        add_surf->src_data.channel = conv_surf->dst_data.channel;
+        add_surf->src_data.line_stride = oinfo.stride_line;
+        add_surf->src_data.surf_stride = oinfo.stride_surface;
+        add_surf->src_data.plane_stride = oinfo.stride_plane;
+
+        add_surf->x1_data.type = DLA_MEM_MC;
+        add_surf->x1_data.address = B_addr;
+        add_surf->x1_data.size = B_mle.size;
+        add_surf->x1_data.width = input_B_dims[3];
+        add_surf->x1_data.height = input_B_dims[2];
+        add_surf->x1_data.channel = input_B_dims[0];
+        add_surf->x1_data.line_stride = B_info.stride_line;
+        add_surf->x1_data.surf_stride = B_info.stride_surface;
+        add_surf->x1_data.plane_stride = B_info.stride_plane;
+        NVDLA_DBG("B sl[%d] ss[%d] sp[%d]\n", B_info.stride_line, B_info.stride_surface, B_info.stride_plane);
+
+        add_surf->dst_data.type = DLA_MEM_MC;
+        add_surf->dst_data.address = conv_surf->dst_data.address;
+        add_surf->dst_data.size = conv_surf->dst_data.size;
+        add_surf->dst_data.width = conv_surf->dst_data.width;
+        add_surf->dst_data.height = conv_surf->dst_data.height;
+        add_surf->dst_data.channel = conv_surf->dst_data.channel;
+        add_surf->dst_data.line_stride = conv_surf->dst_data.line_stride;
+        add_surf->dst_data.surf_stride = conv_surf->dst_data.surf_stride;
+        add_surf->dst_data.plane_stride = conv_surf->dst_data.plane_stride;
+
+        conv_surf->dst_data.type = DLA_MEM_HW;
+        conv_surf->dst_data.address = -1;
+        conv_surf->dst_data.line_stride = add_surf->src_data.line_stride;
+        conv_surf->dst_data.surf_stride = add_surf->src_data.surf_stride;
+        conv_surf->dst_data.plane_stride = add_surf->src_data.plane_stride;
+      }
+      NvDlaDlaOperation *prev_op = (h == 0) ? m_pMeta.m_pPrevOp : NULL;
+      issueDlaOp(conv_op, add_op, prev_op);
+
+      // generate CONV Operation
+      NVDLA_DBG("split-conv s:%d e:%d h:%d, dst_h:%d, output_h=%d\n", h, h + op_h, op_h + kernel_size, dst_h, output_h);
+      dst_h += output_h;
+    }
+  }
+#endif
+}
 
 void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
 {
@@ -1458,6 +1774,7 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
   errs() << "\n";
   printf("=================== Hello! GemmRelu is here.\n");
 
+  //FIXME: The below is duplicated from visit(Gemm). How to reduce such a redundency?
   const Gemm& pOp = pGemmRelu.m_Gemm;
   pOp.print(errs());
   errs() << "\n";

@@ -14,6 +14,7 @@
 #include <onnc/IR/CustomVisitor.h>
 #include "Compute/NvDlaConvRelu.h"
 #include "Compute/NvDlaGemmRelu.h"
+#include "Compute/NvDlaConvReluMaxPool.h"
 #include "NvDlaComputeVisitor.h"
 #include "NvDlaMeta.h"
 
@@ -46,6 +47,7 @@ public:
   void visit(const Concat& pConcat) override;
   void visit(const NvDlaConvRelu& pConvRelu) override;
   void visit(const NvDlaGemmRelu& pGemmRelu) override;
+  void visit(const NvDlaConvReluMaxPool& pConvReluMaxPool) override;
   
   /// @}
   //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);

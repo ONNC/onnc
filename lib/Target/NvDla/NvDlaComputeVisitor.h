@@ -14,12 +14,14 @@ namespace onnc {
 
 class NvDlaConvRelu;
 class NvDlaGemmRelu;
-  
+class NvDlaConvReluMaxPool;
+
 class NvDlaComputeVisitor : public onnc::CustomVisitor<NvDlaComputeVisitor>
 {
 public:
   virtual void visit(const NvDlaConvRelu&) {}
   virtual void visit(const NvDlaGemmRelu&) {}
+  virtual void visit(const NvDlaConvReluMaxPool&) {}
 };
 
 } // namespace onnc

@@ -14,9 +14,11 @@ namespace onnc {
 class Conv;
 class Relu;
 class Gemm;
+class MaxPool;
 class NvDlaConvRelu;
 class NvDlaGemmRelu;
-  
+class NvDlaConvReluMaxPool;
+
 /** \class NvDlaLayerFusionPass
  *  \brief Fuse conv and relu to NvDlaConvRelu operator.
  */
@@ -33,6 +35,7 @@ private:
   /// Can we merge pConv and Relu which uses pConv as input.
   bool isFusibleForConvRelu(ComputeOperator& pNode);
   bool isFusibleForGemmRelu(ComputeOperator& pNode);
+  bool isFusibleForConvReluMaxPool(ComputeOperator& pNode);
   
   /// Detach pConv and pRelu from Graph, replace it with new ConvRelu IR.
   ///
@@ -40,6 +43,7 @@ private:
   /// merged:   .. -> ConvRelu -> ..
   NvDlaConvRelu* mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu);
   NvDlaGemmRelu* mergeGemmRelu(ComputeGraph& pCG, Gemm& pGemm, Relu& pRelu);
+  NvDlaConvReluMaxPool* mergeConvReluMaxPool(ComputeGraph& pCG, Conv& pConv, Relu& pRelu, MaxPool& pMaxPool);
 };
 
 } // namespace of onnc
