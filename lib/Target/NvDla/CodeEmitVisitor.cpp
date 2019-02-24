@@ -227,8 +227,8 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->dilation_x = dilations[1];
       conv_desc->dilation_y = dilations[0];
       conv_desc->pra_truncate = 0;
-      conv_desc->in_precision = PRECISION_FP16;
-      conv_desc->out_precision = PRECISION_FP16;
+      conv_desc->in_precision = PRECISION_INT8;
+      conv_desc->out_precision = PRECISION_INT8;
       conv_desc->out_cvt.scale = 1;
       conv_desc->out_cvt.enable = 1;
       conv_desc->pad_val = 0;
@@ -556,7 +556,7 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
   maxpool_desc->pad_bottom = pad_shapes[2];
   maxpool_desc->pad_right = pad_shapes[3];
 
-  maxpool_desc->precision = PRECISION_FP16;
+  maxpool_desc->precision = PRECISION_INT8;
 
   struct dla_pdp_surface_desc *maxpool_surf = (struct dla_pdp_surface_desc *)(&(maxpool_op->op_surf));
   maxpool_surf->src_data.type = DLA_MEM_MC;
@@ -650,7 +650,7 @@ void CodeEmitVisitor::visit(const AveragePool& pOp)
   avgpool_desc->pad_bottom = pad_shapes[2];
   avgpool_desc->pad_right = pad_shapes[3];
 
-  avgpool_desc->precision = PRECISION_FP16;
+  avgpool_desc->precision = PRECISION_INT8;
 
   struct dla_pdp_surface_desc *avgpool_surf = (struct dla_pdp_surface_desc *)(&(avgpool_op->op_surf));
   avgpool_surf->src_data.type = DLA_MEM_MC;
@@ -1327,8 +1327,8 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_desc->dilation_x = dilations[1];
       conv_desc->dilation_y = dilations[0];
       conv_desc->pra_truncate = 0;
-      conv_desc->in_precision = PRECISION_FP16;
-      conv_desc->out_precision = PRECISION_FP16;
+      conv_desc->in_precision = PRECISION_INT8;
+      conv_desc->out_precision = PRECISION_INT8;
       conv_desc->out_cvt.scale = 1;
       conv_desc->out_cvt.enable = 1;
       conv_desc->pad_val = 0;
@@ -1755,8 +1755,8 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
       conv_desc->dilation_x = dilations[1];
       conv_desc->dilation_y = dilations[0];
       conv_desc->pra_truncate = 0;
-      conv_desc->in_precision = PRECISION_FP16;
-      conv_desc->out_precision = PRECISION_FP16;
+      conv_desc->in_precision = PRECISION_INT8;
+      conv_desc->out_precision = PRECISION_INT8;
       conv_desc->out_cvt.scale = 1;
       conv_desc->out_cvt.enable = 1;
       conv_desc->pad_val = 0;
