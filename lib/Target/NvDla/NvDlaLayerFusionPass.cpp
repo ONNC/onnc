@@ -13,6 +13,7 @@
 #include "Compute/NvDlaConvRelu.h"
 #include "Compute/NvDlaGemmRelu.h"
 #include "Compute/NvDlaConvReluMaxPool.h"
+#include "Compute/NvDlaMaxPool.h"
 #include "NvDlaLayerFusionPass.h"
 
 using namespace onnc;
@@ -48,7 +49,9 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
     ComputeOperator* node = nodeIt;
-
+#if 0
+    //FIXME: This is an advance feature. Not used in nv_small_alexnet.nvdla.
+    //Because our goal is to derive the same .nvdla as the official one, we disable this feature now.
     if (isFusibleForConvReluMaxPool(*node)) {
       // Create ConvReluMaxPool to fuse Conv, Relu, and MaxPool.
       Conv& conv = *(Conv *)node;
@@ -62,6 +65,24 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
       pCG.erase(maxpool);
 
       ret |= Pass::kModuleChanged;
+    }
+#endif
+    if (isFusibleForConvReluMaxPool(*node)) {
+      // Create ConvReluMaxPool to fuse Conv, Relu, and MaxPool.
+      Conv& conv = *(Conv *)node;
+      Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
+      MaxPool& maxpool = *(MaxPool *)relu.getOutput(0)->getUses()[0].getUser();
+      
+      mergeConvRelu(pCG, conv, relu);
+      NvDlaMaxPool* newMaxPool = replaceMaxPool(pCG, maxpool);
+      newMaxPool->m_Group = conv.getGroup();
+      
+      pCG.erase(conv);
+      pCG.erase(relu);
+      pCG.erase(maxpool);
+
+      ret |= Pass::kModuleChanged;
+      
     }
     else if (isFusibleForConvRelu(*node)) {
       // Create ConvRelu to fuse Conv and Relu.
@@ -170,6 +191,26 @@ bool NvDlaLayerFusionPass::isFusibleForGemmRelu(ComputeOperator& pNode)
   if (!isa<Relu>(userNode))
     return false;
   return true;
+}
+
+NvDlaMaxPool* NvDlaLayerFusionPass::replaceMaxPool(ComputeGraph& pCG, MaxPool& pMaxPool)
+{
+  Value* outv = pMaxPool.getOutput(0);
+  // FIXME: need move newOp to correct position.
+  NvDlaMaxPool* newOp = pCG.addOperator<NvDlaMaxPool>(pMaxPool);
+  Value* emptyV = new Value;
+
+  for (unsigned i = 0; i < pMaxPool.getNumOfInputs(); ++i) {
+    newOp->addInput(*pMaxPool.getInput(i));
+
+    // FIXME: need implement ComputeOperator::removeAllInputs.
+    pMaxPool.replaceInput(i, *emptyV);
+  }
+
+  outv->clearDefine();
+  newOp->addOutput(*outv);
+
+  return newOp;
 }
 
 

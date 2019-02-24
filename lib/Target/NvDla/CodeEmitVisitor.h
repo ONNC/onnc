@@ -48,6 +48,7 @@ public:
   void visit(const NvDlaConvRelu& pConvRelu) override;
   void visit(const NvDlaGemmRelu& pGemmRelu) override;
   void visit(const NvDlaConvReluMaxPool& pConvReluMaxPool) override;
+  void visit(const NvDlaMaxPool& pMaxPool) override;
   
   /// @}
   //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);

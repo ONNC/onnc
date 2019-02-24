@@ -18,6 +18,7 @@ class MaxPool;
 class NvDlaConvRelu;
 class NvDlaGemmRelu;
 class NvDlaConvReluMaxPool;
+class NvDlaMaxPool;
 
 /** \class NvDlaLayerFusionPass
  *  \brief Fuse conv and relu to NvDlaConvRelu operator.
@@ -44,6 +45,8 @@ private:
   NvDlaConvRelu* mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu);
   NvDlaGemmRelu* mergeGemmRelu(ComputeGraph& pCG, Gemm& pGemm, Relu& pRelu);
   NvDlaConvReluMaxPool* mergeConvReluMaxPool(ComputeGraph& pCG, Conv& pConv, Relu& pRelu, MaxPool& pMaxPool);
+  NvDlaMaxPool* replaceMaxPool(ComputeGraph& pCG, MaxPool& pMaxPool);
+
 };
 
 } // namespace of onnc

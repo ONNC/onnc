@@ -15,6 +15,7 @@ add_libonnc_src(
     Compute/NvDlaConvRelu.cpp
     Compute/NvDlaGemmRelu.cpp
     Compute/NvDlaConvReluMaxPool.cpp
+    Compute/NvDlaMaxPool.cpp
     NvDlaFuseConvReluPass.cpp
     NvDlaFuseGemmReluPass.cpp
     NvDlaLayerFusionPass.cpp

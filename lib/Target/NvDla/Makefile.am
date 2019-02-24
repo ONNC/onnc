@@ -12,6 +12,7 @@ ONNC_TARGET_SOURCES += \
   Target/NvDla/Compute/NvDlaConvRelu.cpp \
   Target/NvDla/Compute/NvDlaGemmRelu.cpp \
   Target/NvDla/Compute/NvDlaConvReluMaxPool.cpp \
+  Target/NvDla/Compute/NvDlaMaxPool.cpp \
   Target/NvDla/NvDlaFuseConvReluPass.cpp \
   Target/NvDla/NvDlaFuseGemmReluPass.cpp \
   Target/NvDla/NvDlaLayerFusionPass.cpp
