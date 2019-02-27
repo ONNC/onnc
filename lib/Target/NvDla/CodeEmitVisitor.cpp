@@ -1356,6 +1356,14 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_desc->skip_weight_rls = (h + split_H < total_h) ? 1 : 0;
       conv_desc->entry_per_slice = finfo.eps;
       conv_desc->data_format = FORMAT_FEATURE;
+#if HAS_IMAGE_MODE
+      // Golden image_mode loadable has data_format 15 = R8G8B8A8.
+      // FIXME: for now, always use data_format 15 for image mode.
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_desc->data_format = 15;
+      }
+#endif
       conv_desc->pixel_mapping = 0;
       conv_desc->fetch_grain = 1;
       conv_desc->batch = 1;
@@ -1372,6 +1380,14 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_desc->kernel_channel_csc = winfo.dim_c;
       conv_desc->kernel_width_csc = winfo.dim_w;
       conv_desc->kernel_height_csc = winfo.dim_h;
+#if HAS_IMAGE_MODE
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_desc->kernel_channel_csc = winfo.dim_w * winfo.dim_c;
+        conv_desc->kernel_width_csc = 1;
+        conv_desc->kernel_height_csc = winfo.dim_h;
+      }
+#endif
       conv_desc->input_width_cmac = output_Y_dims[3];
       conv_desc->input_height_cmac = output_h;
       conv_desc->bytes_per_kernel = winfo.dim_c * winfo.dim_h * winfo.dim_w * ELEMENT_SIZE;
@@ -1432,6 +1448,17 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_surf->dst_data.line_stride = Y_cube.stride_line;
       conv_surf->dst_data.surf_stride = Y_cube.stride_surface;
       conv_surf->dst_data.plane_stride = Y_cube.stride_plane;
+
+#if HAS_IMAGE_MODE
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
+        conv_surf->src_data.size = finfo.dim_w * finfo.dim_h * finfo.dim_c;
+        conv_surf->src_data.line_stride = (finfo.dim_w * finfo.dim_c + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
+        conv_surf->src_data.surf_stride = 0;
+        conv_surf->dst_data.size = 0;
+      }
+#endif
 
       // Bias Add
       if (pOp.getNumOfInputs() > 2){
@@ -1502,6 +1529,12 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
         add_surf->dst_data.line_stride = conv_surf->dst_data.line_stride;
         add_surf->dst_data.surf_stride = conv_surf->dst_data.surf_stride;
         add_surf->dst_data.plane_stride = conv_surf->dst_data.plane_stride;
+#if HAS_IMAGE_MODE
+        // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+        if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+          add_surf->dst_data.size = oinfo.size; // the regular conv_surf->dst_data.size
+        }
+#endif
 
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
