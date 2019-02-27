@@ -1363,4 +1363,100 @@ void CodeEmitVisitor::visit(const Sum& pSum)
 {
   pSum.print(errs());
   errs() << "\n";
+
+  const Tensor *output_value = pSum.getOutput(0);
+  int32_t output_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < output_value->getNumOfDimensions(); ++i) {
+    output_dims[i] = output_value->dimension(i);
+  }
+
+  int output_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(output_value)];
+  ILoadable::MemoryListEntry output_mle = m_pMeta.m_MemoryListEntries[output_mid];
+  NvDlaCubeInfo output_cube(NVDLA_CUBE_FEATURE, output_dims[0], output_dims[1], output_dims[2], output_dims[3], sizeof(short));
+
+  NvDlaDlaOperation *relu_op = new NvDlaDlaOperation();
+  relu_op->op_dep.op_type = DLA_OP_SDP;
+
+  struct dla_sdp_op_desc *op_desc = (struct dla_sdp_op_desc *)(&(relu_op->op_desc));
+  op_desc->src_precision = PRECISION_FP16;
+  op_desc->dst_precision = PRECISION_FP16;
+  op_desc->lut_index = -1;
+  op_desc->conv_mode = 0;
+  op_desc->out_cvt.scale = 1;
+  op_desc->out_cvt.truncate = 0;
+  op_desc->out_cvt.enable = 1;
+  op_desc->out_cvt.offset = 0;
+  op_desc->conv_mode = CONV_MODE_DIRECT;
+  op_desc->batch_num = 1;
+  op_desc->batch_stride = 0;
+  op_desc->x1_op.enable = 1;
+  op_desc->x1_op.alu_type = SDP_ALU_OP_SUM;
+  op_desc->x1_op.type = SDP_OP_ADD;
+  op_desc->x1_op.mode = SDP_OP_PER_POINT;
+  op_desc->x1_op.act = ACTIVATION_NONE;
+  op_desc->x1_op.shift_value = 0;
+  op_desc->x1_op.truncate = 0;
+  op_desc->x1_op.precision = PRECISION_FP16;
+  op_desc->x1_op.alu_operand = 0;
+  op_desc->x1_op.mul_operand = 1;
+  op_desc->x1_op.cvt.alu_cvt.scale = 0;
+  op_desc->x1_op.cvt.alu_cvt.truncate = 0;
+  op_desc->x1_op.cvt.alu_cvt.enable = 0;
+  op_desc->x1_op.cvt.alu_cvt.offset = 0;
+  op_desc->x1_op.cvt.mul_cvt.scale = 0;
+  op_desc->x1_op.cvt.mul_cvt.truncate = 0;
+  op_desc->x1_op.cvt.mul_cvt.enable = 0;
+  op_desc->x1_op.cvt.mul_cvt.offset = 0;
+
+  struct dla_sdp_surface_desc *surf_desc = (struct dla_sdp_surface_desc *)(&(relu_op->op_surf));
+
+  const Tensor *input_left_t = pSum.getInput(0);
+  int32_t input_left_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < input_left_t->getNumOfDimensions(); ++i) {
+    input_left_dims[i] = input_left_t->dimension(i);
+  }
+  int left_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(input_left_t)];
+  ILoadable::MemoryListEntry left_mle = m_pMeta.m_MemoryListEntries[left_mid];
+  NvDlaCubeInfo left_cube(NVDLA_CUBE_FEATURE, input_left_dims[0], input_left_dims[1], input_left_dims[2], input_left_dims[3], sizeof(short));
+
+  surf_desc->src_data.type = DLA_MEM_MC;
+  surf_desc->src_data.address = issueDlaAddr(left_mid, left_cube, 1, 0, 0);
+  surf_desc->src_data.size = left_mle.size;
+  surf_desc->src_data.width = left_cube.dim_w;
+  surf_desc->src_data.height = left_cube.dim_h;
+  surf_desc->src_data.channel = left_cube.dim_c;
+  surf_desc->src_data.line_stride = left_cube.stride_line;
+  surf_desc->src_data.surf_stride = left_cube.stride_surface;
+  surf_desc->src_data.plane_stride = left_cube.stride_plane;
+
+  const Tensor *input_right_t = pSum.getInput(1);
+  int32_t input_right_dims[4] = {1, 1, 1, 1};
+  for (int i = 0; i < input_right_t->getNumOfDimensions(); ++i) {
+    input_right_dims[i] = input_right_t->dimension(i);
+  }
+  int right_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(input_right_t)];
+  ILoadable::MemoryListEntry right_mle = m_pMeta.m_MemoryListEntries[right_mid];
+  NvDlaCubeInfo right_cube(NVDLA_CUBE_FEATURE, input_right_dims[0], input_right_dims[1], input_right_dims[2], input_right_dims[3], sizeof(short));
+
+  surf_desc->x1_data.type = DLA_MEM_MC;
+  surf_desc->x1_data.address = issueDlaAddr(right_mid, right_cube, 1, 0, 0);
+  surf_desc->x1_data.size = right_mle.size;
+  surf_desc->x1_data.width = right_cube.dim_w;
+  surf_desc->x1_data.height = right_cube.dim_h;
+  surf_desc->x1_data.channel = right_cube.dim_c;
+  surf_desc->x1_data.line_stride = right_cube.stride_line;
+  surf_desc->x1_data.surf_stride = right_cube.stride_surface;
+  surf_desc->x1_data.plane_stride = right_cube.stride_plane;
+
+  surf_desc->dst_data.type = DLA_MEM_MC;
+  surf_desc->dst_data.address = issueDlaAddr(output_mid, output_cube, 1, 0, 0);
+  surf_desc->dst_data.size = output_mle.size;
+  surf_desc->dst_data.width = output_cube.dim_w;
+  surf_desc->dst_data.height = output_cube.dim_h;
+  surf_desc->dst_data.channel = output_cube.dim_c;
+  surf_desc->dst_data.line_stride = output_cube.stride_line;
+  surf_desc->dst_data.surf_stride = output_cube.stride_surface;
+  surf_desc->dst_data.plane_stride = output_cube.stride_plane;
+
+  issueDlaOp(relu_op, NULL, m_pMeta.m_pPrevOp);
 }
