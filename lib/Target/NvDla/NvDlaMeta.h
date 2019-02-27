@@ -33,19 +33,55 @@
 using namespace nvdla;
 using namespace nvdla::priv;
 
-#define FEATURE_ATOM_CUBE_SIZE  8 //32
-#define WEIGHT_ATOM_CUBE_SIZE  8 //128
+// ------------------------------
+
+#define DLA_TYPE_INT8
+//#define DLA_TYPE_INT16
+//#define DLA_TYPE_FP16
+
+#ifdef DLA_TYPE_INT8
+    #define DLA_PRECISION PRECISION_INT8
+#endif
+#ifdef DLA_TYPE_INT16
+    #define DLA_PRECISION PRECISION_INT16
+#endif
+#ifdef DLA_TYPE_FP16
+    #define DLA_PRECISION PRECISION_FP16
+#endif
+
+#define HAS_IMAGE_MODE 1
 
 // FIXME: use macro or variable?
-// ------------------------------
-#define ELEMENT_SIZE 1 // 2
-#define CBUF_BANK_DEPTH 512 // 256
-#define CBUF_BANK_NUM 32 // 16
-#define MAC_ATOMIC_C 8 // 64
-#define MAC_ATOMIC_K 8 // 16
-// ------------------------------
+// FIXME: currently duplicated declaration at fp16.c & NvDlaMeta.h
+#if 1
+    // nv_small
+    #define FEATURE_ATOM_CUBE_SIZE  8
+    #define WEIGHT_ATOM_CUBE_SIZE   8
 
-typedef char nv_weight_t;
+    #define ELEMENT_SIZE       1
+    #define MAC_ATOMIC_C       8
+    #define MAC_ATOMIC_K       8
+    #define CBUF_BANK_NUM     32
+    #define CBUF_BANK_WIDTH    8
+    #define CBUF_BANK_DEPTH  512
+
+    typedef char nv_weight_t;
+#else
+    // nv_full
+    #define FEATURE_ATOM_CUBE_SIZE   32
+    #define WEIGHT_ATOM_CUBE_SIZE   128
+
+    #define ELEMENT_SIZE       2
+    #define MAC_ATOMIC_C      64
+    #define MAC_ATOMIC_K      16
+    #define CBUF_BANK_NUM     16
+    #define CBUF_BANK_WIDTH   64
+    #define CBUF_BANK_DEPTH  256
+
+    typedef short nv_weight_t;
+#endif
+
+// ------------------------------
 
 namespace onnc {
 

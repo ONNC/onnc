@@ -147,6 +147,16 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
 NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es)
   : mode(m), element_size(es), dim_n(n), dim_c(c), dim_h(h), dim_w(w),
     reduced(false) {
+#if HAS_IMAGE_MODE
+  // ITRI advice:
+  // -- image mode needs 4-channel input;
+  // -- with 3-channel RGB image, create a 4th channel whose data & weight are all zero.
+  // FIXME: for now, pretend it's 4-channel, reardless of whether it's the first model layer.
+  if (dim_c == 3) {
+    dim_c = 4;
+  }
+#endif
+
   switch(mode) {
     case NVDLA_CUBE_FEATURE:
       stride_channel = element_size;
@@ -160,7 +170,6 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
         size = dim_n * fixed_c * dim_h * dim_w * element_size;
         NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, element_size);
       }
-
       {
         int atom_per_channel = (dim_c * element_size + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
 #if FEATURE_ATOM_CUBE_SIZE == 8
@@ -183,8 +192,17 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
 #endif
         eps = entry_per_slice;
       }
+#if HAS_IMAGE_MODE
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (dim_c == 3 || dim_c == 4) {
+         // sample direct mode: eps = dim_w(224) * dim_c_inflated(8) / CBUF_BANK_WIDTH(8) = 224
+         // sample image mode : eps = dim_w(224) * dim_c_actual(4)   / CBUF_BANK_WIDTH(8) = 112
+         eps = dim_w * dim_c / CBUF_BANK_WIDTH;
+      }
+#endif
       banks = ((eps * dim_h) + CBUF_BANK_DEPTH - 1)/ CBUF_BANK_DEPTH;
       break;
+
     case NVDLA_CUBE_WEIGHT:
       size = (dim_n * dim_c * dim_h * dim_w * element_size);//FIXME: why not need padding?
       eps = 0;

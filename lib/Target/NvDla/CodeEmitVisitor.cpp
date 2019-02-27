@@ -60,6 +60,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   int X_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
   NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
+			printf ("DBG0: X banks %d\n", X_cube.banks);
 
 
   const Tensor *input_W_t = pOp.getInput(1);
@@ -88,6 +89,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   int Y_mid = m_pMeta.m_MemIdxTable[(Tensor *)output_Y_t];
   ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
   NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3], ELEMENT_SIZE);
+			printf ("DBG0: Y banks %d\n", Y_cube.banks);
 
   // Prepare attributes
   const char * auto_pad = pOp.getAutoPad().value().c_str();
@@ -122,6 +124,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
 
   NvDlaCubeInfo fcube_group(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
   NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3], ELEMENT_SIZE);
+			printf ("DBG0: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
   NVDLA_DBG(
           "conv(%d) f(%d %d %d %d eps:%d banks:%d) w(%d %d %d %d banks:%d) b(%d %d %d %d) y(%d %d %d %d)\n", group,
           input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], fcube_group.eps, fcube_group.banks,
@@ -139,6 +142,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     int B_addr = -1;
 
     NvDlaCubeInfo B_info(NVDLA_CUBE_FEATURE, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3], ELEMENT_SIZE);
+			printf ("DBG0: B banks %d\n", B_info.banks);
     ILoadable::MemoryListEntry B_mle;
     if (pOp.getNumOfInputs() > 2) {
       //TODO: packed with FEATURE layout
@@ -153,7 +157,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     int max_conv_H = input_X_dims[2] - kernel_size;
     if(fcube_group.banks + winfo.banks > CBUF_BANK_NUM){
       if(fcube_group.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM){
+			printf ("DBG1: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
         winfo.reduceBanks();
+			printf ("DBG1: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
       } else {
         //split
         int restBanks = CBUF_BANK_NUM - winfo.banks;
@@ -169,18 +175,21 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     //int split_H = input_X_dims[2] - (input_W_dims[2]-1);
     int total_h = input_X_dims[2] - kernel_size;
     int split_H = max_conv_H;
+			printf ("DBG4: split_H %d, total_h %d, max_conv_H %d, kernel_size %d\n", split_H, total_h, max_conv_H, kernel_size);
     for(int h = 0, dst_h = 0; h < total_h; h += split_H){
       int pad_top = (h == 0) ? pads[0] : 0;
       if (max_conv_H != total_h) {
         split_H = (((max_conv_H - kernel_size + pad_top) / strides[0]) * strides[0]) - pad_top;
       }
       int op_h = h + split_H >= total_h ? total_h - h : split_H;
+			printf ("DBG5: split_H %d, op_h %d, pad_top %d, op_h+kernel_size %d\n", split_H, op_h, pad_top, op_h + kernel_size);
       int pad_bottom = h + split_H >= total_h ? pads[1] : 0;
       int output_h = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
 
       NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
       NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
       NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3], ELEMENT_SIZE);
+			printf ("DBG0: f banks %d, o banks %d\n", finfo.banks, oinfo.banks);
 
       NvDlaDlaOperation *conv_op = new NvDlaDlaOperation();
       NvDlaDlaOperation *add_op = NULL;
@@ -194,12 +203,21 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->skip_weight_rls = (h + split_H < total_h) ? 1 : 0;
       conv_desc->entry_per_slice = finfo.eps;
       conv_desc->data_format = FORMAT_FEATURE;
+#if HAS_IMAGE_MODE
+      // Golden image_mode loadable has data_format 15 = R8G8B8A8.
+      // FIXME: for now, always use data_format 15 for image mode.
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_desc->data_format = 15;
+      }
+#endif
       conv_desc->pixel_mapping = 0;
       conv_desc->fetch_grain = 1;
       conv_desc->batch = 1;
       conv_desc->weight_format = WEIGHT_FORMAT_UNCOMPRESSED;
       conv_desc->data_bank = finfo.banks;
       conv_desc->weight_bank = winfo.banks;
+			printf ("DBG2: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
       conv_desc->batch_stride = 0;
       conv_desc->post_extension = 0;
       conv_desc->pixel_override = 0;
@@ -210,6 +228,14 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->kernel_channel_csc = winfo.dim_c;
       conv_desc->kernel_width_csc = winfo.dim_w;
       conv_desc->kernel_height_csc = winfo.dim_h;
+#if HAS_IMAGE_MODE
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_desc->kernel_channel_csc = winfo.dim_w * winfo.dim_c;
+        conv_desc->kernel_width_csc = 1;
+        conv_desc->kernel_height_csc = winfo.dim_h;
+      }
+#endif
       conv_desc->input_width_cmac = output_Y_dims[3];
       conv_desc->input_height_cmac = output_h;
       conv_desc->bytes_per_kernel = winfo.dim_c * winfo.dim_h * winfo.dim_w * ELEMENT_SIZE;
@@ -227,8 +253,8 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->dilation_x = dilations[1];
       conv_desc->dilation_y = dilations[0];
       conv_desc->pra_truncate = 0;
-      conv_desc->in_precision = PRECISION_INT8;
-      conv_desc->out_precision = PRECISION_INT8;
+      conv_desc->in_precision = DLA_PRECISION;  // INT8 vs INT16 vs FP16
+      conv_desc->out_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
       conv_desc->out_cvt.scale = 1;
       conv_desc->out_cvt.enable = 1;
       conv_desc->pad_val = 0;
@@ -271,14 +297,25 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_surf->dst_data.surf_stride = Y_cube.stride_surface;
       conv_surf->dst_data.plane_stride = Y_cube.stride_plane;
 
+#if HAS_IMAGE_MODE
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
+        conv_surf->src_data.size = finfo.dim_w * finfo.dim_h * finfo.dim_c;
+        conv_surf->src_data.line_stride = (finfo.dim_w * finfo.dim_c + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
+        conv_surf->src_data.surf_stride = 0;
+        conv_surf->dst_data.size = 0;
+      }
+#endif
+
       // Bias Add
       if (pOp.getNumOfInputs() > 2){
         add_op = new NvDlaDlaOperation();
         add_op->op_dep.op_type = DLA_OP_SDP;
 
         struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
-        add_desc->src_precision = PRECISION_INT8;
-        add_desc->dst_precision = PRECISION_INT8;
+        add_desc->src_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
+        add_desc->dst_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
         add_desc->lut_index = -1;
         add_desc->conv_mode = 0;
         add_desc->out_cvt.scale = 1;
@@ -295,7 +332,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         add_desc->x1_op.act = ACTIVATION_NONE;
         add_desc->x1_op.shift_value = 0;
         add_desc->x1_op.truncate = 0;
-        add_desc->x1_op.precision = PRECISION_INT8;
+        add_desc->x1_op.precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
         add_desc->x1_op.alu_operand = 0;
         add_desc->x1_op.mul_operand = 0;//1; //FIXME: why 1? Should be 0 when x1_op.mode == SDP_OP_PER_KERNEL 
         add_desc->x1_op.cvt.alu_cvt.scale = 0;
@@ -340,6 +377,12 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         add_surf->dst_data.line_stride = conv_surf->dst_data.line_stride;
         add_surf->dst_data.surf_stride = conv_surf->dst_data.surf_stride;
         add_surf->dst_data.plane_stride = conv_surf->dst_data.plane_stride;
+#if HAS_IMAGE_MODE
+        // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+        if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+          add_surf->dst_data.size = oinfo.size; // the regular conv_surf->dst_data.size
+        }
+#endif
 
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
@@ -357,6 +400,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     }
   }
 
+			printf ("DBG3: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
 }
 
 void CodeEmitVisitor::visit(const Reshape& pOp)
@@ -456,8 +500,8 @@ void CodeEmitVisitor::visit(const LRN& pOp)
   lrn_op->op_dep.op_type = DLA_OP_CDP;
 
   struct dla_cdp_op_desc *lrn_desc = (struct dla_cdp_op_desc *)(&(lrn_op->op_desc));
-  lrn_desc->in_precision = PRECISION_INT8;
-  lrn_desc->out_precision = PRECISION_INT8;
+  lrn_desc->in_precision = DLA_PRECISION;  // INT8 vs INT16 vs FP16
+  lrn_desc->out_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
   lrn_desc->lut_index = lut_id;
   lrn_desc->in_cvt.scale = 25304;//FIXME: quantization
   lrn_desc->in_cvt.truncate = 13;//FIXME: quantization
@@ -565,7 +609,7 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
   maxpool_desc->pad_bottom = pad_shapes[2];
   maxpool_desc->pad_right = pad_shapes[3];
 
-  maxpool_desc->precision = PRECISION_INT8;
+  maxpool_desc->precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
 
   struct dla_pdp_surface_desc *maxpool_surf = (struct dla_pdp_surface_desc *)(&(maxpool_op->op_surf));
   maxpool_surf->src_data.type = DLA_MEM_MC;
@@ -659,7 +703,7 @@ void CodeEmitVisitor::visit(const AveragePool& pOp)
   avgpool_desc->pad_bottom = pad_shapes[2];
   avgpool_desc->pad_right = pad_shapes[3];
 
-  avgpool_desc->precision = PRECISION_INT8;
+  avgpool_desc->precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
 
   struct dla_pdp_surface_desc *avgpool_surf = (struct dla_pdp_surface_desc *)(&(avgpool_op->op_surf));
   avgpool_surf->src_data.type = DLA_MEM_MC;
@@ -723,8 +767,8 @@ void CodeEmitVisitor::visit(const Relu& pOp)
   relu_op->op_dep.op_type = DLA_OP_SDP;
 
   struct dla_sdp_op_desc *relu_desc = (struct dla_sdp_op_desc *)(&(relu_op->op_desc));
-  relu_desc->src_precision = PRECISION_INT8;
-  relu_desc->dst_precision = PRECISION_INT8;
+  relu_desc->src_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
+  relu_desc->dst_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
   relu_desc->lut_index = -1;
   relu_desc->conv_mode = 0;
   relu_desc->out_cvt.scale = 1;
@@ -741,7 +785,7 @@ void CodeEmitVisitor::visit(const Relu& pOp)
   relu_desc->x1_op.act = ACTIVATION_RELU;
   relu_desc->x1_op.shift_value = 0;
   relu_desc->x1_op.truncate = 0;
-  relu_desc->x1_op.precision = PRECISION_INT8;
+  relu_desc->x1_op.precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
   relu_desc->x1_op.alu_operand = 0;
   relu_desc->x1_op.mul_operand = 1;
   relu_desc->x1_op.cvt.alu_cvt.scale = 0;
@@ -926,8 +970,8 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     conv_desc->dilation_x = 1;
     conv_desc->dilation_y = 1;
     conv_desc->pra_truncate = 0;
-    conv_desc->in_precision = PRECISION_INT8;
-    conv_desc->out_precision = PRECISION_INT8;
+    conv_desc->in_precision = DLA_PRECISION;  // INT8 vs INT16 vs FP16
+    conv_desc->out_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
     conv_desc->out_cvt.scale = 1;
     conv_desc->out_cvt.enable = 1;
     conv_desc->pad_val = 0;
@@ -977,8 +1021,8 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       add_op->op_dep.op_type = DLA_OP_SDP;
 
       struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
-      add_desc->src_precision = PRECISION_INT8;
-      add_desc->dst_precision = PRECISION_INT8;
+      add_desc->src_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
+      add_desc->dst_precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
       add_desc->lut_index = -1;
       add_desc->conv_mode = 0;
       add_desc->out_cvt.scale = 1;
@@ -995,7 +1039,7 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       add_desc->x1_op.act = ACTIVATION_NONE;
       add_desc->x1_op.shift_value = 0;
       add_desc->x1_op.truncate = 0;
-      add_desc->x1_op.precision = PRECISION_INT8;
+      add_desc->x1_op.precision = DLA_PRECISION; // INT8 vs INT16 vs FP16
       add_desc->x1_op.alu_operand = 0;
       add_desc->x1_op.mul_operand = 0; //1; //FIXME
       add_desc->x1_op.cvt.alu_cvt.scale = 0;
@@ -1085,7 +1129,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
   struct emu_softmax_buffer_descs *op_buf = (struct emu_softmax_buffer_descs*)(&(softmax_op->op_buf));
   op_buf->src_data.addressIndex = issueEmuAddr(input_mid);
   op_buf->src_data.size = input_mle.size;
-  op_buf->src_data.format = PRECISION_INT8;
+  op_buf->src_data.format = DLA_PRECISION; // INT8 vs INT16 vs FP16
   op_buf->src_data.width = input_input_dims[3];
   op_buf->src_data.height = input_input_dims[2];
   op_buf->src_data.channel = input_input_dims[1];
@@ -1100,7 +1144,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
 
   op_buf->dst_data.addressIndex = issueEmuAddr(output_mid);
   op_buf->dst_data.size = output_mle.size;
-  op_buf->dst_data.format = PRECISION_INT8;
+  op_buf->dst_data.format = DLA_PRECISION; // INT8 vs INT16 vs FP16
   op_buf->dst_data.width = output_output_dims[3];
   op_buf->dst_data.height = output_output_dims[2];
   op_buf->dst_data.channel = output_output_dims[1];
