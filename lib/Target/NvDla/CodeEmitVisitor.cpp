@@ -344,9 +344,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
         conv_surf->dst_data.size = 0;
-        conv_surf->dst_data.line_stride = 0;
-        conv_surf->dst_data.surf_stride = 0;
-        conv_surf->dst_data.plane_stride = 0;
+        //conv_surf->dst_data.line_stride = 0;
+        //conv_surf->dst_data.surf_stride = 0;
+        //conv_surf->dst_data.plane_stride = 0;
       }
       NvDlaDlaOperation *prev_op = (h == 0) ? m_pMeta.m_pPrevOp : NULL;
       issueDlaOp(conv_op, add_op, prev_op);
@@ -1043,9 +1043,9 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       conv_surf->dst_data.type = DLA_MEM_HW;
       conv_surf->dst_data.address = -1;
       conv_surf->dst_data.size = 0;
-      conv_surf->dst_data.line_stride = 0;
-      conv_surf->dst_data.surf_stride = 0;
-      conv_surf->dst_data.plane_stride = 0;
+      //conv_surf->dst_data.line_stride = 0;
+      //conv_surf->dst_data.surf_stride = 0;
+      //conv_surf->dst_data.plane_stride = 0;
     }
     issueDlaOp(conv_op, add_op, m_pMeta.m_pPrevOp);
   }
@@ -1462,9 +1462,9 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
         conv_surf->dst_data.size = 0;
-        conv_surf->dst_data.line_stride = 0;
-        conv_surf->dst_data.surf_stride = 0;
-        conv_surf->dst_data.plane_stride = 0;
+        //conv_surf->dst_data.line_stride = 0;
+        //conv_surf->dst_data.surf_stride = 0;
+        //conv_surf->dst_data.plane_stride = 0;
       }
       NvDlaDlaOperation *prev_op = (h == 0) ? m_pMeta.m_pPrevOp : NULL;
       issueDlaOp(conv_op, add_op, prev_op);
@@ -1899,9 +1899,9 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
         conv_surf->dst_data.size = 0;
-        conv_surf->dst_data.line_stride = 0;
-        conv_surf->dst_data.surf_stride = 0;
-        conv_surf->dst_data.plane_stride = 0;
+        //conv_surf->dst_data.line_stride = 0;
+        //conv_surf->dst_data.surf_stride = 0;
+        //conv_surf->dst_data.plane_stride = 0;
       }
       NvDlaDlaOperation *prev_op = (h == 0) ? m_pMeta.m_pPrevOp : NULL;
       issueDlaOp(conv_op, add_op, prev_op);
@@ -2186,9 +2186,9 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
       conv_surf->dst_data.type = DLA_MEM_HW;
       conv_surf->dst_data.address = -1;
       conv_surf->dst_data.size = 0;
-      conv_surf->dst_data.line_stride = 0;
-      conv_surf->dst_data.surf_stride = 0;
-      conv_surf->dst_data.plane_stride = 0;
+      //conv_surf->dst_data.line_stride = 0;
+      //conv_surf->dst_data.surf_stride = 0;
+      //conv_surf->dst_data.plane_stride = 0;
     }
     issueDlaOp(conv_op, add_op, m_pMeta.m_pPrevOp);
   }
