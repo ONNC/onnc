@@ -125,7 +125,8 @@ public:
 
 enum nvdla_cube_type {
   NVDLA_CUBE_FEATURE,
-  NVDLA_CUBE_WEIGHT
+  NVDLA_CUBE_WEIGHT,
+  NVDLA_CUBE_IMAGE
 };
 
 class NvDlaCubeInfo

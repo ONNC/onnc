@@ -51,12 +51,20 @@ void CodeEmitVisitor::visit(const Conv& pOp)
 {
   pOp.print(errs());
   errs() << "\n";
+
+  int is_image_mode = 0;
   
   const Tensor *input_X_t = pOp.getInput(0);
   //void *input_X = m_ATable[input_X_t];
   int32_t input_X_ndim = input_X_t->getNumOfDimensions();
   int32_t input_X_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_X_ndim; ++i) input_X_dims[i] = input_X_t->dimension(i);
+#if HAS_IMAGE_MODE
+  is_image_mode = (3 == input_X_dims[1] || 4 == input_X_dims[1]); //FIXME: any smarter way?;
+  if (is_image_mode) {
+    input_X_dims[1] = 4; // Hardware requires image to be 4 channels
+  }
+#endif
   int X_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
   NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
@@ -68,7 +76,12 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   int32_t input_W_ndim = input_W_t->getNumOfDimensions();
   int32_t input_W_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_W_ndim; ++i) input_W_dims[i] = input_W_t->dimension(i);
-
+#if HAS_IMAGE_MODE
+  if (is_image_mode) {
+    input_W_dims[1] = 4; // Hardware requires image to be 4 channels
+  }
+#endif
+  
   const Tensor *input_B_t = NULL;
   void *input_B = NULL;
   int32_t input_B_ndim = 0;
@@ -122,7 +135,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     output_Y_dims[1] /= group;
   }
 
-  NvDlaCubeInfo fcube_group(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
+  NvDlaCubeInfo fcube_group((is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
   NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3], ELEMENT_SIZE);
 			printf ("DBG0: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
   NVDLA_DBG(
@@ -187,7 +200,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       int output_h = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
 
       NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
-      NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
+      NvDlaCubeInfo finfo((is_image_mode)?NVDLA_CUBE_IMAGE:NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
       NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3], ELEMENT_SIZE);
 			printf ("DBG0: f banks %d, o banks %d\n", finfo.banks, oinfo.banks);
 
@@ -301,10 +314,10 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_surf->dst_data.surf_stride = Y_cube.stride_surface;
       conv_surf->dst_data.plane_stride = Y_cube.stride_plane;
 
-#if HAS_IMAGE_MODE
+#if 0 //HAS_IMAGE_MODE
       // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
       if (finfo.dim_c == 3 || finfo.dim_c == 4) {
-        conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
+        //conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
         conv_surf->src_data.size = finfo.dim_w * finfo.dim_h * finfo.dim_c;
         conv_surf->src_data.line_stride = (finfo.dim_w * finfo.dim_c + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
         //conv_surf->src_data.surf_stride = 0;
@@ -1243,12 +1256,21 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
   const Conv& pOp = pConvRelu.m_Conv;
   pOp.print(errs());
   errs() << "\n";
+
+  int is_image_mode = 0;
   
   const Tensor *input_X_t = pOp.getInput(0);
   //void *input_X = m_ATable[input_X_t];
   int32_t input_X_ndim = input_X_t->getNumOfDimensions();
   int32_t input_X_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_X_ndim; ++i) input_X_dims[i] = input_X_t->dimension(i);
+#if HAS_IMAGE_MODE
+  is_image_mode = (3 == input_X_dims[1] || 4 == input_X_dims[1]); //FIXME: any smarter way?;
+  if (is_image_mode) {
+    input_X_dims[1] = 4; // Hardware requires image to be 4 channels
+  }
+#endif
+  
   int X_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
   NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
@@ -1259,6 +1281,11 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
   int32_t input_W_ndim = input_W_t->getNumOfDimensions();
   int32_t input_W_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_W_ndim; ++i) input_W_dims[i] = input_W_t->dimension(i);
+#if HAS_IMAGE_MODE
+  if (is_image_mode) {
+    input_W_dims[1] = 4; // Hardware requires image to be 4 channels
+  }
+#endif
 
   const Tensor *input_B_t = NULL;
   void *input_B = NULL;
@@ -1312,7 +1339,7 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
     output_Y_dims[1] /= group;
   }
 
-  NvDlaCubeInfo fcube_group(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
+  NvDlaCubeInfo fcube_group((is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
   NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3], ELEMENT_SIZE);
   NVDLA_DBG(
           "conv(%d) f(%d %d %d %d eps:%d banks:%d) w(%d %d %d %d banks:%d) b(%d %d %d %d) y(%d %d %d %d)\n", group,
@@ -1371,7 +1398,8 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       int output_h = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
 
       NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
-      NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
+      NvDlaCubeInfo finfo((is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
+
       NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3], ELEMENT_SIZE);
 
       NvDlaDlaOperation *conv_op = new NvDlaDlaOperation();
@@ -1483,10 +1511,10 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_surf->dst_data.surf_stride = Y_cube.stride_surface;
       conv_surf->dst_data.plane_stride = Y_cube.stride_plane;
 
-#if HAS_IMAGE_MODE
+#if 0 //HAS_IMAGE_MODE
       // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
       if (finfo.dim_c == 3 || finfo.dim_c == 4) {
-        conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
+        //conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
         conv_surf->src_data.size = finfo.dim_w * finfo.dim_h * finfo.dim_c;
         conv_surf->src_data.line_stride = (finfo.dim_w * finfo.dim_c + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
         //conv_surf->src_data.surf_stride = 0;
@@ -1728,12 +1756,20 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
   const Conv& pOp = pConvRelu.m_Conv;
   pOp.print(errs());
   errs() << "\n";
+
+  int is_image_mode = 0;
   
   const Tensor *input_X_t = pOp.getInput(0);
   //void *input_X = m_ATable[input_X_t];
   int32_t input_X_ndim = input_X_t->getNumOfDimensions();
   int32_t input_X_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_X_ndim; ++i) input_X_dims[i] = input_X_t->dimension(i);
+#if HAS_IMAGE_MODE
+  is_image_mode = (3 == input_X_dims[1] || 4 == input_X_dims[1]); //FIXME: any smarter way?;
+  if (is_image_mode) {
+    input_X_dims[1] = 4; // Hardware requires image to be 4 channels
+  }
+#endif
   int X_mid = m_pMeta.m_MemIdxTable[(Tensor *)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
   NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
@@ -1744,6 +1780,11 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
   int32_t input_W_ndim = input_W_t->getNumOfDimensions();
   int32_t input_W_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_W_ndim; ++i) input_W_dims[i] = input_W_t->dimension(i);
+#if HAS_IMAGE_MODE
+  if (is_image_mode) {
+    input_W_dims[1] = 4; // Hardware requires image to be 4 channels
+  }
+#endif
 
   const Tensor *input_B_t = NULL;
   void *input_B = NULL;
@@ -1797,7 +1838,7 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
     output_Y_dims[1] /= group;
   }
 
-  NvDlaCubeInfo fcube_group(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
+  NvDlaCubeInfo fcube_group((is_image_mode)?NVDLA_CUBE_IMAGE:NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], ELEMENT_SIZE);
   NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3], ELEMENT_SIZE);
   NVDLA_DBG(
           "conv(%d) f(%d %d %d %d eps:%d banks:%d) w(%d %d %d %d banks:%d) b(%d %d %d %d) y(%d %d %d %d)\n", group,
@@ -1856,7 +1897,7 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
       int output_h = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
 
       NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
-      NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
+      NvDlaCubeInfo finfo((is_image_mode)?NVDLA_CUBE_IMAGE:NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], op_h + kernel_size, input_X_dims[3], ELEMENT_SIZE);
       NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3], ELEMENT_SIZE);
 
       NvDlaDlaOperation *conv_op = new NvDlaDlaOperation();
@@ -1891,6 +1932,14 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
       conv_desc->kernel_channel_csc = winfo.dim_c;
       conv_desc->kernel_width_csc = winfo.dim_w;
       conv_desc->kernel_height_csc = winfo.dim_h;
+#if HAS_IMAGE_MODE
+      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+        conv_desc->kernel_channel_csc = winfo.dim_w * winfo.dim_c;
+        conv_desc->kernel_width_csc = 1;
+        conv_desc->kernel_height_csc = winfo.dim_h;
+      }
+#endif
       conv_desc->input_width_cmac = output_Y_dims[3];
       conv_desc->input_height_cmac = output_h;
       conv_desc->bytes_per_kernel = winfo.dim_c * winfo.dim_h * winfo.dim_w * ELEMENT_SIZE;
@@ -2030,6 +2079,12 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
         add_surf->dst_data.line_stride = conv_surf->dst_data.line_stride;
         add_surf->dst_data.surf_stride = conv_surf->dst_data.surf_stride;
         add_surf->dst_data.plane_stride = conv_surf->dst_data.plane_stride;
+#if HAS_IMAGE_MODE
+        // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+        if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+          add_surf->dst_data.size = oinfo.size; // the regular conv_surf->dst_data.size
+        }
+#endif
 
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;

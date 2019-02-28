@@ -153,6 +153,12 @@ void weight_pack(void *buf, float *data, int G, int dims[4], int type)
             int data_ofs =  ((n*16 + n_ofs) * (G*C) * H * W) +    // n = n*16 + n_ofs
                             ((c + C_offset)) * H * W +            // c = c + C_offset
                             (h * W) + w;
+#if HAS_IMAGE_MODE
+            if (C == 4 && c == 3) {//FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
+              *(blob + blob_ofs) = 0;
+              continue;
+            }
+#endif
             *(blob + blob_ofs) = __gnu_f2h_ieee(*(data + data_ofs));
           }
         }
