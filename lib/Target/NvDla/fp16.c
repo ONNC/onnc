@@ -15,32 +15,7 @@
 
 // ------------------------------
 
-// FIXME: currently duplicated declaration at fp16.c & NvDlaMeta.h
-#if 1
-    // nv_small
-    #define FEATURE_ATOM_CUBE_SIZE  8
-    #define WEIGHT_ATOM_CUBE_SIZE   8
-
-    #define ELEMENT_SIZE       1
-    #define CBUF_BANK_DEPTH  512
-    #define CBUF_BANK_NUM     32
-    #define MAC_ATOMIC_C       8
-    #define MAC_ATOMIC_K       8
-
-    typedef char nv_weight_t;
-#else
-    // nv_full
-    #define FEATURE_ATOM_CUBE_SIZE   32
-    #define WEIGHT_ATOM_CUBE_SIZE   128
-
-    #define ELEMENT_SIZE       2
-    #define CBUF_BANK_DEPTH  256
-    #define CBUF_BANK_NUM     16
-    #define MAC_ATOMIC_C      64
-    #define MAC_ATOMIC_K      16
-
-    typedef short nv_weight_t;
-#endif
+#include "NvDlaDefine.h"
 
 // ------------------------------
 

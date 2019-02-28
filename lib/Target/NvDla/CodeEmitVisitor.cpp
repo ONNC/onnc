@@ -221,7 +221,11 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->batch_stride = 0;
       conv_desc->post_extension = 0;
       conv_desc->pixel_override = 0;
-      conv_desc->release = 1; //op_h + kernel_size; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#if DLA_NV_SMALL
+      conv_desc->release = 1; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#else
+      conv_desc->release = op_h + kernel_size;
+#endif
       conv_desc->input_width_csc = finfo.dim_w;
       conv_desc->input_height_csc = finfo.dim_h;
       conv_desc->input_channel_csc = finfo.dim_c;
@@ -303,8 +307,8 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
         conv_surf->src_data.size = finfo.dim_w * finfo.dim_h * finfo.dim_c;
         conv_surf->src_data.line_stride = (finfo.dim_w * finfo.dim_c + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
-        conv_surf->src_data.surf_stride = 0;
-        conv_surf->dst_data.size = 0;
+        //conv_surf->src_data.surf_stride = 0;
+        //conv_surf->dst_data.size = 0;
       }
 #endif
 
@@ -349,14 +353,23 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
         add_surf->src_data.type = DLA_MEM_HW;
         add_surf->src_data.address = -1;
-        add_surf->src_data.size = 0;//conv_surf->dst_data.size;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#if DLA_NV_SMALL
+        add_surf->src_data.size = 0;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#else
+        add_surf->src_data.size = conv_surf->dst_data.size;
+#endif
         add_surf->src_data.width = conv_surf->dst_data.width;
         add_surf->src_data.height = conv_surf->dst_data.height;
         add_surf->src_data.channel = conv_surf->dst_data.channel;
-        add_surf->src_data.line_stride = 0;//oinfo.stride_line;
+#if DLA_NV_SMALL
+        add_surf->src_data.line_stride = 0;//oinfo.stride_line; //FIXME?
         add_surf->src_data.surf_stride = 0;//oinfo.stride_surface;
         add_surf->src_data.plane_stride = 0;//oinfo.stride_plane;
-
+#else
+        add_surf->src_data.line_stride = oinfo.stride_line;
+        add_surf->src_data.surf_stride = oinfo.stride_surface;
+        add_surf->src_data.plane_stride = oinfo.stride_plane;
+#endif
         add_surf->x1_data.type = DLA_MEM_MC;
         add_surf->x1_data.address = B_addr;
         add_surf->x1_data.size = B_mle.size;
@@ -386,7 +399,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
 
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
-        conv_surf->dst_data.size = 0;
+#if DLA_NV_SMALL
+        conv_surf->dst_data.size = 0;//FIXME: really needs 0???
+#endif
         //conv_surf->dst_data.line_stride = 0;
         //conv_surf->dst_data.surf_stride = 0;
         //conv_surf->dst_data.plane_stride = 0;
@@ -946,7 +961,11 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     conv_desc->batch_stride = 0;
     conv_desc->post_extension = 0;
     conv_desc->pixel_override = 0;
-    conv_desc->release = 1; //input_A_dims[2]; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#if DLA_NV_SMALL
+    conv_desc->release = 1; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#else
+    conv_desc->release = input_A_dims[2];
+#endif
     conv_desc->input_width_csc = finfo.dim_w;
     conv_desc->input_height_csc = finfo.dim_h;
     conv_desc->input_channel_csc = finfo.dim_c;
@@ -1056,14 +1075,23 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
       add_surf->src_data.type = DLA_MEM_HW;
       add_surf->src_data.address = -1;
-      add_surf->src_data.size = 0; //conv_surf->dst_data.size; //FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#if DLA_NV_SMALL
+      add_surf->src_data.size = 0; //FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#else
+      add_surf->src_data.size = conv_surf->dst_data.size;
+#endif
       add_surf->src_data.width = conv_surf->dst_data.width;
       add_surf->src_data.height = conv_surf->dst_data.height;
       add_surf->src_data.channel = conv_surf->dst_data.channel;
+#if DLA_NV_SMALL
       add_surf->src_data.line_stride = 0;//oinfo.stride_line;
       add_surf->src_data.surf_stride = 0;//oinfo.stride_surface;
       add_surf->src_data.plane_stride = 0;//oinfo.stride_plane;
-
+#else
+      add_surf->src_data.line_stride = oinfo.stride_line;
+      add_surf->src_data.surf_stride = oinfo.stride_surface;
+      add_surf->src_data.plane_stride = oinfo.stride_plane;
+#endif
       add_surf->x1_data.type = DLA_MEM_MC;
       add_surf->x1_data.address = issueDlaAddr(C_mid, binfo, 1, 0, 0);
       add_surf->x1_data.size = C_mle.size;
@@ -1086,7 +1114,9 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
 
       conv_surf->dst_data.type = DLA_MEM_HW;
       conv_surf->dst_data.address = -1;
-      conv_surf->dst_data.size = 0;
+#if DLA_NV_SMALL
+      conv_surf->dst_data.size = 0;//FIXME: 
+#endif
       //conv_surf->dst_data.line_stride = 0;
       //conv_surf->dst_data.surf_stride = 0;
       //conv_surf->dst_data.plane_stride = 0;
@@ -1373,7 +1403,11 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_desc->batch_stride = 0;
       conv_desc->post_extension = 0;
       conv_desc->pixel_override = 0;
-      conv_desc->release = 1; //op_h + kernel_size;//FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#if DLA_NV_SMALL
+      conv_desc->release = 1; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#else
+      conv_desc->release = op_h + kernel_size;
+#endif
       conv_desc->input_width_csc = finfo.dim_w;
       conv_desc->input_height_csc = finfo.dim_h;
       conv_desc->input_channel_csc = finfo.dim_c;
@@ -1405,8 +1439,8 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_desc->dilation_x = dilations[1];
       conv_desc->dilation_y = dilations[0];
       conv_desc->pra_truncate = 0;
-      conv_desc->in_precision = PRECISION_INT8;
-      conv_desc->out_precision = PRECISION_INT8;
+      conv_desc->in_precision = DLA_PRECISION;
+      conv_desc->out_precision = DLA_PRECISION;
       conv_desc->out_cvt.scale = 1;
       conv_desc->out_cvt.enable = 1;
       conv_desc->pad_val = 0;
@@ -1455,8 +1489,8 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
         conv_surf->weight_data.size = winfo.dim_w * winfo.dim_h * winfo.dim_c * winfo.dim_n;
         conv_surf->src_data.size = finfo.dim_w * finfo.dim_h * finfo.dim_c;
         conv_surf->src_data.line_stride = (finfo.dim_w * finfo.dim_c + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
-        conv_surf->src_data.surf_stride = 0;
-        conv_surf->dst_data.size = 0;
+        //conv_surf->src_data.surf_stride = 0;
+        //conv_surf->dst_data.size = 0;
       }
 #endif
 
@@ -1466,8 +1500,8 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
         add_op->op_dep.op_type = DLA_OP_SDP;
 
         struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
-        add_desc->src_precision = PRECISION_INT8;
-        add_desc->dst_precision = PRECISION_INT8;
+        add_desc->src_precision = DLA_PRECISION;
+        add_desc->dst_precision = DLA_PRECISION;
         add_desc->lut_index = -1;
         add_desc->conv_mode = 0;
         add_desc->out_cvt.scale = 1;
@@ -1484,7 +1518,7 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
         add_desc->x1_op.act = ACTIVATION_RELU;
         add_desc->x1_op.shift_value = 0;
         add_desc->x1_op.truncate = 0;
-        add_desc->x1_op.precision = PRECISION_INT8;
+        add_desc->x1_op.precision = DLA_PRECISION;
         add_desc->x1_op.alu_operand = 0;
         add_desc->x1_op.mul_operand = 0; //1; //FIXME
         add_desc->x1_op.cvt.alu_cvt.scale = 0;
@@ -1501,14 +1535,23 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
         struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
         add_surf->src_data.type = DLA_MEM_HW;
         add_surf->src_data.address = -1;
-        add_surf->src_data.size = 0;//conv_surf->dst_data.size;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#if DLA_NV_SMALL
+        add_surf->src_data.size = 0;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#else
+        add_surf->src_data.size = conv_surf->dst_data.size;
+#endif
         add_surf->src_data.width = conv_surf->dst_data.width;
         add_surf->src_data.height = conv_surf->dst_data.height;
         add_surf->src_data.channel = conv_surf->dst_data.channel;
+#if DLA_NV_SMALL
         add_surf->src_data.line_stride = 0;//oinfo.stride_line;
         add_surf->src_data.surf_stride = 0;//oinfo.stride_surface;
         add_surf->src_data.plane_stride = 0;//oinfo.stride_plane;
-
+#else
+        add_surf->src_data.line_stride = oinfo.stride_line;
+        add_surf->src_data.surf_stride = oinfo.stride_surface;
+        add_surf->src_data.plane_stride = oinfo.stride_plane;
+#endif
         add_surf->x1_data.type = DLA_MEM_MC;
         add_surf->x1_data.address = B_addr;
         add_surf->x1_data.size = B_mle.size;
@@ -1538,7 +1581,9 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
 
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
-        conv_surf->dst_data.size = 0;
+#if DLA_NV_SMALL
+        conv_surf->dst_data.size = 0;//FIXME
+#endif
         //conv_surf->dst_data.line_stride = 0;
         //conv_surf->dst_data.surf_stride = 0;
         //conv_surf->dst_data.plane_stride = 0;
@@ -1639,7 +1684,7 @@ void CodeEmitVisitor::visit(const NvDlaMaxPool& pMaxPool)
     maxpool_desc->pad_bottom = pad_shapes[2];
     maxpool_desc->pad_right = pad_shapes[3];
 
-    maxpool_desc->precision = PRECISION_INT8;
+    maxpool_desc->precision = DLA_PRECISION;
 
     struct dla_pdp_surface_desc *maxpool_surf = (struct dla_pdp_surface_desc *)(&(maxpool_op->op_surf));
     maxpool_surf->src_data.type = DLA_MEM_MC;
@@ -1835,7 +1880,11 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
       conv_desc->batch_stride = 0;
       conv_desc->post_extension = 0;
       conv_desc->pixel_override = 0;
-      conv_desc->release = 1; //op_h + kernel_size;//FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#if DLA_NV_SMALL
+      conv_desc->release = 1; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#else
+      conv_desc->release = op_h + kernel_size;
+#endif
       conv_desc->input_width_csc = finfo.dim_w;
       conv_desc->input_height_csc = finfo.dim_h;
       conv_desc->input_channel_csc = finfo.dim_c;
@@ -1859,8 +1908,8 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
       conv_desc->dilation_x = dilations[1];
       conv_desc->dilation_y = dilations[0];
       conv_desc->pra_truncate = 0;
-      conv_desc->in_precision = PRECISION_INT8;
-      conv_desc->out_precision = PRECISION_INT8;
+      conv_desc->in_precision = DLA_PRECISION;
+      conv_desc->out_precision = DLA_PRECISION;
       conv_desc->out_cvt.scale = 1;
       conv_desc->out_cvt.enable = 1;
       conv_desc->pad_val = 0;
@@ -1909,8 +1958,8 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
         add_op->op_dep.op_type = DLA_OP_SDP;
 
         struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
-        add_desc->src_precision = PRECISION_INT8;
-        add_desc->dst_precision = PRECISION_INT8;
+        add_desc->src_precision = DLA_PRECISION;
+        add_desc->dst_precision = DLA_PRECISION;
         add_desc->lut_index = -1;
         add_desc->conv_mode = 0;
         add_desc->out_cvt.scale = 1;
@@ -1927,7 +1976,7 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
         add_desc->x1_op.act = ACTIVATION_RELU;
         add_desc->x1_op.shift_value = 0;
         add_desc->x1_op.truncate = 0;
-        add_desc->x1_op.precision = PRECISION_INT8;
+        add_desc->x1_op.precision = DLA_PRECISION;
         add_desc->x1_op.alu_operand = 0;
         add_desc->x1_op.mul_operand = 0; //1; //FIXME
         add_desc->x1_op.cvt.alu_cvt.scale = 0;
@@ -1944,14 +1993,23 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
         struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
         add_surf->src_data.type = DLA_MEM_HW;
         add_surf->src_data.address = -1;
-        add_surf->src_data.size = 0;//conv_surf->dst_data.size;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#if DLA_NV_SMALL
+        add_surf->src_data.size = 0;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#else
+        add_surf->src_data.size = conv_surf->dst_data.size;
+#endif
         add_surf->src_data.width = conv_surf->dst_data.width;
         add_surf->src_data.height = conv_surf->dst_data.height;
         add_surf->src_data.channel = conv_surf->dst_data.channel;
+#if DLA_NV_SMALL
         add_surf->src_data.line_stride = 0;
         add_surf->src_data.surf_stride = 0;
         add_surf->src_data.plane_stride = 0;
-
+#else
+        add_surf->src_data.line_stride = oinfo.stride_line;
+        add_surf->src_data.surf_stride = oinfo.stride_surface;
+        add_surf->src_data.plane_stride = oinfo.stride_plane;
+#endif
         add_surf->x1_data.type = DLA_MEM_MC;
         add_surf->x1_data.address = B_addr;
         add_surf->x1_data.size = B_mle.size;
@@ -1975,7 +2033,9 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
 
         conv_surf->dst_data.type = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
+#if DLA_NV_SMALL
         conv_surf->dst_data.size = 0;
+#endif
         //conv_surf->dst_data.line_stride = 0;
         //conv_surf->dst_data.surf_stride = 0;
         //conv_surf->dst_data.plane_stride = 0;
@@ -2122,7 +2182,11 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
     conv_desc->batch_stride = 0;
     conv_desc->post_extension = 0;
     conv_desc->pixel_override = 0;
-    conv_desc->release = 1; //input_A_dims[2]; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#if DLA_NV_SMALL
+    conv_desc->release = 1; //FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+#else
+    conv_desc->release =input_A_dims[2];
+#endif
     conv_desc->input_width_csc = finfo.dim_w;
     conv_desc->input_height_csc = finfo.dim_h;
     conv_desc->input_channel_csc = finfo.dim_c;
@@ -2146,8 +2210,8 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
     conv_desc->dilation_x = 1;
     conv_desc->dilation_y = 1;
     conv_desc->pra_truncate = 0;
-    conv_desc->in_precision = PRECISION_INT8;
-    conv_desc->out_precision = PRECISION_INT8;
+    conv_desc->in_precision = DLA_PRECISION;
+    conv_desc->out_precision = DLA_PRECISION;
     conv_desc->out_cvt.scale = 1;
     conv_desc->out_cvt.enable = 1;
     conv_desc->pad_val = 0;
@@ -2197,8 +2261,8 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
       add_op->op_dep.op_type = DLA_OP_SDP;
 
       struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
-      add_desc->src_precision = PRECISION_INT8;
-      add_desc->dst_precision = PRECISION_INT8;
+      add_desc->src_precision = DLA_PRECISION;
+      add_desc->dst_precision = DLA_PRECISION;
       add_desc->lut_index = -1;
       add_desc->conv_mode = 0;
       add_desc->out_cvt.scale = 1;
@@ -2215,7 +2279,7 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
       add_desc->x1_op.act = ACTIVATION_RELU;
       add_desc->x1_op.shift_value = 0;
       add_desc->x1_op.truncate = 0;
-      add_desc->x1_op.precision = PRECISION_INT8;
+      add_desc->x1_op.precision = DLA_PRECISION;
       add_desc->x1_op.alu_operand = 0;
       add_desc->x1_op.mul_operand = 0; //1;//FIXME
       add_desc->x1_op.cvt.alu_cvt.scale = 0;
@@ -2232,14 +2296,23 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
       struct dla_sdp_surface_desc *add_surf = (struct dla_sdp_surface_desc *)(&(add_op->op_surf));
       add_surf->src_data.type = DLA_MEM_HW;
       add_surf->src_data.address = -1;
-      add_surf->src_data.size = 0;//conv_surf->dst_data.size;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#if DLA_NV_SMALL
+      add_surf->src_data.size = 0;//FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this value. Seems this value does not impact anything in KMD.
+#else
+      add_surf->src_data.size = conv_surf->dst_data.size;
+#endif
       add_surf->src_data.width = conv_surf->dst_data.width;
       add_surf->src_data.height = conv_surf->dst_data.height;
       add_surf->src_data.channel = conv_surf->dst_data.channel;
+#if DLA_NV_SMALL
       add_surf->src_data.line_stride = 0;//oinfo.stride_line;
       add_surf->src_data.surf_stride = 0;//oinfo.stride_surface;
       add_surf->src_data.plane_stride = 0;//oinfo.stride_plane;
-
+#else
+      add_surf->src_data.line_stride = oinfo.stride_line;
+      add_surf->src_data.surf_stride = oinfo.stride_surface;
+      add_surf->src_data.plane_stride = oinfo.stride_plane;
+#endif
       add_surf->x1_data.type = DLA_MEM_MC;
       add_surf->x1_data.address = issueDlaAddr(C_mid, binfo, 1, 0, 0);
       add_surf->x1_data.size = C_mle.size;
@@ -2262,7 +2335,9 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
 
       conv_surf->dst_data.type = DLA_MEM_HW;
       conv_surf->dst_data.address = -1;
+#if DLA_NV_SMALL
       conv_surf->dst_data.size = 0;
+#endif
       //conv_surf->dst_data.line_stride = 0;
       //conv_surf->dst_data.surf_stride = 0;
       //conv_surf->dst_data.plane_stride = 0;
