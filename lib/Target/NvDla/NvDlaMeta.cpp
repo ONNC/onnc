@@ -189,8 +189,8 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       if(banks > 16) {
         banks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
         if(banks > 16)
-          banks /= 2;
-          reduced = true;
+          banks = (16 * dim_c * dim_h * dim_w * element_size  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+        reduced = true;
       }
       break;
   } // end of switch
@@ -204,7 +204,7 @@ int NvDlaCubeInfo::getReducedBanks() const
     case NVDLA_CUBE_WEIGHT: {
       int rbanks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced) {
-        rbanks /= 2;
+        rbanks = (16 * dim_c * dim_h * dim_w * element_size  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
       }
       return rbanks;
     }
@@ -220,7 +220,7 @@ void NvDlaCubeInfo::reduceBanks()
     case NVDLA_CUBE_WEIGHT:
       banks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced)
-        banks /= 2;
+        banks = (16 * dim_c * dim_h * dim_w * element_size + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
       break;
   } // end of switch
   reduced = true;
