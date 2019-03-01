@@ -229,7 +229,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       if(banks > (CBUF_BANK_NUM - 1)) {
         banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
         if(banks > (CBUF_BANK_NUM - 1)) {
-          banks /= 2;
+          banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
         }
         reduced = true;//FIXME: Not clear what `reduce` means? 
       }
@@ -245,7 +245,7 @@ int NvDlaCubeInfo::getReducedBanks() const
     case NVDLA_CUBE_WEIGHT: {
       int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced) {
-        rbanks /= 2;
+        rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       }
       return rbanks;
     }
@@ -260,8 +260,9 @@ void NvDlaCubeInfo::reduceBanks()
       break;
     case NVDLA_CUBE_WEIGHT:
       banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
-      if(reduced)
-        banks /= 2;
+      if(reduced) {
+        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+      }
       break;
   } // end of switch
   reduced = true;

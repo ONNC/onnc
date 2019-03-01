@@ -211,9 +211,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       struct dla_conv_op_desc *conv_desc = (struct dla_conv_op_desc *)(&(conv_op->op_desc));
       conv_desc->conv_mode = CONV_MODE_DIRECT;
       conv_desc->data_reuse = 0;
-      conv_desc->weight_reuse = h == 0 ? 0 : 1;
+      conv_desc->weight_reuse = (h == 0 || winfo.reduced) ? 0 : 1;
       conv_desc->skip_data_rls = 0;
-      conv_desc->skip_weight_rls = (h + split_H < total_h) ? 1 : 0;
+      conv_desc->skip_weight_rls = (!winfo.reduced && (h + split_H < total_h)) ? 1 : 0;
       conv_desc->entry_per_slice = finfo.eps;
       conv_desc->data_format = FORMAT_FEATURE;
 #if HAS_IMAGE_MODE
@@ -1409,9 +1409,9 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       struct dla_conv_op_desc *conv_desc = (struct dla_conv_op_desc *)(&(conv_op->op_desc));
       conv_desc->conv_mode = CONV_MODE_DIRECT;
       conv_desc->data_reuse = 0;
-      conv_desc->weight_reuse = h == 0 ? 0 : 1;
+      conv_desc->weight_reuse = (h == 0 || winfo.reduced) ? 0 : 1;
       conv_desc->skip_data_rls = 0;
-      conv_desc->skip_weight_rls = (h + split_H < total_h) ? 1 : 0;
+      conv_desc->skip_weight_rls = (!winfo.reduced && (h + split_H < total_h)) ? 1 : 0;
       conv_desc->entry_per_slice = finfo.eps;
       conv_desc->data_format = FORMAT_FEATURE;
 #if HAS_IMAGE_MODE
@@ -1907,9 +1907,9 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
       struct dla_conv_op_desc *conv_desc = (struct dla_conv_op_desc *)(&(conv_op->op_desc));
       conv_desc->conv_mode = CONV_MODE_DIRECT;
       conv_desc->data_reuse = 0;
-      conv_desc->weight_reuse = h == 0 ? 0 : 1;
+      conv_desc->weight_reuse = (h == 0 || winfo.reduced) ? 0 : 1;
       conv_desc->skip_data_rls = 0;
-      conv_desc->skip_weight_rls = (h + split_H < total_h) ? 1 : 0;
+      conv_desc->skip_weight_rls = (!winfo.reduced && (h + split_H < total_h)) ? 1 : 0;
       conv_desc->entry_per_slice = finfo.eps;
       conv_desc->data_format = FORMAT_FEATURE;
       conv_desc->pixel_mapping = 0;
