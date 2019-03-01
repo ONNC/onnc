@@ -10,7 +10,7 @@
 
 // ------------------------------
 
-#define DLA_NV_SMALL 0
+#define DLA_NV_SMALL 1
 #define HAS_IMAGE_MODE 1
 
 //-----------------------------
