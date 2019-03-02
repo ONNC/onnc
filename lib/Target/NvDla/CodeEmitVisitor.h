@@ -49,7 +49,7 @@ public:
   void visit(const NvDlaGemmRelu& pGemmRelu) override;
   void visit(const NvDlaConvReluMaxPool& pConvReluMaxPool) override;
   void visit(const NvDlaMaxPool& pMaxPool) override;
-  
+  void visit(const Sum& pSum) override;
   /// @}
   //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
   void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);
