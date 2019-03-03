@@ -88,7 +88,9 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   // Some layers got removed accidentially. If the second pass works alone without the first pass, the second pass works well.
   //pPM.add<NvDlaFuseConvReluPass>();
   //pPM.add<NvDlaFuseGemmReluPass>();
+#if HAS_LAYER_FUSION
   pPM.add<NvDlaLayerFusionPass>();
+#endif
 }
 
 void NvDlaBackend::addTensorSched(PassManager& pPM)
