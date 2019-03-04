@@ -132,17 +132,16 @@ enum nvdla_cube_type {
 class NvDlaCubeInfo
 {
 public:
-  NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es);
+  NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w);
 
   int getReducedBanks() const;
 
   void reduceBanks();
 
-  ~NvDlaCubeInfo() { /* do nothing*/ }
+  ~NvDlaCubeInfo() = default;
 
 public:
   nvdla_cube_type mode;
-  int element_size;
   int dim_n;
   int dim_c;
   int dim_h;

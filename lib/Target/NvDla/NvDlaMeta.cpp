@@ -144,25 +144,25 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
 //===----------------------------------------------------------------------===//
 // NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
-NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es)
-  : mode(m), element_size(es), dim_n(n), dim_c(c), dim_h(h), dim_w(w),
+NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
+  : mode(m), dim_n(n), dim_c(c), dim_h(h), dim_w(w),
     reduced(false) {
 
   switch(mode) {
     case NVDLA_CUBE_FEATURE:
-      stride_channel = element_size;
+      stride_channel = ELEMENT_SIZE;
       stride_line = dim_w*FEATURE_ATOM_CUBE_SIZE;
       stride_surface = dim_h*dim_w*FEATURE_ATOM_CUBE_SIZE;
       stride_plane = 0;
 
       {
-        int atom_c = FEATURE_ATOM_CUBE_SIZE/element_size;
+        int atom_c = FEATURE_ATOM_CUBE_SIZE/ELEMENT_SIZE;
         int fixed_c = (dim_c + (atom_c-1)) & ~(atom_c-1);
-        size = dim_n * fixed_c * dim_h * dim_w * element_size;
-        NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, element_size);
+        size = dim_n * fixed_c * dim_h * dim_w * ELEMENT_SIZE;
+        NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, ELEMENT_SIZE);
       }
       {
-        int atom_per_channel = (dim_c * element_size + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
+        int atom_per_channel = (dim_c * ELEMENT_SIZE + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
 #if FEATURE_ATOM_CUBE_SIZE == 8
         // FIXME: @cthsieh: I think the nv_small hardware has a different way to calculate this attribute from the nv_full.
         // Need confirmation.
@@ -195,16 +195,16 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       if (dim_c == 3) {
         dim_c = 4;
       }
-      stride_channel = element_size;
-      stride_line = (dim_w * dim_c * element_size + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
+      stride_channel = ELEMENT_SIZE;
+      stride_line = (dim_w * dim_c * ELEMENT_SIZE + (FEATURE_ATOM_CUBE_SIZE-1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
       stride_surface = dim_h * stride_line;
       stride_plane = 0;
 
       {
-        //int atom_c = FEATURE_ATOM_CUBE_SIZE/element_size;
+        //int atom_c = FEATURE_ATOM_CUBE_SIZE/ELEMENT_SIZE;
         //int fixed_c = (dim_c + (atom_c-1)) & ~(atom_c-1);
-        size = stride_surface; //dim_n * dim_c * dim_h * dim_w * element_size;
-        //NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, element_size);
+        size = stride_surface; //dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE;
+        //NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, ELEMENT_SIZE);
       }
       // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
       if (dim_c == 3 || dim_c == 4) {
@@ -218,18 +218,18 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
 
 
   case NVDLA_CUBE_WEIGHT:
-      size = (dim_n * dim_c * dim_h * dim_w * element_size);//FIXME: why not need padding?
+      size = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE);//FIXME: why not need padding?
       eps = 0;
-      stride_channel = element_size;
+      stride_channel = ELEMENT_SIZE;
       stride_line = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
       stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
       //FIXME:                                                 V-- Why needs to multiply this?
-      banks = (dim_n * dim_c * dim_h * dim_w * element_size + WEIGHT_ATOM_CUBE_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+      banks = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE + WEIGHT_ATOM_CUBE_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
       // Must  at least one bank for data.
       if(banks > (CBUF_BANK_NUM - 1)) {
-        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
         if(banks > (CBUF_BANK_NUM - 1)) {
-          banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+          banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
         }
         reduced = true;//FIXME: Not clear what `reduce` means? 
       }
@@ -243,9 +243,9 @@ int NvDlaCubeInfo::getReducedBanks() const
     case NVDLA_CUBE_FEATURE:
       return banks;
     case NVDLA_CUBE_WEIGHT: {
-      int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+      int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced) {
-        rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+        rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       }
       return rbanks;
     }
@@ -259,9 +259,9 @@ void NvDlaCubeInfo::reduceBanks()
     case NVDLA_CUBE_FEATURE:
       break;
     case NVDLA_CUBE_WEIGHT:
-      banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+      banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced) {
-        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
+        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       }
       break;
   } // end of switch
