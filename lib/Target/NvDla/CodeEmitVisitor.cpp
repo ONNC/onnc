@@ -2639,7 +2639,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
 
   int output_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(output_value)];
   ILoadable::MemoryListEntry output_mle = m_pMeta.m_MemoryListEntries[output_mid];
-  NvDlaCubeInfo output_cube(NVDLA_CUBE_FEATURE, output_dims[0], output_dims[1], output_dims[2], output_dims[3], sizeof(short));
+  NvDlaCubeInfo output_cube(NVDLA_CUBE_FEATURE, output_dims[0], output_dims[1], output_dims[2], output_dims[3], ELEMENT_SIZE);
 
   NvDlaDlaOperation *relu_op = new NvDlaDlaOperation();
   relu_op->op_dep.op_type = DLA_OP_SDP;
@@ -2684,7 +2684,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   }
   int left_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(input_left_t)];
   ILoadable::MemoryListEntry left_mle = m_pMeta.m_MemoryListEntries[left_mid];
-  NvDlaCubeInfo left_cube(NVDLA_CUBE_FEATURE, input_left_dims[0], input_left_dims[1], input_left_dims[2], input_left_dims[3], sizeof(short));
+  NvDlaCubeInfo left_cube(NVDLA_CUBE_FEATURE, input_left_dims[0], input_left_dims[1], input_left_dims[2], input_left_dims[3], ELEMENT_SIZE);
 
   surf_desc->src_data.type = DLA_MEM_MC;
   surf_desc->src_data.address = issueDlaAddr(left_mid, left_cube, 1, 0, 0);
@@ -2703,7 +2703,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   }
   int right_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(input_right_t)];
   ILoadable::MemoryListEntry right_mle = m_pMeta.m_MemoryListEntries[right_mid];
-  NvDlaCubeInfo right_cube(NVDLA_CUBE_FEATURE, input_right_dims[0], input_right_dims[1], input_right_dims[2], input_right_dims[3], sizeof(short));
+  NvDlaCubeInfo right_cube(NVDLA_CUBE_FEATURE, input_right_dims[0], input_right_dims[1], input_right_dims[2], input_right_dims[3], ELEMENT_SIZE);
 
   surf_desc->x1_data.type = DLA_MEM_MC;
   surf_desc->x1_data.address = issueDlaAddr(right_mid, right_cube, 1, 0, 0);
