@@ -295,8 +295,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_surf->wgs_data.type = DLA_MEM_HW;
       conv_surf->wgs_data.address = -1;
 
+      int num_atomc = (finfo.dim_c + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
       conv_surf->src_data.type = DLA_MEM_MC;
-      conv_surf->src_data.address = issueDlaAddr(X_mid, X_cube, group, g, h);
+      conv_surf->src_data.address = issueDlaAddr(X_mid, X_cube, group, g, h * num_atomc);
       conv_surf->src_data.size = finfo.size;
       conv_surf->src_data.width = finfo.dim_w;
       conv_surf->src_data.height = finfo.dim_h;
@@ -305,8 +306,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_surf->src_data.surf_stride = finfo.stride_surface;
       conv_surf->src_data.plane_stride = finfo.stride_plane;
 
+      int num_atomc = (oinfo.dim_c + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
       conv_surf->dst_data.type = DLA_MEM_MC;//FIXME: conv has no write-DMA. dst_data.type should also be DLA_MEM_HW.
-      conv_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, group, g, dst_h);
+      conv_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, group, g, dst_h * num_atomc);
       conv_surf->dst_data.size = oinfo.size;
       conv_surf->dst_data.width = oinfo.dim_w;
       conv_surf->dst_data.height = oinfo.dim_h;
@@ -1492,8 +1494,9 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_surf->wgs_data.type = DLA_MEM_HW;
       conv_surf->wgs_data.address = -1;
 
+      int num_atomc = (finfo.dim_c + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
       conv_surf->src_data.type = DLA_MEM_MC;
-      conv_surf->src_data.address = issueDlaAddr(X_mid, X_cube, group, g, h);
+      conv_surf->src_data.address = issueDlaAddr(X_mid, X_cube, group, g, h * num_atomc);
       conv_surf->src_data.size = finfo.size;
       conv_surf->src_data.width = finfo.dim_w;
       conv_surf->src_data.height = finfo.dim_h;
@@ -1502,8 +1505,9 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
       conv_surf->src_data.surf_stride = finfo.stride_surface;
       conv_surf->src_data.plane_stride = finfo.stride_plane;
 
+      int num_atomc = (oinfo.dim_c + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
       conv_surf->dst_data.type = DLA_MEM_MC;
-      conv_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, group, g, dst_h);
+      conv_surf->dst_data.address = issueDlaAddr(Y_mid, Y_cube, group, g, dst_h * num_atomc);
       conv_surf->dst_data.size = oinfo.size;
       conv_surf->dst_data.width = oinfo.dim_w;
       conv_surf->dst_data.height = oinfo.dim_h;

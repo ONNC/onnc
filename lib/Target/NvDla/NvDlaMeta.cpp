@@ -151,36 +151,21 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
   switch(mode) {
     case NVDLA_CUBE_FEATURE:
       stride_channel = ELEMENT_SIZE;
-      stride_line = dim_w*FEATURE_ATOM_CUBE_SIZE;
-      stride_surface = dim_h*dim_w*FEATURE_ATOM_CUBE_SIZE;
+      stride_line = dim_w * FEATURE_ATOM_CUBE_SIZE;
+      stride_surface = dim_h * dim_w * FEATURE_ATOM_CUBE_SIZE;
       stride_plane = 0;
 
       {
-        int atom_c = FEATURE_ATOM_CUBE_SIZE/ELEMENT_SIZE;
+        int atom_c = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
         int fixed_c = (dim_c + (atom_c-1)) & ~(atom_c-1);
+
         size = dim_n * fixed_c * dim_h * dim_w * ELEMENT_SIZE;
-        NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, ELEMENT_SIZE);
-      }
-      {
-        int atom_per_channel = (dim_c * ELEMENT_SIZE + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
-#if FEATURE_ATOM_CUBE_SIZE == 8
-        // FIXME: @cthsieh: I think the nv_small hardware has a different way to calculate this attribute from the nv_full.
-        // Need confirmation.
-        int entry_per_slice = atom_per_channel * dim_w;
-#else
-        int entry_per_slice = (atom_per_channel / 4) * dim_w;
-        switch((atom_per_channel % 4)) {
-          case 3:
-            entry_per_slice += dim_w;
-            break;
-          case 2:
-            entry_per_slice += (dim_w + 1)/2;
-            break;
-          case 1:
-            entry_per_slice += (dim_w + 3)/4;
-            break;
-        } // end of siwtch
-#endif
+
+        int segment = CBUF_BANK_WIDTH * ELEMENT_SIZE / FEATURE_ATOM_CUBE_SIZE;
+        int num_of_segment = dim_c / (atom_c * segment);
+        int entry_per_slice =
+            (dim_w * atom_c * segment * num_of_segment / CBUF_BANK_WIDTH) +
+            (dim_w * atom_c * segment * ((dim_c % (atom_c * segment)) != 0) / CBUF_BANK_WIDTH)
         eps = entry_per_slice;
       }
       banks = ((eps * dim_h) + CBUF_BANK_DEPTH - 1)/ CBUF_BANK_DEPTH;
