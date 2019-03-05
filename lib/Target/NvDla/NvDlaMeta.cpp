@@ -141,6 +141,9 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
   //TODO: clear m_DLAOperationList;
 }
 
+#define UNIT_ALIGNMENT(x, unit)   (((x) + ((unit)-1)) & ~((unit)-1))
+#define DIV_ROUNDUP(x, dividor) ((x) + (dividor) -1)/(dividor)
+
 //===----------------------------------------------------------------------===//
 // NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
@@ -157,18 +160,18 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
 
       {
         int atom_c = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
-        int fixed_c = (dim_c + (atom_c-1)) & ~(atom_c-1);
+        int fixed_c = UNIT_ALIGNMENT(dim_c, atom_c); 
 
         size = dim_n * fixed_c * dim_h * dim_w * ELEMENT_SIZE;
-
-        int segment = CBUF_BANK_WIDTH * ELEMENT_SIZE / FEATURE_ATOM_CUBE_SIZE;
-        int num_of_segment = dim_c / (atom_c * segment);
+        NVDLA_DBG(" CUBE_FEATURE %d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, ELEMENT_SIZE);
+        int segment = CBUF_BANK_WIDTH / atom_c;
+        int num_of_segments = dim_c /atom_c ;
         int entry_per_slice =
-            (dim_w * atom_c * segment * num_of_segment / CBUF_BANK_WIDTH) +
-            (dim_w * atom_c * segment * ((dim_c % (atom_c * segment)) != 0) / CBUF_BANK_WIDTH);
+            DIV_ROUNDUP((dim_w * num_of_segments * atom_c), CBUF_BANK_WIDTH) +
+            DIV_ROUNDUP((dim_w * UNIT_ALIGNMENT((dim_c - num_of_segments * atom_c), atom_c) * ((dim_c % atom_c) != 0 ? 1: 0)),  CBUF_BANK_WIDTH);
         eps = entry_per_slice;
       }
-      banks = ((eps * dim_h) + CBUF_BANK_DEPTH - 1)/ CBUF_BANK_DEPTH;
+      banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
       break;
 
 #if HAS_IMAGE_MODE
@@ -197,7 +200,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
          // sample image mode : eps = dim_w(224) * dim_c_actual(4)   / CBUF_BANK_WIDTH(8) = 112
          eps = dim_w * dim_c / CBUF_BANK_WIDTH;
       }
-      banks = ((eps * dim_h) + CBUF_BANK_DEPTH - 1)/ CBUF_BANK_DEPTH;
+      banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
       break;
 #endif // HAS_IMAGE_MODE
 
