@@ -165,7 +165,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
         int num_of_segment = dim_c / (atom_c * segment);
         int entry_per_slice =
             (dim_w * atom_c * segment * num_of_segment / CBUF_BANK_WIDTH) +
-            (dim_w * atom_c * segment * ((dim_c % (atom_c * segment)) != 0) / CBUF_BANK_WIDTH)
+            (dim_w * atom_c * segment * ((dim_c % (atom_c * segment)) != 0) / CBUF_BANK_WIDTH);
         eps = entry_per_slice;
       }
       banks = ((eps * dim_h) + CBUF_BANK_DEPTH - 1)/ CBUF_BANK_DEPTH;
