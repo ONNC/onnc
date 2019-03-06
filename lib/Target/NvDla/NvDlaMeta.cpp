@@ -159,17 +159,16 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
       stride_plane = 0;
 
       {
+         
         int atom_c = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
-        int fixed_c = UNIT_ALIGNMENT(dim_c, atom_c); 
+        int segment_c = UNIT_ALIGNMENT(dim_c, atom_c); 
 
-        size = dim_n * fixed_c * dim_h * dim_w * ELEMENT_SIZE;
-        NVDLA_DBG(" CUBE_FEATURE %d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, ELEMENT_SIZE);
-        int segment = CBUF_BANK_WIDTH / atom_c;
-        int num_of_segments = dim_c /atom_c ;
-        int entry_per_slice =
-            DIV_ROUNDUP((dim_w * num_of_segments * atom_c), CBUF_BANK_WIDTH) +
-            DIV_ROUNDUP((dim_w * UNIT_ALIGNMENT((dim_c - num_of_segments * atom_c), atom_c) * ((dim_c % atom_c) != 0 ? 1: 0)),  CBUF_BANK_WIDTH);
+        size = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
+        NVDLA_DBG("Cube_Info %d %d/%d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE);   
+        int entry_per_slice = DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);
+  
         eps = entry_per_slice;
+        
       }
       banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
       break;
