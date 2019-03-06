@@ -1,5 +1,6 @@
 
 add_libonnc_src(
+    CodeEmit.cpp
     ComputeGraph.cpp
     ComputeMemOperand.cpp
     ComputeOperand.cpp

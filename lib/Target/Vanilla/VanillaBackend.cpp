@@ -51,6 +51,7 @@
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 
+#include <memory>
 
 using namespace onnc;
 

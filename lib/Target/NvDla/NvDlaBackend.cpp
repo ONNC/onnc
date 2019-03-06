@@ -56,6 +56,7 @@
 
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 
+#include <memory>
 
 using namespace onnc;
 
@@ -63,9 +64,9 @@ using namespace onnc;
 // NvDlaBackend
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
-  : TargetBackend{pOptions}
-  , m_pMeta{}
-  , m_CodeEmitVisitor{m_pMeta} {
+  : TargetBackend{pOptions},
+    m_pMeta{},
+    m_CodeEmitVisitor{m_pMeta} {
   m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
 
@@ -157,7 +158,6 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 
 }
 
-
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
@@ -168,6 +168,6 @@ TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions)
 
 extern "C" void InitializeNvDlaONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheNvDlaTarget(),
+  onnc::TargetRegistry::RegisterTargetBackend(getFp16NvDlaTarget(),
       CreateNvDlaBackend);
 }
