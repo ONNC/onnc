@@ -1,37 +1,38 @@
 # Statistic API
 
-ONNC provides Statistic APIs, which is a set of analytic tools for user's development.
+ONNC provides Statistic APIs, a set of analytic tools for user's development.
 
 The APIs could be embedded in any parts in the ONNC project.
 
-## Supported Classes
+## Supported API Class
 
-There are APIs for statistical analysis as follows. Currently the statistic API only provides the `Counter` class.
+These classes are provided in Statistic API.
+Currently ONNC only provides the `Counter` class, other classes may be delivered in the future.
 
 | Class      | Description |
-| ----------- | ----------- |
+| ---------- | ----------- |
 | Counter | Advanced counter |
 
 ## The `Statistic` Class
 
-The datum manipulated by the classes under Statistics APIs, currently only the `Counter`, are kept by the class `Statistic`.
+The datum manipulated by the classes under Statistic API, currently only the `Counter`, are kept by `Statistic` class.
 
-`Statistic` is a sub-class of `json::Storage`: use the interface of `json::Group`.
+By accessing `Statistic` object with `onnc::global::stats()`, the `print()` method passes outputs to Standard Output or Standard Error.
 
-For checking the `Statistic` object, call `onnc::global::stats()`. The `print()` method enables passing the output to Standard Output or Standard Error.
-
-Example for output to different stream:
+This is an example for outputing to different stream:
 
 ```cpp
 global::stats().print(); // print to std::cout
 global::stats().print(std::cerr, ","); // print to std::cerr, separated by comma
 ```
 
+`Statistic` is derived from `json::Storage`, and it uses `json::Group` as the interface to manipulate low-level data.
+
 ## The `Counter` Class
 
-The [Counter](include/onnc/Analysis/Counter.h) class serves as a counter just like a regular `int` counter but with extra features.
+The [Counter](include/onnc/Analysis/Counter.h) class serves as a regular `int` counter in ONNC.
 
-It is easy to create and use the `Counter`.
+To use Counter, include `<onnc/Analysis/Counter.h>` header, use `onnc` namespace, and create an instance of `Counter` class.
 
 ```cpp
 #include <onnc/Analysis/Counter.h>
@@ -39,11 +40,12 @@ using namespace onnc;
 Counter counter {"name of counter", "description of counter", 0};
 ```
 
-The lines above, which includes the lib and uses the `onnc` namespace, should be defined at the beginning wherever the user wants to embed a counter.
 
 ### Constructor
 
-Declare a `Counter` type `counter` by the constructor. There is only **one** instance for an unique name for a counter, which means all counters shared the same name, are pointed to the same object.
+Declare a `Counter` type instance by the constructor. It takes `counter` as the example in the following sample codes.
+
+There is only **one** instance for an unique name of a counter. In other word, all counters of the same name are pointed to the same object. The `Counter` instance can be regarded as a reference object.
 
 ```cpp
 Counter counter {name, description, value, allowPrint};
@@ -83,7 +85,7 @@ The `Counter` has operators for updating the value.
 - `Counter-=`: minus and equal to the value given
 - `--Counter`: fetch the value and minus one
 - `<<Counter`: output the value to the stream
-- `=Counter`: re-bind to the other `Counter`
+- `=Counter`: re-bind to another `Counter`
 
 examples:
 
@@ -128,7 +130,7 @@ std::cout << counter.value(); // output 99
 std::cout << counter; // output 99
 ```
 
-Use the method in `Statistic` to output:
+Use the `print` method in `Statistic` to output:
 
 ```cpp
 Counter foo{"foo", 0, true}; // allowPrint == true
