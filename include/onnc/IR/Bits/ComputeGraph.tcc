@@ -77,7 +77,7 @@ OpndType* ComputeGraph::addOperand(Node& pU, Node& pV, ArcCtorParams&& ... pPara
 {
   // 1. create operand and insert into arc list
   OpndType* result = new OpndType(pParams...);
-  m_ArcList.insert(result);
+  m_ArcList.push_back(result);
 
   // 2. set up arc
   result->source = &pU;

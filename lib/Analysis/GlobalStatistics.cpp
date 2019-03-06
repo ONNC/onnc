@@ -8,17 +8,8 @@
 #include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/Analysis/Statistics.h>
 #include <onnc/Support/ManagedStatic.h>
-/*
-#include <onnc/ADT/Rope.h>
-#include <onnc/ADT/StringRef.h>
-#include <onnc/Diagnostic/MsgHandling.h>
-#include <onnc/Support/Expansion.h>
-#include <onnc/Support/FileStatus.h>
-#include <onnc/Support/IOStream.h>
-#include <onnc/Support/Environ.h>
-#include <cstdlib>
-#include <cassert>
-*/
+
+#include <memory>
 
 using namespace onnc;
 
@@ -38,26 +29,21 @@ class SkyGlobalPrivate
 public:
   SkyGlobalPrivate();
 
-  ~SkyGlobalPrivate();
+  ~SkyGlobalPrivate() = default;
 
-  Statistics* read(const Path& pConfig, Statistics::AccessMode pMode);
+  Statistics& read(const Path& pConfig, Statistics::AccessMode pMode);
 
-  Statistics* statistics() { return m_pStat; }
+  Statistics& statistics() { return *m_pStat; }
 
   void reset();
 
 private:
-  Statistics* m_pStat;
+  std::unique_ptr<Statistics> m_pStat;
 };
 
 } // namespace of internal
 } // namespace of skymizer
 
-/*
-static ManagedStatic<internal::SkyGlobalPrivate> g_SkyGlobal;
-static ManagedStatic<Cassette> g_AppCassette;
-static ManagedStatic<Cassette> g_SysCassette;
-*/
 static ManagedStatic<internal::SkyGlobalPrivate> g_Stat;
 
 
@@ -74,11 +60,11 @@ void onnc::ClearStats()
 //===----------------------------------------------------------------------===//
 // global
 //===----------------------------------------------------------------------===//
-Statistics* global::stats()
+Statistics& global::stats()
 {
-  Statistics* stats = g_Stat->statistics();
-  stats->addGroup("Counter");
-  stats->addGroup("Counter_Desc");
+  auto& stats = g_Stat->statistics();
+  stats.addGroup("Counter");
+  stats.addGroup("Counter_Desc");
   return stats;
 }
 
@@ -87,23 +73,17 @@ Statistics* global::stats()
 // SkyGlobalPrivate member functions
 //===----------------------------------------------------------------------===//
 internal::SkyGlobalPrivate::SkyGlobalPrivate()
-  : m_pStat(new Statistics()) {
+  : m_pStat(std::make_unique<Statistics>()) {
 }
 
-internal::SkyGlobalPrivate::~SkyGlobalPrivate()
-{
-  delete m_pStat;
-}
-
-Statistics*
+Statistics&
 internal::SkyGlobalPrivate::read(const Path& pConfig, Statistics::AccessMode pMode)
 {
   m_pStat->open(pConfig, pMode);
-  return m_pStat;
+  return *m_pStat;
 }
 
 void internal::SkyGlobalPrivate::reset()
 {
-  delete m_pStat;
-  m_pStat = new Statistics();
+  m_pStat = std::make_unique<Statistics>();
 }

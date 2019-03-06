@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include "X86Backend.h"
 #include "X86Interpreter.h"
 #include "X86FuseConvRelu.h"
@@ -144,12 +146,7 @@ onnc::EnableX86FuseConvRelu("enable-x86-fuse-conv-relu", cl::kLong, cl::kOptiona
 //===----------------------------------------------------------------------===//
 X86Backend::X86Backend(const TargetOptions& pOptions)
   : NPUTargetBackend(pOptions) {
-  m_pMemInfo = new X86TargetMemInfo();
-}
-
-X86Backend::~X86Backend()
-{
-  delete m_pMemInfo;
+  m_pMemInfo = std::make_unique<X86TargetMemInfo>();
 }
 
 void X86Backend::addTensorSel(PassManager& pPM)
@@ -159,7 +156,7 @@ void X86Backend::addTensorSel(PassManager& pPM)
   addStandardTensorSel(pPM, *this);
 
   if (EnableX86FuseConvRelu) {
-    pPM.add(CreateX86FuseConvReluPass());
+    pPM.add<X86FuseConvRelu>();
   }
 }
 
@@ -167,7 +164,7 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 {
   // Fuse inplace value pairs before liveness analysis, because this pass may
   // delete values. ONNC IR graph topology may become invalid after this pass.
-  pPM.add(CreateFuseInplaceValuePass(x86::IsInplaceValueFusible));
+  pPM.add<FuseInplaceValue>(x86::IsInplaceValueFusible);
 
   // Input: Module
   // Output: LiveIntervals
@@ -175,7 +172,7 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 
   // FIXME: Remove 'X86RemoveWeightFromLiveIntervals' pass, add configure in
   //        LiveIntervals to config this behaviour.
-  pPM.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  pPM.add<X86RemoveWeightFromLiveIntervals>();
 
   // Input: LiveIntervals
   // Output: MemAllocs

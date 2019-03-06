@@ -24,7 +24,7 @@ using namespace onnc;
 // MemoryAllocation
 //===----------------------------------------------------------------------===//
 MemoryAllocation::MemoryAllocation(DLATargetBackend* pDLATB)
-  : ModulePass(ID), m_GraphMemAllocList(), m_DLATB(pDLATB) {
+  : m_GraphMemAllocList(), m_DLATB(pDLATB) {
 }
 
 MemoryAllocation::~MemoryAllocation()
@@ -183,9 +183,9 @@ Pass::ReturnType MemoryAllocation::runOnModule(Module& pModule)
 
 void MemoryAllocation::getAnalysisUsage(AnalysisUsage& pUsage) const
 {
-  pUsage.addRequiredID(NodeIRScheduler::ID);
-  pUsage.addRequiredID(GraphLivenessAnalysis::ID);
-  pUsage.addRequiredID(UpdateGraphOutputSize::ID);
+  pUsage.addRequired<NodeIRScheduler>();
+  pUsage.addRequired<GraphLivenessAnalysis>();
+  pUsage.addRequired<UpdateGraphOutputSize>();
 }
 
 void MemoryAllocation::printGraphAlloc(OStream &pOS,
@@ -233,8 +233,6 @@ void MemoryAllocation::clear()
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char MemoryAllocation::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_DLA_PASS(MemoryAllocation, "MemoryAllocation")

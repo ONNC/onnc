@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_BUILD_OUTPUT_OPERATORS_H
 #define ONNC_TRANSFORM_BUILD_OUTPUT_OPERATORS_H
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 
 namespace onnc {
@@ -14,15 +15,12 @@ namespace onnc {
 /** \class BuildOutputOperators
  *  \brief BuildOutputOperators add OutputOperator objects in ComputeGraph.
  */
-class BuildOutputOperators : public GraphBuildingPass
+class BuildOutputOperators : public CustomPass<BuildOutputOperators, GraphBuildingPass>
 {
 public:
-  static char ID;
+  BuildOutputOperators() = default;
 
-public:
-  BuildOutputOperators() : GraphBuildingPass(ID) { }
-
-  ~BuildOutputOperators() { }
+  ~BuildOutputOperators() = default;
 
   Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) override;
 

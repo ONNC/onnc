@@ -23,8 +23,6 @@ using namespace onnc::BM188X;
 //===----------------------------------------------------------------------===//
 // AddLutTablePass
 //===----------------------------------------------------------------------===//
-char BM188X::AddLutTablePass::ID = 0;
-
 Pass::ReturnType
 BM188X::AddLutTablePass::runOnGraphs(xGraph& pTG, ComputeGraph& pCG)
 {

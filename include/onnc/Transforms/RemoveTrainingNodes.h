@@ -8,16 +8,14 @@
 #ifndef ONNC_REMOVE_TRAINING_NODES_H
 #define ONNC_REMOVE_TRAINING_NODES_H
 
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-class RemoveTrainingNodes : public ModulePass
+class RemoveTrainingNodes : public CustomPass<RemoveTrainingNodes>
 {
-public:
-  static char ID;
 
 public:
-  RemoveTrainingNodes();
+  RemoveTrainingNodes() = default;
 
   StringRef getPassName() const override { return "RemoveTrainingNodes"; }
 

@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TRANSFORM_BUILD_INPUT_OPERATORS_H
 #define ONNC_TRANSFORM_BUILD_INPUT_OPERATORS_H
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Transforms/GraphBuildingPass.h>
 
 namespace onnc {
@@ -14,15 +15,12 @@ namespace onnc {
 /** \class BuildInputOperators
  *  \brief BuildInputOperators add InputOperator objects in ComputeGraph.
  */
-class BuildInputOperators : public GraphBuildingPass
+class BuildInputOperators : public CustomPass<BuildInputOperators, GraphBuildingPass>
 {
 public:
-  static char ID;
+  BuildInputOperators() = default;
 
-public:
-  BuildInputOperators() : GraphBuildingPass(ID) { }
-
-  ~BuildInputOperators() { }
+  ~BuildInputOperators() = default;
 
   Pass::ReturnType runOnGraphs(xGraph& pTG, ComputeGraph& pCG) override;
 

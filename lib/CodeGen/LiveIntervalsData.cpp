@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <cassert>
+
 #include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/PassAnalysisSupport.h>
@@ -21,7 +23,9 @@ bool LiveIntervalsData::hasInterval(const Value* pV) const
 
 const LiveInterval* LiveIntervalsData::getInterval(const Value* pV) const
 {
-  return m_ValIntrvls.find(const_cast<Value*>(pV))->second;
+  assert(hasInterval(pV) && "Must have matched interval before get.");
+
+  return m_ValIntrvls.find(const_cast<Value*>(pV))->second.get();
 }
 
 void LiveIntervalsData::removeLiveInterval(const Value* pV)
@@ -35,12 +39,12 @@ const LiveIntervalsData::LIs LiveIntervalsData::getSortedIntervals() const
   LIs liveIntrvls;
   liveIntrvls.reserve(m_ValIntrvls.size());
 
-  for (auto liIter : m_ValIntrvls)
-    liveIntrvls.push_back(liIter.second);
+  for (auto& entry : m_ValIntrvls)
+    liveIntrvls.push_back(entry.second.get());
 
   // sort the index in increasing order.
   std::sort(liveIntrvls.begin(), liveIntrvls.end(),
-            [] (const LiveInterval* a, const LiveInterval* b) {
+            [] (const auto& a, const auto& b) {
               return a->beginIndex() < b->beginIndex();
             });
   return liveIntrvls;
@@ -63,26 +67,20 @@ void LiveIntervalsData::print(OStream& pOS, const Module* pModule) const
 
 void LiveIntervalsData::clear()
 {
-  for (auto liIter : m_ValIntrvls) {
-    LiveInterval* li = liIter.second;
-    delete li;
-  }
   m_ValIntrvls.clear();
 }
 
 LiveInterval* LiveIntervalsData::createEmptyLiveInterval(Value* pV)
 {
   assert(!hasInterval(pV) && "Live interval has been created.");
-  LiveInterval* li = new LiveInterval(pV);
-  m_ValIntrvls[pV] = li;
-  return li;
+  auto result = m_ValIntrvls.emplace(pV, std::make_unique<LiveInterval>(pV));
+  const auto& entry = *result.first;
+  return entry.second.get();
 }
 
 //===----------------------------------------------------------------------===//
 // LiveIntervalsData Factory method
 //===----------------------------------------------------------------------===//
-char LiveIntervalsData::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(LiveIntervalsData, "LiveIntervalsData")

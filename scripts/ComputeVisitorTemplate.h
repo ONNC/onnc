@@ -8,6 +8,8 @@
 #ifndef ONNC_IR_COMPUTE_VISITOR_H
 #define ONNC_IR_COMPUTE_VISITOR_H
 
+#include <cstdint>
+
 namespace onnc {
 
 /// ONNC defined operators
@@ -24,16 +26,12 @@ ${forward_declaration}
 class ComputeVisitor
 {
 public:
-  typedef const void* VisitorTypeID;
+  using VisitorTypeID = std::intptr_t;
 
 public:
-  ComputeVisitor() : m_VisitorID(nullptr) { }
+  ComputeVisitor() = default;
 
-  ComputeVisitor(char& pID) : m_VisitorID(&pID) { }
-
-  bool hasVisitorID() const { return (nullptr != m_VisitorID); }
-
-  VisitorTypeID getVisitorID() const { return m_VisitorID; }
+  virtual VisitorTypeID getVisitorID() const = 0;
 
   /// ONNC defined operators @{
   virtual void visit(const Initializer& pInitializer) { }
@@ -54,9 +52,6 @@ public:
   /// ONNX defined operators @{
   ${visitor_member_functions}
   /// @}
-
-private:
-  VisitorTypeID m_VisitorID;
 };
 
 } // namespace of onnc

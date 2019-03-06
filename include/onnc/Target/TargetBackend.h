@@ -7,14 +7,16 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TARGET_BACKEND_H
 #define ONNC_TARGET_TARGET_BACKEND_H
+#include <memory>
+
 #include <onnc/Core/PassManager.h>
+#include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/Support/Path.h>
 #include <onnc/Runtime/Interpreter.h>
 
 namespace onnc {
 
-class TargetMemInfo;
 class TargetOptions;
 class TargetTransformInfo;
 class LowerRegistry;
@@ -23,7 +25,7 @@ class TargetBackend
 {
 public:
   TargetBackend(const TargetOptions& pOptions)
-    : m_pMemInfo(nullptr), m_TargetOptions(pOptions) {
+    : m_TargetOptions(pOptions) {
   }
 
   virtual ~TargetBackend() { }
@@ -47,12 +49,12 @@ public:
 
   /// This is not a constant function. Because there in case memory emulator
   /// must change its internal state.
-  TargetMemInfo* getMemInfo() { return m_pMemInfo; }
+  TargetMemInfo* getMemInfo() { return m_pMemInfo.get(); }
 
-  const TargetMemInfo* getMemInfo() const { return m_pMemInfo; }
+  const TargetMemInfo* getMemInfo() const { return m_pMemInfo.get(); }
 
 protected:
-  TargetMemInfo* m_pMemInfo;
+  std::unique_ptr<TargetMemInfo> m_pMemInfo;
 
 private:
   const TargetOptions& m_TargetOptions;

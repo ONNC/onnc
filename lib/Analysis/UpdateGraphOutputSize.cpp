@@ -29,7 +29,7 @@ static unsigned int getBatchSize()
 // UpdateGraphOutputSize
 //===----------------------------------------------------------------------===//
 UpdateGraphOutputSize::UpdateGraphOutputSize()
-  : ModulePass(ID) {
+{
   m_BatchSize = getBatchSize();
 }
 
@@ -93,8 +93,6 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char UpdateGraphOutputSize::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(UpdateGraphOutputSize, "UpdateGraphOutputSize")

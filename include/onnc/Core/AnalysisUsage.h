@@ -8,6 +8,8 @@
 #ifndef ONNC_CORE_ANALYSIS_USAGE_H
 #define ONNC_CORE_ANALYSIS_USAGE_H
 #include <onnc/Core/Pass.h>
+
+#include <type_traits>
 #include <vector>
 
 namespace onnc {
@@ -32,11 +34,16 @@ public:
 
   AnalysisUsage& addRequiredID(Pass::AnalysisID pID);
 
-  AnalysisUsage& addRequiredID(char& pID);
-
-  template<class PassClass>
+  template <
+    typename PassType,
+    typename = typename std::enable_if<
+      std::is_base_of<Pass, PassType>::value
+    >::type
+  >
   AnalysisUsage& addRequired() {
-    return addRequiredID(PassClass::ID);
+    static_assert(std::is_default_constructible<PassType>::value);
+
+    return addRequiredID(PassType::id());
   }
 
   iterator begin() { return m_Required.begin(); }

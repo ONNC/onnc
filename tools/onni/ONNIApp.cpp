@@ -9,7 +9,6 @@
 
 #include "CountOperatorsPass.h"
 #include "InterpreterPass.h"
-#include "OnnxOptPass.h"
 
 #include <onnc/ADT/Color.h>
 #include <onnc/Config/ONNX.h>
@@ -23,10 +22,12 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
-#include <onnc/Analysis/GlobalStatistics.h>
+#include <onnc/Analysis/Counter.h>
+#include <onnc/Transforms/OnnxOptPass.h>
 
-#include <string>
 #include <fstream>
+#include <iomanip>
+#include <memory>
 #include <string>
 
 using namespace onnc;
@@ -34,15 +35,35 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // ONNIApp
 //===----------------------------------------------------------------------===//
+namespace onnc {
+namespace internal {
+  void enableOnnxOptmization(PassManager& passManager)
+  {
+    using Option = OnnxOptPass::Option;
+
+    OnnxOptPass pass;
+    pass.add(Option::extract_constant_to_initializer)
+        .add(Option::fuse_add_bias_into_conv)
+        .add(Option::fuse_bn_into_conv)
+        .add(Option::fuse_consecutive_squeezes)
+        .add(Option::fuse_consecutive_transposes)
+        .add(Option::fuse_transpose_into_gemm)
+        .add(Option::eliminate_identity)
+        .add(Option::eliminate_nop_pad)
+        .add(Option::eliminate_nop_transpose)
+        .add(Option::eliminate_unused_initializer)
+      ;
+
+    passManager.add<OnnxOptPass>(std::move(pass));
+  }
+} // namespace internal
+} // namespace onnc
+
 ONNIApp::ONNIApp(int pArgc, char* pArgv[])
   : onnc::CoreApplication(pArgc, pArgv),
     m_Options() {
   InitializeAllPlatforms();
   InitializeAllBackends();
-}
-
-ONNIApp::~ONNIApp()
-{
 }
 
 int ONNIApp::run()
@@ -69,19 +90,19 @@ int ONNIApp::run()
   PassManager pm;
 
   if (options().onnxOpt()) {
-    pm.add(CreateOnnxOptPass());
+    internal::enableOnnxOptmization(pm);
   }
 
-  TargetBackend* backend = target->createBackend(options().target());
+  const auto backend = std::unique_ptr<TargetBackend>{target->createBackend(options().target())};
   backend->addTensorSel(pm);
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   if (options().verbose() >= 3) {
-    pm.add(CreateCountOperatorsPass("[Statistics] "));
+    pm.add<CountOperatorsPass>("[Statistics] ");
   }
 
   // FIXME: Use onnc-runtime to handle input
-  char *input_mem = NULL;
+  std::unique_ptr<char[]> input_mem;
   if (!options().dryRun()) {
     if (!exists(options().input())) {
       errs() << Color::MAGENTA << "Fatal" << Color::RESET
@@ -100,22 +121,18 @@ int ONNIApp::run()
     std::ifstream input_fin(options().input().native());
     tensor.ParseFromIstream(&input_fin);
     const std::string &raw_data_str = tensor.raw_data();
-    input_mem = new char[raw_data_str.size()];
-    memcpy(input_mem, raw_data_str.data(), raw_data_str.size());
+    input_mem = std::make_unique<char[]>(raw_data_str.size());
+    memcpy(input_mem.get(), raw_data_str.data(), raw_data_str.size());
   }
-  pm.add(CreateInterpreterPass(backend, input_mem,
-                               options().verbose(), options().dryRun()));
+  pm.add<InterpreterPass>(backend.get(), input_mem.get(),
+                          options().verbose(), options().dryRun());
 
   pm.run(module);
 
   if (options().verbose() >= 3) {
     errs() << "==== print CountOperatorsPass result again ====\n";
-    StringList opList = global::stats()->counterList();
-    for(auto listItr=opList.begin(); listItr != opList.end(); ++listItr){
-      global::stats()->printCounter(*listItr, errs());
-    }
+    global::stats().print();
     errs() << "==== end again of printing CountOperatorsPass ====\n";
   }
-  delete input_mem;
   return EXIT_SUCCESS;
 }

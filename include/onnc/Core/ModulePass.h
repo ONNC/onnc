@@ -8,26 +8,30 @@
 #ifndef ONNC_CORE_MODULE_PASS_H
 #define ONNC_CORE_MODULE_PASS_H
 #include <onnc/Core/Pass.h>
+#include <onnc/IR/Module.h>
+
+#include <cassert>
 
 namespace onnc {
 
-/** \class onnc::Pass
+/** \class onnc::ModulePass
  *  \brief encapsulate transformation algorithms.
  */
 class ModulePass : public Pass
 {
 public:
-  explicit ModulePass(char& pPassID)
-    : Pass(kPT_Module, pPassID) { }
+  ModulePass() noexcept
+    : Pass(kPT_Module) { }
 
-  ~ModulePass() override;
+  virtual ~ModulePass() = default;
 
   /// Virtual method overridden by subclasses to process the module
   /// being operated on.
-  virtual Pass::ReturnType runOnModule(Module &pModule) = 0;
+  virtual ReturnType runOnModule(Module &pModule) = 0;
 
   static bool classof(const Pass* pPass) {
-      return Pass::kPT_Module == pPass->getPassKind();
+      assert(pPass != nullptr);
+      return kPT_Module == pPass->getPassKind();
   }
 };
 

@@ -1,5 +1,6 @@
 
 add_libonnc_src(
+    Counter.cpp
     GlobalStatistics.cpp
     Statistics.cpp 
     LivenessAnalysis.cpp

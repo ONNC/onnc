@@ -54,7 +54,9 @@ HashTable<K, V, H, E, A>::~HashTable()
   for (unsigned int i=0; i < numOfBuckets(); ++i) {
     if (EmptyBucket() != super::m_Buckets[i].entry &&
         Tombstone() != super::m_Buckets[i].entry ) {
-      m_EntryAlloc.destroy(super::m_Buckets[i].entry);
+      auto* const entry = super::m_Buckets[i].entry;
+      m_EntryAlloc.destroy(entry);
+      m_EntryAlloc.deallocate(entry);
     }
   }
 }
@@ -105,7 +107,9 @@ void HashTable<K, V, H, E, A>::clear()
   for (unsigned int i=0; i < numOfBuckets(); ++i) {
     if (EmptyBucket() != super::m_Buckets[i].entry ) {
       if (Tombstone() != super::m_Buckets[i].entry ) {
-        m_EntryAlloc.destroy(super::m_Buckets[i].entry);
+        auto* const entry = super::m_Buckets[i].entry;
+        m_EntryAlloc.destroy(entry);
+        m_EntryAlloc.deallocate(entry);
       }
       super::m_Buckets[i].entry = EmptyBucket();
     }
@@ -160,6 +164,7 @@ bool HashTable<K, V, H, E, A>::erase(const key_type& pKey)
 
   bucket_type& bucket = super::m_Buckets[index];
   m_EntryAlloc.destroy(bucket.entry);
+  m_EntryAlloc.deallocate(bucket.entry);
   bucket.entry = Tombstone();
 
   --super::m_NumOfEntries;

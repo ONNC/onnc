@@ -7,22 +7,19 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_BOOK_ONNX_GRAPHS_H
 #define ONNC_BOOK_ONNX_GRAPHS_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
 /** \class BookONNXGraphs
  *  \brief BookONNXGraphs
  */
-class BookONNXGraphs : public ModulePass
+class BookONNXGraphs : public CustomPass<BookONNXGraphs>
 {
 public:
-  static char ID;
+  BookONNXGraphs() = default;
 
-public:
-  BookONNXGraphs();
-
-  virtual ~BookONNXGraphs();
+  virtual ~BookONNXGraphs() = default;
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
