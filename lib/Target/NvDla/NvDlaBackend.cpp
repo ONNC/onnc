@@ -66,8 +66,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend{pOptions}
-  , m_pMeta{}
-  , m_CodeEmitVisitor{m_pMeta}
+  , NvDlaConstants{pOptions.getNvDlaConfigSet(), pOptions.getNvDlaExecutionMode(), pOptions.shouldEnableLayerFusion()}
+  , m_pMeta{*this}
+  , m_CodeEmitVisitor{*this, m_pMeta}
 {
   m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
@@ -90,9 +91,9 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   // well.
   // pPM.add<NvDlaFuseConvReluPass>();
   // pPM.add<NvDlaFuseGemmReluPass>();
-#if HAS_LAYER_FUSION
-  pPM.add<NvDlaLayerFusionPass>();
-#endif
+  if (HAS_LAYER_FUSION) {
+    pPM.add<NvDlaLayerFusionPass>();
+  }
 }
 
 void NvDlaBackend::addTensorSched(PassManager& pPM)
@@ -120,7 +121,7 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  pPM.add<NvDlaMemInfoPass>(&m_pMeta)
+  pPM.add<NvDlaMemInfoPass>(static_cast<const NvDlaConstants&>(*this), &m_pMeta)
     .add<CodeEmit>(m_CodeEmitVisitor)
     .add<NvDlaTaskSubmitPass>(&m_pMeta)
     .add<NvDlaFileGenPass>(&m_pMeta);

@@ -11,6 +11,7 @@
 #include "Compute/NvDlaConvReluMaxPool.h"
 #include "Compute/NvDlaGemmRelu.h"
 #include "NvDlaComputeVisitor.h"
+#include "NvDlaDefine.h"
 #include "NvDlaMeta.h"
 
 #include <onnc/IR/Compute/Initializer.h>
@@ -22,11 +23,12 @@
 namespace onnc {
 namespace nvdla {
 
-class CodeEmitVisitor : public NvDlaComputeVisitor
+class CodeEmitVisitor : public NvDlaComputeVisitor, private NvDlaConstants
 {
 public:
-  explicit CodeEmitVisitor(NvDlaBackendMeta& meta) noexcept
-    : m_pMeta{meta}
+  CodeEmitVisitor(const NvDlaConstants& constants, NvDlaBackendMeta& meta) noexcept
+    : NvDlaConstants{constants}
+    , m_pMeta{meta}
   {}
 
   void visit(const Initializer& pInitializer) override;
@@ -55,7 +57,7 @@ public:
   void issueEmuOp(NvDlaEmuOperation* op);
   int  issueEmuAddr(int mid);
   void issueDlaOp(NvDlaDlaOperation* op, NvDlaDlaOperation* op_fuse, NvDlaDlaOperation* op_prev);
-  int  issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
+  int  issueDlaAddr(int mid, const NvDlaCubeInfo& cube, int groups, int gidx, int hofs);
 
 private:
   NvDlaBackendMeta& m_pMeta;

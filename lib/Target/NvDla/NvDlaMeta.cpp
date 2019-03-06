@@ -54,8 +54,9 @@ NvDlaEmuOperation::NvDlaEmuOperation() noexcept
 //===----------------------------------------------------------------------===//
 // NvDlaBackendMeta
 //===----------------------------------------------------------------------===//
-NvDlaBackendMeta::NvDlaBackendMeta()
-  : m_DlaNetworkDesc{}
+NvDlaBackendMeta::NvDlaBackendMeta(const NvDlaConstants& constants)
+  : NvDlaConstants{constants}
+  , m_DlaNetworkDesc{}
   , m_NumLUTs{0}
   , m_pPrevOp{nullptr}
   , m_EmuNetworkDesc{}
@@ -132,8 +133,9 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
 //===----------------------------------------------------------------------===//
 // NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
-NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
-  : mode(m)
+NvDlaCubeInfo::NvDlaCubeInfo(const NvDlaConstants& constants, nvdla_cube_type m, int n, int c, int h, int w)
+  : NvDlaConstants{constants}
+  , mode(m)
   , dim_n(n)
   , dim_c(c)
   , dim_h(h)

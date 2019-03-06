@@ -22,8 +22,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // NvDlaMemInfoPass
 //===----------------------------------------------------------------------===//
-NvDlaMemInfoPass::NvDlaMemInfoPass(NvDlaBackendMeta* pMeta)
-  : m_pMeta{pMeta}
+NvDlaMemInfoPass::NvDlaMemInfoPass(const NvDlaConstants& constants, NvDlaBackendMeta* pMeta) noexcept
+  : NvDlaConstants{constants}
+  , m_pMeta{pMeta}
 {}
 
 Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
@@ -111,7 +112,7 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
         int idx     = 0;
         for (auto i : t->getDimensions())
           dims[idx++] = i;
-        NvDlaCubeInfo cubeinfo(NVDLA_CUBE_FEATURE, dims[0], dims[1], dims[2], dims[3]);
+        NvDlaCubeInfo cubeinfo(*this, NVDLA_CUBE_FEATURE, dims[0], dims[1], dims[2], dims[3]);
         mle.size = cubeinfo.size;
 
         mle.alignment      = 4096;

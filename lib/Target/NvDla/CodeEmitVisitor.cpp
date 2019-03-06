@@ -28,7 +28,6 @@
 #include <onnc/IR/Compute/Reshape.h>
 #include <onnc/IR/Compute/Softmax.h>
 #include <onnc/IR/Compute/Sum.h>
-#include <onnc/Support/IOStream.h>
 
 using namespace onnc;
 using namespace onnc::nvdla;
@@ -90,14 +89,13 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   const bool is_first_op     = internal::isFirstOperator(pOp);
   const bool is_image_mode   = (HAS_IMAGE_MODE && is_first_op && (3 == input_X_dims[1] || 4 == input_X_dims[1]));
   const bool should_pad_zero = (is_image_mode && input_X_dims[1] < 4);
-#if HAS_IMAGE_MODE
-  if (is_image_mode) {
+  if (HAS_IMAGE_MODE && is_image_mode) {
     input_X_dims[1] = 4; // Hardware requires image to be 4 channels
   }
-#endif
+
   int                        X_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
-  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo X_cube(*this, NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
   NVDLA_DBG("DBG0: X banks %d\n", X_cube.banks);
 
   const Tensor* input_W_t       = pOp.getInput(1);
@@ -105,11 +103,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   int32_t       input_W_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_W_ndim; ++i)
     input_W_dims[i] = input_W_t->dimension(i);
-#if HAS_IMAGE_MODE
-  if (is_image_mode) {
+  if (HAS_IMAGE_MODE && is_image_mode) {
     input_W_dims[1] = 4; // Hardware requires image to be 4 channels
   }
-#endif
 
   const Tensor* input_B_t    = NULL;
   void*         input_B      = NULL;
@@ -130,7 +126,8 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     output_Y_dims[i] = output_Y_t->dimension(i);
   int                        Y_mid = m_pMeta.m_MemIdxTable[(Tensor*)output_Y_t];
   ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
-  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+  NvDlaCubeInfo              Y_cube(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                       output_Y_dims[3]);
   NVDLA_DBG("DBG0: Y banks %d\n", Y_cube.banks);
 
   // Prepare attributes
@@ -163,9 +160,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     output_Y_dims[1] /= group;
   }
 
-  NvDlaCubeInfo fcube_group((is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1],
-                            input_X_dims[2], input_X_dims[3]);
-  NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3]);
+  NvDlaCubeInfo fcube_group(*this, (is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0],
+                            input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo winfo(*this, NVDLA_CUBE_WEIGHT, input_W_dims[0], input_W_dims[1], input_W_dims[2], input_W_dims[3]);
   NVDLA_DBG("DBG0: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
   NVDLA_DBG("conv(%d) f(%d %d %d %d eps:%d banks:%d) w(%d %d %d %d banks:%d) b(%d %d %d %d) y(%d %d %d %d)\n", group,
             input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3], fcube_group.eps, fcube_group.banks,
@@ -180,7 +177,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     int B_mid  = -1;
     int B_addr = -1;
 
-    NvDlaCubeInfo B_info(NVDLA_CUBE_FEATURE, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3]);
+    NvDlaCubeInfo B_info(*this, NVDLA_CUBE_FEATURE, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3]);
     NVDLA_DBG("DBG0: B banks %d\n", B_info.banks);
     ILoadable::MemoryListEntry B_mle;
     if (pOp.getNumOfInputs() > 2) {
@@ -229,9 +226,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       int output_h   = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
 
       NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
-      NvDlaCubeInfo finfo((is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1],
-                          op_h + kernel_size, input_X_dims[3]);
-      NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3]);
+      NvDlaCubeInfo finfo(*this, (is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0],
+                          input_X_dims[1], op_h + kernel_size, input_X_dims[3]);
+      NvDlaCubeInfo oinfo(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3]);
       NVDLA_DBG("DBG0: f banks %d, o banks %d\n", finfo.banks, oinfo.banks);
 
       NvDlaDlaOperation* conv_op = new NvDlaDlaOperation();
@@ -246,14 +243,14 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->skip_weight_rls         = (!winfo.reduced && (h + split_H < total_h)) ? 1 : 0;
       conv_desc->entry_per_slice         = finfo.eps;
       conv_desc->data_format             = FORMAT_FEATURE;
-#if HAS_IMAGE_MODE
-      // Golden image_mode loadable has data_format 15 = R8G8B8A8.
-      // FIXME: for now, always use data_format 15 for image mode.
-      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
-      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
-        conv_desc->data_format = 15;
+      if (HAS_IMAGE_MODE) {
+        // Golden image_mode loadable has data_format 15 = R8G8B8A8.
+        // FIXME: for now, always use data_format 15 for image mode.
+        // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+        if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+          conv_desc->data_format = 15;
+        }
       }
-#endif
       conv_desc->pixel_mapping = 0;
       conv_desc->fetch_grain   = 1;
       conv_desc->batch         = 1;
@@ -264,25 +261,26 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->batch_stride   = 0;
       conv_desc->post_extension = 0;
       conv_desc->pixel_override = 0;
-#if DLA_NV_SMALL
-      conv_desc->release = 1; // FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
-#else
-      conv_desc->release = op_h + kernel_size;
-#endif
+      if (DLA_NV_SMALL) {
+        conv_desc->release = 1; // FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+      } else {
+        conv_desc->release = op_h + kernel_size;
+      }
       conv_desc->input_width_csc    = finfo.dim_w;
       conv_desc->input_height_csc   = finfo.dim_h;
       conv_desc->input_channel_csc  = finfo.dim_c;
       conv_desc->kernel_channel_csc = winfo.dim_c;
       conv_desc->kernel_width_csc   = winfo.dim_w;
       conv_desc->kernel_height_csc  = winfo.dim_h;
-#if HAS_IMAGE_MODE
-      // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
-      if (finfo.dim_c == 3 || finfo.dim_c == 4) {
-        conv_desc->kernel_channel_csc = winfo.dim_w * winfo.dim_c;
-        conv_desc->kernel_width_csc   = 1;
-        conv_desc->kernel_height_csc  = winfo.dim_h;
+      if (HAS_IMAGE_MODE) {
+        // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+        if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+          conv_desc->kernel_channel_csc = winfo.dim_w * winfo.dim_c;
+          conv_desc->kernel_width_csc   = 1;
+          conv_desc->kernel_height_csc  = winfo.dim_h;
+        }
       }
-#endif
+
       conv_desc->input_width_cmac  = output_Y_dims[3];
       conv_desc->input_height_cmac = output_h;
       conv_desc->bytes_per_kernel  = winfo.dim_c * winfo.dim_h * winfo.dim_w * ELEMENT_SIZE;
@@ -399,24 +397,24 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         struct dla_sdp_surface_desc* add_surf = (struct dla_sdp_surface_desc*)(&(add_op->op_surf));
         add_surf->src_data.type               = DLA_MEM_HW;
         add_surf->src_data.address            = -1;
-#if DLA_NV_SMALL
-        add_surf->src_data.size = 0; // FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this
-                                     // value. Seems this value does not impact anything in KMD.
-#else
-        add_surf->src_data.size         = conv_surf->dst_data.size;
-#endif
+        if (DLA_NV_SMALL) {
+          add_surf->src_data.size = 0; // FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this
+                                       // value. Seems this value does not impact anything in KMD.
+        } else {
+          add_surf->src_data.size = conv_surf->dst_data.size;
+        }
         add_surf->src_data.width   = conv_surf->dst_data.width;
         add_surf->src_data.height  = conv_surf->dst_data.height;
         add_surf->src_data.channel = conv_surf->dst_data.channel;
-#if DLA_NV_SMALL
-        add_surf->src_data.line_stride  = 0; // oinfo.stride_line; //FIXME?
-        add_surf->src_data.surf_stride  = 0; // oinfo.stride_surface;
-        add_surf->src_data.plane_stride = 0; // oinfo.stride_plane;
-#else
-        add_surf->src_data.line_stride  = oinfo.stride_line;
-        add_surf->src_data.surf_stride  = oinfo.stride_surface;
-        add_surf->src_data.plane_stride = oinfo.stride_plane;
-#endif
+        if (DLA_NV_SMALL) {
+          add_surf->src_data.line_stride  = 0; // oinfo.stride_line; //FIXME?
+          add_surf->src_data.surf_stride  = 0; // oinfo.stride_surface;
+          add_surf->src_data.plane_stride = 0; // oinfo.stride_plane;
+        } else {
+          add_surf->src_data.line_stride  = oinfo.stride_line;
+          add_surf->src_data.surf_stride  = oinfo.stride_surface;
+          add_surf->src_data.plane_stride = oinfo.stride_plane;
+        }
         add_surf->x1_data.type         = DLA_MEM_MC;
         add_surf->x1_data.address      = B_addr;
         add_surf->x1_data.size         = B_mle.size;
@@ -437,18 +435,18 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         add_surf->dst_data.line_stride  = conv_surf->dst_data.line_stride;
         add_surf->dst_data.surf_stride  = conv_surf->dst_data.surf_stride;
         add_surf->dst_data.plane_stride = conv_surf->dst_data.plane_stride;
-#if HAS_IMAGE_MODE
-        // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
-        if (finfo.dim_c == 3 || finfo.dim_c == 4) {
-          add_surf->dst_data.size = oinfo.size; // the regular conv_surf->dst_data.size
+        if (HAS_IMAGE_MODE) {
+          // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+          if (finfo.dim_c == 3 || finfo.dim_c == 4) {
+            add_surf->dst_data.size = oinfo.size; // the regular conv_surf->dst_data.size
+          }
         }
-#endif
 
         conv_surf->dst_data.type    = DLA_MEM_HW;
         conv_surf->dst_data.address = -1;
-#if DLA_NV_SMALL
-        conv_surf->dst_data.size = 0; // FIXME: really needs 0???
-#endif
+        if (DLA_NV_SMALL) {
+          conv_surf->dst_data.size = 0; // FIXME: really needs 0???
+        }
       }
       NvDlaDlaOperation* prev_op = (h == 0) ? m_pMeta.m_pPrevOp : NULL;
       issueDlaOp(conv_op, add_op, prev_op);
@@ -503,7 +501,7 @@ void CodeEmitVisitor::visit(const LRN& pOp)
     input_X_dims[i] = input_X_t->dimension(i);
   int                        X_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
-  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo X_cube(*this, NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
 
   // Prepare outputSNESSNES
   const Tensor* output_Y_t       = pOp.getOutput(0);
@@ -513,7 +511,8 @@ void CodeEmitVisitor::visit(const LRN& pOp)
     output_Y_dims[i] = output_Y_t->dimension(i);
   int                        Y_mid = m_pMeta.m_MemIdxTable[(Tensor*)output_Y_t];
   ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
-  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+  NvDlaCubeInfo              Y_cube(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                       output_Y_dims[3]);
 
   // Prepare attributes
   float   alpha = pOp.getAlpha().value();
@@ -603,7 +602,7 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
     input_X_dims[i] = input_X_t->dimension(i);
   int                        X_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
-  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo X_cube(*this, NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
 
   // Prepare output
   const Tensor* output_Y_t       = pOp.getOutput(0);
@@ -613,7 +612,8 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
     output_Y_dims[i] = output_Y_t->dimension(i);
   int                        Y_mid = m_pMeta.m_MemIdxTable[(Tensor*)output_Y_t];
   ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
-  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+  NvDlaCubeInfo              Y_cube(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                       output_Y_dims[3]);
 
   const Tensor* output_Indices_t    = NULL;
   void*         output_Indices      = NULL;
@@ -700,7 +700,7 @@ void CodeEmitVisitor::visit(const AveragePool& pOp)
     input_X_dims[i] = input_X_t->dimension(i);
   int                        X_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
-  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo X_cube(*this, NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
 
   // Prepare output
   const Tensor* output_Y_t       = pOp.getOutput(0);
@@ -710,7 +710,8 @@ void CodeEmitVisitor::visit(const AveragePool& pOp)
     output_Y_dims[i] = output_Y_t->dimension(i);
   int                        Y_mid = m_pMeta.m_MemIdxTable[(Tensor*)output_Y_t];
   ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
-  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+  NvDlaCubeInfo              Y_cube(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                       output_Y_dims[3]);
 
   const Tensor* output_Indices_t    = NULL;
   void*         output_Indices      = NULL;
@@ -796,7 +797,7 @@ void CodeEmitVisitor::visit(const Relu& pOp)
     input_X_dims[i] = input_X_t->dimension(i);
   int                        X_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
-  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo X_cube(*this, NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
 
   const Tensor* output_Y_t       = pOp.getOutput(0);
   int32_t       output_Y_ndim    = output_Y_t->getNumOfDimensions();
@@ -816,7 +817,8 @@ void CodeEmitVisitor::visit(const Relu& pOp)
     Y_mid = m_pMeta.m_MemIdxTable[(Tensor*)meta.t];
     Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
   }
-  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+  NvDlaCubeInfo Y_cube(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                       output_Y_dims[3]);
 
   NvDlaDlaOperation* relu_op = new NvDlaDlaOperation();
   relu_op->op_dep.op_type    = DLA_OP_SDP;
@@ -955,10 +957,11 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     conv_op->op_dep.op_type    = DLA_OP_CONV;
 
     struct dla_conv_op_desc* conv_desc = (struct dla_conv_op_desc*)(&(conv_op->op_desc));
-    NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, input_A_dims[0], input_A_dims[1], input_A_dims[2], input_A_dims[3]);
-    NvDlaCubeInfo winfo(NVDLA_CUBE_WEIGHT, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3]);
-    NvDlaCubeInfo binfo(NVDLA_CUBE_FEATURE, input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3]);
-    NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+    NvDlaCubeInfo finfo(*this, NVDLA_CUBE_FEATURE, input_A_dims[0], input_A_dims[1], input_A_dims[2], input_A_dims[3]);
+    NvDlaCubeInfo winfo(*this, NVDLA_CUBE_WEIGHT, input_B_dims[0], input_B_dims[1], input_B_dims[2], input_B_dims[3]);
+    NvDlaCubeInfo binfo(*this, NVDLA_CUBE_FEATURE, input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3]);
+    NvDlaCubeInfo oinfo(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                        output_Y_dims[3]);
 
     if (finfo.banks + winfo.banks > CBUF_BANK_NUM) {
       if (finfo.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM) {
@@ -996,11 +999,11 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     conv_desc->batch_stride    = 0;
     conv_desc->post_extension  = 0;
     conv_desc->pixel_override  = 0;
-#if DLA_NV_SMALL
-    conv_desc->release = 1; // FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
-#else
-    conv_desc->release = input_A_dims[2];
-#endif
+    if (DLA_NV_SMALL) {
+      conv_desc->release = 1; // FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
+    } else {
+      conv_desc->release = input_A_dims[2];
+    }
     conv_desc->input_width_csc    = finfo.dim_w;
     conv_desc->input_height_csc   = finfo.dim_h;
     conv_desc->input_channel_csc  = finfo.dim_c;
@@ -1110,24 +1113,24 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       struct dla_sdp_surface_desc* add_surf = (struct dla_sdp_surface_desc*)(&(add_op->op_surf));
       add_surf->src_data.type               = DLA_MEM_HW;
       add_surf->src_data.address            = -1;
-#if DLA_NV_SMALL
-      add_surf->src_data.size = 0; // FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this
-                                   // value. Seems this value does not impact anything in KMD.
-#else
-      add_surf->src_data.size = conv_surf->dst_data.size;
-#endif
+      if (DLA_NV_SMALL) {
+        add_surf->src_data.size = 0; // FIXME: in nv_small_alexnet.nvdla it's 0. In KMD, I don't see where to use this
+                                     // value. Seems this value does not impact anything in KMD.
+      } else {
+        add_surf->src_data.size = conv_surf->dst_data.size;
+      }
       add_surf->src_data.width   = conv_surf->dst_data.width;
       add_surf->src_data.height  = conv_surf->dst_data.height;
       add_surf->src_data.channel = conv_surf->dst_data.channel;
-#if DLA_NV_SMALL
-      add_surf->src_data.line_stride  = 0; // oinfo.stride_line;
-      add_surf->src_data.surf_stride  = 0; // oinfo.stride_surface;
-      add_surf->src_data.plane_stride = 0; // oinfo.stride_plane;
-#else
-      add_surf->src_data.line_stride = oinfo.stride_line;
-      add_surf->src_data.surf_stride = oinfo.stride_surface;
-      add_surf->src_data.plane_stride = oinfo.stride_plane;
-#endif
+      if (DLA_NV_SMALL) {
+        add_surf->src_data.line_stride  = 0; // oinfo.stride_line;
+        add_surf->src_data.surf_stride  = 0; // oinfo.stride_surface;
+        add_surf->src_data.plane_stride = 0; // oinfo.stride_plane;
+      } else {
+        add_surf->src_data.line_stride  = oinfo.stride_line;
+        add_surf->src_data.surf_stride  = oinfo.stride_surface;
+        add_surf->src_data.plane_stride = oinfo.stride_plane;
+      }
       add_surf->x1_data.type         = DLA_MEM_MC;
       add_surf->x1_data.address      = issueDlaAddr(C_mid, binfo, 1, 0, 0);
       add_surf->x1_data.size         = C_mle.size;
@@ -1150,9 +1153,9 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
 
       conv_surf->dst_data.type    = DLA_MEM_HW;
       conv_surf->dst_data.address = -1;
-#if DLA_NV_SMALL
-      conv_surf->dst_data.size = 0; // FIXME:
-#endif
+      if (DLA_NV_SMALL) {
+        conv_surf->dst_data.size = 0; // FIXME:
+      }
     }
     issueDlaOp(conv_op, add_op, m_pMeta.m_pPrevOp);
   }
@@ -1171,7 +1174,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
     input_input_dims[i] = input_input_t->dimension(i);
   int                        input_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_input_t];
   ILoadable::MemoryListEntry input_mle = m_pMeta.m_MemoryListEntries[input_mid];
-  NvDlaCubeInfo              iinfo(NVDLA_CUBE_FEATURE, input_input_dims[0], input_input_dims[1], input_input_dims[2],
+  NvDlaCubeInfo iinfo(*this, NVDLA_CUBE_FEATURE, input_input_dims[0], input_input_dims[1], input_input_dims[2],
                       input_input_dims[3]);
 
   const Tensor* output_output_t       = pOp.getOutput(0);
@@ -1181,7 +1184,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
     output_output_dims[i] = output_output_t->dimension(i);
   int                        output_mid = m_pMeta.m_MemIdxTable[(Tensor*)output_output_t];
   ILoadable::MemoryListEntry output_mle = m_pMeta.m_MemoryListEntries[output_mid];
-  NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_output_dims[0], output_output_dims[1], output_output_dims[2],
+  NvDlaCubeInfo oinfo(*this, NVDLA_CUBE_FEATURE, output_output_dims[0], output_output_dims[1], output_output_dims[2],
                       output_output_dims[3]);
 
   int32_t axis = pOp.getAxis().value();
@@ -1313,7 +1316,7 @@ void CodeEmitVisitor::visit(const NvDlaMaxPool& pMaxPool)
     input_X_dims[i] = input_X_t->dimension(i);
   int                        X_mid = m_pMeta.m_MemIdxTable[(Tensor*)input_X_t];
   ILoadable::MemoryListEntry X_mle = m_pMeta.m_MemoryListEntries[X_mid];
-  NvDlaCubeInfo X_cube(NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
+  NvDlaCubeInfo X_cube(*this, NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1], input_X_dims[2], input_X_dims[3]);
 
   // Prepare output
   const Tensor* output_Y_t       = pOp.getOutput(0);
@@ -1323,7 +1326,8 @@ void CodeEmitVisitor::visit(const NvDlaMaxPool& pMaxPool)
     output_Y_dims[i] = output_Y_t->dimension(i);
   int                        Y_mid = m_pMeta.m_MemIdxTable[(Tensor*)output_Y_t];
   ILoadable::MemoryListEntry Y_mle = m_pMeta.m_MemoryListEntries[Y_mid];
-  NvDlaCubeInfo Y_cube(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
+  NvDlaCubeInfo              Y_cube(*this, NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2],
+                       output_Y_dims[3]);
 
   const Tensor* output_Indices_t    = NULL;
   void*         output_Indices      = NULL;
@@ -1535,7 +1539,7 @@ int CodeEmitVisitor::packBias(const ComputeOperator& co, const Tensor* t, int di
                                        << "is not 1D array" << co.name();
   }
   std::string   blob_name = "tb-" + std::to_string(m_pMeta.m_NumBlobs++);
-  NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, 1, dims[0], dims[2], dims[3]);
+  NvDlaCubeInfo finfo(*this, NVDLA_CUBE_FEATURE, 1, dims[0], dims[2], dims[3]);
 
   ILoadable::Blob b;
   b.name              = blob_name;
@@ -1547,13 +1551,25 @@ int CodeEmitVisitor::packBias(const ComputeOperator& co, const Tensor* t, int di
   b.subInterface      = 0;
 
   NvU8* blob_data = new NvU8[b.size];
-  memset(blob_data, 0, b.size);
-  nv_weight_t* dest    = (nv_weight_t*)blob_data;
-  float*       data    = (float*)(static_cast<const FloatTensor*>(t)->getValues().data());
-  int          group_c = gidx * dims[0];
-  for (int c = 0; c < dims[0]; c++) {
-    *(dest + c) = (nv_weight_t)__gnu_f2h_ieee(*(data + group_c + c)); // FIXME: bad hack method.
+  std::memset(blob_data, 0, b.size);
+
+  int group_c = gidx * dims[0];
+
+  const auto flow = [=](auto* dest) {
+    using weight_t = typename std::decay<decltype(*dest)>::type;
+
+    const auto* src = reinterpret_cast<const float*>(static_cast<const FloatTensor*>(t)->getValues().data());
+
+    for (int c = 0; c < dims[0]; c++) {
+      *(dest + c) = (weight_t)__gnu_f2h_ieee(*(src + group_c + c)); // FIXME: bad hack method.
+    }
+  };
+  if (DLA_NV_SMALL) {
+    flow(reinterpret_cast<nv_weight_t<NvDlaConfigSet::nv_small>*>(blob_data));
+  } else {
+    flow(reinterpret_cast<nv_weight_t<NvDlaConfigSet::nv_full>*>(blob_data));
   }
+
 #if 0
   for(int h = 0; h < dims[2]; h++){
     for(int w = 0; w < dims[3]; w++){
@@ -1608,7 +1624,7 @@ int CodeEmitVisitor::issueEmuAddr(int mid)
 
 void CodeEmitVisitor::issueEmuOp(NvDlaEmuOperation* op) { m_pMeta.m_EMUOperationList.push_back(op); }
 
-int CodeEmitVisitor::issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int ofs)
+int CodeEmitVisitor::issueDlaAddr(int mid, const NvDlaCubeInfo& cube, int groups, int gidx, int ofs)
 {
   int aid = m_pMeta.m_AddressListEntries.size();
 
@@ -1627,7 +1643,7 @@ int CodeEmitVisitor::issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int g
   ale.id     = aid;
   NVDLA_DBG("cube(%d %d %d %d %d), group(%d/%d) ofs %d\n", cube.dim_n, cube.dim_c, cube.dim_h, cube.dim_w, ELEMENT_SIZE,
             groups, gidx, ofs);
-  NVDLA_DBG("AddressEntry s:%9lu o:%9d mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
+  NVDLA_DBG("AddressEntry s:%9lu o:%9lu mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
 
   m_pMeta.m_AddressListEntries.push_back(ale);
   return aid;
@@ -1718,7 +1734,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
 
   int                        output_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(output_value)];
   ILoadable::MemoryListEntry output_mle = m_pMeta.m_MemoryListEntries[output_mid];
-  NvDlaCubeInfo output_cube(NVDLA_CUBE_FEATURE, output_dims[0], output_dims[1], output_dims[2], output_dims[3]);
+  NvDlaCubeInfo output_cube(*this, NVDLA_CUBE_FEATURE, output_dims[0], output_dims[1], output_dims[2], output_dims[3]);
 
   NvDlaDlaOperation* relu_op = new NvDlaDlaOperation();
   relu_op->op_dep.op_type    = DLA_OP_SDP;
@@ -1763,7 +1779,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   }
   int                        left_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(input_left_t)];
   ILoadable::MemoryListEntry left_mle = m_pMeta.m_MemoryListEntries[left_mid];
-  NvDlaCubeInfo              left_cube(NVDLA_CUBE_FEATURE, input_left_dims[0], input_left_dims[1], input_left_dims[2],
+  NvDlaCubeInfo left_cube(*this, NVDLA_CUBE_FEATURE, input_left_dims[0], input_left_dims[1], input_left_dims[2],
                           input_left_dims[3]);
 
   surf_desc->src_data.type         = DLA_MEM_MC;
@@ -1783,7 +1799,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   }
   int                        right_mid = m_pMeta.m_MemIdxTable[const_cast<Tensor*>(input_right_t)];
   ILoadable::MemoryListEntry right_mle = m_pMeta.m_MemoryListEntries[right_mid];
-  NvDlaCubeInfo right_cube(NVDLA_CUBE_FEATURE, input_right_dims[0], input_right_dims[1], input_right_dims[2],
+  NvDlaCubeInfo right_cube(*this, NVDLA_CUBE_FEATURE, input_right_dims[0], input_right_dims[1], input_right_dims[2],
                            input_right_dims[3]);
 
   surf_desc->x1_data.type         = DLA_MEM_MC;

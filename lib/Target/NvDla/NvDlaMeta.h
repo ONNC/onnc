@@ -74,10 +74,10 @@ public:
   union emu_operation_buffer_container op_buf;
 };
 
-class NvDlaBackendMeta
+class NvDlaBackendMeta : private NvDlaConstants
 {
 public:
-  NvDlaBackendMeta();
+  NvDlaBackendMeta(const NvDlaConstants& constants);
 
   ~NvDlaBackendMeta();
 
@@ -126,10 +126,10 @@ enum nvdla_cube_type
   NVDLA_CUBE_IMAGE
 };
 
-class NvDlaCubeInfo
+class NvDlaCubeInfo : private NvDlaConstants
 {
 public:
-  NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w);
+  NvDlaCubeInfo(const NvDlaConstants& constants, nvdla_cube_type m, int n, int c, int h, int w);
 
   int getReducedBanks() const;
 

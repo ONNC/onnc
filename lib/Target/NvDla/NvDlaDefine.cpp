@@ -15,11 +15,9 @@
 
 #include "NvDlaDefine.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace onnc {
 
-float __gnu_h2f_ieee(short param)
+float NvDlaConstants::__gnu_h2f_ieee(short param)
 {
   unsigned short expHalf16  = param & 0x7C00;
   int            exp1       = (int)expHalf16;
@@ -61,7 +59,7 @@ float __gnu_h2f_ieee(short param)
   return res;
 }
 
-short __gnu_f2h_ieee(float param)
+short NvDlaConstants::__gnu_f2h_ieee(float param)
 {
   unsigned int param_bit = *((unsigned int*)(&param));
   int          sign      = param_bit >> 31;
@@ -117,14 +115,13 @@ short __gnu_f2h_ieee(float param)
   return res;
 }
 
-void weight_pack(void* buf, const float* data, unsigned long long size, int G, int dims[4], int type,
-                 _Bool shouldPadZero)
+void NvDlaConstants::weight_pack(void* buf, const float* data, unsigned long long size, int G, int dims[4], int type,
+                                 bool shouldPadZero)
 {
-  nv_weight_t* blob = (nv_weight_t*)buf;
-  int          N    = dims[0];
-  int          C    = dims[1];
-  int          H    = dims[2];
-  int          W    = dims[3];
+  int N = dims[0];
+  int C = dims[1];
+  int H = dims[2];
+  int W = dims[3];
 
   int channel_per_cube = WEIGHT_ATOM_CUBE_SIZE / ELEMENT_SIZE;
   int w_stride_kgrp    = MAC_ATOMIC_K * C * H * W;
@@ -167,48 +164,57 @@ void weight_pack(void* buf, const float* data, unsigned long long size, int G, i
     }
   }
 #else
-  int N_offset = G * N;
-  for (int n = 0; n < (N / MAC_ATOMIC_K + 1); n++) {
-    int n_size        = (N - n * MAC_ATOMIC_K >= MAC_ATOMIC_K) ? MAC_ATOMIC_K : N - n * MAC_ATOMIC_K;
-    int w_stride_surf = W * H * n_size * channel_per_cube;
-    for (int h = 0; h < H; h++) {
-      for (int w = 0; w < W; w++) {
-        for (int n_ofs = 0; n_ofs < n_size; n_ofs++) {
-          for (int c = 0; c < C; c++) {
-            int surf_ofs  = c / channel_per_cube;
-            int ch_ofs    = c % channel_per_cube;
-            int cube_size = (C - surf_ofs * channel_per_cube) >= channel_per_cube ? channel_per_cube
-                                                                                  : (C - surf_ofs * channel_per_cube);
-            int w_stride_line = W * n_size * cube_size;
+  const auto flow = [=](auto* blob) {
+    using weight_t = typename std::decay<decltype(*blob)>::type;
 
-            int blob_ofs = (n * w_stride_kgrp) + (surf_ofs * w_stride_surf) + (h * w_stride_line) +
-                           w * n_size * cube_size + (n_ofs * cube_size) + ch_ofs;
-            int data_ofs = ((n * MAC_ATOMIC_K + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
-                           c * H * W +                                           // c = c + C_offset
-                           (h * W) + w;
+    int N_offset = G * N;
+    for (int n = 0; n < (N / MAC_ATOMIC_K + 1); n++) {
+      int n_size        = (N - n * MAC_ATOMIC_K >= MAC_ATOMIC_K) ? MAC_ATOMIC_K : N - n * MAC_ATOMIC_K;
+      int w_stride_surf = W * H * n_size * channel_per_cube;
+      for (int h = 0; h < H; h++) {
+        for (int w = 0; w < W; w++) {
+          for (int n_ofs = 0; n_ofs < n_size; n_ofs++) {
+            for (int c = 0; c < C; c++) {
+              int surf_ofs  = c / channel_per_cube;
+              int ch_ofs    = c % channel_per_cube;
+              int cube_size = (C - surf_ofs * channel_per_cube) >= channel_per_cube ? channel_per_cube
+                                                                                    : (C - surf_ofs * channel_per_cube);
+              int w_stride_line = W * n_size * cube_size;
 
-            if (shouldPadZero) {
-              // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
-              if (C == 4 && c == 3) {
+              int blob_ofs = (n * w_stride_kgrp) + (surf_ofs * w_stride_surf) + (h * w_stride_line) +
+                             w * n_size * cube_size + (n_ofs * cube_size) + ch_ofs;
+              int data_ofs = ((n * MAC_ATOMIC_K + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
+                             c * H * W +                                           // c = c + C_offset
+                             (h * W) + w;
+
+              if (shouldPadZero) {
+                // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are
+                // 0.
+                if (C == 4 && c == 3) {
+                  *(blob + blob_ofs) = 0;
+                  continue;
+                }
+              }
+
+              if (size <= data_ofs) {
                 *(blob + blob_ofs) = 0;
                 continue;
               }
-            }
 
-            if (size <= data_ofs) {
-              *(blob + blob_ofs) = 0;
-              continue;
+              *(blob + blob_ofs) = (weight_t)__gnu_f2h_ieee(*(data + data_ofs));
             }
-
-            *(blob + blob_ofs) = (nv_weight_t)__gnu_f2h_ieee(*(data + data_ofs));
           }
         }
       }
     }
+  };
+
+  if (DLA_NV_SMALL) {
+    flow(reinterpret_cast<nv_weight_t<NvDlaConfigSet::nv_small>*>(buf));
+  } else {
+    flow(reinterpret_cast<nv_weight_t<NvDlaConfigSet::nv_full>*>(buf));
   }
 #endif
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // namespace onnc

@@ -8,57 +8,61 @@
 #ifndef TARGET_NVDLA_NVDLA_DEFINE_H
 #define TARGET_NVDLA_NVDLA_DEFINE_H
 
-// ------------------------------
+#include "dla_interface.h"
 
-#define DLA_NV_SMALL 1
-#define HAS_IMAGE_MODE 1
-#define HAS_LAYER_FUSION 1
+#include <onnc/Target/TargetOptions.h>
 
-//-----------------------------
+#include <type_traits>
 
-#if DLA_NV_SMALL
-#  define DLA_TYPE_INT8
-#else
-//#define DLA_TYPE_INT16
-#  define DLA_TYPE_FP16
-#endif
+namespace onnc {
 
-#ifdef DLA_TYPE_INT8
-#  define DLA_PRECISION PRECISION_INT8
-#endif
-#ifdef DLA_TYPE_INT16
-#  define DLA_PRECISION PRECISION_INT16
-#endif
-#ifdef DLA_TYPE_FP16
-#  define DLA_PRECISION PRECISION_FP16
-#endif
+class NvDlaConstants
+{
+public:
+  using NvDlaConfigSet     = TargetOptions::NvDlaConfigSet;
+  using NvDlaExecutionMode = TargetOptions::NvDlaExecutionMode;
 
-#if DLA_NV_SMALL
-// nv_small
-#  define FEATURE_ATOM_CUBE_SIZE 8
-#  define WEIGHT_ATOM_CUBE_SIZE 8
+  template <NvDlaConfigSet ConfigSet>
+  using nv_weight_t = typename std::conditional<ConfigSet == NvDlaConfigSet::nv_small, char, short>::type;
 
-#  define ELEMENT_SIZE 1
-#  define MAC_ATOMIC_C 8
-#  define MAC_ATOMIC_K 8
-#  define CBUF_BANK_NUM 32
-#  define CBUF_BANK_WIDTH 8
-#  define CBUF_BANK_DEPTH 512
+public:
+  NvDlaConstants(NvDlaConfigSet pNvdlaConfigSet, NvDlaExecutionMode pNvdlaExecutionMode,
+                 bool pEnableLayerFusion) noexcept
+    : DLA_NV_SMALL{pNvdlaConfigSet == NvDlaConfigSet::nv_small}
+    , HAS_IMAGE_MODE{pNvdlaExecutionMode == NvDlaExecutionMode::image}
+    , HAS_LAYER_FUSION{pEnableLayerFusion}
+    , DLA_PRECISION{DLA_NV_SMALL ? PRECISION_INT8 : PRECISION_FP16}
+    , FEATURE_ATOM_CUBE_SIZE{DLA_NV_SMALL ? 8 : 32}
+    , WEIGHT_ATOM_CUBE_SIZE{DLA_NV_SMALL ? 8 : 128}
+    , ELEMENT_SIZE{DLA_NV_SMALL ? 1 : 2}
+    , MAC_ATOMIC_C{DLA_NV_SMALL ? 8 : 64}
+    , MAC_ATOMIC_K{DLA_NV_SMALL ? 8 : 16}
+    , CBUF_BANK_NUM{DLA_NV_SMALL ? 32 : 16}
+    , CBUF_BANK_WIDTH{DLA_NV_SMALL ? 8 : 64}
+    , CBUF_BANK_DEPTH{DLA_NV_SMALL ? 512 : 256}
+  {}
 
-typedef char nv_weight_t;
-#else
-// nv_full
-#  define FEATURE_ATOM_CUBE_SIZE 32
-#  define WEIGHT_ATOM_CUBE_SIZE 128
+protected:
+  float __gnu_h2f_ieee(short param);
+  short __gnu_f2h_ieee(float param);
+  void  weight_pack(void* buf, const float* data, unsigned long long size, int G, int dims[4], int type,
+                    bool shouldPadZero);
 
-#  define ELEMENT_SIZE 2
-#  define MAC_ATOMIC_C 64
-#  define MAC_ATOMIC_K 16
-#  define CBUF_BANK_NUM 16
-#  define CBUF_BANK_WIDTH 64
-#  define CBUF_BANK_DEPTH 256
+protected:
+  const bool DLA_NV_SMALL;
+  const bool HAS_IMAGE_MODE;
+  const bool HAS_LAYER_FUSION;
+  const int  DLA_PRECISION;
+  const int  FEATURE_ATOM_CUBE_SIZE;
+  const int  WEIGHT_ATOM_CUBE_SIZE;
+  const int  ELEMENT_SIZE;
+  const int  MAC_ATOMIC_C;
+  const int  MAC_ATOMIC_K;
+  const int  CBUF_BANK_NUM;
+  const int  CBUF_BANK_WIDTH;
+  const int  CBUF_BANK_DEPTH;
+};
 
-typedef short nv_weight_t;
-#endif
+} // namespace onnc
 
 #endif

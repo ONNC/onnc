@@ -5,9 +5,9 @@ include_directories(SYSTEM ${NVDLA_BACKEND_ROOT}/include)
 
 add_libonnc_src(
     CodeEmitVisitor.cpp
-    fp16.c
     Loadable.cpp
     NvDlaBackend.cpp
+    NvDlaDefine.cpp
     NvDlaFileGenPass.cpp
     NvDlaMemInfoPass.cpp
     NvDlaMeta.cpp
