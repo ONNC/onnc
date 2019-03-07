@@ -81,17 +81,23 @@ namespace internal {
 
     bool operator()(const Tensor& pTensor, const void* pData) const
     {
+      assert(pTensor.kind() == Value::Type::kFloat);
       assert(pData != nullptr);
 
-      if (!m_HasFilePath) {
-        const auto *output = reinterpret_cast<const float*>(pData);
-        size_t size = 1;
-        for (auto i : pTensor.getDimensions()) {
-          size *= i;
+      const std::size_t size = [&]() {
+        std::size_t size = 1;
+        for (const auto dimension : pTensor.getDimensions()) {
+          size *= dimension;
         }
+        return size;
+      }();
+
+      const auto* const output = reinterpret_cast<const float*>(pData);
+
+      if (!m_HasFilePath) {
         outs() << '[';
-        for (size_t i = 0; i < size; ++i) {
-          outs() << std::fixed << output[i] << ", ";
+        for (std::size_t idx = 0; idx < size; ++idx) {
+          outs() << std::fixed << output[idx] << ", ";
         }
         outs() << ']' << std::endl;
 
@@ -106,7 +112,23 @@ namespace internal {
         return false;
       }
 
-      return false;
+      xTensorProto writer;
+
+      writer.set_data_type(xTensorProto::FLOAT);
+      for (const auto dimension : pTensor.getDimensions()) {
+        writer.add_dims(dimension);
+      }
+
+      writer.set_raw_data(pData, size * sizeof(*output));
+
+      if (!writer.SerializeToOstream(&stream)) {
+        errs() << Color::MAGENTA << "Fatal" << Color::RESET
+               << ": fail to write content to file: " << m_FilePath
+               << std::endl;
+        return false;
+      }
+
+      return true;
     }
 
   private:
@@ -158,10 +180,12 @@ namespace internal {
       return TensorReadProxy{};
     }
 
-    xTensorProto tensor;
-    tensor.ParseFromIstream(&stream);
+    xTensorProto reader;
+    reader.ParseFromIstream(&stream);
 
-    const auto& rawData = tensor.raw_data();
+    assert(reader.has_data_type() && reader.data_type() == xTensorProto::FLOAT);
+
+    const auto& rawData = reader.raw_data();
     const auto  length  = rawData.length();
 
     auto data = std::make_unique<char[]>(length);
