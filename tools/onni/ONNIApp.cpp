@@ -37,6 +37,30 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 namespace onnc {
 namespace internal {
+  class TensorReadProxy
+  {
+  public:
+    TensorReadProxy() noexcept
+      : m_Success{false}
+      , m_Data{}
+      , m_Length{0}
+    { }
+
+    TensorReadProxy(std::unique_ptr<char[]> data, std::size_t length) noexcept
+      : m_Success{true}
+      , m_Data{std::move(data)}
+      , m_Length{length}
+    { }
+
+    TensorReadProxy(TensorReadProxy&&) = default;
+
+    operator bool() const noexcept { return m_Success; }
+
+    const bool m_Success;
+    std::unique_ptr<char[]> m_Data;
+    const std::size_t m_Length;
+  };
+
   void enableOnnxOptmization(PassManager& passManager)
   {
     using Option = OnnxOptPass::Option;
@@ -55,6 +79,42 @@ namespace internal {
       ;
 
     passManager.add<OnnxOptPass>(std::move(pass));
+  }
+
+  TensorReadProxy readTensor(const Path& filePath)
+  {
+    if (!exists(filePath)) {
+      errs() << Color::MAGENTA << "Fatal" << Color::RESET
+             << ": input file not found: " << filePath
+             << std::endl;
+      return TensorReadProxy{};
+    }
+
+    if (!is_regular(filePath)) {
+      errs() << Color::MAGENTA << "Fatal" << Color::RESET
+             << ": input file is not a regular file: " << filePath
+             << std::endl;
+      return TensorReadProxy{};
+    }
+
+    std::ifstream stream(filePath.native());
+    if (!stream.is_open()) {
+      errs() << Color::MAGENTA << "Fatal" << Color::RESET
+             << ": cannot open file file: " << filePath
+             << std::endl;
+      return TensorReadProxy{};
+    }
+
+    xTensorProto tensor;
+    tensor.ParseFromIstream(&stream);
+
+    const auto& rawData = tensor.raw_data();
+    const auto  length  = rawData.length();
+
+    auto data = std::make_unique<char[]>(length);
+    std::memcpy(data.get(), rawData.data(), length);
+
+    return TensorReadProxy{std::move(data), length};
   }
 } // namespace internal
 } // namespace onnc
@@ -102,29 +162,14 @@ int ONNIApp::run()
   }
 
   // FIXME: Use onnc-runtime to handle input
-  std::unique_ptr<char[]> input_mem;
+  std::unique_ptr<char[]> input;
   if (!options().dryRun()) {
-    if (!exists(options().input())) {
-      errs() << Color::MAGENTA << "Fatal" << Color::RESET
-             << ": input file not found: " << options().input()
-             << std::endl;
-      return EXIT_FAILURE;
+    auto result = internal::readTensor(options().input());
+    if (result) {
+      input = std::move(result.m_Data);
     }
-    if (!is_regular(options().input())) {
-      errs() << Color::MAGENTA << "Fatal" << Color::RESET
-             << ": input file is not a regular file: " << options().input()
-             << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    xTensorProto tensor;
-    std::ifstream input_fin(options().input().native());
-    tensor.ParseFromIstream(&input_fin);
-    const std::string &raw_data_str = tensor.raw_data();
-    input_mem = std::make_unique<char[]>(raw_data_str.size());
-    memcpy(input_mem.get(), raw_data_str.data(), raw_data_str.size());
   }
-  pm.add<InterpreterPass>(backend.get(), input_mem.get(),
+  pm.add<InterpreterPass>(backend.get(), input.get(),
                           options().verbose(), options().dryRun());
 
   pm.run(module);
