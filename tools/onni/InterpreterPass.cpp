@@ -62,12 +62,15 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 InterpreterPass::InterpreterPass(TargetBackend *pBackend,
                                  std::unique_ptr<char[]> pInputMem,
+                                 std::function<void(const Tensor&, const void*)> pOutputListener,
                                  unsigned int pVerbose,
                                  bool pIsDryRun)
-  : m_pBackend(pBackend), m_pInputMem(std::move(pInputMem)),
-    m_Verbose(pVerbose), m_DryRun(pIsDryRun),
-    m_pInterpreter(pBackend->createTargetInterpreter()) {
-}
+  : m_pBackend(pBackend)
+  , m_pInputMem(std::move(pInputMem))
+  , m_OutputListener(std::move(pOutputListener))
+  , m_Verbose(pVerbose), m_DryRun(pIsDryRun)
+  , m_pInterpreter(pBackend->createTargetInterpreter())
+{ }
 
 Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 {
@@ -227,19 +230,9 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
     if (OutputOperator *out = dyn_cast<OutputOperator>(&cm)) {
       for (int i = 0; i < out->getNumOfInputs(); ++i) {
-        Value *v = out->getInput(i);
-        float *output = static_cast<float *>(m_pInterpreter->getBasicInterpreter()->m_ATable[v]);
-
-        Tensor *t = static_cast<Tensor *>(v);
-        size_t size = 1;
-        for (auto i: t->getDimensions()) {
-          size *= i;
-        }
-        outs() << '[';
-        for (size_t i = 0; i < size; ++i) {
-          outs() << std::fixed << output[i] << ", ";
-        }
-        outs() << ']' << std::endl;
+        const Value* const value = out->getInput(i);
+        const auto*  const data  = m_pInterpreter->getBasicInterpreter()->m_ATable[value];
+        m_OutputListener(static_cast<const Tensor&>(*value), data);
       }
     }
   }

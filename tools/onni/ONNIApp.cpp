@@ -25,6 +25,7 @@
 #include <onnc/Analysis/Counter.h>
 #include <onnc/Transforms/OnnxOptPass.h>
 
+#include <cassert>
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -64,6 +65,7 @@ namespace internal {
 
   class TensorWriteProxy
   {
+  public:
     TensorWriteProxy() noexcept
       : m_HasFilePath{false}
       , m_FilePath{}
@@ -77,9 +79,22 @@ namespace internal {
     TensorWriteProxy(const TensorWriteProxy&) = default;
     TensorWriteProxy(TensorWriteProxy&&) = default;
 
-    bool operator()(const Tensor& pTensor) const
+    bool operator()(const Tensor& pTensor, const void* pData) const
     {
+      assert(pData != nullptr);
+
       if (!m_HasFilePath) {
+        const auto *output = reinterpret_cast<const float*>(pData);
+        size_t size = 1;
+        for (auto i : pTensor.getDimensions()) {
+          size *= i;
+        }
+        outs() << '[';
+        for (size_t i = 0; i < size; ++i) {
+          outs() << std::fixed << output[i] << ", ";
+        }
+        outs() << ']' << std::endl;
+
         return true;
       }
 
@@ -94,6 +109,7 @@ namespace internal {
       return false;
     }
 
+  private:
     const bool m_HasFilePath;
     const Path m_FilePath;
   };
@@ -165,6 +181,8 @@ ONNIApp::ONNIApp(int pArgc, char* pArgv[])
 
 int ONNIApp::run()
 {
+  using namespace internal;
+
   onnc::onnx::Reader reader;
   Module module;
   SystemError err = reader.parse(options().model(), module);
@@ -187,7 +205,7 @@ int ONNIApp::run()
   PassManager pm;
 
   if (options().onnxOpt()) {
-    internal::enableOnnxOptmization(pm);
+    enableOnnxOptmization(pm);
   }
 
   const auto backend = std::unique_ptr<TargetBackend>{target->createBackend(options().target())};
@@ -201,13 +219,27 @@ int ONNIApp::run()
   // FIXME: Use onnc-runtime to handle input
   std::unique_ptr<char[]> input;
   if (!options().dryRun()) {
-    auto result = internal::readTensor(options().input());
+    auto result = readTensor(options().input());
     if (result) {
       input = std::move(result.m_Data);
     }
   }
-  pm.add<InterpreterPass>(backend.get(), std::move(input),
-                          options().verbose(), options().dryRun());
+
+  auto writeProxy = [this]() {
+    if (options().output() != ONNIConfig::DefaultOutputName) {
+      return TensorWriteProxy{options().output()};
+    }
+
+    return TensorWriteProxy{};
+  }();
+
+  pm.add<InterpreterPass>(
+    backend.get(),
+    std::move(input),
+    std::move(writeProxy),
+    options().verbose(),
+    options().dryRun()
+  );
 
   pm.run(module);
 
