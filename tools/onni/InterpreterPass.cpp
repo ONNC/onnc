@@ -61,10 +61,10 @@ using namespace onnc;
 // InterpreterPass
 //===----------------------------------------------------------------------===//
 InterpreterPass::InterpreterPass(TargetBackend *pBackend,
-                                 char *pInputMem,
+                                 std::unique_ptr<char[]> pInputMem,
                                  unsigned int pVerbose,
                                  bool pIsDryRun)
-  : m_pBackend(pBackend), m_pInputMem(pInputMem),
+  : m_pBackend(pBackend), m_pInputMem(std::move(pInputMem)),
     m_Verbose(pVerbose), m_DryRun(pIsDryRun),
     m_pInterpreter(pBackend->createTargetInterpreter()) {
 }
@@ -82,7 +82,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
       Value *v = co->getValue();
       if (mem->isInput()) {
         // XXX: Multiple inputs
-        m_pInterpreter->getBasicInterpreter()->m_ATable[v] = m_pInputMem;
+        m_pInterpreter->getBasicInterpreter()->m_ATable[v] = m_pInputMem.get();
       } else if (mem->isWeight()) {
         // XXX
         FloatTensor *t = static_cast<FloatTensor *>(v);

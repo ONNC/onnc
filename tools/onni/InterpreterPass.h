@@ -23,7 +23,7 @@ class InterpreterPass : public CustomPass<InterpreterPass>
 {
 public:
   InterpreterPass(TargetBackend *pBackend,
-                  char *pInputMem,
+                  std::unique_ptr<char[]> pInputMem,
                   unsigned int pVerbose,
                   bool pIsDryRun);
 
@@ -33,7 +33,7 @@ private:
   ReturnType runInterpreter(Module& pModule);
 
   TargetBackend *m_pBackend;
-  char *m_pInputMem;
+  std::unique_ptr<char[]> m_pInputMem;
   unsigned int m_Verbose;
   bool m_DryRun;
   std::unique_ptr<Interpreter> m_pInterpreter;

@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <memory>
 #include <string>
+#include <utility>
 
 using namespace onnc;
 
@@ -59,6 +60,42 @@ namespace internal {
     const bool m_Success;
     std::unique_ptr<char[]> m_Data;
     const std::size_t m_Length;
+  };
+
+  class TensorWriteProxy
+  {
+    TensorWriteProxy() noexcept
+      : m_HasFilePath{false}
+      , m_FilePath{}
+    { }
+
+    explicit TensorWriteProxy(Path filePath) noexcept
+      : m_HasFilePath{true}
+      , m_FilePath{std::move(filePath)}
+    { }
+
+    TensorWriteProxy(const TensorWriteProxy&) = default;
+    TensorWriteProxy(TensorWriteProxy&&) = default;
+
+    bool write(const Tensor& tensor) const
+    {
+      if (!m_HasFilePath) {
+        return true;
+      }
+
+      std::ofstream stream{m_FilePath.native()};
+      if (!stream.is_open()) {
+        errs() << Color::MAGENTA << "Fatal" << Color::RESET
+               << ": cannot open file to write: " << m_FilePath
+               << std::endl;
+        return false;
+      }
+
+      return false;
+    }
+
+    const bool m_HasFilePath;
+    const Path m_FilePath;
   };
 
   void enableOnnxOptmization(PassManager& passManager)
@@ -169,7 +206,7 @@ int ONNIApp::run()
       input = std::move(result.m_Data);
     }
   }
-  pm.add<InterpreterPass>(backend.get(), input.get(),
+  pm.add<InterpreterPass>(backend.get(), std::move(input),
                           options().verbose(), options().dryRun());
 
   pm.run(module);
