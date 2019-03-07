@@ -84,26 +84,28 @@ namespace internal {
       assert(pTensor.kind() == Value::Type::kFloat);
       assert(pData != nullptr);
 
-      const std::size_t size = [&]() {
-        std::size_t size = 1;
-        for (const auto dimension : pTensor.getDimensions()) {
-          size *= dimension;
-        }
-        return size;
-      }();
-
-      const auto* const output = reinterpret_cast<const float*>(pData);
-
+      const auto* const pValues = reinterpret_cast<const float*>(pData);
       if (!m_HasFilePath) {
-        outs() << '[';
-        for (std::size_t idx = 0; idx < size; ++idx) {
-          outs() << std::fixed << output[idx] << ", ";
-        }
-        outs() << ']' << std::endl;
-
-        return true;
+        return writeTensorToStdout(pTensor, pValues);
       }
 
+      return writeTensorToFile(pTensor, pValues);
+    }
+
+  private:
+    bool writeTensorToStdout(const Tensor& pTensor, const float* pValues) const
+    {
+      outs() << '[';
+      for (std::size_t idx = 0; idx < getTensorSize(pTensor); ++idx) {
+        outs() << std::fixed << pValues[idx] << ", ";
+      }
+      outs() << ']' << std::endl;
+
+      return true;
+    }
+
+    bool writeTensorToFile(const Tensor& pTensor, const float* pValues) const
+    {
       std::ofstream stream{m_FilePath.native()};
       if (!stream.is_open()) {
         errs() << Color::MAGENTA << "Fatal" << Color::RESET
@@ -119,7 +121,7 @@ namespace internal {
         writer.add_dims(dimension);
       }
 
-      writer.set_raw_data(pData, size * sizeof(*output));
+      writer.set_raw_data(pValues, getTensorSize(pTensor) * sizeof(*pValues));
 
       if (!writer.SerializeToOstream(&stream)) {
         errs() << Color::MAGENTA << "Fatal" << Color::RESET
@@ -129,6 +131,16 @@ namespace internal {
       }
 
       return true;
+    }
+
+    static std::size_t getTensorSize(const Tensor& pTensor)
+    {
+      std::size_t size = 1;
+      for (const auto dimension : pTensor.getDimensions()) {
+        size *= dimension;
+      }
+
+      return size;
     }
 
   private:
