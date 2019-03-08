@@ -376,7 +376,7 @@ void CodeEmitVisitor::visit(const Reshape& pOp)
   //int out_shape_idx = m_pMeta.m_MemIdxTable[(Tensor *)output_reshaped_t];
   //ILoadable::MemoryListEntry out_shape_mle = m_pMeta.m_MemoryListEntries[out_shape_idx];
 
-  //TODO, setup remapping table
+  //TODO, set up remapping table
   //m_pMeta.m_ReshapeTable[output_reshaped_t] = input_data_t;
 }
 

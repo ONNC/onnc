@@ -141,6 +141,11 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
   //TODO: clear m_DLAOperationList;
 }
 
+#define ELEMENT_SIZE       2
+#define CBUF_BANK_WIDTH   64
+#define UNIT_ALIGNMENT(x, unit)   (((x) + ((unit)-1)) & ~((unit)-1))
+#define DIV_ROUNDUP(x, dividor) ((x) + (dividor) -1)/(dividor)
+
 //===----------------------------------------------------------------------===//
 // NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
@@ -162,19 +167,11 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       }
 
       {
-        int atom_per_channel = (dim_c * element_size + FEATURE_ATOM_CUBE_SIZE - 1) / FEATURE_ATOM_CUBE_SIZE;
-        int entry_per_slice = (atom_per_channel / 4) * dim_w;
-        switch((atom_per_channel % 4)) {
-          case 3:
-            entry_per_slice += dim_w;
-            break;
-          case 2:
-            entry_per_slice += (dim_w + 1)/2;
-            break;
-          case 1:
-            entry_per_slice += (dim_w + 3)/4;
-            break;
-        } // end of siwtch
+        int atom_c = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
+        int segment_c = UNIT_ALIGNMENT(dim_c, atom_c); 
+        size = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
+        NVDLA_DBG("Cube_Info %d %d/%d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE);   
+        int entry_per_slice = DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);
         eps = entry_per_slice;
       }
       banks = ((eps * dim_h) + 255)/ 256;
