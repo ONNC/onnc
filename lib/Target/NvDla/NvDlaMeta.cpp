@@ -143,6 +143,7 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
 
 #define ELEMENT_SIZE       2
 #define CBUF_BANK_WIDTH   64
+#define CBUF_BANK_DEPTH   256
 #define UNIT_ALIGNMENT(x, unit)   (((x) + ((unit)-1)) & ~((unit)-1))
 #define DIV_ROUNDUP(x, dividor) ((x) + (dividor) -1)/(dividor)
 
@@ -167,7 +168,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
         // For dim_c = 64*a +  b, where a is integer and b is between 33-48 for the nv_full case, 
         // a full CBUF entry needs to be allocated to this unaligned feature cube.
         // Although this works for nv_full and nv_small, this logic needs to be verified for other spec file. 
-        
+
         int entry_per_slice = (((segment_c/atom_c)% (CBUF_BANK_WIDTH/atom_c)) ==  ((CBUF_BANK_WIDTH/atom_c) -1) ) ? 
                               DIV_ROUNDUP(dim_w * UNIT_ALIGNMENT(segment_c, CBUF_BANK_WIDTH), CBUF_BANK_WIDTH) : 
                               DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);
@@ -175,7 +176,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
         NVDLA_DBG("Cube_Info %d %d/%d %d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE, eps);   
 
       }
-      banks = DIV_ROUNDUP((eps * dim_h), 256);
+      banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
       break;
     case NVDLA_CUBE_WEIGHT:
       size = (dim_n * dim_c * dim_h * dim_w * element_size);
@@ -183,11 +184,11 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       stride_channel = element_size;
       stride_line = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
       stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
-      banks = (dim_n * dim_c * dim_h * dim_w * element_size + 128 + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+      banks = (dim_n * dim_c * dim_h * dim_w * element_size + 128 + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(banks > 16) {
-        banks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+        banks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
         if(banks > 16)
-          banks = (16 * dim_c * dim_h * dim_w * element_size  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+          banks = (16 * dim_c * dim_h * dim_w * element_size  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
         reduced = true;
       }
       break;
@@ -200,9 +201,9 @@ int NvDlaCubeInfo::getReducedBanks() const
     case NVDLA_CUBE_FEATURE:
       return banks;
     case NVDLA_CUBE_WEIGHT: {
-      int rbanks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+      int rbanks = (16 * dim_c * dim_h * dim_w * element_size * 2  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced) {
-        rbanks = (16 * dim_c * dim_h * dim_w * element_size  + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+        rbanks = (16 * dim_c * dim_h * dim_w * element_size  + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       }
       return rbanks;
     }
@@ -216,9 +217,9 @@ void NvDlaCubeInfo::reduceBanks()
     case NVDLA_CUBE_FEATURE:
       break;
     case NVDLA_CUBE_WEIGHT:
-      banks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+      banks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       if(reduced)
-        banks = (16 * dim_c * dim_h * dim_w * element_size + (256*WEIGHT_ATOM_CUBE_SIZE-1))/ (256*WEIGHT_ATOM_CUBE_SIZE);
+        banks = (16 * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE-1))/ (CBUF_BANK_DEPTH*WEIGHT_ATOM_CUBE_SIZE);
       break;
   } // end of switch
   reduced = true;
