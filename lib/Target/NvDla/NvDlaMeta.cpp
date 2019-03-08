@@ -162,6 +162,12 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
         int atom_c = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
         int segment_c = UNIT_ALIGNMENT(dim_c, atom_c); 
         size = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
+
+        // For unknown reason, the following case needs to be handled as an exception:
+        // For dim_c = 64*a +  b, where a is integer and b is between 33-48 for the nv_full case, 
+        // a full CBUF entry needs to be allocated to this unaligned feature cube.
+        // Although this works for nv_full and nv_small, this logic needs to be verified for other spec file. 
+        
         int entry_per_slice = (((segment_c/atom_c)% (CBUF_BANK_WIDTH/atom_c)) ==  ((CBUF_BANK_WIDTH/atom_c) -1) ) ? 
                               DIV_ROUNDUP(dim_w * UNIT_ALIGNMENT(segment_c, CBUF_BANK_WIDTH), CBUF_BANK_WIDTH) : 
                               DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);
