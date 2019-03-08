@@ -25,7 +25,6 @@ nodist_onni_SOURCES = main.cpp \
 	CountOperatorsPass.cpp \
 	ONNIApp.cpp \
 	ONNIConfig.cpp \
-	Interpreter.cpp \
 	InterpreterPass.cpp \
 	OnnxOptPass.cpp
 

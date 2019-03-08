@@ -56,8 +56,6 @@ public:
 
   void addTensor(Tensor& pTensor);
 
-  void print(std::ostream& pOS) const override;
-
   void accept(ComputeVisitor& pVisitor) override { pVisitor.visit(*this); }
 
   void accept(ComputeVisitor& pVisitor) const override { pVisitor.visit(*this); }

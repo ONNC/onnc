@@ -400,6 +400,9 @@ public:
   virtual void visit(ThresholdedRelu& pThresholdedRelu) { }
   /// @}
 
+	// TODO: Check visitor id.
+  static bool classof(const ComputeVisitor *pOp) { return pOp != nullptr; }
+
 private:
   VisitorTypeID m_VisitorID;
 };

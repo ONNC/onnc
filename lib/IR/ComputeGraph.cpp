@@ -194,6 +194,48 @@ ComputeGraph::const_bfs_iterator ComputeGraph::bfs_end() const
   return const_bfs_iterator();
 }
 
+void ComputeGraph::topologicalSort()
+{
+  // Stable topological sort
+  std::unordered_map<Node*, int> in_degree;
+  std::unordered_map<Node*, int> orig_index;
+  iterator nodeIter, nEnd = end();
+  int index = 0;
+  using QueueElem = std::pair<int, Node*>;
+  std::priority_queue<QueueElem,
+                      std::vector<QueueElem>,
+                      std::greater<QueueElem>> queue;
+  for (nodeIter = begin(); nodeIter != nEnd; ++nodeIter) {
+    in_degree[nodeIter] = nodeIter->getNumOfInputs();
+    orig_index[nodeIter] = index;
+    if (in_degree[nodeIter] == 0) {
+      queue.push(QueueElem(index, nodeIter));
+    }
+    index += 1;
+  }
+
+  std::vector<Node*> nodes;
+  while (!queue.empty()) {
+    Node *node = queue.top().second;
+    queue.pop();
+    for (int i = 0; i < node->getNumOfOutputs(); ++i) {
+      for (Use use : node->getOutput(i)->getUses()) {
+        Node *n = use.getUser();
+        in_degree[n] -= 1;
+        if (in_degree[n] == 0) {
+          queue.push(QueueElem(orig_index[n], n));
+        }
+      }
+    }
+    nodes.push_back(node);
+  }
+
+  for (int i = 0; i < nodes.size(); ++i) {
+    nodes[i]->prev = (i > 0) ? nodes[i - 1] : nullptr;
+    nodes[i]->next = (i < nodes.size() - 1) ? nodes[i + 1] : nullptr;
+  }
+}
+
 void ComputeGraph::print(std::ostream& pOS) const
 {
 }

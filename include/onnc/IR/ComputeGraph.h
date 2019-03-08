@@ -119,6 +119,8 @@ public:
 
   const_iterator end() const;
 
+  void topologicalSort();
+
   dfs_iterator dfs_begin();
 
   dfs_iterator dfs_end();

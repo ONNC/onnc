@@ -25,6 +25,8 @@ public:
 
   void addCodeEmit(PassManager& pPM, const Path& pOutput) override;
 
+  Interpreter *createTargetInterpreter() const override;
+
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 };
 

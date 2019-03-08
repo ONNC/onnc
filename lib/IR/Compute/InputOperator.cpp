@@ -38,11 +38,6 @@ void InputOperator::setTensor(onnc::Tensor& pTensor)
   addOutput(pTensor);
 }
 
-void InputOperator::print(std::ostream& pOS) const
-{
-  pOS << name();
-}
-
 bool InputOperator::classof(const ComputeOperator* pOp)
 {
   if (nullptr == pOp)

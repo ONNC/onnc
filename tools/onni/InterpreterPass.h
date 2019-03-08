@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_INTERPRETER_PASS_H
 #define ONNC_INTERPRETER_PASS_H
-#include "Interpreter.h"
+#include <onnc/Runtime/Interpreter.h>
 #include <onnc/Core/ModulePass.h>
 
 namespace onnc {
@@ -39,7 +39,7 @@ private:
   char *m_pInputMem;
   unsigned int m_Verbose;
   bool m_DryRun;
-  Interpreter m_Interpreter;
+  std::unique_ptr<Interpreter> m_pInterpreter;
 };
 
 // XXX: Experimental

@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86Backend.h"
+#include "X86Interpreter.h"
+#include "X86FuseConvRelu.h"
 #include "X86InplaceValueFusible.h"
 #include "X86RemoveWeightFromLiveIntervals.h"
 #include "TargetInfo/X86TargetInfo.h"
@@ -135,6 +137,11 @@
 
 using namespace onnc;
 
+cl::opt<bool>
+onnc::EnableX86FuseConvRelu("enable-x86-fuse-conv-relu", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Enable x86 fuse conv relu."));
+
 //===----------------------------------------------------------------------===//
 // X86Backend
 //===----------------------------------------------------------------------===//
@@ -148,6 +155,10 @@ void X86Backend::addTensorSel(PassManager& pPM)
   // X86 only uses the standard ONNC IR and standard Lower, so just use the
   // standard Tensor selection passes.
   addStandardTensorSel(pPM, *this);
+
+  if (EnableX86FuseConvRelu) {
+    pPM.add(CreateX86FuseConvReluPass());
+  }
 }
 
 void X86Backend::addMemAlloc(PassManager& pPM)
@@ -176,6 +187,10 @@ void X86Backend::addMemAlloc(PassManager& pPM)
 void X86Backend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   // TODO
+}
+
+Interpreter *X86Backend::createTargetInterpreter() const {
+  return new X86Interpreter();
 }
 
 void X86Backend::RegisterLowers(LowerRegistry& pRegistry) const

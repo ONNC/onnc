@@ -20,10 +20,16 @@ Pass::ReturnType LiveIntervals::runOnModule(Module& pModule)
   LiveIntervalsData& liData = *getAnalysis<LiveIntervalsData>();
   liData.setSlotIndexes(&slotIndexes);
 
-  for (auto& valIt : pModule.getValueList()) {
-    Value* v = valIt.value();
-    LiveInterval& liveintrvl = *liData.createEmptyLiveInterval(v);
-    computeValueInterval(liveintrvl, slotIndexes);
+  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
+  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg) {
+    ComputeGraph::iterator nodeIt, nEnd = cg->value()->end();
+    for (nodeIt = cg->value()->begin(); nodeIt != nEnd; ++nodeIt) {
+      for (int i = 0; i < nodeIt->getNumOfOutputs(); ++i) {
+        Value* v = nodeIt->getOutput(i);
+        LiveInterval &liveintrvl = *liData.createEmptyLiveInterval(v);
+        computeValueInterval(liveintrvl, slotIndexes);
+      }
+    }
   }
 
   return Pass::kModuleNoChanged;

@@ -11,6 +11,7 @@
 #include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Target/TargetOptions.h>
 #include <onnc/Support/Path.h>
+#include <onnc/Runtime/Interpreter.h>
 
 #include <memory>
 
@@ -38,6 +39,8 @@ public:
   virtual void addCodeEmit(PassManager& pPM, const Path& pOutput) { return; }
 
   virtual const TargetTransformInfo* getTTI() const { return nullptr; }
+
+  virtual Interpreter *createTargetInterpreter() const { return new Interpreter(); }
 
   /// For the backend using standard TensorSel pass.
   virtual void RegisterLowers(LowerRegistry& pRegistry) const { return; }
