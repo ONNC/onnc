@@ -127,7 +127,6 @@ void CodeEmitVisitor::visit(const Conv& pOp)
           output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]
         );
 
-  //TODO: pads!!!
   for(int g = 0; g < group; g++){
     // Weight Memory allocation, repacking by groups
     int W_mid = packWeight(input_W_t, input_W_dims, g);
