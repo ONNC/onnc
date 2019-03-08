@@ -1,14 +1,17 @@
-//===- VanillaBackend.cpp -----------------------------------------------------===//
+//===- NvDlaBackend.cpp -----------------------------------------------------===//
 //
 //                             The ONNC Project
 //
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "VanillaBackend.h"
-#include "TargetInfo/VanillaTargetInfo.h"
-#include "TargetInfo/VanillaTargetMemInfo.h"
+#include "NvDlaBackend.h"
+#include "TargetInfo/NvDlaTargetInfo.h"
+#include "TargetInfo/NvDlaTargetMemInfo.h"
+#include "NvDlaMemInfoPass.h"
 #include "CodeEmitVisitor.h"
+#include "NvDlaTaskSubmitPass.h"
+#include "NvDlaFileGenPass.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -49,33 +52,37 @@
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 
+#include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
+
 #include <memory>
 
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
-// VanillaBackend
+// NvDlaBackend
 //===----------------------------------------------------------------------===//
-VanillaBackend::VanillaBackend(const TargetOptions& pOptions)
-  : TargetBackend(pOptions) { 
-  m_pMemInfo = std::make_unique<VanillaTargetMemInfo>();
+NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
+  : TargetBackend{pOptions},
+    m_pMeta{},
+    m_CodeEmitVisitor{m_pMeta} {
+  m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
 
-void VanillaBackend::addTensorSel(PassManager& pPM)
+void NvDlaBackend::addTensorSel(PassManager& pPM)
 {
-  errs() << "Vanilla is invoked\n";
+  errs() << "NvDla is invoked\n";
 
   // Do ONNX graph IR optimization here.
 
   // Translate from ONNX graph IR into ONNC IR
   addStandardTensorSel(pPM, *this);
-  
+
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
 }
 
-void VanillaBackend::addTensorSched(PassManager& pPM)
+void NvDlaBackend::addTensorSched(PassManager& pPM)
 {
   // After method AddTensorSel, operators have been scheduled in an
   // topological order, which totally respects the data dependency.
@@ -83,7 +90,7 @@ void VanillaBackend::addTensorSched(PassManager& pPM)
   // Add a scheduling optimization pass here.
 }
 
-void VanillaBackend::addMemAlloc(PassManager& pPM)
+void NvDlaBackend::addMemAlloc(PassManager& pPM)
 {
   // Input: Module
   // Output: LiveIntervals
@@ -98,48 +105,63 @@ void VanillaBackend::addMemAlloc(PassManager& pPM)
   addStandardSetMemOperands(pPM);
 }
 
-void VanillaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
+void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  static vanilla::CodeEmitVisitor ceVisitor;
-  pPM.add(CreateCodeEmitPass(ceVisitor));
+  pPM.add(CreateNvDlaMemInfoPass(this, &m_pMeta));
+  pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
+  pPM.add(CreateNvDlaTaskSubmitPass(this, &m_pMeta));
+  pPM.add(CreateNvDlaFileGenPass(this, &m_pMeta));
 }
 
-void VanillaBackend::RegisterLowers(LowerRegistry& pRegistry) const
+void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 {
-  pRegistry.emplace<AddLower>();
-  pRegistry.emplace<AveragePoolLower>();
-  pRegistry.emplace<BatchNormalizationLower>();
-  pRegistry.emplace<ConcatLower>();
+  //CONV
   pRegistry.emplace<ConvLower>();
-  pRegistry.emplace<FlattenLower>();
   pRegistry.emplace<GemmLower>();
-  pRegistry.emplace<GlobalAveragePoolLower>();
-  pRegistry.emplace<LRNLower>();
-  pRegistry.emplace<LeakyReluLower>();
-  pRegistry.emplace<MaxPoolLower>();
-  pRegistry.emplace<MulLower>();
-  pRegistry.emplace<PReluLower>();
-  pRegistry.emplace<ReluLower>();
-  pRegistry.emplace<ReshapeLower>();
-  pRegistry.emplace<SoftmaxLower>();
-  pRegistry.emplace<SplitLower>();
-  pRegistry.emplace<SumLower>();
-  pRegistry.emplace<TransposeLower>();
-  pRegistry.emplace<UpsampleLower>();
-}
 
+  //SDP
+  //pRegistry.emplace<PReluLower>();
+  pRegistry.emplace<ReluLower>();
+  //pRegistry.emplace<MulLower>();
+  //pRegistry.emplace<AddLower>();
+  //pRegistry.emplace<SumLower>();  // N Adds
+  //pRegistry.emplace<BatchNormalizationLower>();
+
+  //PDP
+  pRegistry.emplace<MaxPoolLower>();
+  pRegistry.emplace<AveragePoolLower>();
+
+  //CDP
+  pRegistry.emplace<LRNLower>();
+
+  //RUBIK
+  pRegistry.emplace<ReshapeLower>();    //special processing
+  //pRegistry.emplace<SplitLower>();      //RUBIK
+  //pRegistry.emplace<FlattenLower>();    //RUBIK
+
+  //EMU
+  pRegistry.emplace<SoftmaxLower>();
+
+  //TODOs
+  //pRegistry.emplace<LeakyReluLower>();  //SDP-LUT
+  //pRegistry.emplace<GlobalAveragePoolLower>();  //PDP?
+  //pRegistry.emplace<TransposeLower>();  //??
+  //pRegistry.emplace<UpsampleLower>();   // BDMA + CONV??
+  //pRegistry.emplace<UnsqueezeLower>();
+  pRegistry.emplace<ConcatLower>();    // RUBIK?
+
+}
 
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateVanillaBackend(const TargetOptions& pOptions)
+TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions)
 {
-  return new VanillaBackend(pOptions);
+  return new NvDlaBackend(pOptions);
 }
 
-extern "C" void InitializeVanillaONNCBackend()
+extern "C" void InitializeNvDlaONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheVanillaTarget(),
-      CreateVanillaBackend);
+  onnc::TargetRegistry::RegisterTargetBackend(getFp16NvDlaTarget(),
+      CreateNvDlaBackend);
 }
-

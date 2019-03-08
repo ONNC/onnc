@@ -36,6 +36,8 @@
 #include <skypat/skypat.h>
 #include "../../lib/Target/X86/X86RemoveWeightFromLiveIntervals.h"
 
+#include <memory>
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
@@ -244,12 +246,10 @@ public:
 class VTargetBackend : public TargetBackend
 {
 public:
-  VTargetBackend(const TargetOptions& pOptions)
+  explicit VTargetBackend(const TargetOptions& pOptions)
     : TargetBackend(pOptions) {
-    m_pMemInfo = &m_VTMI;
+    m_pMemInfo = std::make_unique<VTargetMemInfo>();
   }
-
-  VTargetMemInfo m_VTMI;
 };
 
 //===----------------------------------------------------------------------===//

@@ -12,8 +12,10 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Config/ONNX.h>
 #include <onnc/IR/Dump.h>
+
 #include <tuple>
 #include <stack>
+#include <string>
 
 using namespace onnc;
 
@@ -22,6 +24,19 @@ char TensorSel::ID = 0;
 //===----------------------------------------------------------------------===//
 // TensorSel
 //===----------------------------------------------------------------------===//
+namespace onnc {
+namespace detail {
+  std::string getDisplayName(const xNode& node)
+  {
+    if (!node.name().empty()) {
+      return node.name();
+    }
+
+    return node.kind().toString();
+  }
+} // namespace detail
+} // namespace onnc
+
 TensorSel::TensorSel(const TargetBackend* pBackend)
   : GraphBuildingPass(ID), m_pBackend(pBackend), m_LowerRegistry() {
   if (nullptr != m_pBackend) {
@@ -41,10 +56,7 @@ Pass::ReturnType TensorSel::runOnGraphs(xGraph& pTG, ComputeGraph& pCG)
     // lower creates corresponding compute operator and values
     Lower* lower = m_LowerRegistry.lookup(**tg_node);
     if (nullptr == lower) {
-      if (tg_node->has_name())
-        fatal(no_corre_lower) << tg_node->name();
-      else
-        fatal(no_corre_lower) << tg_node->kind().toString();
+      fatal(no_corre_lower) << detail::getDisplayName(**tg_node);
       return Pass::kPassFailure;
     }
     if (nullptr == lower->activate(pCG, **tg_node)) {
