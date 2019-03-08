@@ -63,7 +63,6 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
     else if(Reshape *reshape = dyn_cast<Reshape>(&cm)){
       Tensor *input_t = reshape->getInput(0);
       Tensor *output_t = reshape->getOutput(0);
-      //Tensor *t = static_cast<Tensor *>(v);
       m_pMeta->m_ReshapeTable[output_t] = input_t;
     }
     else if(Concat *concat = dyn_cast<Concat>(&cm)){
@@ -78,7 +77,6 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
         meta.t = output_t;
         meta.ofs = channels;
         //TODO - change to tensor-to-address
-        //m_pMeta->m_ConcatTable[input_t] = output_t;
         m_pMeta->m_ConcatTable[input_t] = meta;
         printf(
           "\tconcat input[%d] dim(%d %d %d %d)\n",
@@ -102,7 +100,6 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
         //for weight, memory buffers are allocated & blob files are also generated in ComputeOperator.
 
         FloatTensor *t = static_cast<FloatTensor *>(v);
-        //m_pMeta->m_WeightTable[v] = t->getValues().data();
         NVDLA_DBG("weight size:%d %d\n", mem->length(), t->getValues().size());
 
       }else{
@@ -138,7 +135,6 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module &pModule)
         if (mem->isInput()) {
           mle.flags |= nvdla::ILoadable::MemoryFlags_INPUT;
           mle.tensor_desc_id = 0;
-          //mle.size = cubeinfo.size;
 
           tle.name = "data";
           tle.id = 0;
