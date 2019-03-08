@@ -162,7 +162,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
         int atom_c = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
         int segment_c = UNIT_ALIGNMENT(dim_c, atom_c); 
         size = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
-        int entry_per_slice = ((segment_c/atom_c) ==  ((CBUF_BANK_WIDTH/atom_c) -1) ) ? 
+        int entry_per_slice = (((segment_c/atom_c)% (CBUF_BANK_WIDTH/atom_c)) ==  ((CBUF_BANK_WIDTH/atom_c) -1) ) ? 
                               DIV_ROUNDUP(dim_w * UNIT_ALIGNMENT(segment_c, CBUF_BANK_WIDTH), CBUF_BANK_WIDTH) : 
                               DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);
         eps = entry_per_slice;
