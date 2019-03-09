@@ -61,6 +61,8 @@ ForEachMacros:
   - Q_FOREACH
   - BOOST_FOREACH
 IncludeBlocks:   Regroup
+# To obtain updated lists of system headers used in the below expressions, see:
+#   https://stackoverflow.com/a/2029106
 IncludeCategories: 
   # ONNC library headers
   - Regex:           '^[<|"]onnc/'
