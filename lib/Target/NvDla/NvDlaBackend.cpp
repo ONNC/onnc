@@ -14,7 +14,6 @@
 #include "TargetInfo/NvDlaTargetInfo.h"
 #include "TargetInfo/NvDlaTargetMemInfo.h"
 
-#include <memory>
 #include <onnc/Analysis/NodeIRScheduler.h>
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
@@ -54,6 +53,8 @@
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
+
+#include <memory>
 
 using namespace onnc;
 

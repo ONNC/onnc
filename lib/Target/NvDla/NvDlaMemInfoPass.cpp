@@ -72,11 +72,11 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
       for (int i = 0; i < num_inputs; i++) {
         Tensor*     input_t = concat->getInput(i);
         concat_meta meta;
-        meta.t   = output_t;
-        meta.ofs = channels;
+        meta.t                          = output_t;
+        meta.ofs                        = channels;
         m_pMeta->m_ConcatTable[input_t] = meta;
         NVDLA_DBG("\tconcat input[%d] dim(%d %d %d %d)\n", i, input_t->dimension(0), input_t->dimension(1),
-               input_t->dimension(2), input_t->dimension(3));
+                  input_t->dimension(2), input_t->dimension(3));
         channels += input_t->dimension(1);
       }
     }

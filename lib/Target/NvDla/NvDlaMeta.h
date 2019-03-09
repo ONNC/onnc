@@ -15,10 +15,11 @@
 #include "priv/Loadable.h"
 #include "priv/loadable_generated.h"
 
+#include <onnc/IR/Compute/Tensor.h>
+
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
-#include <onnc/IR/Compute/Tensor.h>
 #include <sstream>
 #include <unordered_map>
 
