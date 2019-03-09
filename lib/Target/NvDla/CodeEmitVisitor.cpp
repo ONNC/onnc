@@ -152,13 +152,14 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       if (fcube_group.banks + winfo.getReducedBanks() <= 16) {
         winfo.reduceBanks();
       } else {
-        // split
         int restBanks = 16 - winfo.banks;
         if (restBanks > 0) {
           max_conv_H = (256 * restBanks) / fcube_group.eps;
           NVDLA_DBG("max_conv_H: %d\n", max_conv_H);
         } else {
-          // TODO, return critical error
+          errs() << Color::MAGENTA << "Fatal" << Color::RESET << ": The bank size has exceeded hardware limitation"
+                 << std::endl;
+          return;
         }
       }
     }
@@ -862,7 +863,9 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       if (finfo.banks + winfo.getReducedBanks() <= 16) {
         winfo.reduceBanks();
       } else {
-        // TODO, return critical error
+        errs() << Color::MAGENTA << "Fatal" << Color::RESET << ": The bank size has exceeded hardware limitation"
+               << std::endl;
+        return;
       }
     }
 
@@ -1282,10 +1285,10 @@ void CodeEmitVisitor::issueDlaOp(NvDlaDlaOperation* op, NvDlaDlaOperation* op_fu
 
   if (op_fuse != NULL) {
     struct dla_common_op_desc* fuse_op_desc = &(op_fuse->op_dep);
-    int op_fuse_type               = fuse_op_desc->op_type;
-    fuse_op_desc->index            = m_pMeta.m_DLAOperationList.size();
-    fuse_op_desc->roi_index        = 0;
-    fuse_op_desc->dependency_count = 1;
+    int                        op_fuse_type = fuse_op_desc->op_type;
+    fuse_op_desc->index                     = m_pMeta.m_DLAOperationList.size();
+    fuse_op_desc->roi_index                 = 0;
+    fuse_op_desc->dependency_count          = 1;
 
     fuse_op_desc->fused_parent.index = op_desc->index;
     fuse_op_desc->fused_parent.event = 3;
