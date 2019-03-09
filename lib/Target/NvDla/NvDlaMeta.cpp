@@ -37,8 +37,6 @@ void clear_bytes(T& object)
 //===----------------------------------------------------------------------===//
 NvDlaDlaOperation::NvDlaDlaOperation()
 {
-  // XXX: C++ is zero-initialized, so we need no memset(0).
-  // TODO: use initialized member list.
   memset(&op_dep, 0, sizeof(op_dep));
   memset(&op_desc, 0, sizeof(op_desc));
   memset(&op_surf, 0, sizeof(op_surf));
@@ -55,7 +53,6 @@ NvDlaDlaOperation::NvDlaDlaOperation()
 //===----------------------------------------------------------------------===//
 NvDlaEmuOperation::NvDlaEmuOperation()
 {
-  // TODO: use initialized member list.
   memset(&op_desc, 0, sizeof(op_desc));
   memset(&op_buf, 0, sizeof(op_buf));
 }
@@ -132,17 +129,6 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
     NVDLA_DBG("LUT release - %p\n", lut);
     delete lut;
   }
-
-  m_MemoryListEntries.clear();
-  m_TaskListEntries.clear();
-  m_SubmitListEntries.clear();
-  m_EventListEntries.clear();
-  m_AddressListEntries.clear();
-  m_TensorDescListEntries.clear();
-  m_RelocEntries.clear();
-  m_NumBlobs = 0;
-
-  // TODO: clear m_DLAOperationList;
 }
 
 #define ELEMENT_SIZE 2

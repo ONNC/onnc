@@ -74,9 +74,8 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
         concat_meta meta;
         meta.t   = output_t;
         meta.ofs = channels;
-        // TODO - change to tensor-to-address
         m_pMeta->m_ConcatTable[input_t] = meta;
-        printf("\tconcat input[%d] dim(%d %d %d %d)\n", i, input_t->dimension(0), input_t->dimension(1),
+        NVDLA_DBG("\tconcat input[%d] dim(%d %d %d %d)\n", i, input_t->dimension(0), input_t->dimension(1),
                input_t->dimension(2), input_t->dimension(3));
         channels += input_t->dimension(1);
       }

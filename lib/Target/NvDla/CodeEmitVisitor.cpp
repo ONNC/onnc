@@ -139,7 +139,6 @@ void CodeEmitVisitor::visit(const Conv& pOp)
                          sizeof(short));
     ILoadable::MemoryListEntry B_mle;
     if (pOp.getNumOfInputs() > 2) {
-      // TODO: packed with FEATURE layout
       B_mid  = packBias(input_B_t, input_B_dims, g);
       B_mle  = m_pMeta.m_MemoryListEntries[B_mid];
       B_addr = issueDlaAddr(B_mid, B_info, 1, 0, 0);
@@ -371,10 +370,9 @@ void CodeEmitVisitor::visit(const Reshape& pOp)
   const Tensor* output_reshaped_t       = pOp.getOutput(0);
   int32_t       output_reshaped_ndim    = output_reshaped_t->getNumOfDimensions();
   int32_t       output_reshaped_dims[4] = {1, 1, 1, 1};
-  for (int i = 0; i < output_reshaped_ndim; ++i)
+  for (int i = 0; i < output_reshaped_ndim; ++i) {
     output_reshaped_dims[i] = output_reshaped_t->dimension(i);
-
-  // TODO, set up remapping table
+  }
 }
 
 void CodeEmitVisitor::visit(const LRN& pOp)
@@ -1284,7 +1282,6 @@ void CodeEmitVisitor::issueDlaOp(NvDlaDlaOperation* op, NvDlaDlaOperation* op_fu
 
   if (op_fuse != NULL) {
     struct dla_common_op_desc* fuse_op_desc = &(op_fuse->op_dep);
-    // TODO: Fix dst address in conv_op
     int op_fuse_type               = fuse_op_desc->op_type;
     fuse_op_desc->index            = m_pMeta.m_DLAOperationList.size();
     fuse_op_desc->roi_index        = 0;
