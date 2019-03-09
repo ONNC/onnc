@@ -19,14 +19,17 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <iomanip>
 #include <sstream>
 #include <unordered_map>
 
 #ifdef NDEBUG
-#  define NVDLA_DBG printf
+#  define NVDLA_DBG(...) fprintf(stderr, __VA_ARGS__)
 #else
-#  define NVDLA_DBG
+#  define NVDLA_DBG(...) \
+    do {                 \
+    } while (false)
 #endif
 
 using namespace nvdla;
