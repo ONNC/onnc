@@ -8,27 +8,26 @@
 #ifndef ONNC_NVDLAM_TASKSUBMIT_PASS_H
 #define ONNC_NVDLAM_TASKSUBMIT_PASS_H
 
-#include <onnc/Core/CustomPass.h>
-
 #include "NvDlaMeta.h"
 
-namespace onnc {
+#include <onnc/Core/CustomPass.h>
 
+namespace onnc {
 class TargetBackend;
 
 class NvDlaTaskSubmitPass : public CustomPass<NvDlaTaskSubmitPass>
 {
 public:
-  explicit NvDlaTaskSubmitPass(NvDlaBackendMeta *pMeta);
+  explicit NvDlaTaskSubmitPass(NvDlaBackendMeta* pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
-  int submitEvent(int task_id, int event_type);
-  int submitMemAllocAddress(int size, std::string blob_name);
+  int        submitEvent(int task_id, int event_type);
+  int        submitMemAllocAddress(int size, std::string blob_name);
 
 private:
-  NvDlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta* m_pMeta;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

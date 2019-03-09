@@ -10,7 +10,6 @@
 #include <onnc/Target/TargetMemInfo.h>
 
 namespace onnc {
-
 class NvDlaTargetMemInfo : public TargetMemInfo
 {
 public:

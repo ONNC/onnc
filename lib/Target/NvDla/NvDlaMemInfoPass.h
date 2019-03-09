@@ -8,12 +8,11 @@
 #ifndef ONNC_NVDLAMEMINFO_PASS_H
 #define ONNC_NVDLAMEMINFO_PASS_H
 
-#include <onnc/Core/CustomPass.h>
-
 #include "NvDlaMeta.h"
 
-namespace onnc {
+#include <onnc/Core/CustomPass.h>
 
+namespace onnc {
 class TargetBackend;
 
 /** \class InterpreterPass
@@ -22,14 +21,14 @@ class TargetBackend;
 class NvDlaMemInfoPass : public CustomPass<NvDlaMemInfoPass>
 {
 public:
-  explicit NvDlaMemInfoPass(NvDlaBackendMeta *pMeta);
+  explicit NvDlaMemInfoPass(NvDlaBackendMeta* pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
-  NvDlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta* m_pMeta;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

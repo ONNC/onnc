@@ -7,14 +7,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_NVDLA_BACKEND_H
 #define TARGET_NVDLA_BACKEND_H
-#include <string>
-#include <onnc/Target/TargetBackend.h>
-
-#include "NvDlaMeta.h"
 #include "CodeEmitVisitor.h"
+#include "NvDlaMeta.h"
+
+#include <onnc/Target/TargetBackend.h>
+#include <string>
 
 namespace onnc {
-
 class NvDlaBackend : public TargetBackend
 {
 public:
@@ -33,10 +32,10 @@ public:
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 
 private:
-  NvDlaBackendMeta m_pMeta;
+  NvDlaBackendMeta       m_pMeta;
   nvdla::CodeEmitVisitor m_CodeEmitVisitor;
 };
 
-}  // namespace onnc
+} // namespace onnc
 
 #endif

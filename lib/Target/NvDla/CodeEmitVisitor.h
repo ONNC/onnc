@@ -7,23 +7,22 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_NVDLA_CODE_EMIT_VISITOR_H
 #define TARGET_NVDLA_CODE_EMIT_VISITOR_H
-#include <onnc/IR/Compute/Tensor.h>
+#include "NvDlaMeta.h"
+
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/CustomVisitor.h>
-#include "NvDlaMeta.h"
 
 namespace onnc {
-
 namespace nvdla {
-
 class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
 public:
-  explicit CodeEmitVisitor(NvDlaBackendMeta &meta) noexcept
-  : m_pMeta{meta}
-  { }
+  explicit CodeEmitVisitor(NvDlaBackendMeta& meta) noexcept
+    : m_pMeta{meta}
+  {}
 
   void visit(const Initializer& pInitializer) override;
   void visit(const InputOperator& pInputOperator) override;
@@ -40,17 +39,17 @@ public:
   void visit(const Concat& pConcat) override;
   void visit(const Sum& pSum) override;
 
-  void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);
-  int packWeight(const Tensor *t, int dims[4], int gidx);
-  int packBias(const Tensor *t, int dims[4], int gidx);
+  void conv(const Tensor* x, const Tensor* w, const Tensor* b, const Tensor* y);
+  int  packWeight(const Tensor* t, int dims[4], int gidx);
+  int  packBias(const Tensor* t, int dims[4], int gidx);
 
-  void issueEmuOp(NvDlaEmuOperation *op);
-  int issueEmuAddr(int mid);
-  void issueDlaOp(NvDlaDlaOperation *op, NvDlaDlaOperation *op_fuse, NvDlaDlaOperation *op_prev);
-  int issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
+  void issueEmuOp(NvDlaEmuOperation* op);
+  int  issueEmuAddr(int mid);
+  void issueDlaOp(NvDlaDlaOperation* op, NvDlaDlaOperation* op_fuse, NvDlaDlaOperation* op_prev);
+  int  issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
 
 private:
-  NvDlaBackendMeta &m_pMeta;
+  NvDlaBackendMeta& m_pMeta;
 };
 
 } // namespace nvdla
