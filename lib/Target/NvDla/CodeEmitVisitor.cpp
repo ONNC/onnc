@@ -9,6 +9,7 @@
 
 #include "fp16.h"
 
+#include <onnc/ADT/Color.h>
 #include <onnc/IR/Compute/AveragePool.h>
 #include <onnc/IR/Compute/Concat.h>
 #include <onnc/IR/Compute/Conv.h>
