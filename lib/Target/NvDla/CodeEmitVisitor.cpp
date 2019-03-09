@@ -367,7 +367,6 @@ void CodeEmitVisitor::visit(const Reshape& pOp)
   //TODO, set up remapping table
 }
 
-//Setup LookupTable
 void CodeEmitVisitor::visit(const LRN& pOp)
 {
   pOp.print(errs());

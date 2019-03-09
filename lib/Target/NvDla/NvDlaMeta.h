@@ -43,7 +43,6 @@ struct concat_meta {
   int ofs;
 };
 
-//typedef std::unordered_map<const Value *, float *> WeightTable;
 typedef std::unordered_map<Value *, int> MemoryIdxTable;
 typedef std::unordered_map<const Tensor *, const Tensor *> RemapTable;
 typedef std::unordered_map<const Tensor *, concat_meta> ConcatTable;
@@ -105,7 +104,6 @@ public:
 
   int m_DlaAddresses;
   struct dla_network_desc  m_DlaNetworkDesc;
-  //struct dla_lut_param m_LrnDefaultLutParam;
   int m_NumLUTs;
   std::vector<NvDlaDlaOperation *> m_DLAOperationList;
   std::vector<dla_lut_param *> m_LUTList;

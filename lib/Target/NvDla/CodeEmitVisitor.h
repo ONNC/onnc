@@ -25,13 +25,10 @@ public:
   : m_pMeta{meta}
   { }
 
-  /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
   void visit(const InputOperator& pInputOperator) override;
   void visit(const OutputOperator& pOutputOperator) override;
-  /// @}
 
-  /// ONNX defined operators @{
   void visit(const Conv& pConv) override;
   void visit(const Reshape& pReshape) override;
   void visit(const Relu& pRelu) override;
@@ -42,8 +39,7 @@ public:
   void visit(const Softmax& pSoftmax) override;
   void visit(const Concat& pConcat) override;
   void visit(const Sum& pSum) override;
-  /// @}
-  //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
+
   void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);
   int packWeight(const Tensor *t, int dims[4], int gidx);
   int packBias(const Tensor *t, int dims[4], int gidx);
