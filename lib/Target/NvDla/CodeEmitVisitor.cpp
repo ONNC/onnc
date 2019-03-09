@@ -414,7 +414,7 @@ void CodeEmitVisitor::visit(const LRN& pOp)
     // critical error
     NVDLA_DBG("LRN(alpha:%f beta:%f bias:%f size:%d) is not matched !!!!!!!!!!!!!!!!!!!!!\n", alpha, beta, bias, size);
     struct dla_lut_param* lut_param = new dla_lut_param();
-    memset(lut_param, 0, sizeof(struct dla_lut_param));
+    memset(lut_param, 0, sizeof(*lut_param));
     {
       float fsize = (float)size;
       float x     = 1.0f;

@@ -22,24 +22,17 @@ constexpr std::size_t size(const T (&)[N]) noexcept
 {
   return N;
 }
-
-template <typename T>
-void clear_bytes(T& object)
-{
-  static_assert(std::is_trivial<T>::value);
-  std::memset(std::addressof(object), 0, sizeof(object));
-}
 } // namespace detail
 } // namespace onnc
 
 //===----------------------------------------------------------------------===//
 // NvDlaDlaOperation
 //===----------------------------------------------------------------------===//
-NvDlaDlaOperation::NvDlaDlaOperation()
+NvDlaDlaOperation::NvDlaDlaOperation() noexcept
+  : op_dep{}
+  , op_desc{}
+  , op_surf{}
 {
-  memset(&op_dep, 0, sizeof(op_dep));
-  memset(&op_desc, 0, sizeof(op_desc));
-  memset(&op_surf, 0, sizeof(op_surf));
   for (int i = 0; i < DLA_OP_NUM; i++) {
     op_dep.consumers[i].index = -1;
     op_dep.consumers[i].event = 1;
@@ -51,37 +44,35 @@ NvDlaDlaOperation::NvDlaDlaOperation()
 //===----------------------------------------------------------------------===//
 // NvDlaEmuOperation
 //===----------------------------------------------------------------------===//
-NvDlaEmuOperation::NvDlaEmuOperation()
-{
-  memset(&op_desc, 0, sizeof(op_desc));
-  memset(&op_buf, 0, sizeof(op_buf));
-}
+NvDlaEmuOperation::NvDlaEmuOperation() noexcept
+  : op_desc{}
+  , op_buf{}
+{}
 
 //===----------------------------------------------------------------------===//
 // NvDlaBackendMeta
 //===----------------------------------------------------------------------===//
 NvDlaBackendMeta::NvDlaBackendMeta()
-  : m_NumLUTs(0)
-  , m_NumBlobs(0)
-  , m_pPrevOp(nullptr)
+  : m_DlaNetworkDesc{}
+  , m_NumLUTs{0}
+  , m_pPrevOp{nullptr}
+  , m_EmuNetworkDesc{}
+  , m_NumBlobs{0}
+  , m_Loadable{priv::LoadableFactory::newLoadable()}
 {
   using namespace detail;
   using std::begin;
   using std::end;
 
-  m_Loadable = priv::LoadableFactory::newLoadable();
-
   std::fill(begin(m_pDepOp), end(m_pDepOp), nullptr);
 
-  clear_bytes(m_DlaNetworkDesc);
   for (std::size_t idx = 0; idx < size(m_DlaNetworkDesc.op_head); ++idx) {
     m_DlaNetworkDesc.op_head[idx] = -1;
   }
-  clear_bytes(m_EmuNetworkDesc);
 
   {
     struct dla_lut_param* default_lut_param = new dla_lut_param();
-    memset(default_lut_param, 0, sizeof(struct dla_lut_param));
+    std::memset(default_lut_param, 0, sizeof(*default_lut_param));
     default_lut_param->linear_only_offset.frac_bits = -128;
     default_lut_param->linear_only_start            = 1;
     default_lut_param->linear_only_end              = 1;

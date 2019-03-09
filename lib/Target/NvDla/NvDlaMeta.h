@@ -51,12 +51,10 @@ typedef std::unordered_map<const Tensor*, concat_meta>   ConcatTable;
 class NvDlaDlaOperation
 {
 public:
-  struct dla_common_op_desc op_dep;
+  NvDlaDlaOperation() noexcept;
 
 public:
-  NvDlaDlaOperation();
-
-public:
+  struct dla_common_op_desc     op_dep;
   union dla_operation_container op_desc;
   union dla_surface_container   op_surf;
 };
@@ -67,7 +65,7 @@ public:
 class NvDlaEmuOperation
 {
 public:
-  NvDlaEmuOperation();
+  NvDlaEmuOperation() noexcept;
 
 public:
   union emu_operation_container        op_desc;
