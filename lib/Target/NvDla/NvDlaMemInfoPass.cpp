@@ -90,7 +90,7 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
         // for weight, memory buffers are allocated & blob files are also generated in ComputeOperator.
 
         FloatTensor* t = static_cast<FloatTensor*>(v);
-        NVDLA_DBG("weight size:%d %d\n", mem->length(), t->getValues().size());
+        NVDLA_DBG("weight size:%u %zu\n", mem->length(), t->getValues().size());
 
       } else {
         NVDLA_DBG("operand size:%d\n", mem->length());

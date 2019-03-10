@@ -40,7 +40,7 @@ public:
   Result match(PathList& pPathnames);
 
   /// return the pattern used to match
-  const Path& pattern() const { return m_Pattern.native(); }
+  Path pattern() const { return m_Pattern.native(); }
 
 private:
   friend class GlobImpl;
