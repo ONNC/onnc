@@ -151,14 +151,23 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       int segment_c = UNIT_ALIGNMENT(dim_c, atom_c);
       size          = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
 
-      // For unknown reason, the following case needs to be handled as an exception:
-      // For dim_c = 64*a +  b, where a is integer and b is between 33-48 for the nv_full case,
-      // a full CBUF entry needs to be allocated to this unaligned feature cube.
-      // Although this works for nv_full and nv_small, this logic needs to be verified for other spec file.
 
-      int entry_per_slice = (((segment_c / atom_c) % (CBUF_BANK_WIDTH / atom_c)) == ((CBUF_BANK_WIDTH / atom_c) - 1))
+      // copy how SystemC calculate entry per slice
+      int atom_per_channel   = DIV_ROUNDUP((dim_c * element_size),  FEATURE_ATOM_CUBE_SIZE);
+      int entry_per_slice    = (atom_per_channel / 4) * dim_w;
+      // Same check as in IP_TOT/tools/cc_sanity_checker.pl (line350~357)
+      if ((atom_per_channel % 4) ==3)
+          entry_per_slice += dim_w;
+      else if ((atom_per_channel % 4) ==2)
+          entry_per_slice += (dim_w + 1)/2;
+      else if ((atom_per_channel % 4) ==1)
+          entry_per_slice += (dim_w + 3)/4;
+
+      // This following formula is supposed to implement the above formula and can be generalized to other configuration
+      // Need verification for other configuraiton
+      /*int entry_per_slice = (((segment_c / atom_c) % (CBUF_BANK_WIDTH / atom_c)) == ((CBUF_BANK_WIDTH / atom_c) - 1))
                               ? DIV_ROUNDUP(dim_w * UNIT_ALIGNMENT(segment_c, CBUF_BANK_WIDTH), CBUF_BANK_WIDTH)
-                              : DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);
+                              : DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);*/
       eps = entry_per_slice;
       NVDLA_DBG("Cube_Info %d %d/%d %d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE, eps);
     }
