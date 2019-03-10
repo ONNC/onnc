@@ -30,7 +30,7 @@ global::stats().print(std::cerr, ","); // print to std::cerr, separated by comma
 
 ## The `Counter` Class
 
-The [Counter](include/onnc/Analysis/Counter.h) class serves as a regular `int` counter in ONNC.
+The [Counter](/include/onnc/Analysis/Counter.h) class serves as a regular `int` counter in ONNC.
 
 To use Counter, include `<onnc/Analysis/Counter.h>` header, use `onnc` namespace, and create an instance of `Counter` class.
 
