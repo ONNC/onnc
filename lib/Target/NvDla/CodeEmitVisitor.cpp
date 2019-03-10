@@ -10,6 +10,7 @@
 #include "fp16.h"
 
 #include <onnc/ADT/Color.h>
+#include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/IR/Compute/AveragePool.h>
 #include <onnc/IR/Compute/Concat.h>
 #include <onnc/IR/Compute/Conv.h>
@@ -140,7 +141,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
                          sizeof(short));
     ILoadable::MemoryListEntry B_mle;
     if (pOp.getNumOfInputs() > 2) {
-      B_mid  = packBias(input_B_t, input_B_dims, g);
+      B_mid  = packBias(pOp, input_B_t, input_B_dims, g);
       B_mle  = m_pMeta.m_MemoryListEntries[B_mid];
       B_addr = issueDlaAddr(B_mid, B_info, 1, 0, 0);
     }
@@ -158,9 +159,10 @@ void CodeEmitVisitor::visit(const Conv& pOp)
           max_conv_H = (256 * restBanks) / fcube_group.eps;
           NVDLA_DBG("max_conv_H: %d\n", max_conv_H);
         } else {
-          errs() << Color::MAGENTA << "Fatal" << Color::RESET << ": The bank size has exceeded hardware limitation"
-                 << std::endl;
-          return;
+          std::ostringstream os;
+          os << "fcube_group.banks(" << fcube_group.banks
+              << ") + winfo.banks(" << winfo.banks << ") > " << 16;
+          fatal(nvdla_exceed_hardware_limit) << os.str();
         }
       }
     }
@@ -820,7 +822,7 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
 
     int                        B_mid = packWeight(input_B_t, input_B_dims, 0);
     ILoadable::MemoryListEntry B_mle = m_pMeta.m_MemoryListEntries[B_mid];
-    int                        C_mid = packBias(input_C_t, input_C_dims, 0);
+    int                        C_mid = packBias(pOp, input_C_t, input_C_dims, 0);
     ILoadable::MemoryListEntry C_mle = m_pMeta.m_MemoryListEntries[C_mid];
 
     NvDlaDlaOperation* conv_op = new NvDlaDlaOperation();
@@ -841,9 +843,10 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       if (finfo.banks + winfo.getReducedBanks() <= 16) {
         winfo.reduceBanks();
       } else {
-        errs() << Color::MAGENTA << "Fatal" << Color::RESET << ": The bank size has exceeded hardware limitation"
-               << std::endl;
-        return;
+        std::ostringstream os;
+        os << "finfo.banks(" << finfo.banks
+            << ") + winfo.banks(" << winfo.banks << ") > " << 16;
+        fatal(nvdla_exceed_hardware_limit) << os.str();
       }
     }
 
@@ -1093,9 +1096,8 @@ void CodeEmitVisitor::visit(const Concat& pOp)
   int32_t axis = pOp.getAxis().value();
   NVDLA_DBG("Concat AXIS[%d]\n", axis);
 
-  if (axis == 1) {
-  } else {
-    // critical error
+  if (axis != 1) {
+    fatal(nvdla_unsupported_attribute) << "axis == " << axis << "Concat";
   }
 
   // Clean
@@ -1143,11 +1145,11 @@ int CodeEmitVisitor::packWeight(const Tensor* t, int dims[4], int gidx)
   return mle.id;
 }
 
-int CodeEmitVisitor::packBias(const Tensor* t, int dims[4], int gidx)
+int CodeEmitVisitor::packBias(const ComputeOperator &co, const Tensor* t, int dims[4], int gidx)
 {
   if (dims[1] != 1 && dims[2] != 1 && dims[3] != 1) {
-    // critical error
     NVDLA_DBG("PACK FEATURE, FEATURE IS NOT 1D ARRAY ##################################");
+    fatal(nvdla_unsupported_attribute) << "bais" << "is not 1D array" << co.name();
   }
   std::string   blob_name = "tb-" + std::to_string(m_pMeta.m_NumBlobs++);
   NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, 1, dims[0], dims[2], dims[3], sizeof(unsigned short));
@@ -1302,6 +1304,10 @@ void CodeEmitVisitor::visit(const Sum& pSum)
 {
   pSum.print(errs());
   errs() << "\n";
+
+  if (pSum.getNumOfInputs() != 2) {
+    fatal(nvdla_unsupported_operator) << "Sum with more than 2 input";
+  }
 
   const Tensor* output_value   = pSum.getOutput(0);
   int32_t       output_dims[4] = {1, 1, 1, 1};

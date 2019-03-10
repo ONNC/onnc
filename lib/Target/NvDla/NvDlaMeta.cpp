@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include "NvDlaMeta.h"
 
+#include <onnc/Diagnostic/MsgHandling.h>
+
 #include <algorithm>
 #include <cstring>
 #include <iterator>
@@ -185,6 +187,8 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       reduced = true;
     }
     break;
+  default:
+    unreachable(nvdla_unsupported_mode) << mode;
   } // end of switch
 }
 
@@ -202,8 +206,9 @@ int NvDlaCubeInfo::getReducedBanks() const
     }
     return rbanks;
   }
-  }         // end of switch
-  return 0; //< is the default value correct?
+  default:
+    unreachable(nvdla_unsupported_mode) << mode;
+  } // end of switch
 }
 
 void NvDlaCubeInfo::reduceBanks()
@@ -218,6 +223,8 @@ void NvDlaCubeInfo::reduceBanks()
       banks = (16 * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     break;
+  default:
+    unreachable(nvdla_unsupported_mode) << mode;
   } // end of switch
   reduced = true;
 }

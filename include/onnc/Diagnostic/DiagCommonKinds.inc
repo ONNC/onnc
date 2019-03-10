@@ -85,3 +85,7 @@ DIAG(onnx_graph_alive,            Error,   "onnx::Graph still alive after Module
 DIAG(use_out_of_range,            Fatal,   "`use` out of range (%0): operator %1 contains only %2 input values")
 DIAG(input_out_of_range,          Fatal,   "`input` out of range (%0): operator %1 contains only %2 input values")
 DIAG(no_corre_lower,              Fatal,   "cannot lower ::onnx::Node %0. Lower not found.")
+DIAG(nvdla_unsupported_mode,      Unreachable, "Unsupported mode: %0!")
+DIAG(nvdla_unsupported_attribute, Fatal,   "Unsupported attribute %0 %1 in node %2")
+DIAG(nvdla_unsupported_operator,  Fatal,   "Unsupported operator: %0")
+DIAG(nvdla_exceed_hardware_limit, Fatal,   "Layer configuration has exceeded hardware limitation: %0")
