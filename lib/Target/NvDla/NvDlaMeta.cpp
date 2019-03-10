@@ -163,11 +163,6 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       else if ((atom_per_channel % 4) ==1)
           entry_per_slice += (dim_w + 3)/4;
 
-      // This following formula is supposed to implement the above formula and can be generalized to other configuration
-      // Need verification for other configuraiton
-      /*int entry_per_slice = (((segment_c / atom_c) % (CBUF_BANK_WIDTH / atom_c)) == ((CBUF_BANK_WIDTH / atom_c) - 1))
-                              ? DIV_ROUNDUP(dim_w * UNIT_ALIGNMENT(segment_c, CBUF_BANK_WIDTH), CBUF_BANK_WIDTH)
-                              : DIV_ROUNDUP((dim_w * segment_c), CBUF_BANK_WIDTH);*/
       eps = entry_per_slice;
       NVDLA_DBG("Cube_Info %d %d/%d %d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE, eps);
     }
