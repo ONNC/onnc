@@ -352,29 +352,7 @@ void CodeEmitVisitor::visit(const Reshape& pOp)
 {
   pOp.print(errs());
   errs() << "\n";
-
-  // Prepare input
-  const Tensor* input_data_t       = pOp.getInput(0);
-  int32_t       input_data_ndim    = input_data_t->getNumOfDimensions();
-  int32_t       input_data_dims[4] = {1, 1, 1, 1};
-  for (int i = 0; i < input_data_ndim; ++i)
-    input_data_dims[i] = input_data_t->dimension(i);
-  const Tensor*              input_shape_t = pOp.getInput(1);
-  int                        data_idx      = m_pMeta.m_MemIdxTable[(Tensor*)input_data_t];
-  ILoadable::MemoryListEntry data_mle      = m_pMeta.m_MemoryListEntries[data_idx];
-
-  int32_t input_shape_ndim    = input_shape_t->getNumOfDimensions();
-  int32_t input_shape_dims[4] = {1, 1, 1, 1};
-  for (int i = 0; i < input_shape_ndim; ++i)
-    input_shape_dims[i] = input_shape_t->dimension(i);
-
-  // Prepare output
-  const Tensor* output_reshaped_t       = pOp.getOutput(0);
-  int32_t       output_reshaped_ndim    = output_reshaped_t->getNumOfDimensions();
-  int32_t       output_reshaped_dims[4] = {1, 1, 1, 1};
-  for (int i = 0; i < output_reshaped_ndim; ++i) {
-    output_reshaped_dims[i] = output_reshaped_t->dimension(i);
-  }
+  // Reshape is a compile-time op.
 }
 
 void CodeEmitVisitor::visit(const LRN& pOp)
@@ -413,7 +391,6 @@ void CodeEmitVisitor::visit(const LRN& pOp)
 
   int lut_id = -1;
   if (alpha != 0.0001f || beta != 0.75f || bias != 1.0f) {
-    // critical error
     NVDLA_DBG("LRN(alpha:%f beta:%f bias:%f size:%d) is not matched !!!!!!!!!!!!!!!!!!!!!\n", alpha, beta, bias, size);
     struct dla_lut_param* lut_param = new dla_lut_param();
     memset(lut_param, 0, sizeof(*lut_param));
