@@ -153,17 +153,16 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       int segment_c = UNIT_ALIGNMENT(dim_c, atom_c);
       size          = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
 
-
       // copy how SystemC calculate entry per slice
-      int atom_per_channel   = DIV_ROUNDUP((dim_c * element_size),  FEATURE_ATOM_CUBE_SIZE);
-      int entry_per_slice    = (atom_per_channel / 4) * dim_w;
+      int atom_per_channel = DIV_ROUNDUP((dim_c * element_size), FEATURE_ATOM_CUBE_SIZE);
+      int entry_per_slice  = (atom_per_channel / 4) * dim_w;
       // Same check as in IP_TOT/tools/cc_sanity_checker.pl (line350~357)
-      if ((atom_per_channel % 4) ==3)
-          entry_per_slice += dim_w;
-      else if ((atom_per_channel % 4) ==2)
-          entry_per_slice += (dim_w + 1)/2;
-      else if ((atom_per_channel % 4) ==1)
-          entry_per_slice += (dim_w + 3)/4;
+      if ((atom_per_channel % 4) == 3)
+        entry_per_slice += dim_w;
+      else if ((atom_per_channel % 4) == 2)
+        entry_per_slice += (dim_w + 1) / 2;
+      else if ((atom_per_channel % 4) == 1)
+        entry_per_slice += (dim_w + 3) / 4;
 
       eps = entry_per_slice;
       NVDLA_DBG("Cube_Info %d %d/%d %d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE, eps);

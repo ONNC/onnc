@@ -41,7 +41,7 @@ public:
 
   void conv(const Tensor* x, const Tensor* w, const Tensor* b, const Tensor* y);
   int  packWeight(const Tensor* t, int dims[4], int gidx);
-  int  packBias(const ComputeOperator &co, const Tensor* t, int dims[4], int gidx);
+  int  packBias(const ComputeOperator& co, const Tensor* t, int dims[4], int gidx);
 
   void issueEmuOp(NvDlaEmuOperation* op);
   int  issueEmuAddr(int mid);
