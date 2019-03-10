@@ -24,7 +24,7 @@
 #include <sstream>
 #include <unordered_map>
 
-#ifdef NDEBUG
+#ifndef NDEBUG
 #  define NVDLA_DBG(...) fprintf(stderr, __VA_ARGS__)
 #else
 #  define NVDLA_DBG(...) \
