@@ -1147,7 +1147,7 @@ int CodeEmitVisitor::packBias(const ComputeOperator& co, const Tensor* t, int di
 {
   if (dims[1] != 1 && dims[2] != 1 && dims[3] != 1) {
     NVDLA_DBG("PACK FEATURE, FEATURE IS NOT 1D ARRAY ##################################");
-    fatal(nvdla_unsupported_attribute) << "bais is not 1D array" << co.name();
+    fatal(nvdla_unsupported_attribute) << "bias is not 1D array" << co.name();
   }
   std::string   blob_name = "tb-" + std::to_string(m_pMeta.m_NumBlobs++);
   NvDlaCubeInfo finfo(NVDLA_CUBE_FEATURE, 1, dims[0], dims[2], dims[3], sizeof(unsigned short));
