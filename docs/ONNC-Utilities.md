@@ -4,10 +4,6 @@ Release PDF: [ONNC-Utilities.pdf](https://github.com/ONNC/onnc/wiki/files/1.0.0/
 
 This application note lists current ONNC utilities. This document is compliant to the ONNC community Docker image v1.0. You may download the Docker image from the Docker Hub (https://hub.docker.com/r/onnc/onnc-community/)
 
-
-[TOC]
-
-
 ## 1. Overview
 
 An ONNC Docker image is available in the Docker Hub for fast deployment. It includes a pre-built ONNC source tree cloned from the [ONNC/onnc](https://github.com/ONNC/onnc) GitHub repository, pre-installed dependent libraries, and a ready-to-run working environment. Users may run benchmarks from the [ONNX Model Zoo](https://github.com/onnx/models) easily with this Docker image. For those who like to modify ONNC source code for research or product development, this document describes a couple of available utilities and scripts that are helpful in a common workflow using ONNC. The covered topics include the Docker image, built-in unit tests, benchmarking, and the detailed steps to rebuild modified source code.
@@ -150,24 +146,24 @@ Table 2 lists the 18 available unit tests in the ONNC repository. You may use `u
 
 | Test Name           |
 | ------------------- |
-| `Digraph`           |
-| `FileHandle`        |
-| `PassManager`       |
-| `Quadruple`         |
-| `StringRef`         |
-| `Any`               |
-| `BinaryTree`        |
-| `StringSwitch`      |
-| `StringMap`         |
-| `Json`              |
-| `ComputeIR`         |
-| `TensorSel`         |
-| `StatisticsTest`    |
-| `MemAllocTest`      |
-| `CounterTest`       |
-| `Runtime_Abs`       |
-| `Runtime_Transpose` |
-| `onnx2tg`           |
+| Digraph           |
+| FileHandle        |
+| PassManager       |
+| Quadruple         |
+| StringRef         |
+| Any               |
+| BinaryTree        |
+| StringSwitch      |
+| StringMap         |
+| Json              |
+| ComputeIR         |
+| TensorSel         |
+| StatisticsTest    |
+| MemAllocTest      |
+| CounterTest       |
+| Runtime_Abs       |
+| Runtime_Transpose |
+| onnx2tg           |
 
 Table 2. A list of unit tests in ONNC
 
