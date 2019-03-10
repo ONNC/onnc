@@ -19,7 +19,7 @@ If Docker is not installed in your system, please download Docker (http://www.do
 
 Pull the Docker image from the Docker Hub using the following shell command:
 
-```shell
+```shell=
 $ docker pull onnc/onnc-community
 ```
 
@@ -27,8 +27,8 @@ $ docker pull onnc/onnc-community
 
 Although the Docker image include a source code tree, it might not be the latest release version of ONNC. We strongly suggest you clone the latest version of ONNC from the GitHub repository, mount the source code directory to the Docker image, and modify the source code with your favorite editor on your host machine. You may clone the source code from the GitHub ONNC repository (https://github.com/ONNC/onnc). To download large model files when cloning the ONNC source, you have to install Git LFS (https://github.com/git-lfs/git-lfs/wiki/Installation) first.
 
-```shell
-$ mkdir -p <source_dir> && cd <source_dir> 
+```shell=
+$ mkdir -p <source_dir> && cd <source_dir>
 $ git clone https://github.com/ONNC/onnc.git
 $ cd onnc && git checkout research-public
 $ git pull
@@ -36,14 +36,14 @@ $ git pull
 
 Once the latest source code is ready, you may invoke the following command to enter ONNC build environment:
 
-```shell
+```shell=
 $ docker run -ti --cap-add=SYS_PTRACE -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community
 ```
 
 `<source_dir>` is the directory where you cloned the latest ONNC source code and the `-ti` option provides a interactive interface for the container, the `-v` option mounts the directory to the Docker image, the `--cap-add=SYS_PTRACE` option enables debug support (e.g. gdb) in the container. You can make some change to the source code (`<source_dir>/onnc`) and run the following command to build ONNC.
  
-```shell
-// run in the container cli, under build directory ‘/onnc/onnc-umbrella/build-normal’ by default
+```shell=
+// run in the container cli, under build directory `/onnc/onnc-umbrella/build-normal` by default
 $ smake -j8 install
 ```
 
@@ -55,7 +55,7 @@ This command will automatically install the compiled binary in this container en
 
 The ONNC project uses CMake as its building system. There is a pre-defined build directory `build-normal` in the container and you may create another build variant (e.g. for debugging ONNC tools) using the following command:
 
-```shell
+```shell=
 // run in the container cli
 $ cd /onnc/onnc-umbrella
 $ ssync && ./build.cmake.sh <build_mode>
@@ -67,7 +67,7 @@ $ ssync && ./build.cmake.sh <build_mode>
 normal, dbg, rgn, opt 
 ```
 
-The `ssync` command synchronize the build directory with the <source_dir>/onnc diretory. The `build.cmake.sh` script creates a directory named `build-<build_mode>` for generated files. The mapping between the `<build_mode>` and CMake build type variable `CMAKE_BUILD_TYPE` is listed as below.
+The `ssync` command synchronize the build directory with the `<source_dir>/onnc` diretory. The `build.cmake.sh` script creates a directory named `build-<build_mode>` for generated files. The mapping between the `<build_mode>` and CMake build type variable `CMAKE_BUILD_TYPE` is listed as below.
 
 | Build Mode | CMAKE_BUILD_TYPE |
 |------------|------------------|
@@ -87,15 +87,56 @@ There are 16 unit tests available in the ONNC repository. Those tests are writte
 $ ctest
 ```
   
-If all tests pass, you will see similar output in Figure 1. 
+If all tests pass, you will see the same output as shown below.
 
-![](/uploads/upload_20b61f7b3810191cafeeb92256eb05cf.png)
-**Figure 1. Output of unit tests in ONNC**
+```
+Test project /onnc/onnc-umbrella/build-normal
+      Start  1: Digraph
+ 1/18 Test  #1: Digraph ..........................   Passed    0.02 sec
+      Start  2: FileHandle
+ 2/18 Test  #2: FileHandle .......................   Passed    0.01 sec
+      Start  3: PassManager
+ 3/18 Test  #3: PassManager ......................   Passed    0.00 sec
+      Start  4: Quadruple
+ 4/18 Test  #4: Quadruple ........................   Passed    0.00 sec
+      Start  5: StringRef
+ 5/18 Test  #5: StringRef ........................   Passed    0.00 sec
+      Start  6: Any
+ 6/18 Test  #6: Any ..............................   Passed    0.00 sec
+      Start  7: BinaryTree
+ 7/18 Test  #7: BinaryTree .......................   Passed    0.00 sec
+      Start  8: StringSwitch
+ 8/18 Test  #8: StringSwitch .....................   Passed    0.00 sec
+      Start  9: StringMap
+ 9/18 Test  #9: StringMap ........................   Passed    0.45 sec
+      Start 10: Json
+10/18 Test #10: Json .............................   Passed    0.00 sec
+      Start 11: ComputeIR
+11/18 Test #11: ComputeIR ........................   Passed    0.00 sec
+      Start 12: TensorSel
+12/18 Test #12: TensorSel ........................   Passed    1.24 sec
+      Start 13: StatisticsTest
+13/18 Test #13: StatisticsTest ...................   Passed    0.13 sec
+      Start 14: MemAllocTest
+14/18 Test #14: MemAllocTest .....................   Passed    0.01 sec
+      Start 15: CounterTest
+15/18 Test #15: CounterTest ......................   Passed    0.00 sec
+      Start 16: Runtime_Abs
+16/18 Test #16: Runtime_Abs ......................   Passed    0.14 sec
+      Start 17: Runtime_Transpose
+17/18 Test #17: Runtime_Transpose ................   Passed    0.00 sec
+      Start 18: onnx2tg
+18/18 Test #18: onnx2tg ..........................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 18
+
+Total Test time (real) =   2.03 sec
+```
 
 
 If you like to run a single unit test, you may run it interactively in the Docker prompt.
 
-```shell
+```shell=
 // In the container cli, run a single unit test. 
 $ ./tools/unittests/unittest_<test_name>
 // e.g.
@@ -104,13 +145,28 @@ $ ./tools/unittests/unittest_Json
 $ exit
 ```
 
-Table 2 lists the 16 available unit tests in the ONNC repository. You may use `unittest_Any` to run all unit tests in a single pass. 
+Table 2 lists the 18 available unit tests in the ONNC repository. You may use `unittest_Any` to run all unit tests in a single pass.
 
-
-| Digraph | FileHandle | PassManager | Quadruple | StringRef | Any |
-|-|-|-|-|-|-|
-| BinaryTree | StringSwitch | StringMap | Json | ComputeIR | TensorSel |
-| MemAllocTest | Runtime_Abs | Runtime_Transpose | onnx2tg |
+| Test Name           |
+| ------------------- |
+| `Digraph`           |
+| `FileHandle`        |
+| `PassManager`       |
+| `Quadruple`         |
+| `StringRef`         |
+| `Any`               |
+| `BinaryTree`        |
+| `StringSwitch`      |
+| `StringMap`         |
+| `Json`              |
+| `ComputeIR`         |
+| `TensorSel`         |
+| `StatisticsTest`    |
+| `MemAllocTest`      |
+| `CounterTest`       |
+| `Runtime_Abs`       |
+| `Runtime_Transpose` |
+| `onnx2tg`           |
 
 Table 2. A list of unit tests in ONNC
 
@@ -119,11 +175,20 @@ Table 2. A list of unit tests in ONNC
 
 The Docker image includes a set of 12 pre-trained models from the ONNX model zoo (https://onnx.ai/) listed in Table 3. You may access the model files and associated input files in the /models directory. Or you may create your own model in the ONNX format, with input data in the ONNX TensorProto format (https://github.com/onnx/onnx/blob/master/docs/IR.md). 
 
-
-| bvlc_alexnet | bvlc_googlenet | bvlc_reference_caffenet | bvlc_reference_rcnn_ilsvrc13 |
-|-|-|-|-|
-| densenet121 | inception_v1 | inception_v2 | resnet50 |
-| shufflenet | squeezenet | vgg19 | zfnet512 |
+| Model Name                   |
+| ---------------------------- |
+| bvlc_alexnet                 |
+| bvlc_googlenet               |
+| bvlc_reference_caffenet      |
+| bvlc_reference_rcnn_ilsvrc13 |
+| densenet121                  |
+| inception_v1                 |
+| inception_v2                 |
+| resnet50                     |
+| shufflenet                   |
+| squeezenet                   |
+| vgg19                        |
+| zfnet512                     |
 
 Table 3. A list of ONNX models from the model zoo
 
@@ -131,12 +196,14 @@ Table 3. A list of ONNX models from the model zoo
 
 You may run a single model for benchmarking using the following shell command:
 
+```
 // run in the container cli
 $ onni <model_file_path>/model.onnx <input_file_path>/input_0.pb -verbose=<level>
+```
 
-where <model_file_path> is the path to the model file for the pre-trained ONNX model and <input_file_path> is the path to the corresponding input file. In the ONNC Docker container, the model file path is `/models/<model_name>` and the input file path is `/models/<model_name>/test_data_set_<0~6>`.  <level> indicates different levels of verbose information. Higher-level information is a superset of all lower-level information. For example, level 4 will include all information from level 1 to level 4. 
+where `<model_file_path>` is the path to the model file for the pre-trained ONNX model and `<input_file_path>` is the path to the corresponding input file. In the ONNC Docker container, the model file path is `/models/<model_name>` and the input file path is `/models/<model_name>/test_data_set_<0~6>`.  `<level>` indicates different levels of verbose information. Higher-level information is a superset of all lower-level information. For example, level 4 will include all information from level 1 to level 4.
 
-Information for each verbose level: 
+Information for each verbose level:
 
 - Level 1: Inference time & memory usage
 - Level 2: ONNX operator statistics
@@ -156,16 +223,12 @@ If you like to run all benchmarks in the model zoo, a `run-benchmark.sh` script 
 
 ```shell=
 Usage: run-benchmark.sh [options]... MODEL [ARGUMENTS...]
-
---rebuild	Rebuild the source code 
-(Will build the source in the /onnc/onnc directory)
-MODEL	Any model from the ONNX model zoo
-ARGUMENTS	Arguments be passed to target
-
+    --rebuild           Rebuild the source code
+                        (Will build the source in the /onnc/onnc directory)
+    MODEL               Any model from the ONNX model zoo
+    ARGUMENTS           Arguments be passed to target
 ========================================
-
 ONNX model list (from the ONNX model zoo):
-
 bvlc_alexnet  bvlc_googlenet  bvlc_reference_caffenet  bvlc_reference_rcnn_ilsvrc13  densenet121  inception_v1  inception_v2  resnet50  shufflenet  squeezenet  vgg19  zfnet512
 ```
 
@@ -193,3 +256,9 @@ Users may create their own ONNX model. In that case, they can run the benchmark 
 // run in the container cli
 $ onni <model_directory>/<model_file> <model_directory>/<input_file>
 ```
+
+## 7. Collecting statistics data by ONNC Statistics API
+
+ONNC provides a a set of Statistics classes and APIs in its framework for users to collect and share statistics data accross ONNC source code.
+
+For more information, please refer to the [ONNC Statistics API](./api/statistics.md) document. It will keep updating as more statistics types and APIs are defined and implemented.
