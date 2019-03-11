@@ -1046,7 +1046,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
   op_buf->src_data.channel                = input_input_dims[1];
   op_buf->src_data.line_stride            = iinfo.stride_line;
   op_buf->src_data.surf_stride            = iinfo.stride_surface;
-  NVDLA_DBG("softmax in(sz:%d w:%d h:%d c:%d ls:%d ss%d)\n", input_mle.size, input_input_dims[3], input_input_dims[2],
+  NVDLA_DBG("softmax in(sz:%lu w:%d h:%d c:%d ls:%d ss%d)\n", input_mle.size, input_input_dims[3], input_input_dims[2],
             input_input_dims[1], iinfo.stride_line, iinfo.stride_surface);
 
   op_buf->dst_data.addressIndex = issueEmuAddr(output_mid);
@@ -1057,7 +1057,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
   op_buf->dst_data.channel      = output_output_dims[1];
   op_buf->dst_data.line_stride  = oinfo.stride_line;
   op_buf->dst_data.surf_stride  = oinfo.stride_surface;
-  NVDLA_DBG("softmax out(sz:%d w:%d h:%d c:%d ls:%d ss%d)\n", output_mle.size, output_output_dims[3],
+  NVDLA_DBG("softmax out(sz:%lu w:%d h:%d c:%d ls:%d ss%d)\n", output_mle.size, output_output_dims[3],
             output_output_dims[2], output_output_dims[1], oinfo.stride_line, oinfo.stride_surface);
   issueEmuOp(softmax_op);
 }
@@ -1198,7 +1198,7 @@ int CodeEmitVisitor::issueEmuAddr(int mid)
   ale.mem_id = mid;
   ale.id     = aid;
 
-  NVDLA_DBG("AddressEntry s:%9d o:%9d mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
+  NVDLA_DBG("AddressEntry s:%9lu o:%9lu mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
   m_pMeta.m_AddressListEntries.push_back(ale);
   return aid;
 }
@@ -1224,7 +1224,7 @@ int CodeEmitVisitor::issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int g
   ale.id     = aid;
   NVDLA_DBG("cube(%d %d %d %d %d), group(%d/%d) ofs %d\n", cube.dim_n, cube.dim_c, cube.dim_h, cube.dim_w,
             cube.element_size, groups, gidx, ofs);
-  NVDLA_DBG("AddressEntry s:%9d o:%9d mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
+  NVDLA_DBG("AddressEntry s:%9lu o:%9lu mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
 
   m_pMeta.m_AddressListEntries.push_back(ale);
   return aid;

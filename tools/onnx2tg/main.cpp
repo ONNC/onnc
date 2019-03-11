@@ -34,7 +34,9 @@
 #endif
 
 #ifdef NDEBUG
-#define ENABLE_DEBUG()
+#  ifndef ENABLE_DEBUG
+#    define ENABLE_DEBUG()
+#  endif
 #endif
 
 using namespace onnc;
