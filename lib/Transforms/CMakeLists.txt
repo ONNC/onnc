@@ -5,6 +5,7 @@ add_libonnc_src(
     BuildOutputOperators.cpp
     DeadNodeElimination.cpp
     GraphBuildingPass.cpp
+    OnnxOptPass.cpp
     RemoveTrainingNodes.cpp
     TensorSel.cpp
     TensorSel/DefaultAttributes.cpp

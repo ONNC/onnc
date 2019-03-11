@@ -10,19 +10,11 @@
 
 using namespace onnc;
 
-char EncodeInstructions::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // BuildMemOpnd
 //===----------------------------------------------------------------------===//
 EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor)
-    : ModulePass(ID), m_InstEmitVisitors(pInstVisitor)
-{
-}
-
-EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor,
-                                       char& pPassID)
-    : ModulePass(pPassID), m_InstEmitVisitors(pInstVisitor)
+    : m_InstEmitVisitors(pInstVisitor)
 {
 }
 

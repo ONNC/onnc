@@ -68,7 +68,6 @@ nobase_nodist_include_HEADERS = \
 	onnc/Core/PassAnalysisSupport.h \
 	onnc/Core/PassInfo.h \
 	onnc/Core/InitializePasses.h \
-	onnc/Core/TensorPass.h \
 	onnc/Core/AnalysisUsage.h \
 	onnc/Core/PassRegistry.h \
 	onnc/Core/PassManager.h \

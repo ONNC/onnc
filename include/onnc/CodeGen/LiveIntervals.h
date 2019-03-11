@@ -8,7 +8,7 @@
 #ifndef ONNC_CODEGEN_LIVE_INTERVALS_H
 #define ONNC_CODEGEN_LIVE_INTERVALS_H
 #include <onnc/CodeGen/LiveInterval.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Core/PassSupport.h>
 
 namespace onnc {
@@ -17,13 +17,10 @@ namespace onnc {
  *  \brief Build live intervals for all onnc::Value of onnc::Module.
  *         Save the building result in LiveIntervalsData.
  */
-class LiveIntervals : public ModulePass
+class LiveIntervals : public CustomPass<LiveIntervals>
 {
 public:
-  static char ID;
-
-public:
-  LiveIntervals() : ModulePass(LiveIntervals::ID) {}
+  LiveIntervals() = default;
 
   ReturnType runOnModule(Module& pModule) override;
 

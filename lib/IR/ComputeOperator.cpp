@@ -66,7 +66,10 @@ void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
   m_Outputs[pIdx]->clearDefine();
   m_Outputs[pIdx]->replaceAllUsesWith(pValue);
   m_Outputs[pIdx] = &pValue;
-  pValue.setDefine(this, pIdx);
+
+  if (!pValue.getDefine()) {
+    pValue.setDefine(this, pIdx);
+  }
 }
 
 void ComputeOperator::print(std::ostream& pOS) const

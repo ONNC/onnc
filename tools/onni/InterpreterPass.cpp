@@ -64,8 +64,7 @@ InterpreterPass::InterpreterPass(TargetBackend *pBackend,
                                  char *pInputMem,
                                  unsigned int pVerbose,
                                  bool pIsDryRun)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pInputMem(pInputMem),
+  : m_pBackend(pBackend), m_pInputMem(pInputMem),
     m_Verbose(pVerbose), m_DryRun(pIsDryRun),
     m_pInterpreter(pBackend->createTargetInterpreter()) {
 }
@@ -248,16 +247,4 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
   ONNC_RUNTIME_shutdown_runtime(m_pInterpreter->getBasicInterpreter()->m_pContext);
 
   return Pass::kModuleNoChanged;
-}
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-char InterpreterPass::ID = 0;
-
-InterpreterPass *onnc::CreateInterpreterPass(TargetBackend *pBackend,
-                                             char *pInputMem,
-                                             unsigned int pVerbose,
-                                             bool pIsDryRun) {
-  return new InterpreterPass(pBackend, pInputMem, pVerbose, pIsDryRun);
 }

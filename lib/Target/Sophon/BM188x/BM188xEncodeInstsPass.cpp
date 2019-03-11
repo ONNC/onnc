@@ -20,12 +20,10 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
-char BM188xEncodeInsts::ID = 0;
-
 BM188xEncodeInsts::BM188xEncodeInsts(BM1880Backend *pBackend,
                                      BM188X::CodeEmitVisitor *pInstVisitor,
                                      const std::string &pFilename)
-    : EncodeInstructions(pInstVisitor, ID), m_pBackend(pBackend),
+    : EncodeInstructions(pInstVisitor), m_pBackend(pBackend),
       m_FileName(pFilename)
 {
 }

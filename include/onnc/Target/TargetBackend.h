@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_TARGET_TARGET_BACKEND_H
 #define ONNC_TARGET_TARGET_BACKEND_H
+#include <memory>
+
 #include <onnc/Core/PassManager.h>
 #include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Target/TargetOptions.h>

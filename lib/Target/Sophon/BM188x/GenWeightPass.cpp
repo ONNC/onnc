@@ -14,13 +14,11 @@
 
 using namespace onnc;
 
-char BM188X::GenWeightPass::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // GenWeightPass
 //===----------------------------------------------------------------------===//
 BM188X::GenWeightPass::GenWeightPass(TGBackend* pBackend, const Path &pOutFile)
-    : ModulePass(ID), m_pBackend(pBackend), m_OutFile(pOutFile), m_Weight()
+    : m_pBackend(pBackend), m_OutFile(pOutFile), m_Weight()
 {
 }
 

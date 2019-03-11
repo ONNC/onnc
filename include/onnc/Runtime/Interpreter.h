@@ -7,11 +7,14 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_RUNTIME_INTERPRETER_H
 #define ONNC_RUNTIME_INTERPRETER_H
+#include <cstddef>
+#include <memory>
+
 #include <onnc/IR/ComputeVisitor.h>
 #include <onnc/IR/Compute/Value.h>
 #include <onnc/IR/ComputeMemOperand.h>
+#include <onnc/IR/CustomVisitor.h>
 #include <unordered_map>
-#include <cstddef>
 
 namespace onnc {
 class BasicInterpreter
@@ -21,6 +24,8 @@ public:
   typedef std::unordered_map<Value *, void *> AddressTable;
   AddressTable m_ATable;
   void *m_pContext;
+
+  virtual ~BasicInterpreter() = default;
 
   void visit(Abs& pAbs);
   void visit(Acos& pAcos);
@@ -139,7 +144,9 @@ public:
 
 // TODO: Re-design BasicInterpreter.
 template<typename OperatorVisitorT = ComputeVisitor>
-class InterpreterVisitor : public OperatorVisitorT, public BasicInterpreter
+class InterpreterVisitor
+  : public CustomVisitor<InterpreterVisitor<OperatorVisitorT>, OperatorVisitorT>
+  , public BasicInterpreter
 {
 public:
   void visit(Abs& pAbs) override { BasicInterpreter::visit(pAbs); }
@@ -267,9 +274,9 @@ protected:
 
 public:
   Interpreter()
-      : m_pIV(new InterpreterVisitor<>()) {}
+      : m_pIV{std::make_unique<InterpreterVisitor<>>()} {}
   Interpreter(const Interpreter&) = delete;
-  virtual ~Interpreter() {};
+  virtual ~Interpreter() = default;
 
   // XXX(a127a127):
   //   Temporary hack, should use something like "Context" or "Environment",

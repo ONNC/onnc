@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include "VanillaBackend.h"
 #include "TargetInfo/VanillaTargetInfo.h"
 #include "TargetInfo/VanillaTargetMemInfo.h"

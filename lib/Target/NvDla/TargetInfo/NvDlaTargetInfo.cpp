@@ -6,14 +6,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include "NvDlaTargetInfo.h"
+
 #include <onnc/IR/Quadruple.h>
 #include <onnc/Target/TargetRegistry.h>
 
 using namespace onnc;
 
 namespace {
-
-template<Quadruple::SubArchType SubArch>
+template <Quadruple::SubArchType SubArch>
 unsigned int NvDlaMatchFn(const Quadruple& pQuadruple)
 {
   unsigned int score = 0;
@@ -36,10 +36,8 @@ Target& onnc::getFp16NvDlaTarget()
 //===----------------------------------------------------------------------===//
 // Initialization Function.
 //===----------------------------------------------------------------------===//
-extern "C" void InitializeNvDlaONNCPlatform() {
-  onnc::TargetRegistry::RegisterTarget(
-      onnc::getFp16NvDlaTarget(),
-      "nvdla fp16",
-      "NvDla Fp16",
-      NvDlaMatchFn<Quadruple::NvDlaSubArch_fp16>);
+extern "C" void InitializeNvDlaONNCPlatform()
+{
+  onnc::TargetRegistry::RegisterTarget(onnc::getFp16NvDlaTarget(), "nvdla fp16", "NvDla Fp16",
+                                       NvDlaMatchFn<Quadruple::NvDlaSubArch_fp16>);
 }

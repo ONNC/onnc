@@ -12,19 +12,9 @@
 
 using namespace onnc;
 
-char BookONNXGraphs::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // BookONNXGraphs
 //===----------------------------------------------------------------------===//
-BookONNXGraphs::BookONNXGraphs()
-  : ModulePass(ID) {
-}
-
-BookONNXGraphs::~BookONNXGraphs()
-{
-}
-
 Pass::ReturnType BookONNXGraphs::runOnModule(::onnc::Module &pModule)
 {
   IRBuilder builder(pModule);

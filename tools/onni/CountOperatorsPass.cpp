@@ -7,13 +7,13 @@
 //===----------------------------------------------------------------------===//
 #include "CountOperatorsPass.h"
 
+#include <onnc/Analysis/Counter.h>
 #include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Support/IOStream.h>
-#include <onnc/Analysis/GlobalStatistics.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -36,8 +36,9 @@ Pass::ReturnType CountOperatorsPass::runOnModule(Module &pModule)
     onnc::StringRef name = cm.name(); 
     std::string desc("count for ");
     desc.append(name);
-    global::stats()->addCounter(name, desc);
-    global::stats()->increaseCounter(name);
+
+    Counter{name, desc}++;
+
     op_len = std::max(op_len, name.size());
     ++m_Total;
   }
@@ -67,25 +68,13 @@ void CountOperatorsPass::printFooter(OStream &pOS) const {
 
 void CountOperatorsPass::print(OStream& pOS, const Module* pModule) const {
   printHeader(pOS);
-  json::Group group = global::stats()->group("Counter");
-  json::Group descGroup = global::stats()->group("Counter_Desc");
-  StringList opList = global::stats()->counterList();
-  for(auto listItr = opList.begin(); listItr != opList.end(); ++listItr){
-    pOS << m_Prefix << std::setw(m_Width.first) << *listItr << SEP
-        << std::setw(m_Width.second) << group.readEntry(*listItr, 0) << SEP
-        << std::setw(m_Width.second) << descGroup.readEntry(*listItr, "no value")
+  for (auto counter : global::stats() | onnc::view::counter) {
+    pOS << m_Prefix << std::setw(m_Width.first) << counter.name() << SEP
+        << std::setw(m_Width.second) << counter << SEP
+        << std::setw(m_Width.second) << counter.desc()
         // please note that this magic string comes from StatisticsTest.cpp.
         // I guess it's becuase readEntry is implemented by template.
         << std::setw(m_Width.first) << std::endl;
   }
   printFooter(pOS);
-}
-
-//===----------------------------------------------------------------------===//
-// Factory method
-//===----------------------------------------------------------------------===//
-char CountOperatorsPass::ID = 0;
-
-CountOperatorsPass *onnc::CreateCountOperatorsPass(const std::string &pPrefix) {
-  return new CountOperatorsPass(pPrefix);
 }

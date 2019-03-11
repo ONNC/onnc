@@ -8,7 +8,7 @@
 #ifndef ONNC_INTERPRETER_PASS_H
 #define ONNC_INTERPRETER_PASS_H
 #include <onnc/Runtime/Interpreter.h>
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -19,11 +19,8 @@ class TargetBackend;
 /** \class InterpreterPass
  *  \brief Run interpreter.
  */
-class InterpreterPass : public ModulePass
+class InterpreterPass : public CustomPass<InterpreterPass>
 {
-public:
-  static char ID;
-
 public:
   InterpreterPass(TargetBackend *pBackend,
                   char *pInputMem,
@@ -41,12 +38,6 @@ private:
   bool m_DryRun;
   std::unique_ptr<Interpreter> m_pInterpreter;
 };
-
-// XXX: Experimental
-InterpreterPass *CreateInterpreterPass(TargetBackend *pBackend,
-                                       char *pInputMem,
-                                       unsigned int pVerbose,
-                                       bool pIsDryRun);
 
 } // namespace of onnc
 

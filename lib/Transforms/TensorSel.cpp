@@ -19,8 +19,6 @@
 
 using namespace onnc;
 
-char TensorSel::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // TensorSel
 //===----------------------------------------------------------------------===//
@@ -38,7 +36,7 @@ namespace detail {
 } // namespace onnc
 
 TensorSel::TensorSel(const TargetBackend* pBackend)
-  : GraphBuildingPass(ID), m_pBackend(pBackend), m_LowerRegistry() {
+  : m_pBackend(pBackend), m_LowerRegistry() {
   if (nullptr != m_pBackend) {
     m_pBackend->RegisterLowers(m_LowerRegistry);
   }

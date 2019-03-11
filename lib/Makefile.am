@@ -145,6 +145,7 @@ ONNC_SOURCES = \
 	Transforms/BuildInitializers.cpp \
 	Transforms/BuildInputOperators.cpp \
 	Transforms/BuildOutputOperators.cpp \
+	Transforms/OnnxOptPass.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/DefaultAttributes.cpp \
 	Transforms/TensorSel/Lower.cpp \
@@ -253,6 +254,7 @@ ONNC_SOURCES = \
 	Core/ObjectWriter.cpp \
 	Core/Application.cpp \
 	Core/InitializePasses.cpp \
+	Analysis/Counter.cpp \
 	Analysis/LivenessAnalysis.cpp \
 	Analysis/MemoryAllocation.cpp \
 	Analysis/NodeIRScheduler.cpp \

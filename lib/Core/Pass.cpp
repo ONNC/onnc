@@ -46,11 +46,3 @@ Pass::ReturnType Pass::run(Module& pModule)
   }
   return kPassFailure;
 }
-
-//===----------------------------------------------------------------------===//
-// ModulePass
-//===----------------------------------------------------------------------===//
-ModulePass::~ModulePass()
-{
-  // Force out-of-line virtual method.
-}

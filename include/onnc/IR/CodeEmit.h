@@ -7,19 +7,16 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_IR_CODE_EMIT_H
 #define ONNC_IR_CODE_EMIT_H
-#include <onnc/Core/ModulePass.h>
+#include <onnc/Core/CustomPass.h>
 #include <onnc/Support/IOStream.h>
 
 namespace onnc {
 
-class CodeEmit : public ModulePass
+class CodeEmit : public CustomPass<CodeEmit>
 {
 public:
-  static char ID;
-
-public:
   CodeEmit(ComputeVisitor& pCodeEmitVisitor)
-    : ModulePass(CodeEmit::ID), m_CodeEmitVisitor(pCodeEmitVisitor) {}
+    : m_CodeEmitVisitor(pCodeEmitVisitor) {}
 
   StringRef getPassName() const override { return "CodeEmit"; }
 

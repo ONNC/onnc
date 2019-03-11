@@ -28,6 +28,7 @@ bool ONNC_RUNTIME_shutdown_runtime(void *onnc_runtime_context) {
     free(context->mem[i]);
   }
 
+  free(context->mem);
   free(context);
   return true;
 }

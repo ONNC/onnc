@@ -10,9 +10,8 @@
 #include <onnc/Target/Target.h>
 
 namespace onnc {
-
 Target& getFp16NvDlaTarget();
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

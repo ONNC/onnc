@@ -21,8 +21,6 @@
 using namespace onnc;
 using namespace onnc::BM188X;
 
-char BM188X::GenRuntimeInfoPass::ID = 0;
-
 //===----------------------------------------------------------------------===//
 // static functions
 //===----------------------------------------------------------------------===//
@@ -74,7 +72,7 @@ BM188X::GenRuntimeInfoPass::GetDefaultLayerNames(LayerNames& pNames,
 //===----------------------------------------------------------------------===//
 BM188X::GenRuntimeInfoPass::GenRuntimeInfoPass(BM1880Backend* pBackend,
                                                const Path &pOutFile)
-    : ModulePass(ID), m_pBackend(pBackend), m_OutFile(pOutFile)
+    : m_pBackend(pBackend), m_OutFile(pOutFile)
 {
 }
 

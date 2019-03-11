@@ -75,8 +75,6 @@ void MemAllocData::print(OStream& pOS, const Module* pModule) const
 //===----------------------------------------------------------------------===//
 // Factory method
 //===----------------------------------------------------------------------===//
-char MemAllocData::ID = 0;
-
 namespace onnc
 {
   INITIALIZE_PASS(MemAllocData, "MemAllocData")

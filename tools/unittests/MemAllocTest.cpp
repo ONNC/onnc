@@ -5,6 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
 #include <onnc/ADT/StringList.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/FuseInplaceValue.h>
@@ -436,18 +438,18 @@ SKYPAT_F(MemAllocTest, exclude_weight_linear_mem_alloc_test)
   PassRegistry registry;
   PassManager passMgr(registry);
   addStandardCreateLiveIntervals(passMgr);
-  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  passMgr.add<X86RemoveWeightFromLiveIntervals>();
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
   LiveIntervalsData* liData =
-    static_cast<LiveIntervalsData*>(passMgr.lookup(&LiveIntervalsData::ID));
+    static_cast<LiveIntervalsData*>(passMgr.getPass(LiveIntervalsData::id()));
 
   LiveValueMatrix* liveMat =
-    static_cast<LiveValueMatrix*>(passMgr.lookup(&LiveValueMatrix::ID));
+    static_cast<LiveValueMatrix*>(passMgr.getPass(LiveValueMatrix::id()));
 
   MemAllocData* memAllocData =
-    static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));
+    static_cast<MemAllocData*>(passMgr.getPass(MemAllocData::id()));
 
   Module module;
   CreateAlexNet(module);
@@ -484,16 +486,16 @@ SKYPAT_F(MemAllocTest, inplace_value_fusible_test)
 
   PassRegistry registry;
   PassManager passMgr(registry);
-  passMgr.add(CreateFuseInplaceValuePass(VTargetIsInplaceValueFusible));
+  passMgr.add<FuseInplaceValue>(VTargetIsInplaceValueFusible);
   addStandardCreateLiveIntervals(passMgr);
-  passMgr.add(CreateX86RemoveWeightFromLiveIntervalsPass());
+  passMgr.add<X86RemoveWeightFromLiveIntervals>();
   addStandardMemoryAllocation(passMgr, vtarget);
   addStandardSetMemOperands(passMgr);
 
   passMgr.dumpState(passMgr.state());
 
   MemAllocData* memAllocData =
-    static_cast<MemAllocData*>(passMgr.lookup(&MemAllocData::ID));
+    static_cast<MemAllocData*>(passMgr.getPass(MemAllocData::id()));
 
   Module module;
   ComputeGraph& cg = CreateAlexNet(module);

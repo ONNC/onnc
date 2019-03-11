@@ -8,35 +8,24 @@
 #ifndef ONNC_NVDLAM_FILEGEN_PASS_H
 #define ONNC_NVDLAM_FILEGEN_PASS_H
 
-#include <onnc/Core/ModulePass.h>
-
 #include "NvDlaMeta.h"
 
-namespace onnc {
+#include <onnc/Core/CustomPass.h>
 
+namespace onnc {
 class TargetBackend;
 
-class NvDlaFileGenPass : public ModulePass
+class NvDlaFileGenPass : public CustomPass<NvDlaFileGenPass>
 {
 public:
-  static char ID;
-
-public:
-  NvDlaFileGenPass(TargetBackend *pBackend,
-                  NvDlaBackendMeta *pMeta);
+  explicit NvDlaFileGenPass(NvDlaBackendMeta* pMeta);
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
-
-  TargetBackend *m_pBackend;
-  NvDlaBackendMeta *m_pMeta;
+  NvDlaBackendMeta* m_pMeta;
 };
 
-// XXX: Experimental
-NvDlaFileGenPass *CreateNvDlaFileGenPass(TargetBackend *pBackend,
-                                          NvDlaBackendMeta *pMeta);
-
-} // namespace of onnc
+} // namespace onnc
 
 #endif

@@ -36,7 +36,7 @@ public:
   typedef ComputeGraphList::iterator cg_iterator;
   typedef ComputeGraphList::const_iterator const_cg_iterator;
 
-  typedef std::unordered_set<ComputeOperand*> ComputeOperandList;
+  typedef ComputeGraph::ArcList ComputeOperandList;
   typedef std::vector<onnc::Define*> ComputeDefineList;
 
   typedef StringMap<Value*> ValueList;
@@ -109,7 +109,7 @@ public:
   Module& delegate(std::unique_ptr<xGraph> pGraph);
 
   // move @ref pGraph from outside.
-  Module& delegate(xGraph& pGraph);
+  Module& delegate(xGraph* pGraph);
 
   /// obsolete function. Use getRootTensorGraph instead
   std::shared_ptr<xGraph> getGraphIR() { return m_RootTensorGraph; }
@@ -226,6 +226,9 @@ public:
   unsigned getTimeStep() const { return m_TimeStep; }
 
   void setTimeStep(unsigned pTime) { m_TimeStep = pTime; }
+
+private:
+  Module& delegateImpl();
 
 private:
   // Graph IR field
