@@ -15,8 +15,6 @@ class ONNIApp : public onnc::CoreApplication
 public:
   ONNIApp(int pArgc, char* pArgv[]);
 
-  ~ONNIApp();
-
   ONNIConfig& options() { return m_Options; }
 
   const ONNIConfig& options() const { return m_Options; }

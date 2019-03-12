@@ -34,11 +34,11 @@
 #include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Transforms/BuildOutputOperators.h>
 #include <onnc/Transforms/DeadNodeElimination.h>
+#include <onnc/Transforms/OnnxOptPass.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 #include <onnc/Transforms/TensorSel/Standards/AddLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
-#include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConcatLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConvLower.h>
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
@@ -77,6 +77,9 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   errs() << "NvDla is invoked\n";
 
   // Do ONNX graph IR optimization here.
+  pPM.add<OnnxOptPass>(
+    OnnxOptPass{}.add(OnnxOptPass::fuse_bn_into_conv)
+  );
 
   // Translate from ONNX graph IR into ONNC IR
   addStandardTensorSel(pPM, *this);
@@ -136,8 +139,8 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<ReluLower>();
   //pRegistry.emplace<MulLower>();
   //pRegistry.emplace<AddLower>();
-  //pRegistry.emplace<SumLower>();  // N Adds
-  //pRegistry.emplace<BatchNormalizationLower>();
+  pRegistry.emplace<SumLower>();  // N Adds
+  // pRegistry.emplace<BatchNormalizationLower>();
 
   //PDP
   pRegistry.emplace<MaxPoolLower>();
