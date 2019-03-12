@@ -13,6 +13,6 @@ namespace onnc {
 
 Target& getTheNvDlaTarget();
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

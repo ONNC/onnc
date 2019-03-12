@@ -8,10 +8,10 @@
 #ifndef TARGET_NVDLA_NVDLA_CONV_RELU_MAXPOOL_H
 #define TARGET_NVDLA_NVDLA_CONV_RELU_MAXPOOL_H
 
-#include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Conv.h>
-#include <onnc/IR/Compute/Relu.h>
 #include <onnc/IR/Compute/MaxPool.h>
+#include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/ComputeOperator.h>
 
 namespace onnc {
 
@@ -22,10 +22,13 @@ public:
 
 public:
   NvDlaConvReluMaxPool(Conv& pConv, Relu& pRelu, MaxPool& pMaxPool)
-    : ComputeOperator("ConvReluMaxPool", ID), m_Conv(pConv), m_Relu(pRelu), m_MaxPool(pMaxPool) {
-  }
+    : ComputeOperator("ConvReluMaxPool", ID)
+    , m_Conv(pConv)
+    , m_Relu(pRelu)
+    , m_MaxPool(pMaxPool)
+  {}
 
-  virtual ~NvDlaConvReluMaxPool() { }
+  virtual ~NvDlaConvReluMaxPool() {}
 
   void printAttributes(std::ostream& pOS) const override;
 
@@ -35,11 +38,11 @@ public:
 
   static bool classof(const ComputeOperator* pOp);
 
-  Conv m_Conv;
-  Relu m_Relu;
+  Conv    m_Conv;
+  Relu    m_Relu;
   MaxPool m_MaxPool;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

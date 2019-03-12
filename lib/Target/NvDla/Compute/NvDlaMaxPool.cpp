@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "NvDlaMaxPool.h"
+
 #include "../NvDlaComputeVisitor.h"
 
 using namespace onnc;

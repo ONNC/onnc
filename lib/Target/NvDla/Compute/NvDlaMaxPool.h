@@ -8,8 +8,8 @@
 #ifndef TARGET_NVDLA_NVDLA_MAXPOOL_H
 #define TARGET_NVDLA_NVDLA_MAXPOOL_H
 
-#include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/MaxPool.h>
+#include <onnc/IR/ComputeOperator.h>
 
 namespace onnc {
 
@@ -20,10 +20,11 @@ public:
 
 public:
   NvDlaMaxPool(MaxPool& pMaxPool)
-    : ComputeOperator("ConvRelu", ID), m_MaxPool(pMaxPool) {
-  }
+    : ComputeOperator("ConvRelu", ID)
+    , m_MaxPool(pMaxPool)
+  {}
 
-  virtual ~NvDlaMaxPool() { }
+  virtual ~NvDlaMaxPool() {}
 
   void printAttributes(std::ostream& pOS) const override;
 
@@ -37,6 +38,6 @@ public:
   IntAttr m_Group;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

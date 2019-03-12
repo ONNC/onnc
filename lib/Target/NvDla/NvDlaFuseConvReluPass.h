@@ -38,6 +38,6 @@ private:
   NvDlaConvRelu* mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu);
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

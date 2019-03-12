@@ -5,21 +5,20 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <memory>
-
 #include "NvDlaBackend.h"
-#include "TargetInfo/NvDlaTargetInfo.h"
-#include "TargetInfo/NvDlaTargetMemInfo.h"
-#include "NvDlaMemInfoPass.h"
+
 #include "CodeEmitVisitor.h"
-#include "NvDlaTaskSubmitPass.h"
 #include "NvDlaFileGenPass.h"
 #include "NvDlaFuseConvReluPass.h"
 #include "NvDlaFuseGemmReluPass.h"
 #include "NvDlaLayerFusionPass.h"
+#include "NvDlaMemInfoPass.h"
+#include "NvDlaTaskSubmitPass.h"
+#include "TargetInfo/NvDlaTargetInfo.h"
+#include "TargetInfo/NvDlaTargetMemInfo.h"
 
-#include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
+#include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
@@ -44,8 +43,8 @@
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
 #include <onnc/Transforms/TensorSel/Standards/GemmLower.h>
 #include <onnc/Transforms/TensorSel/Standards/GlobalAveragePoolLower.h>
-#include <onnc/Transforms/TensorSel/Standards/LeakyReluLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
+#include <onnc/Transforms/TensorSel/Standards/LeakyReluLower.h>
 #include <onnc/Transforms/TensorSel/Standards/MaxPoolLower.h>
 #include <onnc/Transforms/TensorSel/Standards/MulLower.h>
 #include <onnc/Transforms/TensorSel/Standards/PReluLower.h>
@@ -55,10 +54,10 @@
 #include <onnc/Transforms/TensorSel/Standards/SplitLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SumLower.h>
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
+#include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 
-#include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
-
+#include <memory>
 
 using namespace onnc;
 
@@ -68,7 +67,8 @@ using namespace onnc;
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend{pOptions}
   , m_pMeta{}
-  , m_CodeEmitVisitor{m_pMeta} {
+  , m_CodeEmitVisitor{m_pMeta}
+{
   m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
 
@@ -77,9 +77,7 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   errs() << "NvDla is invoked\n";
 
   // Do ONNX graph IR optimization here.
-  pPM.add<OnnxOptPass>(
-    OnnxOptPass{}.add(OnnxOptPass::fuse_bn_into_conv)
-  );
+  pPM.add<OnnxOptPass>(OnnxOptPass{}.add(OnnxOptPass::fuse_bn_into_conv));
 
   // Translate from ONNX graph IR into ONNC IR
   addStandardTensorSel(pPM, *this);
@@ -87,10 +85,11 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
-  //FIXME: It does not work if using two passes to do two kinds of fusion. The second pass does not work correctly.
-  // Some layers got removed accidentially. If the second pass works alone without the first pass, the second pass works well.
-  //pPM.add<NvDlaFuseConvReluPass>();
-  //pPM.add<NvDlaFuseGemmReluPass>();
+  // FIXME: It does not work if using two passes to do two kinds of fusion. The second pass does not work correctly.
+  // Some layers got removed accidentially. If the second pass works alone without the first pass, the second pass works
+  // well.
+  // pPM.add<NvDlaFuseConvReluPass>();
+  // pPM.add<NvDlaFuseGemmReluPass>();
 #if HAS_LAYER_FUSION
   pPM.add<NvDlaLayerFusionPass>();
 #endif
@@ -122,62 +121,55 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   pPM.add<NvDlaMemInfoPass>(&m_pMeta)
-     .add<CodeEmit>(m_CodeEmitVisitor)
-     .add<NvDlaTaskSubmitPass>(&m_pMeta)
-     .add<NvDlaFileGenPass>(&m_pMeta)
-     ;
+    .add<CodeEmit>(m_CodeEmitVisitor)
+    .add<NvDlaTaskSubmitPass>(&m_pMeta)
+    .add<NvDlaFileGenPass>(&m_pMeta);
 }
 
 void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 {
-  //CONV
+  // CONV
   pRegistry.emplace<ConvLower>();
   pRegistry.emplace<GemmLower>();
 
-  //SDP
-  //pRegistry.emplace<PReluLower>();
+  // SDP
+  // pRegistry.emplace<PReluLower>();
   pRegistry.emplace<ReluLower>();
-  //pRegistry.emplace<MulLower>();
-  //pRegistry.emplace<AddLower>();
-  pRegistry.emplace<SumLower>();  // N Adds
+  // pRegistry.emplace<MulLower>();
+  // pRegistry.emplace<AddLower>();
+  pRegistry.emplace<SumLower>(); // N Adds
   // pRegistry.emplace<BatchNormalizationLower>();
 
-  //PDP
+  // PDP
   pRegistry.emplace<MaxPoolLower>();
   pRegistry.emplace<AveragePoolLower>();
 
-  //CDP
+  // CDP
   pRegistry.emplace<LRNLower>();
 
-  //RUBIK
-  pRegistry.emplace<ReshapeLower>();    //special processing
-  //pRegistry.emplace<SplitLower>();      //RUBIK
-  //pRegistry.emplace<FlattenLower>();    //RUBIK
+  // RUBIK
+  pRegistry.emplace<ReshapeLower>(); // special processing
+  // pRegistry.emplace<SplitLower>();      //RUBIK
+  // pRegistry.emplace<FlattenLower>();    //RUBIK
 
-  //EMU
+  // EMU
   pRegistry.emplace<SoftmaxLower>();
 
-  //TODOs
-  //pRegistry.emplace<LeakyReluLower>();  //SDP-LUT
-  //pRegistry.emplace<GlobalAveragePoolLower>();  //PDP?
-  //pRegistry.emplace<TransposeLower>();  //??
-  //pRegistry.emplace<UpsampleLower>();   // BDMA + CONV??
-  //pRegistry.emplace<UnsqueezeLower>();
-  pRegistry.emplace<ConcatLower>();    // RUBIK?
-
+  // TODOs
+  // pRegistry.emplace<LeakyReluLower>();  //SDP-LUT
+  // pRegistry.emplace<GlobalAveragePoolLower>();  //PDP?
+  // pRegistry.emplace<TransposeLower>();  //??
+  // pRegistry.emplace<UpsampleLower>();   // BDMA + CONV??
+  // pRegistry.emplace<UnsqueezeLower>();
+  pRegistry.emplace<ConcatLower>(); // RUBIK?
 }
-
 
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions)
-{
-  return new NvDlaBackend(pOptions);
-}
+TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions) { return new NvDlaBackend(pOptions); }
 
 extern "C" void InitializeNvDlaONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheNvDlaTarget(),
-      CreateNvDlaBackend);
+  onnc::TargetRegistry::RegisterTargetBackend(getTheNvDlaTarget(), CreateNvDlaBackend);
 }

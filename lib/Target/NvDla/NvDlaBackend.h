@@ -7,11 +7,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_NVDLA_BACKEND_H
 #define TARGET_NVDLA_BACKEND_H
-#include <string>
+#include "CodeEmitVisitor.h"
+#include "NvDlaMeta.h"
+
 #include <onnc/Target/TargetBackend.h>
 
-#include "NvDlaMeta.h"
-#include "CodeEmitVisitor.h"
+#include <string>
 
 namespace onnc {
 
@@ -53,11 +54,11 @@ public:
   std::vector<ILoadable::EventListEntry> m_EventListEntries;
 #endif
 
-  NvDlaBackendMeta m_pMeta;
+  NvDlaBackendMeta       m_pMeta;
   nvdla::CodeEmitVisitor m_CodeEmitVisitor;
-  //Loadable m_loadable;
+  // Loadable m_loadable;
 };
 
-}  // namespace onnc
+} // namespace onnc
 
 #endif

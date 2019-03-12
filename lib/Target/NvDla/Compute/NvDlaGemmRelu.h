@@ -8,9 +8,9 @@
 #ifndef TARGET_NVDLA_NVDLA_GEMM_RELU_H
 #define TARGET_NVDLA_NVDLA_GEMM_RELU_H
 
-#include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Gemm.h>
 #include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/ComputeOperator.h>
 
 namespace onnc {
 
@@ -21,10 +21,12 @@ public:
 
 public:
   NvDlaGemmRelu(Gemm& pGemm, Relu& pRelu)
-    : ComputeOperator("GemmRelu", ID), m_Gemm(pGemm), m_Relu(pRelu) {
-  }
+    : ComputeOperator("GemmRelu", ID)
+    , m_Gemm(pGemm)
+    , m_Relu(pRelu)
+  {}
 
-  virtual ~NvDlaGemmRelu() { }
+  virtual ~NvDlaGemmRelu() {}
 
   void printAttributes(std::ostream& pOS) const override;
 
@@ -38,6 +40,6 @@ public:
   Relu m_Relu;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

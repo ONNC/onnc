@@ -7,10 +7,10 @@
 //===----------------------------------------------------------------------===//
 #include "NvDlaFileGenPass.h"
 
-#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
@@ -20,14 +20,14 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // NvDlaFileGenPass
 //===----------------------------------------------------------------------===//
-NvDlaFileGenPass::NvDlaFileGenPass(NvDlaBackendMeta *pMeta)
-  : m_pMeta{pMeta} {
-}
+NvDlaFileGenPass::NvDlaFileGenPass(NvDlaBackendMeta* pMeta)
+  : m_pMeta{pMeta}
+{}
 
-Pass::ReturnType NvDlaFileGenPass::runOnModule(Module &pModule)
+Pass::ReturnType NvDlaFileGenPass::runOnModule(Module& pModule)
 {
-  //file output
-  //priv::LoadableFactory::LoadablePrivPair loadable = priv::LoadableFactory::newLoadable();
+  // file output
+  // priv::LoadableFactory::LoadablePrivPair loadable = priv::LoadableFactory::newLoadable();
   m_pMeta->m_Loadable.priv()->setMemoryListEntries(m_pMeta->m_MemoryListEntries);
   m_pMeta->m_Loadable.priv()->setTensorDescListEntries(m_pMeta->m_TensorDescListEntries);
   m_pMeta->m_Loadable.priv()->setAddressListEntries(m_pMeta->m_AddressListEntries);

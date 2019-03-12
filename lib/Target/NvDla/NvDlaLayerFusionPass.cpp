@@ -5,16 +5,18 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "NvDlaLayerFusionPass.h"
+
+#include "Compute/NvDlaConvRelu.h"
+#include "Compute/NvDlaConvReluMaxPool.h"
+#include "Compute/NvDlaGemmRelu.h"
+#include "Compute/NvDlaMaxPool.h"
+
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Gemm.h>
-#include <onnc/IR/Compute/Relu.h>
 #include <onnc/IR/Compute/MaxPool.h>
-#include "Compute/NvDlaConvRelu.h"
-#include "Compute/NvDlaGemmRelu.h"
-#include "Compute/NvDlaConvReluMaxPool.h"
-#include "Compute/NvDlaMaxPool.h"
-#include "NvDlaLayerFusionPass.h"
+#include <onnc/IR/Compute/Relu.h>
 
 using namespace onnc;
 
@@ -23,7 +25,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType NvDlaLayerFusionPass::runOnModule(Module& pModule)
 {
-  Pass::ReturnType ret = Pass::kModuleNoChanged;
+  Pass::ReturnType    ret = Pass::kModuleNoChanged;
   Module::cg_iterator cg, cgEnd = pModule.cgEnd();
   for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
     ret |= runOnComputeGraph(*cg->value());
@@ -44,8 +46,7 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
     errs() << "=============== runOnComputeGraph before ===========\n";
   }
 
-  
-  Pass::ReturnType ret = Pass::kModuleNoChanged;
+  Pass::ReturnType       ret = Pass::kModuleNoChanged;
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
     ComputeOperator* node = nodeIt;
@@ -69,25 +70,24 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
 #endif
     if (isFusibleForConvReluMaxPool(*node)) {
       // Create ConvReluMaxPool to fuse Conv, Relu, and MaxPool.
-      Conv& conv = *(Conv *)node;
-      Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
-      MaxPool& maxpool = *(MaxPool *)relu.getOutput(0)->getUses()[0].getUser();
-      
+      Conv&    conv    = *(Conv*)node;
+      Relu&    relu    = *(Relu*)conv.getOutput(0)->getUses()[0].getUser();
+      MaxPool& maxpool = *(MaxPool*)relu.getOutput(0)->getUses()[0].getUser();
+
       mergeConvRelu(pCG, conv, relu);
       NvDlaMaxPool* newMaxPool = replaceMaxPool(pCG, maxpool);
-      newMaxPool->m_Group = conv.getGroup();
-      
+      newMaxPool->m_Group      = conv.getGroup();
+
       pCG.erase(conv);
       pCG.erase(relu);
       pCG.erase(maxpool);
 
       ret |= Pass::kModuleChanged;
-      
-    }
-    else if (isFusibleForConvRelu(*node)) {
+
+    } else if (isFusibleForConvRelu(*node)) {
       // Create ConvRelu to fuse Conv and Relu.
-      Conv& conv = *(Conv *)node;
-      Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
+      Conv& conv = *(Conv*)node;
+      Relu& relu = *(Relu*)conv.getOutput(0)->getUses()[0].getUser();
 
       mergeConvRelu(pCG, conv, relu);
 
@@ -95,11 +95,10 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
       pCG.erase(relu);
 
       ret |= Pass::kModuleChanged;
-    }
-    else if (isFusibleForGemmRelu(*node)) {
+    } else if (isFusibleForGemmRelu(*node)) {
       // Create GemmRelu to fuse Gemm and Relu.
-      Gemm& gemm = *(Gemm *)node;
-      Relu& relu = *(Relu *)gemm.getOutput(0)->getUses()[0].getUser();
+      Gemm& gemm = *(Gemm*)node;
+      Relu& relu = *(Relu*)gemm.getOutput(0)->getUses()[0].getUser();
 
       mergeGemmRelu(pCG, gemm, relu);
 
@@ -107,11 +106,10 @@ Pass::ReturnType NvDlaLayerFusionPass::runOnComputeGraph(ComputeGraph& pCG)
       pCG.erase(relu);
 
       ret |= Pass::kModuleChanged;
-    }    
+    }
   }
 
   pCG.topologicalSort();
-
 
   {
     errs() << "=============== runOnComputeGraph after ===========\n";
@@ -143,7 +141,7 @@ bool NvDlaLayerFusionPass::isFusibleForConvReluMaxPool(ComputeOperator& pNode)
   if (!isa<Relu>(secondNode)) {
     return false;
   }
-  
+
   outv = secondNode->getOutput(0);
 
   if (outv->getUses().size() > 1) {
@@ -154,7 +152,7 @@ bool NvDlaLayerFusionPass::isFusibleForConvReluMaxPool(ComputeOperator& pNode)
   if (!isa<MaxPool>(thirdNode)) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -174,7 +172,6 @@ bool NvDlaLayerFusionPass::isFusibleForConvRelu(ComputeOperator& pNode)
     return false;
   return true;
 }
-
 
 bool NvDlaLayerFusionPass::isFusibleForGemmRelu(ComputeOperator& pNode)
 {
@@ -197,8 +194,8 @@ NvDlaMaxPool* NvDlaLayerFusionPass::replaceMaxPool(ComputeGraph& pCG, MaxPool& p
 {
   Value* outv = pMaxPool.getOutput(0);
   // FIXME: need move newOp to correct position.
-  NvDlaMaxPool* newOp = pCG.addOperator<NvDlaMaxPool>(pMaxPool);
-  Value* emptyV = new Value;
+  NvDlaMaxPool* newOp  = pCG.addOperator<NvDlaMaxPool>(pMaxPool);
+  Value*        emptyV = new Value;
 
   for (unsigned i = 0; i < pMaxPool.getNumOfInputs(); ++i) {
     newOp->addInput(*pMaxPool.getInput(i));
@@ -213,11 +210,10 @@ NvDlaMaxPool* NvDlaLayerFusionPass::replaceMaxPool(ComputeGraph& pCG, MaxPool& p
   return newOp;
 }
 
-
-NvDlaConvReluMaxPool* NvDlaLayerFusionPass::mergeConvReluMaxPool(ComputeGraph& pCG,
-                                                          Conv& pConv, Relu& pRelu, MaxPool& pMaxPool)
+NvDlaConvReluMaxPool* NvDlaLayerFusionPass::mergeConvReluMaxPool(ComputeGraph& pCG, Conv& pConv, Relu& pRelu,
+                                                                 MaxPool& pMaxPool)
 {
-  Value* outv = pMaxPool.getOutput(0);
+  Value* outv     = pMaxPool.getOutput(0);
   Value* out_conv = pConv.getOutput(0);
   Value* out_relu = pRelu.getOutput(0);
   pConv.replaceOutput(0, *outv);
@@ -225,8 +221,8 @@ NvDlaConvReluMaxPool* NvDlaLayerFusionPass::mergeConvReluMaxPool(ComputeGraph& p
   pCG.erase(*out_conv);
   pCG.erase(*out_relu);
   // FIXME: need move newOp to correct position.
-  NvDlaConvReluMaxPool* newOp = pCG.addOperator<NvDlaConvReluMaxPool>(pConv, pRelu, pMaxPool);
-  Value* emptyV = new Value;
+  NvDlaConvReluMaxPool* newOp  = pCG.addOperator<NvDlaConvReluMaxPool>(pConv, pRelu, pMaxPool);
+  Value*                emptyV = new Value;
 
   for (unsigned i = 0; i < pConv.getNumOfInputs(); ++i) {
     newOp->addInput(*pConv.getInput(i));
@@ -243,16 +239,15 @@ NvDlaConvReluMaxPool* NvDlaLayerFusionPass::mergeConvReluMaxPool(ComputeGraph& p
   return newOp;
 }
 
-NvDlaConvRelu* NvDlaLayerFusionPass::mergeConvRelu(ComputeGraph& pCG,
-                                                    Conv& pConv, Relu& pRelu)
+NvDlaConvRelu* NvDlaLayerFusionPass::mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu)
 {
-  Value* outv = pRelu.getOutput(0);
+  Value* outv     = pRelu.getOutput(0);
   Value* out_conv = pConv.getOutput(0);
   pConv.replaceOutput(0, *outv);
   pCG.erase(*out_conv);
   // FIXME: need move newOp to correct position.
-  NvDlaConvRelu* newOp = pCG.addOperator<NvDlaConvRelu>(pConv, pRelu);
-  Value* emptyV = new Value;
+  NvDlaConvRelu* newOp  = pCG.addOperator<NvDlaConvRelu>(pConv, pRelu);
+  Value*         emptyV = new Value;
 
   for (unsigned i = 0; i < pConv.getNumOfInputs(); ++i) {
     newOp->addInput(*pConv.getInput(i));
@@ -268,17 +263,15 @@ NvDlaConvRelu* NvDlaLayerFusionPass::mergeConvRelu(ComputeGraph& pCG,
   return newOp;
 }
 
-
-NvDlaGemmRelu* NvDlaLayerFusionPass::mergeGemmRelu(ComputeGraph& pCG,
-                                                   Gemm& pGemm, Relu& pRelu)
+NvDlaGemmRelu* NvDlaLayerFusionPass::mergeGemmRelu(ComputeGraph& pCG, Gemm& pGemm, Relu& pRelu)
 {
-  Value* outv = pRelu.getOutput(0);
+  Value* outv     = pRelu.getOutput(0);
   Value* out_gemm = pGemm.getOutput(0);
   pGemm.replaceOutput(0, *outv);
   pCG.erase(*out_gemm);
   // FIXME: need move newOp to correct position.
-  NvDlaGemmRelu* newOp = pCG.addOperator<NvDlaGemmRelu>(pGemm, pRelu);
-  Value* emptyV = new Value;
+  NvDlaGemmRelu* newOp  = pCG.addOperator<NvDlaGemmRelu>(pGemm, pRelu);
+  Value*         emptyV = new Value;
 
   for (unsigned i = 0; i < pGemm.getNumOfInputs(); ++i) {
     newOp->addInput(*pGemm.getInput(i));
@@ -294,7 +287,6 @@ NvDlaGemmRelu* NvDlaLayerFusionPass::mergeGemmRelu(ComputeGraph& pCG,
   return newOp;
 }
 
-namespace onnc
-{
-  INITIALIZE_PASS(NvDlaLayerFusionPass, "NvDlaLayerFusionPass")
+namespace onnc {
+INITIALIZE_PASS(NvDlaLayerFusionPass, "NvDlaLayerFusionPass")
 }
