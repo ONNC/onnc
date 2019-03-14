@@ -122,6 +122,8 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
     NVDLA_DBG("LUT release - %p\n", lut);
     delete lut;
   }
+
+  priv::LoadableFactory::deleteLoadable(m_Loadable.i());
 }
 
 #define ELEMENT_SIZE 2
