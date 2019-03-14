@@ -54,7 +54,7 @@ public:
   /// @}
   // void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
   void conv(const Tensor* x, const Tensor* w, const Tensor* b, const Tensor* y);
-  int  packWeight(const Tensor* t, int dims[4], int gidx);
+  int  packWeight(const Tensor* t, int dims[4], int gidx, bool shouldPadZero = false);
   int  packBias(const Tensor* t, int dims[4], int gidx);
 
   void issueEmuOp(NvDlaEmuOperation* op);

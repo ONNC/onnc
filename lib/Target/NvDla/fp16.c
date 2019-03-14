@@ -121,7 +121,7 @@ short __gnu_f2h_ieee(float param)
   return res;
 }
 
-void weight_pack(void* buf, float* data, int G, int dims[4], int type)
+void weight_pack(void* buf, float* data, int G, int dims[4], int type, _Bool shouldPadZero)
 {
   nv_weight_t* blob = (nv_weight_t*)buf;
   int          N    = dims[0];
@@ -131,8 +131,8 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type)
 
   int channel_per_cube = WEIGHT_ATOM_CUBE_SIZE / ELEMENT_SIZE;
   int w_stride_kgrp    = MAC_ATOMIC_K * C * H * W;
-#if 0
-  int C_offset = g*C;
+#if 1
+  int C_offset = G*C;
 
   for(int n = 0; n < (N/16 + 1); n++){
     int n_size = (N - n*16 >= 16) ? 16 : N - n*16;
@@ -155,9 +155,12 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type)
                             ((c + C_offset)) * H * W +            // c = c + C_offset
                             (h * W) + w;
 #  if HAS_IMAGE_MODE
-            if (C == 4 && c == 3) {//FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
-              *(blob + blob_ofs) = 0;
-              continue;
+            if (shouldPadZero) {
+              // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
+              if (C == 4 && c == 3) {
+                *(blob + blob_ofs) = 0;
+                continue;
+              }
             }
 #  endif
             *(blob + blob_ofs) = __gnu_f2h_ieee(*(data + data_ofs));

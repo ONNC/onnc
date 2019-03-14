@@ -31,6 +31,16 @@
 using namespace onnc;
 using namespace onnc::nvdla;
 
+namespace onnc {
+namespace internal {
+bool isFirstOperator(const Conv& conv) {
+  const Tensor& input = *conv.getInput(0);
+
+  const auto* source = dynamic_cast<const InputOperator*>(input.getDefine());
+  return source != nullptr;
+}
+} // namespace internal
+} // namespace onnc
 void CodeEmitVisitor::visit(const Initializer& pInitializer)
 {
   pInitializer.print(errs());
@@ -54,16 +64,17 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   pOp.print(errs());
   errs() << "\n";
 
-  int is_image_mode = 0;
-
   const Tensor* input_X_t = pOp.getInput(0);
   // void *input_X = m_ATable[input_X_t];
   int32_t input_X_ndim    = input_X_t->getNumOfDimensions();
   int32_t input_X_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_X_ndim; ++i)
     input_X_dims[i] = input_X_t->dimension(i);
+
+  const bool is_first_op     = internal::isFirstOperator(pOp);
+  const bool is_image_mode   = (is_first_op && (3 == input_X_dims[1] || 4 == input_X_dims[1]));
+  const bool should_pad_zero = (is_image_mode && input_X_dims[1] < 4);
 #if HAS_IMAGE_MODE
-  is_image_mode = (3 == input_X_dims[1] || 4 == input_X_dims[1]); // FIXME: any smarter way?;
   if (is_image_mode) {
     input_X_dims[1] = 4; // Hardware requires image to be 4 channels
   }
@@ -152,7 +163,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
   // TODO: pads!!!
   for (int g = 0; g < group; g++) {
     // Weight Memory allocation, repacking by groups
-    int W_mid  = packWeight(input_W_t, input_W_dims, g);
+    int W_mid  = packWeight(input_W_t, input_W_dims, g, should_pad_zero);
     int W_addr = issueDlaAddr(W_mid, winfo, 1, 0, 0);
     int B_mid  = -1;
     int B_addr = -1;
@@ -1503,7 +1514,7 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
   }
 }
 
-int CodeEmitVisitor::packWeight(const Tensor* t, int dims[4], int gidx)
+int CodeEmitVisitor::packWeight(const Tensor* t, int dims[4], int gidx, bool shouldPadZero)
 {
   std::string blob_name = "tb-" + std::to_string(m_pMeta.m_NumBlobs++);
 
@@ -1527,7 +1538,7 @@ int CodeEmitVisitor::packWeight(const Tensor* t, int dims[4], int gidx)
   }
   // weight_pack(blob_data, m_pMeta.m_WeightTable[input_W_t], group, g, input_W_dims[0], input_W_dims[1],
   // input_W_dims[2], input_W_dims[3], 0);
-  weight_pack(blob_data, (float*)(static_cast<const FloatTensor*>(t)->getValues().data()), gidx, dims, 0);
+  weight_pack(blob_data, (float*)(static_cast<const FloatTensor*>(t)->getValues().data()), gidx, dims, 0, shouldPadZero);
 
   m_pMeta.m_Loadable.priv()->setSymbolContent(blob_name, b, blob_data);
 
