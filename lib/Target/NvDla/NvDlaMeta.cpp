@@ -124,18 +124,14 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
   }
 }
 
-#define ELEMENT_SIZE 2
-#define CBUF_BANK_WIDTH 64
-#define CBUF_BANK_DEPTH 256
 #define UNIT_ALIGNMENT(x, unit) (((x) + ((unit)-1)) & ~((unit)-1))
 #define DIV_ROUNDUP(x, dividor) ((x) + (dividor)-1) / (dividor)
 
 //===----------------------------------------------------------------------===//
 // NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
-NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es)
+NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
   : mode(m)
-  , element_size(es)
   , dim_n(n)
   , dim_c(c)
   , dim_h(h)
@@ -144,7 +140,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
 {
   switch (mode) {
   case NVDLA_CUBE_FEATURE:
-    stride_channel = element_size;
+    stride_channel = ELEMENT_SIZE;
     stride_line    = dim_w * FEATURE_ATOM_CUBE_SIZE;
     stride_surface = dim_h * dim_w * FEATURE_ATOM_CUBE_SIZE;
     stride_plane   = 0;
@@ -154,7 +150,7 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
       size          = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
 
       // copy how SystemC calculate entry per slice
-      int atom_per_channel = DIV_ROUNDUP((dim_c * element_size), FEATURE_ATOM_CUBE_SIZE);
+      int atom_per_channel = DIV_ROUNDUP((dim_c * ELEMENT_SIZE), FEATURE_ATOM_CUBE_SIZE);
       int entry_per_slice  = (atom_per_channel / 4) * dim_w;
       // Same check as in IP_TOT/tools/cc_sanity_checker.pl (line350~357)
       if ((atom_per_channel % 4) == 3)
@@ -170,18 +166,18 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int 
     banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
     break;
   case NVDLA_CUBE_WEIGHT:
-    size           = (dim_n * dim_c * dim_h * dim_w * element_size);
+    size           = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE);
     eps            = 0;
-    stride_channel = element_size;
+    stride_channel = ELEMENT_SIZE;
     stride_line    = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
     stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
-    banks = (dim_n * dim_c * dim_h * dim_w * element_size + 128 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    banks = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE + 128 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (banks > 16) {
-      banks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
       if (banks > 16)
-        banks = (16 * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+        banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                 (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
       reduced = true;
     }
@@ -197,10 +193,10 @@ int NvDlaCubeInfo::getReducedBanks() const
   case NVDLA_CUBE_FEATURE:
     return banks;
   case NVDLA_CUBE_WEIGHT: {
-    int rbanks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    int rbanks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                  (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced) {
-      rbanks = (16 * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      rbanks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     }
     return rbanks;
@@ -216,10 +212,10 @@ void NvDlaCubeInfo::reduceBanks()
   case NVDLA_CUBE_FEATURE:
     break;
   case NVDLA_CUBE_WEIGHT:
-    banks = (16 * dim_c * dim_h * dim_w * element_size * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced)
-      banks = (16 * dim_c * dim_h * dim_w * element_size + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     break;
   default:
