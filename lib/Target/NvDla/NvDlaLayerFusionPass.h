@@ -37,18 +37,17 @@ private:
   bool isFusibleForConvRelu(ComputeOperator& pNode);
   bool isFusibleForGemmRelu(ComputeOperator& pNode);
   bool isFusibleForConvReluMaxPool(ComputeOperator& pNode);
-  
+
   /// Detach pConv and pRelu from Graph, replace it with new ConvRelu IR.
   ///
   /// original: .. -> pConv -> pRelu -> ..
   /// merged:   .. -> ConvRelu -> ..
-  NvDlaConvRelu* mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu);
-  NvDlaGemmRelu* mergeGemmRelu(ComputeGraph& pCG, Gemm& pGemm, Relu& pRelu);
+  NvDlaConvRelu*        mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu);
+  NvDlaGemmRelu*        mergeGemmRelu(ComputeGraph& pCG, Gemm& pGemm, Relu& pRelu);
   NvDlaConvReluMaxPool* mergeConvReluMaxPool(ComputeGraph& pCG, Conv& pConv, Relu& pRelu, MaxPool& pMaxPool);
-  NvDlaMaxPool* replaceMaxPool(ComputeGraph& pCG, MaxPool& pMaxPool);
-
+  NvDlaMaxPool*         replaceMaxPool(ComputeGraph& pCG, MaxPool& pMaxPool);
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

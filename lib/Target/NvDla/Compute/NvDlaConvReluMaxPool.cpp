@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "NvDlaConvReluMaxPool.h"
+
 #include "../NvDlaComputeVisitor.h"
 
 using namespace onnc;

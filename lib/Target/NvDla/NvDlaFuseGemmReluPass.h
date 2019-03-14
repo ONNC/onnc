@@ -38,6 +38,6 @@ private:
   NvDlaGemmRelu* mergeGemmRelu(ComputeGraph& pCG, Gemm& pGemm, Relu& pRelu);
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

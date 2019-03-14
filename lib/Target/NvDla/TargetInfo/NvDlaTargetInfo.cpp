@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "NvDlaTargetInfo.h"
+
 #include <onnc/IR/Quadruple.h>
 #include <onnc/Target/TargetRegistry.h>
 
@@ -15,7 +16,6 @@ using namespace onnc;
 // Non-member functions
 //===----------------------------------------------------------------------===//
 
-  
 static unsigned int NvDlaMatchFn(const Quadruple& pQuadruple)
 {
   unsigned int score = 0;
@@ -26,15 +26,13 @@ static unsigned int NvDlaMatchFn(const Quadruple& pQuadruple)
   return score;
 }
 
-
 Target& onnc::getTheNvDlaTarget()
 {
   static Target nvdla_target;
   return nvdla_target;
 }
 
-
-extern "C" void InitializeNvDlaONNCPlatform() {
-  onnc::TargetRegistry::RegisterTarget(onnc::getTheNvDlaTarget(), "nvdla",
-                                       "NvDla DLA", NvDlaMatchFn);
+extern "C" void InitializeNvDlaONNCPlatform()
+{
+  onnc::TargetRegistry::RegisterTarget(onnc::getTheNvDlaTarget(), "nvdla", "NvDla DLA", NvDlaMatchFn);
 }

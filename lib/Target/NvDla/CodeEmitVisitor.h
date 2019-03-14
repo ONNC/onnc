@@ -7,16 +7,17 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_NVDLA_CODE_EMIT_VISITOR_H
 #define TARGET_NVDLA_CODE_EMIT_VISITOR_H
-#include <onnc/IR/Compute/Tensor.h>
+#include "Compute/NvDlaConvRelu.h"
+#include "Compute/NvDlaConvReluMaxPool.h"
+#include "Compute/NvDlaGemmRelu.h"
+#include "NvDlaComputeVisitor.h"
+#include "NvDlaMeta.h"
+
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/CustomVisitor.h>
-#include "Compute/NvDlaConvRelu.h"
-#include "Compute/NvDlaGemmRelu.h"
-#include "Compute/NvDlaConvReluMaxPool.h"
-#include "NvDlaComputeVisitor.h"
-#include "NvDlaMeta.h"
 
 namespace onnc {
 
@@ -25,9 +26,9 @@ namespace nvdla {
 class CodeEmitVisitor : public NvDlaComputeVisitor
 {
 public:
-  explicit CodeEmitVisitor(NvDlaBackendMeta &meta) noexcept
-  : m_pMeta{meta}
-  { }
+  explicit CodeEmitVisitor(NvDlaBackendMeta& meta) noexcept
+    : m_pMeta{meta}
+  {}
 
   /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
@@ -51,18 +52,18 @@ public:
   void visit(const NvDlaMaxPool& pMaxPool) override;
   void visit(const Sum& pSum) override;
   /// @}
-  //void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
-  void conv(const Tensor *x, const Tensor *w, const Tensor *b, const Tensor *y);
-  int packWeight(const Tensor *t, int dims[4], int gidx);
-  int packBias(const Tensor *t, int dims[4], int gidx);
+  // void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
+  void conv(const Tensor* x, const Tensor* w, const Tensor* b, const Tensor* y);
+  int  packWeight(const Tensor* t, int dims[4], int gidx);
+  int  packBias(const Tensor* t, int dims[4], int gidx);
 
-  void issueEmuOp(NvDlaEmuOperation *op);
-  int issueEmuAddr(int mid);
-  void issueDlaOp(NvDlaDlaOperation *op, NvDlaDlaOperation *op_fuse, NvDlaDlaOperation *op_prev);
-  int issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
+  void issueEmuOp(NvDlaEmuOperation* op);
+  int  issueEmuAddr(int mid);
+  void issueDlaOp(NvDlaDlaOperation* op, NvDlaDlaOperation* op_fuse, NvDlaDlaOperation* op_prev);
+  int  issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int gidx, int hofs);
 
 private:
-  NvDlaBackendMeta &m_pMeta;
+  NvDlaBackendMeta& m_pMeta;
 };
 
 } // namespace nvdla

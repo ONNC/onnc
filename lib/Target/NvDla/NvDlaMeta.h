@@ -8,22 +8,21 @@
 #ifndef TARGET_NVDLA_NVDLA_META_H
 #define TARGET_NVDLA_NVDLA_META_H
 
+#include "NvDlaDefine.h"
+#include "dla_interface.h"
+#include "emu_interface.h"
+#include "fp16.h"
+#include "nvdla/ILoadable.h"
+#include "priv/Loadable.h"
+#include "priv/loadable_generated.h"
+
+#include <onnc/IR/Compute/Tensor.h>
+
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
 #include <sstream>
 #include <unordered_map>
-#include <onnc/IR/Compute/Tensor.h>
-
-#include "priv/Loadable.h"
-#include "priv/loadable_generated.h"
-#include "nvdla/ILoadable.h"
-
-#include "dla_interface.h"
-#include "emu_interface.h"
-
-#include "fp16.h"
-#include "NvDlaDefine.h"
 
 //#ifndef NDEBUG
 #define NVDLA_DBG printf
@@ -38,15 +37,16 @@ using namespace nvdla::priv;
 
 namespace onnc {
 
-struct concat_meta {
-  const Tensor *t;
-  int ofs;
+struct concat_meta
+{
+  const Tensor* t;
+  int           ofs;
 };
 
-//typedef std::unordered_map<const Value *, float *> WeightTable;
-typedef std::unordered_map<Value *, int> MemoryIdxTable;
-typedef std::unordered_map<const Tensor *, const Tensor *> RemapTable;
-typedef std::unordered_map<const Tensor *, concat_meta> ConcatTable;
+// typedef std::unordered_map<const Value *, float *> WeightTable;
+typedef std::unordered_map<Value*, int>                  MemoryIdxTable;
+typedef std::unordered_map<const Tensor*, const Tensor*> RemapTable;
+typedef std::unordered_map<const Tensor*, concat_meta>   ConcatTable;
 
 /** \class NvDlaDlaOperation
  *  \brief
@@ -61,7 +61,7 @@ public:
 
 public:
   union dla_operation_container op_desc;
-  union dla_surface_container op_surf;
+  union dla_surface_container   op_surf;
 };
 
 /** \class NvDlaEmuOperation
@@ -73,7 +73,7 @@ public:
   NvDlaEmuOperation();
 
 public:
-  union emu_operation_container op_desc;
+  union emu_operation_container        op_desc;
   union emu_operation_buffer_container op_buf;
 };
 
@@ -103,27 +103,28 @@ public:
   // events between submits
   std::vector<ILoadable::EventListEntry> m_EventListEntries;
 
-  int m_DlaAddresses;
-  struct dla_network_desc  m_DlaNetworkDesc;
-  //struct dla_lut_param m_LrnDefaultLutParam;
-  int m_NumLUTs;
-  std::vector<NvDlaDlaOperation *> m_DLAOperationList;
-  std::vector<dla_lut_param *> m_LUTList;
-  NvDlaDlaOperation *m_pDepOp[DLA_OP_NUM];
-  NvDlaDlaOperation *m_pPrevOp;
+  int                     m_DlaAddresses;
+  struct dla_network_desc m_DlaNetworkDesc;
+  // struct dla_lut_param m_LrnDefaultLutParam;
+  int                             m_NumLUTs;
+  std::vector<NvDlaDlaOperation*> m_DLAOperationList;
+  std::vector<dla_lut_param*>     m_LUTList;
+  NvDlaDlaOperation*              m_pDepOp[DLA_OP_NUM];
+  NvDlaDlaOperation*              m_pPrevOp;
 
-  emu_network_desc  m_EmuNetworkDesc;
-  std::vector<NvDlaEmuOperation *> m_EMUOperationList;
+  emu_network_desc                m_EmuNetworkDesc;
+  std::vector<NvDlaEmuOperation*> m_EMUOperationList;
 
   MemoryIdxTable m_MemIdxTable;
-  RemapTable m_ReshapeTable;
-  ConcatTable m_ConcatTable;
+  RemapTable     m_ReshapeTable;
+  ConcatTable    m_ConcatTable;
 
-  int m_NumBlobs;
+  int                                     m_NumBlobs;
   priv::LoadableFactory::LoadablePrivPair m_Loadable;
 };
 
-enum nvdla_cube_type {
+enum nvdla_cube_type
+{
   NVDLA_CUBE_FEATURE,
   NVDLA_CUBE_WEIGHT,
   NVDLA_CUBE_IMAGE
@@ -142,20 +143,20 @@ public:
 
 public:
   nvdla_cube_type mode;
-  int dim_n;
-  int dim_c;
-  int dim_h;
-  int dim_w;
-  int eps;
-  int banks;
-  int size;
-  int stride_channel;
-  int stride_line;
-  int stride_surface;
-  int stride_plane;
-  bool reduced;
+  int             dim_n;
+  int             dim_c;
+  int             dim_h;
+  int             dim_w;
+  int             eps;
+  int             banks;
+  int             size;
+  int             stride_channel;
+  int             stride_line;
+  int             stride_surface;
+  int             stride_plane;
+  bool            reduced;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

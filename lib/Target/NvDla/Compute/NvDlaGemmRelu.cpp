@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "NvDlaGemmRelu.h"
+
 #include "../NvDlaComputeVisitor.h"
 
 using namespace onnc;

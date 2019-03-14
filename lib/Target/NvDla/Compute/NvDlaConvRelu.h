@@ -8,9 +8,9 @@
 #ifndef TARGET_NVDLA_NVDLA_CONV_RELU_H
 #define TARGET_NVDLA_NVDLA_CONV_RELU_H
 
-#include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/ComputeOperator.h>
 
 namespace onnc {
 
@@ -21,10 +21,12 @@ public:
 
 public:
   NvDlaConvRelu(Conv& pConv, Relu& pRelu)
-    : ComputeOperator("ConvRelu", ID), m_Conv(pConv), m_Relu(pRelu) {
-  }
+    : ComputeOperator("ConvRelu", ID)
+    , m_Conv(pConv)
+    , m_Relu(pRelu)
+  {}
 
-  virtual ~NvDlaConvRelu() { }
+  virtual ~NvDlaConvRelu() {}
 
   void printAttributes(std::ostream& pOS) const override;
 
@@ -38,6 +40,6 @@ public:
   Relu m_Relu;
 };
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

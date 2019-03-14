@@ -5,11 +5,13 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "NvDlaFuseConvReluPass.h"
+
+#include "Compute/NvDlaConvRelu.h"
+
 #include <onnc/Core/PassSupport.h>
 #include <onnc/IR/Compute/Conv.h>
 #include <onnc/IR/Compute/Relu.h>
-#include "Compute/NvDlaConvRelu.h"
-#include "NvDlaFuseConvReluPass.h"
 
 using namespace onnc;
 
@@ -18,7 +20,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 Pass::ReturnType NvDlaFuseConvReluPass::runOnModule(Module& pModule)
 {
-  Pass::ReturnType ret = Pass::kModuleNoChanged;
+  Pass::ReturnType    ret = Pass::kModuleNoChanged;
   Module::cg_iterator cg, cgEnd = pModule.cgEnd();
   for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
     ret |= runOnComputeGraph(*cg->value());
@@ -28,7 +30,7 @@ Pass::ReturnType NvDlaFuseConvReluPass::runOnModule(Module& pModule)
 
 Pass::ReturnType NvDlaFuseConvReluPass::runOnComputeGraph(ComputeGraph& pCG)
 {
-  Pass::ReturnType ret = Pass::kModuleNoChanged;
+  Pass::ReturnType       ret = Pass::kModuleNoChanged;
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
     ComputeOperator* node = nodeIt;
@@ -37,8 +39,8 @@ Pass::ReturnType NvDlaFuseConvReluPass::runOnComputeGraph(ComputeGraph& pCG)
       continue;
 
     // Create ConvRelu to fuse Conv and Relu.
-    Conv& conv = *(Conv *)node;
-    Relu& relu = *(Relu *)conv.getOutput(0)->getUses()[0].getUser();
+    Conv& conv = *(Conv*)node;
+    Relu& relu = *(Relu*)conv.getOutput(0)->getUses()[0].getUser();
 
     mergeConvRelu(pCG, conv, relu);
 
@@ -70,16 +72,15 @@ bool NvDlaFuseConvReluPass::isFusible(ComputeOperator& pNode)
   return true;
 }
 
-NvDlaConvRelu* NvDlaFuseConvReluPass::mergeConvRelu(ComputeGraph& pCG,
-                                                    Conv& pConv, Relu& pRelu)
+NvDlaConvRelu* NvDlaFuseConvReluPass::mergeConvRelu(ComputeGraph& pCG, Conv& pConv, Relu& pRelu)
 {
-  Value* outv = pRelu.getOutput(0);
+  Value* outv     = pRelu.getOutput(0);
   Value* out_conv = pConv.getOutput(0);
   pConv.replaceOutput(0, *outv);
   pCG.erase(*out_conv);
   // FIXME: need move newOp to correct position.
-  NvDlaConvRelu* newOp = pCG.addOperator<NvDlaConvRelu>(pConv, pRelu);
-  Value* emptyV = new Value;
+  NvDlaConvRelu* newOp  = pCG.addOperator<NvDlaConvRelu>(pConv, pRelu);
+  Value*         emptyV = new Value;
 
   for (unsigned i = 0; i < pConv.getNumOfInputs(); ++i) {
     newOp->addInput(*pConv.getInput(i));
@@ -95,7 +96,6 @@ NvDlaConvRelu* NvDlaFuseConvReluPass::mergeConvRelu(ComputeGraph& pCG,
   return newOp;
 }
 
-namespace onnc
-{
-  INITIALIZE_PASS(NvDlaFuseConvReluPass, "NvDlaFuseConvReluPass")
+namespace onnc {
+INITIALIZE_PASS(NvDlaFuseConvReluPass, "NvDlaFuseConvReluPass")
 }
