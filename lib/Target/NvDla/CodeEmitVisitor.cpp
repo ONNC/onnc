@@ -145,17 +145,17 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     int pad_size    = pads[0] + pads[1];
     int kernel_size = (input_W_dims[2] - 1);
     int max_conv_H  = input_X_dims[2] - kernel_size;
-    if (fcube_group.banks + winfo.banks > 16) {
-      if (fcube_group.banks + winfo.getReducedBanks() <= 16) {
+    if (fcube_group.banks + winfo.banks > CBUF_BANK_NUM) {
+      if (fcube_group.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM) {
         winfo.reduceBanks();
       } else {
-        int restBanks = 16 - winfo.banks;
+        int restBanks = CBUF_BANK_NUM - winfo.banks;
         if (restBanks > 0) {
-          max_conv_H = (256 * restBanks) / fcube_group.eps;
+          max_conv_H = (CBUF_BANK_DEPTH * restBanks) / fcube_group.eps;
           NVDLA_DBG("max_conv_H: %d\n", max_conv_H);
         } else {
           std::ostringstream os;
-          os << "fcube_group.banks(" << fcube_group.banks << ") + winfo.banks(" << winfo.banks << ") > " << 16;
+          os << "fcube_group.banks(" << fcube_group.banks << ") + winfo.banks(" << winfo.banks << ") > " << CBUF_BANK_NUM;
           fatal(nvdla_exceed_hardware_limit) << os.str();
         }
       }
@@ -220,8 +220,8 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       conv_desc->dilation_x              = dilations[1];
       conv_desc->dilation_y              = dilations[0];
       conv_desc->pra_truncate            = 0;
-      conv_desc->in_precision            = PRECISION_FP16;
-      conv_desc->out_precision           = PRECISION_FP16;
+      conv_desc->in_precision            = DLA_PRECISION;
+      conv_desc->out_precision           = DLA_PRECISION;
       conv_desc->out_cvt.scale           = 1;
       conv_desc->out_cvt.enable          = 1;
       conv_desc->pad_val                 = 0;
@@ -264,8 +264,8 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         add_op->op_dep.op_type = DLA_OP_SDP;
 
         struct dla_sdp_op_desc* add_desc     = (struct dla_sdp_op_desc*)(&(add_op->op_desc));
-        add_desc->src_precision              = PRECISION_FP16;
-        add_desc->dst_precision              = PRECISION_FP16;
+        add_desc->src_precision              = DLA_PRECISION;
+        add_desc->dst_precision              = DLA_PRECISION;
         add_desc->lut_index                  = -1;
         add_desc->conv_mode                  = 0;
         add_desc->out_cvt.scale              = 1;
@@ -282,7 +282,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
         add_desc->x1_op.act                  = ACTIVATION_NONE;
         add_desc->x1_op.shift_value          = 0;
         add_desc->x1_op.truncate             = 0;
-        add_desc->x1_op.precision            = PRECISION_FP16;
+        add_desc->x1_op.precision            = DLA_PRECISION;
         add_desc->x1_op.alu_operand          = 0;
         add_desc->x1_op.mul_operand          = 1;
         add_desc->x1_op.cvt.alu_cvt.scale    = 0;
@@ -411,8 +411,8 @@ void CodeEmitVisitor::visit(const LRN& pOp)
   lrn_op->op_dep.op_type    = DLA_OP_CDP;
 
   struct dla_cdp_op_desc* lrn_desc = (struct dla_cdp_op_desc*)(&(lrn_op->op_desc));
-  lrn_desc->in_precision           = PRECISION_FP16;
-  lrn_desc->out_precision          = PRECISION_FP16;
+  lrn_desc->in_precision           = DLA_PRECISION;
+  lrn_desc->out_precision          = DLA_PRECISION;
   lrn_desc->lut_index              = lut_id;
   lrn_desc->in_cvt.scale           = 1;
   lrn_desc->in_cvt.truncate        = 0;
@@ -521,7 +521,7 @@ void CodeEmitVisitor::visit(const MaxPool& pOp)
   maxpool_desc->pad_bottom             = pad_shapes[2];
   maxpool_desc->pad_right              = pad_shapes[3];
 
-  maxpool_desc->precision = PRECISION_FP16;
+  maxpool_desc->precision = DLA_PRECISION;
 
   struct dla_pdp_surface_desc* maxpool_surf = (struct dla_pdp_surface_desc*)(&(maxpool_op->op_surf));
   maxpool_surf->src_data.type               = DLA_MEM_MC;
@@ -617,7 +617,7 @@ void CodeEmitVisitor::visit(const AveragePool& pOp)
   avgpool_desc->pad_bottom             = pad_shapes[2];
   avgpool_desc->pad_right              = pad_shapes[3];
 
-  avgpool_desc->precision = PRECISION_FP16;
+  avgpool_desc->precision = DLA_PRECISION;
 
   struct dla_pdp_surface_desc* avgpool_surf = (struct dla_pdp_surface_desc*)(&(avgpool_op->op_surf));
   avgpool_surf->src_data.type               = DLA_MEM_MC;
@@ -681,8 +681,8 @@ void CodeEmitVisitor::visit(const Relu& pOp)
   relu_op->op_dep.op_type    = DLA_OP_SDP;
 
   struct dla_sdp_op_desc* relu_desc     = (struct dla_sdp_op_desc*)(&(relu_op->op_desc));
-  relu_desc->src_precision              = PRECISION_FP16;
-  relu_desc->dst_precision              = PRECISION_FP16;
+  relu_desc->src_precision              = DLA_PRECISION;
+  relu_desc->dst_precision              = DLA_PRECISION;
   relu_desc->lut_index                  = -1;
   relu_desc->conv_mode                  = 0;
   relu_desc->out_cvt.scale              = 1;
@@ -699,7 +699,7 @@ void CodeEmitVisitor::visit(const Relu& pOp)
   relu_desc->x1_op.act                  = ACTIVATION_RELU;
   relu_desc->x1_op.shift_value          = 0;
   relu_desc->x1_op.truncate             = 0;
-  relu_desc->x1_op.precision            = PRECISION_FP16;
+  relu_desc->x1_op.precision            = DLA_PRECISION;
   relu_desc->x1_op.alu_operand          = 0;
   relu_desc->x1_op.mul_operand          = 1;
   relu_desc->x1_op.cvt.alu_cvt.scale    = 0;
@@ -819,12 +819,12 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     NvDlaCubeInfo binfo(NVDLA_CUBE_FEATURE, input_C_dims[0], input_C_dims[1], input_C_dims[2], input_C_dims[3]);
     NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_Y_dims[2], output_Y_dims[3]);
 
-    if (finfo.banks + winfo.banks > 16) {
-      if (finfo.banks + winfo.getReducedBanks() <= 16) {
+    if (finfo.banks + winfo.banks > CBUF_BANK_NUM) {
+      if (finfo.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM) {
         winfo.reduceBanks();
       } else {
         std::ostringstream os;
-        os << "finfo.banks(" << finfo.banks << ") + winfo.banks(" << winfo.banks << ") > " << 16;
+        os << "finfo.banks(" << finfo.banks << ") + winfo.banks(" << winfo.banks << ") > " << CBUF_BANK_NUM;
         fatal(nvdla_exceed_hardware_limit) << os.str();
       }
     }
@@ -870,8 +870,8 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
     conv_desc->dilation_x         = 1;
     conv_desc->dilation_y         = 1;
     conv_desc->pra_truncate       = 0;
-    conv_desc->in_precision       = PRECISION_FP16;
-    conv_desc->out_precision      = PRECISION_FP16;
+    conv_desc->in_precision       = DLA_PRECISION;
+    conv_desc->out_precision      = DLA_PRECISION;
     conv_desc->out_cvt.scale      = 1;
     conv_desc->out_cvt.enable     = 1;
     conv_desc->pad_val            = 0;
@@ -914,8 +914,8 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       add_op->op_dep.op_type = DLA_OP_SDP;
 
       struct dla_sdp_op_desc* add_desc     = (struct dla_sdp_op_desc*)(&(add_op->op_desc));
-      add_desc->src_precision              = PRECISION_FP16;
-      add_desc->dst_precision              = PRECISION_FP16;
+      add_desc->src_precision              = DLA_PRECISION;
+      add_desc->dst_precision              = DLA_PRECISION;
       add_desc->lut_index                  = -1;
       add_desc->conv_mode                  = 0;
       add_desc->out_cvt.scale              = 1;
@@ -932,7 +932,7 @@ void CodeEmitVisitor::visit(const Gemm& pOp)
       add_desc->x1_op.act                  = ACTIVATION_NONE;
       add_desc->x1_op.shift_value          = 0;
       add_desc->x1_op.truncate             = 0;
-      add_desc->x1_op.precision            = PRECISION_FP16;
+      add_desc->x1_op.precision            = DLA_PRECISION;
       add_desc->x1_op.alu_operand          = 0;
       add_desc->x1_op.mul_operand          = 1;
       add_desc->x1_op.cvt.alu_cvt.scale    = 0;
@@ -1019,7 +1019,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
   struct emu_softmax_buffer_descs* op_buf = (struct emu_softmax_buffer_descs*)(&(softmax_op->op_buf));
   op_buf->src_data.addressIndex           = issueEmuAddr(input_mid);
   op_buf->src_data.size                   = input_mle.size;
-  op_buf->src_data.format                 = PRECISION_FP16;
+  op_buf->src_data.format                 = DLA_PRECISION;
   op_buf->src_data.width                  = input_input_dims[3];
   op_buf->src_data.height                 = input_input_dims[2];
   op_buf->src_data.channel                = input_input_dims[1];
@@ -1030,7 +1030,7 @@ void CodeEmitVisitor::visit(const Softmax& pOp)
 
   op_buf->dst_data.addressIndex = issueEmuAddr(output_mid);
   op_buf->dst_data.size         = output_mle.size;
-  op_buf->dst_data.format       = PRECISION_FP16;
+  op_buf->dst_data.format       = DLA_PRECISION;
   op_buf->dst_data.width        = output_output_dims[3];
   op_buf->dst_data.height       = output_output_dims[2];
   op_buf->dst_data.channel      = output_output_dims[1];
@@ -1196,7 +1196,7 @@ int CodeEmitVisitor::issueDlaAddr(int mid, NvDlaCubeInfo cube, int groups, int g
     int h_offset = ofs * cube.stride_line;
     ale.offset = ((gidx * (cube.dim_n * cube.dim_c * cube.dim_h * cube.dim_w * ELEMENT_SIZE)) / groups) + h_offset;
   } else {
-    int surf_offset = ofs / (32 / ELEMENT_SIZE);
+    int surf_offset = ofs / (FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE);
     ale.offset      = surf_offset * cube.stride_surface;
   }
   ale.mem_id = mid;
@@ -1300,8 +1300,8 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   relu_op->op_dep.op_type    = DLA_OP_SDP;
 
   struct dla_sdp_op_desc* op_desc     = (struct dla_sdp_op_desc*)(&(relu_op->op_desc));
-  op_desc->src_precision              = PRECISION_FP16;
-  op_desc->dst_precision              = PRECISION_FP16;
+  op_desc->src_precision              = DLA_PRECISION;
+  op_desc->dst_precision              = DLA_PRECISION;
   op_desc->lut_index                  = -1;
   op_desc->conv_mode                  = 0;
   op_desc->out_cvt.scale              = 1;
@@ -1318,7 +1318,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   op_desc->x1_op.act                  = ACTIVATION_NONE;
   op_desc->x1_op.shift_value          = 0;
   op_desc->x1_op.truncate             = 0;
-  op_desc->x1_op.precision            = PRECISION_FP16;
+  op_desc->x1_op.precision            = DLA_PRECISION;
   op_desc->x1_op.alu_operand          = 0;
   op_desc->x1_op.mul_operand          = 1;
   op_desc->x1_op.cvt.alu_cvt.scale    = 0;

@@ -171,13 +171,13 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
     stride_channel = ELEMENT_SIZE;
     stride_line    = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
     stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
-    banks = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE + 128 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    banks = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE + WEIGHT_ATOM_CUBE_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
-    if (banks > 16) {
-      banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    if (banks > CBUF_BANK_NUM) {
+      banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
-      if (banks > 16)
-        banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      if (banks > CBUF_BANK_NUM)
+        banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                 (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
       reduced = true;
     }
@@ -193,10 +193,10 @@ int NvDlaCubeInfo::getReducedBanks() const
   case NVDLA_CUBE_FEATURE:
     return banks;
   case NVDLA_CUBE_WEIGHT: {
-    int rbanks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                  (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced) {
-      rbanks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     }
     return rbanks;
@@ -212,10 +212,10 @@ void NvDlaCubeInfo::reduceBanks()
   case NVDLA_CUBE_FEATURE:
     break;
   case NVDLA_CUBE_WEIGHT:
-    banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced)
-      banks = (16 * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     break;
   default:
