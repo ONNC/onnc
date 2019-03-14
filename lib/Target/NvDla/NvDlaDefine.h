@@ -31,8 +31,6 @@
 #  define DLA_PRECISION PRECISION_FP16
 #endif
 
-// FIXME: use macro or variable?
-// FIXME: currently duplicated declaration at fp16.c & NvDlaMeta.h
 #if DLA_NV_SMALL
 // nv_small
 #  define FEATURE_ATOM_CUBE_SIZE 8
