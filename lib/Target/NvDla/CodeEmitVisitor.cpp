@@ -72,7 +72,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     input_X_dims[i] = input_X_t->dimension(i);
 
   const bool is_first_op     = internal::isFirstOperator(pOp);
-  const bool is_image_mode   = (is_first_op && (3 == input_X_dims[1] || 4 == input_X_dims[1]));
+  const bool is_image_mode   = (HAS_IMAGE_MODE && is_first_op && (3 == input_X_dims[1] || 4 == input_X_dims[1]));
   const bool should_pad_zero = (is_image_mode && input_X_dims[1] < 4);
 #if HAS_IMAGE_MODE
   if (is_image_mode) {
