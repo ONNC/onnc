@@ -131,7 +131,7 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type, _Bool sho
 
   int channel_per_cube = WEIGHT_ATOM_CUBE_SIZE / ELEMENT_SIZE;
   int w_stride_kgrp    = MAC_ATOMIC_K * C * H * W;
-#if 1
+#if 0
   int C_offset = G*C;
 
   for(int n = 0; n < (N/16 + 1); n++){
@@ -189,6 +189,15 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type, _Bool sho
             int data_ofs = ((n * MAC_ATOMIC_K + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
                            c * H * W +                                           // c = c + C_offset
                            (h * W) + w;
+#  if HAS_IMAGE_MODE
+            if (shouldPadZero) {
+              // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
+              if (C == 4 && c == 3) {
+                *(blob + blob_ofs) = 0;
+                continue;
+              }
+            }
+#  endif
             *(blob + blob_ofs) = (nv_weight_t)__gnu_f2h_ieee(
               *(data + data_ofs)); // FIXME: hack for solving memory allocation issue. Probably we should introduce
                                    // __gnu_f2c(har)_ieee or something like that.
