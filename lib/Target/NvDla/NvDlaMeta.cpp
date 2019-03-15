@@ -122,6 +122,8 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
     NVDLA_DBG("LUT release - %p\n", lut);
     delete lut;
   }
+
+  priv::LoadableFactory::deleteLoadable(m_Loadable.i());
 }
 
 #define UNIT_ALIGNMENT(x, unit) (((x) + ((unit)-1)) & ~((unit)-1))
