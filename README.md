@@ -1,22 +1,18 @@
-# Introduction
+# ONNC (Open Neural Network Compiler)
 
-**ONNC (Open Neural Network Compiler)**
+## Introduction
 
-The ONNC project aims to provide a compiler to
-connect [Open Neural Network Exchange Format (ONNX)](https://onnx.ai/)
-to every Deep Learning Accelerator (DLA). ONNX represents deep learning
-models that enables models to be correctly transferred among frameworks
-such as TensorFlow. ONNC guarantees executability across every DLA by
-means of transforming ONNX models into DLA specific binary forms and
-leveraging the intermediate representation (IR) design of ONNX along with
-effective algorithms to eliminate the overhead of data movement.
+ONNC (Open Neural Network Compiler) is a retargetable compilation framework designed specifically for proprietary deep learning accelerators. Its software architecture expedites porting ONNC to any Deep Learning Accelerator (DLA) design that supports [ONNX (Open Neural Network Exchange)](https://onnx.ai/) operators. ONNC guarantees executability across every DLA by means of transforming ONNX models into DLA-specific binary forms and leveraging the intermediate representation (IR) design of ONNX along with effective algorithms to eliminate the overhead of data movement. **ONNC is the first open source compiler available for NVDLA-based hardware designs**. Its NVDLA backend can compile a model into an executable NVDLA Loadable file. Integrating ONNC with the NVDLA software stack opens up opportunities for developers and researchers to explore the NVDLA-based inference design at system level. 
 
-With the aid of ONNC, DLA vendors can specify customizecd physical cost
-model and avoid re-inventing these intricate optimization algorithms.
+## Papers
+
+* W. F. Lin, D. Y. Tsai, L. Tang, C. T. Hsieh, C. Y. Chou, P. H. Chang, and L. Hsu, “ONNC: A compilation framework connecting ONNX to proprietary deep learning accelerators,” in IEEE International Conference on Artificial Intelligence Circuits and Systems (AICAS 2019). IEEE, 2019.
+
+* W.F. Lin, C. T. Hsieh, C. Y. Chou, "ONNC-based Software Development Platform for Configurable NVDLA Designs", to appear in IEEE International Symposium on VLSI Design, Automation and Test (VLSI-DAT 2019). IEEE, 2019
 
 ## Current Status
 
-* [v0.9](https://github.com/ONNC/onnc/releases)
+* [v1.0](https://github.com/ONNC/onnc/releases)
 
 ## How to contribute
 
