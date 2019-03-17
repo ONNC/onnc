@@ -255,7 +255,7 @@ $ onni <model_directory>/<model_file> <model_directory>/<input_file>
 
 ## 7. Collecting statistics data via ONNC Statistics API
 
-ONNC provides a a set of Statistics classes and APIs in its framework for users to collect and share statistics data accross ONNC source code.
+ONNC provides a set of Statistics classes and APIs in its framework for users to collect and share statistics data across ONNC source code.
 
 For more information, please refer to the [ONNC Statistics API](./api/statistics.md) document. It will keep updating as more statistics types and APIs are defined and implemented.
 
