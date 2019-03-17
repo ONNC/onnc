@@ -27,14 +27,12 @@ Although the Docker image include a source code tree, it might not be the latest
 ```shell=
 $ mkdir -p <source_dir> && cd <source_dir>
 $ git clone https://github.com/ONNC/onnc.git
-$ cd onnc && git checkout research-public
-$ git pull
 ```
 
 Once the latest source code is ready, you may invoke the following command to enter ONNC build environment:
 
 ```shell=
-$ docker run -ti --cap-add=SYS_PTRACE -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community
+$ docker run -ti --rm --cap-add=SYS_PTRACE -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community
 ```
 
 `<source_dir>` is the directory where you cloned the latest ONNC source code and the `-ti` option provides a interactive interface for the container, the `-v` option mounts the directory to the Docker image, the `--cap-add=SYS_PTRACE` option enables debug support (e.g. gdb) in the container. You can make some change to the source code (`<source_dir>/onnc`) and run the following command to build ONNC.
@@ -77,7 +75,7 @@ The `ssync` command synchronize the build directory with the `<source_dir>/onnc`
 
 ## 5. Run Unit Tests
 
-There are 16 unit tests available in the ONNC repository. Those tests are written in C language and you may run all of them using the following shell command:
+There are 18 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
 
 ```
 // run in the container cli
@@ -142,10 +140,10 @@ $ ./tools/unittests/unittest_Json
 $ exit
 ```
 
-Table 2 lists the 18 available unit tests in the ONNC repository. You may use `unittest_Any` to run all unit tests in a single pass.
+Table 2 lists the 18 available unit tests in the ONNC repository.
 
-| Test Name           |
-| ------------------- |
+| Test Name         |
+| ----------------- |
 | Digraph           |
 | FileHandle        |
 | PassManager       |
@@ -254,8 +252,9 @@ Users may create their own ONNX model. In that case, they can run the benchmark 
 $ onni <model_directory>/<model_file> <model_directory>/<input_file>
 ```
 
-## 7. Collecting statistics data by ONNC Statistics API
+## 7. Collecting statistics data via ONNC Statistics API
 
 ONNC provides a a set of Statistics classes and APIs in its framework for users to collect and share statistics data accross ONNC source code.
 
 For more information, please refer to the [ONNC Statistics API](./api/statistics.md) document. It will keep updating as more statistics types and APIs are defined and implemented.
+
