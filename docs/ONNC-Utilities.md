@@ -16,7 +16,7 @@ If Docker is not installed in your system, please download Docker (http://www.do
 
 Pull the Docker image from the Docker Hub using the following shell command:
 
-```shell=
+```console
 $ docker pull onnc/onnc-community
 ```
 
@@ -24,20 +24,20 @@ $ docker pull onnc/onnc-community
 
 Although the Docker image include a source code tree, it might not be the latest release version of ONNC. We strongly suggest you clone the latest version of ONNC from the GitHub repository, mount the source code directory to the Docker image, and modify the source code with your favorite editor on your host machine. You may clone the source code from the GitHub ONNC repository (https://github.com/ONNC/onnc). To download large model files when cloning the ONNC source, you have to install Git LFS (https://github.com/git-lfs/git-lfs/wiki/Installation) first.
 
-```shell=
+```console
 $ mkdir -p <source_dir> && cd <source_dir>
 $ git clone https://github.com/ONNC/onnc.git
 ```
 
 Once the latest source code is ready, you may invoke the following command to enter ONNC build environment:
 
-```shell=
+```console
 $ docker run -ti --rm --cap-add=SYS_PTRACE -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community
 ```
 
 `<source_dir>` is the directory where you cloned the latest ONNC source code and the `-ti` option provides a interactive interface for the container, the `-v` option mounts the directory to the Docker image, the `--cap-add=SYS_PTRACE` option enables debug support (e.g. gdb) in the container. You can make some change to the source code (`<source_dir>/onnc`) and run the following command to build ONNC.
  
-```shell=
+```console
 // run in the container cli, under build directory `/onnc/onnc-umbrella/build-normal` by default
 $ smake -j8 install
 ```
@@ -50,7 +50,7 @@ This command will automatically install the compiled binary in this container en
 
 The ONNC project uses CMake as its building system. There is a pre-defined build directory `build-normal` in the container and you may create another build variant (e.g. for debugging ONNC tools) using the following command:
 
-```shell=
+```console
 // run in the container cli
 $ cd /onnc/onnc-umbrella
 $ ssync && ./build.cmake.sh <build_mode>
@@ -131,7 +131,7 @@ Total Test time (real) =   2.03 sec
 
 If you like to run a single unit test, you may run it interactively in the Docker prompt.
 
-```shell=
+```console
 // In the container cli, run a single unit test. 
 $ ./tools/unittests/unittest_<test_name>
 // e.g.
@@ -207,7 +207,7 @@ Information for each verbose level:
 
 Here is an example of running AlexNet and printing out all information. 
 
-```shell=
+```console
 // run in the container cli
 $ onni /models/bvlc_alexnet/model.onnx /models/bvlc_alexnet/test_data_set_0/input_0.pb -verbose=4
 ```
@@ -216,7 +216,7 @@ $ onni /models/bvlc_alexnet/model.onnx /models/bvlc_alexnet/test_data_set_0/inpu
 
 If you like to run all benchmarks in the model zoo, a `run-benchmark.sh` script is included in the Docker image to simplify your job. The script will compile a model and run inference for all models one by one. You may type `run-benchmark.sh -h` to get the following usage description. 
 
-```shell=
+```console
 Usage: run-benchmark.sh [options]... MODEL [ARGUMENTS...]
     --rebuild           Rebuild the source code
                         (Will build the source in the /onnc/onnc directory)
@@ -231,14 +231,14 @@ bvlc_alexnet  bvlc_googlenet  bvlc_reference_caffenet  bvlc_reference_rcnn_ilsvr
   
 You may run the script from the Docker prompt as simple as the following example:
 
-```
+```console
 // run in the container cli
 $ run-benchmark.sh --rebuild bvlc_alexnet 
 ```
 
 You may also run the script from the shell prompt on your host machine using the following shell command:
 
-```
+```console
 // run on the host machine
 $ docker run -it --rm -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community run-benchmark.sh --rebuild <model name>
 ```
@@ -247,7 +247,7 @@ Running Customized ONNX Models
 
 Users may create their own ONNX model. In that case, they can run the benchmark using the following command:
 
-```
+```console
 // run in the container cli
 $ onni <model_directory>/<model_file> <model_directory>/<input_file>
 ```
