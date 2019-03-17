@@ -2,7 +2,7 @@
 
 Release PDF: [ONNC-Pass-Manager-Getting-Started-Guide.pdf](https://github.com/ONNC/onnc/wiki/files/1.0.0/ONNC-Pass-Manager-Getting-Started-Guide.pdf)
 
-This application note describes the pass manager software architecture and basics to implement a pass in ONNC. This note also provides a concrete pass example in ONNC which counts neural network operators in an ONNX model for reference. This document is compliant with the ONNC community docker image v1.0. You may download the docker image from the Docker Hub (https://hub.docker.com/r/onnc/onnc-community)
+This application note describes the pass manager software architecture and basics to implement a pass in ONNC. This note also provides a concrete pass example in ONNC which counts neural network operators in an ONNX model for reference. This document is compliant with the ONNC community Docker image v1.0. You may download the Docker image from the Docker Hub (https://hub.docker.com/r/onnc/onnc-community)
 
 ## 1. Introduction
 
