@@ -33,11 +33,15 @@ using namespace onnc::nvdla;
 
 namespace onnc {
 namespace internal {
-bool isFirstOperator(const Conv& conv)
+template <typename Operator>
+bool isFirstOperator(const Operator& op)
 {
-  const Tensor& input = *conv.getInput(0);
+  const auto* input = dynamic_cast<const Tensor*>(op.getInput(0));
+  if (input == nullptr) {
+    return false;
+  }
 
-  const auto* source = dynamic_cast<const InputOperator*>(input.getDefine());
+  const auto* source = dynamic_cast<const InputOperator*>(input->getDefine());
   return source != nullptr;
 }
 
@@ -1421,8 +1425,7 @@ void CodeEmitVisitor::visit(const NvDlaMaxPool& pMaxPool)
     maxpool_desc->pad_left           = pad_shapes[1]; // pad_shape - W
     maxpool_desc->pad_bottom         = pad_shapes[2];
     maxpool_desc->pad_right          = pad_shapes[3];
-
-    maxpool_desc->precision = DLA_PRECISION;
+    maxpool_desc->precision          = DLA_PRECISION;
 
     struct dla_pdp_surface_desc* maxpool_surf = (struct dla_pdp_surface_desc*)(&(maxpool_op->op_surf));
     maxpool_surf->src_data.type               = DLA_MEM_MC;
