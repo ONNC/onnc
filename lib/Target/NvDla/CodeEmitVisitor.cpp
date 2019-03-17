@@ -33,11 +33,22 @@ using namespace onnc::nvdla;
 
 namespace onnc {
 namespace internal {
-bool isFirstOperator(const Conv& conv) {
+bool isFirstOperator(const Conv& conv)
+{
   const Tensor& input = *conv.getInput(0);
 
   const auto* source = dynamic_cast<const InputOperator*>(input.getDefine());
   return source != nullptr;
+}
+
+std::size_t getTensorSize(const Tensor& tensor)
+{
+  std::size_t size = 1;
+  for (size_t idx = 0; idx < tensor.getNumOfDimensions(); ++idx) {
+     size *= tensor.dimension(idx);
+  }
+
+  return size;
 }
 } // namespace internal
 } // namespace onnc
@@ -1538,7 +1549,7 @@ int CodeEmitVisitor::packWeight(const Tensor* t, int dims[4], int gidx, bool sho
   }
   // weight_pack(blob_data, m_pMeta.m_WeightTable[input_W_t], group, g, input_W_dims[0], input_W_dims[1],
   // input_W_dims[2], input_W_dims[3], 0);
-  weight_pack(blob_data, (float*)(static_cast<const FloatTensor*>(t)->getValues().data()), gidx, dims, 0, shouldPadZero);
+  weight_pack(blob_data, (float*)(static_cast<const FloatTensor*>(t)->getValues().data()), internal::getTensorSize(*t), gidx, dims, 0, shouldPadZero);
 
   m_pMeta.m_Loadable.priv()->setSymbolContent(blob_name, b, blob_data);
 
