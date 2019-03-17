@@ -33,11 +33,15 @@ using namespace onnc::nvdla;
 
 namespace onnc {
 namespace internal {
-bool isFirstOperator(const Conv& conv)
+template <typename Operator>
+bool isFirstOperator(const Operator& op)
 {
-  const Tensor& input = *conv.getInput(0);
+  const auto* input = dynamic_cast<const Tensor*>(op.getInput(0));
+  if (input == nullptr) {
+    return false;
+  }
 
-  const auto* source = dynamic_cast<const InputOperator*>(input.getDefine());
+  const auto* source = dynamic_cast<const InputOperator*>(input->getDefine());
   return source != nullptr;
 }
 
@@ -1309,16 +1313,17 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
   pOp.print(errs());
   errs() << "\n";
 
-  int is_image_mode = 0;
-
   const Tensor* input_X_t = pOp.getInput(0);
   // void *input_X = m_ATable[input_X_t];
   int32_t input_X_ndim    = input_X_t->getNumOfDimensions();
   int32_t input_X_dims[4] = {1, 1, 1, 1};
   for (int i = 0; i < input_X_ndim; ++i)
     input_X_dims[i] = input_X_t->dimension(i);
+
+  const bool is_first_op     = internal::isFirstOperator(pConvRelu);
+  const bool is_image_mode   = (HAS_IMAGE_MODE && is_first_op && (3 == input_X_dims[1] || 4 == input_X_dims[1]));
+  const bool should_pad_zero = (is_image_mode && input_X_dims[1] < 4);
 #if HAS_IMAGE_MODE
-  is_image_mode = (3 == input_X_dims[1] || 4 == input_X_dims[1]); // FIXME: any smarter way?;
   if (is_image_mode) {
     input_X_dims[1] = 4; // Hardware requires image to be 4 channels
   }
@@ -1405,7 +1410,7 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
   // TODO: pads!!!
   for (int g = 0; g < group; g++) {
     // Weight Memory allocation, repacking by groups
-    int W_mid  = packWeight(input_W_t, input_W_dims, g);
+    int W_mid  = packWeight(input_W_t, input_W_dims, g, should_pad_zero);
     int W_addr = issueDlaAddr(W_mid, winfo, 1, 0, 0);
     int B_mid  = -1;
     int B_addr = -1;
