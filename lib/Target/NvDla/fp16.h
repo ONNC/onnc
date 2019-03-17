@@ -9,7 +9,7 @@ extern "C" {
 
 float __gnu_h2f_ieee(short param);
 short __gnu_f2h_ieee(float param);
-void  weight_pack(void* buf, float* data, int G, int dims[4], int type, _Bool shouldPadZero);
+void  weight_pack(void* buf, float* data, unsigned long long size, int G, int dims[4], int type, _Bool shouldPadZero);
 
 #ifdef __cplusplus
 }

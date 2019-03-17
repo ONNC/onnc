@@ -121,7 +121,7 @@ short __gnu_f2h_ieee(float param)
   return res;
 }
 
-void weight_pack(void* buf, float* data, int G, int dims[4], int type, _Bool shouldPadZero)
+void weight_pack(void* buf, float* data, unsigned long long size, int G, int dims[4], int type, _Bool shouldPadZero)
 {
   nv_weight_t* blob = (nv_weight_t*)buf;
   int          N    = dims[0];
@@ -198,6 +198,11 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type, _Bool sho
               }
             }
 #  endif
+            if (size <= data_ofs) {
+              *(blob + blob_ofs) = 0;
+              continue;
+            }
+
             *(blob + blob_ofs) = (nv_weight_t)__gnu_f2h_ieee(
               *(data + data_ofs)); // FIXME: hack for solving memory allocation issue. Probably we should introduce
                                    // __gnu_f2c(har)_ieee or something like that.
