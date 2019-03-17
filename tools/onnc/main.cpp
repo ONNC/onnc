@@ -11,6 +11,7 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Option/CommandLine.h>
 #include <onnc/Config/AboutData.h>
+#include <onnc/Diagnostic/StreamLog.h>
 
 using namespace onnc;
 
@@ -120,10 +121,20 @@ int main(int pArgc, char* pArgv[])
   onnc.options().setInput(OptInput);
 
   // check output
-  if (OptOutput.hasOccurrence())
+  if (OptOutput.hasOccurrence()) {
+    outs() << Color::GREEN << "Info" << Color::RESET
+           << ": set the output file at: "
+           << Color::Bold(Color::GREEN) << OptOutput << Color::RESET
+           << std::endl;
     onnc.options().setOutput(OptOutput);
-  else
+  } else {
+    errs() << Color::YELLOW << "Warning" << Color::RESET
+           << ": Use the default path for the output file: "
+           << Color::Bold(Color::GREEN)
+           << ONNCConfig::DefaultOutputName
+           << Color::RESET << std::endl;
     onnc.options().setOutput(ONNCConfig::DefaultOutputName);
+  }
 
   // Set quadruple. We shall check target instance at compilation time.
   if (!OptQuadruple.hasOccurrence() && ! OptMArch.hasOccurrence()) {
