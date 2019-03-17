@@ -121,7 +121,7 @@ short __gnu_f2h_ieee(float param)
   return res;
 }
 
-void weight_pack(void* buf, float* data, unsigned long long size, int G, int dims[4], int type, _Bool shouldPadZero)
+void weight_pack(void* buf, const float* data, unsigned long long size, int G, int dims[4], int type, _Bool shouldPadZero)
 {
   nv_weight_t* blob = (nv_weight_t*)buf;
   int          N    = dims[0];
