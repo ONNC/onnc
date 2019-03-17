@@ -77,7 +77,7 @@ The `ssync` command synchronize the build directory with the `<source_dir>/onnc`
 
 There are 18 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
 
-```
+```console
 // run in the container cli
 $ ctest
 ```
@@ -191,7 +191,7 @@ Table 3. A list of ONNX models from the model zoo
 
 You may run a single model for benchmarking using the following shell command:
 
-```
+```console
 // run in the container cli
 $ onni <model_file_path>/model.onnx <input_file_path>/input_0.pb -verbose=<level>
 ```
