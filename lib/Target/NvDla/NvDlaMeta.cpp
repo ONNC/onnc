@@ -196,8 +196,8 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
     banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
     break;
   case NVDLA_CUBE_WEIGHT:
-    size = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE); // FIXME: why not need padding?
-    eps  = 0;
+    size           = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE); // FIXME: why not need padding?
+    eps            = 0;
     stride_channel = ELEMENT_SIZE;
     stride_line    = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
     stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
@@ -228,8 +228,9 @@ int NvDlaCubeInfo::getReducedBanks() const
   case NVDLA_CUBE_FEATURE:
     return banks;
   case NVDLA_CUBE_WEIGHT: {
-    int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
-                 (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+    int rbanks =
+      (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced) {
       rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
