@@ -13,6 +13,8 @@
  * champ - get from https://reviews.llvm.org/D4927
  */
 
+#include "NvDlaDefine.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -117,16 +119,16 @@ short __gnu_f2h_ieee(float param)
 
 void weight_pack(void* buf, float* data, int G, int dims[4], int type)
 {
-  short* blob = (short*)buf;
-  int    N    = dims[0];
-  int    C    = dims[1];
-  int    H    = dims[2];
-  int    W    = dims[3];
+  nv_weight_t* blob = (nv_weight_t*)buf;
+  int          N    = dims[0];
+  int          C    = dims[1];
+  int          H    = dims[2];
+  int          W    = dims[3];
 
-  int channel_per_cube = 128 / sizeof(unsigned short);
-  int w_stride_kgrp    = 16 * C * H * W;
+  int channel_per_cube = WEIGHT_ATOM_CUBE_SIZE / ELEMENT_SIZE;
+  int w_stride_kgrp    = MAC_ATOMIC_K * C * H * W;
 #if 0
-  int C_offset = g*C;
+  int C_offset = G*C;
 
   for(int n = 0; n < (N/16 + 1); n++){
     int n_size = (N - n*16 >= 16) ? 16 : N - n*16;
@@ -156,8 +158,8 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type)
   }
 #else
   int N_offset = G * N;
-  for (int n = 0; n < (N / 16 + 1); n++) {
-    int n_size        = (N - n * 16 >= 16) ? 16 : N - n * 16;
+  for (int n = 0; n < (N / MAC_ATOMIC_K + 1); n++) {
+    int n_size        = (N - n * MAC_ATOMIC_K >= MAC_ATOMIC_K) ? MAC_ATOMIC_K : N - n * MAC_ATOMIC_K;
     int w_stride_surf = W * H * n_size * channel_per_cube;
     for (int h = 0; h < H; h++) {
       for (int w = 0; w < W; w++) {
@@ -171,10 +173,10 @@ void weight_pack(void* buf, float* data, int G, int dims[4], int type)
 
             int blob_ofs = (n * w_stride_kgrp) + (surf_ofs * w_stride_surf) + (h * w_stride_line) +
                            w * n_size * cube_size + (n_ofs * cube_size) + ch_ofs;
-            int data_ofs = ((n * 16 + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
-                           c * H * W +                                 // c = c + C_offset
+            int data_ofs = ((n * MAC_ATOMIC_K + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
+                           c * H * W +                                           // c = c + C_offset
                            (h * W) + w;
-            *(blob + blob_ofs) = __gnu_f2h_ieee(*(data + data_ofs));
+            *(blob + blob_ofs) = (nv_weight_t)__gnu_f2h_ieee(*(data + data_ofs));
           }
         }
       }
