@@ -8,6 +8,7 @@
 #ifndef TARGET_NVDLA_NVDLA_META_H
 #define TARGET_NVDLA_NVDLA_META_H
 
+#include "NvDlaDefine.h"
 #include "dla_interface.h"
 #include "emu_interface.h"
 #include "fp16.h"
@@ -34,9 +35,6 @@
 
 using namespace nvdla;
 using namespace nvdla::priv;
-
-#define FEATURE_ATOM_CUBE_SIZE 32
-#define WEIGHT_ATOM_CUBE_SIZE 128
 
 namespace onnc {
 struct concat_meta
@@ -130,19 +128,16 @@ enum nvdla_cube_type
 class NvDlaCubeInfo
 {
 public:
-  NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w, int es);
+  NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w);
 
   int getReducedBanks() const;
 
   void reduceBanks();
 
-  ~NvDlaCubeInfo()
-  { /* do nothing*/
-  }
+  ~NvDlaCubeInfo() = default;
 
 public:
   nvdla_cube_type mode;
-  int             element_size;
   int             dim_n;
   int             dim_c;
   int             dim_h;

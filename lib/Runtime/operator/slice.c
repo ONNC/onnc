@@ -6,7 +6,7 @@
 static void forLoop(
     int32_t axisIndex, int32_t ndim
     , const int32_t * restrict lowerBound, const int32_t *  restrict uperBound
-    , float * input, int32_t inputIndex
+    , const float * input, int32_t inputIndex
     , float * output, int32_t* outputIndex
     ,int32_t * axisDistance
 ){

@@ -16,7 +16,7 @@ If Docker is not installed in your system, please download Docker (http://www.do
 
 Pull the Docker image from the Docker Hub using the following shell command:
 
-```shell=
+```console
 $ docker pull onnc/onnc-community
 ```
 
@@ -24,22 +24,20 @@ $ docker pull onnc/onnc-community
 
 Although the Docker image include a source code tree, it might not be the latest release version of ONNC. We strongly suggest you clone the latest version of ONNC from the GitHub repository, mount the source code directory to the Docker image, and modify the source code with your favorite editor on your host machine. You may clone the source code from the GitHub ONNC repository (https://github.com/ONNC/onnc). To download large model files when cloning the ONNC source, you have to install Git LFS (https://github.com/git-lfs/git-lfs/wiki/Installation) first.
 
-```shell=
+```console
 $ mkdir -p <source_dir> && cd <source_dir>
 $ git clone https://github.com/ONNC/onnc.git
-$ cd onnc && git checkout research-public
-$ git pull
 ```
 
 Once the latest source code is ready, you may invoke the following command to enter ONNC build environment:
 
-```shell=
-$ docker run -ti --cap-add=SYS_PTRACE -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community
+```console
+$ docker run -ti --rm --cap-add=SYS_PTRACE -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community
 ```
 
 `<source_dir>` is the directory where you cloned the latest ONNC source code and the `-ti` option provides a interactive interface for the container, the `-v` option mounts the directory to the Docker image, the `--cap-add=SYS_PTRACE` option enables debug support (e.g. gdb) in the container. You can make some change to the source code (`<source_dir>/onnc`) and run the following command to build ONNC.
  
-```shell=
+```console
 // run in the container cli, under build directory `/onnc/onnc-umbrella/build-normal` by default
 $ smake -j8 install
 ```
@@ -52,7 +50,7 @@ This command will automatically install the compiled binary in this container en
 
 The ONNC project uses CMake as its building system. There is a pre-defined build directory `build-normal` in the container and you may create another build variant (e.g. for debugging ONNC tools) using the following command:
 
-```shell=
+```console
 // run in the container cli
 $ cd /onnc/onnc-umbrella
 $ ssync && ./build.cmake.sh <build_mode>
@@ -72,14 +70,15 @@ The `ssync` command synchronize the build directory with the `<source_dir>/onnc`
 | dbg        | Debug            |
 | rgn        | Regression       |
 | opt        | Optimized        |
+
 **Table 1. CMAKE_BUILD_TYPE and build mode mapping**
 
 
 ## 5. Run Unit Tests
 
-There are 16 unit tests available in the ONNC repository. Those tests are written in C language and you may run all of them using the following shell command:
+There are 18 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
 
-```
+```console
 // run in the container cli
 $ ctest
 ```
@@ -133,7 +132,7 @@ Total Test time (real) =   2.03 sec
 
 If you like to run a single unit test, you may run it interactively in the Docker prompt.
 
-```shell=
+```console
 // In the container cli, run a single unit test. 
 $ ./tools/unittests/unittest_<test_name>
 // e.g.
@@ -142,10 +141,10 @@ $ ./tools/unittests/unittest_Json
 $ exit
 ```
 
-Table 2 lists the 18 available unit tests in the ONNC repository. You may use `unittest_Any` to run all unit tests in a single pass.
+Table 2 lists the 18 available unit tests in the ONNC repository.
 
-| Test Name           |
-| ------------------- |
+| Test Name         |
+| ----------------- |
 | Digraph           |
 | FileHandle        |
 | PassManager       |
@@ -165,7 +164,7 @@ Table 2 lists the 18 available unit tests in the ONNC repository. You may use `u
 | Runtime_Transpose |
 | onnx2tg           |
 
-Table 2. A list of unit tests in ONNC
+**Table 2. A list of unit tests in ONNC**
 
 
 ## 6. Benchmarking using models from the ONNX Model Zoo
@@ -187,13 +186,13 @@ The Docker image includes a set of 12 pre-trained models from the ONNX model zoo
 | vgg19                        |
 | zfnet512                     |
 
-Table 3. A list of ONNX models from the model zoo
+**Table 3. A list of ONNX models from the model zoo**
 
 ### Running a Single Benchmark
 
 You may run a single model for benchmarking using the following shell command:
 
-```
+```console
 // run in the container cli
 $ onni <model_file_path>/model.onnx <input_file_path>/input_0.pb -verbose=<level>
 ```
@@ -209,7 +208,7 @@ Information for each verbose level:
 
 Here is an example of running AlexNet and printing out all information. 
 
-```shell=
+```console
 // run in the container cli
 $ onni /models/bvlc_alexnet/model.onnx /models/bvlc_alexnet/test_data_set_0/input_0.pb -verbose=4
 ```
@@ -218,7 +217,7 @@ $ onni /models/bvlc_alexnet/model.onnx /models/bvlc_alexnet/test_data_set_0/inpu
 
 If you like to run all benchmarks in the model zoo, a `run-benchmark.sh` script is included in the Docker image to simplify your job. The script will compile a model and run inference for all models one by one. You may type `run-benchmark.sh -h` to get the following usage description. 
 
-```shell=
+```console
 Usage: run-benchmark.sh [options]... MODEL [ARGUMENTS...]
     --rebuild           Rebuild the source code
                         (Will build the source in the /onnc/onnc directory)
@@ -233,14 +232,14 @@ bvlc_alexnet  bvlc_googlenet  bvlc_reference_caffenet  bvlc_reference_rcnn_ilsvr
   
 You may run the script from the Docker prompt as simple as the following example:
 
-```
+```console
 // run in the container cli
 $ run-benchmark.sh --rebuild bvlc_alexnet 
 ```
 
 You may also run the script from the shell prompt on your host machine using the following shell command:
 
-```
+```console
 // run on the host machine
 $ docker run -it --rm -v <source_dir>/onnc:/onnc/onnc onnc/onnc-community run-benchmark.sh --rebuild <model name>
 ```
@@ -249,13 +248,14 @@ Running Customized ONNX Models
 
 Users may create their own ONNX model. In that case, they can run the benchmark using the following command:
 
-```
+```console
 // run in the container cli
 $ onni <model_directory>/<model_file> <model_directory>/<input_file>
 ```
 
-## 7. Collecting statistics data by ONNC Statistics API
+## 7. Collecting statistics data via ONNC Statistics API
 
-ONNC provides a a set of Statistics classes and APIs in its framework for users to collect and share statistics data accross ONNC source code.
+ONNC provides a set of Statistics classes and APIs in its framework for users to collect and share statistics data across ONNC source code.
 
 For more information, please refer to the [ONNC Statistics API](./api/statistics.md) document. It will keep updating as more statistics types and APIs are defined and implemented.
+

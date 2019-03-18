@@ -18,7 +18,7 @@ namespace {
 enum Color {
   Red,
   Blue,
-  Yello,
+  Yellow,
   Unknown
 };
 
@@ -30,7 +30,7 @@ SKYPAT_F( StringSwitchTest, simple_test)
   Color color = StringSwitch<Color>(color_str)
     .Case("Red", Red)
     .Case("Blue", Blue)
-    .Case("Yello", Yello)
+    .Case("Yellow", Yellow)
     .Default(Unknown);
 
   ASSERT_TRUE(Red == color);
@@ -41,7 +41,7 @@ SKYPAT_F( StringSwitchTest, default_test) {
   Color color = StringSwitch<Color>(color_str)
     .Case("Red", Red)
     .Case("Blue", Blue)
-    .Case("Yello", Yello)
+    .Case("Yellow", Yellow)
     .Default(Unknown);
 
   ASSERT_TRUE(Unknown == color);
@@ -53,7 +53,7 @@ SKYPAT_F( StringSwitchTest, start_with_test)
   Color color = StringSwitch<Color>(color_str)
     .StartsWith("Red", Red)
     .StartsWith("Blue", Blue)
-    .StartsWith("Yello", Yello)
+    .StartsWith("Yellow", Yellow)
     .Default(Unknown);
 
   ASSERT_TRUE(Blue == color);
@@ -61,12 +61,12 @@ SKYPAT_F( StringSwitchTest, start_with_test)
 
 SKYPAT_F( StringSwitchTest, end_with_test)
 {
-  const char* color_str = "TheLightIsYello";
+  const char* color_str = "TheLightIsYellow";
   Color color = StringSwitch<Color>(color_str)
     .EndsWith("Red", Red)
     .Case("Blue", Blue)
-    .EndsWith("Yello", Yello)
+    .EndsWith("Yellow", Yellow)
     .Default(Unknown);
 
-  ASSERT_TRUE(Yello == color);
+  ASSERT_TRUE(Yellow == color);
 }

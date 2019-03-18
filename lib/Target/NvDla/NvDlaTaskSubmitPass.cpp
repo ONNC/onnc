@@ -339,7 +339,7 @@ int NvDlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
   ale.mem_id = mle.id;
   ale.id     = aid;
 
-  NVDLA_DBG("AddressEntry s:%9d o:%9d mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
+  NVDLA_DBG("AddressEntry s:%9lu o:%9lu mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
   m_pMeta->m_AddressListEntries.push_back(ale);
   return aid;
 }
