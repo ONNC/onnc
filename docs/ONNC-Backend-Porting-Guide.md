@@ -174,7 +174,7 @@ By following the commands in the previous section, we derive a new backend Foo a
 | File | Purpose |
 | ---- | ------- |
 | `FooBackend.cpp & .h` | The main file of a backend. Developers need to modify this file to add optimization passes. |
-| `CodeEmitVisitor.cpp & .h` | Implementation of the `CodeEmitVisitor` class. Developers need to modify this file to handle the code generation for each operators. |
+| `CodeEmitVisitor.cpp & .h` | Implementation of the `CodeEmitVisitor` class. Developers need to modify this file to handle the code generation for each operator. |
 | `TargetInfo/FooTargetInfo.cpp & .h` | This file containing functions for registering this backend to the ONNC framework. |
 | `TargetInfo/FooTargetMemInfo.cpp & .h` | The file for configuring  memory size and alignment for each data type in neural network models. Developers need to modify this file based on the target hardware attributes to optimize memory allocation. |
 | `CMakeLists.txt` | Configuration file for the CMake building system. |
