@@ -194,9 +194,9 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     }
 
     // X, B, Y try to use offset for split & group
-    int pad_size              = pads[0] + pads[1];
-    int kernel_size_minus_one = (input_W_dims[2] - 1);
-    int max_conv_H            = input_X_dims[2] - kernel_size_minus_one;
+    int pad_size    = pads[0] + pads[1];
+    int kernel_size = (input_W_dims[2] - 1);
+    int max_conv_H  = input_X_dims[2] - kernel_size;
     if (fcube_group.banks + winfo.banks > CBUF_BANK_NUM) {
       if (fcube_group.banks + winfo.getReducedBanks() <= CBUF_BANK_NUM) {
         printf("DBG1: f banks %d, w banks %d\n", fcube_group.banks, winfo.banks);
@@ -215,23 +215,23 @@ void CodeEmitVisitor::visit(const Conv& pOp)
     }
     // int total_h = input_X_dims[2] - (input_W_dims[2]-1);
     // int split_H = input_X_dims[2] - (input_W_dims[2]-1);
-    int total_h = input_X_dims[2] - kernel_size_minus_one;
+    int total_h = input_X_dims[2] - kernel_size;
     int split_H = max_conv_H;
-    printf("DBG4: split_H %d, total_h %d, max_conv_H %d, kernel_size_minus_one %d\n", split_H, total_h, max_conv_H, kernel_size_minus_one);
+    printf("DBG4: split_H %d, total_h %d, max_conv_H %d, kernel_size %d\n", split_H, total_h, max_conv_H, kernel_size);
     for (int h = 0, dst_h = 0; h < total_h; h += split_H) {
       int pad_top = (h == 0) ? pads[0] : 0;
       if (max_conv_H != total_h) {
-        split_H = (((max_conv_H - kernel_size_minus_one + pad_top) / strides[0]) * strides[0]) - pad_top;
+        split_H = (((max_conv_H - kernel_size + pad_top) / strides[0]) * strides[0]) - pad_top;
       }
       int op_h = h + split_H >= total_h ? total_h - h : split_H;
-      printf("DBG5: split_H %d, op_h %d, pad_top %d, op_h+kernel_size_minus_one %d\n", split_H, op_h, pad_top,
-             op_h + kernel_size_minus_one);
+      printf("DBG5: split_H %d, op_h %d, pad_top %d, op_h+kernel_size %d\n", split_H, op_h, pad_top,
+             op_h + kernel_size);
       int pad_bottom = h + split_H >= total_h ? pads[1] : 0;
       int output_h   = ((op_h + pad_top + pad_bottom) + (strides[0] - 1)) / strides[0];
 
-      NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size_minus_one, output_h);
+      NVDLA_DBG("conv op_h[%d] output_h[%d]\n", op_h + kernel_size, output_h);
       NvDlaCubeInfo finfo((is_image_mode) ? NVDLA_CUBE_IMAGE : NVDLA_CUBE_FEATURE, input_X_dims[0], input_X_dims[1],
-                          op_h + kernel_size_minus_one, input_X_dims[3]);
+                          op_h + kernel_size, input_X_dims[3]);
       NvDlaCubeInfo oinfo(NVDLA_CUBE_FEATURE, output_Y_dims[0], output_Y_dims[1], output_h, output_Y_dims[3]);
       printf("DBG0: f banks %d, o banks %d\n", finfo.banks, oinfo.banks);
 
@@ -268,7 +268,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
 #if DLA_NV_SMALL
       conv_desc->release = 1; // FIXME: we found its value is always 1 in nv_small_alexnet.nvdla
 #else
-      conv_desc->release = op_h + kernel_size_minus_one;
+      conv_desc->release = op_h + kernel_size;
 #endif
       conv_desc->input_width_csc    = finfo.dim_w;
       conv_desc->input_height_csc   = finfo.dim_h;
@@ -458,7 +458,7 @@ void CodeEmitVisitor::visit(const Conv& pOp)
       issueDlaOp(conv_op, add_op, prev_op);
 
       // generate CONV Operation
-      NVDLA_DBG("split-conv s:%d e:%d h:%d, dst_h:%d, output_h=%d\n", h, h + op_h, op_h + kernel_size_minus_one, dst_h, output_h);
+      NVDLA_DBG("split-conv s:%d e:%d h:%d, dst_h:%d, output_h=%d\n", h, h + op_h, op_h + kernel_size, dst_h, output_h);
       dst_h += output_h;
     }
   }
@@ -1331,6 +1331,7 @@ void CodeEmitVisitor::visit(const NvDlaConvRelu& pConvRelu)
        struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
        add_desc->x1_op.act = ACTIVATION_RELU;
        add_desc->x1_op.mode = SDP_OP_PER_KERNEL;
+       printf ("DBGf: pos %d : a conv op fused with an sdp op\n", pos);
     }
   }
 }
@@ -1425,7 +1426,8 @@ void CodeEmitVisitor::visit(const NvDlaMaxPool& pMaxPool)
     maxpool_desc->pad_left           = pad_shapes[1]; // pad_shape - W
     maxpool_desc->pad_bottom         = pad_shapes[2];
     maxpool_desc->pad_right          = pad_shapes[3];
-    maxpool_desc->precision          = DLA_PRECISION;
+
+    maxpool_desc->precision = DLA_PRECISION;
 
     struct dla_pdp_surface_desc* maxpool_surf = (struct dla_pdp_surface_desc*)(&(maxpool_op->op_surf));
     maxpool_surf->src_data.type               = DLA_MEM_MC;
@@ -1488,6 +1490,7 @@ void CodeEmitVisitor::visit(const NvDlaConvReluMaxPool& pConvReluMaxPool)
        struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
        add_desc->x1_op.act = ACTIVATION_RELU;
        add_desc->x1_op.mode = SDP_OP_PER_KERNEL;
+       printf ("DBGf: pos %d : a conv op fused with an sdp op and a pdp op\n", pos);
     }
   }
 #endif
@@ -1524,6 +1527,7 @@ void CodeEmitVisitor::visit(const NvDlaGemmRelu& pGemmRelu)
        struct dla_sdp_op_desc *add_desc = (struct dla_sdp_op_desc *)(&(add_op->op_desc));
        add_desc->x1_op.act = ACTIVATION_RELU;
        add_desc->x1_op.mode = SDP_OP_PER_KERNEL;
+       printf ("DBGf: pos %d : a gemm op fused with an sdp op\n", pos);
     }
   }
 }
