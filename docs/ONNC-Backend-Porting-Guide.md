@@ -170,6 +170,7 @@ onnc@705b08cf8a7d:/onnc/onnc-umbrella/build-normal$
 By following the commands in the previous section, we derive a new backend Foo and all the files are created under `/onnc/onnc/lib/Target/Foo`. Table 1 describes the files in the created folder. 
 
 **Table 1: Files of a backend and their purposes.**
+
 | File | Purpose |
 | ---- | ------- |
 | `FooBackend.cpp & .h` | The main file of a backend. Developers need to modify this file to add optimization passes. |
@@ -207,6 +208,7 @@ void FooBackend::addTensorSel(PassManager& pPM)
 In the above example, the optimization pass is added in the method, `addTensorSel()`. There are four stages in the compilation flow for users to add passes. Each stage in the compilation flow is implemented in a corresponding method. The following table shows the meaning and input/output of each method. 
 
 **Table 2. The four methods representing the four compilation phases.**
+
 | Method | Input | Output | Description |
 | ------ | ----- | ------ | ----------- |
 | `addTensorSel` | **ONNX IR** | **ONNC IR** | This method contains passes for translating models in the ONNX format into ONNC IR. |
@@ -217,6 +219,7 @@ In the above example, the optimization pass is added in the method, `addTensorSe
 ONNC provides a couple of basic optimization passes by default. They are listed in the following table. 
 
 **Table 3. The default passes in each optimization phase.**
+
 | Method | Default passes | Description |
 | ------ | -------------- | ----------- |
 | `addTensorSel` | `addStandardTensorSel` | This pass translates models in the ONNX format into ONNC IR. |

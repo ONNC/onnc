@@ -22,8 +22,6 @@ The `CustomPass<T>` abstract class defines several virtual functions. These memb
 | `virtual ReturnType runOnModule(Module&) = 0;` |
 | `virtual ReturnType doFinalization(Module&);` |
 
- 
-
 | Method | Description |
 | ------ | ----------- |
 | `doInitialization` | The first-invoked method in a pass. Acquire resources such as files, network and etc. |

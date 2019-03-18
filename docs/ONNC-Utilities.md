@@ -70,6 +70,7 @@ The `ssync` command synchronize the build directory with the `<source_dir>/onnc`
 | dbg        | Debug            |
 | rgn        | Regression       |
 | opt        | Optimized        |
+
 **Table 1. CMAKE_BUILD_TYPE and build mode mapping**
 
 
@@ -163,7 +164,7 @@ Table 2 lists the 18 available unit tests in the ONNC repository.
 | Runtime_Transpose |
 | onnx2tg           |
 
-Table 2. A list of unit tests in ONNC
+**Table 2. A list of unit tests in ONNC**
 
 
 ## 6. Benchmarking using models from the ONNX Model Zoo
@@ -185,7 +186,7 @@ The Docker image includes a set of 12 pre-trained models from the ONNX model zoo
 | vgg19                        |
 | zfnet512                     |
 
-Table 3. A list of ONNX models from the model zoo
+**Table 3. A list of ONNX models from the model zoo**
 
 ### Running a Single Benchmark
 
