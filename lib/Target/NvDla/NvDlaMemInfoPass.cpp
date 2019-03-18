@@ -60,9 +60,8 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
         }
       }
     } else if (Reshape* reshape = dyn_cast<Reshape>(&cm)) {
-      Tensor* input_t  = reshape->getInput(0);
-      Tensor* output_t = reshape->getOutput(0);
-      // Tensor *t = static_cast<Tensor *>(v);
+      Tensor* input_t                   = reshape->getInput(0);
+      Tensor* output_t                  = reshape->getOutput(0);
       m_pMeta->m_ReshapeTable[output_t] = input_t;
     } else if (Concat* concat = dyn_cast<Concat>(&cm)) {
       int32_t num_inputs  = concat->getNumOfInputs();
@@ -73,13 +72,11 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
       for (int i = 0; i < num_inputs; i++) {
         Tensor*     input_t = concat->getInput(i);
         concat_meta meta;
-        meta.t   = output_t;
-        meta.ofs = channels;
-        // TODO - change to tensor-to-address
-        // m_pMeta->m_ConcatTable[input_t] = output_t;
+        meta.t                          = output_t;
+        meta.ofs                        = channels;
         m_pMeta->m_ConcatTable[input_t] = meta;
-        printf("\tconcat input[%d] dim(%d %d %d %d)\n", i, input_t->dimension(0), input_t->dimension(1),
-               input_t->dimension(2), input_t->dimension(3));
+        NVDLA_DBG("\tconcat input[%d] dim(%d %d %d %d)\n", i, input_t->dimension(0), input_t->dimension(1),
+                  input_t->dimension(2), input_t->dimension(3));
         channels += input_t->dimension(1);
       }
     }
@@ -93,8 +90,7 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
         // for weight, memory buffers are allocated & blob files are also generated in ComputeOperator.
 
         FloatTensor* t = static_cast<FloatTensor*>(v);
-        // m_pMeta->m_WeightTable[v] = t->getValues().data();
-        NVDLA_DBG("weight size:%d %d\n", mem->length(), t->getValues().size());
+        NVDLA_DBG("weight size:%u %zu\n", mem->length(), t->getValues().size());
 
       } else {
         NVDLA_DBG("operand size:%d\n", mem->length());
@@ -127,7 +123,6 @@ Pass::ReturnType NvDlaMemInfoPass::runOnModule(Module& pModule)
         if (mem->isInput()) {
           mle.flags |= nvdla::ILoadable::MemoryFlags_INPUT;
           mle.tensor_desc_id = 0;
-          // mle.size = cubeinfo.size;
 
           tle.name   = "data";
           tle.id     = 0;

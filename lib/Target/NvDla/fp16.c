@@ -13,11 +13,7 @@
  * champ - get from https://reviews.llvm.org/D4927
  */
 
-// ------------------------------
-
 #include "NvDlaDefine.h"
-
-// ------------------------------
 
 #ifdef __cplusplus
 extern "C" {
@@ -189,7 +185,7 @@ void weight_pack(void* buf, const float* data, unsigned long long size, int G, i
             int data_ofs = ((n * MAC_ATOMIC_K + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
                            c * H * W +                                           // c = c + C_offset
                            (h * W) + w;
-#  if HAS_IMAGE_MODE
+
             if (shouldPadZero) {
               // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
               if (C == 4 && c == 3) {
@@ -197,15 +193,13 @@ void weight_pack(void* buf, const float* data, unsigned long long size, int G, i
                 continue;
               }
             }
-#  endif
+
             if (size <= data_ofs) {
               *(blob + blob_ofs) = 0;
               continue;
             }
 
-            *(blob + blob_ofs) = (nv_weight_t)__gnu_f2h_ieee(
-              *(data + data_ofs)); // FIXME: hack for solving memory allocation issue. Probably we should introduce
-                                   // __gnu_f2c(har)_ieee or something like that.
+            *(blob + blob_ofs) = (nv_weight_t)__gnu_f2h_ieee(*(data + data_ofs));
           }
         }
       }

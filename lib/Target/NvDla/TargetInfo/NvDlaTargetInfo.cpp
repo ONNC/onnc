@@ -12,17 +12,12 @@
 
 using namespace onnc;
 
-//===----------------------------------------------------------------------===//
-// Non-member functions
-//===----------------------------------------------------------------------===//
-
 static unsigned int NvDlaMatchFn(const Quadruple& pQuadruple)
 {
   unsigned int score = 0;
   if (Quadruple::nvdla == pQuadruple.getArch()) {
     score += 10;
   }
-
   return score;
 }
 

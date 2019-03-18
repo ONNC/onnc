@@ -145,6 +145,7 @@ ONNC_SOURCES = \
 	Transforms/BuildInitializers.cpp \
 	Transforms/BuildInputOperators.cpp \
 	Transforms/BuildOutputOperators.cpp \
+	Transforms/OnnxOptPass.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/DefaultAttributes.cpp \
 	Transforms/TensorSel/Lower.cpp \

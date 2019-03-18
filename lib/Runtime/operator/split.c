@@ -4,11 +4,11 @@
 #include <stdbool.h>
 
 static void forLoop(
-    float * restrict input_input, int32_t input_index,
+    const float * restrict input_input, int32_t input_index,
     int32_t input_input_ndim, const int32_t * restrict input_input_dims,
     int32_t dimIndex, int32_t * restrict axisDistance,
     int32_t axis, int32_t axisLower, int32_t axisHigher,
-    float ** restrict output, int32_t output_row, int32_t * restrict output_col
+    float * const * restrict output, int32_t output_row, int32_t * restrict output_col
 ){
   if(dimIndex == input_input_ndim){
     int32_t col = *output_col;

@@ -40,8 +40,7 @@ Pass::ReturnType NvDlaTaskSubmitPass::runOnModule(Module& pModule)
     b.version.sub_minor = 0;
     b.interface         = ILoadable::Interface_DLA1;
     b.subInterface      = 0;
-    // b.data = blob_data;
-    NvU8* blob_data = new NvU8[b.size];
+    NvU8* blob_data     = new NvU8[b.size];
 
     m_pMeta->m_DlaNetworkDesc.operation_desc_index   = m_pMeta->m_AddressListEntries.size() + 2;
     m_pMeta->m_DlaNetworkDesc.surface_desc_index     = m_pMeta->m_AddressListEntries.size() + 3;
@@ -206,8 +205,7 @@ Pass::ReturnType NvDlaTaskSubmitPass::runOnModule(Module& pModule)
       b.version.sub_minor = 1;
       b.interface         = ILoadable::Interface_EMU1;
       b.subInterface      = 0;
-      // b.data = blob_data;
-      NvU8* blob_data = new NvU8[b.size];
+      NvU8* blob_data     = new NvU8[b.size];
 
       m_pMeta->m_EmuNetworkDesc.operation_desc_index        = m_pMeta->m_AddressListEntries.size() + 1;
       m_pMeta->m_EmuNetworkDesc.operation_buffer_desc_index = m_pMeta->m_AddressListEntries.size() + 2;
@@ -229,7 +227,6 @@ Pass::ReturnType NvDlaTaskSubmitPass::runOnModule(Module& pModule)
       b.version.sub_minor = 1;
       b.interface         = ILoadable::Interface_EMU1;
       b.subInterface      = 0;
-      // b.data = blob_data;
       NvU8*                          blob_data = new NvU8[b.size];
       union emu_operation_container* op_blob   = (union emu_operation_container*)blob_data;
       for (int i = 0; i < m_pMeta->m_EMUOperationList.size(); i++) {
@@ -252,7 +249,6 @@ Pass::ReturnType NvDlaTaskSubmitPass::runOnModule(Module& pModule)
       b.version.sub_minor = 1;
       b.interface         = ILoadable::Interface_EMU1;
       b.subInterface      = 0;
-      // b.data = blob_data;
       NvU8*                                 blob_data = new NvU8[b.size];
       union emu_operation_buffer_container* op_blob   = (union emu_operation_buffer_container*)blob_data;
       for (int i = 0; i < m_pMeta->m_EMUOperationList.size(); i++) {
@@ -343,7 +339,7 @@ int NvDlaTaskSubmitPass::submitMemAllocAddress(int size, std::string blob_name)
   ale.mem_id = mle.id;
   ale.id     = aid;
 
-  NVDLA_DBG("AddressEntry s:%9d o:%9d mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
+  NVDLA_DBG("AddressEntry s:%9lu o:%9lu mid:%3d id:%3d\n", ale.size, ale.offset, ale.mem_id, ale.id);
   m_pMeta->m_AddressListEntries.push_back(ale);
   return aid;
 }

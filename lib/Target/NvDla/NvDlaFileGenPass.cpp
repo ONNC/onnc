@@ -26,8 +26,6 @@ NvDlaFileGenPass::NvDlaFileGenPass(NvDlaBackendMeta* pMeta)
 
 Pass::ReturnType NvDlaFileGenPass::runOnModule(Module& pModule)
 {
-  // file output
-  // priv::LoadableFactory::LoadablePrivPair loadable = priv::LoadableFactory::newLoadable();
   m_pMeta->m_Loadable.priv()->setMemoryListEntries(m_pMeta->m_MemoryListEntries);
   m_pMeta->m_Loadable.priv()->setTensorDescListEntries(m_pMeta->m_TensorDescListEntries);
   m_pMeta->m_Loadable.priv()->setAddressListEntries(m_pMeta->m_AddressListEntries);

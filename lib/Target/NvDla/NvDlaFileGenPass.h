@@ -13,7 +13,6 @@
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-
 class TargetBackend;
 
 class NvDlaFileGenPass : public CustomPass<NvDlaFileGenPass>

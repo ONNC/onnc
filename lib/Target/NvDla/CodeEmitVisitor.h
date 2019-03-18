@@ -20,7 +20,6 @@
 #include <onnc/IR/CustomVisitor.h>
 
 namespace onnc {
-
 namespace nvdla {
 
 class CodeEmitVisitor : public NvDlaComputeVisitor
@@ -30,13 +29,10 @@ public:
     : m_pMeta{meta}
   {}
 
-  /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
   void visit(const InputOperator& pInputOperator) override;
   void visit(const OutputOperator& pOutputOperator) override;
-  /// @}
 
-  /// ONNX defined operators @{
   void visit(const Conv& pConv) override;
   void visit(const Reshape& pReshape) override;
   void visit(const Relu& pRelu) override;
@@ -51,11 +47,10 @@ public:
   void visit(const NvDlaConvReluMaxPool& pConvReluMaxPool) override;
   void visit(const NvDlaMaxPool& pMaxPool) override;
   void visit(const Sum& pSum) override;
-  /// @}
-  // void weight_pack(void *buf, float *data, int G, int g, int dim[4], int type);
+
   void conv(const Tensor* x, const Tensor* w, const Tensor* b, const Tensor* y);
   int  packWeight(const Tensor* t, int dims[4], int gidx, bool shouldPadZero = false);
-  int  packBias(const Tensor* t, int dims[4], int gidx);
+  int  packBias(const ComputeOperator& co, const Tensor* t, int dims[4], int gidx);
 
   void issueEmuOp(NvDlaEmuOperation* op);
   int  issueEmuAddr(int mid);

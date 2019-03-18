@@ -134,6 +134,9 @@
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
+
+#include <memory>
+
 using namespace onnc;
 
 cl::opt<bool>

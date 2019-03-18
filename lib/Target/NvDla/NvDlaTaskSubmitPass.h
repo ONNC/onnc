@@ -13,7 +13,6 @@
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-
 class TargetBackend;
 
 class NvDlaTaskSubmitPass : public CustomPass<NvDlaTaskSubmitPass>

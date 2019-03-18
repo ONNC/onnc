@@ -133,12 +133,8 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<GemmLower>();
 
   // SDP
-  // pRegistry.emplace<PReluLower>();
   pRegistry.emplace<ReluLower>();
-  // pRegistry.emplace<MulLower>();
-  // pRegistry.emplace<AddLower>();
   pRegistry.emplace<SumLower>(); // N Adds
-  // pRegistry.emplace<BatchNormalizationLower>();
 
   // PDP
   pRegistry.emplace<MaxPoolLower>();
@@ -149,18 +145,10 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 
   // RUBIK
   pRegistry.emplace<ReshapeLower>(); // special processing
-  // pRegistry.emplace<SplitLower>();      //RUBIK
-  // pRegistry.emplace<FlattenLower>();    //RUBIK
 
   // EMU
   pRegistry.emplace<SoftmaxLower>();
 
-  // TODOs
-  // pRegistry.emplace<LeakyReluLower>();  //SDP-LUT
-  // pRegistry.emplace<GlobalAveragePoolLower>();  //PDP?
-  // pRegistry.emplace<TransposeLower>();  //??
-  // pRegistry.emplace<UpsampleLower>();   // BDMA + CONV??
-  // pRegistry.emplace<UnsqueezeLower>();
   pRegistry.emplace<ConcatLower>(); // RUBIK?
 }
 

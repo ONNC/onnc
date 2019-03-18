@@ -20,30 +20,29 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdio>
 #include <iomanip>
 #include <sstream>
 #include <unordered_map>
 
-//#ifndef NDEBUG
-#define NVDLA_DBG printf
-//#else
-//#define NVDLA_DBG
-//#endif
+#ifndef NDEBUG
+#  define NVDLA_DBG(...) fprintf(stderr, __VA_ARGS__)
+#else
+#  define NVDLA_DBG(...) \
+    do {                 \
+    } while (false)
+#endif
 
 using namespace nvdla;
 using namespace nvdla::priv;
 
-// ------------------------------
-
 namespace onnc {
-
 struct concat_meta
 {
   const Tensor* t;
   int           ofs;
 };
 
-// typedef std::unordered_map<const Value *, float *> WeightTable;
 typedef std::unordered_map<Value*, int>                  MemoryIdxTable;
 typedef std::unordered_map<const Tensor*, const Tensor*> RemapTable;
 typedef std::unordered_map<const Tensor*, concat_meta>   ConcatTable;
@@ -54,12 +53,10 @@ typedef std::unordered_map<const Tensor*, concat_meta>   ConcatTable;
 class NvDlaDlaOperation
 {
 public:
-  struct dla_common_op_desc op_dep;
+  NvDlaDlaOperation() noexcept;
 
 public:
-  NvDlaDlaOperation();
-
-public:
+  struct dla_common_op_desc     op_dep;
   union dla_operation_container op_desc;
   union dla_surface_container   op_surf;
 };
@@ -70,7 +67,7 @@ public:
 class NvDlaEmuOperation
 {
 public:
-  NvDlaEmuOperation();
+  NvDlaEmuOperation() noexcept;
 
 public:
   union emu_operation_container        op_desc;
@@ -103,9 +100,8 @@ public:
   // events between submits
   std::vector<ILoadable::EventListEntry> m_EventListEntries;
 
-  int                     m_DlaAddresses;
-  struct dla_network_desc m_DlaNetworkDesc;
-  // struct dla_lut_param m_LrnDefaultLutParam;
+  int                             m_DlaAddresses;
+  struct dla_network_desc         m_DlaNetworkDesc;
   int                             m_NumLUTs;
   std::vector<NvDlaDlaOperation*> m_DLAOperationList;
   std::vector<dla_lut_param*>     m_LUTList;

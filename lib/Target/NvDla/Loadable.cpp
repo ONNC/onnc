@@ -26,23 +26,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#include "nvdla_os_inf.h"
-
-//#include "priv/Check.h"
 #include "priv/Loadable.h"
 
 #include "ErrorMacros.h"
 #include "priv/loadable_generated.h"
 
-using std::endl;
-
 namespace nvdla {
-
 ILoadable::ILoadable() {}
 ILoadable::~ILoadable() {}
 
 namespace priv {
-
 LoadableFactory::LoadablePrivPair LoadableFactory::newLoadable()
 {
   ILoadable* loadable;
@@ -99,9 +92,9 @@ ILoadable* LoadableFactory::self(void* s)
 BiMap<ILoadable*, Loadable*> LoadableFactory::s_priv;
 BiMap<void*, ILoadable*>     LoadableFactory::s_self;
 
-// there's only one type of loadable for now. so only one of these... so it looks
-// silly.  see the same paths in "LayerFactory::deserialize*" for why it makes sense
-// to organize this way preemptively.
+// there's only one type of loadable for now. so only one of these... so it
+// looks silly.  see the same paths in "LayerFactory::deserialize*" for why it
+// makes sense to organize this way preemptively.
 ILoadable* LoadableFactory::deserializeLoadable(NvU8* buf)
 {
   LoadableFactory::LoadablePrivPair n = LoadableFactory::newLoadable();
@@ -117,7 +110,8 @@ Loadable::Loadable() {}
 
 NvU16 Loadable::getFactoryType() const
 {
-  return 0; // only one type of loadable so far, not complicated by factory splits
+  return 0; // only one type of loadable so far, not complicated by factory
+            // splits
 }
 
 std::string Loadable::getName() const { return mName; }
@@ -125,11 +119,13 @@ std::string Loadable::getName() const { return mName; }
 int Loadable::getNumMemoryListEntries() const { return (int)mMemoryListEntries.size(); }
 
 ILoadable::MemoryListEntry Loadable::getMemoryListEntry(NvU16 mem_id) const { return mMemoryListEntries[mem_id]; }
+
 const std::vector<ILoadable::MemoryListEntry>& Loadable::getMemoryListEntries() const { return mMemoryListEntries; }
 
 int Loadable::getNumEventListEntries() const { return (int)mEventListEntries.size(); }
 
 ILoadable::EventListEntry Loadable::getEventListEntry(NvU16 event_id) const { return mEventListEntries[event_id]; }
+
 const std::vector<ILoadable::EventListEntry>& Loadable::getEventListEntries() const { return mEventListEntries; }
 
 int Loadable::getNumTaskListEntries() const { return mTaskListEntries.size(); }
@@ -137,8 +133,10 @@ int Loadable::getNumTaskListEntries() const { return mTaskListEntries.size(); }
 ILoadable::TaskListEntry Loadable::getTaskListEntry(NvU16 task_id) const { return mTaskListEntries[task_id]; }
 const std::vector<ILoadable::TaskListEntry>& Loadable::getTaskListEntries() const { return mTaskListEntries; }
 
-int                        Loadable::getNumSubmitListEntries() const { return mSubmitListEntries.size(); }
+int Loadable::getNumSubmitListEntries() const { return mSubmitListEntries.size(); }
+
 ILoadable::SubmitListEntry Loadable::getSubmitListEntry(NvU16 submit_id) const { return mSubmitListEntries[submit_id]; }
+
 const std::vector<ILoadable::SubmitListEntry>& Loadable::getSubmitListEntries() const { return mSubmitListEntries; }
 
 int Loadable::getNumAddressListEntries() const { return mAddressListEntries.size(); }
@@ -147,42 +145,48 @@ ILoadable::AddressListEntry Loadable::getAddressListEntry(NvU16 address_list_ind
 {
   return mAddressListEntries[address_list_index];
 }
+
 const std::vector<ILoadable::AddressListEntry>& Loadable::getAddressListEntries() const { return mAddressListEntries; }
 
-int                            Loadable::getNumTensorDescListEntries() const { return mTensorDescListEntries.size(); }
+int Loadable::getNumTensorDescListEntries() const { return mTensorDescListEntries.size(); }
+
 ILoadable::TensorDescListEntry Loadable::getTensorDescListEntry(NvU16 tensor_desc_list_index) const
 {
   return mTensorDescListEntries[tensor_desc_list_index];
 }
+
 const std::vector<ILoadable::TensorDescListEntry>& Loadable::getTensorDescListEntries() const
 {
   return mTensorDescListEntries;
 }
 
-int                                       Loadable::getNumRelocEntries() const { return mRelocEntries.size(); }
-ILoadable::RelocEntry                     Loadable::getRelocEntry(NvU16 i) const { return mRelocEntries[i]; }
-const std::vector<ILoadable::RelocEntry>& Loadable::getRelocEntries() const { return mRelocEntries; }
+int Loadable::getNumRelocEntries() const { return mRelocEntries.size(); }
 
+ILoadable::RelocEntry Loadable::getRelocEntry(NvU16 i) const { return mRelocEntries[i]; }
+
+const std::vector<ILoadable::RelocEntry>& Loadable::getRelocEntries() const { return mRelocEntries; }
 //
 // internally facing
 //
 void Loadable::setMemoryListEntries(const std::vector<ILoadable::MemoryListEntry>& m) { mMemoryListEntries = m; }
+
 void Loadable::setEventListEntries(const std::vector<ILoadable::EventListEntry>& m) { mEventListEntries = m; }
+
 void Loadable::setTaskListEntries(const std::vector<ILoadable::TaskListEntry>& m) { mTaskListEntries = m; }
+
 void Loadable::setSubmitListEntries(const std::vector<ILoadable::SubmitListEntry>& m) { mSubmitListEntries = m; }
+
 void Loadable::setAddressListEntries(const std::vector<ILoadable::AddressListEntry>& e) { mAddressListEntries = e; }
+
 void Loadable::setTensorDescListEntries(const std::vector<ILoadable::TensorDescListEntry>& e)
 {
   mTensorDescListEntries = e;
 }
+
 void Loadable::setRelocEntries(const std::vector<ILoadable::RelocEntry>& e) { mRelocEntries = e; }
 
 int Loadable::setSymbolContent(std::string name, const ILoadable::Blob& b, NvU8* data)
 {
-  if (debugSymbolContent()) {
-    // gLogInfo <<  "set symbol content name=" << name << " size=" << b.size << endl;
-  }
-
   mSymbols[name].name         = b.name;
   mSymbols[name].interface    = b.interface;
   mSymbols[name].subInterface = b.subInterface;
@@ -363,8 +367,6 @@ Loadable::~Loadable()
 
 bool Loadable::serialize()
 {
-  // TODO: Check if already serialized.
-
   std::vector<flatbuffers::Offset<nvdla::loadable::SubmitListEntry>>     submit_list;
   std::vector<flatbuffers::Offset<nvdla::loadable::TaskListEntry>>       task_list;
   std::vector<flatbuffers::Offset<nvdla::loadable::MemoryListEntry>>     memory_list;

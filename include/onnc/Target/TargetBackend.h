@@ -15,6 +15,8 @@
 #include <onnc/Support/Path.h>
 #include <onnc/Runtime/Interpreter.h>
 
+#include <memory>
+
 namespace onnc {
 
 class TargetOptions;

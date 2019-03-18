@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include "NvDlaMeta.h"
 
+#include <onnc/Diagnostic/MsgHandling.h>
+
 #include <algorithm>
 #include <cstring>
 #include <iterator>
@@ -22,26 +24,17 @@ constexpr std::size_t size(const T (&)[N]) noexcept
 {
   return N;
 }
-
-template <typename T>
-void clear_bytes(T& object)
-{
-  static_assert(std::is_trivial<T>::value);
-  std::memset(std::addressof(object), 0, sizeof(object));
-}
 } // namespace detail
 } // namespace onnc
 
 //===----------------------------------------------------------------------===//
 // NvDlaDlaOperation
 //===----------------------------------------------------------------------===//
-NvDlaDlaOperation::NvDlaDlaOperation()
+NvDlaDlaOperation::NvDlaDlaOperation() noexcept
+  : op_dep{}
+  , op_desc{}
+  , op_surf{}
 {
-  // XXX: C++ is zero-initialized, so we need no memset(0).
-  // TODO: use initialized member list.
-  memset(&op_dep, 0, sizeof(op_dep));
-  memset(&op_desc, 0, sizeof(op_desc));
-  memset(&op_surf, 0, sizeof(op_surf));
   for (int i = 0; i < DLA_OP_NUM; i++) {
     op_dep.consumers[i].index = -1;
     op_dep.consumers[i].event = 1;
@@ -53,38 +46,35 @@ NvDlaDlaOperation::NvDlaDlaOperation()
 //===----------------------------------------------------------------------===//
 // NvDlaEmuOperation
 //===----------------------------------------------------------------------===//
-NvDlaEmuOperation::NvDlaEmuOperation()
-{
-  // TODO: use initialized member list.
-  memset(&op_desc, 0, sizeof(op_desc));
-  memset(&op_buf, 0, sizeof(op_buf));
-}
+NvDlaEmuOperation::NvDlaEmuOperation() noexcept
+  : op_desc{}
+  , op_buf{}
+{}
 
 //===----------------------------------------------------------------------===//
 // NvDlaBackendMeta
 //===----------------------------------------------------------------------===//
 NvDlaBackendMeta::NvDlaBackendMeta()
-  : m_NumLUTs(0)
-  , m_NumBlobs(0)
-  , m_pPrevOp(nullptr)
+  : m_DlaNetworkDesc{}
+  , m_NumLUTs{0}
+  , m_pPrevOp{nullptr}
+  , m_EmuNetworkDesc{}
+  , m_NumBlobs{0}
+  , m_Loadable{priv::LoadableFactory::newLoadable()}
 {
   using namespace detail;
   using std::begin;
   using std::end;
 
-  m_Loadable = priv::LoadableFactory::newLoadable();
-
   std::fill(begin(m_pDepOp), end(m_pDepOp), nullptr);
 
-  clear_bytes(m_DlaNetworkDesc);
   for (std::size_t idx = 0; idx < size(m_DlaNetworkDesc.op_head); ++idx) {
     m_DlaNetworkDesc.op_head[idx] = -1;
   }
-  clear_bytes(m_EmuNetworkDesc);
 
   {
     struct dla_lut_param* default_lut_param = new dla_lut_param();
-    memset(default_lut_param, 0, sizeof(struct dla_lut_param));
+    std::memset(default_lut_param, 0, sizeof(*default_lut_param));
     default_lut_param->linear_only_offset.frac_bits = -128;
     default_lut_param->linear_only_start            = 1;
     default_lut_param->linear_only_end              = 1;
@@ -133,16 +123,7 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
     delete lut;
   }
 
-  m_MemoryListEntries.clear();
-  m_TaskListEntries.clear();
-  m_SubmitListEntries.clear();
-  m_EventListEntries.clear();
-  m_AddressListEntries.clear();
-  m_TensorDescListEntries.clear();
-  m_RelocEntries.clear();
-  m_NumBlobs = 0;
-
-  // TODO: clear m_DLAOperationList;
+  priv::LoadableFactory::deleteLoadable(m_Loadable.i());
 }
 
 #define UNIT_ALIGNMENT(x, unit) (((x) + ((unit)-1)) & ~((unit)-1))
@@ -165,7 +146,25 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
     stride_line    = dim_w * FEATURE_ATOM_CUBE_SIZE;
     stride_surface = dim_h * dim_w * FEATURE_ATOM_CUBE_SIZE;
     stride_plane   = 0;
+    // {
+    //   int atom_c    = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
+    //   int segment_c = UNIT_ALIGNMENT(dim_c, atom_c);
+    //   size          = dim_n * segment_c * dim_h * dim_w * ELEMENT_SIZE;
 
+    //   // copy how SystemC calculate entry per slice
+    //   int atom_per_channel = DIV_ROUNDUP((dim_c * ELEMENT_SIZE), FEATURE_ATOM_CUBE_SIZE);
+    //   int entry_per_slice  = (atom_per_channel / 4) * dim_w;
+    //   // Same check as in IP_TOT/tools/cc_sanity_checker.pl (line350~357)
+    //   if ((atom_per_channel % 4) == 3)
+    //     entry_per_slice += dim_w;
+    //   else if ((atom_per_channel % 4) == 2)
+    //     entry_per_slice += (dim_w + 1) / 2;
+    //   else if ((atom_per_channel % 4) == 1)
+    //     entry_per_slice += (dim_w + 3) / 4;
+
+    //   eps = entry_per_slice;
+    //   NVDLA_DBG("Cube_Info %d %d/%d %d %d %d %d\n", dim_n, dim_c, segment_c, dim_h, dim_w, ELEMENT_SIZE, eps);
+    // }
     {
       int atom_c    = FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE;
       int segment_c = UNIT_ALIGNMENT(dim_c, atom_c);
@@ -178,8 +177,6 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
     }
     banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
     break;
-
-#if HAS_IMAGE_MODE
   case NVDLA_CUBE_IMAGE:
     // ITRI advice:
     // -- image mode needs 4-channel input;
@@ -208,8 +205,6 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
     }
     banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
     break;
-#endif // HAS_IMAGE_MODE
-
   case NVDLA_CUBE_WEIGHT:
     size = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE); // FIXME: why not need padding?
     eps  = 0;
@@ -232,6 +227,8 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
       reduced = true; // FIXME: Not clear what `reduce` means?
     }
     break;
+  default:
+    unreachable(nvdla_unsupported_mode) << mode;
   } // end of switch
 }
 
@@ -241,17 +238,17 @@ int NvDlaCubeInfo::getReducedBanks() const
   case NVDLA_CUBE_FEATURE:
     return banks;
   case NVDLA_CUBE_WEIGHT: {
-    int rbanks =
-      (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
-      (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+    int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+                 (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced) {
       rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     }
     return rbanks;
   }
-  }         // end of switch
-  return 0; //< is the default value correct?
+  default:
+    unreachable(nvdla_unsupported_mode) << mode;
+  } // end of switch
 }
 
 void NvDlaCubeInfo::reduceBanks()
@@ -267,6 +264,8 @@ void NvDlaCubeInfo::reduceBanks()
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     }
     break;
+  default:
+    unreachable(nvdla_unsupported_mode) << mode;
   } // end of switch
   reduced = true;
 }

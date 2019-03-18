@@ -38,6 +38,8 @@
 #include <skypat/skypat.h>
 #include "../../lib/Target/X86/X86RemoveWeightFromLiveIntervals.h"
 
+#include <memory>
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//

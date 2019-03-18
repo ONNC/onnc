@@ -13,10 +13,7 @@
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-
 class TargetBackend;
-
-// XXX: Experimental
 
 /** \class InterpreterPass
  *  \brief Run interpreter.

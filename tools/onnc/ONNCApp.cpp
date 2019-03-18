@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ONNCApp.h"
-#include <cstdlib>
+
 #include <onnc/Target/TargetSelect.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetBackend.h>
@@ -17,6 +17,10 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
+
+#include <cstdlib>
+
+#include <memory>
 #include <string>
 
 using namespace onnc;
@@ -57,7 +61,7 @@ int ONNCApp::compile()
   }
 
   PassManager pm;
-  TargetBackend* backend = target->createBackend(options().target());
+  const auto backend = std::unique_ptr<TargetBackend>(target->createBackend(options().target()));
   backend->addTensorSel(pm);
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
