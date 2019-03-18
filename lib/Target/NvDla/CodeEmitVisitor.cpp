@@ -2713,8 +2713,8 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   relu_op->op_dep.op_type    = DLA_OP_SDP;
 
   struct dla_sdp_op_desc* op_desc     = (struct dla_sdp_op_desc*)(&(relu_op->op_desc));
-  op_desc->src_precision              = PRECISION_FP16;
-  op_desc->dst_precision              = PRECISION_FP16;
+  op_desc->src_precision              = DLA_PRECISION;
+  op_desc->dst_precision              = DLA_PRECISION;
   op_desc->lut_index                  = -1;
   op_desc->conv_mode                  = 0;
   op_desc->out_cvt.scale              = 1;
@@ -2731,7 +2731,7 @@ void CodeEmitVisitor::visit(const Sum& pSum)
   op_desc->x1_op.act                  = ACTIVATION_NONE;
   op_desc->x1_op.shift_value          = 0;
   op_desc->x1_op.truncate             = 0;
-  op_desc->x1_op.precision            = PRECISION_FP16;
+  op_desc->x1_op.precision            = DLA_PRECISION;
   op_desc->x1_op.alu_operand          = 0;
   op_desc->x1_op.mul_operand          = 1;
   op_desc->x1_op.cvt.alu_cvt.scale    = 0;
