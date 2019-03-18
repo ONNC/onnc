@@ -131,9 +131,7 @@ $ cd /onnc/onnc-umbrella/build-normal/
 $ ./tools/onnc/onnc /models/bvlc_alexnet/model.onnx -mquadruple foo
 ```
 
-Option `-mquadruple foo`[^quadruple] is for invoking the new backend Foo. Use all lowercase letters as the backend name in this option. 
-
-[^quadruple]: `Quadruple` in ONNC is a string used for encapsulating backend information. The string can contain rich target information such as version, vendor, operating system, toolchain, and etc. A funny example is `-mquadruple foo-apple-darwin-gnu-ar-0.9.3-onnc-ca7`. Here we set our quadruple string to contain only one information: a special name `foo` to represent the target backend. This is also the minimum requirement of such a string.
+Option `-mquadruple foo`<sup id="quadruple-1">[1](#quadruple)</sup> is for invoking the new backend Foo. Use all lowercase letters as the backend name in this option. 
 
 The following console output shows the execution result of the new backend. It prints information of the operators in the AlexNet model. 
 
@@ -230,3 +228,8 @@ ONNC provides a couple of basic optimization passes by default. They are listed 
 
 ### 4.4. Rebuilding ONNC 
 After all modification is done in the new backend, remember to rebuild ONNC by following the steps in Section 2.4. 
+
+
+----
+
+<b id="quadruple">[1]</b>: `Quadruple` in ONNC is a string used for encapsulating backend information. The string can contain rich target information such as version, vendor, operating system, toolchain, and etc. A funny example is `-mquadruple foo-apple-darwin-gnu-ar-0.9.3-onnc-ca7`. Here we set our quadruple string to contain only one information: a special name `foo` to represent the target backend. This is also the minimum requirement of such a string. [↩](#quadruple-1)
