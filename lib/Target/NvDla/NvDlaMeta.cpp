@@ -54,8 +54,9 @@ NvDlaEmuOperation::NvDlaEmuOperation() noexcept
 //===----------------------------------------------------------------------===//
 // NvDlaBackendMeta
 //===----------------------------------------------------------------------===//
-NvDlaBackendMeta::NvDlaBackendMeta()
-  : m_DlaNetworkDesc{}
+NvDlaBackendMeta::NvDlaBackendMeta(const NvDlaConstants& constants)
+  : NvDlaConstants{constants}
+  , m_DlaNetworkDesc{}
   , m_NumLUTs{0}
   , m_pPrevOp{nullptr}
   , m_EmuNetworkDesc{}
@@ -132,8 +133,9 @@ NvDlaBackendMeta::~NvDlaBackendMeta()
 //===----------------------------------------------------------------------===//
 // NvDlaCubeInfo
 //===----------------------------------------------------------------------===//
-NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
-  : mode(m)
+NvDlaCubeInfo::NvDlaCubeInfo(const NvDlaConstants& constants, nvdla_cube_type m, int n, int c, int h, int w)
+  : NvDlaConstants{constants}
+  , mode(m)
   , dim_n(n)
   , dim_c(c)
   , dim_h(h)
@@ -167,21 +169,54 @@ NvDlaCubeInfo::NvDlaCubeInfo(nvdla_cube_type m, int n, int c, int h, int w)
     }
     banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
     break;
+  case NVDLA_CUBE_IMAGE:
+    // ITRI advice:
+    // -- image mode needs 4-channel input;
+    // -- with 3-channel RGB image, create a 4th channel whose data & weight are all zero.
+    // FIXME: for now, pretend it's 4-channel, reardless of whether it's the first model layer.
+    if (dim_c == 3) {
+      dim_c = 4;
+    }
+    stride_channel = ELEMENT_SIZE;
+    stride_line =
+      (dim_w * dim_c * ELEMENT_SIZE + (FEATURE_ATOM_CUBE_SIZE - 1)) / FEATURE_ATOM_CUBE_SIZE * FEATURE_ATOM_CUBE_SIZE;
+    stride_surface = dim_h * stride_line;
+    stride_plane   = 0;
+
+    {
+      // int atom_c = FEATURE_ATOM_CUBE_SIZE/ELEMENT_SIZE;
+      // int fixed_c = (dim_c + (atom_c-1)) & ~(atom_c-1);
+      size = stride_surface; // dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE;
+      // NVDLA_DBG("%d %d/%d %d %d %d\n", dim_n, dim_c, fixed_c, dim_h, dim_w, ELEMENT_SIZE);
+    }
+    // FIXME: for now, use image mode if 3-channel, reardless of whether it's the first model layer.
+    if (dim_c == 3 || dim_c == 4) {
+      // sample direct mode: eps = dim_w(224) * dim_c_inflated(8) / CBUF_BANK_WIDTH(8) = 224
+      // sample image mode : eps = dim_w(224) * dim_c_actual(4)   / CBUF_BANK_WIDTH(8) = 112
+      eps = dim_w * dim_c / CBUF_BANK_WIDTH;
+    }
+    banks = DIV_ROUNDUP((eps * dim_h), CBUF_BANK_DEPTH);
+    break;
   case NVDLA_CUBE_WEIGHT:
-    size           = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE);
+    size           = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE); // FIXME: why not need padding?
     eps            = 0;
     stride_channel = ELEMENT_SIZE;
     stride_line    = dim_n * dim_w * WEIGHT_ATOM_CUBE_SIZE;
     stride_surface = dim_n * dim_h * dim_h * WEIGHT_ATOM_CUBE_SIZE;
-    banks = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE + WEIGHT_ATOM_CUBE_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+    // FIXME:                                                 V-- Why needs to multiply this?
+    banks = (dim_n * dim_c * dim_h * dim_w * ELEMENT_SIZE + WEIGHT_ATOM_CUBE_SIZE +
+             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
-    if (banks > CBUF_BANK_NUM) {
-      banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
-              (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
-      if (banks > CBUF_BANK_NUM)
+    // Must  at least one bank for data.
+    if (banks > (CBUF_BANK_NUM - 1)) {
+      banks =
+        (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+        (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+      if (banks > (CBUF_BANK_NUM - 1)) {
         banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                 (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
-      reduced = true;
+      }
+      reduced = true; // FIXME: Not clear what `reduce` means?
     }
     break;
   default:
@@ -195,8 +230,9 @@ int NvDlaCubeInfo::getReducedBanks() const
   case NVDLA_CUBE_FEATURE:
     return banks;
   case NVDLA_CUBE_WEIGHT: {
-    int rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
-                 (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+    int rbanks =
+      (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
+      (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
     if (reduced) {
       rbanks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
                (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
@@ -216,9 +252,10 @@ void NvDlaCubeInfo::reduceBanks()
   case NVDLA_CUBE_WEIGHT:
     banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE * 2 + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
             (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
-    if (reduced)
+    if (reduced) {
       banks = (MAC_ATOMIC_K * dim_c * dim_h * dim_w * ELEMENT_SIZE + (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE - 1)) /
               (CBUF_BANK_DEPTH * WEIGHT_ATOM_CUBE_SIZE);
+    }
     break;
   default:
     unreachable(nvdla_unsupported_mode) << mode;

@@ -9,6 +9,9 @@
 
 #include "CodeEmitVisitor.h"
 #include "NvDlaFileGenPass.h"
+#include "NvDlaFuseConvReluPass.h"
+#include "NvDlaFuseGemmReluPass.h"
+#include "NvDlaLayerFusionPass.h"
 #include "NvDlaMemInfoPass.h"
 #include "NvDlaTaskSubmitPass.h"
 #include "TargetInfo/NvDlaTargetInfo.h"
@@ -63,8 +66,9 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend{pOptions}
-  , m_pMeta{}
-  , m_CodeEmitVisitor{m_pMeta}
+  , NvDlaConstants{pOptions.getNvDlaConfigSet(), pOptions.getNvDlaExecutionMode(), pOptions.shouldEnableLayerFusion()}
+  , m_pMeta{*this}
+  , m_CodeEmitVisitor{*this, m_pMeta}
 {
   m_pMemInfo = std::make_unique<NvDlaTargetMemInfo>();
 }
@@ -82,6 +86,14 @@ void NvDlaBackend::addTensorSel(PassManager& pPM)
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
+  // FIXME: It does not work if using two passes to do two kinds of fusion. The second pass does not work correctly.
+  // Some layers got removed accidentially. If the second pass works alone without the first pass, the second pass works
+  // well.
+  // pPM.add<NvDlaFuseConvReluPass>();
+  // pPM.add<NvDlaFuseGemmReluPass>();
+  if (HAS_LAYER_FUSION) {
+    pPM.add<NvDlaLayerFusionPass>();
+  }
 }
 
 void NvDlaBackend::addTensorSched(PassManager& pPM)
@@ -109,7 +121,7 @@ void NvDlaBackend::addMemAlloc(PassManager& pPM)
 
 void NvDlaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  pPM.add<NvDlaMemInfoPass>(&m_pMeta)
+  pPM.add<NvDlaMemInfoPass>(static_cast<const NvDlaConstants&>(*this), &m_pMeta)
     .add<CodeEmit>(m_CodeEmitVisitor)
     .add<NvDlaTaskSubmitPass>(&m_pMeta)
     .add<NvDlaFileGenPass>(&m_pMeta);
@@ -148,5 +160,5 @@ TargetBackend* CreateNvDlaBackend(const TargetOptions& pOptions) { return new Nv
 
 extern "C" void InitializeNvDlaONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getFp16NvDlaTarget(), CreateNvDlaBackend);
+  onnc::TargetRegistry::RegisterTargetBackend(getTheNvDlaTarget(), CreateNvDlaBackend);
 }

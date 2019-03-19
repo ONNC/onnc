@@ -5,8 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_CORE_TARGET_OPTIONS_H
-#define ONNC_CORE_TARGET_OPTIONS_H
+#ifndef ONNC_TARGET_TARGET_OPTIONS_H
+#define ONNC_TARGET_TARGET_OPTIONS_H
 
 #include <string>
 
@@ -18,13 +18,21 @@ namespace onnc {
 class TargetOptions
 {
 public:
-  TargetOptions();
+  enum class NvDlaConfigSet : unsigned {
+    nv_small,
+    nv_full,
+  };
 
-  TargetOptions(const TargetOptions& pCopy);
+  enum class NvDlaExecutionMode : unsigned {
+    direct,
+    image,
+  };
 
-  TargetOptions& operator=(const TargetOptions& pCopy);
+public:
+  TargetOptions() = default;
+  TargetOptions(const TargetOptions& pCopy) = default;
 
-  ~TargetOptions() { }
+  TargetOptions& operator=(const TargetOptions& pCopy) = default;
 
   /// The property holds whether printing module before tensor selection
   bool shouldPrintBeforeTensorSel() const { return m_PrintModuleBeforeSel; }
@@ -56,14 +64,35 @@ public:
 
   void optOnnxModel(std::string pFileName) { m_OptOnnxModel = pFileName; }
 
+  /// TODO: move to NvDlaBackend related files
+  NvDlaConfigSet getNvDlaConfigSet() const noexcept { return m_NvDlaConfigSet; }
+
+  /// TODO: move to NvDlaBackend related files
+  void setNvDlaConfigSet(NvDlaConfigSet pConfigSet) noexcept { m_NvDlaConfigSet = pConfigSet; }
+
+  /// TODO: move to NvDlaBackend related files
+  NvDlaExecutionMode getNvDlaExecutionMode() const noexcept { return m_NvDlaExecutionMode; }
+
+  /// TODO: move to NvDlaBackend related files
+  void setNvDlaExecutionMode(NvDlaExecutionMode pExecutionMode) { m_NvDlaExecutionMode = pExecutionMode; }
+
+  /// TODO: move to NvDlaBackend related files
+  bool shouldEnableLayerFusion() const noexcept { return m_EnableLayerFusion; }
+
+  /// TODO: move to NvDlaBackend related files
+  void enableLayerFusion(bool pEnable = true) noexcept { m_EnableLayerFusion = pEnable; }
 
 private:
-  bool m_PrintModuleBeforeSel;
-  bool m_IgnoreCalibrationStep;
-  bool m_AddDummyCTable;
-  bool m_AddDummyWeight;
-
+  bool m_PrintModuleBeforeSel = false;
+  bool m_IgnoreCalibrationStep = false;
+  bool m_AddDummyCTable = false;
+  bool m_AddDummyWeight = false;
   std::string m_OptOnnxModel;
+
+  /// TODO: move to NvDlaBackend related files
+  NvDlaConfigSet m_NvDlaConfigSet = NvDlaConfigSet::nv_full;
+  NvDlaExecutionMode m_NvDlaExecutionMode = NvDlaExecutionMode::direct;
+  bool m_EnableLayerFusion = false;
 };
 
 } // namespace onnc

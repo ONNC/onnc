@@ -7,18 +7,20 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_NVDLA_BACKEND_H
 #define TARGET_NVDLA_BACKEND_H
+
 #include "CodeEmitVisitor.h"
 #include "NvDlaMeta.h"
 
 #include <onnc/Target/TargetBackend.h>
+#include <onnc/Target/TargetOptions.h>
 
 #include <string>
 
 namespace onnc {
-class NvDlaBackend : public TargetBackend
+class NvDlaBackend : public TargetBackend, private NvDlaConstants
 {
 public:
-  NvDlaBackend(const TargetOptions& pOptions);
+  explicit NvDlaBackend(const TargetOptions& pOptions);
 
   virtual ~NvDlaBackend() = default;
 

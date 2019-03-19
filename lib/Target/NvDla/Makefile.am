@@ -8,7 +8,14 @@ ONNC_TARGET_SOURCES += \
   Target/NvDla/NvDlaTaskSubmitPass.cpp \
   Target/NvDla/fp16.c \
   Target/NvDla/TargetInfo/NvDlaTargetInfo.cpp \
-  Target/NvDla/TargetInfo/NvDlaTargetMemInfo.cpp
+  Target/NvDla/TargetInfo/NvDlaTargetMemInfo.cpp \
+  Target/NvDla/Compute/NvDlaConvRelu.cpp \
+  Target/NvDla/Compute/NvDlaGemmRelu.cpp \
+  Target/NvDla/Compute/NvDlaConvReluMaxPool.cpp \
+  Target/NvDla/Compute/NvDlaMaxPool.cpp \
+  Target/NvDla/NvDlaFuseConvReluPass.cpp \
+  Target/NvDla/NvDlaFuseGemmReluPass.cpp \
+  Target/NvDla/NvDlaLayerFusionPass.cpp
 
 ONNC_INCLUDES += \
   -I${srcdir}/Target/NvDla/include

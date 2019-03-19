@@ -60,9 +60,27 @@ OptQuiet("quiet", cl::kLong, cl::kOptional, cl::kValueDisallowed,
 
 static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort, cl::kOptional,
     cl::kValueRequired, cl::desc("target quadruple"), cl::about(g_About));
-    
+
 static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
     cl::kValueRequired, cl::desc("target architecture"), cl::about(g_About));
+
+static cl::opt<bool>
+OptNvSmall("nv_small", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Compile With nv_small Config Set (NVDLA Backend)"),
+    cl::about(g_About));
+
+static cl::opt<bool>
+OptNvImage("nv_image", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Compile As Image Execution Mode Loadable (NVDLA Backend)"),
+    cl::about(g_About));
+
+static cl::opt<bool>
+OptNvLayerFusion("nv_layer_fusion", cl::kLong, cl::kOptional, cl::kValueDisallowed,
+    cl::init(false),
+    cl::desc("Enable Layer Fusion During Compiling (NVDLA Backend)"),
+    cl::about(g_About));
 
 //===----------------------------------------------------------------------===//
 // Main Procedure
@@ -117,6 +135,17 @@ int main(int pArgc, char* pArgv[])
 
     if (OptMArch.hasOccurrence())
       onnc.options().setArchName(OptMArch);
+  }
+
+  // handle target options (used by NVDLA Backend for now)
+  if (OptNvSmall.hasOccurrence()) {
+    onnc.options().target().setNvDlaConfigSet(TargetOptions::NvDlaConfigSet::nv_small);
+  }
+  if (OptNvImage.hasOccurrence()) {
+    onnc.options().target().setNvDlaExecutionMode(TargetOptions::NvDlaExecutionMode::image);
+  }
+  if (OptNvLayerFusion.hasOccurrence()) {
+    onnc.options().target().enableLayerFusion();
   }
 
   return onnc.compile();
