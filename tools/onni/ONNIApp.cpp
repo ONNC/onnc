@@ -39,22 +39,22 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 namespace onnc {
 namespace internal {
-  class TensorReadProxy
+  class TensorReadResult
   {
   public:
-    TensorReadProxy() noexcept
+    TensorReadResult() noexcept
       : m_Success{false}
       , m_Data{}
       , m_Length{0}
     { }
 
-    TensorReadProxy(std::unique_ptr<char[]> pData, std::size_t pLength) noexcept
+    TensorReadResult(std::unique_ptr<char[]> pData, std::size_t pLength) noexcept
       : m_Success{true}
       , m_Data{std::move(pData)}
       , m_Length{pLength}
     { }
 
-    TensorReadProxy(TensorReadProxy&&) = default;
+    TensorReadResult(TensorReadResult&&) = default;
 
     operator bool() const noexcept { return m_Success; }
 
@@ -168,20 +168,20 @@ namespace internal {
     passManager.add<OnnxOptPass>(std::move(pass));
   }
 
-  TensorReadProxy readTensor(const Path& pFilePath)
+  TensorReadResult readTensor(const Path& pFilePath)
   {
     if (!exists(pFilePath)) {
       errs() << Color::MAGENTA << "Fatal" << Color::RESET
              << ": input file not found: " << pFilePath
              << std::endl;
-      return TensorReadProxy{};
+      return TensorReadResult{};
     }
 
     if (!is_regular(pFilePath)) {
       errs() << Color::MAGENTA << "Fatal" << Color::RESET
              << ": input file is not a regular file: " << pFilePath
              << std::endl;
-      return TensorReadProxy{};
+      return TensorReadResult{};
     }
 
     std::ifstream stream(pFilePath.native());
@@ -189,7 +189,7 @@ namespace internal {
       errs() << Color::MAGENTA << "Fatal" << Color::RESET
              << ": cannot open file file: " << pFilePath
              << std::endl;
-      return TensorReadProxy{};
+      return TensorReadResult{};
     }
 
     xTensorProto reader;
@@ -203,7 +203,7 @@ namespace internal {
     auto data = std::make_unique<char[]>(length);
     std::memcpy(data.get(), rawData.data(), length);
 
-    return TensorReadProxy{std::move(data), length};
+    return TensorReadResult{std::move(data), length};
   }
 } // namespace internal
 } // namespace onnc
