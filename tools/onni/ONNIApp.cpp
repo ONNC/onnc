@@ -37,7 +37,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 namespace onnc {
 namespace internal {
-  void enableOnnxOptmization(PassManager& passManager)
+  void enableOnnxOptimization(PassManager& passManager)
   {
     using Option = OnnxOptPass::Option;
 
@@ -90,7 +90,7 @@ int ONNIApp::run()
   PassManager pm;
 
   if (options().onnxOpt()) {
-    internal::enableOnnxOptmization(pm);
+    internal::enableOnnxOptimization(pm);
   }
 
   const auto backend = std::unique_ptr<TargetBackend>{target->createBackend(options().target())};
