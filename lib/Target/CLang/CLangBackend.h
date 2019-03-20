@@ -8,6 +8,7 @@
 #ifndef TARGET_CLANG_CLANG_BACKEND_H
 #define TARGET_CLANG_CLANG_BACKEND_H
 #include <string>
+#include "CodeEmitVisitor.h"
 #include <onnc/Target/TargetBackend.h>
 
 namespace onnc {
@@ -28,6 +29,9 @@ public:
   void addCodeEmit(PassManager& pPM, const Path& pOutput) override;
 
   void RegisterLowers(LowerRegistry& pRegistry) const override;
+
+private:
+  onnc::clang::CodeEmitVisitor m_CodeEmitVisitor;
 };
 
 }  // namespace onnc
