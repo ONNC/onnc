@@ -11,6 +11,7 @@
 #include "TargetInfo/CLangTargetInfo.h"
 #include "TargetInfo/CLangTargetMemInfo.h"
 #include "CodeEmitVisitor.h"
+#include "CLangMemInfoPass.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -153,7 +154,8 @@ using namespace onnc;
 // CLangBackend
 //===----------------------------------------------------------------------===//
 CLangBackend::CLangBackend(const TargetOptions& pOptions)
-  : TargetBackend(pOptions) { 
+  : TargetBackend(pOptions)
+{ 
   m_pMemInfo = std::make_unique<CLangTargetMemInfo>();
 }
 
@@ -196,7 +198,8 @@ void CLangBackend::addMemAlloc(PassManager& pPM)
 
 void CLangBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  pPM.add<CodeEmit>(m_CodeEmitVisitor);
+  pPM.add<CLangMemInfoPass>(&m_pMeta)
+     .add<CodeEmit>(m_CodeEmitVisitor);
 }
 
 void CLangBackend::RegisterLowers(LowerRegistry& pRegistry) const
