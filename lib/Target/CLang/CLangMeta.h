@@ -12,10 +12,9 @@
 #include <cstdint>
 #include <cstdio>
 
-#include <algorithm>
 #include <iomanip>
-#include <sstream>
-#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include <onnc/IR/Compute/Tensor.h>
 
@@ -32,8 +31,8 @@ struct CLangMemoryBlock
 
 struct CLangMeta
 {
-  using WeightMemoryBlocks = std::unordered_map<
-    const Tensor*, CLangMemoryBlock
+  using PackedWeightMemoryBlocks = std::vector<
+    std::pair<const Tensor*, CLangMemoryBlock>
   >;
   using PackedInternalMemoryBlocks = std::vector<
     std::pair<const Tensor*, CLangMemoryBlock>
@@ -47,7 +46,7 @@ struct CLangMeta
   CLangMeta& operator=(const CLangMeta&) = delete;
   CLangMeta& operator=(CLangMeta&&) = delete;
 
-  WeightMemoryBlocks         weightMemoryBlocks;
+  PackedWeightMemoryBlocks   packedWeightMemoryBlocks;
   PackedInternalMemoryBlocks packedInternalMemoryBlocks;
 };
 

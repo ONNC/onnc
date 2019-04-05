@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -13,29 +12,6 @@ namespace onnc {
 CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& module)
 {
   // pack weight memory blocks together (one is right after the other)
-  CLangMemoryBlock::size_type packedWeightMemorySize = 0;
-  std::vector<
-    std::pair<const Tensor*, CLangMemoryBlock>
-  > packedWeightMemoryBlocks;
-  for (const auto& entry : meta.weightMemoryBlocks) {
-    const auto* const tensor      = entry.first;
-    const auto&       memoryBlock = entry.second;
-    packedWeightMemoryBlocks.emplace_back(
-      tensor, CLangMemoryBlock{packedWeightMemorySize, memoryBlock.length}
-    );
-    packedWeightMemorySize += memoryBlock.length;
-  }
-
-  for (const auto& entry : packedWeightMemoryBlocks) {
-    const auto* const tensor      = entry.first;
-    const auto&       memoryBlock = entry.second;
-    outs() << "[Clang] (block) tensor = " << tensor
-           << ", offset = " << std::setw(9) << memoryBlock.offset
-           << ", length = " << std::setw(9) << memoryBlock.length
-           << std::endl;
-  }
-  outs() << "[Clang] weight memory: " << packedWeightMemorySize << std::endl;
-
   std::ofstream file(outputFile.native(), std::ios::binary);
   // 1. write tensor offset table into file (include tensor offsets)
   //    no implement yet
@@ -59,7 +35,7 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
     return static_cast<result_type>(nullptr);
   };
 
-  for (const auto& entry : packedWeightMemoryBlocks) {
+  for (const auto& entry : meta.packedWeightMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
 
