@@ -8,22 +8,37 @@
 #ifndef TARGET_CLANG_META_H
 #define TARGET_CLANG_META_H
 
-#include <onnc/IR/Compute/Tensor.h>
+#include <cassert>
+#include <cstdint>
+#include <cstdio>
 
 #include <algorithm>
-#include <cassert>
-#include <cstdio>
 #include <iomanip>
 #include <sstream>
 #include <unordered_map>
 
+#include <onnc/IR/Compute/Tensor.h>
+
 namespace onnc {
 
-typedef std::unordered_map<Value *, void *> AddressTable;
-
-class CLangMeta
+struct CLangMemoryBlock
 {
-public:
+  using address_type = std::uint64_t;
+  using size_type    = std::uint64_t;
+
+  address_type offset;
+  size_type    length;
+};
+
+struct CLangMeta
+{
+  using WeightMemoryBlocks = std::unordered_map<
+    const Tensor*, CLangMemoryBlock
+  >;
+  using PackedInternalMemoryBlocks = std::vector<
+    std::pair<const Tensor*, CLangMemoryBlock>
+  >;
+
   CLangMeta() = default;
   CLangMeta(const CLangMeta&) = delete;
   CLangMeta(CLangMeta&&) = delete;
@@ -32,8 +47,8 @@ public:
   CLangMeta& operator=(const CLangMeta&) = delete;
   CLangMeta& operator=(CLangMeta&&) = delete;
 
-public:
-  AddressTable m_ATable;
+  WeightMemoryBlocks         weightMemoryBlocks;
+  PackedInternalMemoryBlocks packedInternalMemoryBlocks;
 };
 
 } // namespace onnc

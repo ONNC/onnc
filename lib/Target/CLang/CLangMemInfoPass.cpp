@@ -7,6 +7,9 @@
 //===----------------------------------------------------------------------===//
 #include "CLangMemInfoPass.h"
 
+#include <iostream>
+#include <unordered_map>
+
 #include <onnc/IR/Compute/Concat.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -17,42 +20,55 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
 
-#include <unordered_map>
 
 using namespace onnc;
 
 CLangMemInfoPass::CLangMemInfoPass(CLangMeta& pMeta) noexcept
-: m_pMeta(pMeta)
+  : m_pMeta(pMeta)
 {}
 
 Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
 {
-  std::unordered_map<Value *, int64_t> mem_start;
-  std::unordered_map<Value *, int64_t> mem_length;
-
-  uint64_t weight_memory_size = 0;
-  uint64_t internal_memory_size = 0;
+  std::unordered_map<
+    const Tensor*, CLangMemoryBlock
+  > internalMemoryBlocks;
   for (ComputeOperand *co : pModule.getComputeOperands()) {
     if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
-      Value *v = co->getValue();
       if (mem->isInput()) {
-        // m_pMeta->m_ATable[v] = m_pInputMem;
+        continue;
       } else if (mem->isWeight()) {
-        FloatTensor *t = static_cast<FloatTensor *>(v);
-        m_pMeta.m_ATable[v] = t->getValues().data();
-        weight_memory_size +=
-            t->getValues().size() * sizeof(FloatTensor::ValueList::value_type);
+        const auto* const tensor = static_cast<const Tensor*>(co->getValue());
+        m_pMeta.weightMemoryBlocks.emplace(
+          tensor, CLangMemoryBlock{mem->start(), mem->length()}
+        );
       } else {
-        mem_start[co->getValue()] = mem->start();
-        mem_length[co->getValue()] = mem->length();
-        internal_memory_size =
-            std::max(internal_memory_size,
-                     static_cast<uint64_t>(mem->start()) + mem->length());
+        const auto* const tensor = static_cast<const Tensor*>(co->getValue());
+        internalMemoryBlocks.emplace(
+          tensor, CLangMemoryBlock{mem->start(), mem->length()}
+        );
       }
     }
   }
-  outs() << "[Clang] weight memory: " << weight_memory_size << std::endl;
-  outs() << "[Clang] internal memory: " << internal_memory_size << std::endl;
+
+  CLangMemoryBlock::size_type packedInternalMemorySize = 0;
+  for (const auto& entry : internalMemoryBlocks) {
+    const auto* const tensor      = entry.first;
+    const auto&       memoryBlock = entry.second;
+    m_pMeta.packedInternalMemoryBlocks.emplace_back(
+      tensor, CLangMemoryBlock{packedInternalMemorySize, memoryBlock.length}
+    );
+    packedInternalMemorySize += memoryBlock.length;
+  }
+
+  for (const auto& entry : m_pMeta.packedInternalMemoryBlocks) {
+    const auto* const tensor      = entry.first;
+    const auto&       memoryBlock = entry.second;
+    outs() << "(internal) address = " << tensor
+           << ", offset = " << memoryBlock.offset
+           << ", length = " << memoryBlock.length
+           << std::endl;
+  }
+  outs() << "[Clang] internal memory: " << packedInternalMemorySize << std::endl;
 
   return Pass::kModuleNoChanged;
 }
