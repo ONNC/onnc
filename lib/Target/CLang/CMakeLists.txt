@@ -1,8 +1,8 @@
-
 add_libonnc_src(
     CLangBackend.cpp
     CLangGenServiceLibraryPass.cpp
     CLangGenWeightFilePass.cpp
+    CLangGetOperatorListPass.cpp
     CLangMemInfoPass.cpp
     CLangMeta.cpp
     CodeEmitVisitor.cpp

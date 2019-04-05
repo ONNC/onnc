@@ -145,6 +145,7 @@
 #include "CLangBackend.h"
 #include "CLangGenWeightFilePass.h"
 #include "CLangGenServiceLibraryPass.h"
+#include "CLangGetOperatorListPass.h"
 #include "CLangMemInfoPass.h"
 #include "CodeEmitVisitor.h"
 #include "TargetInfo/CLangTargetInfo.h"
@@ -204,6 +205,7 @@ void CLangBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
     pOutput.stem().native() + m_pMeta.weight_extension
   );
   pPM.add<CLangMemInfoPass>(m_pMeta)
+     .add<CLangGetOperatorListPass>(m_pMeta)
      .add<CLangGenWeightFilePass>(m_pMeta, std::move(weightFile))
      .add<CLangGenServiceLibraryPass>(m_pMeta, pOutput)
      // .add<CodeEmit>(m_CodeEmitVisitor);
