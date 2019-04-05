@@ -17,12 +17,12 @@ class TargetBackend;
 class CLangMemInfoPass : public CustomPass<CLangMemInfoPass>
 {
 public:
-  CLangMemInfoPass(CLangMeta* pMeta) noexcept;
+  CLangMemInfoPass(CLangMeta& pMeta) noexcept;
 
   ReturnType runOnModule(Module& pModule) override;
 
 private:
-  CLangMeta* m_pMeta;
+  CLangMeta& m_pMeta;
 };
 
 } // namespace onnc

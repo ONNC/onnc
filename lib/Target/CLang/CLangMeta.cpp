@@ -17,10 +17,3 @@
 
 using namespace onnc;
 
-CLangMeta::CLangMeta()
-{
-}
-
-CLangMeta::~CLangMeta()
-{
-}

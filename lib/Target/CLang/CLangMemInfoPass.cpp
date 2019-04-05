@@ -21,7 +21,7 @@
 
 using namespace onnc;
 
-CLangMemInfoPass::CLangMemInfoPass(CLangMeta* pMeta) noexcept
+CLangMemInfoPass::CLangMemInfoPass(CLangMeta& pMeta) noexcept
 : m_pMeta(pMeta)
 {}
 
@@ -39,7 +39,7 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
         // m_pMeta->m_ATable[v] = m_pInputMem;
       } else if (mem->isWeight()) {
         FloatTensor *t = static_cast<FloatTensor *>(v);
-        m_pMeta->m_ATable[v] = t->getValues().data();
+        m_pMeta.m_ATable[v] = t->getValues().data();
         weight_memory_size +=
             t->getValues().size() * sizeof(FloatTensor::ValueList::value_type);
       } else {

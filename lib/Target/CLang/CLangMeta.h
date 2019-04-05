@@ -24,14 +24,17 @@ typedef std::unordered_map<Value *, void *> AddressTable;
 class CLangMeta
 {
 public:
-  CLangMeta();
+  CLangMeta() = default;
+  CLangMeta(const CLangMeta&) = delete;
+  CLangMeta(CLangMeta&&) = delete;
+  ~CLangMeta() = default;
 
-  ~CLangMeta();
+  CLangMeta& operator=(const CLangMeta&) = delete;
+  CLangMeta& operator=(CLangMeta&&) = delete;
 
 public:
   AddressTable m_ATable;
 };
-
 
 } // namespace onnc
 

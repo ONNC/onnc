@@ -7,12 +7,6 @@
 //===----------------------------------------------------------------------===//
 #include <memory>
 
-#include "CLangBackend.h"
-#include "TargetInfo/CLangTargetInfo.h"
-#include "TargetInfo/CLangTargetMemInfo.h"
-#include "CodeEmitVisitor.h"
-#include "CLangMemInfoPass.h"
-
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
@@ -148,6 +142,14 @@
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
 
+#include "CLangBackend.h"
+#include "CLangGenWeightFilePass.h"
+#include "CLangGenServiceLibraryPass.h"
+#include "CLangMemInfoPass.h"
+#include "CodeEmitVisitor.h"
+#include "TargetInfo/CLangTargetInfo.h"
+#include "TargetInfo/CLangTargetMemInfo.h"
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
@@ -198,8 +200,14 @@ void CLangBackend::addMemAlloc(PassManager& pPM)
 
 void CLangBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  pPM.add<CLangMemInfoPass>(&m_pMeta)
-     .add<CodeEmit>(m_CodeEmitVisitor);
+  Path weightFile = pOutput.parent().append(
+    pOutput.stem().native() + ".weight"
+  );
+  pPM.add<CLangMemInfoPass>(m_pMeta)
+     .add<CLangGenWeightFilePass>(m_pMeta, std::move(weightFile))
+     .add<CLangGenServiceLibraryPass>(m_pMeta, pOutput)
+     // .add<CodeEmit>(m_CodeEmitVisitor);
+     ;
 }
 
 void CLangBackend::RegisterLowers(LowerRegistry& pRegistry) const
