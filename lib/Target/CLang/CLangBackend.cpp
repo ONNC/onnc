@@ -201,7 +201,7 @@ void CLangBackend::addMemAlloc(PassManager& pPM)
 void CLangBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   Path weightFile = pOutput.parent().append(
-    pOutput.stem().native() + ".weight"
+    pOutput.stem().native() + m_pMeta.weight_extension
   );
   pPM.add<CLangMemInfoPass>(m_pMeta)
      .add<CLangGenWeightFilePass>(m_pMeta, std::move(weightFile))

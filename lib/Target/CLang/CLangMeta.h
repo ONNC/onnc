@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <utility>
 #include <vector>
+#include <string>
 
 #include <onnc/IR/Compute/Tensor.h>
 
@@ -48,6 +49,9 @@ struct CLangMeta
 
   PackedWeightMemoryBlocks   packedWeightMemoryBlocks;
   PackedInternalMemoryBlocks packedInternalMemoryBlocks;
+
+  std::string weight_extension = ".weight";
+  std::string lib_extension = ".c";
 };
 
 } // namespace onnc

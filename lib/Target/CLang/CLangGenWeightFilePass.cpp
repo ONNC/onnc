@@ -13,9 +13,7 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
 {
   // pack weight memory blocks together (one is right after the other)
   std::ofstream file(outputFile.native(), std::ios::binary);
-  // 1. write tensor offset table into file (include tensor offsets)
-  //    no implement yet
-  // 2. write tensor data into file
+  
   static const auto getData = [](const Tensor& tensor) {
     using result_type = const std::ofstream::char_type*;
     switch (tensor.kind()) {
@@ -30,17 +28,40 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
         return reinterpret_cast<result_type>(int64Tensor.getValues().data());
       }
     default:
-      assert(false && "unsupport tensor type");
+      assert(false && "unsupported tensor type");
     }
     return static_cast<result_type>(nullptr);
   };
 
+  // 1. write tensor offset table into file (include tensor offsets)
+  const char *magic = meta.weight_extension.c_str();
+  file.write(reinterpret_cast<const char *>(&magic), sizeof(int8_t) * 8);
+  const int64_t tensor_num = meta.packedWeightMemoryBlocks.size();
+  file.write(reinterpret_cast<const char *>(&tensor_num), sizeof(int64_t));
+  
+  int64_t meta_offset = 
+    sizeof(magic) + 
+    sizeof(tensor_num) +
+    sizeof(int64_t) * 2 * tensor_num;
+
+  for (const auto& entry : meta.packedWeightMemoryBlocks) {
+    const int64_t offset = entry.second.offset + meta_offset;
+    const int64_t length = entry.second.length;
+
+    file.write(reinterpret_cast<const char *>(&offset), sizeof(int64_t));
+    file.write(reinterpret_cast<const char *>(&length), sizeof(int64_t));
+  }
+
+  // 2. write tensor data into file
   for (const auto& entry : meta.packedWeightMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
 
     file.write(getData(*tensor), memoryBlock.length);
   }
+
+  file.close();
+  outs() << "[Clang] created model weight file: " << outputFile.native() << std::endl;
 
   return kModuleNoChanged;
 }

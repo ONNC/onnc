@@ -19,7 +19,7 @@
 class ONNCConfig
 {
 public:
-  static constexpr const char* DefaultOutputName = "a.out";
+  static constexpr const char* DefaultOutputName = "./a.out";
 
   enum VerboseLevel : int {
     kQuiet = 0,

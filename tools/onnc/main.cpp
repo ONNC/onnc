@@ -126,14 +126,14 @@ int main(int pArgc, char* pArgv[])
            << ": set the output file at: "
            << Color::Bold(Color::GREEN) << OptOutput << Color::RESET
            << std::endl;
-    onnc.options().setOutput(OptOutput);
+    onnc.options().setOutput(Path(OptOutput));
   } else {
     errs() << Color::YELLOW << "Warning" << Color::RESET
            << ": Use the default path for the output file: "
            << Color::Bold(Color::GREEN)
            << ONNCConfig::DefaultOutputName
            << Color::RESET << std::endl;
-    onnc.options().setOutput(ONNCConfig::DefaultOutputName);
+    onnc.options().setOutput(Path(ONNCConfig::DefaultOutputName));
   }
 
   // Set quadruple. We shall check target instance at compilation time.
