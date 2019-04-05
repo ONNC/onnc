@@ -36,7 +36,6 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
   }
   outs() << "[Clang] weight memory: " << packedWeightMemorySize << std::endl;
 
-  std::cout << outputFile.native() << std::endl;
   std::ofstream file(outputFile.native(), std::ios::binary);
   // 1. write tensor offset table into file (include tensor offsets)
   //    no implement yet
