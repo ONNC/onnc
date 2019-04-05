@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -28,9 +29,9 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
   for (const auto& entry : packedWeightMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
-    outs() << "(wieght) address = " << tensor
-           << ", offset = " << memoryBlock.offset
-           << ", length = " << memoryBlock.length
+    outs() << "[Clang] (block) tensor = " << tensor
+           << ", offset = " << std::setw(9) << memoryBlock.offset
+           << ", length = " << std::setw(9) << memoryBlock.length
            << std::endl;
   }
   outs() << "[Clang] weight memory: " << packedWeightMemorySize << std::endl;

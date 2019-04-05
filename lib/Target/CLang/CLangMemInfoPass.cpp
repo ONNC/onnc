@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include "CLangMemInfoPass.h"
 
+#include <iomanip>
 #include <iostream>
 #include <unordered_map>
 
@@ -63,9 +64,9 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
   for (const auto& entry : m_pMeta.packedInternalMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
-    outs() << "(internal) address = " << tensor
-           << ", offset = " << memoryBlock.offset
-           << ", length = " << memoryBlock.length
+    outs() << "[Clang] (block) tensor = " << tensor
+           << ", offset = " << std::setw(9) << memoryBlock.offset
+           << ", length = " << std::setw(9) << memoryBlock.length
            << std::endl;
   }
   outs() << "[Clang] internal memory: " << packedInternalMemorySize << std::endl;
