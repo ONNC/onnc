@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 #include <onnc/IR/Compute/Tensor.h>
 
@@ -52,6 +53,8 @@ struct CLangMeta
 
   std::string weight_extension = ".weight";
   std::string lib_extension = ".c";
+
+  std::unordered_map<std::string, void*> operator_list;
 };
 
 } // namespace onnc
