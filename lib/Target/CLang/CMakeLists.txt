@@ -6,6 +6,7 @@ add_libonnc_src(
     CLangMemInfoPass.cpp
     CLangMeta.cpp
     CodeEmitVisitor.cpp
+    OperatorCodeGen.cpp
     TargetInfo/CLangTargetInfo.cpp
     TargetInfo/CLangTargetMemInfo.cpp
 )
