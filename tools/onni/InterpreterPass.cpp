@@ -24,7 +24,7 @@
 
 #define restrict __restrict__
 extern "C" {
-#include <onnc/Runtime/onnc-runtime.h>
+#include <onnc/Runtime/onni-runtime.h>
 }
 #undef restrict
 
