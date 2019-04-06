@@ -35,6 +35,10 @@ Target& onnc::getTheCLangTarget()
 
 
 extern "C" void InitializeCLangONNCPlatform() {
-  onnc::TargetRegistry::RegisterTarget(onnc::getTheCLangTarget(), "clang",
-                                       "CLang DLA", CLangMatchFn);
+  onnc::TargetRegistry::RegisterTarget(
+    onnc::getTheCLangTarget(),
+    "clang",
+    "C Runtime Service Library Generator",
+    CLangMatchFn
+  );
 }
