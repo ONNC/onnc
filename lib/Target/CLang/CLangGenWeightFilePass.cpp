@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <onnc/IR/Module.h>
+#include <onnc/Runtime/onnc-runtime.h>
 
 #include "CLangGenWeightFilePass.h"
 
@@ -34,23 +35,31 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
   };
 
   // 1. write tensor offset table into file (include tensor offsets)
-  const char *magic = meta.weight_extension.c_str();
-  file.write(reinterpret_cast<const char *>(&magic), sizeof(int8_t) * 8);
-  const int64_t tensor_num = meta.packedWeightMemoryBlocks.size();
-  file.write(reinterpret_cast<const char *>(&tensor_num), sizeof(int64_t));
-  
-  int64_t meta_offset = 
-    sizeof(magic) + 
-    sizeof(tensor_num) +
-    sizeof(int64_t) * 2 * tensor_num;
+  uint64_t tensor_num = meta.packedWeightMemoryBlocks.size();
+  int64_t table_size =
+    sizeof(ONNC_RUNTIME_tensor_offset_table) +
+    tensor_num * sizeof(ONNC_RUNTIME_tensor_offset);
+  uint8_t magic[8] = ONNC_RUNTIME_TENSOR_FILE_MAGIC;
 
-  for (const auto& entry : meta.packedWeightMemoryBlocks) {
-    const int64_t offset = entry.second.offset + meta_offset;
-    const int64_t length = entry.second.length;
+  auto* table = reinterpret_cast<ONNC_RUNTIME_tensor_offset_table*>(calloc(table_size, 1));
+  memcpy(table->magic, magic, sizeof(table->magic));
+  table->number_of_tensors = tensor_num;
 
-    file.write(reinterpret_cast<const char *>(&offset), sizeof(int64_t));
-    file.write(reinterpret_cast<const char *>(&length), sizeof(int64_t));
+  for (int i = 0; i < tensor_num; i++) {
+    const auto entry = &meta.packedWeightMemoryBlocks[i];
+    const uint64_t offset = entry->second.offset + table_size;
+    const uint64_t size = entry->second.length;
+
+    ONNC_RUNTIME_tensor_offset to = {
+      .offset = offset,
+      .size = size,
+    };
+    
+    table->tensor_offsets[i] = to;
   }
+
+  file.write(reinterpret_cast<const char *>(&table), table_size);
+  free(table);
 
   // 2. write tensor data into file
   for (const auto& entry : meta.packedWeightMemoryBlocks) {
@@ -60,7 +69,6 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
     file.write(getData(*tensor), memoryBlock.length);
   }
 
-  file.close();
   outs() << "[Clang] created model weight file: " << outputFile.native() << std::endl;
 
   return kModuleNoChanged;
