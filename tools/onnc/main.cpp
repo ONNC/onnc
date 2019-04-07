@@ -30,6 +30,11 @@ static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
     cl::desc("The output file"),
     cl::about(g_About));
 
+static cl::opt<std::string> OptResource("r", cl::kShort, cl::kOptional,
+    cl::kValueRequired,
+    cl::desc("The resource directory"),
+    cl::about(g_About));
+
 static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
     cl::kValueDisallowed, cl::init(false),
     cl::desc("Show this manual."),
@@ -134,6 +139,10 @@ int main(int pArgc, char* pArgv[])
            << ONNCConfig::DefaultOutputName
            << Color::RESET << std::endl;
     onnc.options().setOutput(Path(ONNCConfig::DefaultOutputName));
+  }
+
+  if (OptResource.hasOccurrence()) {
+    onnc.options().target().setResourceDirectory(Path{OptResource});
   }
 
   // Set quadruple. We shall check target instance at compilation time.

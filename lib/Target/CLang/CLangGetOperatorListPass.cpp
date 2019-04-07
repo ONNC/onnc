@@ -12,7 +12,7 @@ namespace onnc {
 CLangGetOperatorListPass::ReturnType CLangGetOperatorListPass::runOnModule(Module& module)
 {
   for (ComputeOperator& cm : *module.getRootComputeGraph()) {
-    if (isa<InputOperator>(&cm) || isa<Initializer>(&cm) || dyn_cast<Initializer>(&cm)) {
+    if (isa<InputOperator>(&cm) || isa<Initializer>(&cm) || isa<OutputOperator>(&cm)) {
       continue;
     }
 

@@ -1,7 +1,8 @@
 #include "CLangGenWeightFilePass.h"
 
-#include <onnc/IR/Module.h>
 #include <onnc-runtime.h>
+
+#include <onnc/IR/Module.h>
 
 #include <fstream>
 #include <iostream>

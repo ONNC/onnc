@@ -9,6 +9,9 @@
 #define ONNC_TARGET_TARGET_OPTIONS_H
 
 #include <string>
+#include <utility>
+
+#include <onnc/Support/Path.h>
 
 namespace onnc {
 
@@ -46,6 +49,12 @@ public:
 
   void ignoreCalibrationStep(bool pEnable = true) {
     m_IgnoreCalibrationStep = pEnable;
+  }
+
+  Path getResourceDirectory() const { return m_ResourceDirectory; }
+
+  void setResourceDirectory(Path newResourceDirectory) {
+    m_ResourceDirectory = std::move(newResourceDirectory);
   }
 
   /// This property holds whether adding dummy CTable
@@ -87,6 +96,7 @@ private:
   bool m_IgnoreCalibrationStep = false;
   bool m_AddDummyCTable = false;
   bool m_AddDummyWeight = false;
+  Path m_ResourceDirectory;
   std::string m_OptOnnxModel;
 
   /// TODO: move to NvDlaBackend related files

@@ -1,7 +1,9 @@
-#pragma once
+#ifndef ONNC_RUNTIME_H_INCLUDED
+#define ONNC_RUNTIME_H_INCLUDED
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 struct ONNC_RUNTIME_tensor_file {
   void* data; /* Implementation defined data */
@@ -13,7 +15,7 @@ struct ONNC_RUNTIME_tensor_offset {
 };
 
 #ifndef ONNC_RUNTIME_TENSOR_FILE_MAGIC
-  #define ONNC_RUNTIME_TENSOR_FILE_MAGIC ".TSR"
+# define ONNC_RUNTIME_TENSOR_FILE_MAGIC ".TSR"
 #endif 
     
 struct ONNC_RUNTIME_tensor_offset_table {
@@ -41,7 +43,6 @@ struct ONNC_RUNTIME_tensor_offset ONNC_RUNTIME_get_tensor_offset(
 const struct ONNC_RUNTIME_tensor_offset_table* ONNC_RUNTIME_read_tensor_offset_table(
   struct ONNC_RUNTIME_tensor_file* file
 );
-
 struct ONNC_RUNTIME_tensor_view ONNC_RUNTIME_read_tensor(
   struct ONNC_RUNTIME_tensor_file* file,
   uint64_t tensor
@@ -59,8 +60,9 @@ struct ONNC_RUNTIME_inference_context {
 };
 
 /**
- * ONNC generated entry point.
- * @param context The ONNC Runtime Context.
- */
-void model_main(void *context);
+  * ONNC generated entry point.
+  * @param context The ONNC Runtime Context.
+  */
+int model_main(const struct ONNC_RUNTIME_inference_context* context);
 
+#endif
