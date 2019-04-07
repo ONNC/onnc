@@ -1,19 +1,15 @@
-void ONNC_RUNTIME_reducemean_float(
-  void * restrict onnc_runtime_context
-  ,const float * restrict input_data
-  ,int32_t input_data_ndim, const int32_t * restrict input_data_dims
-  ,float * restrict output_reduced
-  ,int32_t output_reduced_ndim, const int32_t * restrict output_reduced_dims
-  ,int32_t * restrict axes
-  ,int32_t number_of_axes
-  ,int32_t keepdims
-) {
+void ONNC_RUNTIME_reducemean_float(void* restrict onnc_runtime_context, const float* restrict input_data,
+                                   int32_t input_data_ndim, const int32_t* restrict input_data_dims,
+                                   float* restrict output_reduced, int32_t output_reduced_ndim,
+                                   const int32_t* restrict output_reduced_dims, int32_t* restrict axes,
+                                   int32_t number_of_axes, int32_t keepdims)
+{
   /* initial axis */
   int32_t mask = 0;
 
   /* on bit means in parameter axes */
-  for(int32_t axis = 0 ; axis < number_of_axes ; axis++){
-      mask |= (1 << axes[axis]);
+  for (int32_t axis = 0; axis < number_of_axes; axis++) {
+    mask |= (1 << axes[axis]);
   }
 
   /* calculate axis_dis */
@@ -29,8 +25,8 @@ void ONNC_RUNTIME_reducemean_float(
   int32_t iter_in_axes_max[number_of_axes];
   int32_t in_axes_axis_dis[number_of_axes];
   int32_t in_axes_axis_index = 0;
-  for(int32_t axis = 0 ; axis < input_data_ndim; axis++){
-    if(mask & (1 << axis)){
+  for (int32_t axis = 0; axis < input_data_ndim; axis++) {
+    if (mask & (1 << axis)) {
       in_axes_axis_dis[in_axes_axis_index] = axis_dis[axis];
       iter_in_axes_max[in_axes_axis_index] = input_data_dims[axis];
       in_axes_axis_index += 1;
@@ -43,23 +39,24 @@ void ONNC_RUNTIME_reducemean_float(
 
   /* calculate mean's denominator */
   float mean_denominator = 1.f;
-  for(int32_t index = 0 ; index < number_of_axes ; index++) mean_denominator *= iter_in_axes_max[index];
+  for (int32_t index = 0; index < number_of_axes; index++)
+    mean_denominator *= iter_in_axes_max[index];
 
   /* traverse all axis other than parameter axes */
   int32_t insertIndex = 0;
   int32_t iter_not_in_axes[not_in_axes_num];
   memset(iter_not_in_axes, 0, sizeof(int32_t) * not_in_axes_num);
-  do{
+  do {
     int32_t iter_in_axes[number_of_axes];
     memset(iter_in_axes, 0, sizeof(int32_t) * number_of_axes);
     int32_t base_offset = dim_to_offset(not_in_axes_num, iter_not_in_axes, not_in_axes_axis_dis);
-    float sum = 0.f;
+    float   sum         = 0.f;
 
     /* traver all axes with fixed axis */
-    do{
+    do {
       int32_t offset = base_offset + dim_to_offset(number_of_axes, iter_in_axes, in_axes_axis_dis);
       sum += input_data[offset];
-    }while(next_dim(number_of_axes, iter_in_axes, iter_in_axes_max));
+    } while (next_dim(number_of_axes, iter_in_axes, iter_in_axes_max));
     output_reduced[insertIndex++] = sum / mean_denominator;
-  }while(next_dim(not_in_axes_num, iter_not_in_axes, iter_not_in_axes_max));
+  } while (next_dim(not_in_axes_num, iter_not_in_axes, iter_not_in_axes_max));
 }
