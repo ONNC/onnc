@@ -1,10 +1,10 @@
 #ifndef TARGET_CLANG_GEN_WEIGHT_FILE_PASS_H_INCLUDED
 #define TARGET_CLANG_GEN_WEIGHT_FILE_PASS_H_INCLUDED
 
+#include "CLangMeta.h"
+
 #include <onnc/Core/CustomPass.h>
 #include <onnc/Support/Path.h>
-
-#include "CLangMeta.h"
 
 namespace onnc {
 
@@ -18,10 +18,10 @@ public:
   {}
 
   CLangGenWeightFilePass(const CLangGenWeightFilePass&) = default;
-  CLangGenWeightFilePass(CLangGenWeightFilePass&&) = default;
+  CLangGenWeightFilePass(CLangGenWeightFilePass&&)      = default;
   CLangGenWeightFilePass& operator=(const CLangGenWeightFilePass&) = default;
   CLangGenWeightFilePass& operator=(CLangGenWeightFilePass&&) = default;
-  ~CLangGenWeightFilePass() = default;
+  ~CLangGenWeightFilePass()                                   = default;
 
   ReturnType runOnModule(Module& module) override;
 

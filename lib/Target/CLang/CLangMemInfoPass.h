@@ -9,6 +9,7 @@
 #define ONNC_CLANGMEMINFO_PASS_H
 
 #include "CLangMeta.h"
+
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {

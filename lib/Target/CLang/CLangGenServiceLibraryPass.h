@@ -1,10 +1,10 @@
 #ifndef TARGET_CLANG_GEN_SERVICE_LIBRARY_PASS_H_INCLUDED
 #define TARGET_CLANG_GEN_SERVICE_LIBRARY_PASS_H_INCLUDED
 
+#include "CLangMeta.h"
+
 #include <onnc/Core/CustomPass.h>
 #include <onnc/Support/Path.h>
-
-#include "CLangMeta.h"
 
 namespace onnc {
 
@@ -18,10 +18,10 @@ public:
   {}
 
   CLangGenServiceLibraryPass(const CLangGenServiceLibraryPass&) = delete;
-  CLangGenServiceLibraryPass(CLangGenServiceLibraryPass&&) = delete;
+  CLangGenServiceLibraryPass(CLangGenServiceLibraryPass&&)      = delete;
   CLangGenServiceLibraryPass& operator=(const CLangGenServiceLibraryPass&) = delete;
   CLangGenServiceLibraryPass& operator=(CLangGenServiceLibraryPass&&) = delete;
-  ~CLangGenServiceLibraryPass() = default;
+  ~CLangGenServiceLibraryPass()                                       = default;
 
   ReturnType runOnModule(Module& module) override;
 

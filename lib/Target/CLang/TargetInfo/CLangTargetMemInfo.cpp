@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "CLangTargetMemInfo.h"
+
 #include <onnc/IR/Compute/Tensor.h>
 
 using namespace onnc;

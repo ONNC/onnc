@@ -8,17 +8,16 @@
 #ifndef TARGET_CLANG_META_H
 #define TARGET_CLANG_META_H
 
+#include <onnc/IR/Compute/Tensor.h>
+
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
-
 #include <iomanip>
-#include <utility>
-#include <vector>
 #include <string>
 #include <unordered_map>
-
-#include <onnc/IR/Compute/Tensor.h>
+#include <utility>
+#include <vector>
 
 namespace onnc {
 
@@ -33,17 +32,13 @@ struct CLangMemoryBlock
 
 struct CLangMeta
 {
-  using PackedWeightMemoryBlocks = std::vector<
-    std::pair<const Tensor*, CLangMemoryBlock>
-  >;
-  using PackedInternalMemoryBlocks = std::vector<
-    std::pair<const Tensor*, CLangMemoryBlock>
-  >;
+  using PackedWeightMemoryBlocks   = std::vector<std::pair<const Tensor*, CLangMemoryBlock>>;
+  using PackedInternalMemoryBlocks = std::vector<std::pair<const Tensor*, CLangMemoryBlock>>;
 
-  CLangMeta() = default;
+  CLangMeta()                 = default;
   CLangMeta(const CLangMeta&) = delete;
-  CLangMeta(CLangMeta&&) = delete;
-  ~CLangMeta() = default;
+  CLangMeta(CLangMeta&&)      = delete;
+  ~CLangMeta()                = default;
 
   CLangMeta& operator=(const CLangMeta&) = delete;
   CLangMeta& operator=(CLangMeta&&) = delete;
@@ -52,7 +47,7 @@ struct CLangMeta
   PackedInternalMemoryBlocks packedInternalMemoryBlocks;
 
   std::string weight_extension = ".weight";
-  std::string lib_extension = ".c";
+  std::string lib_extension    = ".c";
 
   std::unordered_map<std::string, void*> operator_list;
 };

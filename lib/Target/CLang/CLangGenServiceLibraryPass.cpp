@@ -1,6 +1,6 @@
-#include <onnc/IR/Module.h>
-
 #include "CLangGenServiceLibraryPass.h"
+
+#include <onnc/IR/Module.h>
 
 namespace onnc {
 

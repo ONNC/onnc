@@ -1,12 +1,13 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 ONNC_DIR="$( realpath $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/.. )"
 CLANG_FORMAT=clang-format-7
 
 DIRS=(
   lib/Target/NvDla
+  lib/Target/CLang
 )
 
 EXCLUDE_DIRS=(
@@ -15,7 +16,7 @@ EXCLUDE_DIRS=(
 )
 
 
-for dir in $DIRS
+for dir in "${DIRS[@]}"
 do
   cd $ONNC_DIR/$dir
 

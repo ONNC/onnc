@@ -13,6 +13,6 @@ namespace onnc {
 
 Target& getTheCLangTarget();
 
-} // namespace of onnc
+} // namespace onnc
 
 #endif

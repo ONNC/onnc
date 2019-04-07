@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "CLangTargetInfo.h"
+
 #include <onnc/IR/Quadruple.h>
 #include <onnc/Target/TargetRegistry.h>
 
@@ -15,7 +16,6 @@ using namespace onnc;
 // Non-member functions
 //===----------------------------------------------------------------------===//
 
-  
 static unsigned int CLangMatchFn(const Quadruple& pQuadruple)
 {
   unsigned int score = 0;
@@ -26,19 +26,14 @@ static unsigned int CLangMatchFn(const Quadruple& pQuadruple)
   return score;
 }
 
-
 Target& onnc::getTheCLangTarget()
 {
   static Target clang_target;
   return clang_target;
 }
 
-
-extern "C" void InitializeCLangONNCPlatform() {
-  onnc::TargetRegistry::RegisterTarget(
-    onnc::getTheCLangTarget(),
-    "clang",
-    "C Runtime Service Library Generator",
-    CLangMatchFn
-  );
+extern "C" void InitializeCLangONNCPlatform()
+{
+  onnc::TargetRegistry::RegisterTarget(onnc::getTheCLangTarget(), "clang", "C Runtime Service Library Generator",
+                                       CLangMatchFn);
 }

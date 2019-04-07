@@ -1,9 +1,9 @@
 #ifndef TARGET_CLANG_GET_OPERATOR_LIST_PASS_H_INCLUDED
 #define TARGET_CLANG_GET_OPERATOR_LIST_PASS_H_INCLUDED
 
-#include <onnc/Core/CustomPass.h>
-
 #include "CLangMeta.h"
+
+#include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 
@@ -16,10 +16,10 @@ public:
   {}
 
   CLangGetOperatorListPass(const CLangGetOperatorListPass&) = default;
-  CLangGetOperatorListPass(CLangGetOperatorListPass&&) = default;
+  CLangGetOperatorListPass(CLangGetOperatorListPass&&)      = default;
   CLangGetOperatorListPass& operator=(const CLangGetOperatorListPass&) = default;
   CLangGetOperatorListPass& operator=(CLangGetOperatorListPass&&) = default;
-  ~CLangGetOperatorListPass() = default;
+  ~CLangGetOperatorListPass()                                     = default;
 
   ReturnType runOnModule(Module& module) override;
 

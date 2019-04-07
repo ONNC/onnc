@@ -7,10 +7,6 @@
 //===----------------------------------------------------------------------===//
 #include "CLangMemInfoPass.h"
 
-#include <iomanip>
-#include <iostream>
-#include <unordered_map>
-
 #include <onnc/IR/Compute/Concat.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -21,6 +17,9 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
 
+#include <iomanip>
+#include <iostream>
+#include <unordered_map>
 
 using namespace onnc;
 
@@ -32,21 +31,19 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
 {
   CLangMemoryBlock::size_type packedWeightMemorySize   = 0;
   CLangMemoryBlock::size_type packedInternalMemorySize = 0;
-  for (ComputeOperand *co : pModule.getComputeOperands()) {
-    if (ComputeMemOperand *mem = dyn_cast<ComputeMemOperand>(co)) {
+  for (ComputeOperand* co : pModule.getComputeOperands()) {
+    if (ComputeMemOperand* mem = dyn_cast<ComputeMemOperand>(co)) {
       if (mem->isInput()) {
         continue;
       } else if (mem->isWeight()) {
         const auto* const tensor = static_cast<const Tensor*>(co->getValue());
         m_pMeta.packedWeightMemoryBlocks.emplace_back(
-          std::make_pair(tensor, CLangMemoryBlock{packedWeightMemorySize, mem->length()})
-        );
+          std::make_pair(tensor, CLangMemoryBlock{packedWeightMemorySize, mem->length()}));
         packedWeightMemorySize += mem->length();
       } else {
         const auto* const tensor = static_cast<const Tensor*>(co->getValue());
         m_pMeta.packedInternalMemoryBlocks.emplace_back(
-          std::make_pair(tensor, CLangMemoryBlock{packedInternalMemorySize, mem->length()})
-        );
+          std::make_pair(tensor, CLangMemoryBlock{packedInternalMemorySize, mem->length()}));
         packedInternalMemorySize += mem->length();
       }
     }
@@ -55,20 +52,16 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
   for (const auto& entry : m_pMeta.packedWeightMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
-    outs() << "[Clang] (block) tensor = " << tensor
-           << ", offset = " << std::setw(9) << memoryBlock.offset
-           << ", length = " << std::setw(9) << memoryBlock.length
-           << std::endl;
+    outs() << "[Clang] (block) tensor = " << tensor << ", offset = " << std::setw(9) << memoryBlock.offset
+           << ", length = " << std::setw(9) << memoryBlock.length << std::endl;
   }
   outs() << "[Clang] weight memory: " << packedWeightMemorySize << std::endl;
 
   for (const auto& entry : m_pMeta.packedInternalMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
-    outs() << "[Clang] (block) tensor = " << tensor
-           << ", offset = " << std::setw(9) << memoryBlock.offset
-           << ", length = " << std::setw(9) << memoryBlock.length
-           << std::endl;
+    outs() << "[Clang] (block) tensor = " << tensor << ", offset = " << std::setw(9) << memoryBlock.offset
+           << ", length = " << std::setw(9) << memoryBlock.length << std::endl;
   }
   outs() << "[Clang] internal memory: " << packedInternalMemorySize << std::endl;
 

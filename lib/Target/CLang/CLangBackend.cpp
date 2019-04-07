@@ -5,10 +5,8 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <memory>
-
-#include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
+#include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/CodeGen/BuildMemOperand.h>
 #include <onnc/CodeGen/LinearScanMemAlloc.h>
 #include <onnc/CodeGen/LiveIntervals.h>
@@ -34,6 +32,8 @@
 #include <onnc/Transforms/TensorSel/Standards/ArgMinLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AsinLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AtanLower.h>
+
+#include <memory>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/ATenLower.h>
 #include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
 #include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
@@ -65,8 +65,8 @@
 #include <onnc/Transforms/TensorSel/Standards/GreaterLower.h>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/GruLower.h>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/GruUnitLower.h>
-#include <onnc/Transforms/TensorSel/Standards/HardmaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/HardSigmoidLower.h>
+#include <onnc/Transforms/TensorSel/Standards/HardmaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/IdentityLower.h>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/IfLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ImageScalerLower.h>
@@ -76,9 +76,9 @@
 #include <onnc/Transforms/TensorSel/Standards/LogLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LogSoftmaxLower.h>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/LoopLower.h>
+#include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LpNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LpPoolLower.h>
-#include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/LSTMLower.h>
 #include <onnc/Transforms/TensorSel/Standards/MatMulLower.h>
 #include <onnc/Transforms/TensorSel/Standards/MaxLower.h>
@@ -92,19 +92,19 @@
 #include <onnc/Transforms/TensorSel/Standards/NegLower.h>
 #include <onnc/Transforms/TensorSel/Standards/NotLower.h>
 #include <onnc/Transforms/TensorSel/Standards/OrLower.h>
+#include <onnc/Transforms/TensorSel/Standards/PReluLower.h>
 #include <onnc/Transforms/TensorSel/Standards/PadLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ParametricSoftplusLower.h>
 #include <onnc/Transforms/TensorSel/Standards/PowLower.h>
-#include <onnc/Transforms/TensorSel/Standards/PReluLower.h>
-#include <onnc/Transforms/TensorSel/Standards/RandomNormalLower.h>
 #include <onnc/Transforms/TensorSel/Standards/RandomNormalLikeLower.h>
-#include <onnc/Transforms/TensorSel/Standards/RandomUniformLower.h>
+#include <onnc/Transforms/TensorSel/Standards/RandomNormalLower.h>
 #include <onnc/Transforms/TensorSel/Standards/RandomUniformLikeLower.h>
+#include <onnc/Transforms/TensorSel/Standards/RandomUniformLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReciprocalLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceL1Lower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceL2Lower.h>
-#include <onnc/Transforms/TensorSel/Standards/ReduceLogSumLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceLogSumExpLower.h>
+#include <onnc/Transforms/TensorSel/Standards/ReduceLogSumLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceMaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceMeanLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReduceMinLower.h>
@@ -125,6 +125,14 @@
 #include <onnc/Transforms/TensorSel/Standards/SliceLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
 // TODO: #include <onnc/Transforms/TensorSel/Standards/SoftplusLower.h>
+#include "CLangBackend.h"
+#include "CLangGenServiceLibraryPass.h"
+#include "CLangGenWeightFilePass.h"
+#include "CLangGetOperatorListPass.h"
+#include "CLangMemInfoPass.h"
+#include "TargetInfo/CLangTargetInfo.h"
+#include "TargetInfo/CLangTargetMemInfo.h"
+
 #include <onnc/Transforms/TensorSel/Standards/SoftsignLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SpaceToDepthLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SplitLower.h>
@@ -142,14 +150,6 @@
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
 #include <onnc/Transforms/TensorSel/Standards/XorLower.h>
 
-#include "CLangBackend.h"
-#include "CLangGenWeightFilePass.h"
-#include "CLangGenServiceLibraryPass.h"
-#include "CLangGetOperatorListPass.h"
-#include "CLangMemInfoPass.h"
-#include "TargetInfo/CLangTargetInfo.h"
-#include "TargetInfo/CLangTargetMemInfo.h"
-
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//
@@ -157,7 +157,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 CLangBackend::CLangBackend(const TargetOptions& pOptions)
   : TargetBackend(pOptions)
-{ 
+{
   m_pMemInfo = std::make_unique<CLangTargetMemInfo>();
 }
 
@@ -169,7 +169,7 @@ void CLangBackend::addTensorSel(PassManager& pPM)
 
   // Translate from ONNX graph IR into ONNC IR
   addStandardTensorSel(pPM, *this);
-  
+
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
@@ -200,15 +200,13 @@ void CLangBackend::addMemAlloc(PassManager& pPM)
 
 void CLangBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  Path weightFile = pOutput.parent().append(
-    pOutput.stem().native() + m_pMeta.weight_extension
-  );
+  Path weightFile = pOutput.parent().append(pOutput.stem().native() + m_pMeta.weight_extension);
   pPM.add<CLangMemInfoPass>(m_pMeta)
-     .add<CLangGetOperatorListPass>(m_pMeta)
-     .add<CLangGenWeightFilePass>(m_pMeta, std::move(weightFile))
-     .add<CLangGenServiceLibraryPass>(m_pMeta, pOutput)
-     // .add<CodeEmit>(m_CodeEmitVisitor);
-     ;
+    .add<CLangGetOperatorListPass>(m_pMeta)
+    .add<CLangGenWeightFilePass>(m_pMeta, std::move(weightFile))
+    .add<CLangGenServiceLibraryPass>(m_pMeta, pOutput)
+    // .add<CodeEmit>(m_CodeEmitVisitor);
+    ;
 }
 
 void CLangBackend::RegisterLowers(LowerRegistry& pRegistry) const
@@ -331,18 +329,12 @@ void CLangBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<XorLower>();
 }
 
-
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateCLangBackend(const TargetOptions& pOptions)
-{
-  return new CLangBackend(pOptions);
-}
+TargetBackend* CreateCLangBackend(const TargetOptions& pOptions) { return new CLangBackend(pOptions); }
 
 extern "C" void InitializeCLangONNCBackend()
 {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheCLangTarget(),
-      CreateCLangBackend);
+  onnc::TargetRegistry::RegisterTargetBackend(getTheCLangTarget(), CreateCLangBackend);
 }
-

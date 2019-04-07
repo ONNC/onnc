@@ -8,11 +8,11 @@
 #ifndef TARGET_CLANG_CLANG_BACKEND_H
 #define TARGET_CLANG_CLANG_BACKEND_H
 
-#include <string>
+#include "CLangMeta.h"
 
 #include <onnc/Target/TargetBackend.h>
 
-#include "CLangMeta.h"
+#include <string>
 
 namespace onnc {
 
@@ -26,7 +26,7 @@ public:
   void addTensorSel(PassManager& pPM) override;
 
   void addTensorSched(PassManager& pPM) override;
-  
+
   void addMemAlloc(PassManager& pPM) override;
 
   void addCodeEmit(PassManager& pPM, const Path& pOutput) override;
@@ -37,6 +37,6 @@ private:
   CLangMeta m_pMeta;
 };
 
-}  // namespace onnc
+} // namespace onnc
 
 #endif
