@@ -7,10 +7,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_CLANG_CLANG_BACKEND_H
 #define TARGET_CLANG_CLANG_BACKEND_H
+
 #include <string>
-#include "CodeEmitVisitor.h"
-#include "CLangMeta.h"
+
 #include <onnc/Target/TargetBackend.h>
+
+#include "CLangMeta.h"
 
 namespace onnc {
 
@@ -32,7 +34,6 @@ public:
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 
 private:
-  clang::CodeEmitVisitor m_CodeEmitVisitor;
   CLangMeta m_pMeta;
 };
 

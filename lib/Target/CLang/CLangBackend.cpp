@@ -147,7 +147,6 @@
 #include "CLangGenServiceLibraryPass.h"
 #include "CLangGetOperatorListPass.h"
 #include "CLangMemInfoPass.h"
-#include "CodeEmitVisitor.h"
 #include "TargetInfo/CLangTargetInfo.h"
 #include "TargetInfo/CLangTargetMemInfo.h"
 
