@@ -8,7 +8,6 @@
 #include <iostream>
 
 namespace onnc {
-
 namespace internal {
 template <unsigned Width>
 struct indent_t
@@ -16,7 +15,7 @@ struct indent_t
   const unsigned level;
 };
 
-using indent_type = internal::indent_t<4>;
+using indent_type = internal::indent_t<2>;
 
 template <unsigned Width>
 inline indent_t<Width> operator+(indent_t<Width> lhs, unsigned rhs)
@@ -68,13 +67,6 @@ inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& res
     addContentFromFile(stream, implFile);
   }
 }
-
-inline void addModelMainDefinition(std::ostream& stream)
-{
-  stream << "int model_main(const struct ONNC_RUNTIME_inference_context* context)\n";
-  stream << "{\n";
-  stream << "}\n";
-}
 } // namespace internal
 
 CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(Module& module)
@@ -90,4 +82,29 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   return kModuleNoChanged;
 }
 
+void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream)
+{
+  using namespace internal;
+
+  stream << "int model_main(const struct ONNC_RUNTIME_inference_context* context)\n";
+  stream << "{\n";
+
+  indent_type indent{1};
+
+  const std::string tensors = "tensors";
+  stream << indent << "char * const " << tensors << " = calloc(" << getInternalMemorySize() << ", 1);\n";
+
+  stream << indent << "free(" << tensors << ");\n";
+  stream << "}\n";
+}
+
+std::size_t CLangGenServiceLibraryPass::getInternalMemorySize() const
+{
+  if (meta.packedInternalMemoryBlocks.empty()) {
+    return 0;
+  }
+
+  const auto& lastMemoryBlock = std::rbegin(meta.packedInternalMemoryBlocks)->second;
+  return static_cast<std::size_t>(lastMemoryBlock.offset + lastMemoryBlock.length);
+}
 } // namespace onnc

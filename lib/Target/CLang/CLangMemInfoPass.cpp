@@ -17,6 +17,8 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
 
+#include <cassert>
+
 #include <iomanip>
 #include <iostream>
 #include <unordered_map>
@@ -49,6 +51,7 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
     }
   }
 
+  assert(!m_pMeta.packedWeightMemoryBlocks.empty());
   for (const auto& entry : m_pMeta.packedWeightMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
@@ -57,6 +60,7 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
   }
   outs() << "[Clang] weight memory: " << packedWeightMemorySize << std::endl;
 
+  assert(!m_pMeta.packedInternalMemoryBlocks.empty());
   for (const auto& entry : m_pMeta.packedInternalMemoryBlocks) {
     const auto* const tensor      = entry.first;
     const auto&       memoryBlock = entry.second;
