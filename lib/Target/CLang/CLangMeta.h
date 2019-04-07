@@ -14,8 +14,8 @@
 #include <cstdint>
 #include <cstdio>
 #include <iomanip>
+#include <set>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -34,6 +34,7 @@ struct CLangMeta
 {
   using PackedWeightMemoryBlocks   = std::vector<std::pair<const Tensor*, CLangMemoryBlock>>;
   using PackedInternalMemoryBlocks = std::vector<std::pair<const Tensor*, CLangMemoryBlock>>;
+  using UsedOperatorNames          = std::set<std::string>;
 
   CLangMeta()                 = default;
   CLangMeta(const CLangMeta&) = delete;
@@ -43,13 +44,12 @@ struct CLangMeta
   CLangMeta& operator=(const CLangMeta&) = delete;
   CLangMeta& operator=(CLangMeta&&) = delete;
 
+  static const std::string weightFileExt;
+  static const std::string serviceLibraryFileExt;
+
   PackedWeightMemoryBlocks   packedWeightMemoryBlocks;
   PackedInternalMemoryBlocks packedInternalMemoryBlocks;
-
-  std::string weight_extension = ".weight";
-  std::string lib_extension    = ".c";
-
-  std::unordered_map<std::string, void*> operator_list;
+  UsedOperatorNames          usedOperatorNames;
 };
 
 } // namespace onnc

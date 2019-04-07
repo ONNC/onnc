@@ -11,23 +11,14 @@ namespace onnc {
 
 CLangGetOperatorListPass::ReturnType CLangGetOperatorListPass::runOnModule(Module& module)
 {
-  // For each compute operator in module, add it into a list for
-  // later usage when generating service library file
   for (ComputeOperator& cm : *module.getRootComputeGraph()) {
-    if (dyn_cast<InputOperator>(&cm))
+    if (isa<InputOperator>(&cm) || isa<Initializer>(&cm) || dyn_cast<Initializer>(&cm)) {
       continue;
-    if (dyn_cast<Initializer>(&cm))
-      continue;
-    if (dyn_cast<OutputOperator>(&cm))
-      continue;
-    onnc::StringRef name = cm.name();
-    meta.operator_list.insert({name, NULL});
+    }
+
+    meta.usedOperatorNames.insert(cm.name().str());
   }
 
-  outs() << "[Clang] Operators:" << std::endl;
-  for (const auto& op : meta.operator_list) {
-    outs() << "[Clang]  - " << op.first << std::endl;
-  }
   return kModuleNoChanged;
 }
 

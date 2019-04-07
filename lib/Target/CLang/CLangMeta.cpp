@@ -15,4 +15,9 @@
 #include <memory>
 #include <type_traits>
 
-using namespace onnc;
+namespace onnc {
+
+const std::string CLangMeta::weightFileExt{".weight"};
+const std::string CLangMeta::serviceLibraryFileExt{".c"};
+
+} // namespace onnc
