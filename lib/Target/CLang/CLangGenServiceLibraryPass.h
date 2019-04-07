@@ -25,7 +25,7 @@ public:
   ~CLangGenServiceLibraryPass()                                       = default;
 
   ReturnType runOnModule(Module& module) override;
-  void addModelMainDefinition(std::ostream& stream);
+  void       addModelMainDefinition(std::ostream& stream);
 
 private:
   std::size_t getInternalMemorySize() const;

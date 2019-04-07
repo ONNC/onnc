@@ -18,7 +18,6 @@
 #include <onnc/Support/Timer.h>
 
 #include <cassert>
-
 #include <iomanip>
 #include <iostream>
 #include <unordered_map>
