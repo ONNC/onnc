@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "div.inc"
+#include "internal/div.inc"

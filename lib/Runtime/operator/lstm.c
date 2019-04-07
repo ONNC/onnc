@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "lstm.inc"
+#include "internal/lstm.inc"

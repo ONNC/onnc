@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "gemm.inc"
+#include "internal/gemm.inc"

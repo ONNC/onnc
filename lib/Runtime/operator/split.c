@@ -31,4 +31,4 @@ static void forLoop(
   }
 }
 
-#include "split.inc"
+#include "internal/split.inc"

@@ -5,4 +5,4 @@
 #include <float.h>
 #include <math.h>
 
-#include "lpnormalization.inc"
+#include "internal/lpnormalization.inc"

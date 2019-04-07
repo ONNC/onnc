@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "elu.inc"
+#include "internal/elu.inc"

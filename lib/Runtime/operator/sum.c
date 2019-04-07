@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "sum.inc"
+#include "internal/sum.inc"

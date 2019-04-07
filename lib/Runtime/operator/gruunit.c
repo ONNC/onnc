@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "gruunit.inc"
+#include "internal/gruunit.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "dropout.inc"
+#include "internal/dropout.inc"

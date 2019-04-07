@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "depthtospace.inc"
+#include "internal/depthtospace.inc"

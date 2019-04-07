@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "cos.inc"
+#include "internal/cos.inc"

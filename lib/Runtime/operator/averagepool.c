@@ -48,4 +48,4 @@ static inline float get_value_or_zero(int32_t ndim, const int32_t * restrict dim
   return value[dim_to_offset(ndim, dim, dim_max)];
 }
 
-#include "averagepool.inc"
+#include "internal/averagepool.inc"

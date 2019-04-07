@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "hardsigmoid.inc"
+#include "internal/hardsigmoid.inc"

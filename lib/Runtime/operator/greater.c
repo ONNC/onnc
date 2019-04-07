@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "greater.inc"
+#include "internal/greater.inc"

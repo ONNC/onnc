@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "min.inc"
+#include "internal/min.inc"

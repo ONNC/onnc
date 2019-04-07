@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "mean.inc"
+#include "internal/mean.inc"

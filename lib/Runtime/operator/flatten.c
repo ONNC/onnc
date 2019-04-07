@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "flatten.inc"
+#include "internal/flatten.inc"

@@ -5,4 +5,4 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "randomuniform.inc"
+#include "internal/randomuniform.inc"

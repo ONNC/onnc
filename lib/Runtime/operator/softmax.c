@@ -5,4 +5,4 @@
 #include <math.h>
 #include <float.h>
 
-#include "softmax.inc"
+#include "internal/softmax.inc"

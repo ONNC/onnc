@@ -4,4 +4,4 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "atan.inc"
+#include "internal/atan.inc"

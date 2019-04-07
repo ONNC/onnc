@@ -18,4 +18,4 @@ static int32_t multinomial(int i, int classSize, const float * input_input){
   return classSize - 1;
 }
 
-#include "multinomial.inc"
+#include "internal/multinomial.inc"

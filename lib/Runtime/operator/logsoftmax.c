@@ -5,4 +5,4 @@
 #include <float.h>
 #include <math.h>
 
-#include "logsoftmax.inc"
+#include "internal/logsoftmax.inc"

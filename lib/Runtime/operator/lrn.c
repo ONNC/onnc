@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "lrn.inc"
+#include "internal/lrn.inc"

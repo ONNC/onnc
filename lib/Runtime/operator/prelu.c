@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "prelu.inc"
+#include "internal/prelu.inc"

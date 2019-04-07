@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "equal.inc"
+#include "internal/equal.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "transpose.inc"
+#include "internal/transpose.inc"

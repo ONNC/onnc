@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <float.h>
 
-#include "hardmax.inc"
+#include "internal/hardmax.inc"

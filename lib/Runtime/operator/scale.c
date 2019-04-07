@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "scale.inc"
+#include "internal/scale.inc"

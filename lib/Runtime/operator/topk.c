@@ -116,4 +116,4 @@ static inline int64_t dim_to_offset(int32_t ndim, const int32_t * restrict dim,
   return offset;
 }
 
-#include "topk.inc"
+#include "internal/topk.inc"

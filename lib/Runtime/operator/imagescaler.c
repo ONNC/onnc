@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "imagescaler.inc"
+#include "internal/imagescaler.inc"

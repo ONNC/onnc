@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "log.inc"
+#include "internal/log.inc"

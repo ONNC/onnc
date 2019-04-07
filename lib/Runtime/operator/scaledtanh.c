@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "scaledtanh.inc"
+#include "internal/scaledtanh.inc"

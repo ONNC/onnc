@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "reshape.inc"
+#include "internal/reshape.inc"

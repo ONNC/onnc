@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "sub.inc"
+#include "internal/sub.inc"

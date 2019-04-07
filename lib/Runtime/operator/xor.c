@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "xor.inc"
+#include "internal/xor.inc"

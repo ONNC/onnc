@@ -4,4 +4,4 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "ceil.inc"
+#include "internal/ceil.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "neg.inc"
+#include "internal/neg.inc"

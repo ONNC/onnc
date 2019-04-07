@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "sin.inc"
+#include "internal/sin.inc"

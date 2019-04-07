@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "globalaveragepool.inc"
+#include "internal/globalaveragepool.inc"

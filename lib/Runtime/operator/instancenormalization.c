@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "instancenormalization.inc"
+#include "internal/instancenormalization.inc"

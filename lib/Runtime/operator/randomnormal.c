@@ -12,4 +12,4 @@ static float randomNormal(float mean, float stddev)
   return mean + stddev * sqrtf(-2.0f * logf(x)) * cosf(2.0f * acosf(-1.0f) * y);
 }
 
-#include "randomnormal.inc"
+#include "internal/randomnormal.inc"

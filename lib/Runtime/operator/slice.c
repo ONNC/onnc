@@ -23,4 +23,4 @@ static void forLoop(
   }
 }
 
-#include "slice.inc"
+#include "internal/slice.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "softplus.inc"
+#include "internal/softplus.inc"

@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "tanh.inc"
+#include "internal/tanh.inc"

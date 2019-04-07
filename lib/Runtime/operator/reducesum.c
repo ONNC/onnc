@@ -57,4 +57,4 @@ static void Reduce(
 	}
 }
 
-#include "reducesum.inc"
+#include "internal/reducesum.inc"

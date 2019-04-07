@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "max.inc"
+#include "internal/max.inc"

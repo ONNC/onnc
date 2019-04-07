@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "selu.inc"
+#include "internal/selu.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "squeeze.inc"
+#include "internal/squeeze.inc"

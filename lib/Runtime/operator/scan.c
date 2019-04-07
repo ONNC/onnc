@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "scan.inc"
+#include "internal/scan.inc"

@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "softsign.inc"
+#include "internal/softsign.inc"

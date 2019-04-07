@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "rnn.inc"
+#include "internal/rnn.inc"

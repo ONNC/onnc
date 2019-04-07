@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "clip.inc"
+#include "internal/clip.inc"

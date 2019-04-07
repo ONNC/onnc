@@ -40,4 +40,4 @@ static inline int64_t dim_to_offset(int32_t ndim, const int32_t * restrict dim,
   return offset;
 }
 
-#include "reducel1.inc"
+#include "internal/reducel1.inc"

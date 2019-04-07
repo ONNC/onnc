@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "exp.inc"
+#include "internal/exp.inc"

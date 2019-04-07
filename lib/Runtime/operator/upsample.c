@@ -44,4 +44,4 @@ static void nearest_upsample(
   }
 }
 
-#include "upsample.inc"
+#include "internal/upsample.inc"

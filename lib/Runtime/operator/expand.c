@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "expand.inc"
+#include "internal/expand.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "maxroipool.inc"
+#include "internal/maxroipool.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "thresholdedrelu.inc"
+#include "internal/thresholdedrelu.inc"

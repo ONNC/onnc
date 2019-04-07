@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "pow.inc"
+#include "internal/pow.inc"

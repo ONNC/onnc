@@ -4,4 +4,4 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "acos.inc"
+#include "internal/acos.inc"

@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "parametricsoftplus.inc"
+#include "internal/parametricsoftplus.inc"

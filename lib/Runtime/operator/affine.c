@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "affine.inc"
+#include "internal/affine.inc"

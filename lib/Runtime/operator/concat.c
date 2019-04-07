@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "concat.inc"
+#include "internal/concat.inc"

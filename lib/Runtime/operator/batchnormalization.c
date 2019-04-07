@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "batchnormalization.inc"
+#include "internal/batchnormalization.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "convtranspose.inc"
+#include "internal/convtranspose.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "meanvariancenormalization.inc"
+#include "internal/meanvariancenormalization.inc"

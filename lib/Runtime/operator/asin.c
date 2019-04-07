@@ -4,4 +4,4 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "asin.inc"
+#include "internal/asin.inc"

@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <float.h>
 
-#include "reducemin.inc"
+#include "internal/reducemin.inc"

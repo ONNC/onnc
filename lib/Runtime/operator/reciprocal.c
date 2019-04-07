@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "reciprocal.inc"
+#include "internal/reciprocal.inc"

@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "mul.inc"
+#include "internal/mul.inc"

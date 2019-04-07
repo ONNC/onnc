@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "globalmaxpool.inc"
+#include "internal/globalmaxpool.inc"

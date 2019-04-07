@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "loop.inc"
+#include "internal/loop.inc"

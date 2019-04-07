@@ -1,3 +1,7 @@
+include_directories(
+    ${ONNC_ROOT_PATH}/export/runtime/include
+)
+
 add_libonnc_src(
     CLangBackend.cpp
     CLangGenServiceLibraryPass.cpp

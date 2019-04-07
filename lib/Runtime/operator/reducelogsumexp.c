@@ -40,4 +40,4 @@ static inline int64_t dim_to_offset(int32_t ndim, const int32_t * restrict dim,
   return offset;
 }
 
-#include "reducelogsumexp.inc"
+#include "internal/reducelogsumexp.inc"

@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "sqrt.inc"
+#include "internal/sqrt.inc"

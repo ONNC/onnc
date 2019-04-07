@@ -4,4 +4,4 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "sigmoid.inc"
+#include "internal/sigmoid.inc"

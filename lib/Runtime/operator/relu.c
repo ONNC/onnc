@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "relu.inc"
+#include "internal/relu.inc"

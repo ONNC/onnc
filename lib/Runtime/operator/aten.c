@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "aten.inc"
+#include "internal/aten.inc"

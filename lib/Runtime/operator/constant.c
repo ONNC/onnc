@@ -3,4 +3,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "constant.inc"
+#include "internal/constant.inc"
