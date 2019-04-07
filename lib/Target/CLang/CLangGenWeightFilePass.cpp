@@ -35,30 +35,27 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
   };
 
   // 1. write tensor offset table into file (include tensor offsets)
-  uint64_t tensor_num = meta.packedWeightMemoryBlocks.size();
-  int64_t table_size =
+  const auto tensor_num = meta.packedWeightMemoryBlocks.size();
+  const auto table_size =
     sizeof(ONNC_RUNTIME_tensor_offset_table) +
     tensor_num * sizeof(ONNC_RUNTIME_tensor_offset);
-  uint8_t magic[8] = ONNC_RUNTIME_TENSOR_FILE_MAGIC;
 
-  auto* table = reinterpret_cast<ONNC_RUNTIME_tensor_offset_table*>(calloc(table_size, 1));
-  memcpy(table->magic, magic, sizeof(table->magic));
+  auto* const table = reinterpret_cast<ONNC_RUNTIME_tensor_offset_table*>(calloc(table_size, 1));
+
+  strncpy(table->magic, ONNC_RUNTIME_TENSOR_FILE_MAGIC, sizeof(ONNC_RUNTIME_TENSOR_FILE_MAGIC));
   table->number_of_tensors = tensor_num;
 
-  for (int i = 0; i < tensor_num; i++) {
-    const auto entry = &meta.packedWeightMemoryBlocks[i];
-    const uint64_t offset = entry->second.offset + table_size;
-    const uint64_t size = entry->second.length;
-
-    ONNC_RUNTIME_tensor_offset to = {
-      .offset = offset,
-      .size = size,
-    };
-    
-    table->tensor_offsets[i] = to;
+  for (auto i = 0; i < tensor_num; i++) {
+    const auto& from = meta.packedWeightMemoryBlocks[i].second;
+    auto& to = table->tensor_offsets[i];
+    to.size = from.length;
+    to.offset = from.offset + table_size;
   }
 
-  file.write(reinterpret_cast<const char *>(&table), table_size);
+  using stream_type = std::ofstream;
+  using char_type = stream_type::char_type;
+
+  file.write(reinterpret_cast<const char_type*>(&table), table_size);
   free(table);
 
   // 2. write tensor data into file

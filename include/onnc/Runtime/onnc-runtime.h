@@ -17,7 +17,7 @@ struct ONNC_RUNTIME_tensor_offset {
 #endif 
     
 struct ONNC_RUNTIME_tensor_offset_table {
-  uint8_t magic[8]; /* Tensor File magic number. */
+  char magic[8]; /* Tensor File magic number. */
   uint64_t number_of_tensors;
   struct ONNC_RUNTIME_tensor_offset tensor_offsets[];
 };
