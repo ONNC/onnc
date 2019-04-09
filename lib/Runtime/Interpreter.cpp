@@ -101,6 +101,7 @@
 #include <onnc/IR/Compute/Squeeze.h>
 #include <onnc/IR/Compute/Sub.h>
 #include <onnc/IR/Compute/Sum.h>
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Tan.h>
 #include <onnc/IR/Compute/Tanh.h>
 #include <onnc/IR/Compute/Tile.h>
@@ -122,6 +123,12 @@
 #include <onnc/IR/Compute/ScaledTanh.h>
 #include <onnc/IR/Compute/ThresholdedRelu.h>
 
+#include <algorithm>
+#include <iterator>
+#include <memory>
+#include <type_traits>
+#include <utility>
+
 #ifndef restrict
 # define restrict __restrict__
 #endif
@@ -132,6 +139,106 @@ extern "C" {
 #undef restrict
 
 namespace onnc {
+namespace internal {
+  template <typename T>
+  class ArrayHolder {
+    static_assert(
+      std::is_default_constructible<T>::value && std::is_copy_assignable<T>::value,
+      "The contained type does not meet the requirement"
+    );
+
+    template <typename U>
+    friend class ArrayHolder;
+  public:
+    using value_type      = T;
+    using reference       = value_type&;
+    using const_reference = const value_type&;
+    using size_type       = std::size_t;
+
+    ArrayHolder()
+      : elements_{}
+      , size_{0}
+    {}
+
+    explicit ArrayHolder(size_type size)
+      : elements_{std::make_unique<value_type[]>(size)}
+      , size_{size}
+    {}
+
+    template <
+      typename U,
+      typename = typename std::enable_if<std::is_convertible<U, value_type>::value>::type
+    >
+    ArrayHolder(ArrayHolder<U>&& other)
+      : ArrayHolder{other.size()}
+    {
+      std::move(
+        other.elements_.get(), other.elements_.get() + other.size(),
+        elements_.get()
+      );
+    }
+
+    template <typename RandomAccessRange>
+    ArrayHolder(const RandomAccessRange& range)
+      : ArrayHolder{static_cast<size_type>(std::distance(std::begin(range), std::end(range)))}
+    {
+      std::copy(
+        std::begin(range), std::end(range),
+        elements_.get()
+      );
+    }
+
+    ArrayHolder(const ArrayHolder&) = delete;
+    ArrayHolder(ArrayHolder&&) = default;
+
+    template <
+      typename U,
+      typename = typename std::enable_if<std::is_convertible<U, value_type>::value>::type
+    >
+    ArrayHolder& operator=(ArrayHolder<U>&& other)
+    {
+      size_     = other.size();
+      elements_ = std::make_unique<value_type[]>(size_);
+
+      std::move(
+        other.elements_.get(), other.elements_.get() + other.size(),
+        elements_.get()
+      );
+    }
+
+    ArrayHolder& operator=(const ArrayHolder&) = delete;
+    ArrayHolder& operator=(ArrayHolder&&) = default;
+
+    ~ArrayHolder() = default;
+
+    operator value_type* ()
+    {
+      return elements_.get();
+    }
+
+    operator const value_type* () const
+    {
+      return elements_.get();
+    }
+
+    size_type size() const noexcept
+    {
+      return size_;
+    }
+
+  private:
+    std::unique_ptr<value_type[]> elements_;
+    size_type                     size_;
+  };
+
+  ArrayHolder<Tensor::Dimension> getTensorDimensions(const Tensor& tensor)
+  {
+    return ArrayHolder<Tensor::Dimension>{tensor.getDimensions()};
+  }
+} // namespace internal
+
+using namespace internal;
+
 //===----------------------------------------------------------------------===//
 // BasicInterpreter
 //===----------------------------------------------------------------------===//
@@ -149,7 +256,6 @@ void BasicInterpreter::visit(Abs& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
 
   // Call to Runtime
   ONNC_RUNTIME_abs_float(
@@ -158,7 +264,6 @@ void BasicInterpreter::visit(Abs& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
   );
 };
 
@@ -177,7 +282,7 @@ void BasicInterpreter::visit(Acos& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_acos_float(
@@ -186,7 +291,7 @@ void BasicInterpreter::visit(Acos& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -210,7 +315,7 @@ void BasicInterpreter::visit(Add& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_add_float(
@@ -221,7 +326,7 @@ void BasicInterpreter::visit(Add& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -245,7 +350,7 @@ void BasicInterpreter::visit(And& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_and_float(
@@ -256,7 +361,7 @@ void BasicInterpreter::visit(And& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -335,7 +440,7 @@ void BasicInterpreter::visit(Asin& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_asin_float(
@@ -344,7 +449,7 @@ void BasicInterpreter::visit(Asin& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -363,7 +468,7 @@ void BasicInterpreter::visit(Atan& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_atan_float(
@@ -372,7 +477,7 @@ void BasicInterpreter::visit(Atan& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -572,7 +677,7 @@ void BasicInterpreter::visit(Ceil& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_ceil_float(
@@ -581,7 +686,7 @@ void BasicInterpreter::visit(Ceil& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -659,7 +764,7 @@ void BasicInterpreter::visit(Concat& pOp) {
 
 void BasicInterpreter::visit(Constant& pOp) {
   // Prepare input
-  
+
   // Prepare output
   Tensor *output_output_t = pOp.getOutput(0);
   void *output_output = m_ATable[output_output_t];
@@ -672,7 +777,7 @@ void BasicInterpreter::visit(Constant& pOp) {
   // Call to Runtime
   ONNC_RUNTIME_constant_float(
     m_pContext
-    
+
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
     , value
@@ -684,67 +789,51 @@ void BasicInterpreter::visit(Conv& pOp) {
   // Prepare input
   Tensor *input_X_t = pOp.getInput(0);
   void *input_X = m_ATable[input_X_t];
-  int32_t input_X_ndim = input_X_t->getNumOfDimensions();
-  int32_t input_X_dims[input_X_ndim];
-  for (int i = 0; i < input_X_ndim; ++i) input_X_dims[i] = input_X_t->dimension(i);
+  ArrayHolder<int32_t> input_X_dims = getTensorDimensions(*input_X_t);
   Tensor *input_W_t = pOp.getInput(1);
   void *input_W = m_ATable[input_W_t];
-  int32_t input_W_ndim = input_W_t->getNumOfDimensions();
-  int32_t input_W_dims[input_W_ndim];
-  for (int i = 0; i < input_W_ndim; ++i) input_W_dims[i] = input_W_t->dimension(i);
+  ArrayHolder<int32_t> input_W_dims = getTensorDimensions(*input_W_t);
   Tensor *input_B_t = NULL;
   void *input_B = NULL;
-  int32_t input_B_ndim = 0;
+  ArrayHolder<int32_t> input_B_dims;
   if (pOp.getNumOfInputs() > 2) {
     input_B_t = pOp.getInput(2);
     input_B = m_ATable[input_B_t];
-    input_B_ndim = input_B_t->getNumOfDimensions();
+    input_B_dims = getTensorDimensions(*input_B_t);
   }
-  int32_t input_B_dims[input_B_ndim];
-  for (int i = 0; i < input_B_ndim; ++i) input_B_dims[i] = input_B_t->dimension(i);
   // Prepare output
   Tensor *output_Y_t = pOp.getOutput(0);
   void *output_Y = m_ATable[output_Y_t];
-  int32_t output_Y_ndim = output_Y_t->getNumOfDimensions();
-  int32_t output_Y_dims[output_Y_ndim];
-  for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
+  ArrayHolder<int32_t> output_Y_dims = getTensorDimensions(*output_Y_t);
   // Prepare attributes
   const char * auto_pad = pOp.getAutoPad().value().c_str();
-  int32_t number_of_dilations = pOp.getDilations().vector().size();
-  int32_t dilations[number_of_dilations];
-  for (int i = 0; i < number_of_dilations; ++i) dilations[i] = pOp.getDilations().at(i);
+  ArrayHolder<int32_t> dilations{pOp.getDilations().vector()};
   int32_t group = pOp.getGroup().value();
-  int32_t number_of_kernel_shape = pOp.getKernelShape().vector().size();
-  int32_t kernel_shape[number_of_kernel_shape];
-  for (int i = 0; i < number_of_kernel_shape; ++i) kernel_shape[i] = pOp.getKernelShape().at(i);
-  int32_t number_of_pads = pOp.getPads().vector().size();
-  int32_t pads[number_of_pads];
-  for (int i = 0; i < number_of_pads; ++i) pads[i] = pOp.getPads().at(i);
-  int32_t number_of_strides = pOp.getStrides().vector().size();
-  int32_t strides[number_of_strides];
-  for (int i = 0; i < number_of_strides; ++i) strides[i] = pOp.getStrides().at(i);
+  ArrayHolder<int32_t> kernel_shape{pOp.getKernelShape().vector()};
+  ArrayHolder<int32_t> pads{pOp.getPads().vector()};
+  ArrayHolder<int32_t> strides{pOp.getStrides().vector()};
 
   // Call to Runtime
   ONNC_RUNTIME_conv_float(
     m_pContext
     , reinterpret_cast<float *>(input_X)
-    , input_X_ndim, input_X_dims
+    , input_X_dims.size(), input_X_dims
     , reinterpret_cast<float *>(input_W)
-    , input_W_ndim, input_W_dims
+    , input_W_dims.size(), input_W_dims
     , reinterpret_cast<float *>(input_B)
-    , input_B_ndim, input_B_dims
+    , input_B_dims.size(), input_B_dims
     , reinterpret_cast<float *>(output_Y)
-    , output_Y_ndim, output_Y_dims
+    , output_Y_dims.size(), output_Y_dims
     , auto_pad
     , dilations
-    , number_of_dilations
+    , dilations.size()
     , group
     , kernel_shape
-    , number_of_kernel_shape
+    , kernel_shape.size()
     , pads
-    , number_of_pads
+    , pads.size()
     , strides
-    , number_of_strides
+    , strides.size()
   );
 };
 
@@ -842,7 +931,7 @@ void BasicInterpreter::visit(Cos& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_cos_float(
@@ -851,7 +940,7 @@ void BasicInterpreter::visit(Cos& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -903,7 +992,7 @@ void BasicInterpreter::visit(Div& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_div_float(
@@ -914,7 +1003,7 @@ void BasicInterpreter::visit(Div& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -1006,7 +1095,7 @@ void BasicInterpreter::visit(Equal& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_equal_float(
@@ -1017,7 +1106,7 @@ void BasicInterpreter::visit(Equal& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -1036,7 +1125,7 @@ void BasicInterpreter::visit(Exp& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_exp_float(
@@ -1045,7 +1134,7 @@ void BasicInterpreter::visit(Exp& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -1069,7 +1158,7 @@ void BasicInterpreter::visit(Expand& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_expand_float(
@@ -1080,7 +1169,7 @@ void BasicInterpreter::visit(Expand& pOp) {
     , input_shape_ndim, input_shape_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -1127,7 +1216,7 @@ void BasicInterpreter::visit(Floor& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_floor_float(
@@ -1136,7 +1225,7 @@ void BasicInterpreter::visit(Floor& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -1354,7 +1443,7 @@ void BasicInterpreter::visit(GlobalAveragePool& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_globalaveragepool_float(
@@ -1363,7 +1452,7 @@ void BasicInterpreter::visit(GlobalAveragePool& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -1410,7 +1499,7 @@ void BasicInterpreter::visit(GlobalMaxPool& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_globalmaxpool_float(
@@ -1419,7 +1508,7 @@ void BasicInterpreter::visit(GlobalMaxPool& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -1443,7 +1532,7 @@ void BasicInterpreter::visit(Greater& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_greater_float(
@@ -1454,7 +1543,7 @@ void BasicInterpreter::visit(Greater& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -1531,7 +1620,7 @@ void BasicInterpreter::visit(Identity& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_identity_float(
@@ -1540,7 +1629,7 @@ void BasicInterpreter::visit(Identity& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -1820,7 +1909,7 @@ void BasicInterpreter::visit(Less& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_less_float(
@@ -1831,7 +1920,7 @@ void BasicInterpreter::visit(Less& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -1850,7 +1939,7 @@ void BasicInterpreter::visit(Log& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_log_float(
@@ -1859,7 +1948,7 @@ void BasicInterpreter::visit(Log& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -1986,7 +2075,7 @@ void BasicInterpreter::visit(MatMul& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_matmul_float(
@@ -1997,7 +2086,7 @@ void BasicInterpreter::visit(MatMul& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -2017,7 +2106,7 @@ void BasicInterpreter::visit(Max& pOp) {
   int32_t output_max_dims[output_max_ndim];
   for (int i = 0; i < output_max_ndim; ++i) output_max_dims[i] = output_max_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_max_float(
@@ -2027,7 +2116,7 @@ void BasicInterpreter::visit(Max& pOp) {
     , input_data_0_ndim, input_data_0_dims
     , reinterpret_cast<float *>(output_max)
     , output_max_ndim, output_max_dims
-    
+
   );
 };
 
@@ -2144,7 +2233,7 @@ void BasicInterpreter::visit(Mean& pOp) {
   int32_t output_mean_dims[output_mean_ndim];
   for (int i = 0; i < output_mean_ndim; ++i) output_mean_dims[i] = output_mean_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_mean_float(
@@ -2154,7 +2243,7 @@ void BasicInterpreter::visit(Mean& pOp) {
     , input_data_0_ndim, input_data_0_dims
     , reinterpret_cast<float *>(output_mean)
     , output_mean_ndim, output_mean_dims
-    
+
   );
 };
 
@@ -2174,7 +2263,7 @@ void BasicInterpreter::visit(Min& pOp) {
   int32_t output_min_dims[output_min_ndim];
   for (int i = 0; i < output_min_ndim; ++i) output_min_dims[i] = output_min_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_min_float(
@@ -2184,7 +2273,7 @@ void BasicInterpreter::visit(Min& pOp) {
     , input_data_0_ndim, input_data_0_dims
     , reinterpret_cast<float *>(output_min)
     , output_min_ndim, output_min_dims
-    
+
   );
 };
 
@@ -2208,7 +2297,7 @@ void BasicInterpreter::visit(Mul& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_mul_float(
@@ -2219,7 +2308,7 @@ void BasicInterpreter::visit(Mul& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -2270,7 +2359,7 @@ void BasicInterpreter::visit(Neg& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_neg_float(
@@ -2279,7 +2368,7 @@ void BasicInterpreter::visit(Neg& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -2298,7 +2387,7 @@ void BasicInterpreter::visit(Not& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_not_float(
@@ -2307,7 +2396,7 @@ void BasicInterpreter::visit(Not& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -2331,7 +2420,7 @@ void BasicInterpreter::visit(Or& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_or_float(
@@ -2342,7 +2431,7 @@ void BasicInterpreter::visit(Or& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -2366,7 +2455,7 @@ void BasicInterpreter::visit(PRelu& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_prelu_float(
@@ -2377,7 +2466,7 @@ void BasicInterpreter::visit(PRelu& pOp) {
     , input_slope_ndim, input_slope_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -2436,7 +2525,7 @@ void BasicInterpreter::visit(Pow& pOp) {
   int32_t output_Z_dims[output_Z_ndim];
   for (int i = 0; i < output_Z_ndim; ++i) output_Z_dims[i] = output_Z_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_pow_float(
@@ -2447,7 +2536,7 @@ void BasicInterpreter::visit(Pow& pOp) {
     , input_Y_ndim, input_Y_dims
     , reinterpret_cast<float *>(output_Z)
     , output_Z_ndim, output_Z_dims
-    
+
   );
 };
 
@@ -2568,7 +2657,7 @@ void BasicInterpreter::visit(RNN& pOp) {
 
 void BasicInterpreter::visit(RandomNormal& pOp) {
   // Prepare input
-  
+
   // Prepare output
   Tensor *output_output_t = pOp.getOutput(0);
   void *output_output = m_ATable[output_output_t];
@@ -2587,7 +2676,7 @@ void BasicInterpreter::visit(RandomNormal& pOp) {
   // Call to Runtime
   ONNC_RUNTIME_randomnormal_float(
     m_pContext
-    
+
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
     , dtype
@@ -2636,7 +2725,7 @@ void BasicInterpreter::visit(RandomNormalLike& pOp) {
 
 void BasicInterpreter::visit(RandomUniform& pOp) {
   // Prepare input
-  
+
   // Prepare output
   Tensor *output_output_t = pOp.getOutput(0);
   void *output_output = m_ATable[output_output_t];
@@ -2655,7 +2744,7 @@ void BasicInterpreter::visit(RandomUniform& pOp) {
   // Call to Runtime
   ONNC_RUNTIME_randomuniform_float(
     m_pContext
-    
+
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
     , dtype
@@ -2716,7 +2805,7 @@ void BasicInterpreter::visit(Reciprocal& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_reciprocal_float(
@@ -2725,7 +2814,7 @@ void BasicInterpreter::visit(Reciprocal& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -3074,7 +3163,7 @@ void BasicInterpreter::visit(Relu& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_relu_float(
@@ -3083,7 +3172,7 @@ void BasicInterpreter::visit(Relu& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -3107,7 +3196,7 @@ void BasicInterpreter::visit(Reshape& pOp) {
   int32_t output_reshaped_dims[output_reshaped_ndim];
   for (int i = 0; i < output_reshaped_ndim; ++i) output_reshaped_dims[i] = output_reshaped_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_reshape_float(
@@ -3118,7 +3207,7 @@ void BasicInterpreter::visit(Reshape& pOp) {
     , input_shape_ndim, input_shape_dims
     , reinterpret_cast<float *>(output_reshaped)
     , output_reshaped_ndim, output_reshaped_dims
-    
+
   );
 };
 
@@ -3167,7 +3256,7 @@ void BasicInterpreter::visit(Shape& pOp) {
   int32_t output_shape_dims[output_shape_ndim];
   for (int i = 0; i < output_shape_ndim; ++i) output_shape_dims[i] = output_shape_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_shape_float(
@@ -3176,7 +3265,7 @@ void BasicInterpreter::visit(Shape& pOp) {
     , input_data_ndim, input_data_dims
     , reinterpret_cast<float *>(output_shape)
     , output_shape_ndim, output_shape_dims
-    
+
   );
 };
 
@@ -3195,7 +3284,7 @@ void BasicInterpreter::visit(Sigmoid& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_sigmoid_float(
@@ -3204,7 +3293,7 @@ void BasicInterpreter::visit(Sigmoid& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -3223,7 +3312,7 @@ void BasicInterpreter::visit(Sin& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_sin_float(
@@ -3232,7 +3321,7 @@ void BasicInterpreter::visit(Sin& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -3251,7 +3340,7 @@ void BasicInterpreter::visit(Size& pOp) {
   int32_t output_size_dims[output_size_ndim];
   for (int i = 0; i < output_size_ndim; ++i) output_size_dims[i] = output_size_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_size_float(
@@ -3260,7 +3349,7 @@ void BasicInterpreter::visit(Size& pOp) {
     , input_data_ndim, input_data_dims
     , reinterpret_cast<float *>(output_size)
     , output_size_ndim, output_size_dims
-    
+
   );
 };
 
@@ -3348,7 +3437,7 @@ void BasicInterpreter::visit(Softplus& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_softplus_float(
@@ -3357,7 +3446,7 @@ void BasicInterpreter::visit(Softplus& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -3376,7 +3465,7 @@ void BasicInterpreter::visit(Softsign& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_softsign_float(
@@ -3385,7 +3474,7 @@ void BasicInterpreter::visit(Softsign& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -3467,7 +3556,7 @@ void BasicInterpreter::visit(Sqrt& pOp) {
   int32_t output_Y_dims[output_Y_ndim];
   for (int i = 0; i < output_Y_ndim; ++i) output_Y_dims[i] = output_Y_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_sqrt_float(
@@ -3476,7 +3565,7 @@ void BasicInterpreter::visit(Sqrt& pOp) {
     , input_X_ndim, input_X_dims
     , reinterpret_cast<float *>(output_Y)
     , output_Y_ndim, output_Y_dims
-    
+
   );
 };
 
@@ -3531,7 +3620,7 @@ void BasicInterpreter::visit(Sub& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_sub_float(
@@ -3542,7 +3631,7 @@ void BasicInterpreter::visit(Sub& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -3562,7 +3651,7 @@ void BasicInterpreter::visit(Sum& pOp) {
   int32_t output_sum_dims[output_sum_ndim];
   for (int i = 0; i < output_sum_ndim; ++i) output_sum_dims[i] = output_sum_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_sum_float(
@@ -3572,7 +3661,7 @@ void BasicInterpreter::visit(Sum& pOp) {
     , input_data_0_ndim, input_data_0_dims
     , reinterpret_cast<float *>(output_sum)
     , output_sum_ndim, output_sum_dims
-    
+
   );
 };
 
@@ -3591,7 +3680,7 @@ void BasicInterpreter::visit(Tan& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_tan_float(
@@ -3600,7 +3689,7 @@ void BasicInterpreter::visit(Tan& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -3619,7 +3708,7 @@ void BasicInterpreter::visit(Tanh& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_tanh_float(
@@ -3628,7 +3717,7 @@ void BasicInterpreter::visit(Tanh& pOp) {
     , input_input_ndim, input_input_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -3652,7 +3741,7 @@ void BasicInterpreter::visit(Tile& pOp) {
   int32_t output_output_dims[output_output_ndim];
   for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_tile_float(
@@ -3663,7 +3752,7 @@ void BasicInterpreter::visit(Tile& pOp) {
     , input_repeats_ndim, input_repeats_dims
     , reinterpret_cast<float *>(output_output)
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
@@ -3819,7 +3908,7 @@ void BasicInterpreter::visit(Xor& pOp) {
   int32_t output_C_dims[output_C_ndim];
   for (int i = 0; i < output_C_ndim; ++i) output_C_dims[i] = output_C_t->dimension(i);
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_xor_float(
@@ -3830,7 +3919,7 @@ void BasicInterpreter::visit(Xor& pOp) {
     , input_B_ndim, input_B_dims
     , reinterpret_cast<float *>(output_C)
     , output_C_ndim, output_C_dims
-    
+
   );
 };
 
@@ -3851,7 +3940,7 @@ void BasicInterpreter::visit(ATen& pOp) {
   int32_t *output_output_dims[output_output_ntensor]; // FIXME: [output_output_ndim[0]];
   // FIXME: for (int i = 0; i < output_output_ndim; ++i) output_output_dims[i] = output_output_v->sizes()[i].dim;
   // Prepare attributes
-  
+
 
   // Call to Runtime
   ONNC_RUNTIME_aten_float(
@@ -3862,7 +3951,7 @@ void BasicInterpreter::visit(ATen& pOp) {
     , reinterpret_cast<float **>(output_output)
     , output_output_ntensor
     , output_output_ndim, output_output_dims
-    
+
   );
 };
 
