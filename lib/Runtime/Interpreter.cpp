@@ -6,7 +6,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <onnc/Runtime/Interpreter.h>
-
 #include <onnc/Support/IOStream.h>
 
 #include <onnc/IR/Compute/Abs.h>
@@ -123,14 +122,16 @@
 #include <onnc/IR/Compute/ScaledTanh.h>
 #include <onnc/IR/Compute/ThresholdedRelu.h>
 
-#define restrict __restrict__
+#ifndef restrict
+# define restrict __restrict__
+#endif
+
 extern "C" {
 #include <onnc/Runtime/onni-runtime.h>
 }
 #undef restrict
 
-using namespace onnc;
-
+namespace onnc {
 //===----------------------------------------------------------------------===//
 // BasicInterpreter
 //===----------------------------------------------------------------------===//
@@ -4253,4 +4254,4 @@ void BasicInterpreter::visit(ThresholdedRelu& pOp) {
     , alpha
   );
 };
-
+} // namespace onnc
