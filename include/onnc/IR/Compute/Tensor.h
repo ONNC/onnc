@@ -9,6 +9,9 @@
 #define ONNC_IR_COMPUTE_TENSOR_H
 #include <onnc/IR/Compute/Value.h>
 #include <onnc/Config/ONNX.h>
+
+#include <cstdint>
+
 #include <vector>
 
 namespace onnc {
@@ -16,7 +19,9 @@ namespace onnc {
 class Tensor : public onnc::Value
 {
 public:
-  typedef std::vector<int64_t> Dimensions;
+  using Dimension  = std::int64_t;
+  using Dimensions = std::vector<Dimension>;
+  using Size       = Dimensions::size_type;
 
 public:
   Tensor();
@@ -27,9 +32,9 @@ public:
 
   Tensor(onnc::Value::Type pKind, xTensor& pAdaptee);
 
-  unsigned int getNumOfDimensions() const { return m_Dimensions.size(); }
+  Size getNumOfDimensions() const { return m_Dimensions.size(); }
 
-  unsigned int dimension(unsigned int pIdx) const { return m_Dimensions[pIdx]; }
+  Dimension dimension(Size pIdx) const { return m_Dimensions[pIdx]; }
 
   const Dimensions &getDimensions() const { return m_Dimensions; };
 
