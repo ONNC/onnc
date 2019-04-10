@@ -1,4 +1,5 @@
 #include "CLangGenServiceLibraryPass.h"
+#include "CLangOperatorInvokeVisitor.h"
 
 #include <onnc/ADT/StringRef.h>
 #include <onnc/IR/Module.h>
@@ -77,12 +78,12 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
 
   addIncludeDirectives(file);
   addOperatorFunctionDefinitions(file, resourceDirectory, meta.usedOperatorNames);
-  addModelMainDefinition(file);
+  addModelMainDefinition(file, module);
 
   return kModuleNoChanged;
 }
 
-void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream)
+void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, const Module& module)
 {
   using namespace internal;
 
@@ -93,6 +94,9 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream)
 
   const std::string tensors = "tensors";
   stream << indent << "char * const " << tensors << " = calloc(" << getInternalMemorySize() << ", 1);\n";
+
+  CLangOperatorInvokeVisitor visitor{meta, stream};
+  visitor.visit(module);
 
   stream << indent << "free(" << tensors << ");\n";
   stream << "}\n";

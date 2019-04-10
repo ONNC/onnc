@@ -10,6 +10,8 @@ namespace onnc {
 
 class CLangGenServiceLibraryPass final : public CustomPass<CLangGenServiceLibraryPass>
 {
+  using stream_type = std::ostream;
+
 public:
   CLangGenServiceLibraryPass() = default;
   CLangGenServiceLibraryPass(const CLangMeta& meta, Path outputFile, Path resourceDirectory)
@@ -25,7 +27,7 @@ public:
   ~CLangGenServiceLibraryPass()                                       = default;
 
   ReturnType runOnModule(Module& module) override;
-  void       addModelMainDefinition(std::ostream& stream);
+  void       addModelMainDefinition(stream_type& stream, const Module& module);
 
 private:
   std::size_t getInternalMemorySize() const;

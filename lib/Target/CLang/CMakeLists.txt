@@ -9,6 +9,7 @@ add_libonnc_src(
     CLangGetOperatorListPass.cpp
     CLangMemInfoPass.cpp
     CLangMeta.cpp
+    CLangOperatorInvokeVisitor.cpp
     TargetInfo/CLangTargetInfo.cpp
     TargetInfo/CLangTargetMemInfo.cpp
 )
