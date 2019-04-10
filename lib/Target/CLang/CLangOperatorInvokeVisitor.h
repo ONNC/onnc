@@ -25,6 +25,24 @@
                                        const std::string&);
 #endif
 
+#ifndef PP_VISIT_TYPE_LIST
+/*
+# define PP_VISIT_TYPE_LIST ( \
+    Abs, Acos, Add, Affine, And, ArgMax, ArgMin, Asin, Atan, ATen, AveragePool, BatchNormalization, Cast, Ceil, Clip,   \
+    Concat, Constant, ConstantFill, Conv, ConvTranspose, Cos, Crop, DepthToSpace, Div, Dropout, Elu, Equal, Exp,        \
+    Expand, Flatten, Floor, Gather, Gemm, GivenTensorFill, GlobalAveragePool, GlobalLpPool, GlobalMaxPool, Greater,     \
+    GRU, GRUUnit, Hardmax, HardSigmoid, Identity, ImageScaler, InstanceNormalization, LeakyRelu, Less, Log, LogSoftmax, \
+    LpNormalization, LpPool, LRN, LSTM, MatMul, Max, MaxPool, MaxRoiPool, Mean, MeanVarianceNormalization, Min, Mul,    \
+    Multinomial, Neg, Not, Or, Pad, ParametricSoftplus, Pow, PRelu, RandomNormal, RandomNormalLike, RandomUniform,      \
+    RandomUniformLike, Reciprocal, ReduceL1, ReduceL2, ReduceLogSum, ReduceLogSumExp, ReduceMax, ReduceMean, ReduceMin, \
+    ReduceProd, ReduceSum, ReduceSumSquare, Relu, Reshape, RNN, Scale, ScaledTanh, Selu, Shape, Sigmoid, Sin, Size,     \
+    Slice, Softmax, Softplus, Softsign, SpaceToDepth, Split, Sqrt, Squeeze, Sub, Sum, Tan, Tanh, ThresholdedRelu, Tile, \
+    TopK, Transpose, Unsqueeze, Upsample, Xor \
+  )
+*/
+# define PP_VISIT_TYPE_LIST (Softmax, Conv, Gemm, LRN, Relu, MaxPool, Reshape)
+#endif
+
 namespace onnc {
 
 class CLangOperatorInvokeVisitor : public CustomVisitor<CLangOperatorInvokeVisitor>
@@ -49,24 +67,7 @@ public:
 
 	void visit(const Module&);
 
-  /*
-  PP_LIST_FOR_EACH(PP_GEN_VISIT_DECL,
-    Abs, Acos, Add, Affine, And, ArgMax, ArgMin, Asin, Atan, ATen, AveragePool, BatchNormalization, Cast, Ceil, Clip,
-    Concat, Constant, ConstantFill, Conv, ConvTranspose, Cos, Crop, DepthToSpace, Div, Dropout, Elu, Equal, Exp,
-    Expand, Flatten, Floor, Gather, Gemm, GivenTensorFill, GlobalAveragePool, GlobalLpPool, GlobalMaxPool, Greater,
-    GRU, GRUUnit, Hardmax, HardSigmoid, Identity, ImageScaler, InstanceNormalization, LeakyRelu, Less, Log, LogSoftmax,
-    LpNormalization, LpPool, LRN, LSTM, MatMul, Max, MaxPool, MaxRoiPool, Mean, MeanVarianceNormalization, Min, Mul,
-    Multinomial, Neg, Not, Or, Pad, ParametricSoftplus, Pow, PRelu, RandomNormal, RandomNormalLike, RandomUniform,
-    RandomUniformLike, Reciprocal, ReduceL1, ReduceL2, ReduceLogSum, ReduceLogSumExp, ReduceMax, ReduceMean, ReduceMin,
-    ReduceProd, ReduceSum, ReduceSumSquare, Relu, Reshape, RNN, Scale, ScaledTanh, Selu, Shape, Sigmoid, Sin, Size,
-    Slice, Softmax, Softplus, Softsign, SpaceToDepth, Split, Sqrt, Squeeze, Sub, Sum, Tan, Tanh, ThresholdedRelu, Tile,
-    TopK, Transpose, Unsqueeze, Upsample, Xor
-  )
-  */
-
-  PP_LIST_FOR_EACH(PP_GEN_VISIT_DECL,
-    Softmax, Conv, Gemm, LRN, Relu, MaxPool, Reshape
-  )
+  PP_LIST_FOR_EACH(PP_GEN_VISIT_DECL, PP_UNWRAP(PP_VISIT_TYPE_LIST))
 
 private:
   const CLangMeta&       meta;

@@ -43,39 +43,12 @@ void CLangOperatorInvokeVisitor::visit(const Module& module)
   }
 }
 
-PP_GEN_VISIT_DEF(Conv, conv)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
-
-PP_GEN_VISIT_DEF(Gemm, gemm)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
-
-PP_GEN_VISIT_DEF(LRN, lrn)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
-
-PP_GEN_VISIT_DEF(MaxPool, maxPool)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
-
-PP_GEN_VISIT_DEF(Relu, relu)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
-
-PP_GEN_VISIT_DEF(Reshape, reshape)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
-
-PP_GEN_VISIT_DEF(Softmax, softmax)
-{
-  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
-}
+#include "internal/Conv.inc"
+#include "internal/Gemm.inc"
+#include "internal/LRN.inc"
+#include "internal/MaxPool.inc"
+#include "internal/Relu.inc"
+#include "internal/Reshape.inc"
+#include "internal/Softmax.inc"
 
 } // namespace onnc
