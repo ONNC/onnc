@@ -36,6 +36,10 @@
 #define PP_CONCAT_(x, y) PP_CONCAT__(x, y)
 #define PP_CONCAT__(x, y) x##y
 
+#define PP_STRINGIFY(x) PP_STRINGIFY_(x)
+#define PP_STRINGIFY_(x) PP_STRINGIFY__(x)
+#define PP_STRINGIFY__(x) #x
+
 #define PP_LIST_FOR_EACH(macro, ...) PP_LIST_FOR_EACH_(macro, __VA_ARGS__)
 #define PP_LIST_FOR_EACH_(macro, ...) PP_LIST_FOR_EACH__(macro, __VA_ARGS__)
 #define PP_LIST_FOR_EACH__(macro, ...) PP_CONCAT(PP_LIST_FOR_EACH_, PP_COUNT(__VA_ARGS__))(macro, __VA_ARGS__)
