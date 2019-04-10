@@ -64,18 +64,19 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
 {
   using namespace internal;
 
-  stream << "int model_main(const struct ONNC_RUNTIME_inference_context* context)\n";
+  const std::string context = "context";
+  stream << "int model_main(const struct ONNC_RUNTIME_inference_context* " << context << ")\n";
   stream << "{\n";
 
   constexpr const Indent indent{1};
 
-  const std::string tensors = "tensors";
-  stream << indent << "char * const " << tensors << " = calloc(" << getInternalMemorySize() << ", 1);\n";
+  const std::string memory = "memory";
+  stream << indent << "char * const " << memory << " = calloc(" << getInternalMemorySize() << ", 1);\n";
 
-  CLangOperatorInvokeVisitor visitor{meta, stream, indent};
+  CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context + ".input", context + ".weight"};
   visitor.visit(module);
 
-  stream << indent << "free(" << tensors << ");\n";
+  stream << indent << "free(" << memory << ");\n";
   stream << "}\n";
 }
 

@@ -4,11 +4,14 @@
 #include "CLangMeta.h"
 #include "internal/Indent.h"
 
+#include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/CustomVisitor.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Support/Preprocessor.h>
 
 #include <ostream>
+#include <string>
+#include <utility>
 
 #ifndef PP_GEN_VISIT_PARAM_TYPE
 # define PP_GEN_VISIT_PARAM_TYPE(type) const type&
@@ -48,13 +51,19 @@ namespace onnc {
 class CLangOperatorInvokeVisitor : public CustomVisitor<CLangOperatorInvokeVisitor>
 {
 public:
-  using stream_type = std::ostream;
+  using stream_type     = std::ostream;
+  using identifier_type = std::string;
+  using expression_type = std::string;
 
   CLangOperatorInvokeVisitor();
-  CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream, internal::Indent indent)
+  CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream, internal::Indent indent,
+                             identifier_type memory, identifier_type input, identifier_type weight)
     : meta{meta}
     , stream{stream}
     , indent_{indent}
+    , memory{std::move(memory)}
+    , input{std::move(input)}
+    , weight{std::move(weight)}
   {}
 
   CLangOperatorInvokeVisitor(const CLangOperatorInvokeVisitor&) = delete;
@@ -69,10 +78,15 @@ public:
 
   PP_LIST_FOR_EACH(PP_GEN_VISIT_DECL, PP_UNWRAP(PP_VISIT_TYPE_LIST))
 
+  identifier_type defineTensor(internal::Indent indent, const Tensor& tensor);
+
 private:
   const CLangMeta&       meta;
   stream_type&           stream;
   const internal::Indent indent_;
+  const identifier_type  memory;
+  const identifier_type  input;
+  const identifier_type  weight;
 };
 
 } // namespace onnc

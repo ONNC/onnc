@@ -35,7 +35,8 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
   for (ComputeOperand* co : pModule.getComputeOperands()) {
     if (ComputeMemOperand* mem = dyn_cast<ComputeMemOperand>(co)) {
       if (mem->isInput()) {
-        continue;
+        const auto* const tensor = static_cast<const Tensor*>(co->getValue());
+        std::cout << "[Clang] (input) tensor = " << tensor << std::endl;
       } else if (mem->isWeight()) {
         const auto* const tensor = static_cast<const Tensor*>(co->getValue());
         m_pMeta.packedWeightMemoryBlocks.emplace_back(
