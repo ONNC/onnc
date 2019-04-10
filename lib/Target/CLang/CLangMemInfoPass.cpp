@@ -30,20 +30,21 @@ CLangMemInfoPass::CLangMemInfoPass(CLangMeta& pMeta) noexcept
 
 Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
 {
+  CLangMemoryBlock::size_type packedInputMemorySize    = 0;
   CLangMemoryBlock::size_type packedWeightMemorySize   = 0;
   CLangMemoryBlock::size_type packedInternalMemorySize = 0;
   for (ComputeOperand* co : pModule.getComputeOperands()) {
     if (ComputeMemOperand* mem = dyn_cast<ComputeMemOperand>(co)) {
+      const auto* const tensor = static_cast<const Tensor*>(co->getValue());
       if (mem->isInput()) {
-        const auto* const tensor = static_cast<const Tensor*>(co->getValue());
-        std::cout << "[Clang] (input) tensor = " << tensor << std::endl;
+        m_pMeta.packedInputMemoryBlocks.emplace_back(
+          std::make_pair(tensor, CLangMemoryBlock{packedInputMemorySize, mem->length()}));
+        packedInputMemorySize += mem->length();
       } else if (mem->isWeight()) {
-        const auto* const tensor = static_cast<const Tensor*>(co->getValue());
         m_pMeta.packedWeightMemoryBlocks.emplace_back(
           std::make_pair(tensor, CLangMemoryBlock{packedWeightMemorySize, mem->length()}));
         packedWeightMemorySize += mem->length();
       } else {
-        const auto* const tensor = static_cast<const Tensor*>(co->getValue());
         m_pMeta.packedInternalMemoryBlocks.emplace_back(
           std::make_pair(tensor, CLangMemoryBlock{packedInternalMemorySize, mem->length()}));
         packedInternalMemorySize += mem->length();
@@ -51,22 +52,29 @@ Pass::ReturnType CLangMemInfoPass::runOnModule(Module& pModule)
     }
   }
 
-  assert(!m_pMeta.packedWeightMemoryBlocks.empty());
-  for (const auto& entry : m_pMeta.packedWeightMemoryBlocks) {
-    const auto* const tensor      = entry.first;
-    const auto&       memoryBlock = entry.second;
-    outs() << "[Clang] (block) tensor = " << tensor << ", offset = " << std::setw(9) << memoryBlock.offset
+  static const auto showBlockInfo = [](std::ostream& stream, const auto& pair) {
+    const auto* const tensor      = pair.first;
+    const auto&       memoryBlock = pair.second;
+    stream << "[Clang] (block) tensor = " << tensor << ", offset = " << std::setw(9) << memoryBlock.offset
            << ", length = " << std::setw(9) << memoryBlock.length << std::endl;
-  }
+  };
+
+  static const auto showBlocksInfo = [](std::ostream& stream, const auto& pairs) {
+    for (const auto& pair : pairs) {
+      showBlockInfo(stream, pair);
+    }
+  };
+
+  assert(!m_pMeta.packedInputMemoryBlocks.empty());
+  showBlocksInfo(outs(), m_pMeta.packedInputMemoryBlocks);
+  outs() << "[Clang] input memory: " << packedInputMemorySize << std::endl;
+
+  assert(!m_pMeta.packedWeightMemoryBlocks.empty());
+  showBlocksInfo(outs(), m_pMeta.packedWeightMemoryBlocks);
   outs() << "[Clang] weight memory: " << packedWeightMemorySize << std::endl;
 
   assert(!m_pMeta.packedInternalMemoryBlocks.empty());
-  for (const auto& entry : m_pMeta.packedInternalMemoryBlocks) {
-    const auto* const tensor      = entry.first;
-    const auto&       memoryBlock = entry.second;
-    outs() << "[Clang] (block) tensor = " << tensor << ", offset = " << std::setw(9) << memoryBlock.offset
-           << ", length = " << std::setw(9) << memoryBlock.length << std::endl;
-  }
+  showBlocksInfo(outs(), m_pMeta.packedInternalMemoryBlocks);
   outs() << "[Clang] internal memory: " << packedInternalMemorySize << std::endl;
 
   return Pass::kModuleNoChanged;

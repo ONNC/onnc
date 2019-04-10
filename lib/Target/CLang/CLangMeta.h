@@ -32,9 +32,11 @@ struct CLangMemoryBlock
 
 struct CLangMeta
 {
-  using PackedWeightMemoryBlocks   = std::vector<std::pair<const Tensor*, CLangMemoryBlock>>;
-  using PackedInternalMemoryBlocks = std::vector<std::pair<const Tensor*, CLangMemoryBlock>>;
+  using TensorBlockPair            = std::pair<const Tensor*, CLangMemoryBlock>;
+  using PackedWeightMemoryBlocks   = std::vector<TensorBlockPair>;
+  using PackedInternalMemoryBlocks = std::vector<TensorBlockPair>;
   using UsedOperatorNames          = std::set<std::string>;
+  using PackedInputMemoryBlocks    = std::vector<TensorBlockPair>;
 
   CLangMeta()                 = default;
   CLangMeta(const CLangMeta&) = delete;
@@ -47,6 +49,7 @@ struct CLangMeta
   static const std::string weightFileExt;
   static const std::string serviceLibraryFileExt;
 
+  PackedInputMemoryBlocks    packedInputMemoryBlocks;
   PackedWeightMemoryBlocks   packedWeightMemoryBlocks;
   PackedInternalMemoryBlocks packedInternalMemoryBlocks;
   UsedOperatorNames          usedOperatorNames;
