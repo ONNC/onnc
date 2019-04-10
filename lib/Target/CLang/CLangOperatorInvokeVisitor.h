@@ -21,7 +21,8 @@
 #ifndef PP_GEN_VISIT_DECL
 # define PP_GEN_VISIT_DECL(type) \
   PP_GEN_VISIT_RETURN_TYPE() visit(PP_GEN_VISIT_PARAM_TYPE(type)) override; \
-  PP_GEN_VISIT_RETURN_TYPE() visitImpl(PP_GEN_VISIT_PARAM_TYPE(type), internal::Indent);
+  PP_GEN_VISIT_RETURN_TYPE() visitImpl(PP_GEN_VISIT_PARAM_TYPE(type), internal::Indent, \
+                                       const std::string&);
 #endif
 
 namespace onnc {
