@@ -1,5 +1,6 @@
 #include "CLangGenServiceLibraryPass.h"
 #include "CLangOperatorInvokeVisitor.h"
+#include "internal/Indent.h"
 
 #include <onnc/ADT/StringRef.h>
 #include <onnc/IR/Module.h>
@@ -10,30 +11,6 @@
 
 namespace onnc {
 namespace internal {
-template <unsigned Width>
-struct indent_t
-{
-  const unsigned level;
-};
-
-using indent_type = internal::indent_t<2>;
-
-template <unsigned Width>
-inline indent_t<Width> operator+(indent_t<Width> lhs, unsigned rhs)
-{
-  return indent_t<Width>{lhs.level + rhs};
-}
-
-template <unsigned Width>
-inline std::ostream& operator<<(std::ostream& stream, indent_t<Width> indent)
-{
-  for (auto spaceCount = indent.level * Width; 0 < spaceCount; --spaceCount) {
-    stream.put(' ');
-  }
-
-  return stream;
-}
-
 inline void addIncludeDirectives(std::ostream& stream)
 {
   stream << "#include <assert.h>\n";
@@ -90,12 +67,12 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   stream << "int model_main(const struct ONNC_RUNTIME_inference_context* context)\n";
   stream << "{\n";
 
-  indent_type indent{1};
+  constexpr const Indent indent{1};
 
   const std::string tensors = "tensors";
   stream << indent << "char * const " << tensors << " = calloc(" << getInternalMemorySize() << ", 1);\n";
 
-  CLangOperatorInvokeVisitor visitor{meta, stream};
+  CLangOperatorInvokeVisitor visitor{meta, stream, indent};
   visitor.visit(module);
 
   stream << indent << "free(" << tensors << ");\n";

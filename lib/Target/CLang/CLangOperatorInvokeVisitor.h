@@ -2,6 +2,7 @@
 #define TARGET_CLANG_OPERATOR_INVOKE_VISITOR_H_INCLUDED
 
 #include "CLangMeta.h"
+#include "internal/Indent.h"
 
 #include <onnc/IR/CustomVisitor.h>
 #include <onnc/IR/Module.h>
@@ -30,9 +31,10 @@ public:
   using stream_type = std::ostream;
 
   CLangOperatorInvokeVisitor();
-  CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream)
+  CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream, internal::Indent indent)
     : meta{meta}
     , stream{stream}
+    , indent{indent}
   {}
 
   CLangOperatorInvokeVisitor(const CLangOperatorInvokeVisitor&) = delete;
@@ -65,8 +67,9 @@ public:
   )
 
 private:
-  const CLangMeta& meta;
-  stream_type&     stream;
+  const CLangMeta&       meta;
+  stream_type&           stream;
+  const internal::Indent indent;
 };
 
 } // namespace onnc
