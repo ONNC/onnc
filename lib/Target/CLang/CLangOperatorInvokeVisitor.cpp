@@ -5,17 +5,24 @@
 #include <onnc/IR/Compute.h>
 
 #include <iostream>
+#include <string>
 
-#ifndef PP_GEN_CLASS_NAME
-# define PP_GEN_CLASS_NAME() CLangOperatorInvokeVisitor
-#endif
+#define PP_GEN_CLASS_NAME() CLangOperatorInvokeVisitor
+#define PP_GEN_VISIT_DEF(type, param) \
+  PP_GEN_VISIT_RETURN_TYPE() PP_GEN_CLASS_NAME()::visit(PP_GEN_VISIT_PARAM_TYPE(type) param) { \
+    PP_ENTER_SCOPE(stream, indent_); \
+    visitImpl(param, indent_ + 1);   \
+    PP_LEAVE_SCOPE(stream, indent_); \
+  }                                  \
+  PP_GEN_VISIT_RETURN_TYPE() PP_GEN_CLASS_NAME()::visitImpl(PP_GEN_VISIT_PARAM_TYPE(type) param, internal::Indent indent)
 
-#ifndef PP_GEN_VISIT_DEF
-# define PP_GEN_VISIT_DEF(type, param) \
-  PP_GEN_VISIT_RETURN_TYPE() PP_GEN_CLASS_NAME()::visit(PP_GEN_VISIT_PARAM_TYPE(type) param)
-#endif
+#define PP_ENTER_SCOPE(stream, indent) stream << indent << '{'
+#define PP_LEAVE_SCOPE(stream, indent) stream << indent << '}'
 
 namespace onnc {
+
+using Identifier = std::string;
+using Expression = std::string;
 
 void CLangOperatorInvokeVisitor::visit(const Module& module)
 {
@@ -27,37 +34,37 @@ void CLangOperatorInvokeVisitor::visit(const Module& module)
 
 PP_GEN_VISIT_DEF(Conv, conv)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 PP_GEN_VISIT_DEF(Gemm, gemm)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 PP_GEN_VISIT_DEF(LRN, lrn)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 PP_GEN_VISIT_DEF(MaxPool, maxPool)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 PP_GEN_VISIT_DEF(Relu, relu)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 PP_GEN_VISIT_DEF(Reshape, reshape)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 PP_GEN_VISIT_DEF(Softmax, softmax)
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  std::cout << indent << __PRETTY_FUNCTION__ << std::endl;
 }
 
 } // namespace onnc

@@ -20,7 +20,8 @@
 
 #ifndef PP_GEN_VISIT_DECL
 # define PP_GEN_VISIT_DECL(type) \
-  PP_GEN_VISIT_RETURN_TYPE() visit(PP_GEN_VISIT_PARAM_TYPE(type)) override;
+  PP_GEN_VISIT_RETURN_TYPE() visit(PP_GEN_VISIT_PARAM_TYPE(type)) override; \
+  PP_GEN_VISIT_RETURN_TYPE() visitImpl(PP_GEN_VISIT_PARAM_TYPE(type), internal::Indent);
 #endif
 
 namespace onnc {
@@ -34,7 +35,7 @@ public:
   CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream, internal::Indent indent)
     : meta{meta}
     , stream{stream}
-    , indent{indent}
+    , indent_{indent}
   {}
 
   CLangOperatorInvokeVisitor(const CLangOperatorInvokeVisitor&) = delete;
@@ -69,7 +70,7 @@ public:
 private:
   const CLangMeta&       meta;
   stream_type&           stream;
-  const internal::Indent indent;
+  const internal::Indent indent_;
 };
 
 } // namespace onnc
