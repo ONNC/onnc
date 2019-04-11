@@ -24,9 +24,9 @@ PP_GEN_VISIT_DEF(Conv, conv)
   //   input_B_dims = getTensorDimensions(*input_B_t);
   // }
   // // Prepare output
-  const Tensor *input_Y_t = conv.getOutput(0);
-  const auto input_Y_dims = defineDimensionArray(stream, indent, *input_Y_t);
-  const auto input_Y      = defineTensor(indent, *input_Y_t);
+  const Tensor *output_Y_t = conv.getOutput(0);
+  const auto output_Y_dims = defineDimensionArray(stream, indent, *output_Y_t);
+  const auto output_Y      = defineTensor(indent, *output_Y_t);
   // Tensor *output_Y_t = pOp.getOutput(0);
   // void *output_Y = m_ATable[output_Y_t];
   // ArrayHolder<int32_t> output_Y_dims = getTensorDimensions(*output_Y_t);
@@ -37,5 +37,4 @@ PP_GEN_VISIT_DEF(Conv, conv)
   // ArrayHolder<int32_t> kernel_shape{pOp.getKernelShape().vector()};
   // ArrayHolder<int32_t> pads{pOp.getPads().vector()};
   // ArrayHolder<int32_t> strides{pOp.getStrides().vector()};
-
 }

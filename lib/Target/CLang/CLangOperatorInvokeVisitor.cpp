@@ -20,7 +20,7 @@
     PP_LEAVE_SCOPE(stream, indent_); \
   } \
   PP_GEN_VISIT_RETURN_TYPE() PP_GEN_CLASS_NAME()::visitImpl(PP_GEN_VISIT_PARAM_TYPE(type) param, \
-                                                            internal::Indent indent, const std::string& target)
+                                                            internal::Indent indent, const identifier_type& target)
 
 #define PP_ENTER_SCOPE(stream, indent) stream << indent << "{\n"
 #define PP_LEAVE_SCOPE(stream, indent) stream << indent << "}\n"
@@ -57,10 +57,12 @@ namespace internal {
     return stream;
   }
 
-  inline std::string getTarget(const char* op)
+  inline identifier_type getTarget(const char* op)
   {
     std::ostringstream stream;
-    stream << "ONNC_RUNTIME_" << StringRef{op}.lower() << "_float";
+    if (op != nullptr) {
+      stream << "ONNC_RUNTIME_" << StringRef{op}.lower() << "_float";
+    }
     return stream.str();
   }
 
@@ -90,18 +92,48 @@ namespace internal {
     return array;
   }
 
-  inline CLangMemoryBlock::address_type getOffset(const CLangMeta& meta, const Tensor& tensor)
+  inline std::size_t getInputIndex(const CLangMeta& meta, const Tensor& tensor)
+  {
+     std::size_t index = 0;
+     for (const auto& entry : meta.packedInputMemoryBlocks) {
+       const auto* const value = entry.first;
+       if (value == &tensor) {
+         return index;
+       }
+       ++index;
+    }
+
+    assert(false && "cannot find such tensor in meta");
+    return static_cast<std::size_t>(-1);
+  }
+
+  inline std::size_t getWeightIndex(const CLangMeta& meta, const Tensor& tensor)
+  {
+     std::size_t index = 0;
+     for (const auto& entry : meta.packedWeightMemoryBlocks) {
+       const auto* const value = entry.first;
+       if (value == &tensor) {
+         return index;
+       }
+       ++index;
+    }
+
+    assert(false && "cannot find such tensor in meta");
+    return static_cast<std::size_t>(-1);
+  }
+
+  inline CLangMemoryBlock::address_type getInternalOffset(const CLangMeta& meta, const Tensor& tensor)
   {
     for (const auto& entry : meta.packedInternalMemoryBlocks) {
-      const auto* const value  = entry.first;
-      const auto&       memory = entry.second;
+      const auto* const value = entry.first;
       if (value == &tensor) {
+        const auto& memory = entry.second;
         return memory.offset;
       }
     }
 
     assert(false && "cannot find such tensor in meta");
-    return 0;
+    return static_cast<CLangMemoryBlock::address_type>(-1);
   }
 
   template <Type type>
@@ -143,17 +175,69 @@ using namespace internal;
 
 void PP_GEN_CLASS_NAME()::visit(const Module& module)
 {
-  for (const ComputeOperator& computeOperator : *module.getRootComputeGraph()) {
+  prepareMemoryTypes();
+
+  for (const auto& computeOperator : *module.getRootComputeGraph()) {
     computeOperator.accept(*this);
   }
 }
 
-inline identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const Tensor& tensor)
+identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const Tensor& tensor)
 {
+  const auto getInitializer = [this](const Tensor& tensor) -> expression_type {
+    std::ostringstream stream;
+    switch (getMemoryType(tensor)) {
+    case MemoryType::input:
+      stream << "ONNC_RUNTIME_read_tensor(" << input << ", " << getInputIndex(meta, tensor) << ").data";
+      break;
+    case MemoryType::weight:
+      stream << "ONNC_RUNTIME_read_tensor(" << weight << ", " << getWeightIndex(meta, tensor) << ").data";
+      break;
+    case MemoryType::internal:
+      stream << "(" << memory << " + " << getInternalOffset(meta, tensor) << ")";
+      break;
+    default:
+      assert(false && "should not reach here");
+      break;
+    }
+    return stream.str();
+  };
+
   identifier_type id = getIdentifier();
   stream << indent << PTR_TO_VOID << " const " << id
-         << " = " << memory << " + " << getOffset(meta, tensor)
-         << '\n';
+         << " = " << getInitializer(tensor) << ";\n";
+
+  return id;
+}
+
+void PP_GEN_CLASS_NAME()::prepareMemoryTypes()
+{
+  memoryTypes.clear();
+
+  for (const auto& entry : meta.packedInputMemoryBlocks) {
+    const auto* const tensor = entry.first;
+    memoryTypes.emplace(tensor, MemoryType::input);
+  }
+
+  for (const auto& entry : meta.packedWeightMemoryBlocks) {
+    const auto* const tensor = entry.first;
+    memoryTypes.emplace(tensor, MemoryType::weight);
+  }
+
+  for (const auto& entry : meta.packedInternalMemoryBlocks) {
+    const auto* const tensor = entry.first;
+    memoryTypes.emplace(tensor, MemoryType::internal);
+  }
+}
+
+PP_GEN_CLASS_NAME()::MemoryType PP_GEN_CLASS_NAME()::getMemoryType(const Tensor& tensor)
+{
+  const auto found = memoryTypes.find(&tensor);
+  if (found == std::end(memoryTypes)) {
+    return MemoryType::none;
+  }
+
+  return found->second;
 }
 
 #include "internal/Conv.inc"

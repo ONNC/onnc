@@ -11,6 +11,7 @@
 
 #include <ostream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 #ifndef PP_GEN_VISIT_PARAM_TYPE
@@ -81,12 +82,22 @@ public:
   identifier_type defineTensor(internal::Indent indent, const Tensor& tensor);
 
 private:
+  enum class MemoryType : unsigned short {
+    none, input, weight, internal
+  };
+
+  using memory_types_type = std::unordered_map<const Tensor*, MemoryType>;
+
+  void prepareMemoryTypes();
+  MemoryType getMemoryType(const Tensor& tensor);
+
   const CLangMeta&       meta;
   stream_type&           stream;
   const internal::Indent indent_;
   const identifier_type  memory;
   const identifier_type  input;
   const identifier_type  weight;
+  memory_types_type      memoryTypes;
 };
 
 } // namespace onnc

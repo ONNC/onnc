@@ -63,19 +63,22 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
 void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, const Module& module)
 {
   using namespace internal;
+  using identifier_type = CLangOperatorInvokeVisitor::identifier_type;
 
-  const std::string context = "context";
+  const identifier_type context = "context";
   stream << "int model_main(const struct ONNC_RUNTIME_inference_context* " << context << ")\n";
   stream << "{\n";
 
   constexpr const Indent indent{1};
 
-  const std::string memory = "memory";
+  // allocate internal memory
+  const identifier_type memory = "memory";
   stream << indent << "char * const " << memory << " = calloc(" << getInternalMemorySize() << ", 1);\n";
 
-  CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context + ".input", context + ".weight"};
+  CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context + "->input", context + "->weight"};
   visitor.visit(module);
 
+  // release internal memory
   stream << indent << "free(" << memory << ");\n";
   stream << "}\n";
 }
