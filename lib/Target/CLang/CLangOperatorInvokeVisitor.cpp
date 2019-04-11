@@ -25,12 +25,21 @@
 #define PP_ENTER_SCOPE(stream, indent) stream << indent << "{\n"
 #define PP_LEAVE_SCOPE(stream, indent) stream << indent << "}\n"
 
+#define PP_BUILTIN_TYPE_LIST (int32_t, float, void*, const char*)
+#define PP_GEN_TYPE_HOLDER_DEF(type) \
+  template <> struct holder<type>{};
+#define PP_GEN_TYPE_HOLDER_STREAM_OP(type) \
+  inline PP_GEN_CLASS_NAME()::stream_type& operator<<(PP_GEN_CLASS_NAME()::stream_type& stream, holder<type>) { \
+    return stream << PP_STRINGIFY(type); \
+  }
+
 namespace onnc {
 namespace internal {
-  enum Type : unsigned
-  {
-    INT32, FLOAT, PTR_TO_VOID
-  };
+  template <typename T>
+  struct holder;
+
+  PP_LIST_FOR_EACH(PP_GEN_TYPE_HOLDER_DEF      , PP_UNWRAP(PP_BUILTIN_TYPE_LIST))
+  PP_LIST_FOR_EACH(PP_GEN_TYPE_HOLDER_STREAM_OP, PP_UNWRAP(PP_BUILTIN_TYPE_LIST))
 
   using identifier_type = PP_GEN_CLASS_NAME()::identifier_type;
   using expression_type = PP_GEN_CLASS_NAME()::expression_type;
@@ -38,24 +47,6 @@ namespace internal {
   static_assert(std::is_convertible<std::string, identifier_type>::value, "Should can create identifier_type from std::string");
   static_assert(std::is_convertible<std::string, expression_type>::value, "Should can create expression_type from std::string");
   static_assert(std::is_convertible<identifier_type, expression_type>::value, "identifier_type itself is a kind of expression_type");
-
-  inline constexpr PP_GEN_CLASS_NAME()::stream_type& operator<<(PP_GEN_CLASS_NAME()::stream_type& stream, Type type)
-  {
-    switch (type) {
-    case INT32:
-      stream << "int32_t";
-      break;
-    case FLOAT:
-      stream << "float";
-      break;
-    case PTR_TO_VOID:
-      stream << "void*";
-      break;
-    default:
-      assert(false && "meet unknown type");
-    }
-    return stream;
-  }
 
   inline identifier_type getTarget(const char* op)
   {
@@ -75,11 +66,35 @@ namespace internal {
     return stream.str();
   }
 
-  template <Type type, typename RandomAccessRange>
+  template <typename T>
+  inline expression_type toStringLiteral(const T& value)
+  {
+    std::ostringstream stream;
+    stream << "\"" << value << "\"";
+    return stream.str();
+  }
+
+  template <typename T>
+  inline identifier_type defineVar(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const T& value)
+  {
+    identifier_type id = getIdentifier();
+    stream << indent << holder<T>{} << " " << id << " = " << value << ";\n";
+    return id;
+  }
+
+  template <typename T>
+  inline identifier_type defineVarByExpr(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const expression_type& expr)
+  {
+    identifier_type id = getIdentifier();
+    stream << indent << holder<T>{} << " " << id << " = " << expr << ";\n";
+    return id;
+  }
+
+  template <typename T, typename RandomAccessRange>
   inline identifier_type defineArray(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const RandomAccessRange& range)
   {
     identifier_type array = getIdentifier();
-    stream << indent << type << " " << array << "[] = { ";
+    stream << indent << holder<T>{} << " " << array << "[] = { ";
     bool isFirst = true;
     for (const auto& element : range) {
       if (!isFirst) {
@@ -136,17 +151,17 @@ namespace internal {
     return static_cast<CLangMemoryBlock::address_type>(-1);
   }
 
-  template <Type type>
+  template <typename T>
   inline expression_type cast(const expression_type& expr)
   {
     std::ostringstream stream;
-    stream << "((" << type << ")" << expr << ")";
+    stream << "((" << holder<T>{} << ")" << expr << ")";
     return stream.str();
   }
 
   inline identifier_type defineDimensionArray(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const Tensor& tensor)
   {
-    return defineArray<INT32>(stream, indent, tensor.getDimensions());
+    return defineArray<std::int32_t>(stream, indent, tensor.getDimensions());
   }
 
   inline void invoke(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const identifier_type& name, std::initializer_list<expression_type> exprs)
@@ -204,7 +219,7 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const
   };
 
   identifier_type id = getIdentifier();
-  stream << indent << PTR_TO_VOID << " const " << id
+  stream << indent << holder<void*>{} << " const " << id
          << " = " << getInitializer(tensor) << ";\n";
 
   return id;
