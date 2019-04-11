@@ -25,7 +25,7 @@
 #define PP_ENTER_SCOPE(stream, indent) stream << indent << "{\n"
 #define PP_LEAVE_SCOPE(stream, indent) stream << indent << "}\n"
 
-#define PP_BUILTIN_TYPE_LIST (int32_t, float, void*, const char*)
+#define PP_BUILTIN_TYPE_LIST (int32_t, int32_t*, float, void*, const char*)
 #define PP_GEN_TYPE_HOLDER_DEF(type) \
   template <> struct holder<type>{};
 #define PP_GEN_TYPE_HOLDER_STREAM_OP(type) \

@@ -7,15 +7,14 @@ PP_GEN_VISIT_DEF(Conv, conv)
   const Tensor *input_W_t = conv.getInput(1);
   const auto input_W_dims = defineDimensionArray(stream, indent, *input_W_t);
   const auto input_W      = defineTensor(indent, *input_W_t);
-  // // Prepare input
-  // Tensor *input_B_t = NULL;
-  // void *input_B = NULL;
-  // ArrayHolder<int32_t> input_B_dims;
-  // if (pOp.getNumOfInputs() > 2) {
-  //   input_B_t = pOp.getInput(2);
-  //   input_B = m_ATable[input_B_t];
-  //   input_B_dims = getTensorDimensions(*input_B_t);
-  // }
+  // Prepare input
+  const bool hasBias      = (2 < conv.getNumOfInputs());
+  const auto input_B      = hasBias ? defineTensor(indent, *conv.getInput(2))
+                                    : defineVarByExpr<void*>(stream, indent, PP_STRINGIFY(NULL))
+                                    ;
+  const auto input_B_dims = hasBias ? defineDimensionArray(stream, indent, *conv.getInput(2))
+                                    : defineVarByExpr<int32_t*>(stream, indent, PP_STRINGIFY(NULL))
+                                    ;
   // Prepare output
   const Tensor *output_Y_t = conv.getOutput(0);
   const auto output_Y_dims = defineDimensionArray(stream, indent, *output_Y_t);
