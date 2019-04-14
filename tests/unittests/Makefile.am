@@ -24,7 +24,7 @@ if ENABLE_REGRESSION
 MORE_TEST_SOURCES =
 endif
 
-ONNC_INCLUDES = -I${abs_top_srcdir}/tools/unittests \
+ONNC_INCLUDES = -I${abs_top_srcdir}/tests/unittests \
 	@LIBONNC_INCLUDES@ @SKYPAT_INCLUDES@ @ONNX_INCLUDES@
 
 ANDROID_CPPFLAGS=-Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-return-stack-address

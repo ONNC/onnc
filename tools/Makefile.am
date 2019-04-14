@@ -1,3 +1,3 @@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = unittests onnc readonnx onnc-jit onni
+SUBDIRS = onnc readonnx onnc-jit onni
