@@ -5,12 +5,15 @@
 #include "internal/Indent.h"
 
 #include <onnc/IR/Compute/Tensor.h>
+#include <onnc/IR/ComputeOperator.h>
 #include <onnc/IR/CustomVisitor.h>
 #include <onnc/IR/Module.h>
 #include <onnc/Support/Preprocessor.h>
 
+#include <iterator>
 #include <ostream>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 
@@ -29,34 +32,17 @@
 #endif
 
 #ifndef PP_VISIT_TYPE_LIST
-/*
-# define PP_VISIT_TYPE_LIST ( \
-    Abs, Acos, Add, Affine, And, ArgMax, ArgMin, Asin, Atan, ATen, AveragePool, BatchNormalization, Cast, Ceil, Clip, \
-    Concat, Constant, ConstantFill, Conv, ConvTranspose, Cos, Crop, DepthToSpace, Div, Dropout, Elu, Equal, Exp, \
-    Expand, Flatten, Floor, Gather, Gemm, GivenTensorFill, GlobalAveragePool, GlobalLpPool, GlobalMaxPool, Greater, \
-    GRU, GRUUnit, Hardmax, HardSigmoid, Identity, ImageScaler, InstanceNormalization, LeakyRelu, Less, Log, LogSoftmax,
-\
-    LpNormalization, LpPool, LRN, LSTM, MatMul, Max, MaxPool, MaxRoiPool, Mean, MeanVarianceNormalization, Min, Mul, \
-    Multinomial, Neg, Not, Or, Pad, ParametricSoftplus, Pow, PRelu, RandomNormal, RandomNormalLike, RandomUniform, \
-    RandomUniformLike, Reciprocal, ReduceL1, ReduceL2, ReduceLogSum, ReduceLogSumExp, ReduceMax, ReduceMean, ReduceMin,
-\
-    ReduceProd, ReduceSum, ReduceSumSquare, Relu, Reshape, RNN, Scale, ScaledTanh, Selu, Shape, Sigmoid, Sin, Size, \
-    Slice, Softmax, Softplus, Softsign, SpaceToDepth, Split, Sqrt, Squeeze, Sub, Sum, Tan, Tanh, ThresholdedRelu, Tile,
-\
-    TopK, Transpose, Unsqueeze, Upsample, Xor \
-  )
-*/
-#  define PP_VISIT_TYPE_LIST                                                                                         \
-    (Abs, Acos, Add, Affine, And, ArgMax, ArgMin, Asin, Atan, AveragePool, BatchNormalization, Cast, Ceil, Clip,     \
-     ConstantFill, Conv, ConvTranspose, Cos, Crop, DepthToSpace, Div, Dropout, Elu, Equal, Exp, Expand, Flatten,     \
-     Floor, Gather, Gemm, GivenTensorFill, GlobalAveragePool, GlobalLpPool, GlobalMaxPool, Greater, GRU, GRUUnit,    \
-     Hardmax, HardSigmoid, Identity, ImageScaler, InstanceNormalization, LeakyRelu, Less, Log, LogSoftmax,           \
-     LpNormalization, LpPool, LRN, LSTM, MatMul, MaxPool, MaxRoiPool, MeanVarianceNormalization, Mul, Multinomial,   \
-     Neg, Not, Or, Pad, ParametricSoftplus, Pow, PRelu, RandomNormal, RandomNormalLike, RandomUniform,               \
-     RandomUniformLike, Reciprocal, ReduceL1, ReduceL2, ReduceLogSum, ReduceLogSumExp, ReduceMax, ReduceMean,        \
-     ReduceMin, ReduceProd, ReduceSum, ReduceSumSquare, Relu, Reshape, RNN, Scale, ScaledTanh, Selu, Shape, Sigmoid, \
-     Sin, Size, Slice, Softmax, Softplus, Softsign, SpaceToDepth, Sqrt, Squeeze, Sub, Tan, Tanh, ThresholdedRelu,    \
-     Tile, TopK, Transpose, Unsqueeze, Upsample, Xor)
+#  define PP_VISIT_TYPE_LIST                                                                                           \
+    (Abs, Acos, Add, Affine, And, ArgMax, ArgMin, Asin, Atan, ATen, AveragePool, BatchNormalization, Cast, Ceil, Clip, \
+     Concat, Constant, ConstantFill, Conv, ConvTranspose, Cos, Crop, DepthToSpace, Div, Dropout, Elu, Equal, Exp,      \
+     Expand, Flatten, Floor, Gather, Gemm, GivenTensorFill, GlobalAveragePool, GlobalLpPool, GlobalMaxPool, Greater,   \
+     GRU, GRUUnit, Hardmax, HardSigmoid, Identity, ImageScaler, InstanceNormalization, LeakyRelu, Less, Log,           \
+     LogSoftmax, LpNormalization, LpPool, LRN, LSTM, MatMul, Max, MaxPool, MaxRoiPool, Mean,                           \
+     MeanVarianceNormalization, Min, Mul, Multinomial, Neg, Not, Or, Pad, ParametricSoftplus, Pow, PRelu,              \
+     RandomNormal, RandomNormalLike, RandomUniform, RandomUniformLike, Reciprocal, ReduceL1, ReduceL2, ReduceLogSum,   \
+     ReduceLogSumExp, ReduceMax, ReduceMean, ReduceMin, ReduceProd, ReduceSum, ReduceSumSquare, Relu, Reshape, RNN,    \
+     Scale, ScaledTanh, Selu, Shape, Sigmoid, Sin, Size, Slice, Softmax, Softplus, Softsign, SpaceToDepth, Split,      \
+     Sqrt, Squeeze, Sub, Sum, Tan, Tanh, ThresholdedRelu, Tile, TopK, Transpose, Unsqueeze, Upsample, Xor)
 #endif
 
 namespace onnc {
@@ -67,6 +53,15 @@ public:
   using stream_type     = std::ostream;
   using identifier_type = std::string;
   using expression_type = std::string;
+
+  enum class TensorType : unsigned short
+  {
+    inputs,
+    outputs,
+    input  = inputs,
+    output = outputs,
+    data_0 = inputs,
+  };
 
   CLangOperatorInvokeVisitor();
   CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream, internal::Indent indent,
@@ -92,6 +87,9 @@ public:
   PP_LIST_FOR_EACH(PP_GEN_VISIT_DECL, PP_UNWRAP(PP_VISIT_TYPE_LIST))
 
   identifier_type defineTensor(internal::Indent indent, const Tensor& tensor);
+
+  template <TensorType type>
+  identifier_type defineTensors(internal::Indent indent, const ComputeOperator& op, std::size_t first = 0);
 
 private:
   enum class MemoryType : unsigned short

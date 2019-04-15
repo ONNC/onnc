@@ -1,4 +1,4 @@
-//===- All.inc ----------------------------------------------------===//
+//===- All.inc ------------------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -379,54 +379,46 @@ PP_GEN_VISIT_DEF(Clip, pOp)
           output_output_ndim, output_output_dims, max, min});
 }
 
-// PP_GEN_VISIT_DEF(Concat, pOp) {
-//   // Prepare input
-//   const auto input_inputs_ntensor = toExpr(pOp.getNumOfInputs() - 0);
-//   void *input_inputs[input_inputs_ntensor];
-//   int32_t input_inputs_ndim[input_inputs_ntensor]; // FIXME: = input_inputs_v->sizes().size();
-//   int32_t *input_inputs_dims[input_inputs_ntensor]; // FIXME: [input_inputs_ndim[0]];
-//   // Prepare output
-//   const Tensor *output_concat_result_t = pOp.getOutput(0);
-//   const auto output_concat_result = defineTensor(indent, *output_concat_result_t);
-//   const auto output_concat_result_ndim = toExpr(output_concat_result_t->getNumOfDimensions());
-//   const auto output_concat_result_dims = defineDimensionArray(stream, indent, *output_concat_result_t);
-//   // Prepare attributes
-//   const auto axis = toExpr(pOp.getAxis().value());
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float **>(input_inputs)
-//     , input_inputs_ntensor
-//     , input_inputs_ndim, input_inputs_dims
-//     , castExpr<float *>(output_concat_result)
-//     , output_concat_result_ndim, output_concat_result_dims
-//     , axis
-//   });
-// }
+PP_GEN_VISIT_DEF(Concat, pOp)
+{
+  // Prepare input
+  const auto input_inputs_ntensor = toExpr(pOp.getNumOfInputs() - 0);
+  const auto input_inputs         = defineTensors<TensorType::inputs>(indent, pOp, 0);
+  const auto input_inputs_ndim    = defineDimensionNumberArray<TensorType::inputs>(stream, indent, pOp, 0);
+  const auto input_inputs_dims    = defineDimensionArrays<TensorType::inputs>(stream, indent, pOp, 0);
+  // Prepare output
+  const Tensor* output_concat_result_t    = pOp.getOutput(0);
+  const auto    output_concat_result      = defineTensor(indent, *output_concat_result_t);
+  const auto    output_concat_result_ndim = toExpr(output_concat_result_t->getNumOfDimensions());
+  const auto    output_concat_result_dims = defineDimensionArray(stream, indent, *output_concat_result_t);
+  // Prepare attributes
+  const auto axis = toExpr(pOp.getAxis().value());
 
-// PP_GEN_VISIT_DEF(Constant, pOp) {
-//   // Prepare input
-//
-//   // Prepare output
-//   const Tensor *output_output_t = pOp.getOutput(0);
-//   const auto output_output = defineTensor(indent, *output_output_t);
-//   const auto output_output_ndim = toExpr(output_output_t->getNumOfDimensions());
-//   const auto output_output_dims = defineDimensionArray(stream, indent, *output_output_t);
-//   // Prepare attributes
-//   const auto value = toExpr(&pOp.getValue().value());
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//
-//     , castExpr<float *>(output_output)
-//     , output_output_ndim, output_output_dims
-//     , value
-//   });
-// }
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float**>(input_inputs), input_inputs_ntensor, input_inputs_ndim, input_inputs_dims,
+          castExpr<float*>(output_concat_result), output_concat_result_ndim, output_concat_result_dims, axis});
+}
+
+PP_GEN_VISIT_DEF(Constant, pOp)
+{
+  // Prepare input
+
+  // Prepare output
+  const Tensor* output_output_t    = pOp.getOutput(0);
+  const auto    output_output      = defineTensor(indent, *output_output_t);
+  const auto    output_output_ndim = toExpr(output_output_t->getNumOfDimensions());
+  const auto    output_output_dims = defineDimensionArray(stream, indent, *output_output_t);
+  // Prepare attributes
+  const auto value = toExpr(&pOp.getValue().value());
+
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL"
+
+          ,
+          castExpr<float*>(output_output), output_output_ndim, output_output_dims, value});
+}
 
 PP_GEN_VISIT_DEF(Conv, pOp)
 {
@@ -1452,32 +1444,27 @@ PP_GEN_VISIT_DEF(MatMul, pOp)
          });
 }
 
-// PP_GEN_VISIT_DEF(Max, pOp) {
-//   // Prepare input
-//   const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
-//   void *input_data_0[input_data_0_ntensor];
-//   int32_t input_data_0_ndim[input_data_0_ntensor]; // FIXME: = input_data_0_v->sizes().size();
-//   int32_t *input_data_0_dims[input_data_0_ntensor]; // FIXME: [input_data_0_ndim[0]];
-//   // Prepare output
-//   const Tensor *output_max_t = pOp.getOutput(0);
-//   const auto output_max = defineTensor(indent, *output_max_t);
-//   const auto output_max_ndim = toExpr(output_max_t->getNumOfDimensions());
-//   const auto output_max_dims = defineDimensionArray(stream, indent, *output_max_t);
-//   // Prepare attributes
-//
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float **>(input_data_0)
-//     , input_data_0_ntensor
-//     , input_data_0_ndim, input_data_0_dims
-//     , castExpr<float *>(output_max)
-//     , output_max_ndim, output_max_dims
-//
-//   });
-// }
+PP_GEN_VISIT_DEF(Max, pOp)
+{
+  // Prepare input
+  const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
+  const auto input_data_0         = defineTensors<TensorType::data_0>(indent, pOp, 0);
+  const auto input_data_0_ndim    = defineDimensionNumberArray<TensorType::data_0>(stream, indent, pOp, 0);
+  const auto input_data_0_dims    = defineDimensionArrays<TensorType::data_0>(stream, indent, pOp, 0);
+  // Prepare output
+  const Tensor* output_max_t    = pOp.getOutput(0);
+  const auto    output_max      = defineTensor(indent, *output_max_t);
+  const auto    output_max_ndim = toExpr(output_max_t->getNumOfDimensions());
+  const auto    output_max_dims = defineDimensionArray(stream, indent, *output_max_t);
+  // Prepare attributes
+
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+          castExpr<float*>(output_max), output_max_ndim, output_max_dims
+
+         });
+}
 
 PP_GEN_VISIT_DEF(MaxPool, pOp)
 {
@@ -1542,59 +1529,49 @@ PP_GEN_VISIT_DEF(MaxRoiPool, pOp)
           number_of_pooled_shape, spatial_scale});
 }
 
-// PP_GEN_VISIT_DEF(Mean, pOp) {
-//   // Prepare input
-//   const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
-//   void *input_data_0[input_data_0_ntensor];
-//   int32_t input_data_0_ndim[input_data_0_ntensor]; // FIXME: = input_data_0_v->sizes().size();
-//   int32_t *input_data_0_dims[input_data_0_ntensor]; // FIXME: [input_data_0_ndim[0]];
-//   // Prepare output
-//   const Tensor *output_mean_t = pOp.getOutput(0);
-//   const auto output_mean = defineTensor(indent, *output_mean_t);
-//   const auto output_mean_ndim = toExpr(output_mean_t->getNumOfDimensions());
-//   const auto output_mean_dims = defineDimensionArray(stream, indent, *output_mean_t);
-//   // Prepare attributes
-//
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float **>(input_data_0)
-//     , input_data_0_ntensor
-//     , input_data_0_ndim, input_data_0_dims
-//     , castExpr<float *>(output_mean)
-//     , output_mean_ndim, output_mean_dims
-//
-//   });
-// }
+PP_GEN_VISIT_DEF(Mean, pOp)
+{
+  // Prepare input
+  const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
+  const auto input_data_0         = defineTensors<TensorType::data_0>(indent, pOp, 0);
+  const auto input_data_0_ndim    = defineDimensionNumberArray<TensorType::data_0>(stream, indent, pOp, 0);
+  const auto input_data_0_dims    = defineDimensionArrays<TensorType::data_0>(stream, indent, pOp, 0);
+  // Prepare output
+  const Tensor* output_mean_t    = pOp.getOutput(0);
+  const auto    output_mean      = defineTensor(indent, *output_mean_t);
+  const auto    output_mean_ndim = toExpr(output_mean_t->getNumOfDimensions());
+  const auto    output_mean_dims = defineDimensionArray(stream, indent, *output_mean_t);
+  // Prepare attributes
 
-// PP_GEN_VISIT_DEF(Min, pOp) {
-//   // Prepare input
-//   const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
-//   void *input_data_0[input_data_0_ntensor];
-//   int32_t input_data_0_ndim[input_data_0_ntensor]; // FIXME: = input_data_0_v->sizes().size();
-//   int32_t *input_data_0_dims[input_data_0_ntensor]; // FIXME: [input_data_0_ndim[0]];
-//   // Prepare output
-//   const Tensor *output_min_t = pOp.getOutput(0);
-//   const auto output_min = defineTensor(indent, *output_min_t);
-//   const auto output_min_ndim = toExpr(output_min_t->getNumOfDimensions());
-//   const auto output_min_dims = defineDimensionArray(stream, indent, *output_min_t);
-//   // Prepare attributes
-//
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float **>(input_data_0)
-//     , input_data_0_ntensor
-//     , input_data_0_ndim, input_data_0_dims
-//     , castExpr<float *>(output_min)
-//     , output_min_ndim, output_min_dims
-//
-//   });
-// }
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+          castExpr<float*>(output_mean), output_mean_ndim, output_mean_dims
+
+         });
+}
+
+PP_GEN_VISIT_DEF(Min, pOp)
+{
+  // Prepare input
+  const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
+  const auto input_data_0         = defineTensors<TensorType::data_0>(indent, pOp, 0);
+  const auto input_data_0_ndim    = defineDimensionNumberArray<TensorType::data_0>(stream, indent, pOp, 0);
+  const auto input_data_0_dims    = defineDimensionArrays<TensorType::data_0>(stream, indent, pOp, 0);
+  // Prepare output
+  const Tensor* output_min_t    = pOp.getOutput(0);
+  const auto    output_min      = defineTensor(indent, *output_min_t);
+  const auto    output_min_ndim = toExpr(output_min_t->getNumOfDimensions());
+  const auto    output_min_dims = defineDimensionArray(stream, indent, *output_min_t);
+  // Prepare attributes
+
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+          castExpr<float*>(output_min), output_min_ndim, output_min_dims
+
+         });
+}
 
 PP_GEN_VISIT_DEF(Mul, pOp)
 {
@@ -2511,36 +2488,28 @@ PP_GEN_VISIT_DEF(SpaceToDepth, pOp)
           output_output_ndim, output_output_dims, blocksize});
 }
 
-// PP_GEN_VISIT_DEF(Split, pOp) {
-//   // Prepare input
-//   const Tensor *input_input_t = pOp.getInput(0);
-//   const auto input_input = defineTensor(indent, *input_input_t);
-//   const auto input_input_ndim = toExpr(input_input_t->getNumOfDimensions());
-//   const auto input_input_dims = defineDimensionArray(stream, indent, *input_input_t);
-//   // Prepare output
-//   const auto output_outputs_ntensor = toExpr(pOp.getNumOfOutputs() - 0);
-//   void *output_outputs[output_outputs_ntensor];
-//   int32_t output_outputs_ndim[output_outputs_ntensor]; // FIXME: = output_outputs_v->sizes().size();
-//   int32_t *output_outputs_dims[output_outputs_ntensor]; // FIXME: [output_outputs_ndim[0]];
-//   // Prepare attributes
-//   const auto axis = toExpr(pOp.getAxis().value());
-//   const auto number_of_split = toExpr(pOp.getSplit().vector().size());
-//   const auto split = defineArray<int32_t>(stream, indent, pOp.getSplit().vector());
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float *>(input_input)
-//     , input_input_ndim, input_input_dims
-//     , castExpr<float **>(output_outputs)
-//     , output_outputs_ntensor
-//     , output_outputs_ndim, output_outputs_dims
-//     , axis
-//     , split
-//     , number_of_split
-//   });
-// }
+PP_GEN_VISIT_DEF(Split, pOp)
+{
+  // Prepare input
+  const Tensor* input_input_t    = pOp.getInput(0);
+  const auto    input_input      = defineTensor(indent, *input_input_t);
+  const auto    input_input_ndim = toExpr(input_input_t->getNumOfDimensions());
+  const auto    input_input_dims = defineDimensionArray(stream, indent, *input_input_t);
+  // Prepare output
+  const auto output_outputs_ntensor = toExpr(pOp.getNumOfOutputs() - 0);
+  const auto output_outputs         = defineTensors<TensorType::outputs>(indent, pOp, 0);
+  const auto output_outputs_ndim    = defineDimensionNumberArray<TensorType::outputs>(stream, indent, pOp, 0);
+  const auto output_outputs_dims    = defineDimensionArrays<TensorType::outputs>(stream, indent, pOp, 0);
+  // Prepare attributes
+  const auto axis            = toExpr(pOp.getAxis().value());
+  const auto number_of_split = toExpr(pOp.getSplit().vector().size());
+  const auto split           = defineArray<int32_t>(stream, indent, pOp.getSplit().vector());
+
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float*>(input_input), input_input_ndim, input_input_dims, castExpr<float**>(output_outputs),
+          output_outputs_ntensor, output_outputs_ndim, output_outputs_dims, axis, split, number_of_split});
+}
 
 PP_GEN_VISIT_DEF(Sqrt, pOp)
 {
@@ -2612,32 +2581,27 @@ PP_GEN_VISIT_DEF(Sub, pOp)
          });
 }
 
-// PP_GEN_VISIT_DEF(Sum, pOp) {
-//   // Prepare input
-//   const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
-//   void *input_data_0[input_data_0_ntensor];
-//   int32_t input_data_0_ndim[input_data_0_ntensor]; // FIXME: = input_data_0_v->sizes().size();
-//   int32_t *input_data_0_dims[input_data_0_ntensor]; // FIXME: [input_data_0_ndim[0]];
-//   // Prepare output
-//   const Tensor *output_sum_t = pOp.getOutput(0);
-//   const auto output_sum = defineTensor(indent, *output_sum_t);
-//   const auto output_sum_ndim = toExpr(output_sum_t->getNumOfDimensions());
-//   const auto output_sum_dims = defineDimensionArray(stream, indent, *output_sum_t);
-//   // Prepare attributes
-//
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float **>(input_data_0)
-//     , input_data_0_ntensor
-//     , input_data_0_ndim, input_data_0_dims
-//     , castExpr<float *>(output_sum)
-//     , output_sum_ndim, output_sum_dims
-//
-//   });
-// }
+PP_GEN_VISIT_DEF(Sum, pOp)
+{
+  // Prepare input
+  const auto input_data_0_ntensor = toExpr(pOp.getNumOfInputs() - 0);
+  const auto input_data_0         = defineTensors<TensorType::data_0>(indent, pOp, 0);
+  const auto input_data_0_ndim    = defineDimensionNumberArray<TensorType::data_0>(stream, indent, pOp, 0);
+  const auto input_data_0_dims    = defineDimensionArrays<TensorType::data_0>(stream, indent, pOp, 0);
+  // Prepare output
+  const Tensor* output_sum_t    = pOp.getOutput(0);
+  const auto    output_sum      = defineTensor(indent, *output_sum_t);
+  const auto    output_sum_ndim = toExpr(output_sum_t->getNumOfDimensions());
+  const auto    output_sum_dims = defineDimensionArray(stream, indent, *output_sum_t);
+  // Prepare attributes
+
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+          castExpr<float*>(output_sum), output_sum_ndim, output_sum_dims
+
+         });
+}
 
 PP_GEN_VISIT_DEF(Tan, pOp)
 {
@@ -2830,33 +2794,27 @@ PP_GEN_VISIT_DEF(Xor, pOp)
          });
 }
 
-// PP_GEN_VISIT_DEF(ATen, pOp) {
-//   // Prepare input
-//   const auto input_input_ntensor = toExpr(pOp.getNumOfInputs() - 0);
-//   void *input_input[input_input_ntensor];
-//   int32_t input_input_ndim[input_input_ntensor]; // FIXME: = input_input_v->sizes().size();
-//   int32_t *input_input_dims[input_input_ntensor]; // FIXME: [input_input_ndim[0]];
-//   // Prepare output
-//   const auto output_output_ntensor = toExpr(pOp.getNumOfOutputs() - 0);
-//   void *output_output[output_output_ntensor];
-//   int32_t output_output_ndim[output_output_ntensor]; // FIXME: = output_output_v->sizes().size();
-//   int32_t *output_output_dims[output_output_ntensor]; // FIXME: [output_output_ndim[0]];
-//   // Prepare attributes
-//
-//
-//   // Call to Runtime
-//   invoke(
-//     stream, indent, target, {
-//     "NULL"
-//     , castExpr<float **>(input_input)
-//     , input_input_ntensor
-//     , input_input_ndim, input_input_dims
-//     , castExpr<float **>(output_output)
-//     , output_output_ntensor
-//     , output_output_ndim, output_output_dims
-//
-//   });
-// }
+PP_GEN_VISIT_DEF(ATen, pOp)
+{
+  // Prepare input
+  const auto input_input_ntensor = toExpr(pOp.getNumOfInputs() - 0);
+  const auto input_input         = defineTensors<TensorType::input>(indent, pOp, 0);
+  const auto input_input_ndim    = defineDimensionNumberArray<TensorType::input>(stream, indent, pOp, 0);
+  const auto input_input_dims    = defineDimensionArrays<TensorType::input>(stream, indent, pOp, 0);
+  // Prepare output
+  const auto output_output_ntensor = toExpr(pOp.getNumOfOutputs() - 0);
+  const auto output_output         = defineTensors<TensorType::output>(indent, pOp, 0);
+  const auto output_output_ndim    = defineDimensionNumberArray<TensorType::output>(stream, indent, pOp, 0);
+  const auto output_output_dims    = defineDimensionArrays<TensorType::output>(stream, indent, pOp, 0);
+  // Prepare attributes
+
+  // Call to Runtime
+  invoke(stream, indent, target,
+         {"NULL", castExpr<float**>(input_input), input_input_ntensor, input_input_ndim, input_input_dims,
+          castExpr<float**>(output_output), output_output_ntensor, output_output_ndim, output_output_dims
+
+         });
+}
 
 PP_GEN_VISIT_DEF(Affine, pOp)
 {

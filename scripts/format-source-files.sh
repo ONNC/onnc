@@ -20,7 +20,7 @@ for dir in "${DIRS[@]}"
 do
   cd $ONNC_DIR/$dir
 
-  FILES=$(find . -iname "*.h" -o -iname "*.hpp" -o -iname "*.c" -o -iname "*.cpp" -o -iname "*.cxx" -type f | xargs realpath)
+  FILES=$(find . -iname "*.h" -o -iname "*.hpp" -o -iname "*.c" -o -iname "*.cpp" -o -iname "*.cxx" -o -iname "*.inc" -type f | xargs realpath)
 
   for exclude_dir in "${EXCLUDE_DIRS[@]}"
   do

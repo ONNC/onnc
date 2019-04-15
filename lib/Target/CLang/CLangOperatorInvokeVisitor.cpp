@@ -27,7 +27,7 @@
 #define PP_ENTER_SCOPE(stream, indent) stream << indent << "{\n"
 #define PP_LEAVE_SCOPE(stream, indent) stream << indent << "}\n"
 
-#define PP_BUILTIN_TYPE_LIST (int32_t, int32_t*, float, float*, void*, const char*)
+#define PP_BUILTIN_TYPE_LIST (int32_t, int32_t*, float, float*, float**, void*, const char*)
 #define PP_GEN_TYPE_HOLDER_DEF(type) \
   template <>                        \
   struct holder<type>                \
@@ -99,9 +99,8 @@ inline identifier_type defineVarByExpr(PP_GEN_CLASS_NAME()::stream_type& stream,
   return id;
 }
 
-template <typename T, typename RandomAccessRange>
-inline identifier_type defineArray(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent,
-                                   const RandomAccessRange& range)
+template <typename T, typename InputRange>
+inline identifier_type defineArray(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const InputRange& range)
 {
   identifier_type array = getIdentifier();
   stream << indent << holder<T>{} << " " << array << "[] = { ";
@@ -174,6 +173,12 @@ inline expression_type toExpr(const char* str)
   return stream.str();
 }
 
+inline expression_type toExpr(const Tensor* tensor)
+{
+  assert(false && "not implemented yet");
+  return "";
+}
+
 template <typename T>
 inline expression_type castExpr(const expression_type& expr)
 {
@@ -186,6 +191,48 @@ inline identifier_type defineDimensionArray(PP_GEN_CLASS_NAME()::stream_type& st
                                             const Tensor& tensor)
 {
   return defineArray<std::int32_t>(stream, indent, tensor.getDimensions());
+}
+
+template <PP_GEN_CLASS_NAME()::TensorType>
+inline identifier_type defineDimensionArrays(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent,
+                                             const ComputeOperator& op, std::size_t first);
+
+template <>
+inline identifier_type
+defineDimensionArrays<PP_GEN_CLASS_NAME()::TensorType::inputs>(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent,
+                                                               const ComputeOperator& op, std::size_t first)
+{
+  if (op.getNumOfInputs() <= first) {
+    return identifier_type{};
+  }
+
+  std::vector<identifier_type> tensors;
+  for (std::size_t idx = 0; idx < op.getNumOfInputs(); ++idx) {
+    if (const auto* const tensor = dynamic_cast<const Tensor*>(op.getInput(idx))) {
+      tensors.emplace_back(defineDimensionArray(stream, indent, *tensor));
+    }
+  }
+
+  return defineArray<std::int32_t*>(stream, indent, tensors);
+}
+
+template <>
+inline identifier_type
+defineDimensionArrays<PP_GEN_CLASS_NAME()::TensorType::outputs>(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent,
+                                                                const ComputeOperator& op, std::size_t first)
+{
+  if (op.getNumOfOutputs() <= first) {
+    return identifier_type{};
+  }
+
+  std::vector<identifier_type> tensors;
+  for (std::size_t idx = 0; idx < op.getNumOfOutputs(); ++idx) {
+    if (const auto* const tensor = dynamic_cast<const Tensor*>(op.getOutput(idx))) {
+      tensors.emplace_back(defineDimensionArray(stream, indent, *tensor));
+    }
+  }
+
+  return defineArray<std::int32_t*>(stream, indent, tensors);
 }
 
 inline void invoke(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const identifier_type& name,
@@ -203,12 +250,46 @@ inline void invoke(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, cons
   stream << ");\n";
 }
 
-inline expression_type getArraySize(const identifier_type& array)
+template <PP_GEN_CLASS_NAME()::TensorType>
+inline identifier_type defineDimensionNumberArray(PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent,
+                                                  const ComputeOperator& op, std::size_t first);
+
+template <>
+inline identifier_type defineDimensionNumberArray<PP_GEN_CLASS_NAME()::TensorType::inputs>(
+  PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const ComputeOperator& op, std::size_t first)
 {
-  std::ostringstream stream;
-  stream << "(sizeof(" << array << ") / sizeof(*" << array << "))";
-  return stream.str();
+  if (op.getNumOfInputs() <= first) {
+    return identifier_type{};
+  }
+
+  std::vector<Tensor::Size> sizes;
+  for (std::size_t idx = 0; idx < op.getNumOfInputs(); ++idx) {
+    if (const auto* const tensor = dynamic_cast<const Tensor*>(op.getInput(idx))) {
+      sizes.emplace_back(tensor->getNumOfDimensions());
+    }
+  }
+
+  return defineArray<std::int32_t>(stream, indent, sizes);
 }
+
+template <>
+inline identifier_type defineDimensionNumberArray<PP_GEN_CLASS_NAME()::TensorType::outputs>(
+  PP_GEN_CLASS_NAME()::stream_type& stream, Indent indent, const ComputeOperator& op, std::size_t first)
+{
+  if (op.getNumOfOutputs() <= first) {
+    return identifier_type{};
+  }
+
+  std::vector<Tensor::Size> sizes;
+  for (std::size_t idx = 0; idx < op.getNumOfOutputs(); ++idx) {
+    if (const auto* const tensor = dynamic_cast<const Tensor*>(op.getOutput(idx))) {
+      sizes.emplace_back(tensor->getNumOfDimensions());
+    }
+  }
+
+  return defineArray<std::int32_t>(stream, indent, sizes);
+}
+
 } // namespace internal
 
 using namespace internal;
@@ -247,6 +328,44 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const
   stream << indent << holder<void*>{} << " const " << id << " = " << getInitializer(tensor) << ";\n";
 
   return id;
+}
+
+template <>
+identifier_type PP_GEN_CLASS_NAME()::defineTensors<PP_GEN_CLASS_NAME()::TensorType::inputs>(internal::Indent indent,
+                                                                                            const ComputeOperator& op,
+                                                                                            std::size_t first)
+{
+  if (op.getNumOfInputs() <= first) {
+    return identifier_type{};
+  }
+
+  std::vector<identifier_type> tensors;
+  for (std::size_t idx = 0; idx < op.getNumOfInputs(); ++idx) {
+    if (const auto* const tensor = dynamic_cast<const Tensor*>(op.getInput(idx))) {
+      tensors.emplace_back(defineTensor(indent, *tensor));
+    }
+  }
+
+  return defineArray<void*>(stream, indent, tensors);
+}
+
+template <>
+identifier_type PP_GEN_CLASS_NAME()::defineTensors<PP_GEN_CLASS_NAME()::TensorType::outputs>(internal::Indent indent,
+                                                                                             const ComputeOperator& op,
+                                                                                             std::size_t first)
+{
+  if (op.getNumOfOutputs() <= first) {
+    return identifier_type{};
+  }
+
+  std::vector<identifier_type> tensors;
+  for (std::size_t idx = 0; idx < op.getNumOfOutputs(); ++idx) {
+    if (const auto* const tensor = dynamic_cast<const Tensor*>(op.getOutput(idx))) {
+      tensors.emplace_back(defineTensor(indent, *tensor));
+    }
+  }
+
+  return defineArray<void*>(stream, indent, tensors);
 }
 
 void PP_GEN_CLASS_NAME()::prepareMemoryTypes()
