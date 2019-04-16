@@ -38,11 +38,12 @@
      Expand, Flatten, Floor, Gather, Gemm, GivenTensorFill, GlobalAveragePool, GlobalLpPool, GlobalMaxPool, Greater,   \
      GRU, GRUUnit, Hardmax, HardSigmoid, Identity, ImageScaler, InstanceNormalization, LeakyRelu, Less, Log,           \
      LogSoftmax, LpNormalization, LpPool, LRN, LSTM, MatMul, Max, MaxPool, MaxRoiPool, Mean,                           \
-     MeanVarianceNormalization, Min, Mul, Multinomial, Neg, Not, Or, Pad, ParametricSoftplus, Pow, PRelu,              \
-     RandomNormal, RandomNormalLike, RandomUniform, RandomUniformLike, Reciprocal, ReduceL1, ReduceL2, ReduceLogSum,   \
-     ReduceLogSumExp, ReduceMax, ReduceMean, ReduceMin, ReduceProd, ReduceSum, ReduceSumSquare, Relu, Reshape, RNN,    \
-     Scale, ScaledTanh, Selu, Shape, Sigmoid, Sin, Size, Slice, Softmax, Softplus, Softsign, SpaceToDepth, Split,      \
-     Sqrt, Squeeze, Sub, Sum, Tan, Tanh, ThresholdedRelu, Tile, TopK, Transpose, Unsqueeze, Upsample, Xor)
+     MeanVarianceNormalization, Min, Mul, Multinomial, Neg, Not, Or, OutputOperator, Pad, ParametricSoftplus, Pow,     \
+     PRelu, RandomNormal, RandomNormalLike, RandomUniform, RandomUniformLike, Reciprocal, ReduceL1, ReduceL2,          \
+     ReduceLogSum, ReduceLogSumExp, ReduceMax, ReduceMean, ReduceMin, ReduceProd, ReduceSum, ReduceSumSquare, Relu,    \
+     Reshape, RNN, Scale, ScaledTanh, Selu, Shape, Sigmoid, Sin, Size, Slice, Softmax, Softplus, Softsign,             \
+     SpaceToDepth, Split, Sqrt, Squeeze, Sub, Sum, Tan, Tanh, ThresholdedRelu, Tile, TopK, Transpose, Unsqueeze,       \
+     Upsample, Xor)
 #endif
 
 namespace onnc {

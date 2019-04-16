@@ -2,6 +2,7 @@
 
 #include <onnc/ADT/StringRef.h>
 #include <onnc/IR/Compute.h>
+#include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/ComputeOperator.h>
 
 #include <initializer_list>
@@ -15,7 +16,7 @@
   PP_GEN_VISIT_RETURN_TYPE() PP_GEN_CLASS_NAME()::visit(PP_GEN_VISIT_PARAM_TYPE(type) param)   \
   {                                                                                            \
     auto&& target = internal::getTarget(PP_STRINGIFY(type));                                   \
-    stream << indent_ << "// " << target << '\n';                                              \
+    stream << indent_ << "// " << PP_STRINGIFY(type) << '\n';                                  \
     PP_ENTER_SCOPE(stream, indent_);                                                           \
     visitImpl(param, indent_ + 1, target);                                                     \
     PP_LEAVE_SCOPE(stream, indent_);                                                           \
@@ -88,7 +89,7 @@ inline expression_type toStringLiteral(const T& value)
 template <typename T>
 inline identifier_type defineVar(stream_type& stream, Indent indent, const T& value)
 {
-  identifier_type id = getIdentifier();
+  const auto id = getIdentifier();
   stream << indent << holder<T>{} << " " << id << " = " << value << ";\n";
   return id;
 }
@@ -96,7 +97,7 @@ inline identifier_type defineVar(stream_type& stream, Indent indent, const T& va
 template <typename T>
 inline identifier_type defineVarByExpr(stream_type& stream, Indent indent, const expression_type& expr)
 {
-  identifier_type id = getIdentifier();
+  const auto id = getIdentifier();
   stream << indent << holder<T>{} << " " << id << " = " << expr << ";\n";
   return id;
 }
@@ -104,7 +105,7 @@ inline identifier_type defineVarByExpr(stream_type& stream, Indent indent, const
 template <typename T, typename InputRange>
 inline identifier_type defineArray(stream_type& stream, Indent indent, const InputRange& range)
 {
-  identifier_type array = getIdentifier();
+  const auto array = getIdentifier();
   stream << indent << holder<T>{} << " " << array << "[] = { ";
   bool isFirst = true;
   for (const auto& element : range) {
@@ -302,6 +303,22 @@ void PP_GEN_CLASS_NAME()::visit(const Module& module)
   }
 }
 
+PP_GEN_VISIT_DEF(OutputOperator, op)
+{
+  for (std::size_t idx = 0; idx < op.getNumOfInputs(); ++idx) {
+    if (const auto* value = dynamic_cast<const Tensor*>(op.getInput(idx))) {
+      const auto tensor = defineTensor(indent, *value);
+      const auto output = getIdentifier();
+      stream << indent << "struct ONNC_RUNTIME_tensor_view " << output << " = {\n"
+             << indent + 1 << ".data = " << tensor << ",\n"
+             << indent + 1 << ".size = " << 999 << "\n"
+             << indent << "};\n";
+
+      stream << indent << "(*context->completed)(context->id, " << output << ");\n";
+    }
+  }
+}
+
 identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const Tensor& tensor)
 {
   const auto getInitializer = [this](const Tensor& tensor) -> expression_type {
@@ -323,7 +340,7 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const
     return stream.str();
   };
 
-  identifier_type id = getIdentifier();
+  const auto id = getIdentifier();
   stream << indent << holder<float*>{} << " const " << id << " = " << getInitializer(tensor) << ";\n";
 
   return id;
