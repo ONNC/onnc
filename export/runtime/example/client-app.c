@@ -44,8 +44,13 @@ void finish(
   struct ONNC_RUNTIME_tensor_view output
 )
 {
-  printf("#%" PRIu64 " finish inference\n", id);
-  (void)output;
+  const float* const values = output.data;
+  const size_t       count  = output.size / sizeof(float);
+  printf("[");
+  for (size_t idx = 0; idx < count; ++idx) {
+    printf("%f, ", values[idx]);
+  }
+  printf("]");
 }
 
 int main(int argc, char* argv[])
