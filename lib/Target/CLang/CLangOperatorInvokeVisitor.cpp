@@ -27,7 +27,8 @@
 #define PP_ENTER_SCOPE(stream, indent) stream << indent << "{\n"
 #define PP_LEAVE_SCOPE(stream, indent) stream << indent << "}\n"
 
-#define PP_BUILTIN_TYPE_LIST (int32_t, int32_t*, int32_t**, float, float*, float**, void*, const char*)
+#define PP_BUILTIN_TYPE_LIST \
+  (int32_t, int32_t*, const int32_t, const int32_t* const, float, float*, float**, float* const*, void*, const char*)
 #define PP_GEN_TYPE_HOLDER_DEF(type) \
   template <>                        \
   struct holder<type>                \
@@ -190,7 +191,7 @@ inline expression_type castExpr(const expression_type& expr)
 
 inline identifier_type defineDimensionArray(stream_type& stream, Indent indent, const Tensor& tensor)
 {
-  return defineArray<std::int32_t>(stream, indent, tensor.getDimensions());
+  return defineArray<const std::int32_t>(stream, indent, tensor.getDimensions());
 }
 
 template <tensor_type>
@@ -212,7 +213,7 @@ inline identifier_type defineDimensionArrays<tensor_type::inputs>(stream_type& s
     }
   }
 
-  return defineArray<std::int32_t*>(stream, indent, tensors);
+  return defineArray<const std::int32_t* const>(stream, indent, tensors);
 }
 
 template <>
@@ -230,7 +231,7 @@ inline identifier_type defineDimensionArrays<tensor_type::outputs>(stream_type& 
     }
   }
 
-  return defineArray<std::int32_t*>(stream, indent, tensors);
+  return defineArray<const std::int32_t* const>(stream, indent, tensors);
 }
 
 inline void invoke(stream_type& stream, Indent indent, const identifier_type& name,
@@ -267,7 +268,7 @@ inline identifier_type defineDimensionNumberArray<tensor_type::inputs>(stream_ty
     }
   }
 
-  return defineArray<std::int32_t>(stream, indent, sizes);
+  return defineArray<const std::int32_t>(stream, indent, sizes);
 }
 
 template <>
@@ -285,7 +286,7 @@ inline identifier_type defineDimensionNumberArray<tensor_type::outputs>(stream_t
     }
   }
 
-  return defineArray<std::int32_t>(stream, indent, sizes);
+  return defineArray<const std::int32_t>(stream, indent, sizes);
 }
 
 } // namespace internal

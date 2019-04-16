@@ -389,7 +389,7 @@ PP_GEN_VISIT_DEF(Concat, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float**>(input_inputs), input_inputs_ntensor, input_inputs_ndim, input_inputs_dims,
+         {"NULL", castExpr<float* const*>(input_inputs), input_inputs_ntensor, input_inputs_ndim, input_inputs_dims,
           castExpr<float*>(output_concat_result), output_concat_result_ndim, output_concat_result_dims, axis});
 }
 
@@ -1453,7 +1453,7 @@ PP_GEN_VISIT_DEF(Max, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+         {"NULL", castExpr<float* const*>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
           castExpr<float*>(output_max), output_max_ndim, output_max_dims
 
          });
@@ -1538,7 +1538,7 @@ PP_GEN_VISIT_DEF(Mean, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+         {"NULL", castExpr<float* const*>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
           castExpr<float*>(output_mean), output_mean_ndim, output_mean_dims
 
          });
@@ -1560,7 +1560,7 @@ PP_GEN_VISIT_DEF(Min, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+         {"NULL", castExpr<float* const*>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
           castExpr<float*>(output_min), output_min_ndim, output_min_dims
 
          });
@@ -2500,8 +2500,9 @@ PP_GEN_VISIT_DEF(Split, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float*>(input_input), input_input_ndim, input_input_dims, castExpr<float**>(output_outputs),
-          output_outputs_ntensor, output_outputs_ndim, output_outputs_dims, axis, split, number_of_split});
+         {"NULL", castExpr<float*>(input_input), input_input_ndim, input_input_dims,
+          castExpr<float* const*>(output_outputs), output_outputs_ntensor, output_outputs_ndim, output_outputs_dims,
+          axis, split, number_of_split});
 }
 
 PP_GEN_VISIT_DEF(Sqrt, pOp)
@@ -2590,7 +2591,7 @@ PP_GEN_VISIT_DEF(Sum, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float**>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
+         {"NULL", castExpr<float* const*>(input_data_0), input_data_0_ntensor, input_data_0_ndim, input_data_0_dims,
           castExpr<float*>(output_sum), output_sum_ndim, output_sum_dims
 
          });
@@ -2803,8 +2804,8 @@ PP_GEN_VISIT_DEF(ATen, pOp)
 
   // Call to Runtime
   invoke(stream, indent, target,
-         {"NULL", castExpr<float**>(input_input), input_input_ntensor, input_input_ndim, input_input_dims,
-          castExpr<float**>(output_output), output_output_ntensor, output_output_ndim, output_output_dims
+         {"NULL", castExpr<float* const*>(input_input), input_input_ntensor, input_input_ndim, input_input_dims,
+          castExpr<float* const*>(output_output), output_output_ntensor, output_output_ndim, output_output_dims
 
          });
 }
