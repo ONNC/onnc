@@ -95,7 +95,7 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   const identifier_type memory = "memory";
   stream << indent << "char * const " << memory << " = calloc(" << getInternalMemorySize() << ", 1);\n";
 
-  CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context + "->input", context + "->weight"};
+  CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context};
   visitor.visit(module);
 
   // release internal memory

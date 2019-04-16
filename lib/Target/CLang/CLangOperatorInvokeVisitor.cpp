@@ -54,6 +54,14 @@ using expression_type = PP_GEN_CLASS_NAME()::expression_type;
 using stream_type     = PP_GEN_CLASS_NAME()::stream_type;
 using tensor_type     = PP_GEN_CLASS_NAME()::TensorType;
 
+enum class ContextMember : unsigned short
+{
+  input,
+  weight,
+  id,
+  completed
+};
+
 static_assert(std::is_convertible<std::string, identifier_type>::value,
               "Should can create identifier_type from std::string");
 static_assert(std::is_convertible<std::string, expression_type>::value,
@@ -76,6 +84,31 @@ inline identifier_type getIdentifier()
 
   std::ostringstream stream;
   stream << "v" << ++serialNumber;
+  return stream.str();
+}
+
+inline identifier_type getIdentifier(identifier_type context, ContextMember member)
+{
+  std::ostringstream stream;
+  stream << "(";
+  switch (member) {
+  case ContextMember::input:
+    stream << context << "->input";
+    break;
+  case ContextMember::weight:
+    stream << context << "->weight";
+    break;
+  case ContextMember::id:
+    stream << context << "->id";
+    break;
+  case ContextMember::completed:
+    stream << context << "->completed";
+    break;
+  default:
+    assert(false && "meet unknown context member");
+  }
+  stream << ")";
+
   return stream.str();
 }
 
@@ -164,6 +197,8 @@ inline expression_type toExpr(const T& value)
 
 inline expression_type toExpr(const char* str)
 {
+  assert(str != nullptr);
+
   std::ostringstream stream;
   stream << "\"" << str << "\"" << std::endl;
   return stream.str();
@@ -308,7 +343,8 @@ PP_GEN_VISIT_DEF(OutputOperator, op)
              << indent + 1 << ".size = " << getMemorySize(*value) << "\n"
              << indent << "};\n";
 
-      stream << indent << "(*context->completed)(context->id, " << output << ");\n";
+      invoke(stream, indent, getIdentifier(context, ContextMember::completed),
+             {getIdentifier(context, ContextMember::id), output});
     }
   }
 }
@@ -319,10 +355,12 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const
     std::ostringstream stream;
     switch (getMemoryType(tensor)) {
     case MemoryType::input:
-      stream << "ONNC_RUNTIME_read_tensor(" << input << ", " << getInputIndex(meta, tensor) << ").data";
+      stream << "ONNC_RUNTIME_read_tensor(" << getIdentifier(context, ContextMember::input) << ", "
+             << getInputIndex(meta, tensor) << ").data";
       break;
     case MemoryType::weight:
-      stream << "ONNC_RUNTIME_read_tensor(" << weight << ", " << getWeightIndex(meta, tensor) << ").data";
+      stream << "ONNC_RUNTIME_read_tensor(" << getIdentifier(context, ContextMember::weight) << ", "
+             << getWeightIndex(meta, tensor) << ").data";
       break;
     case MemoryType::internal:
       stream << castExpr<float*>(memory + " + " + toExpr(getInternalOffset(meta, tensor)));

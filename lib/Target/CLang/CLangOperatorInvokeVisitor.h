@@ -66,13 +66,12 @@ public:
 
   CLangOperatorInvokeVisitor();
   CLangOperatorInvokeVisitor(const CLangMeta& meta, stream_type& stream, internal::Indent indent,
-                             identifier_type memory, identifier_type input, identifier_type weight)
+                             identifier_type memory, identifier_type context)
     : meta{meta}
     , stream{stream}
     , indent_{indent}
     , memory{std::move(memory)}
-    , input{std::move(input)}
-    , weight{std::move(weight)}
+    , context{std::move(context)}
   {}
 
   CLangOperatorInvokeVisitor(const CLangOperatorInvokeVisitor&) = delete;
@@ -113,8 +112,7 @@ private:
   stream_type&           stream;
   const internal::Indent indent_;
   const identifier_type  memory;
-  const identifier_type  input;
-  const identifier_type  weight;
+  const identifier_type  context;
   memory_types_type      memoryTypes;
   memory_sizes_type      memorySizes;
 };
