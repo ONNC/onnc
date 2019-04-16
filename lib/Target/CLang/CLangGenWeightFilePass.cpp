@@ -38,20 +38,20 @@ CLangGenWeightFilePass::ReturnType CLangGenWeightFilePass::runOnModule(Module& m
 
   auto* const table = reinterpret_cast<ONNC_RUNTIME_tensor_offset_table*>(calloc(table_size, 1));
 
-  strncpy(table->magic, ONNC_RUNTIME_TENSOR_FILE_MAGIC, sizeof(ONNC_RUNTIME_TENSOR_FILE_MAGIC));
+  strncpy(table->magic, ONNC_RUNTIME_TENSOR_FILE_MAGIC, sizeof(table->magic));
   table->number_of_tensors = tensor_num;
 
-  for (auto i = 0; i < tensor_num; i++) {
-    const auto& from = meta.packedWeightMemoryBlocks[i].second;
-    auto&       to   = table->tensor_offsets[i];
+  for (std::size_t idx = 0; idx < tensor_num; ++idx) {
+    const auto& from = meta.packedWeightMemoryBlocks[idx].second;
+    auto&       to   = table->tensor_offsets[idx];
     to.size          = from.length;
-    to.offset        = from.offset + table_size;
+    to.offset        = table_size + from.offset;
   }
 
   using stream_type = std::ofstream;
   using char_type   = stream_type::char_type;
 
-  file.write(reinterpret_cast<const char_type*>(&table), table_size);
+  file.write(reinterpret_cast<const char_type*>(table), table_size);
   free(table);
 
   // 2. write tensor data into file
