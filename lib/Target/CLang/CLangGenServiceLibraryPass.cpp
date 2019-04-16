@@ -24,6 +24,24 @@ inline void addIncludeDirectives(std::ostream& stream)
   stream << "#include <onnc-runtime.h>\n";
 }
 
+inline void addMacroDefinitions(std::ostream& stream)
+{
+  stream << R"(
+#ifndef restrict
+# define restrict
+#endif
+)"
+         << "\n";
+}
+
+inline void removeMacroDefinitions(std::ostream& stream)
+{
+  stream << R"(
+#undef restrict
+)"
+         << "\n";
+}
+
 inline void addContentFromFile(std::ostream& stream, const Path& file)
 {
   assert(is_regular(file));
@@ -53,9 +71,10 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   using namespace internal;
 
   std::ofstream file{outputFile.native()};
-
   addIncludeDirectives(file);
+  addMacroDefinitions(file);
   addOperatorFunctionDefinitions(file, resourceDirectory, meta.usedOperatorNames);
+  removeMacroDefinitions(file);
   addModelMainDefinition(file, module);
 
   return kModuleNoChanged;
