@@ -464,6 +464,6 @@ CLangMemoryBlock::size_type PP_GEN_CLASS_NAME()::getMemorySize(const Tensor& ten
   return found->second;
 }
 
-#include "internal/All.inc"
+#include "internal/Visitors.inc"
 
 } // namespace onnc
