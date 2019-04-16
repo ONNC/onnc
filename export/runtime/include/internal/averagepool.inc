@@ -33,7 +33,7 @@ void ONNC_RUNTIME_averagepool_float(void* restrict onnc_runtime_context, const f
         i_dim[i] = base_dim[i] + k_dim[i - 2];
       }
       int32_t isPad = 0;
-      sum += get_value_or_zero(input_X_ndim, input_X_dims, input_X, i_dim, &isPad);
+      sum += get_value_or_zero_5(input_X_ndim, input_X_dims, input_X, i_dim, &isPad);
       if (isPad) {
         ++padCount;
       }
