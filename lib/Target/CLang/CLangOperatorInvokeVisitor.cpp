@@ -200,7 +200,7 @@ inline expression_type toExpr(const char* str)
   assert(str != nullptr);
 
   std::ostringstream stream;
-  stream << "\"" << str << "\"" << std::endl;
+  stream << "\"" << str << "\"";
   return stream.str();
 }
 
