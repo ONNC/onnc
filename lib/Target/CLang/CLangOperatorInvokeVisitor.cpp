@@ -184,7 +184,7 @@ template <typename T>
 inline expression_type castExpr(const expression_type& expr)
 {
   std::ostringstream stream;
-  stream << "((" << holder<T>{} << ")" << expr << ")";
+  stream << "((" << holder<T>{} << ")(" << expr << "))";
   return stream.str();
 }
 
@@ -313,7 +313,7 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const
       stream << "ONNC_RUNTIME_read_tensor(" << weight << ", " << getWeightIndex(meta, tensor) << ").data";
       break;
     case MemoryType::internal:
-      stream << "(" << memory << " + " << getInternalOffset(meta, tensor) << ")";
+      stream << castExpr<float*>(memory + " + " + toExpr(getInternalOffset(meta, tensor)));
       break;
     default:
       assert(false && "should not reach here");
@@ -323,7 +323,7 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensor(internal::Indent indent, const
   };
 
   identifier_type id = getIdentifier();
-  stream << indent << holder<void*>{} << " const " << id << " = " << getInitializer(tensor) << ";\n";
+  stream << indent << holder<float*>{} << " const " << id << " = " << getInitializer(tensor) << ";\n";
 
   return id;
 }
@@ -343,7 +343,7 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensors<tensor_type::inputs>(internal
     }
   }
 
-  return defineArray<void*>(stream, indent, tensors);
+  return defineArray<float*>(stream, indent, tensors);
 }
 
 template <>
@@ -361,7 +361,7 @@ identifier_type PP_GEN_CLASS_NAME()::defineTensors<tensor_type::outputs>(interna
     }
   }
 
-  return defineArray<void*>(stream, indent, tensors);
+  return defineArray<float*>(stream, indent, tensors);
 }
 
 void PP_GEN_CLASS_NAME()::prepareMemoryTypes()
