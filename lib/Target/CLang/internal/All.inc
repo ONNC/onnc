@@ -1,10 +1,3 @@
-//===- All.inc ------------------------------------------------------------===//
-//
-//                             The ONNC Project
-//
-// See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
 PP_GEN_VISIT_DEF(Abs, pOp)
 {
   // Prepare input
@@ -205,11 +198,11 @@ PP_GEN_VISIT_DEF(AveragePool, pOp)
   const auto auto_pad               = toExpr(pOp.getAutoPad().value().c_str());
   const auto count_include_pad      = toExpr(pOp.getCountIncludePad().value());
   const auto number_of_kernel_shape = toExpr(pOp.getKernelShape().vector().size());
-  const auto kernel_shape           = defineArray<int32_t>(stream, indent, pOp.getKernelShape().vector());
+  const auto kernel_shape           = defineArray<int32_t const>(stream, indent, pOp.getKernelShape().vector());
   const auto number_of_pads         = toExpr(pOp.getPads().vector().size());
-  const auto pads                   = defineArray<int32_t>(stream, indent, pOp.getPads().vector());
+  const auto pads                   = defineArray<int32_t const>(stream, indent, pOp.getPads().vector());
   const auto number_of_strides      = toExpr(pOp.getStrides().vector().size());
-  const auto strides                = defineArray<int32_t>(stream, indent, pOp.getStrides().vector());
+  const auto strides                = defineArray<int32_t const>(stream, indent, pOp.getStrides().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -251,26 +244,26 @@ PP_GEN_VISIT_DEF(BatchNormalization, pOp)
     has_output_mean ? defineTensor(indent, *pOp.getOutput(1)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_mean_ndim = has_output_mean ? toExpr(pOp.getOutput(1)->getNumOfDimensions()) : toExpr(0);
   const auto output_mean_dims = has_output_mean ? defineDimensionArray(stream, indent, *pOp.getOutput(1))
-                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_var = (2 < pOp.getNumOfOutputs());
   const auto output_var =
     has_output_var ? defineTensor(indent, *pOp.getOutput(2)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_var_ndim = has_output_var ? toExpr(pOp.getOutput(2)->getNumOfDimensions()) : toExpr(0);
   const auto output_var_dims = has_output_var ? defineDimensionArray(stream, indent, *pOp.getOutput(2))
-                                              : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                              : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_saved_mean = (3 < pOp.getNumOfOutputs());
   const auto output_saved_mean =
     has_output_saved_mean ? defineTensor(indent, *pOp.getOutput(3)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_saved_mean_ndim =
     has_output_saved_mean ? toExpr(pOp.getOutput(3)->getNumOfDimensions()) : toExpr(0);
   const auto output_saved_mean_dims = has_output_saved_mean ? defineDimensionArray(stream, indent, *pOp.getOutput(3))
-                                                            : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                            : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_saved_var = (4 < pOp.getNumOfOutputs());
   const auto output_saved_var =
     has_output_saved_var ? defineTensor(indent, *pOp.getOutput(4)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_saved_var_ndim = has_output_saved_var ? toExpr(pOp.getOutput(4)->getNumOfDimensions()) : toExpr(0);
   const auto output_saved_var_dims = has_output_saved_var ? defineDimensionArray(stream, indent, *pOp.getOutput(4))
-                                                          : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare attributes
   const auto epsilon  = toExpr(pOp.getEpsilon().value());
   const auto momentum = toExpr(pOp.getMomentum().value());
@@ -436,7 +429,7 @@ PP_GEN_VISIT_DEF(Conv, pOp)
     has_input_B ? defineTensor(indent, *pOp.getInput(2)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_B_ndim = has_input_B ? toExpr(pOp.getInput(2)->getNumOfDimensions()) : toExpr(0);
   const auto input_B_dims = has_input_B ? defineDimensionArray(stream, indent, *pOp.getInput(2))
-                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const Tensor* output_Y_t    = pOp.getOutput(0);
   const auto    output_Y      = defineTensor(indent, *output_Y_t);
@@ -445,14 +438,14 @@ PP_GEN_VISIT_DEF(Conv, pOp)
   // Prepare attributes
   const auto auto_pad               = toExpr(pOp.getAutoPad().value().c_str());
   const auto number_of_dilations    = toExpr(pOp.getDilations().vector().size());
-  const auto dilations              = defineArray<int32_t>(stream, indent, pOp.getDilations().vector());
+  const auto dilations              = defineArray<int32_t const>(stream, indent, pOp.getDilations().vector());
   const auto group                  = toExpr(pOp.getGroup().value());
   const auto number_of_kernel_shape = toExpr(pOp.getKernelShape().vector().size());
-  const auto kernel_shape           = defineArray<int32_t>(stream, indent, pOp.getKernelShape().vector());
+  const auto kernel_shape           = defineArray<int32_t const>(stream, indent, pOp.getKernelShape().vector());
   const auto number_of_pads         = toExpr(pOp.getPads().vector().size());
-  const auto pads                   = defineArray<int32_t>(stream, indent, pOp.getPads().vector());
+  const auto pads                   = defineArray<int32_t const>(stream, indent, pOp.getPads().vector());
   const auto number_of_strides      = toExpr(pOp.getStrides().vector().size());
-  const auto strides                = defineArray<int32_t>(stream, indent, pOp.getStrides().vector());
+  const auto strides                = defineArray<int32_t const>(stream, indent, pOp.getStrides().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -497,7 +490,7 @@ PP_GEN_VISIT_DEF(ConvTranspose, pOp)
     has_input_B ? defineTensor(indent, *pOp.getInput(2)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_B_ndim = has_input_B ? toExpr(pOp.getInput(2)->getNumOfDimensions()) : toExpr(0);
   const auto input_B_dims = has_input_B ? defineDimensionArray(stream, indent, *pOp.getInput(2))
-                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const Tensor* output_Y_t    = pOp.getOutput(0);
   const auto    output_Y      = defineTensor(indent, *output_Y_t);
@@ -506,18 +499,18 @@ PP_GEN_VISIT_DEF(ConvTranspose, pOp)
   // Prepare attributes
   const auto auto_pad                 = toExpr(pOp.getAutoPad().value().c_str());
   const auto number_of_dilations      = toExpr(pOp.getDilations().vector().size());
-  const auto dilations                = defineArray<int32_t>(stream, indent, pOp.getDilations().vector());
+  const auto dilations                = defineArray<int32_t const>(stream, indent, pOp.getDilations().vector());
   const auto group                    = toExpr(pOp.getGroup().value());
   const auto number_of_kernel_shape   = toExpr(pOp.getKernelShape().vector().size());
-  const auto kernel_shape             = defineArray<int32_t>(stream, indent, pOp.getKernelShape().vector());
+  const auto kernel_shape             = defineArray<int32_t const>(stream, indent, pOp.getKernelShape().vector());
   const auto number_of_output_padding = toExpr(pOp.getOutputPadding().vector().size());
-  const auto output_padding           = defineArray<int32_t>(stream, indent, pOp.getOutputPadding().vector());
+  const auto output_padding           = defineArray<int32_t const>(stream, indent, pOp.getOutputPadding().vector());
   const auto number_of_output_shape   = toExpr(pOp.getOutputShape().vector().size());
-  const auto output_shape             = defineArray<int32_t>(stream, indent, pOp.getOutputShape().vector());
+  const auto output_shape             = defineArray<int32_t const>(stream, indent, pOp.getOutputShape().vector());
   const auto number_of_pads           = toExpr(pOp.getPads().vector().size());
-  const auto pads                     = defineArray<int32_t>(stream, indent, pOp.getPads().vector());
+  const auto pads                     = defineArray<int32_t const>(stream, indent, pOp.getPads().vector());
   const auto number_of_strides        = toExpr(pOp.getStrides().vector().size());
-  const auto strides                  = defineArray<int32_t>(stream, indent, pOp.getStrides().vector());
+  const auto strides                  = defineArray<int32_t const>(stream, indent, pOp.getStrides().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -636,7 +629,7 @@ PP_GEN_VISIT_DEF(Dropout, pOp)
     has_output_mask ? defineTensor(indent, *pOp.getOutput(1)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_mask_ndim = has_output_mask ? toExpr(pOp.getOutput(1)->getNumOfDimensions()) : toExpr(0);
   const auto output_mask_dims = has_output_mask ? defineDimensionArray(stream, indent, *pOp.getOutput(1))
-                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare attributes
   const auto ratio = toExpr(pOp.getRatio().value());
 
@@ -805,40 +798,41 @@ PP_GEN_VISIT_DEF(GRU, pOp)
     has_input_B ? defineTensor(indent, *pOp.getInput(3)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_B_ndim = has_input_B ? toExpr(pOp.getInput(3)->getNumOfDimensions()) : toExpr(0);
   const auto input_B_dims = has_input_B ? defineDimensionArray(stream, indent, *pOp.getInput(3))
-                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_sequence_lens = (4 < pOp.getNumOfInputs());
   const auto input_sequence_lens =
     has_input_sequence_lens ? defineTensor(indent, *pOp.getInput(4)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_sequence_lens_ndim =
     has_input_sequence_lens ? toExpr(pOp.getInput(4)->getNumOfDimensions()) : toExpr(0);
-  const auto input_sequence_lens_dims = has_input_sequence_lens ? defineDimensionArray(stream, indent, *pOp.getInput(4))
-                                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+  const auto input_sequence_lens_dims = has_input_sequence_lens
+                                          ? defineDimensionArray(stream, indent, *pOp.getInput(4))
+                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_initial_h = (5 < pOp.getNumOfInputs());
   const auto input_initial_h =
     has_input_initial_h ? defineTensor(indent, *pOp.getInput(5)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_initial_h_ndim = has_input_initial_h ? toExpr(pOp.getInput(5)->getNumOfDimensions()) : toExpr(0);
   const auto input_initial_h_dims = has_input_initial_h ? defineDimensionArray(stream, indent, *pOp.getInput(5))
-                                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const bool has_output_Y = (0 < pOp.getNumOfOutputs());
   const auto output_Y =
     has_output_Y ? defineTensor(indent, *pOp.getOutput(0)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_ndim = has_output_Y ? toExpr(pOp.getOutput(0)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_dims = has_output_Y ? defineDimensionArray(stream, indent, *pOp.getOutput(0))
-                                          : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_Y_h = (1 < pOp.getNumOfOutputs());
   const auto output_Y_h =
     has_output_Y_h ? defineTensor(indent, *pOp.getOutput(1)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_h_ndim = has_output_Y_h ? toExpr(pOp.getOutput(1)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_h_dims = has_output_Y_h ? defineDimensionArray(stream, indent, *pOp.getOutput(1))
-                                              : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                              : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare attributes
   const auto number_of_activation_alpha = toExpr(pOp.getActivationAlpha().vector().size());
-  const auto activation_alpha           = defineArray<float>(stream, indent, pOp.getActivationAlpha().vector());
+  const auto activation_alpha           = defineArray<float const>(stream, indent, pOp.getActivationAlpha().vector());
   const auto number_of_activation_beta  = toExpr(pOp.getActivationBeta().vector().size());
-  const auto activation_beta            = defineArray<float>(stream, indent, pOp.getActivationBeta().vector());
+  const auto activation_beta            = defineArray<float const>(stream, indent, pOp.getActivationBeta().vector());
   const auto number_of_activations      = toExpr(pOp.getActivations().vector().size());
-  const auto activations                = defineArray<const char*>(stream, indent, pOp.getActivations().vector());
+  const auto activations                = defineArray<const char* const>(stream, indent, pOp.getActivations().vector());
   const auto clip                       = toExpr(pOp.getClip().value());
   const auto direction                  = toExpr(pOp.getDirection().value().c_str());
   const auto hidden_size                = toExpr(pOp.getHiddenSize().value());
@@ -1172,58 +1166,59 @@ PP_GEN_VISIT_DEF(LSTM, pOp)
     has_input_B ? defineTensor(indent, *pOp.getInput(3)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_B_ndim = has_input_B ? toExpr(pOp.getInput(3)->getNumOfDimensions()) : toExpr(0);
   const auto input_B_dims = has_input_B ? defineDimensionArray(stream, indent, *pOp.getInput(3))
-                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_sequence_lens = (4 < pOp.getNumOfInputs());
   const auto input_sequence_lens =
     has_input_sequence_lens ? defineTensor(indent, *pOp.getInput(4)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_sequence_lens_ndim =
     has_input_sequence_lens ? toExpr(pOp.getInput(4)->getNumOfDimensions()) : toExpr(0);
-  const auto input_sequence_lens_dims = has_input_sequence_lens ? defineDimensionArray(stream, indent, *pOp.getInput(4))
-                                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+  const auto input_sequence_lens_dims = has_input_sequence_lens
+                                          ? defineDimensionArray(stream, indent, *pOp.getInput(4))
+                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_initial_h = (5 < pOp.getNumOfInputs());
   const auto input_initial_h =
     has_input_initial_h ? defineTensor(indent, *pOp.getInput(5)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_initial_h_ndim = has_input_initial_h ? toExpr(pOp.getInput(5)->getNumOfDimensions()) : toExpr(0);
   const auto input_initial_h_dims = has_input_initial_h ? defineDimensionArray(stream, indent, *pOp.getInput(5))
-                                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_initial_c = (6 < pOp.getNumOfInputs());
   const auto input_initial_c =
     has_input_initial_c ? defineTensor(indent, *pOp.getInput(6)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_initial_c_ndim = has_input_initial_c ? toExpr(pOp.getInput(6)->getNumOfDimensions()) : toExpr(0);
   const auto input_initial_c_dims = has_input_initial_c ? defineDimensionArray(stream, indent, *pOp.getInput(6))
-                                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_P = (7 < pOp.getNumOfInputs());
   const auto input_P =
     has_input_P ? defineTensor(indent, *pOp.getInput(7)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_P_ndim = has_input_P ? toExpr(pOp.getInput(7)->getNumOfDimensions()) : toExpr(0);
   const auto input_P_dims = has_input_P ? defineDimensionArray(stream, indent, *pOp.getInput(7))
-                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const bool has_output_Y = (0 < pOp.getNumOfOutputs());
   const auto output_Y =
     has_output_Y ? defineTensor(indent, *pOp.getOutput(0)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_ndim = has_output_Y ? toExpr(pOp.getOutput(0)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_dims = has_output_Y ? defineDimensionArray(stream, indent, *pOp.getOutput(0))
-                                          : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_Y_h = (1 < pOp.getNumOfOutputs());
   const auto output_Y_h =
     has_output_Y_h ? defineTensor(indent, *pOp.getOutput(1)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_h_ndim = has_output_Y_h ? toExpr(pOp.getOutput(1)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_h_dims = has_output_Y_h ? defineDimensionArray(stream, indent, *pOp.getOutput(1))
-                                              : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                              : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_Y_c = (2 < pOp.getNumOfOutputs());
   const auto output_Y_c =
     has_output_Y_c ? defineTensor(indent, *pOp.getOutput(2)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_c_ndim = has_output_Y_c ? toExpr(pOp.getOutput(2)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_c_dims = has_output_Y_c ? defineDimensionArray(stream, indent, *pOp.getOutput(2))
-                                              : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                              : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare attributes
   const auto number_of_activation_alpha = toExpr(pOp.getActivationAlpha().vector().size());
-  const auto activation_alpha           = defineArray<float>(stream, indent, pOp.getActivationAlpha().vector());
+  const auto activation_alpha           = defineArray<float const>(stream, indent, pOp.getActivationAlpha().vector());
   const auto number_of_activation_beta  = toExpr(pOp.getActivationBeta().vector().size());
-  const auto activation_beta            = defineArray<float>(stream, indent, pOp.getActivationBeta().vector());
+  const auto activation_beta            = defineArray<float const>(stream, indent, pOp.getActivationBeta().vector());
   const auto number_of_activations      = toExpr(pOp.getActivations().vector().size());
-  const auto activations                = defineArray<const char*>(stream, indent, pOp.getActivations().vector());
+  const auto activations                = defineArray<const char* const>(stream, indent, pOp.getActivations().vector());
   const auto clip                       = toExpr(pOp.getClip().value());
   const auto direction                  = toExpr(pOp.getDirection().value().c_str());
   const auto hidden_size                = toExpr(pOp.getHiddenSize().value());
@@ -1404,12 +1399,12 @@ PP_GEN_VISIT_DEF(LpPool, pOp)
   // Prepare attributes
   const auto auto_pad               = toExpr(pOp.getAutoPad().value().c_str());
   const auto number_of_kernel_shape = toExpr(pOp.getKernelShape().vector().size());
-  const auto kernel_shape           = defineArray<int32_t>(stream, indent, pOp.getKernelShape().vector());
+  const auto kernel_shape           = defineArray<int32_t const>(stream, indent, pOp.getKernelShape().vector());
   const auto p                      = toExpr(pOp.getP().value());
   const auto number_of_pads         = toExpr(pOp.getPads().vector().size());
-  const auto pads                   = defineArray<int32_t>(stream, indent, pOp.getPads().vector());
+  const auto pads                   = defineArray<int32_t const>(stream, indent, pOp.getPads().vector());
   const auto number_of_strides      = toExpr(pOp.getStrides().vector().size());
-  const auto strides                = defineArray<int32_t>(stream, indent, pOp.getStrides().vector());
+  const auto strides                = defineArray<int32_t const>(stream, indent, pOp.getStrides().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -1483,16 +1478,16 @@ PP_GEN_VISIT_DEF(MaxPool, pOp)
     has_output_Indices ? defineTensor(indent, *pOp.getOutput(1)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Indices_ndim = has_output_Indices ? toExpr(pOp.getOutput(1)->getNumOfDimensions()) : toExpr(0);
   const auto output_Indices_dims = has_output_Indices ? defineDimensionArray(stream, indent, *pOp.getOutput(1))
-                                                      : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                      : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare attributes
   const auto auto_pad               = toExpr(pOp.getAutoPad().value().c_str());
   const auto number_of_kernel_shape = toExpr(pOp.getKernelShape().vector().size());
-  const auto kernel_shape           = defineArray<int32_t>(stream, indent, pOp.getKernelShape().vector());
+  const auto kernel_shape           = defineArray<int32_t const>(stream, indent, pOp.getKernelShape().vector());
   const auto number_of_pads         = toExpr(pOp.getPads().vector().size());
-  const auto pads                   = defineArray<int32_t>(stream, indent, pOp.getPads().vector());
+  const auto pads                   = defineArray<int32_t const>(stream, indent, pOp.getPads().vector());
   const auto storage_order          = toExpr(pOp.getStorageOrder().value());
   const auto number_of_strides      = toExpr(pOp.getStrides().vector().size());
-  const auto strides                = defineArray<int32_t>(stream, indent, pOp.getStrides().vector());
+  const auto strides                = defineArray<int32_t const>(stream, indent, pOp.getStrides().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -1519,7 +1514,7 @@ PP_GEN_VISIT_DEF(MaxRoiPool, pOp)
   const auto    output_Y_dims = defineDimensionArray(stream, indent, *output_Y_t);
   // Prepare attributes
   const auto number_of_pooled_shape = toExpr(pOp.getPooledShape().vector().size());
-  const auto pooled_shape           = defineArray<int32_t>(stream, indent, pOp.getPooledShape().vector());
+  const auto pooled_shape           = defineArray<int32_t const>(stream, indent, pOp.getPooledShape().vector());
   const auto spatial_scale          = toExpr(pOp.getSpatialScale().value());
 
   // Call to Runtime
@@ -1733,7 +1728,7 @@ PP_GEN_VISIT_DEF(Pad, pOp)
   // Prepare attributes
   const auto mode           = toExpr(pOp.getMode().value().c_str());
   const auto number_of_pads = toExpr(pOp.getPads().vector().size());
-  const auto pads           = defineArray<int32_t>(stream, indent, pOp.getPads().vector());
+  const auto pads           = defineArray<int32_t const>(stream, indent, pOp.getPads().vector());
   const auto value          = toExpr(pOp.getValue().value());
 
   // Call to Runtime
@@ -1788,40 +1783,41 @@ PP_GEN_VISIT_DEF(RNN, pOp)
     has_input_B ? defineTensor(indent, *pOp.getInput(3)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_B_ndim = has_input_B ? toExpr(pOp.getInput(3)->getNumOfDimensions()) : toExpr(0);
   const auto input_B_dims = has_input_B ? defineDimensionArray(stream, indent, *pOp.getInput(3))
-                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_sequence_lens = (4 < pOp.getNumOfInputs());
   const auto input_sequence_lens =
     has_input_sequence_lens ? defineTensor(indent, *pOp.getInput(4)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_sequence_lens_ndim =
     has_input_sequence_lens ? toExpr(pOp.getInput(4)->getNumOfDimensions()) : toExpr(0);
-  const auto input_sequence_lens_dims = has_input_sequence_lens ? defineDimensionArray(stream, indent, *pOp.getInput(4))
-                                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+  const auto input_sequence_lens_dims = has_input_sequence_lens
+                                          ? defineDimensionArray(stream, indent, *pOp.getInput(4))
+                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_input_initial_h = (5 < pOp.getNumOfInputs());
   const auto input_initial_h =
     has_input_initial_h ? defineTensor(indent, *pOp.getInput(5)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_initial_h_ndim = has_input_initial_h ? toExpr(pOp.getInput(5)->getNumOfDimensions()) : toExpr(0);
   const auto input_initial_h_dims = has_input_initial_h ? defineDimensionArray(stream, indent, *pOp.getInput(5))
-                                                        : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                        : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const bool has_output_Y = (0 < pOp.getNumOfOutputs());
   const auto output_Y =
     has_output_Y ? defineTensor(indent, *pOp.getOutput(0)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_ndim = has_output_Y ? toExpr(pOp.getOutput(0)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_dims = has_output_Y ? defineDimensionArray(stream, indent, *pOp.getOutput(0))
-                                          : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                          : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   const bool has_output_Y_h = (1 < pOp.getNumOfOutputs());
   const auto output_Y_h =
     has_output_Y_h ? defineTensor(indent, *pOp.getOutput(1)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto output_Y_h_ndim = has_output_Y_h ? toExpr(pOp.getOutput(1)->getNumOfDimensions()) : toExpr(0);
   const auto output_Y_h_dims = has_output_Y_h ? defineDimensionArray(stream, indent, *pOp.getOutput(1))
-                                              : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                              : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare attributes
   const auto number_of_activation_alpha = toExpr(pOp.getActivationAlpha().vector().size());
-  const auto activation_alpha           = defineArray<float>(stream, indent, pOp.getActivationAlpha().vector());
+  const auto activation_alpha           = defineArray<float const>(stream, indent, pOp.getActivationAlpha().vector());
   const auto number_of_activation_beta  = toExpr(pOp.getActivationBeta().vector().size());
-  const auto activation_beta            = defineArray<float>(stream, indent, pOp.getActivationBeta().vector());
+  const auto activation_beta            = defineArray<float const>(stream, indent, pOp.getActivationBeta().vector());
   const auto number_of_activations      = toExpr(pOp.getActivations().vector().size());
-  const auto activations                = defineArray<const char*>(stream, indent, pOp.getActivations().vector());
+  const auto activations                = defineArray<const char* const>(stream, indent, pOp.getActivations().vector());
   const auto clip                       = toExpr(pOp.getClip().value());
   const auto direction                  = toExpr(pOp.getDirection().value().c_str());
   const auto hidden_size                = toExpr(pOp.getHiddenSize().value());
@@ -1879,7 +1875,7 @@ PP_GEN_VISIT_DEF(RandomNormal, pOp)
   const auto scale           = toExpr(pOp.getScale().value());
   const auto seed            = toExpr(pOp.getSeed().value());
   const auto number_of_shape = toExpr(pOp.getShape().vector().size());
-  const auto shape           = defineArray<int32_t>(stream, indent, pOp.getShape().vector());
+  const auto shape           = defineArray<int32_t const>(stream, indent, pOp.getShape().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -1929,7 +1925,7 @@ PP_GEN_VISIT_DEF(RandomUniform, pOp)
   const auto low             = toExpr(pOp.getLow().value());
   const auto seed            = toExpr(pOp.getSeed().value());
   const auto number_of_shape = toExpr(pOp.getShape().vector().size());
-  const auto shape           = defineArray<int32_t>(stream, indent, pOp.getShape().vector());
+  const auto shape           = defineArray<int32_t const>(stream, indent, pOp.getShape().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2000,7 +1996,7 @@ PP_GEN_VISIT_DEF(ReduceL1, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2023,7 +2019,7 @@ PP_GEN_VISIT_DEF(ReduceL2, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2046,7 +2042,7 @@ PP_GEN_VISIT_DEF(ReduceLogSum, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2069,7 +2065,7 @@ PP_GEN_VISIT_DEF(ReduceLogSumExp, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2092,7 +2088,7 @@ PP_GEN_VISIT_DEF(ReduceMax, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2115,7 +2111,7 @@ PP_GEN_VISIT_DEF(ReduceMean, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2138,7 +2134,7 @@ PP_GEN_VISIT_DEF(ReduceMin, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2161,7 +2157,7 @@ PP_GEN_VISIT_DEF(ReduceProd, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2184,7 +2180,7 @@ PP_GEN_VISIT_DEF(ReduceSum, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2207,7 +2203,7 @@ PP_GEN_VISIT_DEF(ReduceSumSquare, pOp)
   const auto    output_reduced_dims = defineDimensionArray(stream, indent, *output_reduced_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto keepdims       = toExpr(pOp.getKeepdims().value());
 
   // Call to Runtime
@@ -2389,11 +2385,11 @@ PP_GEN_VISIT_DEF(Slice, pOp)
   const auto    output_output_dims = defineDimensionArray(stream, indent, *output_output_t);
   // Prepare attributes
   const auto number_of_axes   = toExpr(pOp.getAxes().vector().size());
-  const auto axes             = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes             = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
   const auto number_of_ends   = toExpr(pOp.getEnds().vector().size());
-  const auto ends             = defineArray<int32_t>(stream, indent, pOp.getEnds().vector());
+  const auto ends             = defineArray<int32_t const>(stream, indent, pOp.getEnds().vector());
   const auto number_of_starts = toExpr(pOp.getStarts().vector().size());
-  const auto starts           = defineArray<int32_t>(stream, indent, pOp.getStarts().vector());
+  const auto starts           = defineArray<int32_t const>(stream, indent, pOp.getStarts().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2503,7 +2499,7 @@ PP_GEN_VISIT_DEF(Split, pOp)
   // Prepare attributes
   const auto axis            = toExpr(pOp.getAxis().value());
   const auto number_of_split = toExpr(pOp.getSplit().vector().size());
-  const auto split           = defineArray<int32_t>(stream, indent, pOp.getSplit().vector());
+  const auto split           = defineArray<int32_t const>(stream, indent, pOp.getSplit().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2547,7 +2543,7 @@ PP_GEN_VISIT_DEF(Squeeze, pOp)
   const auto    output_squeezed_dims = defineDimensionArray(stream, indent, *output_squeezed_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2715,7 +2711,7 @@ PP_GEN_VISIT_DEF(Transpose, pOp)
   const auto    output_transposed_dims = defineDimensionArray(stream, indent, *output_transposed_t);
   // Prepare attributes
   const auto number_of_perm = toExpr(pOp.getPerm().vector().size());
-  const auto perm           = defineArray<int32_t>(stream, indent, pOp.getPerm().vector());
+  const auto perm           = defineArray<int32_t const>(stream, indent, pOp.getPerm().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2737,7 +2733,7 @@ PP_GEN_VISIT_DEF(Unsqueeze, pOp)
   const auto    output_expanded_dims = defineDimensionArray(stream, indent, *output_expanded_t);
   // Prepare attributes
   const auto number_of_axes = toExpr(pOp.getAxes().vector().size());
-  const auto axes           = defineArray<int32_t>(stream, indent, pOp.getAxes().vector());
+  const auto axes           = defineArray<int32_t const>(stream, indent, pOp.getAxes().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2760,7 +2756,7 @@ PP_GEN_VISIT_DEF(Upsample, pOp)
   // Prepare attributes
   const auto mode             = toExpr(pOp.getMode().value().c_str());
   const auto number_of_scales = toExpr(pOp.getScales().vector().size());
-  const auto scales           = defineArray<float>(stream, indent, pOp.getScales().vector());
+  const auto scales           = defineArray<float const>(stream, indent, pOp.getScales().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2846,7 +2842,7 @@ PP_GEN_VISIT_DEF(ConstantFill, pOp)
     has_input_input ? defineTensor(indent, *pOp.getInput(0)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_input_ndim = has_input_input ? toExpr(pOp.getInput(0)->getNumOfDimensions()) : toExpr(0);
   const auto input_input_dims = has_input_input ? defineDimensionArray(stream, indent, *pOp.getInput(0))
-                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const Tensor* output_output_t    = pOp.getOutput(0);
   const auto    output_output      = defineTensor(indent, *output_output_t);
@@ -2855,10 +2851,10 @@ PP_GEN_VISIT_DEF(ConstantFill, pOp)
   // Prepare attributes
   const auto dtype                 = toExpr(pOp.getDtype().value());
   const auto number_of_extra_shape = toExpr(pOp.getExtraShape().vector().size());
-  const auto extra_shape           = defineArray<int32_t>(stream, indent, pOp.getExtraShape().vector());
+  const auto extra_shape           = defineArray<int32_t const>(stream, indent, pOp.getExtraShape().vector());
   const auto input_as_shape        = toExpr(pOp.getInputAsShape().value());
   const auto number_of_shape       = toExpr(pOp.getShape().vector().size());
-  const auto shape                 = defineArray<int32_t>(stream, indent, pOp.getShape().vector());
+  const auto shape                 = defineArray<int32_t const>(stream, indent, pOp.getShape().vector());
   const auto value                 = toExpr(pOp.getValue().value());
 
   // Call to Runtime
@@ -2882,9 +2878,9 @@ PP_GEN_VISIT_DEF(Crop, pOp)
   const auto    output_output_dims = defineDimensionArray(stream, indent, *output_output_t);
   // Prepare attributes
   const auto number_of_border = toExpr(pOp.getBorder().vector().size());
-  const auto border           = defineArray<int32_t>(stream, indent, pOp.getBorder().vector());
+  const auto border           = defineArray<int32_t const>(stream, indent, pOp.getBorder().vector());
   const auto number_of_scale  = toExpr(pOp.getScale().vector().size());
-  const auto scale            = defineArray<int32_t>(stream, indent, pOp.getScale().vector());
+  const auto scale            = defineArray<int32_t const>(stream, indent, pOp.getScale().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2935,7 +2931,7 @@ PP_GEN_VISIT_DEF(GivenTensorFill, pOp)
     has_input_shape ? defineTensor(indent, *pOp.getInput(0)) : defineVarByExpr<void*>(stream, indent, "NULL");
   const auto input_shape_ndim = has_input_shape ? toExpr(pOp.getInput(0)->getNumOfDimensions()) : toExpr(0);
   const auto input_shape_dims = has_input_shape ? defineDimensionArray(stream, indent, *pOp.getInput(0))
-                                                : defineVarByExpr<int32_t*>(stream, indent, "NULL");
+                                                : defineVarByExpr<const int32_t*>(stream, indent, "NULL");
   // Prepare output
   const Tensor* output_X_t    = pOp.getOutput(0);
   const auto    output_X      = defineTensor(indent, *output_X_t);
@@ -2943,12 +2939,12 @@ PP_GEN_VISIT_DEF(GivenTensorFill, pOp)
   const auto    output_X_dims = defineDimensionArray(stream, indent, *output_X_t);
   // Prepare attributes
   const auto number_of_extra_shape = toExpr(pOp.getExtraShape().vector().size());
-  const auto extra_shape           = defineArray<int32_t>(stream, indent, pOp.getExtraShape().vector());
+  const auto extra_shape           = defineArray<int32_t const>(stream, indent, pOp.getExtraShape().vector());
   const auto input_as_shape        = toExpr(pOp.getInputAsShape().value());
   const auto number_of_shape       = toExpr(pOp.getShape().vector().size());
-  const auto shape                 = defineArray<int32_t>(stream, indent, pOp.getShape().vector());
+  const auto shape                 = defineArray<int32_t const>(stream, indent, pOp.getShape().vector());
   const auto number_of_values      = toExpr(pOp.getValues().vector().size());
-  const auto values                = defineArray<float>(stream, indent, pOp.getValues().vector());
+  const auto values                = defineArray<float const>(stream, indent, pOp.getValues().vector());
 
   // Call to Runtime
   invoke(stream, indent, target,
@@ -2971,7 +2967,7 @@ PP_GEN_VISIT_DEF(ImageScaler, pOp)
   const auto    output_output_dims = defineDimensionArray(stream, indent, *output_output_t);
   // Prepare attributes
   const auto number_of_bias = toExpr(pOp.getBias().vector().size());
-  const auto bias           = defineArray<float>(stream, indent, pOp.getBias().vector());
+  const auto bias           = defineArray<float const>(stream, indent, pOp.getBias().vector());
   const auto scale          = toExpr(pOp.getScale().value());
 
   // Call to Runtime
