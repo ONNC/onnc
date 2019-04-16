@@ -99,8 +99,9 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   visitor.visit(module);
 
   // release internal memory
-  stream << indent << "free(" << memory << ");\n";
-  stream << "}\n";
+  stream << indent << "free(" << memory << ");\n"
+         << indent << "return 0;\n"
+         << "}\n";
 }
 
 std::size_t CLangGenServiceLibraryPass::getInternalMemorySize() const
