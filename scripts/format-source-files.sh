@@ -8,6 +8,7 @@ CLANG_FORMAT=clang-format-7
 DIRS=(
   lib/Target/NvDla
   lib/Target/CLang
+  export/runtime
 )
 
 EXCLUDE_DIRS=(
