@@ -28,8 +28,9 @@
 #define PP_ENTER_SCOPE(stream, indent) stream << indent << "{\n"
 #define PP_LEAVE_SCOPE(stream, indent) stream << indent << "}\n"
 
-#define PP_BUILTIN_TYPE_LIST \
-  (int32_t, int32_t*, const int32_t, const int32_t* const, float, float*, float**, float* const*, void*, const char*)
+#define PP_BUILTIN_TYPE_LIST                                                                                           \
+  (int32_t, int32_t*, const int32_t, const int32_t* const, float, float*, float**, float* const*, const float* const*, \
+   void*, const char*)
 #define PP_GEN_TYPE_HOLDER_DEF(type) \
   template <>                        \
   struct holder<type>                \
@@ -75,14 +76,6 @@ inline identifier_type getIdentifier()
 
   std::ostringstream stream;
   stream << "v" << ++serialNumber;
-  return stream.str();
-}
-
-template <typename T>
-inline expression_type toStringLiteral(const T& value)
-{
-  std::ostringstream stream;
-  stream << "\"" << value << "\"";
   return stream.str();
 }
 
@@ -297,6 +290,7 @@ using namespace internal;
 void PP_GEN_CLASS_NAME()::visit(const Module& module)
 {
   prepareMemoryTypes();
+  prepareMemorySizes();
 
   for (const auto& computeOperator : *module.getRootComputeGraph()) {
     computeOperator.accept(*this);
@@ -311,7 +305,7 @@ PP_GEN_VISIT_DEF(OutputOperator, op)
       const auto output = getIdentifier();
       stream << indent << "struct ONNC_RUNTIME_tensor_view " << output << " = {\n"
              << indent + 1 << ".data = " << tensor << ",\n"
-             << indent + 1 << ".size = " << 999 << "\n"
+             << indent + 1 << ".size = " << getMemorySize(*value) << "\n"
              << indent << "};\n";
 
       stream << indent << "(*context->completed)(context->id, " << output << ");\n";
@@ -402,11 +396,31 @@ void PP_GEN_CLASS_NAME()::prepareMemoryTypes()
   }
 }
 
-PP_GEN_CLASS_NAME()::MemoryType PP_GEN_CLASS_NAME()::getMemoryType(const Tensor& tensor)
+PP_GEN_CLASS_NAME()::MemoryType PP_GEN_CLASS_NAME()::getMemoryType(const Tensor& tensor) const
 {
   const auto found = memoryTypes.find(&tensor);
   if (found == std::end(memoryTypes)) {
     return MemoryType::none;
+  }
+
+  return found->second;
+}
+
+void PP_GEN_CLASS_NAME()::prepareMemorySizes()
+{
+  memorySizes.clear();
+
+  for (const auto& entry : meta.packedInternalMemoryBlocks) {
+    const auto* const tensor = entry.first;
+    memorySizes.emplace(tensor, entry.second.length);
+  }
+}
+
+CLangMemoryBlock::size_type PP_GEN_CLASS_NAME()::getMemorySize(const Tensor& tensor) const
+{
+  const auto found = memorySizes.find(&tensor);
+  if (found == std::end(memorySizes)) {
+    return 0;
   }
 
   return found->second;

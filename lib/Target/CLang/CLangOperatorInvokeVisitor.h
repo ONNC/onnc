@@ -102,9 +102,12 @@ private:
   };
 
   using memory_types_type = std::unordered_map<const Tensor*, MemoryType>;
+  using memory_sizes_type = std::unordered_map<const Tensor*, CLangMemoryBlock::size_type>;
 
-  void       prepareMemoryTypes();
-  MemoryType getMemoryType(const Tensor& tensor);
+  void                        prepareMemoryTypes();
+  MemoryType                  getMemoryType(const Tensor& tensor) const;
+  void                        prepareMemorySizes();
+  CLangMemoryBlock::size_type getMemorySize(const Tensor& tensor) const;
 
   const CLangMeta&       meta;
   stream_type&           stream;
@@ -113,6 +116,7 @@ private:
   const identifier_type  input;
   const identifier_type  weight;
   memory_types_type      memoryTypes;
+  memory_sizes_type      memorySizes;
 };
 
 } // namespace onnc
