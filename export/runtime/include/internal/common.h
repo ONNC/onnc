@@ -11,6 +11,7 @@
 #include <string.h>
 #include <time.h>
 
+int64_t getTensorSize(size_t numOfDimensions, const int32_t* dimensions);
 int32_t findIndex(int32_t index, int32_t axisDim, int32_t elementDistance);
 void calculate_axis_dis(int32_t ndim, const int32_t* restrict dims, int32_t* restrict axis_dis);
 bool next_dim_no_check(int32_t ndim, int32_t* restrict dim, const int32_t* restrict dim_max);
