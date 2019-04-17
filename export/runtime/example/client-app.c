@@ -14,7 +14,7 @@ struct ONNC_RUNTIME_tensor_file* open_tensor_file(const char* filename)
   fseek(stream, 0, SEEK_END);
   const long file_size = ftell(stream);
 
-  struct ONNC_RUNTIME_tensor_file* file = malloc(sizeof(struct ONNC_RUNTIME_tensor_file));
+  struct ONNC_RUNTIME_tensor_file* file = calloc(1, sizeof(struct ONNC_RUNTIME_tensor_file));
   file->data                            = malloc(file_size);
 
   fseek(stream, 0, SEEK_SET);
