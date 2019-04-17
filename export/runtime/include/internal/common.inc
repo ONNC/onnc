@@ -97,7 +97,7 @@ int32_t con(int32_t* meofarr, int32_t ndim, const int32_t* dims)
 
 float randomNormal(float mean, float stddev)
 {
-  float x = (float)random() / (RAND_MAX + 1.0f);
-  float y = (float)random() / (RAND_MAX + 1.0f);
+  float x = (float)rand() / (RAND_MAX + 1.0f);
+  float y = (float)rand() / (RAND_MAX + 1.0f);
   return mean + stddev * sqrtf(-2.0f * logf(x)) * cosf(2.0f * acosf(-1.0f) * y);
 }
