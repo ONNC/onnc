@@ -14,14 +14,8 @@ namespace onnc {
 namespace internal {
 inline void addIncludeDirectives(std::ostream& stream)
 {
-  stream << "#include <assert.h>\n";
-  stream << "#include <float.h>\n";
-  stream << "#include <math.h>\n";
-  stream << "#include <stddef.h>\n";
-  stream << "#include <stdlib.h>\n";
-  stream << "#include <stdint.h>\n";
-  stream << "#include <string.h>\n";
   stream << "#include <onnc-runtime.h>\n";
+  stream << "#include <internal/common.h>\n";
 }
 
 inline void addMacroDefinitions(std::ostream& stream)
@@ -56,7 +50,7 @@ inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& res
   const Path implFilesDirectory = resourceDirectory + "include" + "internal";
   assert(is_directory(implFilesDirectory));
 
-  addContentFromFile(stream, implFilesDirectory + "util.inc");
+  addContentFromFile(stream, implFilesDirectory + "common.inc");
 
   for (const auto& name : names) {
     const Path implFile = implFilesDirectory + (StringRef{name}.lower() + ".inc");
