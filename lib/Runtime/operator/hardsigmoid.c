@@ -1,6 +1,6 @@
+#include "internal/hardsigmoid.inc"
+
 #include <onnc/Runtime/operator/hardsigmoid.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/hardsigmoid.inc"
+#include <stdint.h>

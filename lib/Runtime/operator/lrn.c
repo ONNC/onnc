@@ -1,7 +1,7 @@
+#include "internal/lrn.inc"
+
 #include <onnc/Runtime/operator/lrn.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/lrn.inc"
+#include <stdbool.h>
+#include <stdint.h>

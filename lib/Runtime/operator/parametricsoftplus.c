@@ -1,7 +1,7 @@
+#include "internal/parametricsoftplus.inc"
+
 #include <onnc/Runtime/operator/parametricsoftplus.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/parametricsoftplus.inc"
+#include <stdbool.h>
+#include <stdint.h>

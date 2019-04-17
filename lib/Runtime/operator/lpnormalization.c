@@ -1,8 +1,8 @@
+#include "internal/lpnormalization.inc"
+
 #include <onnc/Runtime/operator/lpnormalization.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <float.h>
 #include <math.h>
-
-#include "internal/lpnormalization.inc"
+#include <stdbool.h>
+#include <stdint.h>

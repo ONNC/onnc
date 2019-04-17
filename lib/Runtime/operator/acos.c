@@ -1,7 +1,7 @@
+#include "internal/acos.inc"
+
 #include <onnc/Runtime/operator/acos.h>
 
-#include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-
-#include "internal/acos.inc"
+#include <stdint.h>

@@ -1,9 +1,9 @@
 #include <onnc/Runtime/operator/randomnormal.h>
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 static float randomNormal(float mean, float stddev)
 {

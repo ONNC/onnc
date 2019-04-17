@@ -1,6 +1,6 @@
+#include "internal/prelu.inc"
+
 #include <onnc/Runtime/operator/prelu.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/prelu.inc"
+#include <stdint.h>

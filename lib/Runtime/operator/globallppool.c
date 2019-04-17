@@ -1,7 +1,7 @@
+#include "internal/globallppool.inc"
+
 #include <onnc/Runtime/operator/globallppool.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/globallppool.inc"
+#include <stdbool.h>
+#include <stdint.h>

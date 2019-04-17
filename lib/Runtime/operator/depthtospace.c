@@ -1,6 +1,6 @@
+#include "internal/depthtospace.inc"
+
 #include <onnc/Runtime/operator/depthtospace.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/depthtospace.inc"
+#include <stdint.h>

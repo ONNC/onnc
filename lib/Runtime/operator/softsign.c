@@ -1,7 +1,7 @@
+#include "internal/softsign.inc"
+
 #include <onnc/Runtime/operator/softsign.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/softsign.inc"
+#include <stdbool.h>
+#include <stdint.h>

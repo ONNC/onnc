@@ -1,7 +1,7 @@
+#include "internal/cos.inc"
+
 #include <onnc/Runtime/operator/cos.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/cos.inc"
+#include <stdbool.h>
+#include <stdint.h>

@@ -1,6 +1,6 @@
+#include "internal/gather.inc"
+
 #include <onnc/Runtime/operator/gather.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/gather.inc"
+#include <stdint.h>

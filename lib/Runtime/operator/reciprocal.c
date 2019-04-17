@@ -1,7 +1,7 @@
+#include "internal/reciprocal.inc"
+
 #include <onnc/Runtime/operator/reciprocal.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/reciprocal.inc"
+#include <stdbool.h>
+#include <stdint.h>

@@ -1,6 +1,6 @@
+#include "internal/unsqueeze.inc"
+
 #include <onnc/Runtime/operator/unsqueeze.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/unsqueeze.inc"
+#include <stdint.h>

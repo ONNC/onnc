@@ -1,6 +1,6 @@
+#include "internal/and.inc"
+
 #include <onnc/Runtime/operator/and.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/and.inc"
+#include <stdint.h>

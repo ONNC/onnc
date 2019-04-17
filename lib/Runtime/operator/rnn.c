@@ -1,6 +1,6 @@
+#include "internal/rnn.inc"
+
 #include <onnc/Runtime/operator/rnn.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/rnn.inc"
+#include <stdint.h>

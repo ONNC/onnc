@@ -1,6 +1,6 @@
+#include "internal/div.inc"
+
 #include <onnc/Runtime/operator/div.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/div.inc"
+#include <stdint.h>

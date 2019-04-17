@@ -1,7 +1,7 @@
+#include "internal/globalmaxpool.inc"
+
 #include <onnc/Runtime/operator/globalmaxpool.h>
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <math.h>
-
-#include "internal/globalmaxpool.inc"
+#include <stdbool.h>
+#include <stdint.h>

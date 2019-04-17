@@ -1,6 +1,6 @@
+#include "internal/reshape.inc"
+
 #include <onnc/Runtime/operator/reshape.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/reshape.inc"
+#include <stdint.h>

@@ -1,6 +1,6 @@
+#include "internal/maxroipool.inc"
+
 #include <onnc/Runtime/operator/maxroipool.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/maxroipool.inc"
+#include <stdint.h>

@@ -1,7 +1,7 @@
+#include "internal/abs.inc"
+
 #include <onnc/Runtime/operator/abs.h>
 
-#include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-
-#include "internal/abs.inc"
+#include <stdint.h>

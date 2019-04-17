@@ -1,6 +1,6 @@
+#include "internal/neg.inc"
+
 #include <onnc/Runtime/operator/neg.h>
 
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "internal/neg.inc"
+#include <stdint.h>
