@@ -37,13 +37,13 @@ void ONNC_RUNTIME_averagepool_float(void* restrict onnc_runtime_context, const f
       if (isPad) {
         ++padCount;
       }
-    } while (next_dim(input_X_ndim - 2, k_dim, kernel_shape));
+    } while (next_dim_no_check(input_X_ndim - 2, k_dim, kernel_shape));
     if (count_include_pad) {
       sum /= size;
     } else {
       sum /= (size - padCount);
     }
 
-    output_Y[dim_to_offset(input_X_ndim, o_dim, output_Y_dims)] = sum;
-  } while (next_dim(input_X_ndim, o_dim, output_Y_dims));
+    output_Y[dim_to_offset_with_step(input_X_ndim, o_dim, output_Y_dims)] = sum;
+  } while (next_dim_no_check(input_X_ndim, o_dim, output_Y_dims));
 }

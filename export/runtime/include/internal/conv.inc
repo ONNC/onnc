@@ -107,11 +107,11 @@ void ONNC_RUNTIME_conv_float(void* restrict onnc_runtime_context, const float* r
         sum += input * weight;
       }
       w_dim[1] = 0; // reset C
-    } while (next_dim(ndim, w_dim, input_W_dims));
+    } while (next_dim_no_check(ndim, w_dim, input_W_dims));
 
     if (input_B != NULL) {
       sum += input_B[o_dim[1]];
     }
-    output_Y[dim_to_offset(ndim, o_dim, output_Y_dims)] = sum;
-  } while (next_dim(ndim, o_dim, output_Y_dims));
+    output_Y[dim_to_offset_with_step(ndim, o_dim, output_Y_dims)] = sum;
+  } while (next_dim_no_check(ndim, o_dim, output_Y_dims));
 }

@@ -31,8 +31,8 @@ void ONNC_RUNTIME_maxpool_float(void* restrict onnc_runtime_context, const float
       }
       float input = get_value_or_zero(ndim, input_X_dims, input_X, i_dim);
       max         = fmaxf(input, max);
-    } while (next_dim(ndim - 2, k_dim, kernel_shape));
+    } while (next_dim_no_check(ndim - 2, k_dim, kernel_shape));
 
-    output_Y[dim_to_offset(ndim, o_dim, output_Y_dims)] = max;
-  } while (next_dim(ndim, o_dim, output_Y_dims));
+    output_Y[dim_to_offset_with_step(ndim, o_dim, output_Y_dims)] = max;
+  } while (next_dim_no_check(ndim, o_dim, output_Y_dims));
 }
