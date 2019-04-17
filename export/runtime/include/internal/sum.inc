@@ -5,16 +5,15 @@ void ONNC_RUNTIME_sum_float(void* restrict onnc_runtime_context, const float* co
 
 )
 {
-  int64_t size = 1;
-  for (int32_t i = 0; i < output_sum_ndim; ++i) {
-    size *= output_sum_dims[i];
-  }
-  for (int64_t i = 0; i < size; ++i) {
+  const int64_t outputSize = getTensorSize(output_sum_ndim, output_sum_dims);
+  for (int64_t i = 0; i < outputSize; ++i) {
     output_sum[i] = 0.f;
   }
   // TODO: Broadcasting
   for (int64_t i = 0; i < input_data_0_ntensor; ++i) {
-    for (int64_t j = 0; j < size; ++j) {
+    const int64_t inputSize = getTensorSize(input_data_0_ndim[i], input_data_0_dims[i]);
+    const int64_t minSize   = outputSize < inputSize ? outputSize : inputSize;
+    for (int64_t j = 0; j < minSize; ++j) {
       output_sum[j] += input_data_0[i][j];
     }
   }

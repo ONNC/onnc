@@ -3640,10 +3640,22 @@ void BasicInterpreter::visit(Sum& pOp) {
   // Prepare input
   int32_t input_data_0_ntensor = pOp.getNumOfInputs() - 0;
   void *input_data_0[input_data_0_ntensor];
-  for (int i = 0; i < input_data_0_ntensor; ++i) input_data_0[i] = m_ATable[pOp.getInput(0 + i)];
-  int32_t input_data_0_ndim[input_data_0_ntensor]; // FIXME: = input_data_0_v->sizes().size();
-  int32_t *input_data_0_dims[input_data_0_ntensor]; // FIXME: [input_data_0_ndim[0]];
-  // FIXME: for (int i = 0; i < input_data_0_ndim; ++i) input_data_0_dims[i] = input_data_0_v->sizes()[i].dim;
+  for (int i = 0; i < input_data_0_ntensor; ++i) {
+    input_data_0[i] = m_ATable[pOp.getInput(0 + i)];
+  }
+  int32_t input_data_0_ndim[input_data_0_ntensor];
+  int32_t *input_data_0_dims[input_data_0_ntensor];
+  std::vector<std::unique_ptr<int32_t[]>> memory;
+  for (int i = 0; i < input_data_0_ntensor; ++i) {
+    const Tensor* const input = pOp.getInput(0 + i);
+    input_data_0_ndim[i] = input->getNumOfDimensions();
+
+    memory.emplace_back(std::make_unique<int32_t[]>(input->getNumOfDimensions()));
+    const auto& dimensions = input->getDimensions();
+    std::copy(begin(dimensions), end(dimensions), memory[i].get());
+
+    input_data_0_dims[i] = memory[i].get();
+  }
   // Prepare output
   Tensor *output_sum_t = pOp.getOutput(0);
   void *output_sum = m_ATable[output_sum_t];
