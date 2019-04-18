@@ -18,7 +18,7 @@ class TargetBackend;
 class CLangMemInfoPass : public CustomPass<CLangMemInfoPass>
 {
 public:
-  CLangMemInfoPass(CLangMeta& pMeta) noexcept;
+  explicit CLangMemInfoPass(CLangMeta& pMeta) noexcept;
 
   ReturnType runOnModule(Module& pModule) override;
 
