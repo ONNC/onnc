@@ -1,6 +1,6 @@
 void Enu(const float* restrict A, const int32_t* restrict A_dims, const float* restrict B,
-                  const int32_t* restrict B_dims, float* restrict C, int32_t C_ndim, const int32_t* restrict C_dims,
-                  int32_t* meofarr, int32_t idx, int32_t num)
+         const int32_t* restrict B_dims, float* restrict C, int32_t C_ndim, const int32_t* restrict C_dims,
+         int32_t* meofarr, int32_t idx, int32_t num)
 {
   if (idx == C_ndim) {
     int32_t ou_idx = con(meofarr, C_ndim, C_dims);

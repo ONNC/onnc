@@ -1,13 +1,13 @@
 #ifndef CONSTANT_MODE
-# define CONSTANT_MODE 0
-# define EDGE_MODE 1
-# define REFLECT_MODE 2
+#  define CONSTANT_MODE 0
+#  define EDGE_MODE 1
+#  define REFLECT_MODE 2
 #else
-# error "should not include this file twice"
+#  error "should not include this file twice"
 #endif
 
 bool pad_next_dim(int32_t ndim, int32_t* restrict dim, const int32_t* restrict dim_base,
-              const int32_t* restrict dim_max)
+                  const int32_t* restrict dim_max)
 {
   if (ndim == 0)
     return false;
@@ -25,9 +25,9 @@ bool pad_next_dim(int32_t ndim, int32_t* restrict dim, const int32_t* restrict d
   } while (true);
 }
 
-void add_initial_to_output(const float* restrict input, int32_t input_ndim,
-                                         const int32_t* restrict input_dims, int32_t* restrict axis_dis, int32_t* pads,
-                                         int32_t* restrict axis_pad_dis, float* restrict output)
+void add_initial_to_output(const float* restrict input, int32_t input_ndim, const int32_t* restrict input_dims,
+                           int32_t* restrict axis_dis, int32_t* pads, int32_t* restrict axis_pad_dis,
+                           float* restrict output)
 {
   int32_t iter_index[input_ndim];
   int32_t fill_index[input_ndim];
@@ -58,8 +58,8 @@ bool in_obj_area(int32_t* restrict index, int32_t* restrict object, int32_t ndim
 }
 
 void pad_along_axis(float* restrict output, int32_t output_ndim, const int32_t* restrict output_dims,
-                                  const int32_t* restrict pads, const int32_t* restrict axis_pad_dis,
-                                  const int32_t axis, int32_t* restrict object_area, const int32_t mode)
+                    const int32_t* restrict pads, const int32_t* restrict axis_pad_dis, const int32_t axis,
+                    int32_t* restrict object_area, const int32_t mode)
 {
   /* iterative walk though dim which axis dim equal to object edge */
   int32_t iter_dim_num = axis;
@@ -134,8 +134,8 @@ void pad_along_axis(float* restrict output, int32_t output_ndim, const int32_t* 
 }
 
 void padding(float* restrict output, int32_t output_ndim, const int32_t* restrict output_dims,
-                           const int32_t* restrict pads, const int32_t* restrict axis_pad_dis,
-                           int32_t* restrict object_area, const char* restrict mode, float value)
+             const int32_t* restrict pads, const int32_t* restrict axis_pad_dis, int32_t* restrict object_area,
+             const char* restrict mode, float value)
 {
   int32_t mode_no = 0;
   if (strcmp(mode, "constant") == 0)

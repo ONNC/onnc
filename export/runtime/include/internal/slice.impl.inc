@@ -68,5 +68,5 @@ void ONNC_RUNTIME_slice_float(void* restrict onnc_runtime_context, const float* 
   /* for loop */
   int32_t outputIndex = 0;
   sliceForLoop(0, input_data_ndim, output_dim_lower, output_dim_higher, input_data, 0, output_output, &outputIndex,
-          axisDistance);
+               axisDistance);
 }

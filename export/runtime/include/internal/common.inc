@@ -67,7 +67,7 @@ int64_t dim_to_offset_with_step(int32_t ndim, const int32_t* restrict dim, const
 }
 
 float get_value_or_zero(int32_t ndim, const int32_t* restrict dim_max, const float* restrict value,
-                                      const int32_t* restrict dim)
+                        const int32_t* restrict dim)
 {
   for (int32_t i = 0; i < ndim; ++i) {
     if (dim[i] < 0 || dim[i] >= dim_max[i]) {
@@ -78,18 +78,18 @@ float get_value_or_zero(int32_t ndim, const int32_t* restrict dim_max, const flo
 }
 
 float get_value_or_zero_5(int32_t ndim, const int32_t* restrict dim_max, const float* restrict value,
-                                        const int32_t* restrict dim, int32_t* isPad)
+                          const int32_t* restrict dim, int32_t* isPad)
 {
   for (int32_t i = 0; i < ndim; ++i) {
     if (dim[i] < 0 || dim[i] >= dim_max[i]) {
-			if (isPad) {
-				*isPad = 1;
-			}
+      if (isPad) {
+        *isPad = 1;
+      }
       return 0.f;
     }
   }
-	if (isPad) {
-		*isPad = 0;
+  if (isPad) {
+    *isPad = 0;
   }
   return value[dim_to_offset_with_step(ndim, dim, dim_max)];
 }

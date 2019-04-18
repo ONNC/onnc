@@ -37,7 +37,7 @@ void ONNC_RUNTIME_split_float(void* restrict onnc_runtime_context, const float* 
   for (int32_t splitIndex = 0; splitIndex < output_split_number; splitIndex++) {
     int32_t output_col = 0;
     splitForLoop(input_input, 0, input_input_ndim, input_input_dims, 0, axisDistance, axis, split_base,
-            output_split[splitIndex], output_outputs, splitIndex, &output_col);
+                 output_split[splitIndex], output_outputs, splitIndex, &output_col);
     split_base = output_split[splitIndex];
   }
 }

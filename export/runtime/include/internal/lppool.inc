@@ -9,8 +9,8 @@ int32_t conver(int32_t* restrict meofarr, int32_t ndim, const int32_t* restrict 
 }
 
 void Enu_In(const float* restrict input_X, int32_t input_X_ndim, const int32_t* restrict input_X_dims,
-                     int32_t* restrict in_meofarr, int32_t in_idx, int32_t* restrict kernel_shape, int32_t p, float* cnt,
-                     int32_t* cnt_navail)
+            int32_t* restrict in_meofarr, int32_t in_idx, int32_t* restrict kernel_shape, int32_t p, float* cnt,
+            int32_t* cnt_navail)
 {
   if (in_idx == input_X_ndim) {
     if (!(*cnt_navail)) {
@@ -32,9 +32,9 @@ void Enu_In(const float* restrict input_X, int32_t input_X_ndim, const int32_t* 
 }
 
 void Enu_Out(const float* restrict input_X, int32_t input_X_ndim, const int32_t* restrict input_X_dims,
-                      int32_t* restrict in_meofarr, float* restrict output_Y, int32_t output_Y_ndim,
-                      const int32_t* restrict output_Y_dims, int32_t* restrict ou_meofarr, int32_t ou_idx,
-                      int32_t* restrict kernel_shape, int32_t p, int32_t* restrict pads, int32_t* restrict strides)
+             int32_t* restrict in_meofarr, float* restrict output_Y, int32_t output_Y_ndim,
+             const int32_t* restrict output_Y_dims, int32_t* restrict ou_meofarr, int32_t ou_idx,
+             int32_t* restrict kernel_shape, int32_t p, int32_t* restrict pads, int32_t* restrict strides)
 {
   if (ou_idx == output_Y_ndim) {
     float   cnt        = 0;
