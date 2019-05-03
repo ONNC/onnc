@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/Support/Path.h>
 #include <onnc/Config/Config.h>
+#include <onnc/Support/FileSystem.h>
 #include <cstring>
 #include <cassert>
 #include <string>
@@ -190,7 +191,10 @@ Path Path::parent() const
   size_t end_pos = m_PathName.find_last_of(separator);
   if (end_pos != StringType::npos)
     return Path(m_PathName.substr(0, end_pos));
-  return Path();
+
+  Path workingDirectory;
+  getwd(workingDirectory);
+  return workingDirectory;
 }
 
 Path Path::above() const
