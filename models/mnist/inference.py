@@ -45,15 +45,16 @@ def Conv(X, W, attr):
     return Y
 
 def Add(A, B):
-    #for i in range(A.shape[0]):
-    #    for j in range(A.shape[1]):
-    #        for k in range(A.shape[2]):
-    #            for l in range(A.shape[3]):
-    #                A[i][j][k][l]+=B[j][0][0]
+    A=np.random.randn(1,8,4,4).astype(np.float32)
+    for i in range(A.shape[0]):
+        for j in range(A.shape[1]):
+            for k in range(A.shape[2]):
+                for l in range(A.shape[3]):
+                    A[i][j][k][l]+=B[j][0][0]
     return A
 
 def Relu(X):
-    return 0
+    return np.maximum(0,X)
 
 def MaxPool(X, attr):
     in_channel = X.shape[1]
@@ -111,7 +112,6 @@ Convolution28_Output_0 = Conv(Input3, Parameter5,
 
 Parameter6 = np.load('Parameter6.npy')
 Plus30_Output_0 = Add(Convolution28_Output_0, Parameter6)
-
 ReLU32_Output_0 = Relu(Plus30_Output_0)
 
 Pooling66_Output_0 = MaxPool(ReLU32_Output_0,
