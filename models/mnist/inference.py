@@ -45,7 +45,7 @@ def Conv(X, W, attr):
     return Y
 
 def Add(A, B):
-    A=np.random.randn(1,8,4,4).astype(np.float32)
+    #A=np.random.randn(1,8,4,4).astype(np.float32)
     for i in range(A.shape[0]):
         for j in range(A.shape[1]):
             for k in range(A.shape[2]):
@@ -126,7 +126,7 @@ Convolution110_Output_0 = Conv(Pooling66_Output_0, Parameter87,
                                 'auto_pad': 'SAME_UPPER'})
 
 Parameter88 = np.load('Parameter88.npy')
-Plus112_Output_0 = 0#Add(Convolution110_Output_0, Parameter88)我先註解掉了
+Plus112_Output_0 = Add(Convolution110_Output_0, Parameter88)
 
 ReLU114_Output_0 = Relu(Plus112_Output_0)
 
@@ -143,7 +143,7 @@ Parameter193_reshape1 = Reshape(Parameter193, [256, 10])
 Times212_Output_0 = MatMul(Pooling160_Output_0_reshape0, Parameter193_reshape1)
 print(Times212_Output_0)
 Parameter194 = np.load('Parameter194.npy')
-Plus214_Output_0 = 0#Add(Times212_Output_0, Parameter194)我先註解掉了
+Plus214_Output_0 = Add(Times212_Output_0, Parameter194)
 
 # Check result.
 print(Plus214_Output_0)
