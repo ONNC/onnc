@@ -21,20 +21,20 @@ def Conv(X, W, attr):
     out_width = in_width
 
     # Calculate padding.
-    padding_width = (kernel_width + (out_width - 1) * stride_width) - in_width
-    padding_left = int(padding_width / 2)
-    padding_right = padding_width - padding_left
+    pad_width = (kernel_width + (out_width - 1) * stride_width) - in_width
+    pad_left = int(pad_width / 2)
+    pad_right = pad_width - pad_left
     # FIXME: assume height and width are symmetric.
-    padding_top = padding_left
-    padding_bottom = padding_right
+    pad_top = pad_left
+    pad_bottom = pad_right
     
     Y = np.zeros((1, out_channel, out_height, out_width)).astype(np.float32)
     for oc in range(out_channel):
         for oh in range(out_height):
             for ow in range(out_width):
                 for ic in range(in_channel):
-                    ih = oh - padding_top
-                    iw = ow - padding_left
+                    ih = oh * stride_height - pad_top
+                    iw = ow * stride_width - pad_left
                     for kh in range(kernel_height):
                         for kw in range(kernel_width):
                             if iw + kw < 0 or iw + kw >= in_width or ih + kh < 0 or ih + kh >= in_height:
@@ -174,3 +174,4 @@ Plus214_Output_0 = Add(Times212_Output_0, Parameter194)
 
 # Check result.
 print(Plus214_Output_0)
+
