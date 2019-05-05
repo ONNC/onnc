@@ -124,6 +124,10 @@ if len(sys.argv) != 2:
     
 exec('import test_data_set_' + sys.argv[1] + '.input_0 as test_data')
 
+# Print pretty floating-point format for array.
+np.set_printoptions(precision=3)
+np.set_printoptions(suppress=True)
+
 # Do model inference.
 Input3 = test_data.tensor()
 Parameter5 = np.load('Parameter5.npy')
@@ -134,6 +138,7 @@ Convolution28_Output_0 = Conv(Input3, Parameter5,
 
 Parameter6 = np.load('Parameter6.npy')
 Plus30_Output_0 = Add(Convolution28_Output_0, Parameter6)
+
 ReLU32_Output_0 = Relu(Plus30_Output_0)
 
 Pooling66_Output_0 = MaxPool(ReLU32_Output_0,
