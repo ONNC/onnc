@@ -22,7 +22,7 @@ def Conv(X, W, attr):
 
     # Calculate padding.
     padding_width = (kernel_width + (out_width - 1) * stride_width) - in_width
-    padding_left = (int) (padding_width / 2)
+    padding_left = int(padding_width / 2)
     padding_right = padding_width - padding_left
     # FIXME: assume height and width are symmetric.
     padding_top = padding_left
@@ -56,7 +56,36 @@ def Relu(X):
     return 0
 
 def MaxPool(X, attr):
-    return 0
+    in_channel = X.shape[1]
+    in_height = X.shape[2]
+    in_width = X.shape[3]
+
+    pad_left, pad_right, pad_top, pad_bottom = attr['pads']
+    kernel_width, kernel_height = attr['kernel_shape']
+    stride_width, stride_height = attr['strides']
+
+    out_channel = in_channel
+    out_height = int((in_height + pad_top + pad_bottom - kernel_height) / stride_height) + 1
+    out_width = int((in_width + pad_left + pad_right - kernel_width) / stride_width) + 1
+
+    Y = np.zeros((1, out_channel, out_height, out_width)).astype(np.float32)
+    for oc in range(out_channel):
+        for oh in range(out_height):
+            for ow in range(out_width):
+                ih = oh * stride_height - pad_top
+                iw = ow * stride_width - pad_left
+                max_val = np.float32('-inf')
+                for kh in range(kernel_height):
+                    for kw in range(kernel_width):
+                        if ih + kh < 0 or ih + kh >= in_height or iw + kw < 0 or iw + kw >= in_width:
+                            x_val = 0
+                        else:
+                            x_val = X[0, oc, ih + kh, iw + kw]
+                        if x_val > max_val:
+                            max_val = x_val
+                Y[0, oc, oh, ow] = max_val
+
+    return Y
 
 def Reshape(data, shape):
     a = np.arange(1*16*4*4).reshape((1, 16, 4, 4)) ##自己假設4d numpy
@@ -73,7 +102,6 @@ def MatMul(A, B):
     return two_multi_result
 
 # Do model inference.
-
 Input3 = test_data.tensor()
 Parameter5 = np.load('Parameter5.npy')
 Convolution28_Output_0 = Conv(Input3, Parameter5,
@@ -88,7 +116,7 @@ ReLU32_Output_0 = Relu(Plus30_Output_0)
 
 Pooling66_Output_0 = MaxPool(ReLU32_Output_0,
                              {'kernel_shape': [2, 2],
-                              'stride': [2, 2],
+                              'strides': [2, 2],
                               'pads': [0, 0, 0, 0]})
 
 Parameter87 = np.load('Parameter87.npy')
