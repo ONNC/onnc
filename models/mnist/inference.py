@@ -2,7 +2,47 @@ import numpy as np
 import test_data_set_0.input_0 as test_data
 
 def Conv(X, W, attr):
-    return 0
+    if type(X) != np.ndarray:
+        return
+    assert len(X.shape) == 4
+    assert X.shape[0] == 1 # batch must be 1
+    in_channel = X.shape[1]
+    in_height = X.shape[2]
+    in_width = X.shape[3]
+
+    num_kernels = W.shape[0]
+    assert W.shape[1] == in_channel
+    kernel_width, kernel_height = attr['kernel_shape']
+    stride_width, stride_height = attr['strides']
+    
+    out_channel = num_kernels
+    assert attr['auto_pad'] == 'SAME_UPPER' # In this case, out_height/out_width must be the same as in_height/in_width
+    out_height = in_height
+    out_width = in_width
+
+    # Calculate padding.
+    padding_width = (kernel_width + (out_width - 1) * stride_width) - in_width
+    padding_left = (int) (padding_width / 2)
+    padding_right = padding_width - padding_left
+    # FIXME: assume height and width are symmetric.
+    padding_top = padding_left
+    padding_bottom = padding_right
+    
+    Y = np.zeros((1, out_channel, out_height, out_width)).astype(np.float32)
+    for oc in range(out_channel):
+        for oh in range(out_height):
+            for ow in range(out_width):
+                for ic in range(in_channel):
+                    ih = oh - padding_top
+                    iw = ow - padding_left
+                    for kh in range(kernel_height):
+                        for kw in range(kernel_width):
+                            if iw + kw < 0 or iw + kw >= in_width or ih + kh < 0 or ih + kh >= in_height:
+                                x_val = 0
+                            else:
+                                x_val = X[0, ic, ih + kh, iw + kw]
+                            Y[0, oc, oh, ow] += x_val * W[oc, ic, kh, kw]
+    return Y
 
 def Add(A, B):
     #for i in range(A.shape[0]):
