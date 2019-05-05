@@ -45,13 +45,30 @@ def Conv(X, W, attr):
     return Y
 
 def Add(A, B):
-    #A=np.random.randn(1,8,4,4).astype(np.float32)
-    for i in range(A.shape[0]):
-        for j in range(A.shape[1]):
-            for k in range(A.shape[2]):
-                for l in range(A.shape[3]):
-                    A[i][j][k][l]+=B[j][0][0]
-    return A
+    if A.ndim == 4:
+        out_channel=A.shape[1]
+        out_height=A.shape[2]
+        out_width=A.shape[3]
+        Y = np.zeros((1, out_channel, out_height, out_width)).astype(np.float32)
+        for i in range(A.shape[0]):
+            for j in range(A.shape[1]):
+                for k in range(A.shape[2]):
+                    for l in range(A.shape[3]):
+                        Y[i][j][k][l]+=B[j][0][0]
+
+    else:
+        out_channel=A.shape[1]
+        Y = np.zeros((1, out_channel)).astype(np.float32)
+        for i in range(1):
+            for j in range(A.shape[1]):
+                Y[i][j]+=B[i][j]
+        #print(B.shape[0])
+        #print(B.shape[1])
+        #for i in range(A.shape[0]):
+            #for j in range(A.shape[1]):
+                #print("d")
+
+    return Y
 
 def Relu(X):
     return np.maximum(0,X)
@@ -89,17 +106,16 @@ def MaxPool(X, attr):
     return Y
 
 def Reshape(data, shape):
-    a = np.arange(1*16*4*4).reshape((1, 16, 4, 4)) ##自己假設4d numpy
-    d=np.reshape(a,(1,256,-1))##reshape 1=>shape[0] 256=>shape[1]
-    print(a)
-    print(d)
+    #a = np.arange(1*16*4*4).reshape((1, 16, 4, 4)) ##自己假設4d numpy
+    Reshaped_data=data.reshape(shape[0],shape[1])##reshape 1=>shape[0] 256=>shape[1]
     
-    return 0
+    
+    return Reshaped_data
 
 def MatMul(A, B):
-    two_dim_matrix_one = np.array([[1, 2, 3], [4, 5, 6]])  ##自己假設兩個 2d numpy
-    wo_dim_matrix_two = np.array([[1, 2], [3, 4], [5, 6]])
-    two_multi_result = np.dot(two_dim_matrix_one, wo_dim_matrix_two)  ##result
+    #two_dim_matrix_one = np.array([[1, 2, 3], [4, 5, 6]])  ##自己假設兩個 2d numpy
+    #wo_dim_matrix_two = np.array([[1, 2], [3, 4], [5, 6]])
+    two_multi_result = np.dot(A, B)  ##result
     return two_multi_result
 
 # Do model inference.
@@ -141,7 +157,7 @@ Parameter193 = np.load('Parameter193.npy')
 Parameter193_reshape1 = Reshape(Parameter193, [256, 10])
 
 Times212_Output_0 = MatMul(Pooling160_Output_0_reshape0, Parameter193_reshape1)
-print(Times212_Output_0)
+#print(Times212_Output_0)
 Parameter194 = np.load('Parameter194.npy')
 Plus214_Output_0 = Add(Times212_Output_0, Parameter194)
 
