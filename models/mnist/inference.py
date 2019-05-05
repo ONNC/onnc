@@ -1,5 +1,5 @@
 import numpy as np
-import test_data_set_0.input_0 as test_data
+import sys
 
 def Conv(X, W, attr):
     if type(X) != np.ndarray:
@@ -117,6 +117,12 @@ def MatMul(A, B):
     #wo_dim_matrix_two = np.array([[1, 2], [3, 4], [5, 6]])
     two_multi_result = np.dot(A, B)  ##result
     return two_multi_result
+
+if len(sys.argv) != 2:
+    print('Help: python inference.py <test_data_set: 0, 1, or 2>')
+    exit(0)
+    
+exec('import test_data_set_' + sys.argv[1] + '.input_0 as test_data')
 
 # Do model inference.
 Input3 = test_data.tensor()
