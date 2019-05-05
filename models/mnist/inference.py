@@ -118,6 +118,22 @@ def MatMul(A, B):
     two_multi_result = np.dot(A, B)  ##result
     return two_multi_result
 
+def Quantize(weight):
+    min_wt = weight.min() 
+    max_wt = weight.max()
+
+    #find number of integer bits to represent this range
+    int_bits = int(np.ceil(np.log2(max(abs(min_wt),abs(max_wt))))) 
+    frac_bits = 7 - int_bits #remaining bits are fractional bits (1-bit for sign)
+
+    #floating point weights are scaled and rounded to [-128,127], which are used in 
+    #the fixed-point operations on the actual hardware (i.e., microcontroller)
+    quant_weight = np.clip(np.round(weight*(2**frac_bits)), -128, 127)
+    return quant_weight, frac_bits
+
+
+##################################################################
+# Setup
 if len(sys.argv) != 2:
     print('Help: python inference.py <test_data_set: 0, 1, or 2>')
     exit(0)
@@ -128,6 +144,8 @@ exec('import test_data_set_' + sys.argv[1] + '.input_0 as test_data')
 np.set_printoptions(precision=3)
 np.set_printoptions(suppress=True)
 
+
+##################################################################
 # Do model inference.
 Input3 = test_data.tensor()
 Parameter5 = np.load('Parameter5.npy')
@@ -175,3 +193,29 @@ Plus214_Output_0 = Add(Times212_Output_0, Parameter194)
 # Check result.
 print(Plus214_Output_0)
 
+##################################################################
+# Perform quantization.
+
+quan_Input3, fb_Input3 = Quantize(Input3)
+quan_Parameter5, fb_Parameter5 = Quantize(Parameter5)
+print('>>> quan_Input3 {}'.format(fb_Input3))
+print(quan_Input3)
+print('>>> quan_Parameter5 {}'.format(fb_Parameter5))
+print(quan_Parameter5)
+quan_Convolution28_Output_0 = Conv(quan_Input3, quan_Parameter5,
+                                   {'kernel_shape': [5, 5],
+                                    'strides': [1, 1],
+                                    'auto_pad': 'SAME_UPPER'})
+print('>>> output Convolution28_Output_0')
+print(quan_Convolution28_Output_0)
+
+_, fb_Convolution28_Output_0 = Quantize(Convolution28_Output_0)
+print('>>> output quan {}'.format(fb_Convolution28_Output_0))
+quan_Convolution28_Output_0 = np.round(quan_Convolution28_Output_0 * (2**(fb_Convolution28_Output_0 - (fb_Input3 + fb_Parameter5))))
+
+print('>>> quan_Convolution28_Output_0 {}'.format((fb_Convolution28_Output_0 - (fb_Input3 + fb_Parameter5))))
+print(quan_Convolution28_Output_0)
+print('max={} min={}'.format(quan_Convolution28_Output_0.max(), quan_Convolution28_Output_0.min()))
+print('>>> original Convolution28_Output_0')
+print(Convolution28_Output_0)
+print('max={} min={}'.format(Convolution28_Output_0.max(), Convolution28_Output_0.min()))
