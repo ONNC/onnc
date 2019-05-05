@@ -118,18 +118,21 @@ def MatMul(A, B):
     two_multi_result = np.dot(A, B)  ##result
     return two_multi_result
 
-def Quantize(weight):
+
+def FracBits(weight):
     min_wt = weight.min() 
     max_wt = weight.max()
 
     #find number of integer bits to represent this range
     int_bits = int(np.ceil(np.log2(max(abs(min_wt),abs(max_wt))))) 
     frac_bits = 7 - int_bits #remaining bits are fractional bits (1-bit for sign)
+    return frac_bits
 
+def Quantize(weight, frac_bits):
     #floating point weights are scaled and rounded to [-128,127], which are used in 
     #the fixed-point operations on the actual hardware (i.e., microcontroller)
     quant_weight = np.clip(np.round(weight*(2**frac_bits)), -128, 127)
-    return quant_weight, frac_bits
+    return quant_weight
 
 
 ##################################################################
@@ -147,46 +150,58 @@ np.set_printoptions(suppress=True)
 
 ##################################################################
 # Do model inference.
+
+# Convolution28
 Input3 = test_data.tensor()
 Parameter5 = np.load('Parameter5.npy')
 Convolution28_Output_0 = Conv(Input3, Parameter5,
                               {'kernel_shape': [5, 5],
                                'strides': [1, 1],
                                'auto_pad': 'SAME_UPPER'})
-
+# Plus30
 Parameter6 = np.load('Parameter6.npy')
 Plus30_Output_0 = Add(Convolution28_Output_0, Parameter6)
 
+# ReLU32
 ReLU32_Output_0 = Relu(Plus30_Output_0)
 
+# Pooling66
 Pooling66_Output_0 = MaxPool(ReLU32_Output_0,
                              {'kernel_shape': [2, 2],
                               'strides': [2, 2],
                               'pads': [0, 0, 0, 0]})
 
+# Convolution110
 Parameter87 = np.load('Parameter87.npy')
 Convolution110_Output_0 = Conv(Pooling66_Output_0, Parameter87,
                                {'kernel_shape': [5, 5],
                                 'strides': [1, 1],
                                 'auto_pad': 'SAME_UPPER'})
 
+# Plus112
 Parameter88 = np.load('Parameter88.npy')
 Plus112_Output_0 = Add(Convolution110_Output_0, Parameter88)
 
+# ReLU114
 ReLU114_Output_0 = Relu(Plus112_Output_0)
 
+# Pooling160
 Pooling160_Output_0 = MaxPool(ReLU114_Output_0,
                               {'kernel_shape': [3, 3],
                                'strides': [3, 3],
                                'pads': [0, 0, 0, 0]})
 
+# Times212_reshape0
 Pooling160_Output_0_reshape0 = Reshape(Pooling160_Output_0, [1, 256])
 
+# Times212_reshape1
 Parameter193 = np.load('Parameter193.npy')
 Parameter193_reshape1 = Reshape(Parameter193, [256, 10])
 
+# Times212
 Times212_Output_0 = MatMul(Pooling160_Output_0_reshape0, Parameter193_reshape1)
-#print(Times212_Output_0)
+
+# Plus214
 Parameter194 = np.load('Parameter194.npy')
 Plus214_Output_0 = Add(Times212_Output_0, Parameter194)
 
@@ -194,28 +209,54 @@ Plus214_Output_0 = Add(Times212_Output_0, Parameter194)
 print(Plus214_Output_0)
 
 ##################################################################
-# Perform quantization.
+# Calculate quantization scaling factors.
 
-quan_Input3, fb_Input3 = Quantize(Input3)
-quan_Parameter5, fb_Parameter5 = Quantize(Parameter5)
-print('>>> quan_Input3 {}'.format(fb_Input3))
-print(quan_Input3)
-print('>>> quan_Parameter5 {}'.format(fb_Parameter5))
-print(quan_Parameter5)
-quan_Convolution28_Output_0 = Conv(quan_Input3, quan_Parameter5,
+# Convolution28
+frac_Convolution28_X = FracBits(Input3)
+frac_Convolution28_W = FracBits(Parameter5)
+frac_Convolution28_Y = frac_Convolution28_X + frac_Convolution28_W
+
+# Plus30
+frac_Plus30_A = frac_Plus30_B = int(np.minimum(FracBits(Convolution28_Output_0), FracBits(Parameter6)))
+frac_Plus30_C = frac_Plus30_A
+
+# ReLU32
+# Pooling66
+# Convolution110
+FracBits(Pooling66_Output_0)
+FracBits(Parameter87)
+
+# Plus112
+FracBits(Convolution110_Output_0)
+FracBits(Parameter88)
+
+# ReLU114
+# Pooling160
+# Times212_reshape0
+# Times212_reshape1
+# Times212
+FracBits(Pooling160_Output_0_reshape0)
+FracBits(Parameter193_reshape1)
+
+# Plus214
+FracBits(Times212_Output_0)
+FracBits(Parameter194)
+
+##################################################################
+# Do quantized inference.
+
+# Convolution28
+quant_Input3 = Quantize(Input3, frac_Convolution28_X)
+quant_Parameter5 = Quantize(Parameter5, frac_Convolution28_W)
+quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                    {'kernel_shape': [5, 5],
                                     'strides': [1, 1],
                                     'auto_pad': 'SAME_UPPER'})
-print('>>> output Convolution28_Output_0')
-print(quan_Convolution28_Output_0)
 
-_, fb_Convolution28_Output_0 = Quantize(Convolution28_Output_0)
-print('>>> output quan {}'.format(fb_Convolution28_Output_0))
-quan_Convolution28_Output_0 = np.round(quan_Convolution28_Output_0 * (2**(fb_Convolution28_Output_0 - (fb_Input3 + fb_Parameter5))))
+# Plus30
+quant_Parameter6 = Quantize(Parameter6, frac_Plus30_B)
+quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, frac_Plus30_A - frac_Convolution28_Y),
+                            quant_Parameter6)
 
-print('>>> quan_Convolution28_Output_0 {}'.format((fb_Convolution28_Output_0 - (fb_Input3 + fb_Parameter5))))
-print(quan_Convolution28_Output_0)
-print('max={} min={}'.format(quan_Convolution28_Output_0.max(), quan_Convolution28_Output_0.min()))
-print('>>> original Convolution28_Output_0')
-print(Convolution28_Output_0)
-print('max={} min={}'.format(Convolution28_Output_0.max(), Convolution28_Output_0.min()))
+# ReLU32
+# ...... To be done.
