@@ -54,14 +54,14 @@ def Add(A, B):
             for j in range(A.shape[1]):
                 for k in range(A.shape[2]):
                     for l in range(A.shape[3]):
-                        Y[i][j][k][l]+=B[j][0][0]
+                        Y[i][j][k][l]=A[i][j][k][l]+B[j][0][0]
 
     else:
         out_channel=A.shape[1]
         Y = np.zeros((1, out_channel)).astype(np.float32)
         for i in range(1):
             for j in range(A.shape[1]):
-                Y[i][j]+=B[i][j]
+                Y[i][j]=A[i][j] + B[i][j]
         #print(B.shape[0])
         #print(B.shape[1])
         #for i in range(A.shape[0]):
