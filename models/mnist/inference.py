@@ -122,7 +122,7 @@ def MatMul(A, B):
 def FracBits(weight):
     min_wt = weight.min() 
     max_wt = weight.max()
-
+    
     #find number of integer bits to represent this range
     int_bits = int(np.ceil(np.log2(max(abs(min_wt),abs(max_wt))))) 
     frac_bits = 7 - int_bits #remaining bits are fractional bits (1-bit for sign)
@@ -212,9 +212,14 @@ print(Plus214_Output_0)
 # Calculate quantization scaling factors.
 
 # Convolution28
+
 frac_Convolution28_X = FracBits(Input3)
+
 frac_Convolution28_W = FracBits(Parameter5)
-frac_Convolution28_Y = frac_Convolution28_X + frac_Convolution28_W
+
+frac_Convolution28_Y = frac_Convolution28_X + frac_Convolution28_W #算出相乘後的小數點位置
+
+
 
 # Plus30
 frac_Plus30_A = frac_Plus30_B = int(np.minimum(FracBits(Convolution28_Output_0), FracBits(Parameter6)))
@@ -223,12 +228,15 @@ frac_Plus30_C = frac_Plus30_A
 # ReLU32
 # Pooling66
 # Convolution110
-FracBits(Pooling66_Output_0)
-FracBits(Parameter87)
+frac_Convolution110_X=FracBits(Pooling66_Output_0)
+
+frac_Convolution110_W=FracBits(Parameter87)
+frac_Convolution110_Y = frac_Convolution110_X + frac_Convolution110_W 
 
 # Plus112
 FracBits(Convolution110_Output_0)
 FracBits(Parameter88)
+
 
 # ReLU114
 # Pooling160
@@ -246,8 +254,11 @@ FracBits(Parameter194)
 # Do quantized inference.
 
 # Convolution28
+
 quant_Input3 = Quantize(Input3, frac_Convolution28_X)
+
 quant_Parameter5 = Quantize(Parameter5, frac_Convolution28_W)
+
 quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                    {'kernel_shape': [5, 5],
                                     'strides': [1, 1],
@@ -259,4 +270,13 @@ quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, frac_Plus30_A
                             quant_Parameter6)
 
 # ReLU32
+quant_ReLU32_Output_0=Relu(quant_Plus30_Output_0)
+
+# Pooling66
+quant_Pooling66_Output_0 = MaxPool(quant_ReLU32_Output_0,
+                             {'kernel_shape': [2, 2],
+                              'strides': [2, 2],
+                              'pads': [0, 0, 0, 0]})
+
+print(quant_Pooling66_Output_0)
 # ...... To be done.
