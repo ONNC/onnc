@@ -228,8 +228,8 @@ frac_Convolution28_Y  = frac_Convolution28_X + frac_Convolution28_W #算出相�
 # Plus30
 
 
-frac_Plus30_A = frac_Plus30_B = FracBits(Parameter6)#int(np.minimum(FracBits(Convolution28_Output_0), FracBits(Parameter6)))
-frac_Plus30_C = frac_Plus30_A
+frac_Plus30_A = frac_Plus30_B = int(np.minimum(FracBits(Convolution28_Output_0), FracBits(Parameter6)))
+frac_Plus30_C = FracBits(Parameter6)
 
 # ReLU32
 # Pooling66
@@ -239,11 +239,11 @@ frac_Convolution110_X=FracBits(Pooling66_Output_0)
 frac_Convolution110_W=FracBits(Parameter87)
 
 frac_Convolution110_Y = frac_Convolution110_X + frac_Convolution110_W 
-
+#print(frac_Convolution110_Y)
 # Plus112
-frac_Plus112_A = frac_Plus112_B = FracBits(Parameter88) #int(np.minimum(FracBits(Convolution110_Output_0), FracBits(Parameter88)))
+frac_Plus112_A = frac_Plus112_B = int(np.minimum(FracBits(Convolution110_Output_0), FracBits(Parameter88)))
 
-frac_Plus112_C = frac_Plus112_A#FracBits(Parameter88)
+frac_Plus112_C = FracBits(Parameter88) 
 
 
 # ReLU114
@@ -257,9 +257,17 @@ FracBits(Pooling160_Output_0_reshape0)
 FracBits(Parameter193_reshape1)
 
 # Plus214
-frac_MatMul_Result = FracBits(Times212_Output_0)
-frac_Plus214_A = frac_Plus214_B = FracBits(Parameter194)#int(np.minimum(frac_MatMul_Result, FracBits(Parameter194)))
 
+
+
+
+frac_Times212_Y = FracBits(Times212_Output_0)
+
+
+#print(frac_Times212_Y)
+
+frac_Plus214_A = frac_Plus214_B = int(np.minimum(FracBits(Times212_Output_0), FracBits(Parameter194)))
+frac_Plus214_C = FracBits(Parameter194)
 ##################################################################
 # Do quantized inference.
 
@@ -275,11 +283,11 @@ quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                     'auto_pad': 'SAME_UPPER'})
 
 # Plus30
-quant_Parameter6 = Quantize(Parameter6, frac_Plus30_B)
+quant_Parameter6 = Quantize(Parameter6, frac_Plus30_C)
 
-quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, int(np.minimum(frac_Plus30_A, frac_Convolution28_Y))),
+quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, frac_Plus30_A - frac_Convolution28_Y),
                             quant_Parameter6)
-
+#print(quant_Plus30_Output_0)
 # ReLU32
 quant_ReLU32_Output_0=Relu(quant_Plus30_Output_0)
 
@@ -298,9 +306,9 @@ quant_Convolution110_Output_0 = Conv(quant_Pooling66_Output_0, quant_Parameter87
                                 'auto_pad': 'SAME_UPPER'})
 
 # Plus112
-quant_Parameter88 = Quantize(Parameter88, frac_Plus112_B)
+quant_Parameter88 = Quantize(Parameter88, frac_Plus112_C)
 
-quant_Plus112_Output_0 = Add(Quantize(quant_Convolution110_Output_0, int(np.minimum(frac_Plus112_A, frac_Convolution110_Y))),
+quant_Plus112_Output_0 = Add(Quantize(quant_Convolution110_Output_0, frac_Plus112_A - frac_Convolution110_Y),
                             quant_Parameter88)
 
 
@@ -328,10 +336,11 @@ quant_Times212_Output_0 = MatMul(quant_Times212_reshape0, quant_Times212_reshape
 print(quant_Times212_Output_0)
 
 #Plus214
-quant_Parameter194 = Quantize(Parameter194, frac_Plus214_B)
+quant_Parameter194 = Quantize(Parameter194, frac_Plus214_C)
 
+#print(quant_Times212_reshape1)
 
-quant_Plus214_Output_0 = Add(Quantize(quant_Times212_Output_0, int(np.minimum(frac_Plus214_A, frac_MatMul_Result))),
+quant_Plus214_Output_0 = Add(Quantize(quant_Times212_Output_0, frac_Plus214_A - frac_Times212_Y),
                             quant_Parameter194)
 
 print(quant_Plus214_Output_0)
