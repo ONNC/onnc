@@ -134,6 +134,9 @@ def Quantize(weight, frac_bits):
     quant_weight = np.clip(np.round(weight*(2**frac_bits)), -128, 127)
     return quant_weight
 
+def DeQuantize(weight, frac_bits):
+    weight=quant_weight/(2**frac_bits)
+    return weight
 
 ##################################################################
 # Setup
@@ -144,8 +147,9 @@ if len(sys.argv) != 2:
 exec('import test_data_set_' + sys.argv[1] + '.input_0 as test_data')
 
 # Print pretty floating-point format for array.
-np.set_printoptions(precision=3)
+#np.set_printoptions(precision=3)
 np.set_printoptions(suppress=True)
+np.set_printoptions(threshold=np.inf) #extend numpy
 
 
 ##################################################################
@@ -217,12 +221,14 @@ frac_Convolution28_X = FracBits(Input3)
 
 frac_Convolution28_W = FracBits(Parameter5)
 
-frac_Convolution28_Y = frac_Convolution28_X + frac_Convolution28_W #算出相乘後的小數點位置
+frac_Convolution28_Y  = frac_Convolution28_X + frac_Convolution28_W #算出相乘後的小數點位置
 
 
 
 # Plus30
-frac_Plus30_A = frac_Plus30_B = int(np.minimum(FracBits(Convolution28_Output_0), FracBits(Parameter6)))
+
+
+frac_Plus30_A = frac_Plus30_B = FracBits(Parameter6)#int(np.minimum(FracBits(Convolution28_Output_0), FracBits(Parameter6)))
 frac_Plus30_C = frac_Plus30_A
 
 # ReLU32
@@ -231,11 +237,13 @@ frac_Plus30_C = frac_Plus30_A
 frac_Convolution110_X=FracBits(Pooling66_Output_0)
 
 frac_Convolution110_W=FracBits(Parameter87)
+
 frac_Convolution110_Y = frac_Convolution110_X + frac_Convolution110_W 
 
 # Plus112
-FracBits(Convolution110_Output_0)
-FracBits(Parameter88)
+frac_Plus112_A = frac_Plus112_B = FracBits(Parameter88) #int(np.minimum(FracBits(Convolution110_Output_0), FracBits(Parameter88)))
+
+frac_Plus112_C = frac_Plus112_A#FracBits(Parameter88)
 
 
 # ReLU114
@@ -243,12 +251,14 @@ FracBits(Parameter88)
 # Times212_reshape0
 # Times212_reshape1
 # Times212
+frac_Reshape193_A = frac_Reshape193_B =FracBits(Parameter193)
+
 FracBits(Pooling160_Output_0_reshape0)
 FracBits(Parameter193_reshape1)
 
 # Plus214
-FracBits(Times212_Output_0)
-FracBits(Parameter194)
+frac_MatMul_Result = FracBits(Times212_Output_0)
+frac_Plus214_A = frac_Plus214_B = FracBits(Parameter194)#int(np.minimum(frac_MatMul_Result, FracBits(Parameter194)))
 
 ##################################################################
 # Do quantized inference.
@@ -266,7 +276,8 @@ quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
 
 # Plus30
 quant_Parameter6 = Quantize(Parameter6, frac_Plus30_B)
-quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, frac_Plus30_A - frac_Convolution28_Y),
+
+quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, int(np.minimum(frac_Plus30_A, frac_Convolution28_Y))),
                             quant_Parameter6)
 
 # ReLU32
@@ -277,6 +288,51 @@ quant_Pooling66_Output_0 = MaxPool(quant_ReLU32_Output_0,
                              {'kernel_shape': [2, 2],
                               'strides': [2, 2],
                               'pads': [0, 0, 0, 0]})
+#print(quant_Pooling66_Output_0)
+#Convolution110
+quant_Parameter87 = Quantize(Parameter87, frac_Convolution110_W)
 
-print(quant_Pooling66_Output_0)
+quant_Convolution110_Output_0 = Conv(quant_Pooling66_Output_0, quant_Parameter87,
+                               {'kernel_shape': [5, 5],
+                                'strides': [1, 1],
+                                'auto_pad': 'SAME_UPPER'})
+
+# Plus112
+quant_Parameter88 = Quantize(Parameter88, frac_Plus112_B)
+
+quant_Plus112_Output_0 = Add(Quantize(quant_Convolution110_Output_0, int(np.minimum(frac_Plus112_A, frac_Convolution110_Y))),
+                            quant_Parameter88)
+
+
+# ReLU114
+quant_ReLU114_Output_0 = Relu(quant_Plus112_Output_0)
+# Pooling160
+quant_Pooling160_Output_0 = MaxPool(quant_ReLU114_Output_0,
+                              {'kernel_shape': [3, 3],
+                               'strides': [3, 3],
+                               'pads': [0, 0, 0, 0]})
+
+#print(quant_Pooling160_Output_0)
+
+#reshape
+quant_Times212_reshape0 = Reshape(quant_Pooling160_Output_0, [1, 256])
+
+
+quant_Parameter193 = Quantize(Parameter193, frac_Reshape193_B)
+
+quant_Times212_reshape1 = Reshape(quant_Parameter193, [256, 10])
+
+#MatMul212
+quant_Times212_Output_0 = MatMul(quant_Times212_reshape0, quant_Times212_reshape1)
+
+print(quant_Times212_Output_0)
+
+#Plus214
+quant_Parameter194 = Quantize(Parameter194, frac_Plus214_B)
+
+
+quant_Plus214_Output_0 = Add(Quantize(quant_Times212_Output_0, int(np.minimum(frac_Plus214_A, frac_MatMul_Result))),
+                            quant_Parameter194)
+
+print(quant_Plus214_Output_0)
 # ...... To be done.
