@@ -128,15 +128,18 @@ def FracBits(weight):
     frac_bits = 7 - int_bits #remaining bits are fractional bits (1-bit for sign)
     return frac_bits
 
-def Quantize(weight, frac_bits):
+def Quantize(fp_data, frac_bits):
     #floating point weights are scaled and rounded to [-128,127], which are used in 
     #the fixed-point operations on the actual hardware (i.e., microcontroller)
-    quant_weight = np.clip(np.round(weight*(2**frac_bits)), -128, 127)
-    return quant_weight
+    quant_int8 = np.clip(np.round(fp_data*(2**frac_bits)), -128, 127)
+    return quant_int8
 
-def DeQuantize(weight, frac_bits):
-    weight=quant_weight/(2**frac_bits)
-    return weight
+def DeQuantize(quant_int8, frac_bits):
+    fp_data = quant_int8/(2**frac_bits)
+    return fp_data
+
+def ShiftRight(quant_data, shift_bits):
+    return quant_data >> shift_bits
 
 ##################################################################
 # Setup
@@ -281,6 +284,26 @@ quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                    {'kernel_shape': [5, 5],
                                     'strides': [1, 1],
                                     'auto_pad': 'SAME_UPPER'})
+
+print('Convolution28_Output_0=')
+print(Convolution28_Output_0[0][0][12:16][:])
+print('quant_Convolution28_Output_0=')
+print(quant_Convolution28_Output_0[0][0][12:16][:])
+
+#FIXME: Use ShiftRight to remap a non-int8 value to an int8 value.
+#FIXME: The use of ShiftRight corresponds to the way the CMSIS-NN library performs the remap.
+#     arm_status arm_convolve_HWC_q7_basic(const q7_t * Im_in,
+#                                         const uint16_t dim_im_in,
+#                                         const uint16_t ch_im_in,
+#                                         ...
+#                                         const uint16_t out_shift, // amount of right-shift for output
+#FIXME: quant_Convolution28_Output_0 = ShiftRight(quant_Convolution28_Output_0, HOW_MANY_BITS_TO_SHIFT???)
+
+print('DeQuantize(quant_Convolution28_Output_0)=')
+print(DeQuantize(quant_Convolution28_Output_0[0][0][12:16][:], frac_Convolution28_Y))
+print('Quantization error=')
+print(np.abs(DeQuantize(quant_Convolution28_Output_0[0][0][12:16][:], frac_Convolution28_Y) - Convolution28_Output_0[0][0][12:16][:]))
+quit()
 
 # Plus30
 quant_Parameter6 = Quantize(Parameter6, frac_Plus30_C)
