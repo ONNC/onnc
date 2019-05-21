@@ -144,7 +144,7 @@ def ShiftRight(quant_data,shift_bits):
 def Shift_Right_Bits(quant_data):
     min_quant_data = quant_data.min() 
     max_quant_data = quant_data.max()
-    #print(min_quant_data)
+    #print(max(abs(min_quant_data),abs(max_quant_data)))
     Shift_right_bits = int(np.ceil(np.log2(max(abs(min_quant_data),abs(max_quant_data))))) - 7
     
     return Shift_right_bits #>> shift_bits
@@ -170,6 +170,7 @@ np.set_printoptions(threshold=np.inf) #extend numpy
 
 # Convolution28
 Input3 = test_data.tensor()
+
 Parameter5 = np.load('Parameter5.npy')
 Convolution28_Output_0 = Conv(Input3, Parameter5,
                               {'kernel_shape': [5, 5],
@@ -286,20 +287,37 @@ frac_Plus214_C = FracBits(Parameter194)
 
 # Convolution28
 
+
+#size : int
+#    Number of elements in the array.
+#itemsize : int
+#    The memory use of each array element in bytes.
+#nbytes : int
+#    The total number of bytes required to store the array data,
+#    i.e., ``itemsize * size``.
+
+
 quant_Input3 = Quantize(Input3, frac_Convolution28_X)#float 64
+#print(quant_Input3)
+Sum_of_memory = quant_Input3.astype(np.int8).nbytes
 
 quant_Parameter5 = Quantize(Parameter5, frac_Convolution28_W)#float 32
+
+Sum_of_memory = Sum_of_memory + quant_Parameter5.astype(np.int8).nbytes
 
 quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                    {'kernel_shape': [5, 5],
                                     'strides': [1, 1],
                                     'auto_pad': 'SAME_UPPER'})#float 32
 
-
 quant_Convolution28_Output_0_shift_right = ShiftRight(quant_Convolution28_Output_0.astype(np.int64),Shift_Right_Bits(quant_Convolution28_Output_0))
+
+
+Sum_of_memory = Sum_of_memory + quant_Convolution28_Output_0_shift_right.astype(np.int8).nbytes
 
 quant_Convolution28_Output_0_shift_left  = ShiftLeft(quant_Convolution28_Output_0_shift_right,Shift_Right_Bits(quant_Convolution28_Output_0))
 #ShiftLeft()
+
 print('Convolution28_Output_0=')
 print(Convolution28_Output_0[0][0][12:16][:])
 
@@ -327,14 +345,20 @@ print('DeQuantize(quant_Convolution28_Output_0)=')
 print(DeQuantize(quant_Convolution28_Output_0_shift_left[0][0][12:16][:], frac_Convolution28_Y))
 print('Quantization error=')
 print(np.abs(DeQuantize(quant_Convolution28_Output_0_shift_left[0][0][12:16][:], frac_Convolution28_Y) - Convolution28_Output_0[0][0][12:16][:]))
-quit()
+
 
 # Plus30
 quant_Parameter6 = Quantize(Parameter6, frac_Plus30_C)
 
-quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0, frac_Plus30_A - frac_Convolution28_Y),
+Sum_of_memory = Sum_of_memory + quant_Parameter6.astype(np.int8).nbytes
+
+
+quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0_shift_right, frac_Plus30_A - frac_Convolution28_Y + Shift_Right_Bits(quant_Convolution28_Output_0)),
                             quant_Parameter6)
-#print(quant_Plus30_Output_0)
+
+Sum_of_memory = Sum_of_memory + quant_Plus30_Output_0.astype(np.int8).nbytes
+
+
 # ReLU32
 quant_ReLU32_Output_0=Relu(quant_Plus30_Output_0)
 
@@ -344,20 +368,35 @@ quant_Pooling66_Output_0 = MaxPool(quant_ReLU32_Output_0,
                               'strides': [2, 2],
                               'pads': [0, 0, 0, 0]})
 #print(quant_Pooling66_Output_0)
+ 
 #Convolution110
+
 quant_Parameter87 = Quantize(Parameter87, frac_Convolution110_W)
+
+Sum_of_memory = Sum_of_memory + quant_Parameter87.astype(np.int8).nbytes
+
+
+
 
 quant_Convolution110_Output_0 = Conv(quant_Pooling66_Output_0, quant_Parameter87,
                                {'kernel_shape': [5, 5],
                                 'strides': [1, 1],
                                 'auto_pad': 'SAME_UPPER'})
 
+
+quant_Convolution110_Output_0_shift_right = ShiftRight(quant_Convolution110_Output_0.astype(np.int64),Shift_Right_Bits(quant_Convolution110_Output_0))
+Sum_of_memory = Sum_of_memory + quant_Convolution110_Output_0_shift_right.astype(np.int8).nbytes
+
+
+
 # Plus112
 quant_Parameter88 = Quantize(Parameter88, frac_Plus112_C)
 
-quant_Plus112_Output_0 = Add(Quantize(quant_Convolution110_Output_0, frac_Plus112_A - frac_Convolution110_Y),
-                            quant_Parameter88)
+Sum_of_memory = Sum_of_memory + quant_Parameter88.astype(np.int8).nbytes
 
+quant_Plus112_Output_0 = Add(Quantize(quant_Convolution110_Output_0_shift_right, frac_Plus112_A - frac_Convolution110_Y + Shift_Right_Bits(quant_Convolution110_Output_0)),
+                            quant_Parameter88)
+Sum_of_memory = Sum_of_memory + quant_Plus112_Output_0.astype(np.int8).nbytes
 
 # ReLU114
 quant_ReLU114_Output_0 = Relu(quant_Plus112_Output_0)
@@ -367,7 +406,7 @@ quant_Pooling160_Output_0 = MaxPool(quant_ReLU114_Output_0,
                                'strides': [3, 3],
                                'pads': [0, 0, 0, 0]})
 
-#print(quant_Pooling160_Output_0)
+
 
 #reshape
 quant_Times212_reshape0 = Reshape(quant_Pooling160_Output_0, [1, 256])
@@ -375,20 +414,38 @@ quant_Times212_reshape0 = Reshape(quant_Pooling160_Output_0, [1, 256])
 
 quant_Parameter193 = Quantize(Parameter193, frac_Reshape193_B)
 
+Sum_of_memory = Sum_of_memory + quant_Parameter193.astype(np.int8).nbytes
+
 quant_Times212_reshape1 = Reshape(quant_Parameter193, [256, 10])
 
 #MatMul212
 quant_Times212_Output_0 = MatMul(quant_Times212_reshape0, quant_Times212_reshape1)
 
 print(quant_Times212_Output_0)
+quant_Times212_Output_0_right = ShiftRight(quant_Times212_Output_0.astype(np.int64),Shift_Right_Bits(quant_Times212_Output_0))
+
+Sum_of_memory = Sum_of_memory + quant_Times212_Output_0_right.astype(np.int8).nbytes
 
 #Plus214
 quant_Parameter194 = Quantize(Parameter194, frac_Plus214_C)
+Sum_of_memory = Sum_of_memory + quant_Parameter194.astype(np.int8).nbytes
 
 #print(quant_Times212_reshape1)
+#print("frac_Plus214_A:")
+#print(frac_Plus214_A)
 
-quant_Plus214_Output_0 = Add(Quantize(quant_Times212_Output_0, frac_Plus214_A - frac_Times212_Y),
+#print("frac_Times212_Y")
+#print(frac_Times212_Y)
+quant_Plus214_Output_0 = Add(Quantize(quant_Times212_Output_0_right, frac_Plus214_A - frac_Times212_Y + Shift_Right_Bits(quant_Times212_Output_0)),
                             quant_Parameter194)
 
-print(quant_Plus214_Output_0)
+quant_Plus214_Output_0_shift_right = ShiftRight(quant_Plus214_Output_0.astype(np.int64),Shift_Right_Bits(quant_Plus214_Output_0))
+
+Sum_of_memory = Sum_of_memory + quant_Plus214_Output_0_shift_right.astype(np.int8).nbytes
+
+print("predict result = ")
+print(quant_Plus214_Output_0_shift_right)
+
+print("Sum_of_memory = ")
+print(str(Sum_of_memory) + "byte")
 # ...... To be done.
