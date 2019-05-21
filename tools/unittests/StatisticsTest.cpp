@@ -20,7 +20,7 @@ class Tester
 public:
   Tester()
     : m_Source(TOPDIR), m_Target("/tmp/target.json") {
-    m_Source.append("tests/unittests/data/empty.json");
+    m_Source.append("tools/unittests/data/empty.json");
     copy_file(source(), target(), CopyOptions::kOverwriteIfExists);
   }
 
@@ -105,7 +105,7 @@ SKYPAT_F(StatisticsTest, read_only)
 SKYPAT_F(StatisticsTest, merge_null)
 {
   Path path(TOPDIR);
-  path.append("/tests/unittests/data/empty.json");
+  path.append("/tools/unittests/data/empty.json");
 
   Statistics statistics(path, Statistics::kReadOnly);
   EXPECT_TRUE(json::Group::Null().isNull());
@@ -119,7 +119,7 @@ SKYPAT_F(StatisticsTest, merge_null)
 SKYPAT_F(StatisticsTest, clear_group)
 {
   Path path(TOPDIR);
-  path.append("/tests/unittests/data/statistics.json");
+  path.append("/tools/unittests/data/statistics.json");
   Statistics statistics(path, Statistics::kReadOnly);
 
   ASSERT_EQ(statistics.group("group1").readEntry("gkey1", 0), 10);
@@ -160,7 +160,7 @@ SKYPAT_F(StatisticsTest, read_str)
 SKYPAT_F(StatisticsTest, read_file)
 {
   Path path(TOPDIR);
-  path.append("/tests/unittests/data/statistics.json");
+  path.append("/tools/unittests/data/statistics.json");
   Statistics statistics(path, Statistics::kReadOnly);
 
   ASSERT_TRUE(statistics.hasGroup("group1"));
@@ -199,7 +199,7 @@ SKYPAT_F(StatisticsTest, read_file)
 SKYPAT_F(StatisticsTest, read_entry)
 {
   Path path(TOPDIR);
-  path.append("/tests/unittests/data/statistics.json");
+  path.append("/tools/unittests/data/statistics.json");
   Statistics statistics(path, Statistics::kReadOnly);
 
   int value = statistics.group("group1").readEntry("gkey1", 33);
@@ -212,7 +212,7 @@ SKYPAT_F(StatisticsTest, read_entry)
 SKYPAT_F(StatisticsTest, read_entry_wrong_type)
 {
   Path path(TOPDIR);
-  path.append("/tests/unittests/data/statistics.json");
+  path.append("/tools/unittests/data/statistics.json");
   Statistics statistics(path, Statistics::kReadOnly);
 
   StringRef value1 = statistics.group("group1").readEntry("gkey1", "no value");
@@ -324,7 +324,7 @@ SKYPAT_F(StatisticsTest, multiple_writes)
 SKYPAT_F(StatisticsTest, statistics_impl_read)
 {
   Path path(TOPDIR);
-  path.append("/tests/unittests/data/statistics.json");
+  path.append("/tools/unittests/data/statistics.json");
   json::Reader reader;
   json::Value value;
   reader.parse(path, value); 
@@ -409,7 +409,7 @@ SKYPAT_F(StatisticsTest, merge_object)
   Statistics statistics1(str1);
 
   Path path2(TOPDIR);
-  path2.append("/tests/unittests/data/statistics.json");
+  path2.append("/tools/unittests/data/statistics.json");
   Statistics statistics2(path2, Statistics::kReadOnly);
 
   statistics1.merge("statistics2", statistics2.group("group1"));

@@ -22,7 +22,7 @@ using namespace onnc;
 SKYPAT_F(FileHandleTest, open_close)
 {
   Path path(TOPDIR);
-  path.append("tests").append("unittests").append("data").append("test.txt");
+  path.append("tools").append("unittests").append("data").append("test.txt");
   FileHandle file;
   ASSERT_TRUE(file.open(path, FileHandle::OpenMode(FileHandle::kReadOnly)).isGood());
   ASSERT_TRUE(file.isOpen());
@@ -38,7 +38,7 @@ SKYPAT_F(FileHandleTest, open_close)
 SKYPAT_F(FileHandleTest, delegate_close)
 {
   Path path(TOPDIR);
-  path.append("tests").append("unittests").append("data").append("test.txt");
+  path.append("tools").append("unittests").append("data").append("test.txt");
 
   int fd = ::open(path.native().c_str(), O_RDONLY);
 
@@ -59,7 +59,7 @@ SKYPAT_F(FileHandleTest, delegate_close)
 SKYPAT_F(FileHandleTest, fail_close)
 {
   Path path(TOPDIR);
-  path.append("tests").append("unittests").append("data").append("test.txt");
+  path.append("tools").append("unittests").append("data").append("test.txt");
 
   FileHandle file;
   ASSERT_TRUE(file.open(path, FileHandle::OpenMode(FileHandle::kReadOnly)).isGood());

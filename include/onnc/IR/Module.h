@@ -187,9 +187,9 @@ public:
   /// return the number of compute graphs
   unsigned getNumOfComputeGraphs() const { return m_ComputeGraphs.numOfEntries(); }
 
-  virtual ComputeOperandList& getComputeOperands() { return m_ComputeOperands; }
+  ComputeOperandList& getComputeOperands() { return m_ComputeOperands; }
 
-  virtual const ComputeOperandList& getComputeOperands() const { return m_ComputeOperands; }
+  const ComputeOperandList& getComputeOperands() const { return m_ComputeOperands; }
 
   ComputeDefineList& getComputeDefines() { return m_ComputeDefines; }
 

@@ -124,8 +124,6 @@ add_custom_target(code_gen)
 add_subdirectory(lib)
 add_subdirectory(tools)
 add_subdirectory(include)
-add_subdirectory(tests)
-add_subdirectory(third_parties)
 
 ####################
 # OUTPUT

@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS=-I m4
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = include lib tools tests
+SUBDIRS = include lib tools
 
 dist_pkgdata_DATA = README.md LICENSE.TXT
 

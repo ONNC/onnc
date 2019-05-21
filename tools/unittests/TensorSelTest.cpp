@@ -145,7 +145,7 @@ using namespace onnc;
 SKYPAT_F(TensorSelTest, alexnet)
 {
   Path path(TOPDIR);
-  path.append("tests")
+  path.append("tools")
       .append("unittests")
       .append("data")
       .append("bvlc_alexnet")
@@ -362,4 +362,8 @@ SKYPAT_F(TensorSelTest, alexnet)
     module.print(os);
   }
 
+  //ASSERT_TRUE(state.execution.empty());
+  //ASSERT_TRUE(state.changed);
+  //int run_result = pm.run(module);
+  //ASSERT_TRUE(EXIT_SUCCESS == run_result);
 }

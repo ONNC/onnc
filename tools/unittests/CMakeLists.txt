@@ -1,7 +1,6 @@
+
 include_directories(${ONNC_INCLUDE_DIRS})
 include_directories(${SKYPAT_INCLUDE_DIRS})
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-include_directories(${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 include_directories(${PROTOBUF_INCLUDE_DIR})
 
 add_definitions(-DTOPDIR="${onnc_SOURCE_DIR}")
@@ -9,7 +8,7 @@ add_definitions(-DBUILDDIR="${onnc_BINARY_DIR}")
 
 if (ENABLE_UNITTEST)
     add_library(libskypat_main main.cpp)
-    target_link_libraries(libskypat_main gmock libonnc
+    target_link_libraries(libskypat_main libonnc
         ${SKYPAT_LIBRARIES})
 endif()
 
