@@ -237,8 +237,6 @@ frac_Convolution28_W = FracBits(Parameter5)
 
 frac_Convolution28_Y  = frac_Convolution28_X + frac_Convolution28_W #算出相乘後的小數點位置
 
-
-
 # Plus30
 
 
@@ -253,9 +251,9 @@ frac_Convolution110_X=FracBits(Pooling66_Output_0)
 frac_Convolution110_W=FracBits(Parameter87)
 
 frac_Convolution110_Y = frac_Convolution110_X + frac_Convolution110_W 
-#print(frac_Convolution110_Y)
+#
 # Plus112
-frac_Plus112_A = frac_Plus112_B = int(np.minimum(FracBits(Convolution110_Output_0), FracBits(Parameter88)))
+#frac_Plus112_A = frac_Plus112_B = int(np.minimum(FracBits(Convolution110_Output_0), FracBits(Parameter88)))
 
 frac_Plus112_C = FracBits(Parameter88) 
 
@@ -272,11 +270,7 @@ FracBits(Parameter193_reshape1)
 
 # Plus214
 
-
-
-
 frac_Times212_Y = FracBits(Times212_Output_0)
-
 
 #print(frac_Times212_Y)
 
@@ -353,8 +347,10 @@ quant_Parameter6 = Quantize(Parameter6, frac_Plus30_C)
 Sum_of_memory = Sum_of_memory + quant_Parameter6.astype(np.int8).nbytes
 
 
-quant_Plus30_Output_0 = Add(Quantize(quant_Convolution28_Output_0_shift_right, frac_Plus30_A - frac_Convolution28_Y + Shift_Right_Bits(quant_Convolution28_Output_0)),
-                            quant_Parameter6)
+quant_Plus30_Output_0 = Add(quant_Convolution28_Output_0_shift_right,
+                            ShiftRight(quant_Parameter6.astype(np.int64), frac_Plus30_C - frac_Convolution28_Y )
+                            )
+
 
 Sum_of_memory = Sum_of_memory + quant_Plus30_Output_0.astype(np.int8).nbytes
 
@@ -394,8 +390,11 @@ quant_Parameter88 = Quantize(Parameter88, frac_Plus112_C)
 
 Sum_of_memory = Sum_of_memory + quant_Parameter88.astype(np.int8).nbytes
 
-quant_Plus112_Output_0 = Add(Quantize(quant_Convolution110_Output_0_shift_right, frac_Plus112_A - frac_Convolution110_Y + Shift_Right_Bits(quant_Convolution110_Output_0)),
-                            quant_Parameter88)
+quant_Plus112_Output_0 = Add(quant_Convolution110_Output_0_shift_right,
+                            ShiftRight(quant_Parameter88.astype(np.int64),  frac_Plus112_C - frac_Convolution110_Y)
+                            )
+
+
 Sum_of_memory = Sum_of_memory + quant_Plus112_Output_0.astype(np.int8).nbytes
 
 # ReLU114
@@ -421,7 +420,7 @@ quant_Times212_reshape1 = Reshape(quant_Parameter193, [256, 10])
 #MatMul212
 quant_Times212_Output_0 = MatMul(quant_Times212_reshape0, quant_Times212_reshape1)
 
-print(quant_Times212_Output_0)
+
 quant_Times212_Output_0_right = ShiftRight(quant_Times212_Output_0.astype(np.int64),Shift_Right_Bits(quant_Times212_Output_0))
 
 Sum_of_memory = Sum_of_memory + quant_Times212_Output_0_right.astype(np.int8).nbytes
@@ -430,15 +429,14 @@ Sum_of_memory = Sum_of_memory + quant_Times212_Output_0_right.astype(np.int8).nb
 quant_Parameter194 = Quantize(Parameter194, frac_Plus214_C)
 Sum_of_memory = Sum_of_memory + quant_Parameter194.astype(np.int8).nbytes
 
-#print(quant_Times212_reshape1)
-#print("frac_Plus214_A:")
-#print(frac_Plus214_A)
 
-#print("frac_Times212_Y")
-#print(frac_Times212_Y)
-quant_Plus214_Output_0 = Add(Quantize(quant_Times212_Output_0_right, frac_Plus214_A - frac_Times212_Y + Shift_Right_Bits(quant_Times212_Output_0)),
-                            quant_Parameter194)
 
+quant_Plus214_Output_0 = Add(quant_Times212_Output_0_right,
+                            ShiftRight(quant_Parameter194.astype(np.int64),  frac_Plus214_C - frac_Times212_Y )
+                            )
+
+#print(ShiftRight(quant_Parameter194.astype(np.int64), frac_Plus214_C - frac_Times212_Y ))
+#print(DeQuantize(quant_Parameter194.astype(np.int64), frac_Plus214_C - frac_Times212_Y ))
 quant_Plus214_Output_0_shift_right = ShiftRight(quant_Plus214_Output_0.astype(np.int64),Shift_Right_Bits(quant_Plus214_Output_0))
 
 Sum_of_memory = Sum_of_memory + quant_Plus214_Output_0_shift_right.astype(np.int8).nbytes
