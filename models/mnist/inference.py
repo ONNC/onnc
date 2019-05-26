@@ -297,6 +297,7 @@ Sum_of_memory = quant_Input3.astype(np.int8).nbytes
 
 quant_Parameter5 = Quantize(Parameter5, frac_Convolution28_W)#float 32
 
+
 Sum_of_memory = Sum_of_memory + quant_Parameter5.astype(np.int8).nbytes
 
 quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
@@ -305,7 +306,6 @@ quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                     'auto_pad': 'SAME_UPPER'})#float 32
 
 quant_Convolution28_Output_0_shift_right = ShiftRight(quant_Convolution28_Output_0.astype(np.int64),Shift_Right_Bits(quant_Convolution28_Output_0))
-
 
 Sum_of_memory = Sum_of_memory + quant_Convolution28_Output_0_shift_right.astype(np.int8).nbytes
 
@@ -350,13 +350,15 @@ Sum_of_memory = Sum_of_memory + quant_Parameter6.astype(np.int8).nbytes
 quant_Plus30_Output_0 = Add(quant_Convolution28_Output_0_shift_right,
                             ShiftRight(quant_Parameter6.astype(np.int64), frac_Plus30_C - frac_Convolution28_Y )
                             )
+#shift right add result
+quant_Plus30_Output_0_shift_right = ShiftRight(quant_Plus30_Output_0.astype(np.int64), Shift_Right_Bits(quant_Plus30_Output_0) )
 
 
-Sum_of_memory = Sum_of_memory + quant_Plus30_Output_0.astype(np.int8).nbytes
+Sum_of_memory = Sum_of_memory + quant_Plus30_Output_0_shift_right.astype(np.int8).nbytes
 
 
 # ReLU32
-quant_ReLU32_Output_0=Relu(quant_Plus30_Output_0)
+quant_ReLU32_Output_0=Relu(quant_Plus30_Output_0_shift_right)
 
 # Pooling66
 quant_Pooling66_Output_0 = MaxPool(quant_ReLU32_Output_0,
@@ -393,12 +395,14 @@ Sum_of_memory = Sum_of_memory + quant_Parameter88.astype(np.int8).nbytes
 quant_Plus112_Output_0 = Add(quant_Convolution110_Output_0_shift_right,
                             ShiftRight(quant_Parameter88.astype(np.int64),  frac_Plus112_C - frac_Convolution110_Y)
                             )
+#shift right  quant_Plus112_Output_0
+quant_Plus112_Output_0_shift_right = ShiftRight(quant_Plus112_Output_0.astype(np.int64), Shift_Right_Bits(quant_Plus112_Output_0))
 
 
 Sum_of_memory = Sum_of_memory + quant_Plus112_Output_0.astype(np.int8).nbytes
 
 # ReLU114
-quant_ReLU114_Output_0 = Relu(quant_Plus112_Output_0)
+quant_ReLU114_Output_0 = Relu(quant_Plus112_Output_0_shift_right)
 # Pooling160
 quant_Pooling160_Output_0 = MaxPool(quant_ReLU114_Output_0,
                               {'kernel_shape': [3, 3],
