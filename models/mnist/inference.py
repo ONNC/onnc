@@ -417,6 +417,7 @@ quant_Times212_reshape0 = Reshape(quant_Pooling160_Output_0, [1, 256])
 
 quant_Parameter193 = Quantize(Parameter193, frac_Reshape193_B)
 
+
 Sum_of_memory = Sum_of_memory + quant_Parameter193.astype(np.int8).nbytes
 
 quant_Times212_reshape1 = Reshape(quant_Parameter193, [256, 10])
@@ -431,6 +432,10 @@ Sum_of_memory = Sum_of_memory + quant_Times212_Output_0_right.astype(np.int8).nb
 
 #Plus214
 quant_Parameter194 = Quantize(Parameter194, frac_Plus214_C)
+
+
+#np.save("quant_Parameter194.npy",quant_Parameter194)
+
 Sum_of_memory = Sum_of_memory + quant_Parameter194.astype(np.int8).nbytes
 
 
