@@ -146,7 +146,8 @@ def Shift_Right_Bits(quant_data):
     max_quant_data = quant_data.max()
     #print(max(abs(min_quant_data),abs(max_quant_data)))
     Shift_right_bits = int(np.ceil(np.log2(max(abs(min_quant_data),abs(max_quant_data))))) - 7
-    
+    if Shift_right_bits < 0:
+        Shift_right_bits = 0
     return Shift_right_bits #>> shift_bits
 
 def ShiftLeft(quant_data,shift_bits):
@@ -292,7 +293,7 @@ frac_Plus214_C = FracBits(Parameter194)
 
 
 quant_Input3 = Quantize(Input3, frac_Convolution28_X)#float 64
-#print(quant_Input3)
+
 Sum_of_memory = quant_Input3.astype(np.int8).nbytes
 
 quant_Parameter5 = Quantize(Parameter5, frac_Convolution28_W)#float 32
@@ -305,25 +306,25 @@ quant_Convolution28_Output_0 = Conv(quant_Input3, quant_Parameter5,
                                     'strides': [1, 1],
                                     'auto_pad': 'SAME_UPPER'})#float 32
 
-quant_Convolution28_Output_0_shift_right = ShiftRight(quant_Convolution28_Output_0.astype(np.int64),Shift_Right_Bits(quant_Convolution28_Output_0))
+quant_Convolution28_Output_0_shift_right = ShiftRight(quant_Convolution28_Output_0.astype(np.int64),9)#Shift_Right_Bits(quant_Convolution28_Output_0)
 
 Sum_of_memory = Sum_of_memory + quant_Convolution28_Output_0_shift_right.astype(np.int8).nbytes
 
 quant_Convolution28_Output_0_shift_left  = ShiftLeft(quant_Convolution28_Output_0_shift_right,Shift_Right_Bits(quant_Convolution28_Output_0))
 #ShiftLeft()
 
-print('Convolution28_Output_0=')
-print(Convolution28_Output_0[0][0][12:16][:])
+#print('Convolution28_Output_0=')
+#print(Convolution28_Output_0[0][0][12:16][:])
 
 
-print('quant_Convolution28_Output_0=')
-print(quant_Convolution28_Output_0[0][0][12:16][:])
+#print('quant_Convolution28_Output_0=')
+#print(quant_Convolution28_Output_0[0][0][12:16][:])
 
-print('quant_Convolution28_Output_0_shift_right=')
-print(quant_Convolution28_Output_0_shift_right[0][0][12:16][:])
+#print('quant_Convolution28_Output_0_shift_right=')
+#print(quant_Convolution28_Output_0_shift_right[0][0][12:16][:])
 
-print('quant_Convolution28_Output_0_shift_left=')
-print(quant_Convolution28_Output_0_shift_left[0][0][12:16][:])
+#print('quant_Convolution28_Output_0_shift_left=')
+#print(quant_Convolution28_Output_0_shift_left[0][0][12:16][:])
 #FIXME: Use ShiftRight to remap a non-int8 value to an int8 value.
 #FIXME: The use of ShiftRight corresponds to the way the CMSIS-NN library performs the remap.
 #     arm_status arm_convolve_HWC_q7_basic(const q7_t * Im_in,
@@ -333,12 +334,12 @@ print(quant_Convolution28_Output_0_shift_left[0][0][12:16][:])
 #                                         const uint16_t out_shift, // amount of right-shift for output
 #FIXME: quant_Convolution28_Output_0 = ShiftRight(quant_Convolution28_Output_0, HOW_MANY_BITS_TO_SHIFT???)
 #quant_Convolution28_Output_0 = ShiftRight(quant_Convolution28_Output_0, HOW_MANY_BITS_TO_SHIFT???)
-print('Convolution28_Output_0=')
-print(Convolution28_Output_0[0][0][12:16][:])
-print('DeQuantize(quant_Convolution28_Output_0)=')
-print(DeQuantize(quant_Convolution28_Output_0_shift_left[0][0][12:16][:], frac_Convolution28_Y))
-print('Quantization error=')
-print(np.abs(DeQuantize(quant_Convolution28_Output_0_shift_left[0][0][12:16][:], frac_Convolution28_Y) - Convolution28_Output_0[0][0][12:16][:]))
+#print('Convolution28_Output_0=')
+#print(Convolution28_Output_0[0][0][12:16][:])
+#print('DeQuantize(quant_Convolution28_Output_0)=')
+#print(DeQuantize(quant_Convolution28_Output_0_shift_left[0][0][12:16][:], frac_Convolution28_Y))
+#print('Quantization error=')
+#print(np.abs(DeQuantize(quant_Convolution28_Output_0_shift_left[0][0][12:16][:], frac_Convolution28_Y) - Convolution28_Output_0[0][0][12:16][:]))
 
 
 # Plus30
@@ -382,9 +383,8 @@ quant_Convolution110_Output_0 = Conv(quant_Pooling66_Output_0, quant_Parameter87
                                 'auto_pad': 'SAME_UPPER'})
 
 
-quant_Convolution110_Output_0_shift_right = ShiftRight(quant_Convolution110_Output_0.astype(np.int64),Shift_Right_Bits(quant_Convolution110_Output_0))
+quant_Convolution110_Output_0_shift_right = ShiftRight(quant_Convolution110_Output_0.astype(np.int64),8)#Shift_Right_Bits(quant_Convolution110_Output_0)
 Sum_of_memory = Sum_of_memory + quant_Convolution110_Output_0_shift_right.astype(np.int8).nbytes
-
 
 
 # Plus112
@@ -426,7 +426,7 @@ quant_Times212_reshape1 = Reshape(quant_Parameter193, [256, 10])
 quant_Times212_Output_0 = MatMul(quant_Times212_reshape0, quant_Times212_reshape1)
 
 
-quant_Times212_Output_0_right = ShiftRight(quant_Times212_Output_0.astype(np.int64),Shift_Right_Bits(quant_Times212_Output_0))
+quant_Times212_Output_0_right = ShiftRight(quant_Times212_Output_0.astype(np.int64),7)#Shift_Right_Bits(quant_Times212_Output_0)
 
 Sum_of_memory = Sum_of_memory + quant_Times212_Output_0_right.astype(np.int8).nbytes
 
