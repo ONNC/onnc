@@ -7,9 +7,9 @@ from onnx import AttributeProto, TensorProto, GraphProto
 
 
 # Preprocessing: create a Numpy array
-numpy_array = np.load('./quantized_weight/quant_Parameter5.npy')
+Parameter5 = np.load('./quantized_weight/quant_Parameter5.npy')
 # Convert the Numpy array to a TensorProto
-tensor = numpy_helper.from_array(numpy_array)
+Parameter5_tensor = numpy_helper.from_array(Parameter5)
 
 Parameter6 = np.load('./quantized_weight/quant_Parameter6.npy')
 
@@ -34,6 +34,11 @@ Parameter193_tensor = numpy_helper.from_array(Parameter193)
 Parameter194 = np.load('./quantized_weight/quant_Parameter194.npy')
 Parameter194_tensor = numpy_helper.from_array(Parameter194)
 
+Pooling160_Output_0_reshape0_shape = np.load('./quantized_weight/Pooling160_Output_0_reshape0_shape.npy')
+Pooling160_Output_0_reshape0_shape_tensor = numpy_helper.from_array(Pooling160_Output_0_reshape0_shape)
+
+Parameter193_reshape1_shape = np.load('./quantized_weight/Parameter193_reshape1_shape.npy')
+Parameter193_reshape1_shape_tensor = numpy_helper.from_array(Parameter193_reshape1_shape)
 
 #quant_Parameter87
 
@@ -90,13 +95,15 @@ graph_def = helper.make_graph(
         helper.make_node("MatMul",['Pooling160_Output_0_reshape0','Parameter193_reshape1'],['Times212_Output_0'],'Times212'),
         helper.make_node("Add", ['Times212_Output_0','Parameter194'], ['Plus214_Output_0'],'Plus214'),
     ],
-    "MLP",
+    "CNN",
     [
         helper.make_tensor_value_info('Input3', TensorProto.FLOAT, [1,1,28,28]),
         helper.make_tensor_value_info('Parameter5', TensorProto.FLOAT, [8,1,5,5]),
         helper.make_tensor_value_info('Parameter6', TensorProto.FLOAT, [8,1,1]),
         helper.make_tensor_value_info('Parameter87', TensorProto.FLOAT, [16,8,5,5]),
         helper.make_tensor_value_info('Parameter88', TensorProto.FLOAT, [16,1,1]),
+        helper.make_tensor_value_info('Pooling160_Output_0_reshape0_shape', TensorProto.FLOAT, [1,256]),
+        helper.make_tensor_value_info('Parameter193_reshape1_shape', TensorProto.FLOAT, [256,10]),
         helper.make_tensor_value_info('Parameter193', TensorProto.FLOAT, [16,4,4,10]),
         helper.make_tensor_value_info('Parameter194', TensorProto.FLOAT, [1,10]),
        
@@ -125,7 +132,7 @@ graph_def = helper.make_graph(
 #    [addY],
 #)
 
-graph_def.initializer.extend([tensor])
+graph_def.initializer.extend([Parameter5_tensor])
 #graph_def.initializer[0].name = 'no-exist'
 
 graph_def.initializer[0].name = 'Parameter5'
@@ -139,15 +146,25 @@ graph_def.initializer[2].name = 'Parameter87'
 graph_def.initializer.extend([Parameter88_tensor])
 graph_def.initializer[3].name = 'Parameter88'
 
-Pooling160_Output_0_reshape0_shape = np.array([1,256])
-Pooling160_Output_0_reshape0_shape_tensor = numpy_helper.from_array(Pooling160_Output_0_reshape0_shape)
-graph_def.initializer.extend([Pooling160_Output_0_reshape0_shape_tensor])
-graph_def.initializer[4].name = 'Pooling160_Output_0_reshape0_shape'
 
-Parameter193_reshape1_shape = np.array([256,10])
-Parameter193_reshape1_shape_tensor = numpy_helper.from_array(Parameter193_reshape1_shape)
+graph_def.initializer.extend([Pooling160_Output_0_reshape0_shape_tensor])
+#graph_def.initializer[0].name = 'no-exist'
+
+graph_def.initializer[4].name = 'Pooling160_Output_0_reshape0_shape'
+#Pooling160_Output_0_reshape0_shape = np.array([1,256])
+#Pooling160_Output_0_reshape0_shape_tensor = numpy_helper.from_array(Pooling160_Output_0_reshape0_shape)
+#graph_def.initializer.extend([Pooling160_Output_0_reshape0_shape_tensor])
+#graph_def.initializer[4].name = 'Pooling160_Output_0_reshape0_shape'
+
 graph_def.initializer.extend([Parameter193_reshape1_shape_tensor])
+#graph_def.initializer[0].name = 'no-exist'
+
 graph_def.initializer[5].name = 'Parameter193_reshape1_shape'
+#Parameter193_reshape1_shape = np.array([256,10])
+#Parameter193_reshape1_shape_tensor = numpy_helper.from_array(Parameter193_reshape1_shape)
+#graph_def.initializer.extend([Parameter193_reshape1_shape_tensor])
+#graph_def.initializer[5].name = 'Parameter193_reshape1_shape'
+
 
 graph_def.initializer.extend([Parameter193_tensor])
 graph_def.initializer[6].name = 'Parameter193'
@@ -162,6 +179,7 @@ model_def = helper.make_model(graph_def, producer_name='CNTK 2.5.1')
 #print('The model is:\n{}'.format(model_def))
 onnx.checker.check_model(model_def)
 #print(model_def)
+#converted_model = version_converter.convert_version(model_def, <int target_version>)
 print('The model is checked!')
 #print(graph_def.initializer)
 onnx.save(model_def, './quantized.onnx')
