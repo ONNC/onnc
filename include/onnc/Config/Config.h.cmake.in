@@ -27,6 +27,9 @@
 /* define vanilla target */
 #cmakedefine ENABLE_VANILLA_TARGET 1
 
+/* define CortexM target */
+#cmakedefine ENABLE_CORTEXM_TARGET 1
+
 /* define nvdla target */
 #cmakedefine ENABLE_NVDLA_TARGET 1
 

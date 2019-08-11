@@ -44,6 +44,7 @@ public:
   enum ArchType {
     UnknownArch, // Unknown architecture
     vanilla,     // Vanilla DLA
+    cortexm,
 
     aarch64,     // AArch64: aarch64
     arm,         // ARM: arm, armv.*, xscale

@@ -39,6 +39,9 @@
 /* define Vanilla target */
 #undef ENABLE_VANILLA_TARGET
 
+/* define CortexM target */
+#undef ENABLE_CORTEXM_TARGET
+
 /* define x86_64 target */
 #undef ENABLE_X86_TARGET
 

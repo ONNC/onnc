@@ -15,17 +15,21 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_ARG_ENABLE([targets],
     [AS_HELP_STRING([--enable-targets],
               [Build specific host targets: all or target1,target2,... Valid targets are:
-       host, vanilla, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
+       host, vanilla, cortexm, x86, x86_64, sparc, powerpc, alpha, aarch64, arm,
        arm64, nvdla, mips, spu, hexagon, xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
     [],
     [enableval=all])
 
   AC_MSG_CHECKING([target backends])
   case "$enableval" in
-    all) TARGETS_TO_BUILD="Vanilla X86 Sparc PowerPC Alpha AArch64 ARM NvDla Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX"
+    all) TARGETS_TO_BUILD="Vanilla CortexM X86 Sparc PowerPC Alpha AArch64 ARM NvDla Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX"
         ;;
     *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
         case "$a_target" in
+    cortexm)
+        TARGETS_TO_BUILD="CortexM $TARGETS_TO_BUILD"
+        AC_DEFINE(ENABLE_CORTEXM_TARGET, 1, [define CortexM target])
+        ;;
     vanilla)
         TARGETS_TO_BUILD="Vanilla $TARGETS_TO_BUILD"
         AC_DEFINE(ENABLE_VANILLA_TARGET, 1, [define Vanilla target])
@@ -92,6 +96,7 @@ AC_DEFUN([ENUM_ONNC_TARGETS],
   AC_SUBST(ONNC_TARGET_BACKENDS)
 
   dnl enable variables
+  AM_CONDITIONAL([ENABLE_CORTEXM_TARGET], [ test "${TARGETS_TO_BUILD/CortexM}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_VANILLA_TARGET], [ test "${TARGETS_TO_BUILD/Vanilla}" != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_X86_TARGET],     [ test "${TARGETS_TO_BUILD/X86}"     != "${TARGETS_TO_BUILD}" ])
   AM_CONDITIONAL([ENABLE_AArch64_TARGET], [ test "${TARGETS_TO_BUILD/AArch64}" != "${TARGETS_TO_BUILD}" ])
