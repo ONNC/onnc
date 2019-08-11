@@ -35,7 +35,7 @@ $ docker pull onnc/onnc-community
 
 docker image 事實上就是輕量版的 VirtualBox ，將 ONNC docker image 跑起來然後進入裡面的 Ubuntu shell prompt 。
 ```
-$ docker run -it --rm --cap-add=SYS_PTRACE -v <your/working/directory>/onnc:/onnc/onnc-umbrella/src onnc/onnc-community bash
+$ docker run -it --rm --cap-add=SYS_PTRACE -v <your/working/directory>/onnc:/onnc/onnc onnc/onnc-community bash
 ```
 `-it`
 : for interactive mode. Can use stdin and stdout for typing commands and displaying response.
@@ -46,10 +46,10 @@ $ docker run -it --rm --cap-add=SYS_PTRACE -v <your/working/directory>/onnc:/onn
 `--cap-add=SYS_PTRACE`
 : enable debug support (like `gdb`) within docker.
 
-`-v <your/working/directory>/onnc:/onnc/onnc-umbrella/src`
+`-v <your/working/directory>/onnc:/onnc/onnc`
 : **重要！將你在 PC 上的 ONNC 原始碼 mount 進 docker 中，這樣在 docker 裡面才能 compile 到你改的程式碼。**
 : `<your/working/directory>/onnc` 是 PC 上放 ONNC 原始碼的路徑，這部分要根據你自己的狀況更改
-: `/onnc/onnc-umbrella/src` 是在 docker 中 mount 進來的路徑，這部分不要動
+: `/onnc/onnc` 是在 docker 中 mount 進來的路徑，這部分不要動
 
 `onnc/onnc-community`
 : the name of the docker image to run.
@@ -65,8 +65,10 @@ onnc@f10d3d4018f9:/onnc/onnc-umbrella/build-normal$
 接下來的操作要在 docker shell prompt 中進行，我們用 `docker$ ` 代表在 docker prompt 中下指令。編譯方式如下。
 ```
 docker$ cd /onnc/onnc-umbrella/build-normal
-docker$ make -j8
+docker$ smake -j8 
 ```
+`smake`
+: 結合 ssync 及 make 這兩者的功能。ssync 將 `/onnc/onnc` 下我們 mount 進 docker 的 source codes 拷貝到 `/onnc/onnc-umbrella/src/` 下。make 則是去編譯放在 `/onnc/onnc-umbrella/src/` 目錄下的 source codes。如果你直接用 make 而不是 smake，就會少了 ssync 的步驟，則你會編譯到原本放在 `/onnc/onnc-umbrella/src/` 的舊版 source codes。
 `-j8`
 : 最多用到 CPU 八核做 compile ，加快 compile 速度。
 
@@ -166,7 +168,7 @@ OutputOperator
 假設你沒有離開 docker prompt ，完成修改原始碼後，回到 docker prompt 視窗。
 ```
 docker$ cd /onnc/onnc-umbrella/build-normal
-docker$ make -j8
+docker$ smake -j8
 ```
 
 你會發現只有修改過的檔案需要重新編譯。時間上會比第一次編譯快很多。

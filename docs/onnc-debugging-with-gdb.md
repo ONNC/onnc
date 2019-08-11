@@ -9,7 +9,7 @@ ONNC - Debugging with gdb
 
 按以下指令進入 docker prompt。注意`--cap-add=SYS_PTRACE`是很重要的參數，有它才能在 docker 裡跑`gdb`。
 ```
-$ docker run -it --rm --cap-add=SYS_PTRACE -v <your/working/directory>/onnc:/onnc/onnc-umbrella/src onnc/onnc-community bash
+$ docker run -it --rm --cap-add=SYS_PTRACE -v <your/working/directory>/onnc:/onnc/onnc onnc/onnc-community bash
 ```
 
 
@@ -26,7 +26,7 @@ docker$ sudo apt-get install gdb
 你可能注意到在 ONNC Quick Start 文件中，我們是到 `/onnc/onnc-umbrella/build-normal` 下去做 make。在那個地方 compile 出來的執行檔是不含 debug 資訊的，所以不能被 gdb 讀入。現在我們要重新 build 一個目錄叫 `/onnc/onnc-umbrella/build-dbg` ，裡面的 Makefile 將包含 debug flags 。
 ```
 docker$ cd /onnc/onnc-umbrella
-docker$ ./build.cmake.sh dbg
+docker$ ssync && ./build.cmake.sh dbg
 ```
 
 你應該看到以下執行結果。
@@ -71,5 +71,5 @@ docker$ gdb --args /onnc/onnc-umbrella/build-dbg/tools/onnc/onnc -mquadruple van
 這次作法和 Step 3 不一樣，因為 `/onnc/onnc-umbrella/build-dbg` 目錄已經 build 出來了。當你要再次 compile 只要到此目錄下 make 即可。
 ```
 docker$ cd /onnc/onnc-umbrella/build-dbg
-docker$ make -j8
+docker$ smake -j8
 ```
