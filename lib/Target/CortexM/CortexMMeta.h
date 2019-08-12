@@ -31,8 +31,8 @@
 #define TYPE_MATMUL 7
 #define TYPE_Error 8
 
-using namespace CortexM_loadable;
-using namespace CortexM_loadable::my_loadable;
+using namespace cortexm_loadable;
+using namespace cortexm_loadable::my_loadable;
 
 namespace onnc{
   typedef std::unordered_map<const Tensor*,const Tensor*> RemapTable; 

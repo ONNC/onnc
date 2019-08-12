@@ -1,6 +1,6 @@
 #include "my_loadable/loadable.h"
 
-namespace CortexM_loadable{
+namespace cortexm_loadable{
 namespace my_loadable{
   /*
   LoadableFactory_vanilla::LoadablePrivPair LoadableFactory_vanilla::newLoadable(){

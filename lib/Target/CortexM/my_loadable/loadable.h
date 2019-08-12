@@ -8,7 +8,7 @@
 
 #include "iloadable.h"
 
-namespace CortexM_loadable{
+namespace cortexm_loadable{
 namespace my_loadable{
 
   class Loadable;

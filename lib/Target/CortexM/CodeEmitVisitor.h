@@ -7,13 +7,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_CORTEXM_CODE_EMIT_VISITOR_H
 #define TARGET_CORTEXM_CODE_EMIT_VISITOR_H
-#include <onnc/IR/CustomVisitor.h>
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
-
-#include <onnc/IR/ComputeVisitor.h>
+#include <onnc/IR/CustomVisitor.h>
 #include "CortexMMeta.h"
 
 #define ELEMENT_SIZE 1
@@ -24,19 +22,16 @@ namespace cortexm {
 
 class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
+
 public:
-  explicit CodeEmitVisitor(CortexMBackendMeta &meta) noexcept
-    : m_pMeta{meta}
-  {}
+  explicit CodeEmitVisitor(CortexMBackendMeta &Meta) noexcept;
   
-  //vanilla
+//my extra
   struct weight_list* save_weight = (weight_list*)malloc(sizeof(weight_list));
   struct code_list* save_code = (code_list*)malloc(sizeof(code_list));
   struct add_list* save_add = (add_list*)malloc(sizeof(add_list));
   struct matmul_list* save_matmul = (matmul_list*)malloc(sizeof(matmul_list));
   struct shape_list* save_shape = (shape_list*)malloc(sizeof(shape_list));
-  bool* error = (bool*)malloc(sizeof(bool));
-  
   int buffer_order = 0;
   int first = 0;
   int add_first = 0;
@@ -45,6 +40,7 @@ public:
 
   int layer_id = 0;
 
+//
   /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
   void visit(const InputOperator& pInputOperator) override;
@@ -83,16 +79,20 @@ public:
   void visit(Softmax& pSoftmax) override;
   void visit(Gemm& pGemm) override;
   void visit(Reshape& pReshape) override;
+
   void visit(LRN& pLRN) override;
   void visit(Concat& pConcat) override;
 
   void visit(Add& pAdd) override;
   void visit(MatMul& pMatMul) override;
   /// @}
-  float* packWeight_or_Bias(const ComputeOperator& co,const Tensor* t, int dims_0, int gidx, unsigned int size);
-  private:
-    CortexMBackendMeta &m_pMeta;
 
+  //weight & bias
+
+  float* packWeight_or_Bias(const ComputeOperator& co,const Tensor* t, int dims_0, int gidx, unsigned int size);
+  
+private:
+  CortexMBackendMeta &m_pMeta;
 };
   
 } // namespace cortexm

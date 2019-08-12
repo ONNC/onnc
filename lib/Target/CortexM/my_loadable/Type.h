@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <exception>
 
-namespace CortexM_loadable{
+namespace cortexm_loadable{
 namespace my_loadable{
   
   template <typename I,typename P>

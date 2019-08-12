@@ -10,7 +10,7 @@ typedef struct vanilla_weight{
   int64_t count;
 }vanilla_weight;
 
-namespace CortexM_loadable{
+namespace cortexm_loadable{
 namespace loadable{
   template<typename T> T EndianSwap(T t){
     #if defined(_MSC_VER)
