@@ -25,9 +25,10 @@ namespace cortexm {
 class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
 public:
-  explicit CodeEmitVisitor(CortexMBackendMeta &Meta) noexcept;
+  explicit CodeEmitVisitor(CortexMBackendMeta &meta) noexcept
+    : m_pMeta{meta}
+  {}
   
-  static char ID;
   //vanilla
   struct weight_list* save_weight = (weight_list*)malloc(sizeof(weight_list));
   struct code_list* save_code = (code_list*)malloc(sizeof(code_list));

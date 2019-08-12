@@ -105,7 +105,11 @@ void CortexMBackend::addMemAlloc(PassManager& pPM)
 
 void CortexMBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
+  // this is the old-style calling method. Do not use it.
+  //pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
+
+  // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
+  pPM.add<CodeEmit>(m_CodeEmitVisitor);
 }
 
 void CortexMBackend::RegisterLowers(LowerRegistry& pRegistry) const
