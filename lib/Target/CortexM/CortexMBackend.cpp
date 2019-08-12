@@ -50,6 +50,7 @@
 #include <onnc/Transforms/TensorSel/Standards/SumLower.h>
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
+#include <onnc/Transforms/TensorSel/Standards/MatMulLower.h>
 
 #include <memory>
 
@@ -59,7 +60,9 @@ using namespace onnc;
 // CortexMBackend
 //===----------------------------------------------------------------------===//
 CortexMBackend::CortexMBackend(const TargetOptions& pOptions)
-  : TargetBackend(pOptions) { 
+  : TargetBackend(pOptions),
+    m_pMeta{},
+    m_CodeEmitVisitor{m_pMeta} { 
   m_pMemInfo = std::make_unique<CortexMTargetMemInfo>();
 }
 
@@ -102,8 +105,7 @@ void CortexMBackend::addMemAlloc(PassManager& pPM)
 
 void CortexMBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
-  static cortexm::CodeEmitVisitor ceVisitor;
-  pPM.add(CreateCodeEmitPass(ceVisitor));
+  pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
 }
 
 void CortexMBackend::RegisterLowers(LowerRegistry& pRegistry) const
@@ -128,6 +130,7 @@ void CortexMBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<SumLower>();
   pRegistry.emplace<TransposeLower>();
   pRegistry.emplace<UpsampleLower>();
+  pRegistry.emplace<MatMulLower>();
 }
 
 
