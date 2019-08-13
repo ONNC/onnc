@@ -1,0 +1,48 @@
+#include "CortexmInputPerProcessing.h"
+
+#include <onnc/IR/Compute/Tensor.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/Support/Casting.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/Support/Timer.h>
+
+using namespace onnc;
+
+CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
+  : ModulePass(ID),
+    m_pBackend(pBackend), m_pMeta(m_pMeta){
+}
+
+Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule){
+  FILE *file;
+  file = fopen("vanilla_input_per_proc.h","w");
+  //include file
+  fprintf(file,"#include <stdint.h>\n\
+#include <stdio.h>\n\
+#include \"arm_math.h\"\n\
+#include \"vanilla_weight.h\"\n\
+#include \"math.h\"\n\
+");
+  
+  //function declaration
+  fprintf(file,"void per_processing(int *image_data , q7_t* img_buffer){\n");//ongoing
+
+  //function doing
+  fprintf(file,"    for(int i = 0 ; i < 28*28 ; i ++){\n\
+  img_buffer[i] = (image_data[i]>>1);\n\
+  }\n\n");
+
+  //function end
+  fprintf(file,"}\n");
+
+  return Pass::kModuleNoChanged;
+}
+
+char CortexmInputPerProcessing::ID = 0;
+
+CortexmInputPerProcessing *onnc::CreateCortexmInputPerProcessing(TargetBackend *pBackend , CortexMBackendMeta *pMeta){
+  return new CortexmInputPerProcessing(pBackend, pMeta);
+}
+
