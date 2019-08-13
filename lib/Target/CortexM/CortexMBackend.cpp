@@ -11,6 +11,10 @@
 #include "TargetInfo/CortexMTargetInfo.h"
 #include "TargetInfo/CortexMTargetMemInfo.h"
 #include "CodeEmitVisitor.h"
+#include "CortexmInputPerProcessing.h"
+#include "CortexmWeightFileGenPass.h"
+#include "CortexmMainFileHeaderGenPass.h"
+#include "CortexmReadShiftPass.h"
 
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/Analysis/NodeIRScheduler.h>
@@ -110,6 +114,11 @@ void CortexMBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 
   // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
   pPM.add<CodeEmit>(m_CodeEmitVisitor);
+  pPM.add<CortexmReadShiftPass>(&m_pMeta);
+  pPM.add<CortexmHeaderFileGenPass>(&m_pMeta);
+  pPM.add<CortexmInputPerProcessing>(&m_pMeta);
+  pPM.add<CortexmMainFileHeaderGenPass>(&m_pMeta);
+  pPM.add<CortexmFileGenPass>(&m_pMeta);
 }
 
 void CortexMBackend::RegisterLowers(LowerRegistry& pRegistry) const
@@ -151,4 +160,5 @@ extern "C" void InitializeCortexMONNCBackend()
   onnc::TargetRegistry::RegisterTargetBackend(getTheCortexMTarget(),
       CreateCortexMBackend);
 }
+
 
