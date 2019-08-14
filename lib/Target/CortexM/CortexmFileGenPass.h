@@ -2,7 +2,7 @@
 #define ONNC_CORTEXM_FILEGEN_PASS_H
 
 #include <onnc/Core/CustomPass.h>
-#include "CortexMMeta.h"
+#include "CortexmMeta.h"
 
 namespace onnc{
   class TargetBackend;
@@ -10,11 +10,11 @@ namespace onnc{
   class CortexmFileGenPass : public CustomPass<CortexmFileGenPass>
   {
     public:
-      explicit CortexmFileGenPass(TargetBackend *pBackend , CortexMBackendMeta *pMeta);
+      explicit CortexmFileGenPass(TargetBackend *pBackend , CortexmBackendMeta *pMeta);
       ReturnType runOnModule(Module& pModule) override;
     private:
       TargetBackend *m_pBackend;
-      CortexMBackendMeta *m_pMeta;
+      CortexmBackendMeta *m_pMeta;
   };
 
 }

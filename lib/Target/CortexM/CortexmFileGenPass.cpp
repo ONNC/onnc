@@ -15,19 +15,19 @@ using namespace onnc;
 
 struct code_list* first_code ;
 
-CortexmFileGenPass::CortexmFileGenPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
+CortexmFileGenPass::CortexmFileGenPass(TargetBackend *pBackend, CortexmBackendMeta *pMeta)
   : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule){
   FILE *file;
-  file = fopen("vanilla_out.cpp","w");
+  file = fopen("cortexm_out.cpp","w");
   
   //create include file
   fprintf(file,"#include <stdint.h>\n\
 #include <stdio.h>\n\
 #include \"arm_math.h\"\n\
-#include \"vanilla_weight.h\"\n\
+#include \"cortexm_weight.h\"\n\
 #include \"arm_nnfunctions.h\"\n\
 #ifdef _RTE_\n\
 #include \"RTE_Components.h\"\n\
@@ -35,8 +35,8 @@ Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule){
 #include \"EventRecorder.h\"\n\
 #endif\n\
 #endif\n\n\
-#include \"vanilla_input_per_proc.h\"\n\
-#include \"vanilla_out.h\"\n\
+#include \"cortexm_input_per_proc.h\"\n\
+#include \"cortexm_out.h\"\n\
 #include \"matmul.h\"\n\
 #include \"add.h\"\n\
 #include \"mbed.h\"\n\

@@ -1,10 +1,10 @@
 
 add_libonnc_src(
-    CortexMBackend.cpp
+    CortexmBackend.cpp
     CodeEmitVisitor.cpp
     TargetInfo/CortexMTargetInfo.cpp
     TargetInfo/CortexMTargetMemInfo.cpp
-    CortexMMeta.cpp
+    CortexmMeta.cpp
     weight_pack.cpp
     CortexmFileGenPass.cpp
     CortexmInputPerProcessing.cpp

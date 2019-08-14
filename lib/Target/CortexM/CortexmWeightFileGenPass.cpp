@@ -20,7 +20,7 @@ struct matmul_list* first_matmul;
 struct shape_list* first_shape;
 struct shift_list* first_shift;
 
-CortexmHeaderFileGenPass::CortexmHeaderFileGenPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
+CortexmHeaderFileGenPass::CortexmHeaderFileGenPass(TargetBackend *pBackend, CortexmBackendMeta *pMeta)
   : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 

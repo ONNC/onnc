@@ -41,7 +41,7 @@ extern struct add_list* first_add ;
 extern struct matmul_list* first_matmul;
 extern struct shape_list* first_shape;
 
-CodeEmitVisitor::CodeEmitVisitor(CortexMBackendMeta &Meta) noexcept 
+CodeEmitVisitor::CodeEmitVisitor(CortexmBackendMeta &Meta) noexcept 
 : m_pMeta{Meta}
 { }
 

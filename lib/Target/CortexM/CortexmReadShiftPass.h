@@ -2,7 +2,7 @@
 #define CORTEXM_READ_SHIFT_PASS
 
 #include <onnc/Core/CustomPass.h>
-#include "CortexMMeta.h"
+#include "CortexmMeta.h"
 
 namespace onnc{
   class TargetBackend;
@@ -14,11 +14,11 @@ namespace onnc{
 
       int first = 0;
 
-      explicit CortexmReadShiftPass(TargetBackend *pBackend , CortexMBackendMeta *pMeta);
+      explicit CortexmReadShiftPass(TargetBackend *pBackend , CortexmBackendMeta *pMeta);
       ReturnType runOnModule(Module& pModule) override;
     private:
       TargetBackend *m_pBackend;
-      CortexMBackendMeta *m_pMeta;
+      CortexmBackendMeta *m_pMeta;
   };
 
 }

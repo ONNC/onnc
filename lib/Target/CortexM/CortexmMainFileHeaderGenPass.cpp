@@ -10,15 +10,15 @@
 
 using namespace onnc;
 
-CortexmMainFileHeaderGenPass::CortexmMainFileHeaderGenPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
+CortexmMainFileHeaderGenPass::CortexmMainFileHeaderGenPass(TargetBackend *pBackend, CortexmBackendMeta *pMeta)
   : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module& pModule){
   FILE *file;
-  file = fopen("vanilla_out.h","w");
-  fprintf(file,"#ifndef VANILLA_OUT_H\n\
-#define VANILLA_OUT_H\n\n\
+  file = fopen("cortexm_out.h","w");
+  fprintf(file,"#ifndef CORTEXM_OUT_H\n\
+#define CORTEXM_OUT_H\n\n\
 #include <stdio.h>\n\
 #include <stdlib.h>\n\
 int vanilla_main(bool input_per_proc , int* image_data);\n\n\

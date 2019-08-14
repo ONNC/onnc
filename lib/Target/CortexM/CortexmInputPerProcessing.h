@@ -2,18 +2,18 @@
 #define ONNC_CORTEXM_INPUT_PRE_REOCESSING_H
 
 #include <onnc/Core/CustomPass.h>
-#include "CortexMMeta.h"
+#include "CortexmMeta.h"
 
 namespace onnc{
   class TargetBackend;
 
   class CortexmInputPerProcessing : public CustomPass<CortexmInputPerProcessing>{
     public:
-      explicit CortexmInputPerProcessing(TargetBackend *pBackend , CortexMBackendMeta *pMeta);
+      explicit CortexmInputPerProcessing(TargetBackend *pBackend , CortexmBackendMeta *pMeta);
       ReturnType runOnModule(Module& pModule) override;
     private:
       TargetBackend *m_pBackend;
-      CortexMBackendMeta *m_pMeta;
+      CortexmBackendMeta *m_pMeta;
   };
 
 }

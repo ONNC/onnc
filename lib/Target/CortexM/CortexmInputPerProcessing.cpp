@@ -10,18 +10,18 @@
 
 using namespace onnc;
 
-CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
+CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend *pBackend, CortexmBackendMeta *pMeta)
   : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule){
   FILE *file;
-  file = fopen("vanilla_input_per_proc.h","w");
+  file = fopen("cortexm_input_per_proc.h","w");
   //include file
   fprintf(file,"#include <stdint.h>\n\
 #include <stdio.h>\n\
 #include \"arm_math.h\"\n\
-#include \"vanilla_weight.h\"\n\
+#include \"cortexm_weight.h\"\n\
 #include \"math.h\"\n\
 ");
   

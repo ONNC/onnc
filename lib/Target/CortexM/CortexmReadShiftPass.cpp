@@ -17,7 +17,7 @@ using namespace onnc;
 
 extern struct shift_list* first_shift ;
 
-CortexmReadShiftPass::CortexmReadShiftPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
+CortexmReadShiftPass::CortexmReadShiftPass(TargetBackend *pBackend, CortexmBackendMeta *pMeta)
   : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 

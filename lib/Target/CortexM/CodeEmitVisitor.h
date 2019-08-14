@@ -12,7 +12,7 @@
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/CustomVisitor.h>
-#include "CortexMMeta.h"
+#include "CortexmMeta.h"
 
 #define ELEMENT_SIZE 1
 
@@ -24,7 +24,7 @@ class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
 {
 
 public:
-  explicit CodeEmitVisitor(CortexMBackendMeta &Meta) noexcept;
+  explicit CodeEmitVisitor(CortexmBackendMeta &Meta) noexcept;
   
 //my extra
   struct weight_list* save_weight = (weight_list*)malloc(sizeof(weight_list));
@@ -92,7 +92,7 @@ public:
   float* packWeight_or_Bias(const ComputeOperator& co,const Tensor* t, int dims_0, int gidx, unsigned int size);
   
 private:
-  CortexMBackendMeta &m_pMeta;
+  CortexmBackendMeta &m_pMeta;
 };
   
 } // namespace cortexm
