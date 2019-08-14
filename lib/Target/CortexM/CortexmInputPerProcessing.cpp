@@ -11,8 +11,7 @@
 using namespace onnc;
 
 CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pMeta(m_pMeta){
+  : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule){
@@ -38,11 +37,5 @@ Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule){
   fprintf(file,"}\n");
 
   return Pass::kModuleNoChanged;
-}
-
-char CortexmInputPerProcessing::ID = 0;
-
-CortexmInputPerProcessing *onnc::CreateCortexmInputPerProcessing(TargetBackend *pBackend , CortexMBackendMeta *pMeta){
-  return new CortexmInputPerProcessing(pBackend, pMeta);
 }
 

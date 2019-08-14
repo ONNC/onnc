@@ -21,8 +21,7 @@ struct shape_list* first_shape;
 struct shift_list* first_shift;
 
 CortexmHeaderFileGenPass::CortexmHeaderFileGenPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pMeta(m_pMeta){
+  : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module& pModule){
@@ -138,11 +137,4 @@ Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module& pModule){
 
   return Pass::kModuleNoChanged;
 }
-
-char CortexmHeaderFileGenPass::ID = 0;
-
-CortexmHeaderFileGenPass *onnc::CreateCortemHeaderFileGenPass(TargetBackend *pBackend , CortexMBackendMeta *pMeta){
-  return new CortexmHeaderFileGenPass(pBackend, pMeta);
-}
-
 

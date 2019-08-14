@@ -18,8 +18,7 @@ using namespace onnc;
 extern struct shift_list* first_shift ;
 
 CortexmReadShiftPass::CortexmReadShiftPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pMeta(m_pMeta){
+  : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmReadShiftPass::runOnModule(Module& pModule){
@@ -60,8 +59,3 @@ Pass::ReturnType CortexmReadShiftPass::runOnModule(Module& pModule){
   return Pass::kModuleNoChanged;
 }
 
-char CortexmReadShiftPass::ID = 0;
-
-CortexmReadShiftPass *onnc::CreateCortexmReadShiftPass(TargetBackend *pBackend , CortexMBackendMeta *pMeta){
-  return new CortexmReadShiftPass(pBackend, pMeta);
-}

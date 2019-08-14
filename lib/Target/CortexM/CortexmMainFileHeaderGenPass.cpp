@@ -11,8 +11,7 @@
 using namespace onnc;
 
 CortexmMainFileHeaderGenPass::CortexmMainFileHeaderGenPass(TargetBackend *pBackend, CortexMBackendMeta *pMeta)
-  : ModulePass(ID),
-    m_pBackend(pBackend), m_pMeta(m_pMeta){
+  : m_pBackend(pBackend), m_pMeta(m_pMeta){
 }
 
 Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module& pModule){
@@ -29,8 +28,3 @@ int vanilla_main(bool input_per_proc , int* image_data);\n\n\
   return Pass::kModuleNoChanged;
 }
 
-char CortexmMainFileHeaderGenPass::ID = 0;
-
-CortexmMainFileHeaderGenPass *onnc::CreateCortexmMainFileHeaderGenPass(TargetBackend *pBackend , CortexMBackendMeta *pMeta){
-  return new CortexmMainFileHeaderGenPass(pBackend, pMeta);
-}
