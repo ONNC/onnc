@@ -154,10 +154,12 @@ void CodeEmitVisitor::visit(const Conv& pConv)
   
   float auto_pad = 0;
   std::string auto_pad_string = pConv.getAutoPad();
-  if( strcmp(auto_pad_string.c_str(),"\"SAME_UPPER\"") != 0 ){
+  if( strcmp(auto_pad_string.c_str(),"SAME_UPPER") == 0 ){
     auto_pad = 0.5;
-  }else if( strcmp(auto_pad_string.c_str(),"\"SAME_LOWER\"") != 0 ){
+    
+  }else if( strcmp(auto_pad_string.c_str(),"SAME_LOWER") == 0 ){
     auto_pad = (-0.5);
+  
   }
 
   if(pConv.getStrides().at(0) != pConv.getStrides().at(1)){
@@ -173,10 +175,10 @@ void CodeEmitVisitor::visit(const Conv& pConv)
     save_code -> input_channel = input_x->dimension(1);
     save_code -> output_channel = output->dimension(1);
     save_code -> kernel_size = pConv.getKernelShape().at(0);
-    if(strcmp(auto_pad_string.c_str(),"\"VALID\"") != 0){
+    if(strcmp(auto_pad_string.c_str(),"VALID") == 0){
       save_code -> pad = 0;
       save_code -> pads = NULL;
-    }else if(strcmp(auto_pad_string.c_str(),"\"NOTSET\"") != 0){
+    }else if(strcmp(auto_pad_string.c_str(),"NOTSET") == 0){
       save_code -> pad = pConv.getPads().at(0);
       save_code -> pads[0] = pConv.getPads().at(0);
       save_code -> pads[1] = pConv.getPads().at(1);
@@ -199,10 +201,10 @@ void CodeEmitVisitor::visit(const Conv& pConv)
     new_code -> input_channel = input_x->dimension(1);
     new_code -> output_channel = output->dimension(1);
     new_code -> kernel_size = pConv.getKernelShape().at(0);
-    if(strcmp(auto_pad_string.c_str(),"\"VALID\"") != 0){
+    if(strcmp(auto_pad_string.c_str(),"VALID") == 0){
       new_code -> pad = 0;
       new_code -> pads = NULL;
-    }else if(strcmp(auto_pad_string.c_str(),"\"NOTSET\"") != 0){
+    }else if(strcmp(auto_pad_string.c_str(),"NOTSET") == 0){
       new_code -> pad = pConv.getPads().at(0);
       new_code -> pads[0] = pConv.getPads().at(0);
       new_code -> pads[1] = pConv.getPads().at(1);
