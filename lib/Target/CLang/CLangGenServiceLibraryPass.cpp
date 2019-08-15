@@ -16,6 +16,7 @@ inline void addIncludeDirectives(std::ostream& stream)
 {
   stream << "#include <onnc-runtime.h>\n";
   stream << "#include <internal/common.h>\n";
+  stream << "#include <operators.h>\n";
 }
 
 inline void addMacroDefinitions(std::ostream& stream)
@@ -42,12 +43,29 @@ inline void addContentFromFile(std::ostream& stream, const Path& file)
 
   stream << std::ifstream{file.native()}.rdbuf();
 }
+template <typename StringNames>
+inline void addOperatorFunctionDeclarations(std::ostream& stream, const Path& resourceDirectory,
+                                           const StringNames& names)
+{
+  const Path declFilesDirectory = resourceDirectory + "include" + "operator";
+  assert(is_directory(declFilesDirectory));
+
+  addContentFromFile(stream, declFilesDirectory + "init.h");
+  addContentFromFile(stream, declFilesDirectory + "term.h");
+
+  for (const auto& name : names) {
+    const Path declFile = declFilesDirectory + (StringRef{name}.lower() + ".h");
+
+    addContentFromFile(stream, declFile);
+  }
+}
 
 template <typename StringNames>
 inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& resourceDirectory,
                                            const StringNames& names)
 {
   const Path implFilesDirectory = resourceDirectory + "include" + "internal";
+  const Path declFilesDirectory = resourceDirectory + "include";
   assert(is_directory(implFilesDirectory));
 
   addContentFromFile(stream, implFilesDirectory + "common.inc");
@@ -70,7 +88,8 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   std::ofstream file{outputFile.native()};
   addIncludeDirectives(file);
   addMacroDefinitions(file);
-  addOperatorFunctionDefinitions(file, resourceDirectory, meta.usedOperatorNames);
+  addOperatorFunctionDeclarations(file, resourceDirectory, meta.usedOperatorNames);
+//  addOperatorFunctionDefinitions(file, resourceDirectory, meta.usedOperatorNames);
   removeMacroDefinitions(file);
   addModelMainDefinition(file, module);
 
@@ -87,17 +106,22 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   stream << "{\n";
 
   constexpr const Indent indent{1};
+  stream  << indent << "clock_t begin = clock();\n";
 
   // allocate internal memory
   const identifier_type memory = "memory";
   stream << indent << "char * const " << memory << " = calloc(" << getInternalMemorySize() << ", 1);\n";
+  stream << indent << "ONNC_RUNTIME_init();\n";
 
   CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context};
   visitor.visit(module);
 
   // release internal memory
-  stream << indent << "free(" << memory << ");\n"
-         << indent << "return 0;\n"
+  stream << indent << "ONNC_RUNTIME_term();\n";
+  stream << indent << "free(" << memory << ");\n";
+  stream  << indent << "clock_t end = clock();\n";
+  stream  << indent << "printf(\"\\nOverall - %f ms\",(float)(end-begin)*1000/CLOCKS_PER_SEC);\n";
+  stream << indent << "return 0;\n"
          << "}\n";
 }
 
