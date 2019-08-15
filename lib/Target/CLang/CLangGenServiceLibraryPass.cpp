@@ -51,6 +51,9 @@ inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& res
   assert(is_directory(implFilesDirectory));
 
   addContentFromFile(stream, implFilesDirectory + "common.inc");
+  addContentFromFile(stream, implFilesDirectory + "variable.inc");
+  addContentFromFile(stream, implFilesDirectory + "init.inc");
+  addContentFromFile(stream, implFilesDirectory + "term.inc");
 
   for (const auto& name : names) {
     const Path implFile = implFilesDirectory + (StringRef{name}.lower() + ".inc");
