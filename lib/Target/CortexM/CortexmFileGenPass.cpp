@@ -114,11 +114,11 @@ q7_t col_buffer[2*5*5*32*2];\n\
 q7_t scratch_buffer[%d*%d*%d];\n\
 q7_t scratch_buffer2[%d*%d*%d];\n\n",
     first_code -> output_channel,
-    first_code -> output_dimention,
-    first_code -> output_dimention,
+    first_code -> input_dimention,
+    first_code -> input_dimention,
     first_code -> output_channel,
-    first_code -> output_dimention,
-    first_code -> output_dimention
+    first_code -> input_dimention,
+    first_code -> input_dimention
   );
   
   fprintf(file,"int vanilla_main(bool input_pre_proc,int* image_data){\n\
