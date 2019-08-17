@@ -21,7 +21,8 @@ Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module& pModule){
 #define CORTEXM_OUT_H\n\n\
 #include <stdio.h>\n\
 #include <stdlib.h>\n\
-int vanilla_main(bool input_per_proc , int* image_data);\n\n\
+#include \"arm_math.h\"\n\
+q7_t* cortexm_main(int* image_data);\n\n\
 #endif\n\
 ");
 

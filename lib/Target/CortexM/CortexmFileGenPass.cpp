@@ -34,8 +34,7 @@ Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule){
 #ifdef RTE_Compiler_EventRecorder\n\
 #include \"EventRecorder.h\"\n\
 #endif\n\
-#endif\n\n\
-#include \"cortexm_input_per_proc.h\"\n\
+#endif\n\
 #include \"cortexm_out.h\"\n\
 #include \"matmul.h\"\n\
 #include \"add.h\"\n\
@@ -121,7 +120,7 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
     first_code -> input_dimention
   );
   
-  fprintf(file,"int vanilla_main(bool input_pre_proc,int* image_data){\n\
+  fprintf(file,"q7_t* cortexm_main(int* image_data){\n\
   #ifdef RTE_Compiler_EventRecorder\n\
     EventRecorderInitialize (EventRecordAll, 1);\n\
   #endif\n\n");
@@ -130,13 +129,9 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
   fprintf(file,"  q7_t *img_buffer1 = scratch_buffer;\n\
   q7_t *img_buffer2 = scratch_buffer2;\n\n");
 
-  fprintf(file,"  if(input_pre_proc){\n\
-    per_processing(image_data , img_buffer2);\n\
-  }else{\n\
-    for(int loop = 0 ; loop<%d ; loop++ ){\n\
+  fprintf(file,"  for(int loop = 0 ; loop<%d ; loop++ ){\n\
       img_buffer2[loop] = image_data[loop];\n\
-    }\n\
-  }\n\n",first_code -> output_dimention*first_code -> output_dimention);
+    }\n",first_code -> output_dimention*first_code -> output_dimention);
 
   //create layer function call  
   number_of_conv_layer = 0;
@@ -278,18 +273,8 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
     }
   }
   
-  fprintf(file,"  int return_type = 0 , type_value = 0;\n");
-  fprintf(file,"  for(int i = 0; i < 10 ; i++){\n\
-    if(type_value < %s[i]){\n\
-      type_value = %s[i];\n\
-      return_type = i;\n\
-    }\n\
-  }\n\n",
-  final_output_buffer.c_str(),
-  final_output_buffer.c_str()
-  );
 
-  fprintf(file,"  return return_type;\n");
+  fprintf(file,"  return img_buffer2;\n");
   fprintf(file,"}\n");
   return Pass::kModuleNoChanged;
 }
