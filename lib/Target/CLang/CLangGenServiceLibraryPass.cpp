@@ -106,7 +106,6 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   stream << "{\n";
 
   constexpr const Indent indent{1};
-  stream  << indent << "clock_t begin = clock();\n";
 
   // allocate internal memory
   const identifier_type memory = "memory";
@@ -119,8 +118,6 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   // release internal memory
   stream << indent << "ONNC_RUNTIME_term();\n";
   stream << indent << "free(" << memory << ");\n";
-  stream  << indent << "clock_t end = clock();\n";
-  stream  << indent << "printf(\"\\nOverall - %f ms\",(float)(end-begin)*1000/CLOCKS_PER_SEC);\n";
   stream << indent << "return 0;\n"
          << "}\n";
 }
