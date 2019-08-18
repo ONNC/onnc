@@ -69,9 +69,6 @@ inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& res
   assert(is_directory(implFilesDirectory));
 
   addContentFromFile(stream, implFilesDirectory + "common.inc");
-  addContentFromFile(stream, implFilesDirectory + "variable.inc");
-  addContentFromFile(stream, implFilesDirectory + "init.inc");
-  addContentFromFile(stream, implFilesDirectory + "term.inc");
 
   for (const auto& name : names) {
     const Path implFile = implFilesDirectory + (StringRef{name}.lower() + ".inc");
@@ -89,7 +86,6 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   addIncludeDirectives(file);
   addMacroDefinitions(file);
   addOperatorFunctionDeclarations(file, resourceDirectory, meta.usedOperatorNames);
-//  addOperatorFunctionDefinitions(file, resourceDirectory, meta.usedOperatorNames);
   removeMacroDefinitions(file);
   addModelMainDefinition(file, module);
 
