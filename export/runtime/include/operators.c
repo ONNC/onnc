@@ -1,7 +1,21 @@
+#include<stdint.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
 #include "internal/common.h"
 #include "internal/variable.inc"
 #include "internal/init.inc"
 #include "internal/term.inc"
+
+#ifdef MKLDNN
+#include "internal/MKLDNN/conv.inc"
+#include "internal/MKLDNN/gemm.inc"
+#else
+#include "internal/conv.inc"
+#include "internal/gemm.inc"
+#endif
+
 #include "internal/abs.inc"
 #include "internal/acos.inc"
 #include "internal/add.inc"
@@ -21,7 +35,6 @@
 #include "internal/concat.inc"
 #include "internal/constant.inc"
 #include "internal/constantfill.inc"
-#include "internal/conv.inc"
 #include "internal/convtranspose.inc"
 #include "internal/cos.inc"
 #include "internal/crop.inc"
@@ -35,7 +48,6 @@
 #include "internal/flatten.inc"
 #include "internal/floor.inc"
 #include "internal/gather.inc"
-#include "internal/gemm.inc"
 #include "internal/giventensorfill.inc"
 #include "internal/globalaveragepool.inc"
 #include "internal/globallppool.inc"
