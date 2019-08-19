@@ -4,7 +4,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
 add_library(inference
-  client-app.c
+  client-app.c  
   client-lib.c
   onnc-runtime-service.c
   onnc-runtime-core.c
@@ -12,4 +12,3 @@ add_library(inference
 target_link_libraries(inference
   m
 )
-
