@@ -51,7 +51,7 @@ inline void addOperatorFunctionDeclarations(std::ostream& stream, const Path& re
   assert(is_directory(declFilesDirectory));
 
   addContentFromFile(stream, declFilesDirectory + "init.h");
-  addContentFromFile(stream, declFilesDirectory + "term.h");
+  addContentFromFile(stream, declFilesDirectory + "terminate.h");
 
   for (const auto& name : names) {
     const Path declFile = declFilesDirectory + (StringRef{name}.lower() + ".h");
@@ -112,7 +112,7 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   visitor.visit(module);
 
   // release internal memory
-  stream << indent << "ONNC_RUNTIME_term();\n";
+  stream << indent << "ONNC_RUNTIME_terminate();\n";
   stream << indent << "free(" << memory << ");\n";
   stream << indent << "return 0;\n"
          << "}\n";
