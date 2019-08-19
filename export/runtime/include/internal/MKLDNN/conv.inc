@@ -49,27 +49,27 @@ void ONNC_RUNTIME_conv_float(void* restrict onnc_runtime_context, const float* r
         padding_r_dim[i] = pads[i+ndims];
     }
     if(input_B!=NULL)
-        CHECK(mkldnn_dilated_convolution_forward_desc_init(&conv_any_desc, mkldnn_forward,
+        mkldnn_dilated_convolution_forward_desc_init(&conv_any_desc, mkldnn_forward,
                 mkldnn_convolution_direct, &src_desc, &weight_desc,
                 &bias_desc, &dst_desc, strides_dim, dilation_dim, padding_l_dim,
-                padding_r_dim));
+                padding_r_dim);
     else
-        CHECK(mkldnn_dilated_convolution_forward_desc_init(&conv_any_desc, mkldnn_forward,
+        mkldnn_dilated_convolution_forward_desc_init(&conv_any_desc, mkldnn_forward,
                 mkldnn_convolution_direct, &src_desc, &weight_desc,
                 NULL, &dst_desc, strides_dim, dilation_dim, padding_l_dim,
-                padding_r_dim));
+                padding_r_dim);
 
     mkldnn_primitive_desc_t conv_pd;
 
-    CHECK(mkldnn_primitive_desc_create(
-        &conv_pd, &conv_any_desc, NULL, engine, NULL));
+    mkldnn_primitive_desc_create(
+        &conv_pd, &conv_any_desc, NULL, engine, NULL);
     mkldnn_memory_t src_memory, weight_memory, dst_memory, bias_memory;
-    CHECK(mkldnn_memory_create(&src_memory, &src_desc, engine, (void*)input_X));
-    CHECK(mkldnn_memory_create(&weight_memory, &weight_desc, engine, (void*)input_W));
-    CHECK(mkldnn_memory_create(&bias_memory, &bias_desc, engine, (void*)input_B));
-    CHECK(mkldnn_memory_create(&dst_memory, &src_desc, engine, (void*)output_Y));
+    mkldnn_memory_create(&src_memory, &src_desc, engine, (void*)input_X);
+    mkldnn_memory_create(&weight_memory, &weight_desc, engine, (void*)input_W);
+    mkldnn_memory_create(&bias_memory, &bias_desc, engine, (void*)input_B);
+    mkldnn_memory_create(&dst_memory, &src_desc, engine, (void*)output_Y);
     mkldnn_primitive_t conv;
-    CHECK(mkldnn_primitive_create(&conv, conv_pd));
+    mkldnn_primitive_create(&conv, conv_pd);
 
     args_t args;
     prepare_arg_node(&args, 4);
@@ -77,6 +77,6 @@ void ONNC_RUNTIME_conv_float(void* restrict onnc_runtime_context, const float* r
     set_arg(&args.args[1], MKLDNN_ARG_WEIGHTS, weight_memory);
     set_arg(&args.args[2], MKLDNN_ARG_BIAS, bias_memory);
     set_arg(&args.args[3], MKLDNN_ARG_DST, dst_memory);
-    CHECK(mkldnn_primitive_execute(conv, stream, args.nargs, args.args));
-    CHECK(mkldnn_stream_wait(stream));
+    mkldnn_primitive_execute(conv, stream, args.nargs, args.args);
+    mkldnn_stream_wait(stream);
 }
