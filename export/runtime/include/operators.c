@@ -3,19 +3,19 @@
 #include<stdlib.h>
 #include<string.h>
 
-#include "internal/common.h"
-#include "internal/variable.inc"
 
 #ifdef MKLDNN
 #include "internal/MKLDNN/conv.inc"
 #include "internal/MKLDNN/gemm.inc"
 #include "internal/MKLDNN/init.inc"
 #include "internal/MKLDNN/terminate.inc"
+#include "internal/MKLDNN/common.h"
 #else
 #include "internal/conv.inc"
 #include "internal/gemm.inc"
 #include "internal/init.inc"
 #include "internal/terminate.inc"
+#include "internal/common.h"
 #endif
 
 #include "internal/abs.inc"

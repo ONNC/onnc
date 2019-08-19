@@ -37,45 +37,6 @@ inline void removeMacroDefinitions(std::ostream& stream)
          << "\n";
 }
 
-inline void addContentFromFile(std::ostream& stream, const Path& file)
-{
-  assert(is_regular(file));
-
-  stream << std::ifstream{file.native()}.rdbuf();
-}
-template <typename StringNames>
-inline void addOperatorFunctionDeclarations(std::ostream& stream, const Path& resourceDirectory,
-                                           const StringNames& names)
-{
-  const Path declFilesDirectory = resourceDirectory + "include" + "operator";
-  assert(is_directory(declFilesDirectory));
-
-  addContentFromFile(stream, declFilesDirectory + "init.h");
-  addContentFromFile(stream, declFilesDirectory + "terminate.h");
-
-  for (const auto& name : names) {
-    const Path declFile = declFilesDirectory + (StringRef{name}.lower() + ".h");
-
-    addContentFromFile(stream, declFile);
-  }
-}
-
-template <typename StringNames>
-inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& resourceDirectory,
-                                           const StringNames& names)
-{
-  const Path implFilesDirectory = resourceDirectory + "include" + "internal";
-  const Path declFilesDirectory = resourceDirectory + "include";
-  assert(is_directory(implFilesDirectory));
-
-  addContentFromFile(stream, implFilesDirectory + "common.inc");
-
-  for (const auto& name : names) {
-    const Path implFile = implFilesDirectory + (StringRef{name}.lower() + ".inc");
-
-    addContentFromFile(stream, implFile);
-  }
-}
 } // namespace internal
 
 CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(Module& module)
@@ -85,7 +46,6 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   std::ofstream file{outputFile.native()};
   addIncludeDirectives(file);
   addMacroDefinitions(file);
-  //addOperatorFunctionDeclarations(file, resourceDirectory, meta.usedOperatorNames);
   removeMacroDefinitions(file);
   addModelMainDefinition(file, module);
 
