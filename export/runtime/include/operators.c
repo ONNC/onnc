@@ -5,15 +5,17 @@
 
 #include "internal/common.h"
 #include "internal/variable.inc"
-#include "internal/init.inc"
-#include "internal/term.inc"
 
 #ifdef MKLDNN
 #include "internal/MKLDNN/conv.inc"
 #include "internal/MKLDNN/gemm.inc"
+#include "internal/MKLDNN/init.inc"
+#include "internal/MKLDNN/terminate.inc"
 #else
 #include "internal/conv.inc"
 #include "internal/gemm.inc"
+#include "internal/init.inc"
+#include "internal/terminate.inc"
 #endif
 
 #include "internal/abs.inc"

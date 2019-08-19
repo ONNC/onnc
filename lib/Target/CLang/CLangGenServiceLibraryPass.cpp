@@ -85,7 +85,7 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   std::ofstream file{outputFile.native()};
   addIncludeDirectives(file);
   addMacroDefinitions(file);
-  addOperatorFunctionDeclarations(file, resourceDirectory, meta.usedOperatorNames);
+  //addOperatorFunctionDeclarations(file, resourceDirectory, meta.usedOperatorNames);
   removeMacroDefinitions(file);
   addModelMainDefinition(file, module);
 

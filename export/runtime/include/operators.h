@@ -97,7 +97,7 @@
 #include "operator/sum.h"
 #include "operator/tan.h"
 #include "operator/tanh.h"
-#include "operator/term.h"
+#include "operator/terminate.h"
 #include "operator/tile.h"
 #include "operator/topk.h"
 #include "operator/transpose.h"
