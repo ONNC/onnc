@@ -1,4 +1,5 @@
 MKLDNN_LIBRARY_PATH=/usr/local/lib64/
+mkdir -p build
 cd build/
 sudo cmake ../
 sudo make

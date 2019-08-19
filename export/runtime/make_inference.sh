@@ -1,3 +1,4 @@
+mkdir -p build
 cd build/
 sudo cmake ../
 sudo make
