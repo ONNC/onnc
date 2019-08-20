@@ -5,13 +5,13 @@ void ONNC_RUNTIME_gemm_float(void* restrict onnc_runtime_context, const float* r
         const int32_t* restrict output_Y_dims, float alpha, float beta, int32_t transA,
         int32_t transB)
 {
-    mkldnn_dim_t M = output_Y_dims[0];
-    mkldnn_dim_t N = output_Y_dims[1];
-    mkldnn_dim_t K = input_A_dims[0]+input_A_dims[1]-M;
-    if(input_C_ndim == 2)
-        memcpy(output_Y,input_C,M*N*sizeof(float));
-    else
-        for(int i=0;i<M;i++)
-            memcpy(output_Y+N*i,input_C,N*sizeof(float));
-    mkldnn_sgemm( (transA)?'T':'N',(transB)?'T':'N', M, N, K, alpha, input_A, (transA)?M:K, input_B, (transB)?K:M, beta, output_Y, N);
+  mkldnn_dim_t M = output_Y_dims[0];
+  mkldnn_dim_t N = output_Y_dims[1];
+  mkldnn_dim_t K = input_A_dims[0]+input_A_dims[1]-M;
+  if(input_C_ndim == 2)
+    memcpy(output_Y,input_C,M*N*sizeof(float));
+  else
+    for(int i=0;i<M;i++)
+      memcpy(output_Y+N*i,input_C,N*sizeof(float));
+  mkldnn_sgemm( (transA?'T':'N'),(transB?'T':'N'), M, N, K, alpha, input_A, (transA?M:K), input_B, (transB?K:M), beta, output_Y, N);
 }
