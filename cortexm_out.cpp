@@ -9,8 +9,6 @@
 #include "EventRecorder.h"
 #endif
 #endif
-
-#include "cortexm_input_per_proc.h"
 #include "cortexm_out.h"
 #include "matmul.h"
 #include "add.h"
@@ -43,7 +41,7 @@ q7_t col_buffer[2*5*5*32*2];
 q7_t scratch_buffer[8*28*28];
 q7_t scratch_buffer2[8*28*28];
 
-int vanilla_main(bool input_pre_proc,int* image_data){
+q7_t* cortexm_main(int* image_data){
   #ifdef RTE_Compiler_EventRecorder
     EventRecorderInitialize (EventRecordAll, 1);
   #endif
@@ -51,15 +49,10 @@ int vanilla_main(bool input_pre_proc,int* image_data){
   q7_t *img_buffer1 = scratch_buffer;
   q7_t *img_buffer2 = scratch_buffer2;
 
-  if(input_pre_proc){
-    per_processing(image_data , img_buffer2);
-  }else{
-    for(int loop = 0 ; loop<784 ; loop++ ){
+  for(int loop = 0 ; loop<784 ; loop++ ){
       img_buffer2[loop] = image_data[loop];
     }
-  }
-
-  arm_convolve_HWC_q7_basic( img_buffer2,28,1,conv1_wt,8,5,0,1,conv1_bias,0,RIGHT_SHIFT1,img_buffer1,28,(q15_t *)col_buffer,NULL );
+  arm_convolve_HWC_q7_basic( img_buffer2,28,1,conv1_wt,8,5,2,1,conv1_bias,0,RIGHT_SHIFT1,img_buffer1,28,(q15_t *)col_buffer,NULL );
 
   MatAdd(img_buffer1,input_dims1,add1_wt,add_dims1,img_buffer2,4,RIGHT_SHIFT2,RIGHT_SHIFT3);
 
@@ -67,7 +60,7 @@ int vanilla_main(bool input_pre_proc,int* image_data){
 
   arm_maxpool_q7_HWC( img_buffer2,28,8,2,0,2,14,NULL,img_buffer1 );
 
-  arm_convolve_HWC_q7_basic( img_buffer1,14,8,conv2_wt,16,5,0,1,conv2_bias,0,RIGHT_SHIFT4,img_buffer2,14,(q15_t *)col_buffer,NULL );
+  arm_convolve_HWC_q7_basic( img_buffer1,14,8,conv2_wt,16,5,2,1,conv2_bias,0,RIGHT_SHIFT4,img_buffer2,14,(q15_t *)col_buffer,NULL );
 
   MatAdd(img_buffer2,input_dims2,add2_wt,add_dims2,img_buffer1,4,RIGHT_SHIFT5,RIGHT_SHIFT6);
 
@@ -79,13 +72,5 @@ int vanilla_main(bool input_pre_proc,int* image_data){
 
   MatAdd(img_buffer1,input_dims3,add3_wt,add_dims3,img_buffer2,2,RIGHT_SHIFT8,RIGHT_SHIFT9);
 
-  int return_type = 0 , type_value = 0;
-  for(int i = 0; i < 10 ; i++){
-    if(type_value < img_buffer2[i]){
-      type_value = img_buffer2[i];
-      return_type = i;
-    }
-  }
-
-  return return_type;
+  return img_buffer2;
 }

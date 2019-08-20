@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-int vanilla_main(bool input_per_proc , int* image_data);
+#include "arm_math.h"
+q7_t* cortexm_main(int* image_data);
 
 #endif

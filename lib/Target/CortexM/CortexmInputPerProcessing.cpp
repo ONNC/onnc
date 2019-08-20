@@ -16,7 +16,7 @@ CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend *pBackend, Co
 
 Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule){
   FILE *file;
-  file = fopen("cortexm_input_per_proc.h","w");
+  file = fopen("cortexm_input_pre_proc.h","w");
   //include file
   fprintf(file,"#include <stdint.h>\n\
 #include <stdio.h>\n\
@@ -26,7 +26,7 @@ Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule){
 ");
   
   //function declaration
-  fprintf(file,"void per_processing(int *image_data , q7_t* img_buffer){\n");//ongoing
+  fprintf(file,"void pre_processing(int *image_data , q7_t* img_buffer){\n");//ongoing
 
   //function doing
   fprintf(file,"    for(int i = 0 ; i < 28*28 ; i ++){\n\
