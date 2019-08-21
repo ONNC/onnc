@@ -131,7 +131,7 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
 
   fprintf(file,"  for(int loop = 0 ; loop<%d ; loop++ ){\n\
       img_buffer2[loop] = image_data[loop];\n\
-    }\n",first_code -> output_dimention*first_code -> output_dimention);
+    }\n",first_code -> input_dimention*first_code -> input_dimention);
 
   //create layer function call  
   number_of_conv_layer = 0;
