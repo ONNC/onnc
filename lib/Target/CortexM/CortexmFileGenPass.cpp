@@ -46,9 +46,11 @@ Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule){
   int number_of_add_layer = 0;
   int number_of_matmul_layer = 0;
   int number_of_shape = 0;
+  int sum_of_operators = 0;
   for(struct code_list* now_node = first_code; now_node!=NULL ; now_node = now_node ->next){
     if(now_node -> layer_type == TYPE_CONV){
       number_of_conv_layer++;
+      sum_of_operators++;
       fprintf(file,"static q7_t conv%d_wt[%d*%d*%d*%d] = CONV%d_WT;\n\
 static q7_t conv%d_bias[%d] = CONV%d_BIAS;\n\n",
         number_of_conv_layer,
@@ -131,14 +133,15 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
 
   fprintf(file,"  for(int loop = 0 ; loop<%d ; loop++ ){\n\
       img_buffer2[loop] = image_data[loop];\n\
-    }\n",first_code -> input_dimention*first_code -> input_dimention);
-
+    }\n",first_code -> output_dimention*first_code -> output_dimention);
+  //errs() << "test:"<<first_code -> output_dimention << "\n";
   //create layer function call  
   number_of_conv_layer = 0;
   number_of_fc_layer = 0;
   number_of_add_layer = 0;
   number_of_matmul_layer = 0;
   number_of_shape = 0;
+
   int number_of_shift = 0;
   std::string final_output_buffer;
   for(struct code_list* now_node = first_code; now_node!=NULL ; now_node = now_node ->next){
@@ -272,9 +275,12 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
       }
     }
   }
-  
-
-  fprintf(file,"  return img_buffer2;\n");
+  errs()<<"sum_of_operatro:"<<sum_of_operators<<"\n";
+  if(sum_of_operators%2 == 0){
+    fprintf(file,"  return img_buffer2;\n");
+  }else{
+    fprintf(file,"  return img_buffer1;\n");
+  }
   fprintf(file,"}\n");
   return Pass::kModuleNoChanged;
 }
