@@ -1,6 +1,8 @@
 #ifndef ONNC_RUNTIME_INTERNAL_COMMON_H_INCLUDED
 #define ONNC_RUNTIME_INTERNAL_COMMON_H_INCLUDED
 
+#include "mkldnn.h"
+
 #include <assert.h>
 #include <float.h>
 #include <math.h>
@@ -10,19 +12,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "mkldnn.h"
-typedef struct {
-        int nargs;
-            mkldnn_exec_arg_t *args;
+typedef struct
+{
+  int                nargs;
+  mkldnn_exec_arg_t* args;
 } args_t;
-static void prepare_arg_node(args_t *node, int nargs) {
-        node->args = (mkldnn_exec_arg_t *)malloc(sizeof(mkldnn_exec_arg_t) * nargs);
-            node->nargs = nargs;
+static void prepare_arg_node(args_t* node, int nargs)
+{
+  node->args  = (mkldnn_exec_arg_t*)malloc(sizeof(mkldnn_exec_arg_t) * nargs);
+  node->nargs = nargs;
 }
-static void set_arg(
-                mkldnn_exec_arg_t *arg, int arg_idx, mkldnn_memory_t memory) {
-        arg->arg = arg_idx;
-            arg->memory = memory;
+static void set_arg(mkldnn_exec_arg_t* arg, int arg_idx, mkldnn_memory_t memory)
+{
+  arg->arg    = arg_idx;
+  arg->memory = memory;
 }
 mkldnn_engine_t engine;
 mkldnn_stream_t stream;
