@@ -5,11 +5,11 @@
 
 
 #ifdef MKLDNN
-#include "internal/MKLDNN/common.h"
-#include "internal/MKLDNN/conv.inc"
-#include "internal/MKLDNN/gemm.inc"
-#include "internal/MKLDNN/init.inc"
-#include "internal/MKLDNN/terminate.inc"
+#include "internal/mkldnn/common.h"
+#include "internal/mkldnn/conv.inc"
+#include "internal/mkldnn/gemm.inc"
+#include "internal/mkldnn/init.inc"
+#include "internal/mkldnn/terminate.inc"
 #else
 #include "internal/common.h"
 #include "internal/conv.inc"
