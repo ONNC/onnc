@@ -39,7 +39,10 @@ Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule){
 #include \"cortexm_out.h\"\n\
 #include \"matmul.h\"\n\
 #include \"add.h\"\n\
+#if defined(ONNC_PC_SIM)\n\
+#else\n\t\
 #include \"mbed.h\"\n\
+#endif\n\
 ");
   //create weights array declaration
   int number_of_conv_layer = 0;
