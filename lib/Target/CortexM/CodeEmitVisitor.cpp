@@ -264,38 +264,64 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 
   //save
   layer_id++;
-  struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-  new_code -> layer_type = TYPE_MAXPOOLING;
-  new_code -> buffer_order = buffer_order;
-
-  new_code -> input_dimention = input_x->dimension(2);
-  new_code -> input_channel = input_x->dimension(1);
-  new_code -> kernel_size = pMaxPool.getKernelShape().at(0);
-
-  if(pMaxPool.getStrides().at(0) != pMaxPool.getStrides().at(1)){
-    errs() << "In Maxpooling, your x-stride and y-stride are different, we just use your x-stride.\n";
-  }
-
-  if(strcmp(auto_pad_string.c_str(),"\"VALID\"") != 0){
-    new_code -> pad = 0;
-    new_code -> pads = NULL;
-  }else if(strcmp(auto_pad_string.c_str(),"\"NOTSET\"") != 0){
-    new_code -> pad = pMaxPool.getPads().at(0);
-    new_code -> pads[0] = pMaxPool.getPads().at(0);
-    new_code -> pads[1] = pMaxPool.getPads().at(1);
-    new_code -> pads[2] = pMaxPool.getPads().at(2);
-    new_code -> pads[3] = pMaxPool.getPads().at(3);
+  if(first == 0){
+    first_code = save_code;
+    save_code -> layer_type = TYPE_MAXPOOLING;
+    save_code -> input_dimention = input_x->dimension(2);
+    save_code -> input_channel = input_x->dimension(1);
+    save_code -> kernel_size = pMaxPool.getKernelShape().at(0);
+    save_code -> output_channel = output_y->dimension(1);
+    // std::string auto_pad_string = pMaxPool.getAutoPad();
+    if(strcmp(auto_pad_string.c_str(),"VALID") == 0){
+      save_code -> pad = 0;
+      save_code -> pads = NULL;
+    }else if(strcmp(auto_pad_string.c_str(),"NOTSET") == 0){
+      save_code -> pad = pMaxPool.getPads().at(0);
+      save_code -> pads[0] = pMaxPool.getPads().at(0);
+      save_code -> pads[1] = pMaxPool.getPads().at(1);
+      save_code -> pads[2] = pMaxPool.getPads().at(2);
+      save_code -> pads[3] = pMaxPool.getPads().at(3);
+    }
+    save_code -> stride = pMaxPool.getStrides().at(0);
+    save_code -> buffer_order = buffer_order;
+    save_code -> output_dimention = output_y->dimension(2);
+    save_code -> layer_id = layer_id;
+    save_code -> next = NULL;
+    first++;
   }else{
-    new_code -> pad = get_padding(input_x->dimension(2),output_y->dimension(2),pMaxPool.getKernelShape().at(0),pMaxPool.getStrides().at(0),auto_pad);
-    new_code -> pads = NULL;
+    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
+    new_code -> layer_type = TYPE_MAXPOOLING;
+    new_code -> buffer_order = buffer_order;
+
+    new_code -> input_dimention = input_x->dimension(2);
+    new_code -> input_channel = input_x->dimension(1);
+    new_code -> kernel_size = pMaxPool.getKernelShape().at(0);
+
+    if(pMaxPool.getStrides().at(0) != pMaxPool.getStrides().at(1)){
+      errs() << "In Maxpooling, your x-stride and y-stride are different, we just use your x-stride.\n";
+    }
+
+    if(strcmp(auto_pad_string.c_str(),"\"VALID\"") != 0){
+      new_code -> pad = 0;
+      new_code -> pads = NULL;
+    }else if(strcmp(auto_pad_string.c_str(),"\"NOTSET\"") != 0){
+      new_code -> pad = pMaxPool.getPads().at(0);
+      new_code -> pads[0] = pMaxPool.getPads().at(0);
+      new_code -> pads[1] = pMaxPool.getPads().at(1);
+      new_code -> pads[2] = pMaxPool.getPads().at(2);
+      new_code -> pads[3] = pMaxPool.getPads().at(3);
+    }else{
+      new_code -> pad = get_padding(input_x->dimension(2),output_y->dimension(2),pMaxPool.getKernelShape().at(0),pMaxPool.getStrides().at(0),auto_pad);
+      new_code -> pads = NULL;
+    }
+    new_code -> stride = pMaxPool.getStrides().at(0);
+    new_code -> output_dimention = output_y->dimension(2);
+    new_code -> layer_id = layer_id;
+    new_code -> next = NULL;
+    save_code -> next = new_code;
+    save_code = new_code;
   }
-  new_code -> stride = pMaxPool.getStrides().at(0);
-  new_code -> output_dimention = output_y->dimension(2);
-  new_code -> layer_id = layer_id;
-  new_code -> next = NULL;
-  save_code -> next = new_code;
-  save_code = new_code;
-  
+
   pMaxPool.print(errs());
   errs() << "\n\n";
   buffer_order = (buffer_order+1)&1;

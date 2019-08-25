@@ -10,6 +10,7 @@
 #include <onnc/Support/Timer.h>
 
 #include <string>
+#include <cstring>
 
 using namespace onnc;
 
@@ -47,6 +48,7 @@ Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule){
   int number_of_matmul_layer = 0;
   int number_of_shape = 0;
   int sum_of_operators = 0;
+  int number_of_maxpool_layer = 0;
   for(struct code_list* now_node = first_code; now_node!=NULL ; now_node = now_node ->next){
     if(now_node -> layer_type == TYPE_CONV){
       number_of_conv_layer++;
@@ -133,14 +135,16 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
 
   fprintf(file,"  for(int loop = 0 ; loop<%d ; loop++ ){\n\
       img_buffer2[loop] = image_data[loop];\n\
-    }\n",first_code -> output_dimention*first_code -> output_dimention);
+    }\n",first_code -> input_dimention*first_code -> input_dimention);
   //errs() << "test:"<<first_code -> output_dimention << "\n";
   //create layer function call  
   number_of_conv_layer = 0;
+  number_of_maxpool_layer = 0;
   number_of_fc_layer = 0;
   number_of_add_layer = 0;
   number_of_matmul_layer = 0;
   number_of_shape = 0;
+
 
   int number_of_shift = 0;
   std::string final_output_buffer;
@@ -197,6 +201,7 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
 	      }
         break;
       case TYPE_MAXPOOLING :
+        number_of_maxpool_layer++;
         fprintf(file,"  arm_maxpool_q7_HWC( %s,%d,%d,%d,%d,%d,%d,NULL,%s );\n\n",
           input_buffer(now_node -> buffer_order),
           now_node -> input_dimention,
@@ -275,13 +280,14 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
       }
     }
   }
-  errs()<<"sum_of_operatro:"<<sum_of_operators<<"\n";
-  if(sum_of_operators%2 == 0){
-    fprintf(file,"  return img_buffer2;\n");
-  }else{
-    fprintf(file,"  return img_buffer1;\n");
-  }
+
+  char cstr[final_output_buffer.size() + 1];
+  strcpy(cstr, final_output_buffer.c_str());
+  
+  fprintf(file," return %s;\n",cstr);
   fprintf(file,"}\n");
+
+
   return Pass::kModuleNoChanged;
 }
 
