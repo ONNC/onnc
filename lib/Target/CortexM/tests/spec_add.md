@@ -11,13 +11,26 @@
     * W (1 ~ 2,147,483,647) sign int32
     * array of values(sign 8 bits)
 * Input `tensor B`
-    * dimension:CxHxW,H=W=1
-    * range:sign 8 bits
-    * number = number of `tensor A`'channels
-    * `tensor B` size(sign 32 int & >= 1) == CxHxW
-* Input `tensor C`
+    * when `tensor A` of dimension == 4:
+        * dimension:CxHxW,H=W=1,C = `tensor A` of channels
+        * range:sign 8 bits
+        * `tensor B` size(sign 32 int & >= 1) == CxHxW
+    * when `tensor A` of dimension == 2:
+        * dimension:HxW,H=`tensor A` of H,W=`tensor A` of We
+        * range:sign 8 bits
+        * `tensor B` size(sign 32 int & >= 1) == HxW
+* Output `tensor C`
     * dimension: 1xCxHxW = Input `tensor A`
 
 
 ## Testing Spec
 
+* MatAdd_4D
+    * Input `tensor A`:1x4x6x6
+    * Input `tensor B`:4x1x1
+    * Output `tensor C`:1x4x6x6
+
+* MatAdd_2D
+    * Input `tensor A`:6x6
+    * Input `tensor B`:6x6
+    * Output `tensor C`:6x6
