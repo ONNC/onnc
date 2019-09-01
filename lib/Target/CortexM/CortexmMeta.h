@@ -40,6 +40,7 @@ namespace onnc{
   
   struct code_list{
     unsigned int input_dimention;
+    int batch_size ;
     int input_channel;
     int output_channel;
     int kernel_size;//w = h
@@ -50,6 +51,7 @@ namespace onnc{
     int layer_type;//what is this layer doing
     int layer_id;
     int *pads;
+    int matmul_size;
     struct code_list *next;  
   };
   
@@ -73,6 +75,11 @@ namespace onnc{
   };
 
   struct matmul_list{
+    unsigned int input_dimention;
+    unsigned int output_dimention;
+    int batch_size;
+    int input_channel;
+    int output_channel;
     float *matmul_value;
     int matmul_size;
     struct matmul_list *next;

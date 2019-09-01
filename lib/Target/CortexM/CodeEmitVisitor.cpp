@@ -171,6 +171,7 @@ void CodeEmitVisitor::visit(const Conv& pConv)
   if(first == 0){
     first_code = save_code;
     save_code -> layer_type = TYPE_CONV;
+    save_code -> batch_size = input_x->dimension(0);
     save_code -> input_dimention = input_x->dimension(2);
     save_code -> input_channel = input_x->dimension(1);
     save_code -> output_channel = output->dimension(1);
@@ -197,6 +198,7 @@ void CodeEmitVisitor::visit(const Conv& pConv)
   }else{
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
     new_code -> layer_type = TYPE_CONV;
+    new_code -> batch_size = input_x->dimension(0);
     new_code -> input_dimention = input_x->dimension(2);
     new_code -> input_channel = input_x->dimension(1);
     new_code -> output_channel = output->dimension(1);
@@ -465,6 +467,10 @@ void CodeEmitVisitor::visit(Reshape& pReshape)
 void CodeEmitVisitor::visit(const Reshape& pReshape)
 {
   const Tensor *input_x = pReshape.getInput(0);
+  // const Tensor *data = pReshape.getShape();
+  
+  // errs()<< "data:" << data->dimension(0) <<"\n";
+
   int32_t input_x_d = input_x->getNumOfDimensions();
   int input_x_dim[4] = {1,1,1,1};
   for(int loop = 0 ; loop < input_x_d ; loop++){
@@ -486,12 +492,28 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
       first_matmul = save_matmul;
       save_matmul -> matmul_value = weight_HWC;
       save_matmul -> matmul_size = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+      for(int i = 0; i<4 ; i++){
+        errs()<<"input:"<<input_x_dim[i]<<"\n";
+      }
+      errs()<<"matmul_size:"<<save_matmul ->matmul_size<<"\n";
+      save_matmul -> output_channel = input_x_dim[0];
+      save_matmul -> input_channel = input_x_dim[0];
+      save_matmul -> input_dimention = input_x_dim[1];
+      save_matmul -> batch_size = input_x_dim[3];
       save_matmul -> next = NULL;
       matmul_first++;
     }else{
       struct matmul_list* new_matmul = (matmul_list*)malloc(sizeof(matmul_list));
       new_matmul -> matmul_value = weight_HWC;
       new_matmul -> matmul_size = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+      // errs()<<"matmul_size:"<<new_matmul -> matmul_size<<"\n";
+      for(int i = 0; i<4 ; i++){
+        errs()<<"input:"<<input_x_dim[i]<<"\n";
+      }
+      new_matmul -> output_channel = input_x_dim[0];
+      new_matmul -> input_channel = input_x_dim[0];
+      new_matmul -> input_dimention = input_x_dim[1];
+      new_matmul -> batch_size = input_x_dim[3];
       new_matmul -> next = NULL;
       save_matmul -> next = new_matmul;
       save_matmul = new_matmul;
@@ -655,11 +677,36 @@ void CodeEmitVisitor::visit(MatMul& pMatMul)
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
 {
   layer_id++;
-  if(first == 0){
+  
+  const Tensor *input_x = pMatMul.getA();
+  const Tensor *input_y = pMatMul.getB();
+
+  int x_dim_size = input_x->getNumOfDimensions();
+  int input_x_dim[x_dim_size];
+
+  int y_dim_size = input_y->getNumOfDimensions();
+  int input_y_dim[y_dim_size];
+
+  if(x_dim_size == y_dim_size){
+    for(int dim_size = 0; dim_size < x_dim_size;dim_size++){
+      input_x_dim[dim_size] = input_x -> dimension(dim_size);//x [2] ={1,256} y [2] ={256,10} 
+      input_y_dim[dim_size] = input_y -> dimension(dim_size);
+    }
+  }else{
+    //if x_dim_size != y_dim_size
+  }
+  
+  if(first == 0){ 
     first_code = save_code;
     save_code -> layer_type = TYPE_MATMUL;
     save_code -> buffer_order = buffer_order;
-    save_code -> input_dimention = save_matmul -> matmul_size;
+    save_code -> batch_size = save_matmul -> batch_size;
+    save_code -> output_channel = save_matmul -> output_channel;
+    // errs()<<"output_channel:"<<save_matmul -> output_channel<<"\n";
+    save_code -> input_channel = save_matmul -> input_channel;
+    save_code -> input_dimention = save_matmul -> input_dimention; 
+    // errs()<<"matsize:"<<save_matmul -> matmul_size<<"\n";
+    save_code -> matmul_size = save_matmul -> matmul_size;
     save_code -> layer_id = layer_id;
     save_code -> next = NULL;
     first++;
@@ -667,7 +714,11 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
     new_code -> layer_type = TYPE_MATMUL;
     new_code -> buffer_order = buffer_order;
-    new_code -> input_dimention = save_matmul -> matmul_size;
+    new_code -> batch_size = save_matmul -> batch_size;
+    new_code -> output_channel = save_matmul -> output_channel;
+    new_code -> input_channel = save_matmul -> input_channel;
+    new_code -> input_dimention = save_matmul -> input_dimention;
+    new_code -> matmul_size = save_matmul -> matmul_size;
     new_code -> layer_id = layer_id;
     new_code -> next = NULL;
     save_code -> next = new_code;

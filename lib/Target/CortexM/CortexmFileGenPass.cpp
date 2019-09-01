@@ -100,7 +100,7 @@ static int add_dims%d[%d] = ADD_DIMS%d;\n\n",
       number_of_shape++;
       fprintf(file,"static q7_t matmul%d_wt[%d] = MATMUL_WEIGHT%d;\n\n",
         number_of_matmul_layer,
-        now_node -> input_dimention,
+        now_node -> matmul_size,
         number_of_matmul_layer
       );
       fprintf(file,"static int shape%d_wt[2] = SHAPE%d;\n\
@@ -117,11 +117,13 @@ static int shape%d_wt[2] = SHAPE%d;\n\n",
   //buffer size declaration
   fprintf(file,"q7_t output_data[10];\n\
 q7_t col_buffer[2*5*5*32*2];\n\
-q7_t scratch_buffer[%d*%d*%d];\n\
-q7_t scratch_buffer2[%d*%d*%d];\n\n",
+q7_t scratch_buffer[%d*%d*%d*%d];\n\
+q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
+    first_code -> batch_size,
     first_code -> output_channel,
     first_code -> input_dimention,
     first_code -> input_dimention,
+    first_code -> batch_size,
     first_code -> output_channel,
     first_code -> input_dimention,
     first_code -> input_dimention
@@ -138,7 +140,7 @@ q7_t scratch_buffer2[%d*%d*%d];\n\n",
 
   fprintf(file,"  for(int loop = 0 ; loop<%d ; loop++ ){\n\
       img_buffer2[loop] = image_data[loop];\n\
-    }\n",first_code -> input_dimention*first_code -> input_dimention);
+}\n",first_code -> batch_size*first_code -> input_channel* first_code -> input_dimention*first_code -> input_dimention);
   //errs() << "test:"<<first_code -> output_dimention << "\n";
   //create layer function call  
   number_of_conv_layer = 0;
