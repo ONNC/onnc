@@ -338,26 +338,39 @@ void CodeEmitVisitor::visit(Relu& pRelu)
 void CodeEmitVisitor::visit(const Relu& pRelu)
 {
   const Tensor *input_x = pRelu.getInput(0);
-
-  const Tensor *output = pRelu.getOutput(0);
+  const Tensor *output_y = pRelu.getOutput(0);
   
-  //save
   layer_id++;
-  struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-  new_code -> layer_type = TYPE_RELU;
-  if(input_x -> getNumOfDimensions() == 4){
-    new_code -> output_channel = output->dimension(1);
-    new_code -> output_dimention = output->dimension(2);
-  }else if(input_x -> getNumOfDimensions() == 2){
-    new_code -> output_channel = output->dimension(1);
-    new_code -> output_dimention = 1;
+  if(first == 0){
+    first_code = save_code;
+    save_code -> layer_type = TYPE_RELU;
+    save_code -> batch_size = input_x->dimension(0);
+    save_code -> input_channel = input_x->dimension(1);
+    save_code -> input_dimention = input_x->dimension(2);
+    save_code -> output_channel = output_y->dimension(1);
+    save_code -> output_dimention = output_y->dimension(2);
+    save_code -> buffer_order = buffer_order;
+    save_code -> layer_id = layer_id;
+    save_code -> next = NULL;
+    first++;    
+  }else{
+  //save
+    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
+    new_code -> layer_type = TYPE_RELU;
+    new_code -> batch_size = output_y->dimension(0);
+    if(input_x -> getNumOfDimensions() == 4){
+      new_code -> output_channel = output_y->dimension(1);
+      new_code -> output_dimention = output_y->dimension(2);
+    }else if(input_x -> getNumOfDimensions() == 2){
+      new_code -> output_channel = output_y->dimension(1);
+      new_code -> output_dimention = 1;
+    }
+    new_code -> buffer_order = buffer_order;
+    new_code -> layer_id = layer_id;
+    new_code -> next = NULL;
+    save_code -> next = new_code;
+    save_code = new_code;
   }
-  new_code -> buffer_order = buffer_order;
-  new_code -> layer_id = layer_id;
-  new_code -> next = NULL;
-  save_code -> next = new_code;
-  save_code = new_code;
-
   pRelu.print(errs());
   errs() << "\n\n";
 }

@@ -219,8 +219,9 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
         );
         break;
       case TYPE_RELU :
-        fprintf(file,"  arm_relu_q7( %s,%d * %d * %d );\n\n",
+        fprintf(file,"  arm_relu_q7( %s,%d * %d * %d * %d );\n\n",
           input_buffer(now_node -> buffer_order),
+          now_node -> batch_size,
           now_node -> output_channel,
           now_node -> output_dimention,
           now_node -> output_dimention
