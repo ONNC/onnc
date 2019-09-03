@@ -497,6 +497,7 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
     output_y_dim[loop] = output_y -> dimension(loop);
   } 
 
+
   if(output_y_dim[0] != 1){
     float *weight = packWeight_or_Bias(pReshape , input_x , input_x_dim[0] , 1 , (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3] * ELEMENT_SIZE + 31) & ~(31));
     float *weight_HWC = (float*)malloc(sizeof(float) * (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]));
@@ -537,7 +538,6 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
     first_shape = save_shape;
     save_shape -> shape_value = output_y_dim;
     save_shape -> next = NULL;
-
     shape_first++;
   }else{
     struct shape_list* new_shape = (shape_list*)malloc(sizeof(shape_list));
@@ -612,6 +612,7 @@ void CodeEmitVisitor::visit(const Add& pAdd)
   for(int loop = 0;loop < input_x_d;loop++){
     input_x_dim[loop] = input_x -> dimension(loop);
     input_x_dim_ptr[loop] = input_x_dim[loop];
+   
   }
   if(input_x_d == 4){
     input_x_dim_ptr[1] ^= input_x_dim_ptr[3]; 
@@ -627,11 +628,12 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     input_b_dim[loop] = input_b -> dimension(loop);
     input_b_dim_ptr[loop] = input_b_dim[loop];
   }
-
+  
   float *add = packWeight_or_Bias(pAdd , input_b , input_b_dim[0] , 1 , (input_b_dim[0] * ELEMENT_SIZE + 31) & ~(31));
   
   if(add_first == 0){
     first_add = save_add;
+    
     save_add -> add_value = add;
     save_add -> add_size = (input_b_dim[0] * input_b_dim[1]);
     save_add -> input_dims = input_x_dim_ptr;
@@ -657,9 +659,14 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     first_code = save_code;
     save_code -> layer_type = TYPE_ADD;
     save_code -> buffer_order = buffer_order;
-    save_code -> input_dimention = input_x_dim[1];
-    save_code -> input_channel = input_x_d;//input_dims_size
-    save_code -> output_channel = input_b_d;//add_dims_size
+    save_code -> batch_size = input_x -> dimension(0);
+    errs()<<"input_dimention:"<<input_x -> dimension(2)<<"\n";
+    // save_code -> input_dimention = input_x_dim[1];
+    save_code -> input_dimention = input_x -> dimension(2);
+    save_code -> input_channel = input_x -> dimension(1);//input_x_d;//input_dims_size
+    // errs()<<"output chanenel:"<<input_x -> dimension(1)<<"\n";
+    errs()<<"output_channel:"<<input_x -> dimension(1)<<"\n";
+    save_code -> output_channel = input_x -> dimension(1);//add_dims_size
     save_code -> layer_id = layer_id;
     save_code -> next = NULL;
     first++;
@@ -667,9 +674,13 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
     new_code -> layer_type = TYPE_ADD;
     new_code -> buffer_order = buffer_order;
-    new_code -> input_dimention = input_x_dim[1];
-    new_code -> input_channel = input_x_d;//input_dims_size
-    new_code -> output_channel = input_b_d;//add_dims_size
+    new_code -> batch_size = input_x -> dimension(0);
+    new_code -> input_dimention = input_x -> dimension(2);
+    // new_code -> input_dimention = input_x_dim[1];
+    new_code -> input_channel = input_x -> dimension(1);
+    //new_code -> input_channel = input_x_d;//input_dims_size
+    errs()<<"output_channel:"<<input_b_d<<"\n";
+    new_code -> output_channel = input_x -> dimension(1);//input_b_d;//add_dims_size
     new_code -> layer_id = layer_id;
     new_code -> next = NULL;
     save_code -> next = new_code;
@@ -690,7 +701,6 @@ void CodeEmitVisitor::visit(MatMul& pMatMul)
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
 {
   layer_id++;
-  
   const Tensor *input_x = pMatMul.getA();
   const Tensor *input_y = pMatMul.getB();
 
@@ -699,7 +709,7 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
 
   int y_dim_size = input_y->getNumOfDimensions();
   int input_y_dim[y_dim_size];
-
+  
   if(x_dim_size == y_dim_size){
     for(int dim_size = 0; dim_size < x_dim_size;dim_size++){
       input_x_dim[dim_size] = input_x -> dimension(dim_size);//x [2] ={1,256} y [2] ={256,10} 
