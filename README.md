@@ -20,7 +20,7 @@ ONNC (Open Neural Network Compiler) is a retargetable compilation framework desi
 
 ## Current Status
 
-* [v1.0](https://github.com/ONNC/onnc/releases)
+* [v1.2.0](https://github.com/ONNC/onnc/releases)
 
 ## How to contribute
 
