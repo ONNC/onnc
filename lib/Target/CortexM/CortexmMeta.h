@@ -44,8 +44,12 @@ namespace onnc{
     int input_channel;
     int output_channel;
     int kernel_size;//w = h
+    // int add_w;
     int pad;//w = h
     int stride;// w = h
+    int input_size;
+    int weight_dim_size;
+    int weight_size;
     int buffer_order;
     unsigned int output_dimention;
     int layer_type;//what is this layer doing

@@ -86,13 +86,13 @@ static q7_t ip%d_bias[IP%d_OUT] = IP%d_BIAS;\n\n",
 static int input_dims%d[%d] = INPUT_DIMS%d;\n\
 static int add_dims%d[%d] = ADD_DIMS%d;\n\n",
         number_of_add_layer,
-        now_node -> input_dimention,
+        now_node -> weight_size,
         number_of_add_layer,
         number_of_add_layer,
-        now_node -> input_channel,
+        now_node -> input_size,
         number_of_add_layer,
         number_of_add_layer,
-        now_node -> output_channel,
+        now_node -> weight_dim_size,
         number_of_add_layer
       );
     }else if(now_node -> layer_type == TYPE_MATMUL){
@@ -252,7 +252,7 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
           number_of_add_layer,
           number_of_add_layer,
           output_buffer(now_node -> buffer_order),
-          now_node -> input_channel,
+          now_node -> input_size,
           number_of_shift,
           number_of_shift+1
         );

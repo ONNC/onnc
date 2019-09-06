@@ -480,14 +480,15 @@ void CodeEmitVisitor::visit(Reshape& pReshape)
 void CodeEmitVisitor::visit(const Reshape& pReshape)
 {
   const Tensor *input_x = pReshape.getInput(0);
-  // const Tensor *data = pReshape.getShape();
+  const Tensor *data = pReshape.getShape();
   
-  // errs()<< "data:" << data->dimension(0) <<"\n";
+  errs()<< "data:" << data->dimension(0) <<"\n";
 
   int32_t input_x_d = input_x->getNumOfDimensions();
   int input_x_dim[4] = {1,1,1,1};
   for(int loop = 0 ; loop < input_x_d ; loop++){
     input_x_dim[loop] = input_x -> dimension(loop);
+    errs()<< "data2:" << input_x->dimension(loop) <<"\n";
   } 
 
   const Tensor *output_y = pReshape.getOutput(0);
@@ -629,11 +630,18 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     input_b_dim_ptr[loop] = input_b_dim[loop];
   }
   
+  const Tensor *output_z = pAdd.getC();
+  int32_t output_dim_size = output_z->getNumOfDimensions();
+
+
   float *add = packWeight_or_Bias(pAdd , input_b , input_b_dim[0] , 1 , (input_b_dim[0] * ELEMENT_SIZE + 31) & ~(31));
+  int weight_size = 1;
+    for(int i = 0; i < input_b_d; i++){
+      weight_size *= input_b_dim[i];
+    }
   
   if(add_first == 0){
     first_add = save_add;
-    
     save_add -> add_value = add;
     save_add -> add_size = (input_b_dim[0] * input_b_dim[1]);
     save_add -> input_dims = input_x_dim_ptr;
@@ -656,30 +664,48 @@ void CodeEmitVisitor::visit(const Add& pAdd)
   } 
   layer_id++;
   if(first == 0){
-    first_code = save_code;
-    save_code -> layer_type = TYPE_ADD;
-    save_code -> buffer_order = buffer_order;
-    save_code -> batch_size = input_x -> dimension(0);
-    errs()<<"input_dimention:"<<input_x -> dimension(2)<<"\n";
-    // save_code -> input_dimention = input_x_dim[1];
-    save_code -> input_dimention = input_x -> dimension(2);
-    save_code -> input_channel = input_x -> dimension(1);//input_x_d;//input_dims_size
-    // errs()<<"output chanenel:"<<input_x -> dimension(1)<<"\n";
-    errs()<<"output_channel:"<<input_x -> dimension(1)<<"\n";
-    save_code -> output_channel = input_x -> dimension(1);//add_dims_size
-    save_code -> layer_id = layer_id;
-    save_code -> next = NULL;
-    first++;
+    if(input_x_d == 2){
+      first_code = save_code;
+      save_code -> layer_type = TYPE_ADD;
+      save_code -> buffer_order = buffer_order;
+      save_code -> batch_size = input_x -> dimension(0);
+      save_code -> weight_size = weight_size;
+      save_code -> input_size = input_x_d;
+      save_code -> input_dimention = input_x -> dimension(1);
+      save_code -> input_channel = 1;//input_x_d;//input_dims_size
+      save_code -> weight_dim_size = input_b_d;
+      save_code -> output_dimention = output_dim_size;
+      save_code -> output_channel = 1;//add_dims_size
+      save_code -> layer_id = layer_id;
+      save_code -> next = NULL;
+      first++;
+    }else{
+      first_code = save_code;
+      save_code -> layer_type = TYPE_ADD;
+      save_code -> buffer_order = buffer_order;
+      save_code -> batch_size = input_x -> dimension(0);
+      save_code -> weight_size = weight_size;
+      save_code -> input_size = input_x_d;
+      save_code -> input_dimention = input_x -> dimension(2);
+      save_code -> input_channel = input_x -> dimension(1);//input_x_d;//input_dims_size
+      save_code -> weight_dim_size = input_b_d;
+      save_code -> output_dimention = output_dim_size;
+      save_code -> output_channel = input_x -> dimension(1);//add_dims_size
+      save_code -> layer_id = layer_id;
+      save_code -> next = NULL;
+      first++;
+    }
   }else{
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
     new_code -> layer_type = TYPE_ADD;
     new_code -> buffer_order = buffer_order;
     new_code -> batch_size = input_x -> dimension(0);
+    new_code -> weight_size = weight_size;
+    new_code -> input_size = input_x_d;
     new_code -> input_dimention = input_x -> dimension(2);
-    // new_code -> input_dimention = input_x_dim[1];
+    new_code -> weight_dim_size = input_b_d;
     new_code -> input_channel = input_x -> dimension(1);
-    //new_code -> input_channel = input_x_d;//input_dims_size
-    errs()<<"output_channel:"<<input_b_d<<"\n";
+    new_code -> output_dimention = output_dim_size;
     new_code -> output_channel = input_x -> dimension(1);//input_b_d;//add_dims_size
     new_code -> layer_id = layer_id;
     new_code -> next = NULL;
