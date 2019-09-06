@@ -32,9 +32,7 @@ public:
 
   StringRef getPassName() const override { return "FuseInplaceValue"; }
 
-  Pass::ReturnType runOnModule(Module &pModule) override;
-
-  Pass::ReturnType runOnComputeGraph(ComputeGraph& pCG);
+  Pass::ReturnType runOnComputeGraph(ComputeGraph& pCG) override;
 
 private:
   IsFusible m_IsFusibleFn;

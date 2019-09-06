@@ -14,6 +14,7 @@
 #include <onnc/IR/Compute/Value.h>
 #include <onnc/IR/ComputeMemOperand.h>
 #include <onnc/IR/CustomVisitor.h>
+#include <onnc/Support/Memory.h>
 #include <unordered_map>
 
 namespace onnc {

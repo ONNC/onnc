@@ -9,7 +9,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_SUPPORT_CASTING_H
 #define ONNC_SUPPORT_CASTING_H
+
 #include <cassert>
+#include <type_traits>
 
 namespace onnc {
 

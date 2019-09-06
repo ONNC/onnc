@@ -5,12 +5,33 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ONNC_CORE_TARGET_OPTIONS_H
-#define ONNC_CORE_TARGET_OPTIONS_H
+#ifndef ONNC_TARGET_TARGET_OPTIONS_H
+#define ONNC_TARGET_TARGET_OPTIONS_H
+
+#include <onnc/Support/Path.h>
 
 #include <string>
+#include <utility>
 
 namespace onnc {
+namespace nvdla {
+
+enum class ConfigSet : unsigned
+{
+  nv_full = 0,
+};
+
+enum class ExecutionMode : unsigned
+{
+  direct = 0,
+};
+
+} // namespace nvdla
+
+enum class RunMode : unsigned
+{
+  normal = 0,
+};
 
 /** \class TargetOptions
  *  \brief TargetOptions stores settings of a compiler
@@ -18,20 +39,15 @@ namespace onnc {
 class TargetOptions
 {
 public:
-  TargetOptions();
+  TargetOptions()                           = default;
+  TargetOptions(const TargetOptions& pCopy) = default;
 
-  TargetOptions(const TargetOptions& pCopy);
-
-  TargetOptions& operator=(const TargetOptions& pCopy);
-
-  ~TargetOptions() { }
+  TargetOptions& operator=(const TargetOptions& pCopy) = default;
 
   /// The property holds whether printing module before tensor selection
   bool shouldPrintBeforeTensorSel() const { return m_PrintModuleBeforeSel; }
 
-  void printBeforeTensorSel(bool pEnable = true) {
-    m_PrintModuleBeforeSel = pEnable;
-  }
+  void printBeforeTensorSel(bool pEnable = true) { m_PrintModuleBeforeSel = pEnable; }
 
   /// This property holds whether ignoring calibration step
   bool shouldIgnoreCalibrationStep() const { return m_IgnoreCalibrationStep; }
@@ -56,14 +72,17 @@ public:
 
   void optOnnxModel(std::string pFileName) { m_OptOnnxModel = pFileName; }
 
+  unsigned getVerboseLevel() const noexcept { return m_VerboseLevel; }
+
+  void setVerboseLevel(unsigned verboseLevel) noexcept { m_VerboseLevel = verboseLevel; }
 
 private:
-  bool m_PrintModuleBeforeSel;
-  bool m_IgnoreCalibrationStep;
-  bool m_AddDummyCTable;
-  bool m_AddDummyWeight;
-
-  std::string m_OptOnnxModel;
+  bool        m_PrintModuleBeforeSel  = false;
+  bool        m_IgnoreCalibrationStep = false;
+  bool        m_AddDummyCTable        = false;
+  bool        m_AddDummyWeight        = false;
+  unsigned    m_VerboseLevel          = 0;
+  std::string m_OptOnnxModel          = "";
 };
 
 } // namespace onnc

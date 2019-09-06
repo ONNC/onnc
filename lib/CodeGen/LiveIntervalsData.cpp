@@ -10,6 +10,7 @@
 #include <onnc/CodeGen/LiveIntervalsData.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/Core/PassAnalysisSupport.h>
+#include <onnc/Support/Memory.h>
 
 using namespace onnc;
 
@@ -44,7 +45,7 @@ const LiveIntervalsData::LIs LiveIntervalsData::getSortedIntervals() const
 
   // sort the index in increasing order.
   std::sort(liveIntrvls.begin(), liveIntrvls.end(),
-            [] (const auto& a, const auto& b) {
+            [] (const LiveInterval* a, const LiveInterval* b) {
               return a->beginIndex() < b->beginIndex();
             });
   return liveIntrvls;

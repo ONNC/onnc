@@ -19,9 +19,8 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 static unsigned int getBatchSize()
 {
-  static cl::opt<unsigned int> batch_size(
-      "batch-size", cl::kShort, cl::kOptional, cl::kValueRequired, cl::init(0),
-      cl::desc("specific input batch size"));
+  static cl::opt<unsigned int> batch_size("batch-size", cl::kShort, cl::kOptional, cl::kValueRequired, cl::init(0),
+                                          cl::desc("specific input batch size"));
   return batch_size;
 }
 
@@ -45,7 +44,7 @@ void UpdateGraphOutputSize::updateInputBatchSize(xGraph *pGraph)
       continue;
     // update valueInfo
     auto sizes = v->sizes();
-    sizes[0] = m_BatchSize;
+    sizes[0]   = m_BatchSize;
     v->setSizes(sizes);
   }
 }
@@ -57,26 +56,21 @@ void UpdateGraphOutputSize::updateOutputValueInfo(xGraph *pGraph)
   // reset output valueInfo
   for (xNode *n : pGraph->nodes()) {
     for (xValue *out : n->outputs()) {
-      // do not reset graph's outputs valueInfo
-      if (output_set.count(out))
-        continue;
-      // reset dimension and elemType
-      std::vector<xDimension> sizes;
+      auto sizes = out->sizes();
+      if (sizes.size() > 0 && sizes[0].dim == 1) {
+        sizes[0] = m_BatchSize;
+      }
       out->setSizes(sizes);
-      out->setElemType((xTensorProtoDataType)onnc::Value::kUndefined);
     }
-  }
-
-  // update graph's outputs valueInfo
-  for (xValue *out : outputs) {
-    auto sizes = out->sizes();
-    sizes[0] = m_BatchSize;
-    out->setSizes(sizes);
   }
 }
 
 Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
 {
+  if (!onnxInferShape(pModule)) {
+		return Pass::kPassFailure;
+	}
+
   xGraph *graph = pModule.getRootTensorGraph();
 
   // update input batch size and reset old output valueInfo
@@ -84,8 +78,6 @@ Pass::ReturnType UpdateGraphOutputSize::runOnModule(Module &pModule)
     updateInputBatchSize(graph);
     updateOutputValueInfo(graph);
   }
-
-  onnxInferShape(pModule);
 
   return Pass::kModuleChanged;
 }

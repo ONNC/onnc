@@ -75,17 +75,23 @@ public:
 
   bool isOutputEmpty() const { return m_Outputs.empty(); }
 
-  template<typename OpndType>
-  void addInput(OpndType& pOperand) {
-    unsigned inputIdx = m_Inputs.size();
-    m_Inputs.push_back(&pOperand);
-    pOperand.getUses().emplace_back(*this, inputIdx);
+  bool hasUses() const {
+    for (Value *pV : m_Outputs) {
+      if (pV->getUses().size() > 0)
+        return true;
+    }
+    return false;
   }
 
-  template<typename OpndType>
-  void addOutput(OpndType& pOperand) {
-    pOperand.setDefine(this, m_Outputs.size());
-    m_Outputs.push_back(&pOperand);
+  void addInput(Value& pValue) {
+    ValueList::size_type inputIdx = m_Inputs.size();
+    m_Inputs.push_back(&pValue);
+    pValue.getUses().emplace_back(*this, inputIdx);
+  }
+
+  void addOutput(Value& pValue) {
+    pValue.setDefine(this, m_Outputs.size());
+    m_Outputs.push_back(&pValue);
   }
 
   /// Use covariant return type to override this function
@@ -94,11 +100,23 @@ public:
   /// Use covariant return type to override this function
   virtual const onnc::Value* getInput(unsigned int pIdx) const { return m_Inputs[pIdx]; }
 
+  /// insert Value before position pIdx
+  void insertInput(unsigned int pIdx, onnc::Value &pValue);
+
+  /// clear m_Inputs and remove Use(this) from the UseList of each input Value
+  void removeAllInputs();
+
+  /// clear m_Outputs and the Define(this) of each output Value
+  void removeAllOutputs();
+
   /// replace input value @ref pIdx by @ref pValue
   void replaceInput(unsigned int pIdx, onnc::Value& pValue);
 
   /// replace output value @ref pIdx by @ref pValue
   void replaceOutput(unsigned int pIdx, onnc::Value& pValue);
+
+  /// remove Use(this) from the UseList of each input Value
+  void removeInput(unsigned int pIdx);
 
   /// Use covariant return type to override this function
   virtual onnc::Value* getOutput(unsigned int pIdx) { return m_Outputs[pIdx]; }

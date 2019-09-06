@@ -10,6 +10,7 @@
 #include <onnc/Core/PassSupport.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Support/String.h>
 #include <onnc/Config/ONNX.h>
 #include <onnc/IR/Dump.h>
 
@@ -26,11 +27,7 @@ namespace onnc {
 namespace detail {
   std::string getDisplayName(const xNode& node)
   {
-    if (!node.name().empty()) {
-      return node.name();
-    }
-
-    return node.kind().toString();
+    return to_string(node.kind().toString(), "(name=\"", node.name(), "\")");
   }
 } // namespace detail
 } // namespace onnc

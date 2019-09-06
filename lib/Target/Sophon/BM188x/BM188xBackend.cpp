@@ -41,6 +41,7 @@
 #include <onnc/Analysis/UpdateGraphOutputSize.h>
 #include <onnc/IR/ONNCModulePrinter.h>
 #include <onnc/Support/Casting.h>
+#include <onnc/Support/Memory.h>
 #include <onnc/Support/OFStream.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
 #include <onnc/Transforms/BuildInitializers.h>

@@ -1,0 +1,515 @@
+diff --git a/kmd/port/linux/include/nvdla_ioctl.h b/kmd/port/linux/include/nvdla_ioctl.h
+index 3c8ec3a..8100387 100644
+--- a/kmd/port/linux/include/nvdla_ioctl.h
++++ b/kmd/port/linux/include/nvdla_ioctl.h
+@@ -65,7 +65,7 @@ struct nvdla_mem_handle {
+  *
+  */
+ struct nvdla_ioctl_submit_task {
+-#define NVDLA_MAX_BUFFERS_PER_TASK (6144)
++#define NVDLA_MAX_BUFFERS_PER_TASK (30000)
+ 	__u32 num_addresses;
+ #define NVDLA_NO_TIMEOUT    (0xffffffff)
+ 	__u32 timeout;
+diff --git a/umd/core/common/EMUInterface.cpp b/umd/core/common/EMUInterface.cpp
+index da13564..dff7570 100644
+--- a/umd/core/common/EMUInterface.cpp
++++ b/umd/core/common/EMUInterface.cpp
+@@ -118,6 +118,18 @@ EMUCommonOpDescAccessor EMUSoftmaxOpDescAccessor::commonOpDescAccessor() const {
+ NvU8 * EMUSoftmaxOpDescAccessor::axis()   const { return _n.axis(_base); }
+ 
+ 
++//
++// emu_log_op_desc
++//
++EMULogOpDescAccessor::EMULogOpDescAccessor(NvU8 *base, const EMULogOpDesc &n) : _base(base), _n(n) { }
++
++NvU8 * EMULogOpDescAccessor::struct_base()  const { return _base;      }
++size_t EMULogOpDescAccessor::struct_size()  const { return _n.struct_size();  }
++size_t EMULogOpDescAccessor::struct_align() const { return _n.struct_align(); }
++
++EMUCommonOpDescAccessor EMULogOpDescAccessor::commonOpDescAccessor() const { return _n.commonOpDescAccessor(_base); }
++
++
+ //
+ // emu_operation_container
+ //
+@@ -129,6 +141,7 @@ size_t EMUOperationContainerAccessor::struct_align() const { return _n.struct_al
+ 
+ EMUPowerOpDescAccessor EMUOperationContainerAccessor::powerOpDescAccessor(size_t c) const { return _n.powerOpDescAccessor(_base, c); }
+ EMUSoftmaxOpDescAccessor EMUOperationContainerAccessor::softmaxOpDescAccessor(size_t c) const { return _n.softmaxOpDescAccessor(_base, c); }
++EMULogOpDescAccessor EMUOperationContainerAccessor::logOpDescAccessor(size_t c) const { return _n.logOpDescAccessor(_base, c); }
+ 
+ 
+ //
+@@ -176,6 +189,19 @@ EMUBufferDescAccessor EMUSoftmaxBufferDescsAccessor::srcDataAccessor() const { r
+ EMUBufferDescAccessor EMUSoftmaxBufferDescsAccessor::dstDataAccessor() const { return _n.dstDataAccessor(_base); }
+ 
+ 
++//
++// emu_log_buffer_descs
++//
++EMULogBufferDescsAccessor::EMULogBufferDescsAccessor(NvU8 *base, const EMULogBufferDescs &n) : _base(base), _n(n) { }
++
++NvU8 * EMULogBufferDescsAccessor::struct_base()  const { return _base;      }
++size_t EMULogBufferDescsAccessor::struct_size()  const { return _n.struct_size();  }
++size_t EMULogBufferDescsAccessor::struct_align() const { return _n.struct_align(); }
++
++EMUBufferDescAccessor EMULogBufferDescsAccessor::srcDataAccessor() const { return _n.srcDataAccessor(_base); }
++EMUBufferDescAccessor EMULogBufferDescsAccessor::dstDataAccessor() const { return _n.dstDataAccessor(_base); }
++
++
+ //
+ // emu_operation_buffer_container
+ //
+@@ -187,6 +213,7 @@ size_t EMUOperationBufferContainerAccessor::struct_align() const { return _n.str
+ 
+ EMUPowerBufferDescsAccessor EMUOperationBufferContainerAccessor::powerBufferDescsAccessor(size_t c) const { return _n.powerBufferDescsAccessor(_base, c); }
+ EMUSoftmaxBufferDescsAccessor EMUOperationBufferContainerAccessor::softmaxBufferDescsAccessor(size_t c) const { return _n.softmaxBufferDescsAccessor(_base, c); }
++EMULogBufferDescsAccessor EMUOperationBufferContainerAccessor::logBufferDescsAccessor(size_t c) const { return _n.logBufferDescsAccessor(_base, c); }
+ 
+ 
+ //
+diff --git a/umd/core/common/EMUInterfaceA.cpp b/umd/core/common/EMUInterfaceA.cpp
+index 3d6c38f..0983ef8 100644
+--- a/umd/core/common/EMUInterfaceA.cpp
++++ b/umd/core/common/EMUInterfaceA.cpp
+@@ -165,6 +165,26 @@ protected:
+ static EMUSoftmaxOpDescA g_emu_softmax_op_desc;
+ 
+ 
++//
++// struct emu_log_op_desc
++//
++class EMULogOpDescA : public EMULogOpDesc
++{
++public:
++    virtual ~EMULogOpDescA() { }
++
++    virtual size_t struct_size()  const { return sizeof(emu_log_op_desc);    }
++    virtual size_t struct_align() const { return 4; }
++
++    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const { return EMUCommonOpDescAccessor(cir(&(ric(base)->common)), g_emu_common_op_desc); }
++
++protected:
++    static inline NvU8          *cir(emu_common_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
++    static inline emu_log_op_desc *ric(NvU8 *base)              { return reinterpret_cast<emu_log_op_desc *>(base); }
++};
++static EMULogOpDescA g_emu_log_op_desc;
++
++
+ //
+ // struct emu_operation_container
+ //
+@@ -178,10 +198,12 @@ public:
+ 
+     virtual EMUPowerOpDescAccessor powerOpDescAccessor(NvU8 *base, size_t c) const { return EMUPowerOpDescAccessor(sir(&(ric(base)[c].power_op)), g_emu_power_op_desc); }
+     virtual EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(NvU8 *base, size_t c) const { return EMUSoftmaxOpDescAccessor(sir(&(ric(base)[c].softmax_op)), g_emu_softmax_op_desc); }
++    virtual EMULogOpDescAccessor logOpDescAccessor(NvU8 *base, size_t c) const { return EMULogOpDescAccessor(sir(&(ric(base)[c].log_op)), g_emu_log_op_desc); }
+ 
+ protected:
+     static inline NvU8          *sir(emu_power_op_desc *c)       { return reinterpret_cast<NvU8 *>(c);             }
+     static inline NvU8          *sir(emu_softmax_op_desc *c)     { return reinterpret_cast<NvU8 *>(c);             }
++    static inline NvU8          *sir(emu_log_op_desc *c)         { return reinterpret_cast<NvU8 *>(c);             }
+     static inline emu_operation_container *ric(NvU8 *base)       { return reinterpret_cast<emu_operation_container *>(base); }
+ };
+ static EMUOperationContainerA g_emu_operation_container;
+@@ -258,6 +280,28 @@ protected:
+ static EMUSoftmaxBufferDescsA g_emu_softmax_buffer_descs;
+ 
+ 
++//
++// struct emu_log_buffer_descs
++//
++
++class EMULogBufferDescsA : public EMULogBufferDescs
++{
++public:
++    virtual ~EMULogBufferDescsA() { }
++
++    virtual size_t struct_size()  const { return sizeof(emu_log_buffer_descs);    }
++    virtual size_t struct_align() const { return 4; }
++
++    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->src_data), g_emu_buffer_desc); }
++    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const { return EMUBufferDescAccessor(dir(&ric(base)->dst_data), g_emu_buffer_desc); }
++
++protected:
++    static inline NvU8          *dir(emu_buffer_desc *d)    { return reinterpret_cast<NvU8 *>(d);             }
++    static inline emu_log_buffer_descs *ric(NvU8 *base)     { return reinterpret_cast<emu_log_buffer_descs *>(base); }
++};
++static EMULogBufferDescsA g_emu_log_buffer_descs;
++
++
+ //
+ // struct emu_operation_buffer_container
+ //
+@@ -279,9 +323,15 @@ public:
+         return EMUSoftmaxBufferDescsAccessor(sir( &(ric(base)[c]).softmax_buffers), g_emu_softmax_buffer_descs);
+     }
+ 
++    virtual EMULogBufferDescsAccessor logBufferDescsAccessor(NvU8 *base, size_t c) const
++    {
++        return EMULogBufferDescsAccessor(sir( &(ric(base)[c]).log_buffers), g_emu_log_buffer_descs);
++    }
++
+ protected:
+     static inline NvU8 *sir(emu_power_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
+     static inline NvU8 *sir(emu_softmax_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
++    static inline NvU8 *sir(emu_log_buffer_descs *c) { return reinterpret_cast<NvU8 *>(c); }
+     static inline emu_operation_buffer_container *ric(NvU8 *base)  { return reinterpret_cast<emu_operation_buffer_container *>(base); }
+ };
+ static EMUOperationBufferContainerA g_emu_operation_buffer_container;
+diff --git a/umd/core/common/include/priv/EMUInterface.h b/umd/core/common/include/priv/EMUInterface.h
+index 6122e46..5456fac 100644
+--- a/umd/core/common/include/priv/EMUInterface.h
++++ b/umd/core/common/include/priv/EMUInterface.h
+@@ -257,6 +257,38 @@ protected:
+ };
+ 
+ 
++//
++// struct emu_log_op_desc
++//
++class EMULogOpDesc
++{
++public:
++    virtual size_t struct_size()  const = 0;
++    virtual size_t struct_align() const = 0;
++
++    virtual EMUCommonOpDescAccessor commonOpDescAccessor(NvU8 *base) const = 0;
++
++protected:
++    EMULogOpDesc()          { }
++    virtual ~EMULogOpDesc() { }
++};
++
++class EMULogOpDescAccessor
++{
++public:
++    NvU8 * struct_base()  const;
++    size_t struct_size()  const;
++    size_t struct_align() const;
++
++    EMUCommonOpDescAccessor commonOpDescAccessor() const;
++    EMULogOpDescAccessor(NvU8 *base, const EMULogOpDesc &);
++
++protected:
++    NvU8 *_base;
++    const EMULogOpDesc &_n;
++};
++
++
+ //
+ // union emu_operation_container
+ //
+@@ -268,6 +300,7 @@ public:
+ 
+     virtual EMUPowerOpDescAccessor powerOpDescAccessor(NvU8 *base, size_t c) const = 0;
+     virtual EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(NvU8 *base, size_t c) const = 0;
++    virtual EMULogOpDescAccessor logOpDescAccessor(NvU8 *base, size_t c) const = 0;
+ 
+ protected:
+     EMUOperationContainer()          { }
+@@ -283,6 +316,7 @@ public:
+ 
+     EMUPowerOpDescAccessor powerOpDescAccessor(size_t c) const;
+     EMUSoftmaxOpDescAccessor softmaxOpDescAccessor(size_t c) const;
++    EMULogOpDescAccessor logOpDescAccessor(size_t c) const;
+ 
+     EMUOperationContainerAccessor(NvU8 *base, const EMUOperationContainer &);
+ 
+@@ -409,6 +443,41 @@ protected:
+ };
+ 
+ 
++//
++// struct emu_log_buffer_descs
++//
++class EMULogBufferDescs
++{
++public:
++    virtual size_t struct_size()  const = 0;
++    virtual size_t struct_align() const = 0;
++
++    virtual EMUBufferDescAccessor srcDataAccessor(NvU8 *base) const = 0;
++    virtual EMUBufferDescAccessor dstDataAccessor(NvU8 *base) const = 0;
++
++protected:
++    EMULogBufferDescs()          { }
++    virtual ~EMULogBufferDescs() { }
++};
++
++class EMULogBufferDescsAccessor
++{
++public:
++    NvU8 * struct_base()  const;
++    size_t struct_size()  const;
++    size_t struct_align() const;
++
++    EMUBufferDescAccessor srcDataAccessor() const;
++    EMUBufferDescAccessor dstDataAccessor() const;
++
++    EMULogBufferDescsAccessor(NvU8 *base, const EMULogBufferDescs &);
++
++protected:
++    NvU8 *_base;
++    const EMULogBufferDescs &_n;
++};
++
++
+ //
+ // union emu_operation_buffer_container
+ //
+@@ -420,6 +489,7 @@ public:
+ 
+     virtual EMUPowerBufferDescsAccessor powerBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+     virtual EMUSoftmaxBufferDescsAccessor softmaxBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
++    virtual EMULogBufferDescsAccessor logBufferDescsAccessor(NvU8 *base, size_t c) const = 0;
+ 
+ protected:
+     EMUOperationBufferContainer()          { }
+@@ -435,6 +505,7 @@ public:
+ 
+     EMUPowerBufferDescsAccessor powerBufferDescsAccessor(size_t c) const;
+     EMUSoftmaxBufferDescsAccessor softmaxBufferDescsAccessor(size_t c) const;
++    EMULogBufferDescsAccessor logBufferDescsAccessor(size_t c) const;
+ 
+     EMUOperationBufferContainerAccessor(NvU8 *base, const EMUOperationBufferContainer &);
+ 
+diff --git a/umd/core/common/include/priv/EMUInterfaceEnums.h b/umd/core/common/include/priv/EMUInterfaceEnums.h
+index 2878c76..95f0c2d 100644
+--- a/umd/core/common/include/priv/EMUInterfaceEnums.h
++++ b/umd/core/common/include/priv/EMUInterfaceEnums.h
+@@ -42,6 +42,12 @@
+ // for class EMUOpType::SOFTMAX, ...
+ #define EMU_OP_TYPE_ENUMS(op)               \
+     op(POWER, 0U)                           \
+-    op(SOFTMAX, 1U)
++    op(SOFTMAX, 1U)                         \
++    op(LOG, 2U)
++
++#define ENUM_MACRO(x, y) x = y,
++
++enum class EMUBufferType { EMU_BUFFER_TYPE_ENUMS(ENUM_MACRO) };
++enum class EMUOpType { EMU_OP_TYPE_ENUMS(ENUM_MACRO) };
+ 
+ #endif // NVDLA_PRIV_EMU_INTERFACE_ENUMS_H
+diff --git a/umd/core/common/include/priv/emu/emu1/A/emu_interface.h b/umd/core/common/include/priv/emu/emu1/A/emu_interface.h
+index 1b0f694..35b950f 100644
+--- a/umd/core/common/include/priv/emu/emu1/A/emu_interface.h
++++ b/umd/core/common/include/priv/emu/emu1/A/emu_interface.h
+@@ -29,7 +29,7 @@
+ #ifndef NVDLA_PRIV_EMU_EMU1_A_EMU_INTERFACE_H
+ #define NVDLA_PRIV_EMU_EMU1_A_EMU_INTERFACE_H
+ 
+-#define NVDLA_EMU_MAX_BUFFERS_PER_TASK (6144)
++#define NVDLA_EMU_MAX_BUFFERS_PER_TASK (30000)
+ 
+ /**
+  * @name Op Type
+@@ -38,6 +38,7 @@
+  */
+ #define NVDLA_EMU_OP_POWER    0
+ #define NVDLA_EMU_OP_SOFTMAX  1
++#define NVDLA_EMU_OP_LOG      2
+ /** @} */
+ 
+ /**
+@@ -91,10 +92,16 @@ struct emu_softmax_op_desc
+     NvU8 axis;
+ } __attribute__ ((packed, aligned(4)));
+ 
++struct emu_log_op_desc
++{
++    emu_common_op_desc common;
++} __attribute__ ((packed, aligned(4)));
++
+ union emu_operation_container
+ {
+     struct emu_power_op_desc power_op;
+     struct emu_softmax_op_desc softmax_op;
++    struct emu_log_op_desc log_op;
+ };
+ 
+ struct emu_buffer_desc
+@@ -130,10 +137,18 @@ struct emu_softmax_buffer_descs
+     struct emu_buffer_desc dst_data;
+ } __attribute__ ((packed, aligned(4)));
+ 
++struct emu_log_buffer_descs
++{
++    /* Buffer Descriptors */
++    struct emu_buffer_desc src_data;
++    struct emu_buffer_desc dst_data;
++} __attribute__ ((packed, aligned(4)));
++
+ union emu_operation_buffer_container
+ {
+     struct emu_power_buffer_descs power_buffers;
+     struct emu_softmax_buffer_descs softmax_buffers;
++    struct emu_log_buffer_descs log_buffers;
+ };
+ 
+ 
+diff --git a/umd/core/runtime/Emulator.cpp b/umd/core/runtime/Emulator.cpp
+index fa1991e..ecf9c33 100644
+--- a/umd/core/runtime/Emulator.cpp
++++ b/umd/core/runtime/Emulator.cpp
+@@ -186,19 +186,26 @@ bool Emulator::processTask(NvU8* task_mem, std::vector<NvU8*> addressList)
+     EMUOperationBufferContainerAccessor operation_buffer_container_0 = emu_if->operationBufferContainerAccessor(addressList[*network_desc.operationBufferDescIndex()]);
+     EMUCommonOpDescAccessor common_op_desc_0 = operation_container_0.softmaxOpDescAccessor(0).commonOpDescAccessor();
+ 
+-    if (*common_op_desc_0.op_type() == 0 /* POWER */)
++    EMUOpType opType = (EMUOpType)*common_op_desc_0.op_type();
++    if (opType == EMUOpType::POWER)
+     {
+         EMUPowerOpDescAccessor power_op_desc = operation_container_0.powerOpDescAccessor(0);
+         EMUPowerBufferDescsAccessor power_op_buffer_descs = operation_buffer_container_0.powerBufferDescsAccessor(0);
+ 
+         executePower(power_op_desc, power_op_buffer_descs, addressList);
+ 
+-    } else if (*common_op_desc_0.op_type() == 1 /* SOFTMAX */) {
++    } else if (opType == EMUOpType::SOFTMAX) {
+         EMUSoftmaxOpDescAccessor softmax_op_desc = operation_container_0.softmaxOpDescAccessor(0);
+         EMUSoftmaxBufferDescsAccessor softmax_op_buffer_descs = operation_buffer_container_0.softmaxBufferDescsAccessor(0);
+ 
+         executeSoftmax(softmax_op_desc, softmax_op_buffer_descs, addressList);
+ 
++    } else if (opType == EMUOpType::LOG) {
++        EMULogOpDescAccessor log_op_desc = operation_container_0.logOpDescAccessor(0);
++        EMULogBufferDescsAccessor log_op_buffer_descs = operation_buffer_container_0.logBufferDescsAccessor(0);
++
++        executeLog(log_op_desc, log_op_buffer_descs, addressList);
++
+     } else {
+         NvDlaDebugPrintf("Unknown op type %u\n", *common_op_desc_0.op_type());
+     }
+@@ -322,5 +329,76 @@ bool Emulator::executeSoftmax(EMUSoftmaxOpDescAccessor opDesc, EMUSoftmaxBufferD
+ }
+ 
+ 
++bool Emulator::executeLog(EMULogOpDescAccessor opDesc, EMULogBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList)
++{
++    EMUBufferDescAccessor src = bufDescs.srcDataAccessor();
++    EMUBufferDescAccessor dst = bufDescs.dstDataAccessor();
++
++    if ( debugOps() )
++    {
++        NvDlaDebugPrintf("Processing log\n");
++        NvDlaDebugPrintf("src format %u\n", *src.format());
++        NvDlaDebugPrintf("\taddress[%u] 0x%llx (%ux%ux%u) %uB\n", *src.addressIndex(), addressList[*src.addressIndex()], *src.width(), *src.height(), *src.channel(), *src.size());
++        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *src.lineStride(), *src.surfStride());
++
++        NvDlaDebugPrintf("dst format %u\n", *dst.format());
++        NvDlaDebugPrintf("\taddress[%u] 0x%llx (%ux%ux%u) %uB\n", *dst.addressIndex(), addressList[*dst.addressIndex()], *dst.width(), *dst.height(), *dst.channel(), *dst.size());
++        NvDlaDebugPrintf("\tline_stride %uB surface_stride %uB\n", *dst.lineStride(), *dst.surfStride());
++    }
++
++    NvU8* pSrc = addressList[*src.addressIndex()];
++    NvU8* pDst = addressList[*dst.addressIndex()];
++
++    // Execute
++    for (NvU32 channel=0; channel<*src.channel(); channel++)
++    {
++        for (NvU32 height=0; height<*src.height(); height++)
++        {
++            for (NvU32 width=0; width<*src.width(); width++)
++            {
++                NvU32 srcoffset = 0;
++                NvU32 dstoffset = 0;
++                if (getAddrOffset(src, width, height, channel, &srcoffset) != NvDlaSuccess)
++                    return false;
++                if (getAddrOffset(dst, width, height, channel, &dstoffset) != NvDlaSuccess)
++                    return false;
++
++                EMUBufferType srcFormat = (EMUBufferType)*src.format();
++                EMUBufferType dstFormat = (EMUBufferType)*dst.format();
++                if (srcFormat == EMUBufferType::DLA_FEATURE_INT8_FORMAT &&
++                    dstFormat == EMUBufferType::DLA_FEATURE_INT8_FORMAT) {
++                    NvS8* srcint8 = reinterpret_cast<NvS8*>(pSrc + srcoffset);
++                    NvS8* dstint8 = reinterpret_cast<NvS8*>(pDst + dstoffset);
++
++                    NvF32 x = float(*srcint8);
++                    NvF32 y = rintf(logf(x));
++                    *dstint8 = (NvS8)y;
++                } else if (srcFormat == EMUBufferType::DLA_FEATURE_INT16_FORMAT &&
++                           dstFormat == EMUBufferType::DLA_FEATURE_INT16_FORMAT) {
++                    NvS16* srcint16 = reinterpret_cast<NvS16*>(pSrc + srcoffset);
++                    NvS16* dstint16 = reinterpret_cast<NvS16*>(pDst + dstoffset);
++
++                    NvF32 x = float(*srcint16);
++                    NvF32 y = rintf(logf(x));
++                    *dstint16 = (NvS16)y;
++                } else if (srcFormat == EMUBufferType::DLA_FEATURE_FP16_FORMAT &&
++                           dstFormat == EMUBufferType::DLA_FEATURE_FP16_FORMAT) {
++                    half_float::half* srchalfp = reinterpret_cast<half_float::half*>(pSrc + srcoffset);
++                    half_float::half* dsthalfp = reinterpret_cast<half_float::half*>(pDst + dstoffset);
++
++                    NvF32 x = float(*srchalfp);
++                    NvF32 y = logf(x);
++                    *dsthalfp = half(y);
++                } else {
++                    return false;
++                }
++            }
++        }
++    }
++
++
++    return true;
++}
++
+ } // nvdla::priv
+ } // nvdla
+diff --git a/umd/core/runtime/include/priv/Emulator.h b/umd/core/runtime/include/priv/Emulator.h
+index c75d5a1..140ea11 100644
+--- a/umd/core/runtime/include/priv/Emulator.h
++++ b/umd/core/runtime/include/priv/Emulator.h
+@@ -66,6 +66,7 @@ protected:
+ 
+     bool executePower(EMUPowerOpDescAccessor opDesc, EMUPowerBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
+     bool executeSoftmax(EMUSoftmaxOpDescAccessor opDesc, EMUSoftmaxBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
++    bool executeLog(EMULogOpDescAccessor opDesc, EMULogBufferDescsAccessor bufDescs, std::vector<NvU8*> addressList);
+ 
+ private:
+     std::queue<NvU8*> m_taskQueue;
+diff --git a/umd/include/nvdla_inf.h b/umd/include/nvdla_inf.h
+index cd0bc24..fb011a0 100644
+--- a/umd/include/nvdla_inf.h
++++ b/umd/include/nvdla_inf.h
+@@ -32,7 +32,7 @@
+ #include "dlaerror.h"
+ #include "dlatypes.h"
+ 
+-#define NVDLA_MAX_BUFFERS_PER_TASK (6144)
++#define NVDLA_MAX_BUFFERS_PER_TASK (30000)
+ 
+ struct NvDlaMemDescRec{
+     void *handle;
+diff --git a/umd/port/linux/include/nvdla_ioctl.h b/umd/port/linux/include/nvdla_ioctl.h
+index 8be9631..052cdb9 100644
+--- a/umd/port/linux/include/nvdla_ioctl.h
++++ b/umd/port/linux/include/nvdla_ioctl.h
+@@ -65,7 +65,7 @@ struct nvdla_mem_handle {
+  *
+  */
+ struct nvdla_ioctl_submit_task {
+-#define NVDLA_MAX_BUFFERS_PER_TASK (6144)
++#define NVDLA_MAX_BUFFERS_PER_TASK (30000)
+     __u32 num_addresses;
+ #define NVDLA_NO_TIMEOUT    (0xffffffff)
+     __u32 timeout;
+diff --git a/umd/tests/runtime/DlaImageUtils.cpp b/umd/tests/runtime/DlaImageUtils.cpp
+index 5e7c499..2624bfc 100644
+--- a/umd/tests/runtime/DlaImageUtils.cpp
++++ b/umd/tests/runtime/DlaImageUtils.cpp
+@@ -128,8 +128,7 @@ NvDlaError JPEG2DIMG(std::string inputFileName, NvDlaImage* output)
+ #if defined(JCS_EXTENSIONS)
+         case JCS_YCbCr: // FIXME: dont know how to handle compression yet
+         case JCS_RGB:
+-            info.out_color_space = JCS_EXT_BGR;                    // FIXME: currently extracting as BGR (since caffe ref model assumes BGR)
+-            output->m_meta.surfaceFormat = NvDlaImage::T_B8G8R8;
++            output->m_meta.surfaceFormat = NvDlaImage::T_R8G8B8;
+             output->m_meta.channel = 3;
+             break;
+         case JCS_EXT_RGB: // upsizing to 4 Chnls from 3 Chnls

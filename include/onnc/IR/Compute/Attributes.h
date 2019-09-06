@@ -10,6 +10,8 @@
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/ComputeGraph.h>
 #include <onnc/ADT/ConstSwitch.h>
+
+#include <initializer_list>
 #include <string>
 
 namespace onnc {
@@ -59,9 +61,12 @@ private:
   Type m_Kind;
 };
 
-template<typename ValueType, Attribute::Type Kind>
+template<typename ValueTypeT, Attribute::Type Kind>
 class ScalarAttribute : public Attribute
 {
+public:
+  using ValueType = ValueTypeT;
+
 public:
   ScalarAttribute()
     : Attribute(Kind), m_Value() {
@@ -98,15 +103,21 @@ private:
   ValueType m_Value;
 };
 
-template<typename ValueType, Attribute::Type Kind>
+template<typename ValueTypeT, Attribute::Type Kind>
 class VectorAttribute : public Attribute
 {
 public:
-  typedef std::vector<ValueType> VectorType;
+  using VectorType = std::vector<ValueTypeT>;
+  using ValueType = ValueTypeT;
+  using Size = typename VectorType::size_type;
 
 public:
   VectorAttribute()
     : Attribute(Kind), m_Vector() {
+  }
+
+  VectorAttribute(std::initializer_list<ValueType> list)
+    : Attribute(Kind), m_Vector(list) {
   }
 
   VectorAttribute(const VectorType& pVector)
@@ -123,7 +134,7 @@ public:
 
   /// fill constructor.
   /// Constructs a container with pN elements. Each element is a copy of pV
-  VectorAttribute(typename VectorType::size_type pN, const ValueType& pV)
+  VectorAttribute(typename VectorType::size_type pN, const ValueTypeT& pV)
     : Attribute(Kind), m_Vector(pN, pV) {
   }
 
@@ -139,9 +150,9 @@ public:
 
   const VectorType& vector() const { return m_Vector; }
 
-  ValueType& at(unsigned int pIdx) { return m_Vector.at(pIdx); }
+  ValueType& at(Size pIdx) { return m_Vector.at(pIdx); }
 
-  const ValueType& at(unsigned int pIdx) const { return m_Vector.at(pIdx); }
+  const ValueType& at(Size pIdx) const { return m_Vector.at(pIdx); }
 
   void print(std::ostream& pOS) const override;
 

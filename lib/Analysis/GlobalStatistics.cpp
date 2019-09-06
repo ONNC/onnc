@@ -8,6 +8,7 @@
 #include <onnc/Analysis/GlobalStatistics.h>
 #include <onnc/Analysis/Statistics.h>
 #include <onnc/Support/ManagedStatic.h>
+#include <onnc/Support/Memory.h>
 
 #include <memory>
 

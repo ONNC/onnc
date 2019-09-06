@@ -7,7 +7,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_CORE_CUSTOM_PASS_H
 #define ONNC_CORE_CUSTOM_PASS_H
+
 #include <onnc/Core/ModulePass.h>
+#include <onnc/IR/ComputeGraph.h>
 
 #include <type_traits>
 #include <typeinfo>
@@ -50,6 +52,28 @@ public:
 
   StringRef getPassName() const override {
     return typeid(PassType).name();
+  }
+
+  typename ParentType::ReturnType runOnModule(Module& module) override {
+    if (!std::is_same<ModulePass, ParentType>::value) {
+      return ParentType::runOnModule(module);
+    }
+
+    typename ParentType::ReturnType result = Pass::kModuleNoChanged;
+
+    for (Module::cg_iterator next = module.cgBegin(); next != module.cgEnd(); ++next) {
+      if ((result & ParentType::kPassFailure) != 0 || (result & ParentType::kPassRetry) != 0) {
+        break;
+      }
+
+      result |= runOnComputeGraph(*next->value());
+    }
+
+    return result;
+  }
+
+  virtual typename ParentType::ReturnType runOnComputeGraph(ComputeGraph& graph) {
+    return ParentType::kModuleNoChanged;
   }
 };
 

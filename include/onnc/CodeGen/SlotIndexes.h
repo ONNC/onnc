@@ -100,9 +100,7 @@ public:
     clear();
   }
 
-  ReturnType runOnModule(Module& pModule) override;
-
-  void runOnComputeGraph(ComputeGraph& pCG);
+  ReturnType runOnComputeGraph(ComputeGraph& pCG) override;
 
   bool hasSlotIndex(const ComputeOperator* pOp) const;
 

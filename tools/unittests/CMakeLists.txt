@@ -21,6 +21,7 @@ function(add_onnc_test name)
     endif()
 endfunction()
 
+add_subdirectory(Optimizations)
 add_subdirectory(Runtime)
 
 add_onnc_test(Digraph DigraphTest.cpp)

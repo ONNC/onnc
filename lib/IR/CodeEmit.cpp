@@ -14,15 +14,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // CodeEmit
 //===----------------------------------------------------------------------===//
-Pass::ReturnType CodeEmit::runOnModule(Module& pModule)
-{
-  unsigned result = Pass::kModuleNoChanged;
-  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
-  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
-    result |= runOnComputeGraph(*cg->value());
-  return result;
-}
-
 Pass::ReturnType CodeEmit::runOnComputeGraph(ComputeGraph& pCG)
 {
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();

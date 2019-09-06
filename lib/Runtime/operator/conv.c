@@ -124,7 +124,7 @@ void ONNC_RUNTIME_conv_float(
     if (ndim == 4) {
       typedef const float (*input_tensor_type )[input_X_dims[1] ][input_X_dims[2] ][input_X_dims[3] ];
       typedef const float (*weight_tensor_type)[input_W_dims[1] ][input_W_dims[2] ][input_W_dims[3] ];
-      typedef       float (*output_tensor_type)[output_Y_dims[1]][output_Y_dims[2]][output_Y_dims[3]];
+      typedef       float (*output_tensor_type)[input_W_dims[0] ][output_Y_dims[2]][output_Y_dims[3]];
 
       ONNC_RUNTIME_conv_2d_float(onnc_runtime_context,
                                  input_X_dims[0], input_X_dims[1],
@@ -134,7 +134,7 @@ void ONNC_RUNTIME_conv_float(
                                  input_W_dims[2], input_W_dims[3],
                                  (weight_tensor_type)input_W,
                                  input_B,
-                                 output_Y_dims[0], output_Y_dims[1],
+                                 output_Y_dims[0], input_W_dims[0],
                                  output_Y_dims[2], output_Y_dims[3],
                                  (output_tensor_type)output_Y,
                                  0,

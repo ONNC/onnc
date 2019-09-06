@@ -8,7 +8,7 @@ This application note demonstrates how to create an ONNC backend for a target ha
 
 ONNC is a collection of open source, modular, reusable compiler algorithms, and tool chains targeted on deep learning accelerators (DLAs). ONNC has been built from ground up for translating ONNX intermediate representations (IRs) to proprietary DLA code. Its software architecture design emphasizes portability and reusability, thus simplifying retargeting. Figure 1 depicts the top-level block diagram of ONNC software stacks. The software stack illustrates the functional blocks from importing an ONNX computation graph model to emitting corresponding hardware binaries. In addition to leveraging the LLVM backend, ONNC paves another fast track for proprietary DLAs to execute ONNX models by defining ONNC IR, an intermediate representation (IR) that has one-to-one mapping to the ONNX IR. Two other popular compilation frameworks in deep learning systems, TVM and Glow, built their software stacks on top of the LLVM backend. The intermediate representations of LLVM have a finer granularity than ONNC IRs while mapping to hardware operators. For accelerators built with coarse-grained operators such as convolution, it requires more porting efforts to hack the LLVM backend. Many DLA designs such as Nvidia’s [NVDLA](http://nvdla.org/) and Bitman’s [Sophon BM168X series](https://sophon.ai/product/introduce/bm1682.html) favor coarse-grained operators over LLVM operators. In those cases, ONNC provides a more straightforward way to convert ONNX models to target binaries using its own Vanilla backend. thus speeding up porting a compiler to new hardware. For fast porting, users only need to copy the Vanilla backend as a template, override two software pipes at minimum, add optional optimization passes and the framework will handle the rest of work like a charm.
 
-![](https://github.com/ONNC/onnc/wiki/files/1.0.0/onnc-software-architecture-diagram.png)
+![](https://github.com/ONNC/onnc/wiki/files/1.2.0/onnc-software-architecture-diagram.png)
 
 **Figure 1. ONNC Software Architecture Diagram**
  
@@ -196,23 +196,24 @@ The `codeEmit` pass is added to handle code generation for the target backend. P
 The generated backend has included some optimization algorithms by default. Each algorithm is implemented in ONNC as a “pass” (the same concept as the LLVM pass). The default optimization passes may not fit your need so you need to develop your own passes and then edit `FooBackend.cpp` to add those passes into the compilation flow. Below is an example of adding a pass. Refer to the application note, [Pass Manager Getting Started Guide](ONNC-Pass-Manager-Getting-Started-Guide.md),  for more details about how to add a pass.
 
 ```cpp
-void FooBackend::addTensorSel(PassManager& pPM)
+void FooBackend::addOnncIrOptimization(PassManager& pPM, OptimizationOptions& options)
 {
-  ...
+  TargetBackend::addOnncIrOptimization(pPM, options);
   // One example of adding your optimization pass. 
-  pPM.add(CreateYourProprietaryPass());
+  pPM.add<YourProprietaryPass>();
 }
 ```
 **Code Snippet 2. Example of adding an optimization pass into a backend.**
  
-In the above example, the optimization pass is added in the method, `addTensorSel()`. There are four stages in the compilation flow for users to add passes. Each stage in the compilation flow is implemented in a corresponding method. The following table shows the meaning and input/output of each method. 
+In the above example, the optimization pass is added in the method, `addOnncIrOptimization()`. There are five stages in the compilation flow for users to add passes. Each stage in the compilation flow is implemented in a corresponding method. The following table shows the meaning and input/output of each method. 
 
-**Table 2. The four methods representing the four compilation phases.**
+**Table 2. The five methods representing the five compilation phases.**
 
 | Method | Input | Output | Description |
 | ------ | ----- | ------ | ----------- |
 | `addTensorSel` | **ONNX IR** | **ONNC IR** | This method contains passes for translating models in the ONNX format into ONNC IR. |
-| `addTensorSched` | **ONNC IR** | **ONNC IR** in optimized order | This method contains passes for better scheduling the execution order of ONNC IR. |
+| `addOnncIrOptimization` | **ONNC IR** | **ONNC IR** in optimized order | This method contains passes for optimizing ONNC IR in order to better performance. |
+| `addTensorSched` | **ONNC IR** in optimized order | **ONNC IR** in optimized order | This method contains passes for better scheduling the execution order of ONNC IR. |
 | `addMemAlloc` | **ONNC IR** in optimized order | **ONNC IR** with addresses | This method contains passes for allocating memory space of input data, weights, and activation data. |
 | `addCodeEmit` | **ONNC IR** with address | **Machine codes** | This method contains passes for handling code generation and optimization. |
 

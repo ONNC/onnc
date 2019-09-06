@@ -1,0 +1,4 @@
+add_onnc_test(DivideGlobalAPIntoAPs DivideGlobalAPIntoAPsTest.cpp)
+add_onnc_test(PropagateConstWithDiffShape PropagateConstWithDiffShapeTest.cpp)
+add_onnc_test(ReplaceGemmByConv ReplaceGemmByConvTest.cpp)
+add_onnc_test(SplitConv SplitConvTest.cpp)

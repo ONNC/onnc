@@ -18,8 +18,9 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/JSON/Value.h>
 #include <iosfwd>
-#include <set>
 #include <list>
+#include <set>
+#include <type_traits>
 
 namespace onnc {
 
@@ -75,6 +76,9 @@ public:
   ///       a name which is already existing in Module will cause failure.
   template<typename ValueType, typename ... ValueCtorParams>
   ValueType* addValue(ValueCtorParams&& ... pParams);
+
+  template <typename ValueType>
+  ValueType* addValue(ValueType*);
 
   template<typename ValueType = onnc::Value>
   ValueType* getValue(StringRef pName);

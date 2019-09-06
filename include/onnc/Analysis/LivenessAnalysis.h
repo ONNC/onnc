@@ -16,6 +16,8 @@
 
 namespace onnc {
 
+namespace analysis {
+
 /** \class LiveInterval
  */
 class LiveInterval
@@ -42,12 +44,14 @@ protected:
   const xValue& m_Value;
 };
 
+} // namespace analysis
+
 /** \class GraphLivenessAnalysis
  */
 class GraphLivenessAnalysis : public CustomPass<GraphLivenessAnalysis>
 {
 public:
-  typedef std::vector<LiveInterval*> LiveIntervalList;
+  typedef std::vector<analysis::LiveInterval*> LiveIntervalList;
 
 public:
   GraphLivenessAnalysis() = default;

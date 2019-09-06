@@ -81,7 +81,6 @@ private:
   /// Time Complexity: O(#LiveSegments)
   void buildStartWithEndWith();
 
-  void runOnComputeGraph(ComputeGraph& pCG);
 
   /// Time Complexity:
   ///   O(#LiveSegments ^ 2)

@@ -21,7 +21,7 @@ namespace onnc {
 template<class AnalysisType>
 AnalysisType* Pass::getAnalysis() const
 {
-  static_assert(std::is_base_of<Pass, AnalysisType>::value);
+  static_assert(std::is_base_of<Pass, AnalysisType>::value, "type argument should be derived class of Pass");
 
   assert(hasResolver() && "Pass not reside a PassManager object!");
   return static_cast<AnalysisType*>(getResolver()->find(AnalysisType::id()));

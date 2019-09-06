@@ -2,22 +2,20 @@ if ENABLE_UNITTEST
 TEST_SOURCES = DigraphTest.cpp \
 	FileHandleTest.cpp \
 	PassManagerTest.cpp \
-	LivenessAnalysisTest.cpp \
-  QuadrupleTest.cpp \
+	QuadrupleTest.cpp \
 	StringRefTest.cpp \
 	AnyTest.cpp \
 	BinaryTreeTest.cpp \
 	StringSwitchTest.cpp \
 	StringMapTest.cpp \
-	StorageTest.cpp \
 	JsonValueTest.cpp \
 	JsonObjectTest.cpp \
+	StorageTest.cpp \
 	ComputeIRTest.cpp \
 	TensorSelTest.cpp \
+	StatisticsTest.cpp \
 	MemAllocTest.cpp \
-	ComputeGraphTest.cpp \
-	ONNXReaderTest.cpp \
-  StatisticsTest.cpp
+	CounterTest.cpp
 endif
 
 if ENABLE_REGRESSION

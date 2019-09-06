@@ -85,7 +85,7 @@ void ONNC_RUNTIME_slice_float(
   int32_t base = axisDistance[input_data_ndim-1] = 1;
   for(int32_t dim = input_data_ndim - 2  ; dim >= 0 ; dim--){
     axisDistance[dim] = base * input_data_dims[dim+1];
-    base *= input_data_dims[dim];
+    base = axisDistance[dim];
   }
 
   /* for loop */

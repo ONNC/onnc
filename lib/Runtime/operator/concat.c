@@ -1,52 +1,23 @@
-#include <onnc/Runtime/operator/concat.h>
-
 #include <stdint.h>
-#include <stdbool.h>
+typedef int32_t ONNC_INDEX_TYPE;
 
-void ONNC_RUNTIME_concat_float(
-  void * restrict onnc_runtime_context
-  ,const float * const * restrict input_inputs
-  ,int32_t input_inputs_ntensor
-  ,const int32_t * input_inputs_ndim, const int32_t * const * restrict input_inputs_dims
-  ,float * restrict output_concat_result
-  ,int32_t output_concat_result_ndim, const int32_t * restrict output_concat_result_dims
-  ,int32_t axis
-) {
-  int32_t elementDistance[input_inputs_ntensor];
-  for(int32_t ntensor = 0 ; ntensor < input_inputs_ntensor ; ntensor++){
-    elementDistance[ntensor] = 1;
-    for(int32_t dim = axis ; dim < input_inputs_ndim[ntensor] ; dim++){
-      elementDistance[ntensor] *= input_inputs_dims[ntensor][dim];
-    }
-  }
+#include "generic/size.h"
+#include <string.h>
 
-  int32_t size[input_inputs_ntensor];
-  for(int32_t ntensor = 0 ; ntensor < input_inputs_ntensor ; ntensor++){
-    size[ntensor] = elementDistance[ntensor];
-    for(int32_t dim = 0 ; dim < axis ; dim++){
-      size[ntensor] *= input_inputs_dims[ntensor][dim];
-    }
-  }
+void ONNC_RUNTIME_concat_float(void* restrict context,
+    const float* restrict* inputs, int32_t count, const int32_t* restrict ndims, const int32_t* restrict* shapes,
+    float* restrict output, int32_t ndim, const int32_t* restrict shape, int32_t axis)
+{
+    if (count) {
+        int32_t slices = onnc_size(shapes[0], axis);
+        int32_t block = onnc_size(shapes[0] + axis + 1, ndims[0] - axis - 1);
 
-  int32_t axisDim = input_inputs_dims[0][axis];
-  int32_t axisIndex = 0;
-  int32_t insertIndex = 0;
-  while(axisIndex < axisDim){
-    for(int32_t ntensor = 0; ntensor < input_inputs_ntensor ; ntensor++){
-      int32_t base = axisIndex * elementDistance[ntensor];
-      int32_t index = base;
-      int32_t nElementDistance = elementDistance[ntensor];
-      while(index < size[ntensor]){
-        output_concat_result[insertIndex] = input_inputs[ntensor][index];
-        insertIndex++;
-        if(index % nElementDistance == nElementDistance - 1){
-          index = index + 1 - nElementDistance + nElementDistance * axisDim;
+        for (int32_t j = 0; j < slices; ++j) {
+            for (int32_t i = 0; i < count; ++i) {
+                int32_t length = shapes[i][axis] * block;
+                memcpy(output, inputs[i] + j * length, length * sizeof(float));
+                output += length;
+            }
         }
-        else{
-          ++index;
-        }
-      }
     }
-    ++axisIndex;
-  }
 }

@@ -18,15 +18,6 @@ EncodeInstructions::EncodeInstructions(ComputeVisitor *pInstVisitor)
 {
 }
 
-Pass::ReturnType EncodeInstructions::runOnModule(::onnc::Module &pModule)
-{
-  unsigned result = Pass::kModuleNoChanged;
-  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
-  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
-    result |= runOnComputeGraph(*cg->value());
-  return result;
-}
-
 Pass::ReturnType
 EncodeInstructions::runOnComputeGraph(::onnc::ComputeGraph &pCG)
 {

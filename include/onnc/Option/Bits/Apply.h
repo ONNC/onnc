@@ -49,6 +49,13 @@ struct Applicator<const char*>
 };
 
 template<>
+struct Applicator<std::string>
+{
+  template<class Opt>
+  static void opt(const std::string& Str, Opt& O) { O.setArgStr(Str); }
+};
+
+template<>
 struct Applicator<Occurrence>
 {
   static void opt(Occurrence NO, OptDefs& pO) {

@@ -1,4 +1,4 @@
-//===- InterpreterPass.h --------------------------------------------------===//
+//===- NvDlaMemInfoPass.h -------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -8,20 +8,20 @@
 #ifndef ONNC_NVDLAMEMINFO_PASS_H
 #define ONNC_NVDLAMEMINFO_PASS_H
 
+#include "NvDlaDefine.h"
 #include "NvDlaMeta.h"
 
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-class TargetBackend;
 
-/** \class InterpreterPass
- *  \brief Run interpreter.
+/** \class NvDlaMemInfoPass
+ *  \brief Allocate memory for tensors
  */
-class NvDlaMemInfoPass : public CustomPass<NvDlaMemInfoPass>
+class NvDlaMemInfoPass : public CustomPass<NvDlaMemInfoPass>, private NvDlaConstants
 {
 public:
-  explicit NvDlaMemInfoPass(NvDlaBackendMeta* pMeta);
+  NvDlaMemInfoPass(const NvDlaConstants& constants, NvDlaBackendMeta* pMeta) noexcept;
 
   ReturnType runOnModule(Module& pModule) override;
 

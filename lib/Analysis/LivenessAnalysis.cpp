@@ -55,6 +55,9 @@ static void BuildVirtualIndex(xGraph &pGraph,
 //===----------------------------------------------------------------------===//
 // LiveInterval
 //===----------------------------------------------------------------------===//
+namespace onnc {
+namespace analysis {
+
 LiveInterval::LiveInterval(SlotIndex pStart, SlotIndex pEnd,
                            const xValue &pValue)
     : m_Start(pStart), m_End(pEnd), m_Value(pValue) {
@@ -66,6 +69,8 @@ bool LiveInterval::intersect(const LiveInterval& pLive) const
   return !(pLive.m_End < m_Start || m_End < pLive.m_Start);
 }
 
+} // namespace analysis
+} // namespace onnc
 //===----------------------------------------------------------------------===//
 // GraphLivenessAnalysis
 //===----------------------------------------------------------------------===//
@@ -83,7 +88,7 @@ Pass::ReturnType GraphLivenessAnalysis::runOnGraph(xGraph &pGraph)
 
 void GraphLivenessAnalysis::print(OStream& pOS, const Module* pModule) const
 {
-  for (const LiveInterval *li : m_LiveIntervals) {
+  for (const analysis::LiveInterval *li : m_LiveIntervals) {
     pOS << li->getValue().uniqueName()
         << " [" << li->getStart() << ", " << li->getEnd() << "]"
         << "\n";
@@ -116,7 +121,7 @@ void GraphLivenessAnalysis::calculateLiveness(xGraph &pGraph)
         end = std::max(end, nodeVirIdxMap[u.user]);
 
       visited.insert(v);
-      m_LiveIntervals.push_back(new LiveInterval(start, end, *v));
+      m_LiveIntervals.push_back(new analysis::LiveInterval(start, end, *v));
     }
   } // for each node
 
@@ -141,20 +146,20 @@ void GraphLivenessAnalysis::calculateLiveness(xGraph &pGraph)
       }
 
       visited.insert(v);
-      m_LiveIntervals.push_back(new LiveInterval(start, end, *v));
+      m_LiveIntervals.push_back(new analysis::LiveInterval(start, end, *v));
     }
   } // for each node
 
   // Sort live intervals by start slot.
   std::sort(m_LiveIntervals.begin(), m_LiveIntervals.end(),
-            [](const LiveInterval* lia, const LiveInterval* lib) {
+            [](const analysis::LiveInterval* lia, const analysis::LiveInterval* lib) {
               return lia->getStart() < lib->getStart();
             });
 }
 
 void GraphLivenessAnalysis::clear()
 {
-  for (LiveInterval* live: m_LiveIntervals) {
+  for (analysis::LiveInterval* live: m_LiveIntervals) {
     delete live;
   }
   m_LiveIntervals.clear();

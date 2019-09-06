@@ -204,6 +204,11 @@ public:
   /// @retval false The value with the same name already exists
   bool addValue(Value* pValue);
 
+  void eraseValue(Value& pValue);
+
+  // erase those Values which have no Defines ans Uses
+  void eraseUnusedValues();
+
   ValueList& getValueList();
 
   const ValueList& getValueList() const;

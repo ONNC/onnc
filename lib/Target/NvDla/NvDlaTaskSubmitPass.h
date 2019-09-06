@@ -9,6 +9,7 @@
 #define ONNC_NVDLAM_TASKSUBMIT_PASS_H
 
 #include "NvDlaMeta.h"
+#include "Version.h"
 
 #include <onnc/Core/CustomPass.h>
 
@@ -18,7 +19,7 @@ class TargetBackend;
 class NvDlaTaskSubmitPass : public CustomPass<NvDlaTaskSubmitPass>
 {
 public:
-  explicit NvDlaTaskSubmitPass(NvDlaBackendMeta* pMeta);
+  NvDlaTaskSubmitPass(NvDlaBackendMeta* pMeta, Version pDlaVersion, Version pEmuVersion);
 
   ReturnType runOnModule(Module& pModule) override;
   int        submitEvent(int task_id, int event_type);
@@ -26,6 +27,8 @@ public:
 
 private:
   NvDlaBackendMeta* m_pMeta;
+  const Version     m_DlaVersion;
+  const Version     m_EmuVersion;
 };
 
 } // namespace onnc

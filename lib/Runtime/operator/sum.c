@@ -1,28 +1,27 @@
-#include <onnc/Runtime/operator/sum.h>
-
 #include <stdint.h>
-#include <stdbool.h>
+typedef int32_t ONNC_INDEX_TYPE;
 
-void ONNC_RUNTIME_sum_float(
-  void * restrict onnc_runtime_context
-  ,const float * const * restrict input_data_0
-  ,int32_t input_data_0_ntensor
-  ,const int32_t * input_data_0_ndim, const int32_t * const * restrict input_data_0_dims
-  ,float * restrict output_sum
-  ,int32_t output_sum_ndim, const int32_t * restrict output_sum_dims
-  
-) {
-  int64_t size = 1;
-  for (int32_t i = 0; i < output_sum_ndim; ++i) {
-    size *= output_sum_dims[i];
-  }
-  for (int64_t i = 0; i < size; ++i) {
-    output_sum[i] = 0.f;
-  }
-  // TODO: Broadcasting
-  for (int64_t i = 0; i < input_data_0_ntensor; ++i) {
-    for (int64_t j = 0; j < size; ++j) {
-      output_sum[j] += input_data_0[i][j];
+#include "generic/assign.h"
+#include "generic/binary.h"
+#include "generic/size.h"
+#include <string.h>
+
+static float sum_(float a, float b)
+{
+    return a + b;
+}
+
+void ONNC_RUNTIME_sum_float(void* restrict context,
+    const float* restrict* inputs, int32_t count, const int32_t* restrict ndims, const int32_t* restrict* shapes,
+    float* restrict output, int32_t ndim, const int32_t* restrict shape)
+{
+    if (count) {
+        ONNC_ASSIGN(float, output, shape, ndim, inputs[0], shapes[0], ndims[0]);
+
+        for (int32_t i = 1; i < count; ++i)
+            ONNC_BINARY(float, output, shape, ndim, inputs[i], shapes[i], ndims[i], sum_);
     }
-  }
+    else {
+        memset(output, 0, onnc_size(shape, ndim) * sizeof(float));
+    }
 }

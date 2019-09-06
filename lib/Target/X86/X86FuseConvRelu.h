@@ -23,11 +23,9 @@ class X86FuseConvRelu : public CustomPass<X86FuseConvRelu>
 public:
   X86FuseConvRelu() = default;
 
-  ReturnType runOnModule(Module& pModule) override;
+  ReturnType runOnComputeGraph(ComputeGraph& pCG) override;
 
 private:
-  ReturnType runOnComputeGraph(ComputeGraph& pCG);
-
   /// Can we merge pConv and Relu which uses pConv as input.
   bool isFusible(ComputeOperator& pNode);
 

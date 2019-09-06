@@ -20,9 +20,7 @@ public:
 
   StringRef getPassName() const override { return "EncodeInstructions"; }
 
-  Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
-
-  Pass::ReturnType runOnComputeGraph(::onnc::ComputeGraph &pCG);
+  Pass::ReturnType runOnComputeGraph(::onnc::ComputeGraph &pCG) override;
 
 protected:
   virtual void beforeEmit(const ::onnc::ComputeOperator* pOp) {}

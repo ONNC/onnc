@@ -8,6 +8,7 @@
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/IR/IRBuilder.h>
 #include <onnc/Config/ONNX.h>
+#include <onnc/ONNXWrapper/ONNXWrapper.h>
 
 using namespace onnc;
 
@@ -32,7 +33,7 @@ void IRBuilder::setInsertionPoint(const InsertionPoint& pISP)
 
 void IRBuilder::update(const xProto& pProto)
 {
-  getModule().delegate(xImportModelProto(pProto));
+  getModule().delegate(onnxImportModelProto(pProto));
 
   if (pProto.has_ir_version())
     getModule().getOnnxInfo().setIRVersion(pProto.ir_version());

@@ -9,8 +9,11 @@ import sys
 from collections import defaultdict
 from string import Template
 
+import onnx
 from onnx import defs
 from onnx.defs import OpSchema
+
+assert onnx.__version__ == "1.3.0"
 
 ONNX_ML = bool(os.getenv('ONNX_ML') == '1')
 def should_render_domain(domain):
@@ -221,9 +224,9 @@ def gen_compute_ir_visitor(operator_schemas, template_filename, dist):
         # ${forward_declaration}
         forward_declaration.append('class {OperatorName};'.format(**substitution_hash))
         # ${const_visitor_member_functions}
-        const_visitor_member_functions.append('virtual void visit(const {OperatorName}& p{OperatorName}) {{ }}'.format(**substitution_hash))
+        const_visitor_member_functions.append('virtual void visit(const {OperatorName}&) {{ }}'.format(**substitution_hash))
         # ${visitor_member_functions}
-        visitor_member_functions.append('virtual void visit({OperatorName}& p{OperatorName}) {{ }}'.format(**substitution_hash))
+        visitor_member_functions.append('virtual void visit({OperatorName}& p{OperatorName}) {{ visit(const_cast<const {OperatorName}&>(p{OperatorName})); }}'.format(**substitution_hash))
 
   visitor_substitution_hash = {
     'forward_declaration': '\n'.join(forward_declaration),

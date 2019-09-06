@@ -43,11 +43,11 @@ struct MemRegion {
 using MemRegionList = std::vector<MemRegion>;
 
 static MemRegionList GetUsedMemRegions(const MemAllocList& pAllocs,
-                                       const LiveInterval &pIntrvl)
+                                       const analysis::LiveInterval &pIntrvl)
 {
   MemRegionList regions;
   for (const MemAllocEntry *entry : pAllocs) {
-    const LiveInterval& liveIntrvl = entry->liveIntrvl;
+    const analysis::LiveInterval& liveIntrvl = entry->liveIntrvl;
 
     if (!liveIntrvl.intersect(pIntrvl))
       continue;
@@ -83,7 +83,7 @@ uint64_t MemoryAllocation::allocByLiveness(xGraph &pGraph,
 
   // allocate memory considering liveness.
   auto &livesInfo = pLiveAnaly.getLiveIntervals();
-  for (const LiveInterval* li : livesInfo) {
+  for (const analysis::LiveInterval* li : livesInfo) {
     const xValue *v = &li->getValue();
     if (!pValMemSizeMap.count(v))
       continue;
@@ -197,7 +197,7 @@ void MemoryAllocation::printGraphAlloc(OStream &pOS,
 
   pOS << "Memory Allocation for " << pGraph->name() << " (" << pGraph << ")\n";
   for (const MemAllocEntry *e : it->second) {
-    const LiveInterval &li = e->liveIntrvl;
+    const analysis::LiveInterval &li = e->liveIntrvl;
     pOS << std::setw(20) << std::left << li.getValue().uniqueName()
         << " [" << std::setw(8) << std::right << e->startAddr << ", "
         << std::setw(8) << std::right << e->startAddr + e->size << ")"

@@ -69,7 +69,7 @@ void ONNC_RUNTIME_split_float(
   int32_t axis_base = axisDistance[input_input_ndim-1] = 1;
   for(int32_t dim = input_input_ndim - 2  ; dim >= 0 ; dim--){
     axisDistance[dim] = axis_base * input_input_dims[dim+1];
-    axis_base *= input_input_dims[dim];
+    axis_base = axisDistance[dim];
   }
 
   int32_t split_base = 0;

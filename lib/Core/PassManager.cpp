@@ -258,10 +258,11 @@ void PassManager::movePassToStore(Pass* pass)
 
   // check whether the pass was already added, only add it if
   // not in the pass store; or issue an error
+  using ManagedPassType = PassStore::mapped_type::value_type;
   auto& passes = m_passStore[passId];
   const auto found = std::find_if(
     begin(passes), end(passes),
-    [pass](const auto& stored) { return stored.get() == pass; }
+    [pass](const ManagedPassType& stored) { return stored.get() == pass; }
   );
   if (found == end(passes)) {
     passes.emplace_back(pass);
@@ -322,8 +323,8 @@ unsigned int PassManager::size() const
   return std::accumulate(
     begin(m_passStore), end(m_passStore),
     0u,
-    [](auto init, const auto& entry) {
-       return init + entry.second.size();
+    [](unsigned init, const PassStore::value_type& entry) {
+       return init + static_cast<unsigned>(entry.second.size());
     }
   );
 }

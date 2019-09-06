@@ -159,7 +159,7 @@ void BasicInterpreter::visit(Abs& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Acos& pOp) {
@@ -187,7 +187,7 @@ void BasicInterpreter::visit(Acos& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Add& pOp) {
@@ -222,7 +222,7 @@ void BasicInterpreter::visit(Add& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(And& pOp) {
@@ -257,7 +257,7 @@ void BasicInterpreter::visit(And& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(ArgMax& pOp) {
@@ -287,7 +287,7 @@ void BasicInterpreter::visit(ArgMax& pOp) {
     , axis
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ArgMin& pOp) {
@@ -317,7 +317,7 @@ void BasicInterpreter::visit(ArgMin& pOp) {
     , axis
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(Asin& pOp) {
@@ -345,7 +345,7 @@ void BasicInterpreter::visit(Asin& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Atan& pOp) {
@@ -373,7 +373,7 @@ void BasicInterpreter::visit(Atan& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(AveragePool& pOp) {
@@ -418,7 +418,7 @@ void BasicInterpreter::visit(AveragePool& pOp) {
     , strides
     , number_of_strides
   );
-};
+}
 
 
 void BasicInterpreter::visit(BatchNormalization& pOp) {
@@ -526,7 +526,7 @@ void BasicInterpreter::visit(BatchNormalization& pOp) {
     , momentum
     , spatial
   );
-};
+}
 
 
 void BasicInterpreter::visit(Cast& pOp) {
@@ -554,7 +554,7 @@ void BasicInterpreter::visit(Cast& pOp) {
     , output_output_ndim, output_output_dims
     , to
   );
-};
+}
 
 
 void BasicInterpreter::visit(Ceil& pOp) {
@@ -582,7 +582,7 @@ void BasicInterpreter::visit(Ceil& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Clip& pOp) {
@@ -612,7 +612,7 @@ void BasicInterpreter::visit(Clip& pOp) {
     , max
     , min
   );
-};
+}
 
 
 void BasicInterpreter::visit(Concat& pOp) {
@@ -653,7 +653,7 @@ void BasicInterpreter::visit(Concat& pOp) {
   for (int i = 0; i < input_inputs_ntensor; ++i){
     delete [] input_inputs_dims[i];
   }
-};
+}
 
 
 void BasicInterpreter::visit(Constant& pOp) {
@@ -676,7 +676,7 @@ void BasicInterpreter::visit(Constant& pOp) {
     , output_output_ndim, output_output_dims
     , value
   );
-};
+}
 
 
 void BasicInterpreter::visit(Conv& pOp) {
@@ -745,7 +745,7 @@ void BasicInterpreter::visit(Conv& pOp) {
     , strides
     , number_of_strides
   );
-};
+}
 
 
 void BasicInterpreter::visit(ConvTranspose& pOp) {
@@ -824,7 +824,7 @@ void BasicInterpreter::visit(ConvTranspose& pOp) {
     , strides
     , number_of_strides
   );
-};
+}
 
 
 void BasicInterpreter::visit(Cos& pOp) {
@@ -852,7 +852,7 @@ void BasicInterpreter::visit(Cos& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(DepthToSpace& pOp) {
@@ -880,7 +880,7 @@ void BasicInterpreter::visit(DepthToSpace& pOp) {
     , output_output_ndim, output_output_dims
     , blocksize
   );
-};
+}
 
 
 void BasicInterpreter::visit(Div& pOp) {
@@ -915,7 +915,7 @@ void BasicInterpreter::visit(Div& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Dropout& pOp) {
@@ -955,7 +955,7 @@ void BasicInterpreter::visit(Dropout& pOp) {
     , output_mask_ndim, output_mask_dims
     , ratio
   );
-};
+}
 
 
 void BasicInterpreter::visit(Elu& pOp) {
@@ -983,7 +983,7 @@ void BasicInterpreter::visit(Elu& pOp) {
     , output_Y_ndim, output_Y_dims
     , alpha
   );
-};
+}
 
 
 void BasicInterpreter::visit(Equal& pOp) {
@@ -1018,7 +1018,7 @@ void BasicInterpreter::visit(Equal& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Exp& pOp) {
@@ -1046,7 +1046,7 @@ void BasicInterpreter::visit(Exp& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Expand& pOp) {
@@ -1081,7 +1081,7 @@ void BasicInterpreter::visit(Expand& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Flatten& pOp) {
@@ -1109,7 +1109,7 @@ void BasicInterpreter::visit(Flatten& pOp) {
     , output_output_ndim, output_output_dims
     , axis
   );
-};
+}
 
 
 void BasicInterpreter::visit(Floor& pOp) {
@@ -1137,7 +1137,7 @@ void BasicInterpreter::visit(Floor& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(GRU& pOp) {
@@ -1253,7 +1253,7 @@ void BasicInterpreter::visit(GRU& pOp) {
     , hidden_size
     , linear_before_reset
   );
-};
+}
 
 
 void BasicInterpreter::visit(Gather& pOp) {
@@ -1288,7 +1288,7 @@ void BasicInterpreter::visit(Gather& pOp) {
     , output_output_ndim, output_output_dims
     , axis
   );
-};
+}
 
 
 void BasicInterpreter::visit(Gemm& pOp) {
@@ -1336,7 +1336,7 @@ void BasicInterpreter::visit(Gemm& pOp) {
     , transA
     , transB
   );
-};
+}
 
 
 void BasicInterpreter::visit(GlobalAveragePool& pOp) {
@@ -1364,7 +1364,7 @@ void BasicInterpreter::visit(GlobalAveragePool& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(GlobalLpPool& pOp) {
@@ -1392,7 +1392,7 @@ void BasicInterpreter::visit(GlobalLpPool& pOp) {
     , output_Y_ndim, output_Y_dims
     , p
   );
-};
+}
 
 
 void BasicInterpreter::visit(GlobalMaxPool& pOp) {
@@ -1420,7 +1420,7 @@ void BasicInterpreter::visit(GlobalMaxPool& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Greater& pOp) {
@@ -1455,7 +1455,7 @@ void BasicInterpreter::visit(Greater& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(HardSigmoid& pOp) {
@@ -1485,7 +1485,7 @@ void BasicInterpreter::visit(HardSigmoid& pOp) {
     , alpha
     , beta
   );
-};
+}
 
 
 void BasicInterpreter::visit(Hardmax& pOp) {
@@ -1513,7 +1513,7 @@ void BasicInterpreter::visit(Hardmax& pOp) {
     , output_output_ndim, output_output_dims
     , axis
   );
-};
+}
 
 
 void BasicInterpreter::visit(Identity& pOp) {
@@ -1541,7 +1541,7 @@ void BasicInterpreter::visit(Identity& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(InstanceNormalization& pOp) {
@@ -1583,7 +1583,7 @@ void BasicInterpreter::visit(InstanceNormalization& pOp) {
     , output_output_ndim, output_output_dims
     , epsilon
   );
-};
+}
 
 
 void BasicInterpreter::visit(LRN& pOp) {
@@ -1617,7 +1617,7 @@ void BasicInterpreter::visit(LRN& pOp) {
     , bias
     , size
   );
-};
+}
 
 
 void BasicInterpreter::visit(LSTM& pOp) {
@@ -1769,7 +1769,7 @@ void BasicInterpreter::visit(LSTM& pOp) {
     , hidden_size
     , input_forget
   );
-};
+}
 
 
 void BasicInterpreter::visit(LeakyRelu& pOp) {
@@ -1797,7 +1797,7 @@ void BasicInterpreter::visit(LeakyRelu& pOp) {
     , output_Y_ndim, output_Y_dims
     , alpha
   );
-};
+}
 
 
 void BasicInterpreter::visit(Less& pOp) {
@@ -1832,7 +1832,7 @@ void BasicInterpreter::visit(Less& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Log& pOp) {
@@ -1860,7 +1860,7 @@ void BasicInterpreter::visit(Log& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(LogSoftmax& pOp) {
@@ -1888,7 +1888,7 @@ void BasicInterpreter::visit(LogSoftmax& pOp) {
     , output_output_ndim, output_output_dims
     , axis
   );
-};
+}
 
 
 void BasicInterpreter::visit(LpNormalization& pOp) {
@@ -1918,7 +1918,7 @@ void BasicInterpreter::visit(LpNormalization& pOp) {
     , axis
     , p
   );
-};
+}
 
 
 void BasicInterpreter::visit(LpPool& pOp) {
@@ -1963,7 +1963,7 @@ void BasicInterpreter::visit(LpPool& pOp) {
     , strides
     , number_of_strides
   );
-};
+}
 
 
 void BasicInterpreter::visit(MatMul& pOp) {
@@ -1998,7 +1998,7 @@ void BasicInterpreter::visit(MatMul& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Max& pOp) {
@@ -2028,7 +2028,7 @@ void BasicInterpreter::visit(Max& pOp) {
     , output_max_ndim, output_max_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(MaxPool& pOp) {
@@ -2085,7 +2085,7 @@ void BasicInterpreter::visit(MaxPool& pOp) {
     , strides
     , number_of_strides
   );
-};
+}
 
 
 void BasicInterpreter::visit(MaxRoiPool& pOp) {
@@ -2125,7 +2125,7 @@ void BasicInterpreter::visit(MaxRoiPool& pOp) {
     , number_of_pooled_shape
     , spatial_scale
   );
-};
+}
 
 
 void BasicInterpreter::visit(Mean& pOp) {
@@ -2155,7 +2155,7 @@ void BasicInterpreter::visit(Mean& pOp) {
     , output_mean_ndim, output_mean_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Min& pOp) {
@@ -2185,7 +2185,7 @@ void BasicInterpreter::visit(Min& pOp) {
     , output_min_ndim, output_min_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Mul& pOp) {
@@ -2220,7 +2220,7 @@ void BasicInterpreter::visit(Mul& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Multinomial& pOp) {
@@ -2252,7 +2252,7 @@ void BasicInterpreter::visit(Multinomial& pOp) {
     , sample_size
     , seed
   );
-};
+}
 
 
 void BasicInterpreter::visit(Neg& pOp) {
@@ -2280,7 +2280,7 @@ void BasicInterpreter::visit(Neg& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Not& pOp) {
@@ -2308,7 +2308,7 @@ void BasicInterpreter::visit(Not& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Or& pOp) {
@@ -2343,7 +2343,7 @@ void BasicInterpreter::visit(Or& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(PRelu& pOp) {
@@ -2378,7 +2378,7 @@ void BasicInterpreter::visit(PRelu& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Pad& pOp) {
@@ -2413,7 +2413,7 @@ void BasicInterpreter::visit(Pad& pOp) {
     , number_of_pads
     , value
   );
-};
+}
 
 
 void BasicInterpreter::visit(Pow& pOp) {
@@ -2448,7 +2448,7 @@ void BasicInterpreter::visit(Pow& pOp) {
     , output_Z_ndim, output_Z_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(RNN& pOp) {
@@ -2562,7 +2562,7 @@ void BasicInterpreter::visit(RNN& pOp) {
     , direction
     , hidden_size
   );
-};
+}
 
 
 void BasicInterpreter::visit(RandomNormal& pOp) {
@@ -2596,7 +2596,7 @@ void BasicInterpreter::visit(RandomNormal& pOp) {
     , shape
     , number_of_shape
   );
-};
+}
 
 
 void BasicInterpreter::visit(RandomNormalLike& pOp) {
@@ -2630,7 +2630,7 @@ void BasicInterpreter::visit(RandomNormalLike& pOp) {
     , scale
     , seed
   );
-};
+}
 
 
 void BasicInterpreter::visit(RandomUniform& pOp) {
@@ -2664,7 +2664,7 @@ void BasicInterpreter::visit(RandomUniform& pOp) {
     , shape
     , number_of_shape
   );
-};
+}
 
 
 void BasicInterpreter::visit(RandomUniformLike& pOp) {
@@ -2698,7 +2698,7 @@ void BasicInterpreter::visit(RandomUniformLike& pOp) {
     , low
     , seed
   );
-};
+}
 
 
 void BasicInterpreter::visit(Reciprocal& pOp) {
@@ -2726,7 +2726,7 @@ void BasicInterpreter::visit(Reciprocal& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceL1& pOp) {
@@ -2759,7 +2759,7 @@ void BasicInterpreter::visit(ReduceL1& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceL2& pOp) {
@@ -2792,7 +2792,7 @@ void BasicInterpreter::visit(ReduceL2& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceLogSum& pOp) {
@@ -2825,7 +2825,7 @@ void BasicInterpreter::visit(ReduceLogSum& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceLogSumExp& pOp) {
@@ -2858,7 +2858,7 @@ void BasicInterpreter::visit(ReduceLogSumExp& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceMax& pOp) {
@@ -2891,7 +2891,7 @@ void BasicInterpreter::visit(ReduceMax& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceMean& pOp) {
@@ -2924,7 +2924,7 @@ void BasicInterpreter::visit(ReduceMean& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceMin& pOp) {
@@ -2957,7 +2957,7 @@ void BasicInterpreter::visit(ReduceMin& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceProd& pOp) {
@@ -2990,7 +2990,7 @@ void BasicInterpreter::visit(ReduceProd& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceSum& pOp) {
@@ -3023,7 +3023,7 @@ void BasicInterpreter::visit(ReduceSum& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(ReduceSumSquare& pOp) {
@@ -3056,7 +3056,7 @@ void BasicInterpreter::visit(ReduceSumSquare& pOp) {
     , number_of_axes
     , keepdims
   );
-};
+}
 
 
 void BasicInterpreter::visit(Relu& pOp) {
@@ -3084,7 +3084,7 @@ void BasicInterpreter::visit(Relu& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Reshape& pOp) {
@@ -3119,7 +3119,7 @@ void BasicInterpreter::visit(Reshape& pOp) {
     , output_reshaped_ndim, output_reshaped_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Selu& pOp) {
@@ -3149,7 +3149,7 @@ void BasicInterpreter::visit(Selu& pOp) {
     , alpha
     , gamma
   );
-};
+}
 
 
 void BasicInterpreter::visit(Shape& pOp) {
@@ -3177,7 +3177,7 @@ void BasicInterpreter::visit(Shape& pOp) {
     , output_shape_ndim, output_shape_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Sigmoid& pOp) {
@@ -3205,7 +3205,7 @@ void BasicInterpreter::visit(Sigmoid& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Sin& pOp) {
@@ -3233,7 +3233,7 @@ void BasicInterpreter::visit(Sin& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Size& pOp) {
@@ -3261,7 +3261,7 @@ void BasicInterpreter::visit(Size& pOp) {
     , output_size_ndim, output_size_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Slice& pOp) {
@@ -3302,7 +3302,7 @@ void BasicInterpreter::visit(Slice& pOp) {
     , starts
     , number_of_starts
   );
-};
+}
 
 
 void BasicInterpreter::visit(Softmax& pOp) {
@@ -3330,7 +3330,7 @@ void BasicInterpreter::visit(Softmax& pOp) {
     , output_output_ndim, output_output_dims
     , axis
   );
-};
+}
 
 
 void BasicInterpreter::visit(Softplus& pOp) {
@@ -3358,7 +3358,7 @@ void BasicInterpreter::visit(Softplus& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Softsign& pOp) {
@@ -3386,7 +3386,7 @@ void BasicInterpreter::visit(Softsign& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(SpaceToDepth& pOp) {
@@ -3414,7 +3414,7 @@ void BasicInterpreter::visit(SpaceToDepth& pOp) {
     , output_output_ndim, output_output_dims
     , blocksize
   );
-};
+}
 
 
 void BasicInterpreter::visit(Split& pOp) {
@@ -3449,7 +3449,7 @@ void BasicInterpreter::visit(Split& pOp) {
     , split
     , number_of_split
   );
-};
+}
 
 
 void BasicInterpreter::visit(Sqrt& pOp) {
@@ -3477,7 +3477,7 @@ void BasicInterpreter::visit(Sqrt& pOp) {
     , output_Y_ndim, output_Y_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Squeeze& pOp) {
@@ -3508,7 +3508,7 @@ void BasicInterpreter::visit(Squeeze& pOp) {
     , axes
     , number_of_axes
   );
-};
+}
 
 
 void BasicInterpreter::visit(Sub& pOp) {
@@ -3543,7 +3543,7 @@ void BasicInterpreter::visit(Sub& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Sum& pOp) {
@@ -3553,7 +3553,14 @@ void BasicInterpreter::visit(Sum& pOp) {
   for (int i = 0; i < input_data_0_ntensor; ++i) input_data_0[i] = m_ATable[pOp.getInput(0 + i)];
   int32_t input_data_0_ndim[input_data_0_ntensor]; // FIXME: = input_data_0_v->sizes().size();
   int32_t *input_data_0_dims[input_data_0_ntensor]; // FIXME: [input_data_0_ndim[0]];
-  // FIXME: for (int i = 0; i < input_data_0_ndim; ++i) input_data_0_dims[i] = input_data_0_v->sizes()[i].dim;
+  for (int i = 0; i < input_data_0_ntensor; ++i){
+    input_data_0[i] = m_ATable[pOp.getInput(0 + i)];
+    input_data_0_ndim[i] = pOp.getInput(0 + i)->getNumOfDimensions();
+    input_data_0_dims[i] = new int32_t[input_data_0_ndim[i]];
+    for(int32_t j = 0; j < input_data_0_ndim[i]; ++j){
+      input_data_0_dims[i][j] = pOp.getInput(0 + i)->dimension(j);
+    }
+  }
   // Prepare output
   Tensor *output_sum_t = pOp.getOutput(0);
   void *output_sum = m_ATable[output_sum_t];
@@ -3562,7 +3569,6 @@ void BasicInterpreter::visit(Sum& pOp) {
   for (int i = 0; i < output_sum_ndim; ++i) output_sum_dims[i] = output_sum_t->dimension(i);
   // Prepare attributes
   
-
   // Call to Runtime
   ONNC_RUNTIME_sum_float(
     m_pContext
@@ -3571,9 +3577,8 @@ void BasicInterpreter::visit(Sum& pOp) {
     , input_data_0_ndim, input_data_0_dims
     , reinterpret_cast<float *>(output_sum)
     , output_sum_ndim, output_sum_dims
-    
   );
-};
+}
 
 
 void BasicInterpreter::visit(Tan& pOp) {
@@ -3601,7 +3606,7 @@ void BasicInterpreter::visit(Tan& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Tanh& pOp) {
@@ -3629,7 +3634,7 @@ void BasicInterpreter::visit(Tanh& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Tile& pOp) {
@@ -3664,7 +3669,7 @@ void BasicInterpreter::visit(Tile& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(TopK& pOp) {
@@ -3701,7 +3706,7 @@ void BasicInterpreter::visit(TopK& pOp) {
     , axis
     , k
   );
-};
+}
 
 
 void BasicInterpreter::visit(Transpose& pOp) {
@@ -3732,7 +3737,7 @@ void BasicInterpreter::visit(Transpose& pOp) {
     , perm
     , number_of_perm
   );
-};
+}
 
 
 void BasicInterpreter::visit(Unsqueeze& pOp) {
@@ -3763,7 +3768,7 @@ void BasicInterpreter::visit(Unsqueeze& pOp) {
     , axes
     , number_of_axes
   );
-};
+}
 
 
 void BasicInterpreter::visit(Upsample& pOp) {
@@ -3796,7 +3801,7 @@ void BasicInterpreter::visit(Upsample& pOp) {
     , scales
     , number_of_scales
   );
-};
+}
 
 
 void BasicInterpreter::visit(Xor& pOp) {
@@ -3831,7 +3836,7 @@ void BasicInterpreter::visit(Xor& pOp) {
     , output_C_ndim, output_C_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(ATen& pOp) {
@@ -3863,7 +3868,7 @@ void BasicInterpreter::visit(ATen& pOp) {
     , output_output_ndim, output_output_dims
     
   );
-};
+}
 
 
 void BasicInterpreter::visit(Affine& pOp) {
@@ -3893,7 +3898,7 @@ void BasicInterpreter::visit(Affine& pOp) {
     , alpha
     , beta
   );
-};
+}
 
 
 void BasicInterpreter::visit(ConstantFill& pOp) {
@@ -3940,7 +3945,7 @@ void BasicInterpreter::visit(ConstantFill& pOp) {
     , number_of_shape
     , value
   );
-};
+}
 
 
 void BasicInterpreter::visit(Crop& pOp) {
@@ -3976,7 +3981,7 @@ void BasicInterpreter::visit(Crop& pOp) {
     , scale
     , number_of_scale
   );
-};
+}
 
 
 void BasicInterpreter::visit(GRUUnit& pOp) {
@@ -4025,7 +4030,7 @@ void BasicInterpreter::visit(GRUUnit& pOp) {
     , output_hidden_ndim, output_hidden_dims
     , drop_states
   );
-};
+}
 
 
 void BasicInterpreter::visit(GivenTensorFill& pOp) {
@@ -4073,7 +4078,7 @@ void BasicInterpreter::visit(GivenTensorFill& pOp) {
     , values
     , number_of_values
   );
-};
+}
 
 
 void BasicInterpreter::visit(ImageScaler& pOp) {
@@ -4106,7 +4111,7 @@ void BasicInterpreter::visit(ImageScaler& pOp) {
     , number_of_bias
     , scale
   );
-};
+}
 
 
 void BasicInterpreter::visit(MeanVarianceNormalization& pOp) {
@@ -4136,7 +4141,7 @@ void BasicInterpreter::visit(MeanVarianceNormalization& pOp) {
     , across_channels
     , normalize_variance
   );
-};
+}
 
 
 void BasicInterpreter::visit(ParametricSoftplus& pOp) {
@@ -4166,7 +4171,7 @@ void BasicInterpreter::visit(ParametricSoftplus& pOp) {
     , alpha
     , beta
   );
-};
+}
 
 
 void BasicInterpreter::visit(Scale& pOp) {
@@ -4194,7 +4199,7 @@ void BasicInterpreter::visit(Scale& pOp) {
     , output_output_ndim, output_output_dims
     , scale
   );
-};
+}
 
 
 void BasicInterpreter::visit(ScaledTanh& pOp) {
@@ -4224,7 +4229,7 @@ void BasicInterpreter::visit(ScaledTanh& pOp) {
     , alpha
     , beta
   );
-};
+}
 
 
 void BasicInterpreter::visit(ThresholdedRelu& pOp) {
@@ -4252,5 +4257,5 @@ void BasicInterpreter::visit(ThresholdedRelu& pOp) {
     , output_Y_ndim, output_Y_dims
     , alpha
   );
-};
+}
 

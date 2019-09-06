@@ -21,6 +21,7 @@
 #include <onnc/CodeGen/SetMemOperand.h>
 #include <onnc/CodeGen/SlotIndexes.h>
 #include <onnc/IR/CodeEmit.h>
+#include <onnc/Support/Memory.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetStandardPasses.h>
 #include <onnc/Transforms/BookONNXGraphs.h>
@@ -77,6 +78,11 @@ void VanillaBackend::addTensorSel(PassManager& pPM)
   // adds your ONNC IR operators.
 }
 
+void VanillaBackend::addOnncIrOptimization(PassManager& pPM, OptimizationOptions& options)
+{
+  TargetBackend::addOnncIrOptimization(pPM, options);
+}
+
 void VanillaBackend::addTensorSched(PassManager& pPM)
 {
   // After method AddTensorSel, operators have been scheduled in an
@@ -103,7 +109,7 @@ void VanillaBackend::addMemAlloc(PassManager& pPM)
 void VanillaBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 {
   static vanilla::CodeEmitVisitor ceVisitor;
-  pPM.add(CreateCodeEmitPass(ceVisitor));
+  pPM.add<CodeEmit>(ceVisitor);
 }
 
 void VanillaBackend::RegisterLowers(LowerRegistry& pRegistry) const

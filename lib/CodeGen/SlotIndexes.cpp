@@ -14,15 +14,7 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // BuildSlotIndexes
 //===----------------------------------------------------------------------===//
-Pass::ReturnType BuildSlotIndexes::runOnModule(Module& pModule)
-{
-  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
-  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
-    runOnComputeGraph(*cg->value());
-  return Pass::kModuleNoChanged;
-}
-
-void BuildSlotIndexes::runOnComputeGraph(ComputeGraph& pCG)
+Pass::ReturnType BuildSlotIndexes::runOnComputeGraph(ComputeGraph& pCG)
 {
   ComputeGraph::iterator nodeIt, nEnd = pCG.end();
   for (nodeIt = pCG.begin(); nodeIt != nEnd; ++nodeIt) {
@@ -32,6 +24,8 @@ void BuildSlotIndexes::runOnComputeGraph(ComputeGraph& pCG)
     m_COpToSlotIdx.insert({node, SlotIndex(ts)});
     m_StartIdx += OperatorDist;
   }
+
+  return Pass::kModuleNoChanged;
 }
 
 bool BuildSlotIndexes::hasSlotIndex(const ComputeOperator* pOp) const

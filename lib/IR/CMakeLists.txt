@@ -16,7 +16,6 @@ add_libonnc_src(
     ONNXUtils.cpp
     IRBuilder.cpp
     Quadruple.cpp
-    CodeEmit.cpp
     Compute/ATen.cpp
     Compute/Abs.cpp
     Compute/Acos.cpp
@@ -34,7 +33,7 @@ add_libonnc_src(
     Compute/Ceil.cpp
     Compute/Clip.cpp
     Compute/Concat.cpp
-    #Compute/Constant.cpp
+    Compute/Constant.cpp
     Compute/ConstantFill.cpp
     Compute/Conv.cpp
     Compute/ConvTranspose.cpp

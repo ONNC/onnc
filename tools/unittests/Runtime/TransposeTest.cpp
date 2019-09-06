@@ -1,56 +1,75 @@
-#include <skypat/skypat.h>
-#include <cstdlib>
-#include <ctime>
-#include <cmath>
-
 #define restrict __restrict__
-extern "C"{
-    #include <onnc/Runtime/operator/transpose.h>
+extern "C" {
+#include <onnc/Runtime/operator/transpose.h>
 }
 #undef restrict
 
-SKYPAT_F(Operator_Transpose, non_broadcast){
-    // Prepare
-    srand(time(NULL));
-    int32_t dims[3]{3, 3, 3};
-    float A[27]{
-        000.0, 001.0, 002.0,
-        010.0, 011.0, 012.0,
-        020.0, 021.0, 022.0,
+#include "valarray.hpp"
+#include <skypat/skypat.h>
+#include <algorithm>
+#include <functional>
+#include <numeric>
+#include <array>
 
-        100.0, 101.0, 102.0,
-        110.0, 111.0, 112.0,
-        120.0, 121.0, 122.0,
+/* FIXME We pass `permutation` by value because `ONNC_RUNTIME_transpose_float`
+ * takes (non-const) `int32_t*` as permutation list.  Discuss if changing to
+ * `const int32_t*` is possible.
+ */
+static void test_permutedims(
+    const std::valarray<float>& tensor,
+    std::valarray<std::int32_t> permutation,
+    const std::valarray<std::int32_t>& shape,
+    const std::valarray<std::size_t>& strides)
+{
+    using std::size_t;
+    using std::int32_t;
 
-        200.0, 201.0, 202.0,
-        210.0, 211.0, 212.0,
-        220.0, 221.0, 222.0
-    };
-    float B[27];
-    float Ans[27]{
-        000.0, 100.0, 200.0,
-        001.0, 101.0, 201.0,
-        002.0, 102.0, 202.0,
+    const std::valarray<size_t> permute = onnc::valarray::make<size_t>(permutation);
+    const std::valarray<int32_t> permuted_shape = shape[permute];
+    const std::valarray<size_t> permuted_strides = strides[permute];
+    const std::gslice transpose = { 0, onnc::valarray::make<size_t>(permuted_shape), permuted_strides };
+    const std::valarray<float> reference = tensor[transpose];
 
-        010.0, 110.0, 210.0,
-        011.0, 111.0, 211.0,
-        012.0, 112.0, 212.0,
+    std::valarray<float> candidate(tensor.size());
 
-        020.0, 120.0, 220.0,
-        021.0, 121.0, 221.0,
-        022.0, 122.0, 222.0
-    };
-    int32_t perm[3]{2, 0, 1};
-    // Run
-    ONNC_RUNTIME_transpose_float(NULL
-        ,A
-        ,3,dims
-        ,B
-        ,3,dims
-        ,perm, 3
-    );
-    // Check
-    for(int32_t i = 0; i < 27; ++i){
-        EXPECT_EQ(B[i], Ans[i]);
-    }
+    ONNC_RUNTIME_transpose_float(nullptr,
+        &tensor[0], shape.size(), &shape[0],
+        &candidate[0], permuted_shape.size(), &permuted_shape[0],
+        &permutation[0], permutation.size());
+
+    EXPECT_TRUE(onnc::valarray::equal(reference, candidate));
+}
+
+template<typename... Args>
+static void test(Args... args)
+{
+    using std::size_t;
+    using std::int32_t;
+
+    const size_t order = sizeof...(Args);
+    std::array<int32_t, order> shape = { static_cast<int32_t>(args)... };
+    std::valarray<size_t> strides = onnc::valarray::strides(shape);
+    size_t size = std::accumulate(shape.cbegin(), shape.cend(), static_cast<size_t>(1), std::multiplies<size_t>());
+
+    const std::gslice identity = { 0, onnc::valarray::make<size_t>(shape), strides };
+    const std::valarray<float> tensor = onnc::valarray::range<float>(size);
+    const std::valarray<float> candidate = tensor[identity];
+
+    EXPECT_TRUE(onnc::valarray::equal(tensor, candidate));
+
+    std::valarray<int32_t> permutation = onnc::valarray::range<int32_t>(order);
+
+    while (std::next_permutation(std::begin(permutation), std::end(permutation)))
+        test_permutedims(tensor, permutation, onnc::valarray::make<int32_t>(shape), strides);
+}
+
+SKYPAT_F(Operator_Transpose, non_broadcast)
+{
+    test(4);
+    test(2, 5);
+    test(3, 1);
+    test(1, 2, 3);
+    test(4, 2, 3);
+    test(2, 3, 1, 2);
+    test(3, 1, 3, 3, 7);
 }

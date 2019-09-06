@@ -69,7 +69,7 @@ public:
   /// 2. execution queue.
   template <typename PassType, typename... Args>
   PassManager& add(Args&&... args) {
-    static_assert(std::is_base_of<Pass, PassType>::value);
+    static_assert(std::is_base_of<Pass, PassType>::value, "added type should be derived class of Pass");
     return add(new PassType(std::forward<Args>(args)...));
   }
 
