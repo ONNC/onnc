@@ -189,7 +189,7 @@ public:
 };
 
 ```
-**Code Sample 3.** (from `lib/Target/X86/X86FuseConvRelu.h`) The C++ header file for the new fusing pass.
+**Code Snippet 3.** (from `lib/Target/X86/X86FuseConvRelu.h`) The C++ header file for the new fusing pass.
 
 ### Implementing the operator-fusion pass
   For each pass derived from the `CustomPass` class template in ONNC, users need to at least override the `runOnModule` member function. The input to this pass is a network graph represented by a `ComputeGraph` object with nodes mapped to ONNC IRs. The goal is to find all the pairs of a Conv node followed by a ReLU node, and replace them by a new`X86ConvRelu` node. Code Snippet 4 and 5 show the detailed implementation.

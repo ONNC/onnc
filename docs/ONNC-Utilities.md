@@ -56,7 +56,7 @@ $ cd /onnc/onnc-umbrella
 $ ssync && ./build.cmake.sh <build_mode>
 ```
 
-`<build_mode>` supports one of the following mode:
+`<build_mode>` supports one of the following modes:
 
 ```
 normal, dbg, rgn, opt 
