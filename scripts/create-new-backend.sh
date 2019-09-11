@@ -11,7 +11,7 @@ OWNER_GID=$(stat -c '%g' ./)
 SUDO="sudo -u #${OWNER_UID} -g #${OWNER_GID}"
 
 function help_info() {
-  echo "Usage: create_backend_template.sh BACKEND"
+  echo "Usage: create-new-backend.sh BACKEND"
   echo "    BACKEND		Name of new backend"
 }
 
