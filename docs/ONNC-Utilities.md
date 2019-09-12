@@ -98,7 +98,7 @@ $ docker pull onnc/vp
 
 ### Run Unit Tests
 
-There are 22 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
+There are 23 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
 
 ```console
 // run in the container cli
@@ -110,53 +110,55 @@ If all tests pass, you will see the same output as shown below.
 ```
 Test project /onnc/onnc-umbrella/build-normal
       Start  1: Digraph
- 1/22 Test  #1: Digraph ..........................   Passed    0.00 sec
+ 1/23 Test  #1: Digraph ..........................   Passed    0.00 sec
       Start  2: FileHandle
- 2/22 Test  #2: FileHandle .......................   Passed    0.00 sec
+ 2/23 Test  #2: FileHandle .......................   Passed    0.00 sec
       Start  3: PassManager
- 3/22 Test  #3: PassManager ......................   Passed    0.00 sec
+ 3/23 Test  #3: PassManager ......................   Passed    0.00 sec
       Start  4: Quadruple
- 4/22 Test  #4: Quadruple ........................   Passed    0.00 sec
+ 4/23 Test  #4: Quadruple ........................   Passed    0.00 sec
       Start  5: StringRef
- 5/22 Test  #5: StringRef ........................   Passed    0.00 sec
+ 5/23 Test  #5: StringRef ........................   Passed    0.00 sec
       Start  6: Any
- 6/22 Test  #6: Any ..............................   Passed    0.00 sec
+ 6/23 Test  #6: Any ..............................   Passed    0.00 sec
       Start  7: BinaryTree
- 7/22 Test  #7: BinaryTree .......................   Passed    0.00 sec
+ 7/23 Test  #7: BinaryTree .......................   Passed    0.00 sec
       Start  8: StringSwitch
- 8/22 Test  #8: StringSwitch .....................   Passed    0.00 sec
+ 8/23 Test  #8: StringSwitch .....................   Passed    0.00 sec
       Start  9: StringMap
- 9/22 Test  #9: StringMap ........................   Passed    0.68 sec
+ 9/23 Test  #9: StringMap ........................   Passed    0.69 sec
       Start 10: Json
-10/22 Test #10: Json .............................   Passed    0.00 sec
+10/23 Test #10: Json .............................   Passed    0.00 sec
       Start 11: ComputeIR
-11/22 Test #11: ComputeIR ........................   Passed    0.00 sec
+11/23 Test #11: ComputeIR ........................   Passed    0.00 sec
       Start 12: TensorSel
-12/22 Test #12: TensorSel ........................   Passed    1.49 sec
+12/23 Test #12: TensorSel ........................   Passed    0.09 sec
       Start 13: StatisticsTest
-13/22 Test #13: StatisticsTest ...................   Passed    0.03 sec
+13/23 Test #13: StatisticsTest ...................   Passed    0.00 sec
       Start 14: MemAllocTest
-14/22 Test #14: MemAllocTest .....................   Passed    0.01 sec
+14/23 Test #14: MemAllocTest .....................   Passed    0.01 sec
       Start 15: CounterTest
-15/22 Test #15: CounterTest ......................   Passed    0.00 sec
+15/23 Test #15: CounterTest ......................   Passed    0.00 sec
       Start 16: DivideGlobalAPIntoAPs
-16/22 Test #16: DivideGlobalAPIntoAPs ............   Passed    0.00 sec
-      Start 17: PropagateConstWithDiffShape
-17/22 Test #17: PropagateConstWithDiffShape ......   Passed    0.00 sec
-      Start 18: ReplaceGemmByConv
-18/22 Test #18: ReplaceGemmByConv ................   Passed    0.00 sec
-      Start 19: SplitConv
-19/22 Test #19: SplitConv ........................   Passed    0.01 sec
-      Start 20: Runtime_Abs
-20/22 Test #20: Runtime_Abs ......................   Passed    0.00 sec
-      Start 21: Runtime_Transpose
-21/22 Test #21: Runtime_Transpose ................   Passed    0.00 sec
-      Start 22: onnx2tg
-22/22 Test #22: onnx2tg ..........................   Passed    0.00 sec
+16/23 Test #16: DivideGlobalAPIntoAPs ............   Passed    0.00 sec
+      Start 17: EliminateIdentityTest
+17/23 Test #17: EliminateIdentityTest ............   Passed    0.00 sec
+      Start 18: PropagateConstWithDiffShape
+18/23 Test #18: PropagateConstWithDiffShape ......   Passed    0.00 sec
+      Start 19: ReplaceGemmByConv
+19/23 Test #19: ReplaceGemmByConv ................   Passed    0.00 sec
+      Start 20: SplitConv
+20/23 Test #20: SplitConv ........................   Passed    0.01 sec
+      Start 21: Runtime_Abs
+21/23 Test #21: Runtime_Abs ......................   Passed    0.00 sec
+      Start 22: Runtime_Transpose
+22/23 Test #22: Runtime_Transpose ................   Passed    0.00 sec
+      Start 23: onnx2tg
+23/23 Test #23: onnx2tg ..........................   Passed    0.00 sec
 
-100% tests passed, 0 tests failed out of 22
+100% tests passed, 0 tests failed out of 23
 
-Total Test time (real) =   2.26 sec
+Total Test time (real) =   0.84 sec
 ```
 
 
@@ -171,7 +173,7 @@ $ ./tools/unittests/unittest_Json
 $ exit
 ```
 
-Table 2 lists the 22 available unit tests in the ONNC repository.
+Table 2 lists the 23 available unit tests in the ONNC repository.
 
 | Test Name                   |
 | --------------------------- |
@@ -191,6 +193,7 @@ Table 2 lists the 22 available unit tests in the ONNC repository.
 | MemAllocTest                |
 | CounterTest                 |
 | DivideGlobalAPIntoAPs       |
+| EliminateIdentityTest       |
 | PropagateConstWithDiffShape |
 | ReplaceGemmByConv           |
 | SplitConv                   |
