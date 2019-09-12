@@ -12,6 +12,7 @@
 #include <onnc/Support/Enum.h>
 #include <onnc/Support/TypeTraits.h>
 #include <onnc/Transforms/Optimizations/DivideGlobalAPIntoAPs.h>
+#include <onnc/Transforms/Optimizations/EliminateIdentity.h>
 #include <onnc/Transforms/Optimizations/ExpandBatchNormalization.h>
 #include <onnc/Transforms/Optimizations/PropagateConstWithDiffShape.h>
 #include <onnc/Transforms/Optimizations/ReplaceGemmByConv.h>
@@ -27,6 +28,7 @@ namespace onnc {
 enum class OptimizationOption : unsigned
 {
   divide_globalap_into_aps,
+  eliminate_identity,
   propagate_const_with_diff_shape,
   expand_batch_normalization,
   replace_gemm_by_conv,
@@ -83,6 +85,9 @@ private:
     switch (option) {
     case OptimizationOption::divide_globalap_into_aps:
       passManager.add<DivideGlobalAPIntoAPs>();
+      break;
+    case OptimizationOption::eliminate_identity:
+      passManager.add<EliminateIdentity>();
       break;
     case OptimizationOption::propagate_const_with_diff_shape:
       passManager.add<PropagateConstWithDiffShape>();

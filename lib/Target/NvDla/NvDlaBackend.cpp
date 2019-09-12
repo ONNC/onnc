@@ -138,6 +138,7 @@ void NvDlaBackend::addOnncIrOptimization(PassManager& passManager, OptimizationO
   options.defaultEnable(OptimizationOption::propagate_const_with_diff_shape);
   options.defaultEnable(OptimizationOption::expand_batch_normalization);
   options.defaultEnable(OptimizationOption::replace_gemm_by_conv);
+  options.defaultEnable(OptimizationOption::eliminate_identity);
 
   TargetBackend::addOnncIrOptimization(passManager, options);
 
