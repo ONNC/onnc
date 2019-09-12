@@ -76,9 +76,9 @@ namespace onnc {
 //===----------------------------------------------------------------------===//
 // NvDlaBackend
 //===----------------------------------------------------------------------===//
-const Version NvDlaBackend::LOADABLE_VERSION = Version(1, 1, 255);
-const Version NvDlaBackend::BLOB_DLA_VERSION = Version(1, 3, 0);
-const Version NvDlaBackend::BLOB_EMU_VERSION = Version(1, 3, 0);
+const Version NvDlaBackend::LOADABLE_VERSION = Version(1, 1, 1);
+const Version NvDlaBackend::BLOB_DLA_VERSION = Version(1, 2, 0);
+const Version NvDlaBackend::BLOB_EMU_VERSION = Version(1, 2, 0);
 
 NvDlaBackend::NvDlaBackend(const TargetOptions& pOptions)
   : TargetBackend{pOptions}
