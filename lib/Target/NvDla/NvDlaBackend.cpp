@@ -51,6 +51,7 @@
 #include <onnc/Transforms/TensorSel/Standards/ConvLower.h>
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
 #include <onnc/Transforms/TensorSel/Standards/GemmLower.h>
+#include <onnc/Transforms/TensorSel/Standards/IdentityLower.h>
 #include <onnc/Transforms/TensorSel/Standards/GlobalAveragePoolLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LeakyReluLower.h>
@@ -218,6 +219,7 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
 
   pRegistry.emplace<ConcatLower>();
   pRegistry.emplace<FlattenLower>();
+  pRegistry.emplace<IdentityLower>();
   pRegistry.emplace<SqueezeLower>();
   pRegistry.emplace<TransposeLower>();
   pRegistry.emplace<UnsqueezeLower>();
