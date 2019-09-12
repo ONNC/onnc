@@ -16,7 +16,7 @@ using namespace onnc;
 
 static AboutData g_About("onnc",
                          "onnc",
-                         "0.1.0",
+                         "1.2.0",
                          AboutLicense::kPrivate,
                          "ONNC is the compiler driver");
 
