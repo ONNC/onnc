@@ -8,6 +8,7 @@
 #include <onnc/Support/Casting.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
+#include <onnc/Support/Path.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -17,13 +18,15 @@ using namespace onnc;
 
 extern struct shift_list* first_shift ;
 
-CortexmReadShiftPass::CortexmReadShiftPass(TargetBackend *pBackend, CortexmBackendMeta *pMeta)
-  : m_pBackend(pBackend), m_pMeta(m_pMeta){
+CortexmReadShiftPass::CortexmReadShiftPass(TargetBackend *pBackend, CortexmBackendMeta *pMeta, const Path file)
+  : m_pBackend(pBackend)
+  , m_pMeta(m_pMeta)
+  , m_file(file) {
 }
 
 Pass::ReturnType CortexmReadShiftPass::runOnModule(Module& pModule){
   FILE *shift_file;
-  shift_file = fopen("../src/shift.txt","r");
+  shift_file = fopen(m_file.c_str(),"r");
   char shift_data[50] = "";
   if(!shift_file){
     errs() << "no shift file\n";

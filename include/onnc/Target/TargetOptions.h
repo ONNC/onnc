@@ -73,6 +73,9 @@ public:
   void optOnnxModel(std::string pFileName) { m_OptOnnxModel = pFileName; }
 
   unsigned getVerboseLevel() const noexcept { return m_VerboseLevel; }
+  Path getQuantizationConfigFile() const { return m_QuantizationConfigFile; }
+
+  void setQuantizationConfigFile(Path configFile) { m_QuantizationConfigFile = std::move(configFile); }
 
   void setVerboseLevel(unsigned verboseLevel) noexcept { m_VerboseLevel = verboseLevel; }
 
@@ -83,6 +86,8 @@ private:
   bool        m_AddDummyWeight        = false;
   unsigned    m_VerboseLevel          = 0;
   std::string m_OptOnnxModel          = "";
+
+  Path m_QuantizationConfigFile;
 };
 
 } // namespace onnc

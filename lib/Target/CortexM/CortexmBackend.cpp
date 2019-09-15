@@ -115,7 +115,7 @@ void CortexmBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
 
   // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
   pPM.add<CodeEmit>(m_CodeEmitVisitor);
-  pPM.add<CortexmReadShiftPass>(this, &m_pMeta);
+  pPM.add<CortexmReadShiftPass>(this, &m_pMeta, options().getQuantizationConfigFile());
   pPM.add<CortexmHeaderFileGenPass>(this, &m_pMeta);
   pPM.add<CortexmInputPerProcessing>(this, &m_pMeta);
   pPM.add<CortexmMainFileHeaderGenPass>(this, &m_pMeta);

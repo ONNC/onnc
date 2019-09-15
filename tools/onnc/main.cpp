@@ -64,6 +64,12 @@ static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort, cl::kOptional
 static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
     cl::kValueRequired, cl::desc("target architecture"), cl::about(g_About));
 
+static cl::opt<std::string> OptCalibrationTable("load-calibration-file", cl::kLong, cl::kOptional,
+    cl::kValueRequired,
+    cl::kEqualSeparated,
+    cl::desc("Load calibration file"),
+    cl::about(g_About));
+
 //===----------------------------------------------------------------------===//
 // Main Procedure
 //===----------------------------------------------------------------------===//
@@ -119,5 +125,7 @@ int main(int pArgc, char* pArgv[])
       onnc.options().setArchName(OptMArch);
   }
 
+  onnc.options().target().setQuantizationConfigFile(OptCalibrationTable);
+  
   return onnc.compile();
 }

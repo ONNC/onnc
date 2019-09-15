@@ -1,6 +1,7 @@
 #ifndef CORTEXM_READ_SHIFT_PASS
 #define CORTEXM_READ_SHIFT_PASS
 
+#include <onnc/Support/Path.h>
 #include <onnc/Core/CustomPass.h>
 #include "CortexmMeta.h"
 
@@ -14,11 +15,12 @@ namespace onnc{
 
       int first = 0;
 
-      explicit CortexmReadShiftPass(TargetBackend *pBackend , CortexmBackendMeta *pMeta);
+      explicit CortexmReadShiftPass(TargetBackend *pBackend , CortexmBackendMeta *pMeta, const Path file);
       ReturnType runOnModule(Module& pModule) override;
     private:
       TargetBackend *m_pBackend;
       CortexmBackendMeta *m_pMeta;
+      const Path m_file;
   };
 
 }
