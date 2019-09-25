@@ -14,6 +14,9 @@ public:
   ReturnType runOnModule(Module& pModule) override;
 
 private:
+  void generateWeightFile();
+
+private:
   TargetBackend* m_pBackend;
   CortexmBackendMeta* m_pMeta;
 };
