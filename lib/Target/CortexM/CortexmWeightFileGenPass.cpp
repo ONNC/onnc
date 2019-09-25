@@ -14,23 +14,23 @@
 
 using namespace onnc;
 
-struct weight_list *first_weight;
-struct add_list *first_add;
-struct matmul_list *first_matmul;
-struct shape_list *first_shape;
-struct shift_list *first_shift;
+struct weight_list* first_weight;
+struct add_list* first_add;
+struct matmul_list* first_matmul;
+struct shape_list* first_shape;
+struct shift_list* first_shift;
 
-CortexmHeaderFileGenPass::CortexmHeaderFileGenPass(TargetBackend *pBackend,
-                                                   CortexmBackendMeta *pMeta)
+CortexmHeaderFileGenPass::CortexmHeaderFileGenPass(TargetBackend* pBackend,
+                                                   CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module &pModule) {
+Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module& pModule) {
   // weight.h
-  FILE *weight_file;
+  FILE* weight_file;
   weight_file = fopen("cortexm_weight.h", "w");
 
   unsigned int num_of_shift = 0;
-  for (struct shift_list *now_shift = first_shift; now_shift != NULL;
+  for (struct shift_list* now_shift = first_shift; now_shift != NULL;
        now_shift = now_shift->next) {
     num_of_shift++;
 
@@ -39,7 +39,7 @@ Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module &pModule) {
   }
 
   unsigned int num_of_add = 0;
-  for (struct add_list *now_add = first_add; now_add != NULL;
+  for (struct add_list* now_add = first_add; now_add != NULL;
        now_add = now_add->next) {
     num_of_add++;
     fprintf(weight_file, "#define ADD%d {", num_of_add);
@@ -76,7 +76,7 @@ Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module &pModule) {
   }
 
   unsigned int num_of_matmul = 0;
-  for (struct matmul_list *now_matmul = first_matmul; now_matmul != NULL;
+  for (struct matmul_list* now_matmul = first_matmul; now_matmul != NULL;
        now_matmul = now_matmul->next) {
     num_of_matmul++;
     fprintf(weight_file, "#define MATMUL_WEIGHT%d {", num_of_matmul);
@@ -91,7 +91,7 @@ Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module &pModule) {
   }
 
   unsigned int num_of_shape = 0;
-  for (struct shape_list *now_shape = first_shape; now_shape != NULL;
+  for (struct shape_list* now_shape = first_shape; now_shape != NULL;
        now_shape = now_shape->next) {
     num_of_shape++;
     fprintf(weight_file, "#define SHAPE%d {", num_of_shape);
@@ -108,7 +108,7 @@ Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module &pModule) {
   }
 
   unsigned int num_of_weight = 0;
-  for (struct weight_list *now_weight = first_weight; now_weight != NULL;
+  for (struct weight_list* now_weight = first_weight; now_weight != NULL;
        now_weight = now_weight->next) {
     num_of_weight++;
     // weight

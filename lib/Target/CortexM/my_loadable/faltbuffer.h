@@ -40,14 +40,14 @@ template <typename T> T EndianSwap(T t) {
   if (sizeof(T) == 1) {
     return t;
   } else if (sizeof(T) == 2) {
-    auto r = FLATBUFFERS_BYTESWAP16(*reinterpret_cast<uint16_t *>(&t));
-    return *reinterpret_cast<T *>(&r);
+    auto r = FLATBUFFERS_BYTESWAP16(*reinterpret_cast<uint16_t*>(&t));
+    return *reinterpret_cast<T*>(&r);
   } else if (sizeof(T) == 4) {
-    auto r = FLATBUFFERS_BYTESWAP32(*reinterpret_cast<uint16_t *>(&t));
-    return *reinterpret_cast<T *>(&r);
+    auto r = FLATBUFFERS_BYTESWAP32(*reinterpret_cast<uint16_t*>(&t));
+    return *reinterpret_cast<T*>(&r);
   } else if (sizeof(T) == 8) {
-    auto r = FLATBUFFERS_BYTESWAP64(*reinterpret_cast<uint16_t *>(&t));
-    return *reinterpret_cast<T *>(&r);
+    auto r = FLATBUFFERS_BYTESWAP64(*reinterpret_cast<uint16_t*>(&t));
+    return *reinterpret_cast<T*>(&r);
   } else {
     assert(0);
   }
@@ -61,14 +61,14 @@ template <typename T> T EndianScalar(T t) {
 #endif
 }
 
-template <typename T> T ReadScalar(const void *p) {
-  return EndianScalar(*reinterpret_cast<const T *>(p));
+template <typename T> T ReadScalar(const void* p) {
+  return EndianScalar(*reinterpret_cast<const T*>(p));
 }
 
 class Struct {
   uint8_t data_[4] = {1, 1, 1, 1};
 
-  const uint8_t *GetVTable() const {
+  const uint8_t* GetVTable() const {
     return data_ - ReadScalar<int16_t>(data_);
   }
 

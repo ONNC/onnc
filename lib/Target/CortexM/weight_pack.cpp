@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 short __gnu_f2h_ieee_vanilla(float param) {
-  unsigned int param_bit = *((unsigned int *)(&param));
+  unsigned int param_bit = *((unsigned int*)(&param));
   // unsigned int param_bit = *(static_cast<unsigned int*>(&param)) ;
   int sign = param_bit >> 31;
   int mantissa = param_bit & 0x007FFFFF;
@@ -64,9 +64,9 @@ short __gnu_f2h_ieee_vanilla(float param) {
   return res;
 }
 
-void weight_pack_vanilla(float *buf, float *data, int G, int dims[4],
+void weight_pack_vanilla(float* buf, float* data, int G, int dims[4],
                          int type) {
-  float *blob = (float *)buf;
+  float* blob = (float*)buf;
   int N = dims[0];
   int C = dims[1];
   int H = dims[2];
@@ -108,7 +108,7 @@ void weight_pack_vanilla(float *buf, float *data, int G, int dims[4],
   }
 }
 
-void CHW_to_HWC(float *input_data, int dims[4], float *output_data) {
+void CHW_to_HWC(float* input_data, int dims[4], float* output_data) {
   unsigned int index = 0;
   for (int k = 0; k < dims[0]; k++) {       // c*h*w
     for (int h = 0; h < dims[2]; h++) {     // w
@@ -124,7 +124,7 @@ void CHW_to_HWC(float *input_data, int dims[4], float *output_data) {
   }
 }
 
-void CHW_to_HWC_mat(float *input_data, int dims[4], float *output_data) {
+void CHW_to_HWC_mat(float* input_data, int dims[4], float* output_data) {
   unsigned int index = 0;
   for (int h = 0; h < dims[1]; h++) {       // k*w
     for (int w = 0; w < dims[2]; w++) {     // k

@@ -11,11 +11,11 @@
 using namespace onnc;
 
 CortexmMainFileHeaderGenPass::CortexmMainFileHeaderGenPass(
-    TargetBackend *pBackend, CortexmBackendMeta *pMeta)
+    TargetBackend* pBackend, CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module &pModule) {
-  FILE *file;
+Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module& pModule) {
+  FILE* file;
   file = fopen("cortexm_out.h", "w");
   fprintf(file, "#ifndef CORTEXM_OUT_H\n\
 #define CORTEXM_OUT_H\n\n\

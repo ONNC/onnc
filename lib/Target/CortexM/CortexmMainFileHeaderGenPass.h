@@ -10,13 +10,13 @@ class TargetBackend;
 class CortexmMainFileHeaderGenPass
     : public CustomPass<CortexmMainFileHeaderGenPass> {
 public:
-  explicit CortexmMainFileHeaderGenPass(TargetBackend *pBackend,
-                                        CortexmBackendMeta *pMeta);
-  ReturnType runOnModule(Module &pModule) override;
+  explicit CortexmMainFileHeaderGenPass(TargetBackend* pBackend,
+                                        CortexmBackendMeta* pMeta);
+  ReturnType runOnModule(Module& pModule) override;
 
 private:
-  TargetBackend *m_pBackend;
-  CortexmBackendMeta *m_pMeta;
+  TargetBackend* m_pBackend; 
+  CortexmBackendMeta* m_pMeta;
 };
 }
 

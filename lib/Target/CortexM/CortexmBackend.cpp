@@ -65,12 +65,12 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // CortexMBackend
 //===----------------------------------------------------------------------===//
-CortexmBackend::CortexmBackend(const TargetOptions &pOptions)
+CortexmBackend::CortexmBackend(const TargetOptions& pOptions)
     : TargetBackend(pOptions), m_pMeta{}, m_CodeEmitVisitor{m_pMeta} {
   m_pMemInfo = std::make_unique<CortexMTargetMemInfo>();
 }
 
-void CortexmBackend::addTensorSel(PassManager &pPM) {
+void CortexmBackend::addTensorSel(PassManager& pPM) {
   errs() << "CortexM is invoked\n";
 
   // Do ONNX graph IR optimization here.
@@ -83,14 +83,14 @@ void CortexmBackend::addTensorSel(PassManager &pPM) {
   // adds your ONNC IR operators.
 }
 
-void CortexmBackend::addTensorSched(PassManager &pPM) {
+void CortexmBackend::addTensorSched(PassManager& pPM) {
   // After method AddTensorSel, operators have been scheduled in an
   // topological order, which totally respects the data dependency.
   // However, that might not be an optimized order for certain objective.
   // Add a scheduling optimization pass here.
 }
 
-void CortexmBackend::addMemAlloc(PassManager &pPM) {
+void CortexmBackend::addMemAlloc(PassManager& pPM) {
   // Input: Module
   // Output: LiveIntervals
   addStandardCreateLiveIntervals(pPM);
@@ -104,7 +104,7 @@ void CortexmBackend::addMemAlloc(PassManager &pPM) {
   addStandardSetMemOperands(pPM);
 }
 
-void CortexmBackend::addCodeEmit(PassManager &pPM, const Path &pOutput) {
+void CortexmBackend::addCodeEmit(PassManager& pPM, const Path& pOutput) {
   // this is the old-style calling method. Do not use it.
   // pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
 
@@ -118,7 +118,7 @@ void CortexmBackend::addCodeEmit(PassManager &pPM, const Path &pOutput) {
   pPM.add<CortexmFileGenPass>(this, &m_pMeta);
 }
 
-void CortexmBackend::RegisterLowers(LowerRegistry &pRegistry) const {
+void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const {
   pRegistry.emplace<AddLower>();
   pRegistry.emplace<AveragePoolLower>();
   pRegistry.emplace<BatchNormalizationLower>();
@@ -145,7 +145,7 @@ void CortexmBackend::RegisterLowers(LowerRegistry &pRegistry) const {
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend *CreateCortexmBackend(const TargetOptions &pOptions) {
+TargetBackend* CreateCortexmBackend(const TargetOptions& pOptions) {
   return new CortexmBackend(pOptions);
 }
 

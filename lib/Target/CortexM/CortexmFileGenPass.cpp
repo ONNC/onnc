@@ -14,18 +14,19 @@
 
 using namespace onnc;
 
-struct code_list *first_code;
+struct code_list* first_code;
 
-CortexmFileGenPass::CortexmFileGenPass(TargetBackend *pBackend,
-                                       CortexmBackendMeta *pMeta)
+CortexmFileGenPass::CortexmFileGenPass(TargetBackend* pBackend,
+                                       CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmFileGenPass::runOnModule(Module &pModule) {
-  FILE *file;
+Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule) {
+  FILE* file;
   file = fopen("cortexm_out.cpp", "w");
 
   // create include file
-  fprintf(file, "#include <stdint.h>\n\
+  fprintf(file,"\
+#include <stdint.h>\n\
 #include <stdio.h>\n\
 #include \"arm_math.h\"\n\
 #include \"cortexm_weight.h\"\n\
@@ -52,7 +53,7 @@ Pass::ReturnType CortexmFileGenPass::runOnModule(Module &pModule) {
   int number_of_shape = 0;
   int sum_of_operators = 0;
   int number_of_maxpool_layer = 0;
-  for (struct code_list *now_node = first_code; now_node != NULL;
+  for (struct code_list* now_node = first_code; now_node != NULL;
        now_node = now_node->next) {
     if (now_node->layer_type == TYPE_CONV) {
       number_of_conv_layer++;
@@ -128,7 +129,7 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
 
   int number_of_shift = 0;
   std::string final_output_buffer;
-  for (struct code_list *now_node = first_code; now_node != NULL;
+  for (struct code_list* now_node = first_code; now_node != NULL;
        now_node = now_node->next) {
     switch (now_node->layer_type) {
     case TYPE_CONV:

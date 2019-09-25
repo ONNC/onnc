@@ -17,19 +17,19 @@ namespace onnc {
 
 class CortexmBackend : public TargetBackend {
 public:
-  CortexmBackend(const TargetOptions &pOptions);
+  CortexmBackend(const TargetOptions& pOptions);
 
   virtual ~CortexmBackend() = default;
 
-  void addTensorSel(PassManager &pPM) override;
+  void addTensorSel(PassManager& pPM) override;
 
-  void addTensorSched(PassManager &pPM) override;
+  void addTensorSched(PassManager& pPM) override;
 
-  void addMemAlloc(PassManager &pPM) override;
+  void addMemAlloc(PassManager& pPM) override;
 
-  void addCodeEmit(PassManager &pPM, const Path &pOutput) override;
+  void addCodeEmit(PassManager& pPM, const Path &pOutput) override;
 
-  void RegisterLowers(LowerRegistry &pRegistry) const override;
+  void RegisterLowers(LowerRegistry& pRegistry) const override;
 
 private:
   CortexmBackendMeta m_pMeta;

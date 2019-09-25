@@ -10,12 +10,12 @@
 
 using namespace onnc;
 
-CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend *pBackend,
-                                                     CortexmBackendMeta *pMeta)
+CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend* pBackend,
+                                                     CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module &pModule) {
-  FILE *file;
+Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule) {
+  FILE* file;
   file = fopen("cortexm_input_pre_proc.h", "w");
   // include file
   fprintf(file, "#include <stdint.h>\n\
@@ -28,7 +28,7 @@ Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module &pModule) {
   // function declaration
   fprintf(
       file,
-      "void pre_processing(int *image_data , q7_t* img_buffer){\n"); // ongoing
+      "void pre_processing(int* image_data , q7_t* img_buffer){\n"); // ongoing
 
   // function doing
   fprintf(file, "    for(int i = 0 ; i < 28*28 ; i ++){\n\

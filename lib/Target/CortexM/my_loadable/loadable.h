@@ -15,19 +15,19 @@ class Loadable;
 
 class LoadableFactory_cortexm {
 public:
-  typedef PrivPair<ILoadable *, Loadable *> LoadablePrivPair;
+  typedef PrivPair<ILoadable*, Loadable*> LoadablePrivPair;
 
   static int newLoadable();
 
-  static Loadable *priv(ILoadable *);
-  static ILoadable *i(Loadable *);
-  static ILoadable *self(void *s);
+  static Loadable* priv(ILoadable*);
+  static ILoadable* i(Loadable*);
+  static ILoadable* self(void* s);
 };
 
 class Loadable : public ILoadable {
 public:
-  virtual int setSymbolContent(std::string name, struct Blob &,
-                               uint8_t *data); // error : non-class type
+  virtual int setSymbolContent(std::string name, struct Blob&,
+                               uint8_t* data); // error : non-class type
   Loadable();
   virtual ~Loadable();
 };
