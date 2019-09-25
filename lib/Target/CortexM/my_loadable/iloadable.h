@@ -4,9 +4,8 @@
 #include <string>
 #include <vector>
 
-namespace cortexm_loadable{
-  class ILoadable{
-  };
-}//vanilla_loadable
+namespace cortexm_loadable {
+class ILoadable {};
+} // vanilla_loadable
 
 #endif

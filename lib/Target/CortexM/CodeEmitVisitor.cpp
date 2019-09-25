@@ -5,25 +5,25 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <onnc/Support/IOStream.h>
 #include "CodeEmitVisitor.h"
-#include <onnc/IR/Compute/Conv.h>
-#include <onnc/IR/Compute/Initializer.h>
-#include <onnc/IR/Compute/InputOperator.h>
-#include <onnc/IR/Compute/OutputOperator.h>
-#include <onnc/IR/Compute/MaxPool.h>
-#include <onnc/IR/Compute/Relu.h>
-#include <onnc/IR/Compute/AveragePool.h>
-#include <onnc/IR/Compute/Softmax.h>
-#include <onnc/IR/Compute/Gemm.h>
-#include <onnc/IR/Compute/Reshape.h>
-#include <onnc/IR/Compute/LRN.h>
-#include <onnc/IR/Compute/Concat.h>
-#include <onnc/IR/Compute/Add.h>
-#include <onnc/IR/Compute/MatMul.h>
 
 #include <onnc/ADT/Color.h>
 #include <onnc/Diagnostic/MsgHandling.h>
+#include <onnc/IR/Compute/Add.h>
+#include <onnc/IR/Compute/AveragePool.h>
+#include <onnc/IR/Compute/Concat.h>
+#include <onnc/IR/Compute/Conv.h>
+#include <onnc/IR/Compute/Gemm.h>
+#include <onnc/IR/Compute/Initializer.h>
+#include <onnc/IR/Compute/InputOperator.h>
+#include <onnc/IR/Compute/LRN.h>
+#include <onnc/IR/Compute/MatMul.h>
+#include <onnc/IR/Compute/MaxPool.h>
+#include <onnc/IR/Compute/OutputOperator.h>
+#include <onnc/IR/Compute/Relu.h>
+#include <onnc/IR/Compute/Reshape.h>
+#include <onnc/IR/Compute/Softmax.h>
+#include <onnc/Support/IOStream.h>
 
 //#include <fstream>
 
@@ -35,15 +35,15 @@ using namespace onnc::cortexm;
 using namespace cortexm_loadable;
 using namespace cortexm_loadable::loadable;
 
-extern struct code_list* first_code ;
-extern struct weight_list* first_weight ;
-extern struct add_list* first_add ;
+extern struct code_list*   first_code;
+extern struct weight_list* first_weight;
+extern struct add_list*    first_add;
 extern struct matmul_list* first_matmul;
-extern struct shape_list* first_shape;
+extern struct shape_list*  first_shape;
 
-CodeEmitVisitor::CodeEmitVisitor(CortexmBackendMeta &Meta) noexcept 
-: m_pMeta{Meta}
-{ }
+CodeEmitVisitor::CodeEmitVisitor(CortexmBackendMeta& Meta) noexcept
+  : m_pMeta{Meta}
+{}
 
 void CodeEmitVisitor::visit(Initializer& pInitializer)
 {
@@ -91,143 +91,147 @@ void CodeEmitVisitor::visit(const Conv& pConv)
 {
   int group = pConv.getGroup().value();
 
-  const Tensor *input_x = pConv.getInput(0);
+  const Tensor* input_x = pConv.getInput(0);
 
-  const Tensor *input_w = pConv.getInput(1);
-  int input_w_dim[4] = {1,1,1,1};
-  for(int loop = 0 ; loop < input_w->getNumOfDimensions() ; loop++){
-    input_w_dim[loop] = input_w -> dimension(loop);
-  }  
+  const Tensor* input_w        = pConv.getInput(1);
+  int           input_w_dim[4] = {1, 1, 1, 1};
+  for (int loop = 0; loop < input_w->getNumOfDimensions(); loop++) {
+    input_w_dim[loop] = input_w->dimension(loop);
+  }
 
-  const Tensor *input_b = NULL;
-  int32_t input_b_d = 0;
+  const Tensor* input_b   = NULL;
+  int32_t       input_b_d = 0;
   if (pConv.getNumOfInputs() > 2) {
-    input_b = pConv.getInput(2);
+    input_b   = pConv.getInput(2);
     input_b_d = input_b->dimension(0);
   }
   // get output dimension
-  const Tensor *output = pConv.getOutput(0);
-  
-  // save weight
-  float *weight = packWeight_or_Bias(pConv , input_w , input_w_dim[0] , group , (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]) );
-  float *weight_HWC = (float*)malloc(sizeof(float) * (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]));
+  const Tensor* output = pConv.getOutput(0);
 
-  CHW_to_HWC(weight,input_w_dim,weight_HWC);
-  float *bias = (float*)malloc(sizeof(float) * input_w_dim[0]);
-  if(pConv.getNumOfInputs() > 2){
-  	bias = packWeight_or_Bias(pConv , input_b , input_b_d , group , (input_b_d * ELEMENT_SIZE + 31) & ~(31));
-	}else{
-    for(int index = 0 ; index < input_w_dim[0] ; index++){
+  // save weight
+  float* weight = packWeight_or_Bias(pConv, input_w, input_w_dim[0], group,
+                                     (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]));
+  float* weight_HWC =
+    (float*)malloc(sizeof(float) * (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]));
+
+  CHW_to_HWC(weight, input_w_dim, weight_HWC);
+  float* bias = (float*)malloc(sizeof(float) * input_w_dim[0]);
+  if (pConv.getNumOfInputs() > 2) {
+    bias = packWeight_or_Bias(pConv, input_b, input_b_d, group, (input_b_d * ELEMENT_SIZE + 31) & ~(31));
+  } else {
+    for (int index = 0; index < input_w_dim[0]; index++) {
       bias[index] = 0;
     }
   }
-  
-  if(first == 0){
-    first_weight = save_weight;
-    save_weight -> weight_value = weight_HWC;
-    save_weight -> weight_size = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
-		save_weight -> bias_value = bias;
-    if(pConv.getNumOfInputs() > 2){
-		  save_weight -> bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31)& ~(31);
-      save_weight -> have_bias = true;
-    }else{
-      save_weight -> bias_size = input_w_dim[0];
-      save_weight -> have_bias = false;
+
+  if (first == 0) {
+    first_weight              = save_weight;
+    save_weight->weight_value = weight_HWC;
+    save_weight->weight_size  = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
+    save_weight->bias_value   = bias;
+    if (pConv.getNumOfInputs() > 2) {
+      save_weight->bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
+      save_weight->have_bias = true;
+    } else {
+      save_weight->bias_size = input_w_dim[0];
+      save_weight->have_bias = false;
     }
-    save_weight -> next = NULL;
-  }else{
+    save_weight->next = NULL;
+  } else {
     struct weight_list* new_weight = (weight_list*)malloc(sizeof(weight_list));
-    new_weight -> weight_value = weight_HWC;
-    new_weight -> weight_size = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
-		new_weight -> bias_value = bias;
-		if(pConv.getNumOfInputs() > 2){
-		  new_weight -> bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31)& ~(31);
-      new_weight -> have_bias = true;
-    }else{
-      new_weight -> bias_size = input_w_dim[0];
-      new_weight -> have_bias = false;
+    new_weight->weight_value       = weight_HWC;
+    new_weight->weight_size        = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
+    new_weight->bias_value         = bias;
+    if (pConv.getNumOfInputs() > 2) {
+      new_weight->bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
+      new_weight->have_bias = true;
+    } else {
+      new_weight->bias_size = input_w_dim[0];
+      new_weight->have_bias = false;
     }
-    new_weight -> next = NULL;
-    save_weight -> next = new_weight;
-    save_weight = new_weight;
+    new_weight->next  = NULL;
+    save_weight->next = new_weight;
+    save_weight       = new_weight;
   }
-  
-  float auto_pad = 0;
+
+  float       auto_pad        = 0;
   std::string auto_pad_string = pConv.getAutoPad();
-  if( strcmp(auto_pad_string.c_str(),"SAME_UPPER") == 0 ){
+  if (strcmp(auto_pad_string.c_str(), "SAME_UPPER") == 0) {
     auto_pad = 0.5;
-    
-  }else if( strcmp(auto_pad_string.c_str(),"SAME_LOWER") == 0 ){
+
+  } else if (strcmp(auto_pad_string.c_str(), "SAME_LOWER") == 0) {
     auto_pad = (-0.5);
-  
   }
 
-  if(pConv.getStrides().at(0) != pConv.getStrides().at(1)){
-    errs() << "In Conv, your x-stride and y-stride are different, we just use your x-stride.\n";
+  if (pConv.getStrides().at(0) != pConv.getStrides().at(1)) {
+    errs() << "In Conv, your x-stride and y-stride are different, we just use "
+              "your x-stride.\n";
   }
 
-  //errs() << auto_pad << "\n";
+  // errs() << auto_pad << "\n";
   layer_id++;
-  if(first == 0){
-    first_code = save_code;
-    save_code -> layer_type = TYPE_CONV;
-    save_code -> batch_size = input_x->dimension(0);
-    save_code -> input_dimention = input_x->dimension(2);
-    save_code -> input_channel = input_x->dimension(1);
-    save_code -> output_channel = output->dimension(1);
-    save_code -> kernel_size = pConv.getKernelShape().at(0);
-    if(strcmp(auto_pad_string.c_str(),"VALID") == 0){
-      save_code -> pad = 0;
-      save_code -> pads = NULL;
-    }else if(strcmp(auto_pad_string.c_str(),"NOTSET") == 0){
-      save_code -> pad = pConv.getPads().at(0);
-      save_code -> pads[0] = pConv.getPads().at(0);
-      save_code -> pads[1] = pConv.getPads().at(1);
-      save_code -> pads[2] = pConv.getPads().at(2);
-      save_code -> pads[3] = pConv.getPads().at(3);
-    }else{
-      save_code -> pad = get_padding(input_x->dimension(2),output->dimension(2),pConv.getKernelShape().at(0),pConv.getStrides().at(0),auto_pad);
-      save_code -> pads = NULL;
+  if (first == 0) {
+    first_code                 = save_code;
+    save_code->layer_type      = TYPE_CONV;
+    save_code->batch_size      = input_x->dimension(0);
+    save_code->input_dimention = input_x->dimension(2);
+    save_code->input_channel   = input_x->dimension(1);
+    save_code->output_channel  = output->dimension(1);
+    save_code->kernel_size     = pConv.getKernelShape().at(0);
+    if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
+      save_code->pad  = 0;
+      save_code->pads = NULL;
+    } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
+      save_code->pad     = pConv.getPads().at(0);
+      save_code->pads[0] = pConv.getPads().at(0);
+      save_code->pads[1] = pConv.getPads().at(1);
+      save_code->pads[2] = pConv.getPads().at(2);
+      save_code->pads[3] = pConv.getPads().at(3);
+    } else {
+      save_code->pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
+                                   pConv.getStrides().at(0), auto_pad);
+      save_code->pads = NULL;
     }
-    save_code -> stride = pConv.getStrides().at(0);
-    save_code -> buffer_order = buffer_order;
-    save_code -> output_dimention = output->dimension(2);
-    save_code -> layer_id = layer_id;
-    save_code -> next = NULL;
+    save_code->stride           = pConv.getStrides().at(0);
+    save_code->buffer_order     = buffer_order;
+    save_code->output_dimention = output->dimension(2);
+    save_code->layer_id         = layer_id;
+    save_code->next             = NULL;
     first++;
-  }else{
+  } else {
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code -> layer_type = TYPE_CONV;
-    new_code -> batch_size = input_x->dimension(0);
-    new_code -> input_dimention = input_x->dimension(2);
-    new_code -> input_channel = input_x->dimension(1);
-    new_code -> output_channel = output->dimension(1);
-    new_code -> kernel_size = pConv.getKernelShape().at(0);
-    if(strcmp(auto_pad_string.c_str(),"VALID") == 0){
-      new_code -> pad = 0;
-      new_code -> pads = NULL;
-    }else if(strcmp(auto_pad_string.c_str(),"NOTSET") == 0){
-      new_code -> pad = pConv.getPads().at(0);
-      new_code -> pads[0] = pConv.getPads().at(0);
-      new_code -> pads[1] = pConv.getPads().at(1);
-      new_code -> pads[2] = pConv.getPads().at(2);
-      new_code -> pads[3] = pConv.getPads().at(3);
-    }else{
-      new_code -> pad = get_padding(input_x->dimension(2),output->dimension(2),pConv.getKernelShape().at(0),pConv.getStrides().at(0),auto_pad);
-      new_code -> pads = NULL;
+    new_code->layer_type       = TYPE_CONV;
+    new_code->batch_size       = input_x->dimension(0);
+    new_code->input_dimention  = input_x->dimension(2);
+    new_code->input_channel    = input_x->dimension(1);
+    new_code->output_channel   = output->dimension(1);
+    new_code->kernel_size      = pConv.getKernelShape().at(0);
+    if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
+      new_code->pad  = 0;
+      new_code->pads = NULL;
+    } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
+      new_code->pad     = pConv.getPads().at(0);
+      new_code->pads[0] = pConv.getPads().at(0);
+      new_code->pads[1] = pConv.getPads().at(1);
+      new_code->pads[2] = pConv.getPads().at(2);
+      new_code->pads[3] = pConv.getPads().at(3);
+    } else {
+      new_code->pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
+                                  pConv.getStrides().at(0), auto_pad);
+      new_code->pads = NULL;
     }
-    new_code -> stride = pConv.getStrides().at(0);
-    new_code -> buffer_order = buffer_order;
-    new_code -> output_dimention = output->dimension(2);
-    new_code -> layer_id = layer_id;
-    new_code -> next = NULL;
-    save_code -> next = new_code;
-    save_code = new_code;
-  } 
-  
+    new_code->stride           = pConv.getStrides().at(0);
+    new_code->buffer_order     = buffer_order;
+    new_code->output_dimention = output->dimension(2);
+    new_code->layer_id         = layer_id;
+    new_code->next             = NULL;
+    save_code->next            = new_code;
+    save_code                  = new_code;
+  }
+
   pConv.print(errs());
   errs() << "\n\n";
-  buffer_order = (buffer_order+1)&1;
+  buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(MaxPool& pMaxPool)
@@ -238,95 +242,97 @@ void CodeEmitVisitor::visit(MaxPool& pMaxPool)
 
 void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 {
-  const Tensor *input_x = pMaxPool.getInput(0);
+  const Tensor* input_x = pMaxPool.getInput(0);
 
-  const Tensor *input_w = NULL;
-  int32_t input_w_d = 0;
+  const Tensor* input_w   = NULL;
+  int32_t       input_w_d = 0;
   if (pMaxPool.getNumOfInputs() > 1) {
-    input_w = pMaxPool.getInput(1);
+    input_w   = pMaxPool.getInput(1);
     input_w_d = input_w->getNumOfDimensions();
   }
 
-  const Tensor *input_b = NULL;
-  int32_t input_b_d = 0;
+  const Tensor* input_b   = NULL;
+  int32_t       input_b_d = 0;
   if (pMaxPool.getNumOfInputs() > 2) {
-    input_b = pMaxPool.getInput(2);
+    input_b   = pMaxPool.getInput(2);
     input_b_d = input_b->getNumOfDimensions();
   }
 
-  const Tensor *output_y = pMaxPool.getOutput(0);
-  
-  float auto_pad = 0;
+  const Tensor* output_y = pMaxPool.getOutput(0);
+
+  float       auto_pad        = 0;
   std::string auto_pad_string = pMaxPool.getAutoPad();
-  if( strcmp(auto_pad_string.c_str(),"\"SAME_UPPER\"") != 0 ){
+  if (strcmp(auto_pad_string.c_str(), "\"SAME_UPPER\"") != 0) {
     auto_pad = 0.5;
-  }else if( strcmp(auto_pad_string.c_str(),"\"SAME_LOWER\"") != 0 ){
+  } else if (strcmp(auto_pad_string.c_str(), "\"SAME_LOWER\"") != 0) {
     auto_pad = (-0.5);
   }
 
-  //save
+  // save
   layer_id++;
-  if(first == 0){
-    first_code = save_code;
-    save_code -> layer_type = TYPE_MAXPOOLING;
-    save_code -> input_dimention = input_x->dimension(2);
-    save_code -> input_channel = input_x->dimension(1);
-    save_code -> kernel_size = pMaxPool.getKernelShape().at(0);
-    save_code -> output_channel = output_y->dimension(1);
+  if (first == 0) {
+    first_code                 = save_code;
+    save_code->layer_type      = TYPE_MAXPOOLING;
+    save_code->input_dimention = input_x->dimension(2);
+    save_code->input_channel   = input_x->dimension(1);
+    save_code->kernel_size     = pMaxPool.getKernelShape().at(0);
+    save_code->output_channel  = output_y->dimension(1);
     // std::string auto_pad_string = pMaxPool.getAutoPad();
-    if(strcmp(auto_pad_string.c_str(),"VALID") == 0){
-      save_code -> pad = 0;
-      save_code -> pads = NULL;
-    }else if(strcmp(auto_pad_string.c_str(),"NOTSET") == 0){
-      save_code -> pad = pMaxPool.getPads().at(0);
-      save_code -> pads[0] = pMaxPool.getPads().at(0);
-      save_code -> pads[1] = pMaxPool.getPads().at(1);
-      save_code -> pads[2] = pMaxPool.getPads().at(2);
-      save_code -> pads[3] = pMaxPool.getPads().at(3);
+    if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
+      save_code->pad  = 0;
+      save_code->pads = NULL;
+    } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
+      save_code->pad     = pMaxPool.getPads().at(0);
+      save_code->pads[0] = pMaxPool.getPads().at(0);
+      save_code->pads[1] = pMaxPool.getPads().at(1);
+      save_code->pads[2] = pMaxPool.getPads().at(2);
+      save_code->pads[3] = pMaxPool.getPads().at(3);
     }
-    save_code -> stride = pMaxPool.getStrides().at(0);
-    save_code -> buffer_order = buffer_order;
-    save_code -> output_dimention = output_y->dimension(2);
-    save_code -> layer_id = layer_id;
-    save_code -> next = NULL;
+    save_code->stride           = pMaxPool.getStrides().at(0);
+    save_code->buffer_order     = buffer_order;
+    save_code->output_dimention = output_y->dimension(2);
+    save_code->layer_id         = layer_id;
+    save_code->next             = NULL;
     first++;
-  }else{
+  } else {
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code -> layer_type = TYPE_MAXPOOLING;
-    new_code -> buffer_order = buffer_order;
+    new_code->layer_type       = TYPE_MAXPOOLING;
+    new_code->buffer_order     = buffer_order;
 
-    new_code -> input_dimention = input_x->dimension(2);
-    new_code -> input_channel = input_x->dimension(1);
-    new_code -> kernel_size = pMaxPool.getKernelShape().at(0);
+    new_code->input_dimention = input_x->dimension(2);
+    new_code->input_channel   = input_x->dimension(1);
+    new_code->kernel_size     = pMaxPool.getKernelShape().at(0);
 
-    if(pMaxPool.getStrides().at(0) != pMaxPool.getStrides().at(1)){
-      errs() << "In Maxpooling, your x-stride and y-stride are different, we just use your x-stride.\n";
+    if (pMaxPool.getStrides().at(0) != pMaxPool.getStrides().at(1)) {
+      errs() << "In Maxpooling, your x-stride and y-stride are different, we "
+                "just use your x-stride.\n";
     }
 
-    if(strcmp(auto_pad_string.c_str(),"\"VALID\"") != 0){
-      new_code -> pad = 0;
-      new_code -> pads = NULL;
-    }else if(strcmp(auto_pad_string.c_str(),"\"NOTSET\"") != 0){
-      new_code -> pad = pMaxPool.getPads().at(0);
-      new_code -> pads[0] = pMaxPool.getPads().at(0);
-      new_code -> pads[1] = pMaxPool.getPads().at(1);
-      new_code -> pads[2] = pMaxPool.getPads().at(2);
-      new_code -> pads[3] = pMaxPool.getPads().at(3);
-    }else{
-      new_code -> pad = get_padding(input_x->dimension(2),output_y->dimension(2),pMaxPool.getKernelShape().at(0),pMaxPool.getStrides().at(0),auto_pad);
-      new_code -> pads = NULL;
+    if (strcmp(auto_pad_string.c_str(), "\"VALID\"") != 0) {
+      new_code->pad  = 0;
+      new_code->pads = NULL;
+    } else if (strcmp(auto_pad_string.c_str(), "\"NOTSET\"") != 0) {
+      new_code->pad     = pMaxPool.getPads().at(0);
+      new_code->pads[0] = pMaxPool.getPads().at(0);
+      new_code->pads[1] = pMaxPool.getPads().at(1);
+      new_code->pads[2] = pMaxPool.getPads().at(2);
+      new_code->pads[3] = pMaxPool.getPads().at(3);
+    } else {
+      new_code->pad  = get_padding(input_x->dimension(2), output_y->dimension(2), pMaxPool.getKernelShape().at(0),
+                                  pMaxPool.getStrides().at(0), auto_pad);
+      new_code->pads = NULL;
     }
-    new_code -> stride = pMaxPool.getStrides().at(0);
-    new_code -> output_dimention = output_y->dimension(2);
-    new_code -> layer_id = layer_id;
-    new_code -> next = NULL;
-    save_code -> next = new_code;
-    save_code = new_code;
+    new_code->stride           = pMaxPool.getStrides().at(0);
+    new_code->output_dimention = output_y->dimension(2);
+    new_code->layer_id         = layer_id;
+    new_code->next             = NULL;
+    save_code->next            = new_code;
+    save_code                  = new_code;
   }
 
   pMaxPool.print(errs());
   errs() << "\n\n";
-  buffer_order = (buffer_order+1)&1;
+  buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(Relu& pRelu)
@@ -337,39 +343,39 @@ void CodeEmitVisitor::visit(Relu& pRelu)
 
 void CodeEmitVisitor::visit(const Relu& pRelu)
 {
-  const Tensor *input_x = pRelu.getInput(0);
-  const Tensor *output_y = pRelu.getOutput(0);
-  
+  const Tensor* input_x  = pRelu.getInput(0);
+  const Tensor* output_y = pRelu.getOutput(0);
+
   layer_id++;
-  if(first == 0){
-    first_code = save_code;
-    save_code -> layer_type = TYPE_RELU;
-    save_code -> batch_size = input_x->dimension(0);
-    save_code -> input_channel = input_x->dimension(1);
-    save_code -> input_dimention = input_x->dimension(2);
-    save_code -> output_channel = output_y->dimension(1);
-    save_code -> output_dimention = output_y->dimension(2);
-    save_code -> buffer_order = buffer_order;
-    save_code -> layer_id = layer_id;
-    save_code -> next = NULL;
-    first++;    
-  }else{
-  //save
+  if (first == 0) {
+    first_code                  = save_code;
+    save_code->layer_type       = TYPE_RELU;
+    save_code->batch_size       = input_x->dimension(0);
+    save_code->input_channel    = input_x->dimension(1);
+    save_code->input_dimention  = input_x->dimension(2);
+    save_code->output_channel   = output_y->dimension(1);
+    save_code->output_dimention = output_y->dimension(2);
+    save_code->buffer_order     = buffer_order;
+    save_code->layer_id         = layer_id;
+    save_code->next             = NULL;
+    first++;
+  } else {
+    // save
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code -> layer_type = TYPE_RELU;
-    new_code -> batch_size = output_y->dimension(0);
-    if(input_x -> getNumOfDimensions() == 4){
-      new_code -> output_channel = output_y->dimension(1);
-      new_code -> output_dimention = output_y->dimension(2);
-    }else if(input_x -> getNumOfDimensions() == 2){
-      new_code -> output_channel = output_y->dimension(1);
-      new_code -> output_dimention = 1;
+    new_code->layer_type       = TYPE_RELU;
+    new_code->batch_size       = output_y->dimension(0);
+    if (input_x->getNumOfDimensions() == 4) {
+      new_code->output_channel   = output_y->dimension(1);
+      new_code->output_dimention = output_y->dimension(2);
+    } else if (input_x->getNumOfDimensions() == 2) {
+      new_code->output_channel   = output_y->dimension(1);
+      new_code->output_dimention = 1;
     }
-    new_code -> buffer_order = buffer_order;
-    new_code -> layer_id = layer_id;
-    new_code -> next = NULL;
-    save_code -> next = new_code;
-    save_code = new_code;
+    new_code->buffer_order = buffer_order;
+    new_code->layer_id     = layer_id;
+    new_code->next         = NULL;
+    save_code->next        = new_code;
+    save_code              = new_code;
   }
   pRelu.print(errs());
   errs() << "\n\n";
@@ -395,20 +401,20 @@ void CodeEmitVisitor::visit(Softmax& pSoftmax)
 
 void CodeEmitVisitor::visit(const Softmax& pSoftmax)
 {
-  const Tensor *input_x = pSoftmax.getInput(0);
-  int32_t input_x_d = input_x->getNumOfDimensions();
-  for(int loop = 0 ; loop<input_x_d; loop++){
+  const Tensor* input_x   = pSoftmax.getInput(0);
+  int32_t       input_x_d = input_x->getNumOfDimensions();
+  for (int loop = 0; loop < input_x_d; loop++) {
   }
   int32_t axis = pSoftmax.getAxis().value();
-  //save
+  // save
   layer_id++;
   struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-  new_code -> layer_type = TYPE_SOFTMAX;
-  new_code -> layer_id = layer_id;
-  new_code -> next = NULL;
-  save_code -> next = new_code;
-  save_code = new_code;
-  
+  new_code->layer_type       = TYPE_SOFTMAX;
+  new_code->layer_id         = layer_id;
+  new_code->next             = NULL;
+  save_code->next            = new_code;
+  save_code                  = new_code;
+
   pSoftmax.print(errs());
   errs() << "\n\n";
 }
@@ -421,54 +427,54 @@ void CodeEmitVisitor::visit(Gemm& pGemm)
 
 void CodeEmitVisitor::visit(const Gemm& pGemm)
 {
-  const Tensor *input_x = pGemm.getInput(0);
-  int32_t input_x_d = input_x->getNumOfDimensions();
-  for(int loop = 0 ; loop<input_x_d; loop++){
+  const Tensor* input_x   = pGemm.getInput(0);
+  int32_t       input_x_d = input_x->getNumOfDimensions();
+  for (int loop = 0; loop < input_x_d; loop++) {
   }
 
-  const Tensor *input_w = pGemm.getInput(1);
-  int32_t input_w_d = input_w->getNumOfDimensions();
-  for(int loop = 0 ; loop<input_w_d; loop++){
+  const Tensor* input_w   = pGemm.getInput(1);
+  int32_t       input_w_d = input_w->getNumOfDimensions();
+  for (int loop = 0; loop < input_w_d; loop++) {
   }
 
-  const Tensor *input_b = NULL;
-  int32_t input_b_d = 0;
+  const Tensor* input_b   = NULL;
+  int32_t       input_b_d = 0;
   if (pGemm.getNumOfInputs() > 2) {
-    input_b = pGemm.getInput(2);
+    input_b   = pGemm.getInput(2);
     input_b_d = input_b->getNumOfDimensions();
-    for(int loop = 0 ; loop<input_b_d; loop++){
+    for (int loop = 0; loop < input_b_d; loop++) {
     }
   }
 
   float alpha = pGemm.getAlpha().value();
-  
+
   float beta = pGemm.getBeta().value();
-  
+
   int32_t transA = pGemm.getTransA().value();
-  
+
   int32_t transB = pGemm.getTransB().value();
 
-  //save
+  // save
   layer_id++;
   struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-  
-  new_code -> layer_type = TYPE_FULLYCONNECT;
-  new_code -> buffer_order = buffer_order;
-  if(save_code -> layer_type == TYPE_MAXPOOLING){
-    new_code -> input_channel = save_code -> input_channel;
-    new_code -> output_dimention = save_code -> output_dimention;
-  }else if(save_code -> layer_type == TYPE_RELU){
-    new_code -> input_channel = save_code -> output_channel;
-    new_code -> output_dimention = 1;
+
+  new_code->layer_type   = TYPE_FULLYCONNECT;
+  new_code->buffer_order = buffer_order;
+  if (save_code->layer_type == TYPE_MAXPOOLING) {
+    new_code->input_channel    = save_code->input_channel;
+    new_code->output_dimention = save_code->output_dimention;
+  } else if (save_code->layer_type == TYPE_RELU) {
+    new_code->input_channel    = save_code->output_channel;
+    new_code->output_dimention = 1;
   }
-  new_code -> layer_id = layer_id;
-  new_code -> next = NULL;
-  save_code -> next = new_code;
-  save_code = new_code;
+  new_code->layer_id = layer_id;
+  new_code->next     = NULL;
+  save_code->next    = new_code;
+  save_code          = new_code;
 
   pGemm.print(errs());
   errs() << "\n\n";
-  buffer_order = (buffer_order+1)&1;
+  buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(Reshape& pReshape)
@@ -479,81 +485,82 @@ void CodeEmitVisitor::visit(Reshape& pReshape)
 
 void CodeEmitVisitor::visit(const Reshape& pReshape)
 {
-  const Tensor *input_x = pReshape.getInput(0);
-  const Tensor *data = pReshape.getShape();
-  
-  errs()<< "data:" << data->dimension(0) <<"\n";
+  const Tensor* input_x = pReshape.getInput(0);
+  const Tensor* data    = pReshape.getShape();
 
-  int32_t input_x_d = input_x->getNumOfDimensions();
-  int input_x_dim[4] = {1,1,1,1};
-  for(int loop = 0 ; loop < input_x_d ; loop++){
-    input_x_dim[loop] = input_x -> dimension(loop);
-    errs()<< "data2:" << input_x->dimension(loop) <<"\n";
-  } 
+  errs() << "data:" << data->dimension(0) << "\n";
 
-  const Tensor *output_y = pReshape.getOutput(0);
-  int32_t output_y_d = output_y->getNumOfDimensions();
-  int *output_y_dim = (int*)malloc(sizeof(int)*output_y_d);
-  for(int loop = 0 ; loop < output_y_d ; loop++){
-    output_y_dim[loop] = output_y -> dimension(loop);
-  } 
+  int32_t input_x_d      = input_x->getNumOfDimensions();
+  int     input_x_dim[4] = {1, 1, 1, 1};
+  for (int loop = 0; loop < input_x_d; loop++) {
+    input_x_dim[loop] = input_x->dimension(loop);
+    errs() << "data2:" << input_x->dimension(loop) << "\n";
+  }
 
+  const Tensor* output_y     = pReshape.getOutput(0);
+  int32_t       output_y_d   = output_y->getNumOfDimensions();
+  int*          output_y_dim = (int*)malloc(sizeof(int) * output_y_d);
+  for (int loop = 0; loop < output_y_d; loop++) {
+    output_y_dim[loop] = output_y->dimension(loop);
+  }
 
-  if(output_y_dim[0] != 1){
-    float *weight = packWeight_or_Bias(pReshape , input_x , input_x_dim[0] , 1 , (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3] * ELEMENT_SIZE + 31) & ~(31));
-    float *weight_HWC = (float*)malloc(sizeof(float) * (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]));
-    CHW_to_HWC_mat(weight,input_x_dim,weight_HWC);
-    if(matmul_first == 0){
-      first_matmul = save_matmul;
-      save_matmul -> matmul_value = weight_HWC;
-      save_matmul -> matmul_size = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
-      for(int i = 0; i<4 ; i++){
-        errs()<<"input:"<<input_x_dim[i]<<"\n";
+  if (output_y_dim[0] != 1) {
+    float* weight = packWeight_or_Bias(
+      pReshape, input_x, input_x_dim[0], 1,
+      (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3] * ELEMENT_SIZE + 31) & ~(31));
+    float* weight_HWC =
+      (float*)malloc(sizeof(float) * (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]));
+    CHW_to_HWC_mat(weight, input_x_dim, weight_HWC);
+    if (matmul_first == 0) {
+      first_matmul              = save_matmul;
+      save_matmul->matmul_value = weight_HWC;
+      save_matmul->matmul_size  = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+      for (int i = 0; i < 4; i++) {
+        errs() << "input:" << input_x_dim[i] << "\n";
       }
-      errs()<<"matmul_size:"<<save_matmul ->matmul_size<<"\n";
-      save_matmul -> output_channel = input_x_dim[0];
-      save_matmul -> input_channel = input_x_dim[0];
-      save_matmul -> input_dimention = input_x_dim[1];
-      save_matmul -> batch_size = input_x_dim[3];
-      save_matmul -> next = NULL;
+      errs() << "matmul_size:" << save_matmul->matmul_size << "\n";
+      save_matmul->output_channel  = input_x_dim[0];
+      save_matmul->input_channel   = input_x_dim[0];
+      save_matmul->input_dimention = input_x_dim[1];
+      save_matmul->batch_size      = input_x_dim[3];
+      save_matmul->next            = NULL;
       matmul_first++;
-    }else{
+    } else {
       struct matmul_list* new_matmul = (matmul_list*)malloc(sizeof(matmul_list));
-      new_matmul -> matmul_value = weight_HWC;
-      new_matmul -> matmul_size = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+      new_matmul->matmul_value       = weight_HWC;
+      new_matmul->matmul_size        = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
       // errs()<<"matmul_size:"<<new_matmul -> matmul_size<<"\n";
-      for(int i = 0; i<4 ; i++){
-        errs()<<"input:"<<input_x_dim[i]<<"\n";
+      for (int i = 0; i < 4; i++) {
+        errs() << "input:" << input_x_dim[i] << "\n";
       }
-      new_matmul -> output_channel = input_x_dim[0];
-      new_matmul -> input_channel = input_x_dim[0];
-      new_matmul -> input_dimention = input_x_dim[1];
-      new_matmul -> batch_size = input_x_dim[3];
-      new_matmul -> next = NULL;
-      save_matmul -> next = new_matmul;
-      save_matmul = new_matmul;
+      new_matmul->output_channel  = input_x_dim[0];
+      new_matmul->input_channel   = input_x_dim[0];
+      new_matmul->input_dimention = input_x_dim[1];
+      new_matmul->batch_size      = input_x_dim[3];
+      new_matmul->next            = NULL;
+      save_matmul->next           = new_matmul;
+      save_matmul                 = new_matmul;
     }
   }
 
-  if(shape_first == 0){
-    first_shape = save_shape;
-    save_shape -> shape_value = output_y_dim;
-    save_shape -> next = NULL;
+  if (shape_first == 0) {
+    first_shape             = save_shape;
+    save_shape->shape_value = output_y_dim;
+    save_shape->next        = NULL;
     shape_first++;
-  }else{
+  } else {
     struct shape_list* new_shape = (shape_list*)malloc(sizeof(shape_list));
-    
 
-    if(save_shape -> shape_value[1] == output_y_dim[0] ){
-      new_shape -> shape_value = output_y_dim;
-    }else{
-      new_shape -> shape_value = save_shape -> shape_value;
-      save_shape -> shape_value = output_y_dim;
+    if (save_shape->shape_value[1] == output_y_dim[0]) {
+      new_shape->shape_value = output_y_dim;
+    } else {
+      new_shape->shape_value  = save_shape->shape_value;
+      save_shape->shape_value = output_y_dim;
     }
 
-    new_shape -> next = NULL;
-    save_shape -> next = new_shape;
-    save_shape = new_shape;
+    new_shape->next  = NULL;
+    save_shape->next = new_shape;
+    save_shape       = new_shape;
   }
 
   pReshape.print(errs());
@@ -568,18 +575,17 @@ void CodeEmitVisitor::visit(LRN& pLRN)
 
 void CodeEmitVisitor::visit(const LRN& pLRN)
 {
-
-  const Tensor *input_x = pLRN.getInput(0);
-  int32_t input_x_d = input_x->getNumOfDimensions();
-  for(int loop = 0 ; loop<input_x_d; loop++){
+  const Tensor* input_x   = pLRN.getInput(0);
+  int32_t       input_x_d = input_x->getNumOfDimensions();
+  for (int loop = 0; loop < input_x_d; loop++) {
   }
 
   float alpha = pLRN.getAlpha().value();
-  
+
   float beta = pLRN.getBeta().value();
-  
+
   float bias = pLRN.getBias().value();
-  
+
   int32_t size = pLRN.getSize().value();
 
   pLRN.print(errs());
@@ -606,116 +612,114 @@ void CodeEmitVisitor::visit(Add& pAdd)
 
 void CodeEmitVisitor::visit(const Add& pAdd)
 {
-  const Tensor *input_x = pAdd.getInput(0);
-  int32_t input_x_d = input_x->getNumOfDimensions();
-  int input_x_dim[4] = {1,1,1,1};
-  int *input_x_dim_ptr = (int*)malloc(sizeof(input_x_dim));
-  for(int loop = 0;loop < input_x_d;loop++){
-    input_x_dim[loop] = input_x -> dimension(loop);
+  const Tensor* input_x         = pAdd.getInput(0);
+  int32_t       input_x_d       = input_x->getNumOfDimensions();
+  int           input_x_dim[4]  = {1, 1, 1, 1};
+  int*          input_x_dim_ptr = (int*)malloc(sizeof(input_x_dim));
+  for (int loop = 0; loop < input_x_d; loop++) {
+    input_x_dim[loop]     = input_x->dimension(loop);
     input_x_dim_ptr[loop] = input_x_dim[loop];
-   
   }
-  if(input_x_d == 4){
-    input_x_dim_ptr[1] ^= input_x_dim_ptr[3]; 
-    input_x_dim_ptr[3] ^= input_x_dim_ptr[1]; 
-    input_x_dim_ptr[1] ^= input_x_dim_ptr[3]; 
+  if (input_x_d == 4) {
+    input_x_dim_ptr[1] ^= input_x_dim_ptr[3];
+    input_x_dim_ptr[3] ^= input_x_dim_ptr[1];
+    input_x_dim_ptr[1] ^= input_x_dim_ptr[3];
   }
-  
-  const Tensor *input_b = pAdd.getInput(1);
-  int32_t input_b_d = input_b->getNumOfDimensions();
-  int input_b_dim[4] = {1,1,1,1};
-  int *input_b_dim_ptr = (int*)malloc(sizeof(input_b_dim));
-  for(int loop = 0;loop < input_b_d;loop++){
-    input_b_dim[loop] = input_b -> dimension(loop);
+
+  const Tensor* input_b         = pAdd.getInput(1);
+  int32_t       input_b_d       = input_b->getNumOfDimensions();
+  int           input_b_dim[4]  = {1, 1, 1, 1};
+  int*          input_b_dim_ptr = (int*)malloc(sizeof(input_b_dim));
+  for (int loop = 0; loop < input_b_d; loop++) {
+    input_b_dim[loop]     = input_b->dimension(loop);
     input_b_dim_ptr[loop] = input_b_dim[loop];
   }
-  
-  const Tensor *output_z = pAdd.getC();
-  int32_t output_dim_size = output_z->getNumOfDimensions();
 
+  const Tensor* output_z        = pAdd.getC();
+  int32_t       output_dim_size = output_z->getNumOfDimensions();
 
-  float *add = packWeight_or_Bias(pAdd , input_b , input_b_dim[0] , 1 , (input_b_dim[0] * ELEMENT_SIZE + 31) & ~(31));
-  int weight_size = 1;
-    for(int i = 0; i < input_b_d; i++){
-      weight_size *= input_b_dim[i];
-    }
-  
-  if(add_first == 0){
-    first_add = save_add;
-    save_add -> add_value = add;
-    save_add -> add_size = (input_b_dim[0] * input_b_dim[1]);
-    save_add -> input_dims = input_x_dim_ptr;
-    save_add -> input_dims_size = input_x_d;
-    save_add -> add_dims = input_b_dim_ptr;
-    save_add -> add_dims_size = input_b_d;
-    save_add -> next = NULL;
+  float* add = packWeight_or_Bias(pAdd, input_b, input_b_dim[0], 1, (input_b_dim[0] * ELEMENT_SIZE + 31) & ~(31));
+  int    weight_size = 1;
+  for (int i = 0; i < input_b_d; i++) {
+    weight_size *= input_b_dim[i];
+  }
+
+  if (add_first == 0) {
+    first_add                 = save_add;
+    save_add->add_value       = add;
+    save_add->add_size        = (input_b_dim[0] * input_b_dim[1]);
+    save_add->input_dims      = input_x_dim_ptr;
+    save_add->input_dims_size = input_x_d;
+    save_add->add_dims        = input_b_dim_ptr;
+    save_add->add_dims_size   = input_b_d;
+    save_add->next            = NULL;
     add_first++;
-  }else{
+  } else {
     struct add_list* new_add = (add_list*)malloc(sizeof(add_list));
-    new_add -> add_value = add;
-    new_add -> add_size = (input_b_dim[0] * input_b_dim[1]);
-    new_add -> input_dims = input_x_dim_ptr;
-    new_add -> input_dims_size = input_x_d;
-    new_add -> add_dims = input_b_dim_ptr;
-    new_add -> add_dims_size = input_b_d;
-    new_add -> next = NULL;
-    save_add -> next = new_add;
-    save_add = new_add;
-  } 
+    new_add->add_value       = add;
+    new_add->add_size        = (input_b_dim[0] * input_b_dim[1]);
+    new_add->input_dims      = input_x_dim_ptr;
+    new_add->input_dims_size = input_x_d;
+    new_add->add_dims        = input_b_dim_ptr;
+    new_add->add_dims_size   = input_b_d;
+    new_add->next            = NULL;
+    save_add->next           = new_add;
+    save_add                 = new_add;
+  }
   layer_id++;
-  if(first == 0){
-    if(input_x_d == 2){
-      first_code = save_code;
-      save_code -> layer_type = TYPE_ADD;
-      save_code -> buffer_order = buffer_order;
-      save_code -> batch_size = input_x -> dimension(0);
-      save_code -> weight_size = weight_size;
-      save_code -> input_size = input_x_d;
-      save_code -> input_dimention = input_x -> dimension(1);
-      save_code -> input_channel = 1;//input_x_d;//input_dims_size
-      save_code -> weight_dim_size = input_b_d;
-      save_code -> output_dimention = output_dim_size;
-      save_code -> output_channel = 1;//add_dims_size
-      save_code -> layer_id = layer_id;
-      save_code -> next = NULL;
+  if (first == 0) {
+    if (input_x_d == 2) {
+      first_code                  = save_code;
+      save_code->layer_type       = TYPE_ADD;
+      save_code->buffer_order     = buffer_order;
+      save_code->batch_size       = input_x->dimension(0);
+      save_code->weight_size      = weight_size;
+      save_code->input_size       = input_x_d;
+      save_code->input_dimention  = input_x->dimension(1);
+      save_code->input_channel    = 1; // input_x_d;//input_dims_size
+      save_code->weight_dim_size  = input_b_d;
+      save_code->output_dimention = output_dim_size;
+      save_code->output_channel   = 1; // add_dims_size
+      save_code->layer_id         = layer_id;
+      save_code->next             = NULL;
       first++;
-    }else{
-      first_code = save_code;
-      save_code -> layer_type = TYPE_ADD;
-      save_code -> buffer_order = buffer_order;
-      save_code -> batch_size = input_x -> dimension(0);
-      save_code -> weight_size = weight_size;
-      save_code -> input_size = input_x_d;
-      save_code -> input_dimention = input_x -> dimension(2);
-      save_code -> input_channel = input_x -> dimension(1);//input_x_d;//input_dims_size
-      save_code -> weight_dim_size = input_b_d;
-      save_code -> output_dimention = output_dim_size;
-      save_code -> output_channel = input_x -> dimension(1);//add_dims_size
-      save_code -> layer_id = layer_id;
-      save_code -> next = NULL;
+    } else {
+      first_code                  = save_code;
+      save_code->layer_type       = TYPE_ADD;
+      save_code->buffer_order     = buffer_order;
+      save_code->batch_size       = input_x->dimension(0);
+      save_code->weight_size      = weight_size;
+      save_code->input_size       = input_x_d;
+      save_code->input_dimention  = input_x->dimension(2);
+      save_code->input_channel    = input_x->dimension(1); // input_x_d;//input_dims_size
+      save_code->weight_dim_size  = input_b_d;
+      save_code->output_dimention = output_dim_size;
+      save_code->output_channel   = input_x->dimension(1); // add_dims_size
+      save_code->layer_id         = layer_id;
+      save_code->next             = NULL;
       first++;
     }
-  }else{
+  } else {
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code -> layer_type = TYPE_ADD;
-    new_code -> buffer_order = buffer_order;
-    new_code -> batch_size = input_x -> dimension(0);
-    new_code -> weight_size = weight_size;
-    new_code -> input_size = input_x_d;
-    new_code -> input_dimention = input_x -> dimension(2);
-    new_code -> weight_dim_size = input_b_d;
-    new_code -> input_channel = input_x -> dimension(1);
-    new_code -> output_dimention = output_dim_size;
-    new_code -> output_channel = input_x -> dimension(1);//input_b_d;//add_dims_size
-    new_code -> layer_id = layer_id;
-    new_code -> next = NULL;
-    save_code -> next = new_code;
-    save_code = new_code;
+    new_code->layer_type       = TYPE_ADD;
+    new_code->buffer_order     = buffer_order;
+    new_code->batch_size       = input_x->dimension(0);
+    new_code->weight_size      = weight_size;
+    new_code->input_size       = input_x_d;
+    new_code->input_dimention  = input_x->dimension(2);
+    new_code->weight_dim_size  = input_b_d;
+    new_code->input_channel    = input_x->dimension(1);
+    new_code->output_dimention = output_dim_size;
+    new_code->output_channel   = input_x->dimension(1); // input_b_d;//add_dims_size
+    new_code->layer_id         = layer_id;
+    new_code->next             = NULL;
+    save_code->next            = new_code;
+    save_code                  = new_code;
   }
 
   pAdd.print(errs());
   errs() << "\n\n";
-  buffer_order = (buffer_order+1)&1;
+  buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(MatMul& pMatMul)
@@ -727,75 +731,73 @@ void CodeEmitVisitor::visit(MatMul& pMatMul)
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
 {
   layer_id++;
-  const Tensor *input_x = pMatMul.getA();
-  const Tensor *input_y = pMatMul.getB();
+  const Tensor* input_x = pMatMul.getA();
+  const Tensor* input_y = pMatMul.getB();
 
   int x_dim_size = input_x->getNumOfDimensions();
   int input_x_dim[x_dim_size];
 
   int y_dim_size = input_y->getNumOfDimensions();
   int input_y_dim[y_dim_size];
-  
-  if(x_dim_size == y_dim_size){
-    for(int dim_size = 0; dim_size < x_dim_size;dim_size++){
-      input_x_dim[dim_size] = input_x -> dimension(dim_size);//x [2] ={1,256} y [2] ={256,10} 
-      input_y_dim[dim_size] = input_y -> dimension(dim_size);
+
+  if (x_dim_size == y_dim_size) {
+    for (int dim_size = 0; dim_size < x_dim_size; dim_size++) {
+      input_x_dim[dim_size] = input_x->dimension(dim_size); // x [2] ={1,256} y [2] ={256,10}
+      input_y_dim[dim_size] = input_y->dimension(dim_size);
     }
-  }else{
-    //if x_dim_size != y_dim_size
+  } else {
+    // if x_dim_size != y_dim_size
   }
-  
-  if(first == 0){ 
-    first_code = save_code;
-    save_code -> layer_type = TYPE_MATMUL;
-    save_code -> buffer_order = buffer_order;
-    save_code -> batch_size = save_matmul -> batch_size;
-    save_code -> output_channel = save_matmul -> output_channel;
+
+  if (first == 0) {
+    first_code                = save_code;
+    save_code->layer_type     = TYPE_MATMUL;
+    save_code->buffer_order   = buffer_order;
+    save_code->batch_size     = save_matmul->batch_size;
+    save_code->output_channel = save_matmul->output_channel;
     // errs()<<"output_channel:"<<save_matmul -> output_channel<<"\n";
-    save_code -> input_channel = save_matmul -> input_channel;
-    save_code -> input_dimention = save_matmul -> input_dimention; 
+    save_code->input_channel   = save_matmul->input_channel;
+    save_code->input_dimention = save_matmul->input_dimention;
     // errs()<<"matsize:"<<save_matmul -> matmul_size<<"\n";
-    save_code -> matmul_size = save_matmul -> matmul_size;
-    save_code -> layer_id = layer_id;
-    save_code -> next = NULL;
+    save_code->matmul_size = save_matmul->matmul_size;
+    save_code->layer_id    = layer_id;
+    save_code->next        = NULL;
     first++;
-  }else{
+  } else {
     struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code -> layer_type = TYPE_MATMUL;
-    new_code -> buffer_order = buffer_order;
-    new_code -> batch_size = save_matmul -> batch_size;
-    new_code -> output_channel = save_matmul -> output_channel;
-    new_code -> input_channel = save_matmul -> input_channel;
-    new_code -> input_dimention = save_matmul -> input_dimention;
-    new_code -> matmul_size = save_matmul -> matmul_size;
-    new_code -> layer_id = layer_id;
-    new_code -> next = NULL;
-    save_code -> next = new_code;
-    save_code = new_code;
+    new_code->layer_type       = TYPE_MATMUL;
+    new_code->buffer_order     = buffer_order;
+    new_code->batch_size       = save_matmul->batch_size;
+    new_code->output_channel   = save_matmul->output_channel;
+    new_code->input_channel    = save_matmul->input_channel;
+    new_code->input_dimention  = save_matmul->input_dimention;
+    new_code->matmul_size      = save_matmul->matmul_size;
+    new_code->layer_id         = layer_id;
+    new_code->next             = NULL;
+    save_code->next            = new_code;
+    save_code                  = new_code;
   }
 
   pMatMul.print(errs());
   errs() << "\n\n";
-  buffer_order = (buffer_order+1)&1;
+  buffer_order = (buffer_order + 1) & 1;
 }
 
-float* CodeEmitVisitor::packWeight_or_Bias(const ComputeOperator& co,const Tensor* t, int dims_0, int gidx,unsigned int size){
-	std::string blob_name = "tb-" + std::to_string(m_pMeta.m_NumMlobs++);
-	
-	float* blob_data = new float[size];
-  memset(blob_data , 0 , size );
+float* CodeEmitVisitor::packWeight_or_Bias(const ComputeOperator& co, const Tensor* t, int dims_0, int gidx,
+                                           unsigned int size)
+{
+  std::string blob_name = "tb-" + std::to_string(m_pMeta.m_NumMlobs++);
 
-	short* dest = (short*)blob_data;
-	float* data = (float*)(static_cast<const FloatTensor*>(t)->getValues().data() );
+  float* blob_data = new float[size];
+  memset(blob_data, 0, size);
+
+  short* dest = (short*)blob_data;
+  float* data = (float*)(static_cast<const FloatTensor*>(t)->getValues().data());
 
   int group_c = gidx * dims_0;
-	for(int c = 0 ; c < dims_0 ;c++){
-		*(dest + c) = __gnu_f2h_ieee_vanilla(*(data + group_c + c));
-	}
+  for (int c = 0; c < dims_0; c++) {
+    *(dest + c) = __gnu_f2h_ieee_vanilla(*(data + group_c + c));
+  }
 
   return data;
-
 }
-
-
-
