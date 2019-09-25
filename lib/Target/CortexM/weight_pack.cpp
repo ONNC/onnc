@@ -8,7 +8,6 @@ extern "C" {
 
 short __gnu_f2h_ieee_vanilla(float param) {
   unsigned int param_bit = *((unsigned int*)(&param));
-  // unsigned int param_bit = *(static_cast<unsigned int*>(&param)) ;
   int sign = param_bit >> 31;
   int mantissa = param_bit & 0x007FFFFF;
   int exp = ((param_bit & 0x7F800000) >> 23) + 15 - 127;

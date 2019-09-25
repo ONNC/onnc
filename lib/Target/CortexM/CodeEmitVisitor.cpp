@@ -25,10 +25,6 @@
 #include <onnc/IR/Compute/Softmax.h>
 #include <onnc/Support/IOStream.h>
 
-//#include <fstream>
-
-//#include "add.h"
-
 using namespace onnc;
 using namespace onnc::cortexm;
 
@@ -167,7 +163,6 @@ void CodeEmitVisitor::visit(const Conv& pConv)
               "your x-stride.\n";
   }
 
-  // errs() << auto_pad << "\n";
   layer_id++;
   if (first == 0) {
     first_code                 = save_code;

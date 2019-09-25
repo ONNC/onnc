@@ -31,12 +31,10 @@ Pass::ReturnType CortexmReadShiftPass::runOnModule(Module& pModule) {
     errs() << "no shift file\n";
   } else {
     fread(shift_data, 50, 1, shift_file);
-    // errs() << shift_data << "\n";
     const char* spilt_char = ",";
     char* all_sub_data;
     all_sub_data = strtok(shift_data, spilt_char);
     while (all_sub_data != NULL) {
-      // errs() << all_sub_data << "\n";
       int shift_number = atoi(all_sub_data);
       all_sub_data = strtok(NULL, spilt_char);
       errs() << shift_number << "\n";

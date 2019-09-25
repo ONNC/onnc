@@ -18,7 +18,8 @@ Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule) {
   FILE* file;
   file = fopen("cortexm_input_pre_proc.h", "w");
   // include file
-  fprintf(file, "#include <stdint.h>\n\
+  fprintf(file, "\
+#include <stdint.h>\n\
 #include <stdio.h>\n\
 #include \"arm_math.h\"\n\
 #include \"cortexm_weight.h\"\n\

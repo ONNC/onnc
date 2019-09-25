@@ -14,7 +14,6 @@
 #include "my_loadable/loadable.h"
 
 #include "weight_pack.h"
-//#include "matmul.h"
 
 #define MAX2(x, y) x > y ? x : y
 #define MAX4(w, x, y, z) MAX2((MAX2(w, x)), (MAX2(y, z)))
@@ -43,7 +42,6 @@ struct code_list {
   int input_channel;
   int output_channel;
   int kernel_size; // w = h
-  // int add_w;
   int pad;    // w = h
   int stride; // w = h
   int input_size;
@@ -106,8 +104,6 @@ public:
   MemIdxTable m_MemIdxTable;
 
   int m_NumMlobs;
-  // public:
-  // std::vector<ILoadable::MemoryListEntry> m_MemoryListEntries;
 
   my_loadable::LoadableFactory_cortexm::LoadablePrivPair m_Loadable;
 };

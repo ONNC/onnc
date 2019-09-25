@@ -6,11 +6,8 @@
 using namespace onnc;
 
 CortexmBackendMeta::CortexmBackendMeta()
-//: m_Loadable{my_loadable::LoadableFactory::newLoadable()}
 {
-  // errs() << "\n";
 }
 
 CortexmBackendMeta::~CortexmBackendMeta() {
-  // errs() << "\n";
 }

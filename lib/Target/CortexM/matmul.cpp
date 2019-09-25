@@ -1,7 +1,7 @@
 #include "matmul.h"
 
-void matmul(q7_t *input_1, int input_1_dim[2], q7_t *input_2,
-            int input_2_dim[2], q7_t *output, int right_shift) {
+void matmul(q7_t* input_1, int input_1_dim[2], q7_t* input_2,
+            int input_2_dim[2], q7_t* output, int right_shift) {
   if (input_1_dim[1] == input_2_dim[0]) {
     int index = 0;
     for (int input1_high = 0; input1_high < input_1_dim[0]; input1_high++) {

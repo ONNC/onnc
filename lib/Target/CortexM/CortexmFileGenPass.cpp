@@ -118,7 +118,6 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
 }\n",
           first_code->batch_size * first_code->input_channel *
               first_code->input_dimention * first_code->input_dimention);
-  // errs() << "test:"<<first_code -> output_dimention << "\n";
   // create layer function call
   number_of_conv_layer = 0;
   number_of_maxpool_layer = 0;

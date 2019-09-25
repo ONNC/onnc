@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void MatAdd(q7_t *input, int *input_dim, q7_t *add, int *add_dim, q7_t *output,
+void MatAdd(q7_t* input, int* input_dim, q7_t* add, int* add_dim, q7_t* output,
             int number_of_input_dim, int right_shift, int add_shift) {
   if (number_of_input_dim == 4) {
     for (int loop_k = 0; loop_k < input_dim[0]; loop_k++) {

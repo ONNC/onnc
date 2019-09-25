@@ -17,7 +17,8 @@ CortexmMainFileHeaderGenPass::CortexmMainFileHeaderGenPass(
 Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module& pModule) {
   FILE* file;
   file = fopen("cortexm_out.h", "w");
-  fprintf(file, "#ifndef CORTEXM_OUT_H\n\
+  fprintf(file, "\
+#ifndef CORTEXM_OUT_H\n\
 #define CORTEXM_OUT_H\n\n\
 #include <stdio.h>\n\
 #include <stdlib.h>\n\
