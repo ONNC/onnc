@@ -70,52 +70,50 @@ CortexmBackend::CortexmBackend(const TargetOptions& pOptions)
   m_pMemInfo = std::make_unique<CortexMTargetMemInfo>();
 }
 
-void CortexmBackend::addTensorSel(PassManager& pPM) {
-  errs() << "CortexM is invoked\n";
-
+void CortexmBackend::addTensorSel(PassManager& passManager) {
   // Do ONNX graph IR optimization here.
 
   // Translate from ONNX graph IR into ONNC IR
-  addStandardTensorSel(pPM, *this);
+  addStandardTensorSel(passManager, *this);
 
   // Now ONNC IR is ready.
   // If you need to extend ONNC IR, here is the place to add your pass that
   // adds your ONNC IR operators.
 }
 
-void CortexmBackend::addTensorSched(PassManager& pPM) {
+void CortexmBackend::addTensorSched(PassManager& passManager) {
   // After method AddTensorSel, operators have been scheduled in an
   // topological order, which totally respects the data dependency.
   // However, that might not be an optimized order for certain objective.
   // Add a scheduling optimization pass here.
 }
 
-void CortexmBackend::addMemAlloc(PassManager& pPM) {
+void CortexmBackend::addMemAlloc(PassManager& passManager) {
   // Input: Module
   // Output: LiveIntervals
-  addStandardCreateLiveIntervals(pPM);
+  addStandardCreateLiveIntervals(passManager);
 
   // Input: LiveIntervals
   // Output: MemAllocs
-  addStandardMemoryAllocation(pPM, *this);
+  addStandardMemoryAllocation(passManager, *this);
 
   // Input: MemAllocs
   // Output: Virtual memory address for each memory operands.
-  addStandardSetMemOperands(pPM);
+  addStandardSetMemOperands(passManager);
 }
 
-void CortexmBackend::addCodeEmit(PassManager& pPM, const Path& pOutput) {
+void CortexmBackend::addCodeEmit(PassManager& passManager, const Path& pOutput) {
   // this is the old-style calling method. Do not use it.
-  // pPM.add(CreateCodeEmitPass(m_CodeEmitVisitor));
+  // passManager.add(CreateCodeEmitPass(m_CodeEmitVisitor));
 
   // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
-  pPM.add<CodeEmit>(m_CodeEmitVisitor);
-  pPM.add<CortexmReadShiftPass>(this, &m_pMeta,
+  passManager.add<CodeEmit>(m_CodeEmitVisitor);
+  passManager.add<CortexmReadShiftPass>(this, &m_pMeta,
                                 options().getQuantizationConfigFile());
-  pPM.add<CortexmHeaderFileGenPass>(this, &m_pMeta);
-  pPM.add<CortexmInputPerProcessing>(this, &m_pMeta);
-  pPM.add<CortexmMainFileHeaderGenPass>(this, &m_pMeta);
-  pPM.add<CortexmFileGenPass>(this, &m_pMeta);
+  passManager.add<CortexmHeaderFileGenPass>(this, &m_pMeta);
+  passManager.add<CortexmInputPerProcessing>(this, &m_pMeta);
+  passManager.add<CortexmMainFileHeaderGenPass>(this, &m_pMeta);
+  passManager.add<CortexmFileGenPass>(this, &m_pMeta);
 }
 
 void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const {
