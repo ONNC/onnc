@@ -1,5 +1,5 @@
-#ifndef CORTEXM_MAIN_FILE_HEADER_GEN_PASS
-#define CORTEXM_MAIN_FILE_HEADER_GEN_PASS
+#ifndef CORTEXM_MAIN_FILE_HEADER_GEN_PASS_H
+#define CORTEXM_MAIN_FILE_HEADER_GEN_PASS_H
 
 #include "CortexmMeta.h"
 #include <onnc/Core/CustomPass.h>

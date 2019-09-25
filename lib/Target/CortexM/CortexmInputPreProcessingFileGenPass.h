@@ -1,5 +1,5 @@
-#ifndef ONNC_CORTEXM_INPUT_PRE_REOCESSING_H
-#define ONNC_CORTEXM_INPUT_PRE_REOCESSING_H
+#ifndef ONNC_CORTEXM_INPUT_PRE_REOCESSING_FILE_GEN_PASS_H
+#define ONNC_CORTEXM_INPUT_PRE_REOCESSING_FILE_GEN_PASS_H
 
 #include "CortexmMeta.h"
 #include <onnc/Core/CustomPass.h>
@@ -7,9 +7,9 @@
 namespace onnc {
 class TargetBackend;
 
-class CortexmInputPerProcessing : public CustomPass<CortexmInputPerProcessing> {
+class CortexmInputPreProcessingFileGenPass : public CustomPass<CortexmInputPreProcessingFileGenPass> {
 public:
-  explicit CortexmInputPerProcessing(TargetBackend* pBackend,
+  explicit CortexmInputPreProcessingFileGenPass(TargetBackend* pBackend,
                                      CortexmBackendMeta* pMeta);
   ReturnType runOnModule(Module& pModule) override;
 

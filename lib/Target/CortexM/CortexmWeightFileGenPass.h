@@ -7,9 +7,9 @@
 namespace onnc {
 class TargetBackend;
 
-class CortexmHeaderFileGenPass : public CustomPass<CortexmHeaderFileGenPass> {
+class CortexmWeightFileGenPass : public CustomPass<CortexmWeightFileGenPass> {
 public:
-  explicit CortexmHeaderFileGenPass(TargetBackend* pBackend,
+  explicit CortexmWeightFileGenPass(TargetBackend* pBackend,
                                     CortexmBackendMeta* pMeta);
   ReturnType runOnModule(Module& pModule) override;
 

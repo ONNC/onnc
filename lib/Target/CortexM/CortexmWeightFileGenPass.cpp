@@ -1,6 +1,5 @@
 #include "CortexmWeightFileGenPass.h"
 #include "CodeEmitVisitor.h"
-#include "CortexmReadShiftPass.h"
 
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -20,11 +19,11 @@ struct matmul_list* first_matmul;
 struct shape_list* first_shape;
 struct shift_list* first_shift;
 
-CortexmHeaderFileGenPass::CortexmHeaderFileGenPass(TargetBackend* pBackend,
+CortexmWeightFileGenPass::CortexmWeightFileGenPass(TargetBackend* pBackend,
                                                    CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmHeaderFileGenPass::runOnModule(Module& pModule) {
+Pass::ReturnType CortexmWeightFileGenPass::runOnModule(Module& pModule) {
   // weight.h
   FILE* weight_file;
   weight_file = fopen("cortexm_weight.h", "w");

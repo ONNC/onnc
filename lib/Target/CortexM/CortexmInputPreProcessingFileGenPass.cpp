@@ -1,4 +1,4 @@
-#include "CortexmInputPerProcessing.h"
+#include "CortexmInputPreProcessingFileGenPass.h"
 
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
@@ -10,11 +10,11 @@
 
 using namespace onnc;
 
-CortexmInputPerProcessing::CortexmInputPerProcessing(TargetBackend* pBackend,
+CortexmInputPreProcessingFileGenPass::CortexmInputPreProcessingFileGenPass(TargetBackend* pBackend,
                                                      CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmInputPerProcessing::runOnModule(Module& pModule) {
+Pass::ReturnType CortexmInputPreProcessingFileGenPass::runOnModule(Module& pModule) {
   FILE* file;
   file = fopen("cortexm_input_pre_proc.h", "w");
   // include file

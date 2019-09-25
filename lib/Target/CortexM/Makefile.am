@@ -8,6 +8,6 @@ ONNC_TARGET_SOURCES += \
   Target/CortexM/loadable.cpp \
   Target/CortexM/CortexmWeightFileGenPass.cpp \
   Target/CortexM/CortexmMainFileHeaderGenPass.cpp \
-  Target/CortexM/CortexmReadShiftPass.cpp \
-  Target/CortexM/CortexmFileGenPass.cpp \
-  Target/CortexM/CortexmInputPerProcessing.cpp \
+  Target/CortexM/CortexmReadQuantizationConfigPass.cpp \
+  Target/CortexM/CortexmMainFileGenPass.cpp \
+  Target/CortexM/CortexmInputPreProcessingFileGenPass.cpp \

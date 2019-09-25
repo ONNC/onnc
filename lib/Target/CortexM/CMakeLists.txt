@@ -6,11 +6,11 @@ add_libonnc_src(
     TargetInfo/CortexMTargetMemInfo.cpp
     CortexmMeta.cpp
     weight_pack.cpp
-    CortexmFileGenPass.cpp
-    CortexmInputPerProcessing.cpp
+    CortexmMainFileGenPass.cpp
+    CortexmInputPreProcessingFileGenPass.cpp
     CortexmWeightFileGenPass.cpp
     loadable.cpp
     CortexmMainFileHeaderGenPass.cpp
-    CortexmReadShiftPass.cpp
+    CortexmReadQuantizationConfigPass.cpp
 )
 

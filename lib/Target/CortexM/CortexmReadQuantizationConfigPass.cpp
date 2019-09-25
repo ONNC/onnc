@@ -1,4 +1,4 @@
-#include "CortexmReadShiftPass.h"
+#include "CortexmReadQuantizationConfigPass.h"
 #include "CodeEmitVisitor.h"
 
 #include <onnc/IR/Compute/Initializer.h>
@@ -18,12 +18,12 @@ using namespace onnc;
 
 extern struct shift_list* first_shift;
 
-CortexmReadShiftPass::CortexmReadShiftPass(TargetBackend* pBackend,
+CortexmReadQuantizationConfigPass::CortexmReadQuantizationConfigPass(TargetBackend* pBackend,
                                            CortexmBackendMeta* pMeta,
                                            const Path file)
     : m_pBackend(pBackend), m_pMeta(m_pMeta), m_file(file) {}
 
-Pass::ReturnType CortexmReadShiftPass::runOnModule(Module& pModule) {
+Pass::ReturnType CortexmReadQuantizationConfigPass::runOnModule(Module& pModule) {
   FILE* shift_file;
   shift_file = fopen(m_file.c_str(), "r");
   char shift_data[50] = "";

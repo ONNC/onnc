@@ -1,4 +1,4 @@
-#include "CortexmFileGenPass.h"
+#include "CortexmMainFileGenPass.h"
 #include "CodeEmitVisitor.h"
 
 #include <onnc/IR/Compute/Initializer.h>
@@ -16,11 +16,11 @@ using namespace onnc;
 
 struct code_list* first_code;
 
-CortexmFileGenPass::CortexmFileGenPass(TargetBackend* pBackend,
+CortexmMainFileGenPass::CortexmMainFileGenPass(TargetBackend* pBackend,
                                        CortexmBackendMeta* pMeta)
     : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
 
-Pass::ReturnType CortexmFileGenPass::runOnModule(Module& pModule) {
+Pass::ReturnType CortexmMainFileGenPass::runOnModule(Module& pModule) {
   FILE* file;
   file = fopen("cortexm_out.cpp", "w");
 

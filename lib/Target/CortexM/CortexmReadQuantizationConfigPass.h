@@ -1,5 +1,5 @@
-#ifndef CORTEXM_READ_SHIFT_PASS
-#define CORTEXM_READ_SHIFT_PASS
+#ifndef CORTEXM_READ_QUANTIZATION_CONFIG_PASS_H
+#define CORTEXM_READ_QUANTIZATION_CONFIG_PASS_H
 
 #include "CortexmMeta.h"
 #include <onnc/Core/CustomPass.h>
@@ -8,13 +8,13 @@
 namespace onnc {
 class TargetBackend;
 
-class CortexmReadShiftPass : public CustomPass<CortexmReadShiftPass> {
+class CortexmReadQuantizationConfigPass : public CustomPass<CortexmReadQuantizationConfigPass> {
 public:
   struct shift_list* save_shift = (shift_list*)malloc(sizeof(shift_list));
 
   int first = 0;
 
-  explicit CortexmReadShiftPass(TargetBackend* pBackend,
+  explicit CortexmReadQuantizationConfigPass(TargetBackend* pBackend,
                                 CortexmBackendMeta* pMeta, const Path file);
   ReturnType runOnModule(Module& pModule) override;
 

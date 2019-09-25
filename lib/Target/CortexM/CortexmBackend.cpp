@@ -10,10 +10,10 @@
 
 #include "CodeEmitVisitor.h"
 #include "CortexmBackend.h"
-#include "CortexmFileGenPass.h"
-#include "CortexmInputPerProcessing.h"
+#include "CortexmMainFileGenPass.h"
+#include "CortexmInputPreProcessingFileGenPass.h"
 #include "CortexmMainFileHeaderGenPass.h"
-#include "CortexmReadShiftPass.h"
+#include "CortexmReadQuantizationConfigPass.h"
 #include "CortexmWeightFileGenPass.h"
 #include "TargetInfo/CortexMTargetInfo.h"
 #include "TargetInfo/CortexMTargetMemInfo.h"
@@ -108,12 +108,12 @@ void CortexmBackend::addCodeEmit(PassManager& passManager, const Path& pOutput) 
 
   // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
   passManager.add<CodeEmit>(m_CodeEmitVisitor);
-  passManager.add<CortexmReadShiftPass>(this, &m_pMeta,
+  passManager.add<CortexmReadQuantizationConfigPass>(this, &m_pMeta,
                                 options().getQuantizationConfigFile());
-  passManager.add<CortexmHeaderFileGenPass>(this, &m_pMeta);
-  passManager.add<CortexmInputPerProcessing>(this, &m_pMeta);
+  passManager.add<CortexmWeightFileGenPass>(this, &m_pMeta);
+  passManager.add<CortexmInputPreProcessingFileGenPass>(this, &m_pMeta);
   passManager.add<CortexmMainFileHeaderGenPass>(this, &m_pMeta);
-  passManager.add<CortexmFileGenPass>(this, &m_pMeta);
+  passManager.add<CortexmMainFileGenPass>(this, &m_pMeta);
 }
 
 void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const {
