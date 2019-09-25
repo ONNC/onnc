@@ -5,7 +5,6 @@ ONNC_TARGET_SOURCES += \
   Target/CortexM/TargetInfo/CortexMTargetMemInfo.cpp \
   Target/CortexM/CortexmMeta.cpp \
   Target/CortexM/weight_pack.cpp \
-  Target/CortexM/loadable.cpp \
   Target/CortexM/CortexmWeightFileGenPass.cpp \
   Target/CortexM/CortexmMainFileHeaderGenPass.cpp \
   Target/CortexM/CortexmReadQuantizationConfigPass.cpp \

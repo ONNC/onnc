@@ -11,8 +11,6 @@
 #include <sstream>
 #include <unordered_map>
 
-#include "my_loadable/loadable.h"
-
 #include "weight_pack.h"
 
 #define MAX2(x, y) x > y ? x : y
@@ -28,9 +26,6 @@
 #define TYPE_ADD 6
 #define TYPE_MATMUL 7
 #define TYPE_Error 8
-
-using namespace cortexm_loadable;
-using namespace cortexm_loadable::my_loadable;
 
 namespace onnc {
 typedef std::unordered_map<const Tensor*, const Tensor*> RemapTable;
@@ -104,8 +99,6 @@ public:
   MemIdxTable m_MemIdxTable;
 
   int m_NumMlobs;
-
-  my_loadable::LoadableFactory_cortexm::LoadablePrivPair m_Loadable;
 };
 }
 

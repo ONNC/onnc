@@ -28,8 +28,6 @@
 using namespace onnc;
 using namespace onnc::cortexm;
 
-using namespace cortexm_loadable;
-
 extern struct code_list*   first_code;
 extern struct weight_list* first_weight;
 extern struct add_list*    first_add;

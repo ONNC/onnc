@@ -9,7 +9,6 @@ add_libonnc_src(
     CortexmMainFileGenPass.cpp
     CortexmInputPreProcessingFileGenPass.cpp
     CortexmWeightFileGenPass.cpp
-    loadable.cpp
     CortexmMainFileHeaderGenPass.cpp
     CortexmReadQuantizationConfigPass.cpp
 )
