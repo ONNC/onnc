@@ -4,7 +4,6 @@
 #include <map>
 
 #include "Type.h"
-#include "loadable_generated.h"
 
 #include "iloadable.h"
 

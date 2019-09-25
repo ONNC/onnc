@@ -12,7 +12,6 @@
 #include <unordered_map>
 
 #include "my_loadable/loadable.h"
-#include "my_loadable/loadable_generated.h"
 
 #include "weight_pack.h"
 //#include "matmul.h"
