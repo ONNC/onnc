@@ -12,7 +12,7 @@ using namespace onnc;
 
 CortexmInputPreProcessingFileGenPass::CortexmInputPreProcessingFileGenPass(TargetBackend* pBackend,
                                                      CortexmBackendMeta* pMeta)
-    : m_pBackend(pBackend), m_pMeta(m_pMeta) {}
+    : m_pBackend(pBackend), m_pMeta(pMeta) {}
 
 Pass::ReturnType CortexmInputPreProcessingFileGenPass::runOnModule(Module& pModule) {
   FILE* file;

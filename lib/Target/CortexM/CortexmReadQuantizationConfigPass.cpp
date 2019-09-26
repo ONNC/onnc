@@ -16,12 +16,10 @@
 
 using namespace onnc;
 
-extern struct shift_list* first_shift;
-
 CortexmReadQuantizationConfigPass::CortexmReadQuantizationConfigPass(TargetBackend* pBackend,
                                            CortexmBackendMeta* pMeta,
                                            const Path file)
-    : m_pBackend(pBackend), m_pMeta(m_pMeta), m_file(file) {}
+    : m_pBackend(pBackend), m_pMeta(pMeta), m_file(file) {}
 
 Pass::ReturnType CortexmReadQuantizationConfigPass::runOnModule(Module& pModule) {
   FILE* shift_file;
@@ -38,20 +36,10 @@ Pass::ReturnType CortexmReadQuantizationConfigPass::runOnModule(Module& pModule)
       int shift_number = atoi(all_sub_data);
       all_sub_data = strtok(NULL, spilt_char);
       errs() << shift_number << "\n";
-      // save data
-      if (first == 0) {
-        first_shift = save_shift;
-        save_shift->shift_value = shift_number;
-        save_shift->next = NULL;
-        first++;
-      } else {
-        struct shift_list* new_shift = (shift_list*)malloc(sizeof(shift_list));
-        new_shift->shift_value = shift_number;
-        new_shift->next = NULL;
-        save_shift->next = new_shift;
-        save_shift = new_shift;
-      }
-      // save finish
+
+	  CortexmBackendMeta::Shift shiftNode;
+	  shiftNode.shift_value = shift_number;
+	  m_pMeta->m_shiftList.emplace_back(shiftNode);
     }
     fclose(shift_file);
   }

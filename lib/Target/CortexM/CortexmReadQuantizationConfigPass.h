@@ -10,10 +10,6 @@ class TargetBackend;
 
 class CortexmReadQuantizationConfigPass : public CustomPass<CortexmReadQuantizationConfigPass> {
 public:
-  struct shift_list* save_shift = (shift_list*)malloc(sizeof(shift_list));
-
-  int first = 0;
-
   explicit CortexmReadQuantizationConfigPass(TargetBackend* pBackend,
                                 CortexmBackendMeta* pMeta, const Path file);
   ReturnType runOnModule(Module& pModule) override;

@@ -28,12 +28,6 @@
 using namespace onnc;
 using namespace onnc::cortexm;
 
-extern struct code_list*   first_code;
-extern struct weight_list* first_weight;
-extern struct add_list*    first_add;
-extern struct matmul_list* first_matmul;
-extern struct shape_list*  first_shape;
-
 CodeEmitVisitor::CodeEmitVisitor(CortexmBackendMeta& Meta) noexcept
   : m_pMeta{Meta}
 {}
@@ -117,35 +111,18 @@ void CodeEmitVisitor::visit(const Conv& pConv)
     }
   }
 
-  if (first == 0) {
-    first_weight              = save_weight;
-    save_weight->weight_value = weight_HWC;
-    save_weight->weight_size  = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
-    save_weight->bias_value   = bias;
-    if (pConv.getNumOfInputs() > 2) {
-      save_weight->bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
-      save_weight->have_bias = true;
-    } else {
-      save_weight->bias_size = input_w_dim[0];
-      save_weight->have_bias = false;
-    }
-    save_weight->next = NULL;
-  } else {
-    struct weight_list* new_weight = (weight_list*)malloc(sizeof(weight_list));
-    new_weight->weight_value       = weight_HWC;
-    new_weight->weight_size        = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
-    new_weight->bias_value         = bias;
-    if (pConv.getNumOfInputs() > 2) {
-      new_weight->bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
-      new_weight->have_bias = true;
-    } else {
-      new_weight->bias_size = input_w_dim[0];
-      new_weight->have_bias = false;
-    }
-    new_weight->next  = NULL;
-    save_weight->next = new_weight;
-    save_weight       = new_weight;
-  }
+	CortexmBackendMeta::Weight weightNode;
+	weightNode.weight_value = weight_HWC;
+	weightNode.weight_size  = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
+	weightNode.bias_value   = bias;
+	if (pConv.getNumOfInputs() > 2) {
+		weightNode.bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
+		weightNode.have_bias = true;
+	} else {
+		weightNode.bias_size = input_w_dim[0];
+		weightNode.have_bias = false;
+	}
+  m_pMeta.m_weightList.emplace_back(weightNode);
 
   float       auto_pad        = 0;
   std::string auto_pad_string = pConv.getAutoPad();
@@ -161,65 +138,33 @@ void CodeEmitVisitor::visit(const Conv& pConv)
               "your x-stride.\n";
   }
 
-  layer_id++;
-  if (first == 0) {
-    first_code                 = save_code;
-    save_code->layer_type      = TYPE_CONV;
-    save_code->batch_size      = input_x->dimension(0);
-    save_code->input_dimention = input_x->dimension(2);
-    save_code->input_channel   = input_x->dimension(1);
-    save_code->output_channel  = output->dimension(1);
-    save_code->kernel_size     = pConv.getKernelShape().at(0);
-    if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
-      save_code->pad  = 0;
-      save_code->pads = NULL;
-    } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
-      save_code->pad     = pConv.getPads().at(0);
-      save_code->pads[0] = pConv.getPads().at(0);
-      save_code->pads[1] = pConv.getPads().at(1);
-      save_code->pads[2] = pConv.getPads().at(2);
-      save_code->pads[3] = pConv.getPads().at(3);
-    } else {
-      save_code->pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
-                                   pConv.getStrides().at(0), auto_pad);
-      save_code->pads = NULL;
-    }
-    save_code->stride           = pConv.getStrides().at(0);
-    save_code->buffer_order     = buffer_order;
-    save_code->output_dimention = output->dimension(2);
-    save_code->layer_id         = layer_id;
-    save_code->next             = NULL;
-    first++;
-  } else {
-    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code->layer_type       = TYPE_CONV;
-    new_code->batch_size       = input_x->dimension(0);
-    new_code->input_dimention  = input_x->dimension(2);
-    new_code->input_channel    = input_x->dimension(1);
-    new_code->output_channel   = output->dimension(1);
-    new_code->kernel_size      = pConv.getKernelShape().at(0);
-    if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
-      new_code->pad  = 0;
-      new_code->pads = NULL;
-    } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
-      new_code->pad     = pConv.getPads().at(0);
-      new_code->pads[0] = pConv.getPads().at(0);
-      new_code->pads[1] = pConv.getPads().at(1);
-      new_code->pads[2] = pConv.getPads().at(2);
-      new_code->pads[3] = pConv.getPads().at(3);
-    } else {
-      new_code->pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
-                                  pConv.getStrides().at(0), auto_pad);
-      new_code->pads = NULL;
-    }
-    new_code->stride           = pConv.getStrides().at(0);
-    new_code->buffer_order     = buffer_order;
-    new_code->output_dimention = output->dimension(2);
-    new_code->layer_id         = layer_id;
-    new_code->next             = NULL;
-    save_code->next            = new_code;
-    save_code                  = new_code;
-  }
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_CONV;
+  layerNode.batch_size       = input_x->dimension(0);
+  layerNode.input_dimention  = input_x->dimension(2);
+  layerNode.input_channel    = input_x->dimension(1);
+  layerNode.output_channel   = output->dimension(1);
+	layerNode.kernel_size			= pConv.getKernelShape().at(0);
+	layerNode.stride           = pConv.getStrides().at(0);
+	layerNode.buffer_order     = buffer_order;
+	layerNode.output_dimention = output->dimension(2);
+
+	if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
+		layerNode.pad  = 0;
+		layerNode.pads = NULL;
+	} else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
+		layerNode.pad     = pConv.getPads().at(0);
+		layerNode.pads[0] = pConv.getPads().at(0);
+		layerNode.pads[1] = pConv.getPads().at(1);
+		layerNode.pads[2] = pConv.getPads().at(2);
+		layerNode.pads[3] = pConv.getPads().at(3);
+	} else {
+		layerNode.pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
+				pConv.getStrides().at(0), auto_pad);
+		layerNode.pads = NULL;
+	}
+
+  m_pMeta.m_layerList.emplace_back(layerNode);
 
   pConv.print(errs());
   errs() << "\n\n";
@@ -260,67 +205,30 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
     auto_pad = (-0.5);
   }
 
-  // save
-  layer_id++;
-  if (first == 0) {
-    first_code                 = save_code;
-    save_code->layer_type      = TYPE_MAXPOOLING;
-    save_code->input_dimention = input_x->dimension(2);
-    save_code->input_channel   = input_x->dimension(1);
-    save_code->kernel_size     = pMaxPool.getKernelShape().at(0);
-    save_code->output_channel  = output_y->dimension(1);
-    // std::string auto_pad_string = pMaxPool.getAutoPad();
-    if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
-      save_code->pad  = 0;
-      save_code->pads = NULL;
-    } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
-      save_code->pad     = pMaxPool.getPads().at(0);
-      save_code->pads[0] = pMaxPool.getPads().at(0);
-      save_code->pads[1] = pMaxPool.getPads().at(1);
-      save_code->pads[2] = pMaxPool.getPads().at(2);
-      save_code->pads[3] = pMaxPool.getPads().at(3);
-    }
-    save_code->stride           = pMaxPool.getStrides().at(0);
-    save_code->buffer_order     = buffer_order;
-    save_code->output_dimention = output_y->dimension(2);
-    save_code->layer_id         = layer_id;
-    save_code->next             = NULL;
-    first++;
-  } else {
-    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code->layer_type       = TYPE_MAXPOOLING;
-    new_code->buffer_order     = buffer_order;
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_MAXPOOLING;
+  layerNode.input_dimention  = input_x->dimension(2);
+  layerNode.input_channel    = input_x->dimension(1);
+	layerNode.kernel_size			= pMaxPool.getKernelShape().at(0);
+	layerNode.stride						= pMaxPool.getStrides().at(0);
+	layerNode.buffer_order     = buffer_order;
+	layerNode.output_dimention = output_y->dimension(2);
+	if (m_pMeta.m_layerList.empty()) {
+		layerNode.output_channel   = output_y->dimension(1);
+	}
 
-    new_code->input_dimention = input_x->dimension(2);
-    new_code->input_channel   = input_x->dimension(1);
-    new_code->kernel_size     = pMaxPool.getKernelShape().at(0);
-
-    if (pMaxPool.getStrides().at(0) != pMaxPool.getStrides().at(1)) {
-      errs() << "In Maxpooling, your x-stride and y-stride are different, we "
-                "just use your x-stride.\n";
-    }
-
-    if (strcmp(auto_pad_string.c_str(), "\"VALID\"") != 0) {
-      new_code->pad  = 0;
-      new_code->pads = NULL;
-    } else if (strcmp(auto_pad_string.c_str(), "\"NOTSET\"") != 0) {
-      new_code->pad     = pMaxPool.getPads().at(0);
-      new_code->pads[0] = pMaxPool.getPads().at(0);
-      new_code->pads[1] = pMaxPool.getPads().at(1);
-      new_code->pads[2] = pMaxPool.getPads().at(2);
-      new_code->pads[3] = pMaxPool.getPads().at(3);
-    } else {
-      new_code->pad  = get_padding(input_x->dimension(2), output_y->dimension(2), pMaxPool.getKernelShape().at(0),
-                                  pMaxPool.getStrides().at(0), auto_pad);
-      new_code->pads = NULL;
-    }
-    new_code->stride           = pMaxPool.getStrides().at(0);
-    new_code->output_dimention = output_y->dimension(2);
-    new_code->layer_id         = layer_id;
-    new_code->next             = NULL;
-    save_code->next            = new_code;
-    save_code                  = new_code;
-  }
+	bool isFirstLayer = m_pMeta.m_layerList.empty();
+	if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "VALID") == 0) || (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"VALID\"") != 0)) {
+		layerNode.pad  = 0;
+		layerNode.pads = NULL;
+	} else if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "NOTSET") == 0) || (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"NOTSET\"") != 0)) {
+		layerNode.pad     = pMaxPool.getPads().at(0);
+		layerNode.pads[0] = pMaxPool.getPads().at(0);
+		layerNode.pads[1] = pMaxPool.getPads().at(1);
+		layerNode.pads[2] = pMaxPool.getPads().at(2);
+		layerNode.pads[3] = pMaxPool.getPads().at(3);
+	}
+  m_pMeta.m_layerList.emplace_back(layerNode);
 
   pMaxPool.print(errs());
   errs() << "\n\n";
@@ -338,37 +246,26 @@ void CodeEmitVisitor::visit(const Relu& pRelu)
   const Tensor* input_x  = pRelu.getInput(0);
   const Tensor* output_y = pRelu.getOutput(0);
 
-  layer_id++;
-  if (first == 0) {
-    first_code                  = save_code;
-    save_code->layer_type       = TYPE_RELU;
-    save_code->batch_size       = input_x->dimension(0);
-    save_code->input_channel    = input_x->dimension(1);
-    save_code->input_dimention  = input_x->dimension(2);
-    save_code->output_channel   = output_y->dimension(1);
-    save_code->output_dimention = output_y->dimension(2);
-    save_code->buffer_order     = buffer_order;
-    save_code->layer_id         = layer_id;
-    save_code->next             = NULL;
-    first++;
-  } else {
-    // save
-    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code->layer_type       = TYPE_RELU;
-    new_code->batch_size       = output_y->dimension(0);
-    if (input_x->getNumOfDimensions() == 4) {
-      new_code->output_channel   = output_y->dimension(1);
-      new_code->output_dimention = output_y->dimension(2);
-    } else if (input_x->getNumOfDimensions() == 2) {
-      new_code->output_channel   = output_y->dimension(1);
-      new_code->output_dimention = 1;
-    }
-    new_code->buffer_order = buffer_order;
-    new_code->layer_id     = layer_id;
-    new_code->next         = NULL;
-    save_code->next        = new_code;
-    save_code              = new_code;
-  }
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_RELU;
+  layerNode.batch_size       = input_x->dimension(0);
+  layerNode.input_channel    = input_x->dimension(1);
+  layerNode.input_dimention  = input_x->dimension(2);
+  layerNode.output_channel   = output_y->dimension(1);
+  layerNode.output_dimention = output_y->dimension(2);
+  layerNode.buffer_order     = buffer_order;
+
+	if (m_pMeta.m_layerList.size() != 0) {
+		if (input_x->getNumOfDimensions() == 4) {
+			layerNode.output_channel   = output_y->dimension(1);
+			layerNode.output_dimention = output_y->dimension(2);
+		} else if (input_x->getNumOfDimensions() == 2) {
+			layerNode.output_channel   = output_y->dimension(1);
+			layerNode.output_dimention = 1;
+		}
+	}
+  m_pMeta.m_layerList.emplace_back(layerNode);
+
   pRelu.print(errs());
   errs() << "\n\n";
 }
@@ -398,14 +295,10 @@ void CodeEmitVisitor::visit(const Softmax& pSoftmax)
   for (int loop = 0; loop < input_x_d; loop++) {
   }
   int32_t axis = pSoftmax.getAxis().value();
-  // save
-  layer_id++;
-  struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-  new_code->layer_type       = TYPE_SOFTMAX;
-  new_code->layer_id         = layer_id;
-  new_code->next             = NULL;
-  save_code->next            = new_code;
-  save_code                  = new_code;
+
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_SOFTMAX;
+  m_pMeta.m_layerList.emplace_back(layerNode);
 
   pSoftmax.print(errs());
   errs() << "\n\n";
@@ -439,30 +332,23 @@ void CodeEmitVisitor::visit(const Gemm& pGemm)
   }
 
   float alpha = pGemm.getAlpha().value();
-
   float beta = pGemm.getBeta().value();
-
   int32_t transA = pGemm.getTransA().value();
-
   int32_t transB = pGemm.getTransB().value();
 
-  // save
-  layer_id++;
-  struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_FULLYCONNECT;
+	layerNode.buffer_order			= buffer_order;
+	auto lastCode = m_pMeta.m_layerList.back();
 
-  new_code->layer_type   = TYPE_FULLYCONNECT;
-  new_code->buffer_order = buffer_order;
-  if (save_code->layer_type == TYPE_MAXPOOLING) {
-    new_code->input_channel    = save_code->input_channel;
-    new_code->output_dimention = save_code->output_dimention;
-  } else if (save_code->layer_type == TYPE_RELU) {
-    new_code->input_channel    = save_code->output_channel;
-    new_code->output_dimention = 1;
-  }
-  new_code->layer_id = layer_id;
-  new_code->next     = NULL;
-  save_code->next    = new_code;
-  save_code          = new_code;
+	if (lastCode.layer_type == TYPE_MAXPOOLING) {
+		layerNode.input_channel	= lastCode.input_channel;
+		layerNode.output_dimention	= lastCode.output_dimention;
+	} else if (lastCode.layer_type == TYPE_RELU) {
+		layerNode.input_channel	= lastCode.output_dimention;
+		layerNode.output_dimention	= 1;
+	}
+  m_pMeta.m_layerList.emplace_back(layerNode);
 
   pGemm.print(errs());
   errs() << "\n\n";
@@ -503,57 +389,34 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
     float* weight_HWC =
       (float*)malloc(sizeof(float) * (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]));
     CHW_to_HWC_mat(weight, input_x_dim, weight_HWC);
-    if (matmul_first == 0) {
-      first_matmul              = save_matmul;
-      save_matmul->matmul_value = weight_HWC;
-      save_matmul->matmul_size  = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
-      for (int i = 0; i < 4; i++) {
-        errs() << "input:" << input_x_dim[i] << "\n";
-      }
-      errs() << "matmul_size:" << save_matmul->matmul_size << "\n";
-      save_matmul->output_channel  = input_x_dim[0];
-      save_matmul->input_channel   = input_x_dim[0];
-      save_matmul->input_dimention = input_x_dim[1];
-      save_matmul->batch_size      = input_x_dim[3];
-      save_matmul->next            = NULL;
-      matmul_first++;
-    } else {
-      struct matmul_list* new_matmul = (matmul_list*)malloc(sizeof(matmul_list));
-      new_matmul->matmul_value       = weight_HWC;
-      new_matmul->matmul_size        = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
-      // errs()<<"matmul_size:"<<new_matmul -> matmul_size<<"\n";
-      for (int i = 0; i < 4; i++) {
-        errs() << "input:" << input_x_dim[i] << "\n";
-      }
-      new_matmul->output_channel  = input_x_dim[0];
-      new_matmul->input_channel   = input_x_dim[0];
-      new_matmul->input_dimention = input_x_dim[1];
-      new_matmul->batch_size      = input_x_dim[3];
-      new_matmul->next            = NULL;
-      save_matmul->next           = new_matmul;
-      save_matmul                 = new_matmul;
-    }
+
+		CortexmBackendMeta::Matmul matmulNode;
+		matmulNode.matmul_value = weight_HWC;
+		matmulNode.matmul_size  = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+		for (int i = 0; i < 4; i++) {
+			errs() << "input:" << input_x_dim[i] << "\n";
+		}
+		errs() << "matmul_size:" << matmulNode.matmul_size << "\n";
+		matmulNode.output_channel  = input_x_dim[0];
+		matmulNode.input_channel   = input_x_dim[0];
+		matmulNode.input_dimention = input_x_dim[1];
+		matmulNode.batch_size      = input_x_dim[3];
+		m_pMeta.m_matmulList.emplace_back(matmulNode);
   }
 
-  if (shape_first == 0) {
-    first_shape             = save_shape;
-    save_shape->shape_value = output_y_dim;
-    save_shape->next        = NULL;
-    shape_first++;
-  } else {
-    struct shape_list* new_shape = (shape_list*)malloc(sizeof(shape_list));
-
-    if (save_shape->shape_value[1] == output_y_dim[0]) {
-      new_shape->shape_value = output_y_dim;
+	CortexmBackendMeta::Shape shapeNode;
+	if (m_pMeta.m_shapeList.empty()) {
+		shapeNode.shape_value = output_y_dim;
+	} else {
+		auto lastShapeNode = m_pMeta.m_shapeList.back();
+    if (lastShapeNode.shape_value[1] == output_y_dim[0]) {
+      shapeNode.shape_value = output_y_dim;
     } else {
-      new_shape->shape_value  = save_shape->shape_value;
-      save_shape->shape_value = output_y_dim;
+      shapeNode.shape_value  = lastShapeNode.shape_value;
+      lastShapeNode.shape_value = output_y_dim;
     }
-
-    new_shape->next  = NULL;
-    save_shape->next = new_shape;
-    save_shape       = new_shape;
-  }
+	}
+	m_pMeta.m_shapeList.emplace_back(shapeNode);
 
   pReshape.print(errs());
   errs() << "\n\n";
@@ -573,11 +436,8 @@ void CodeEmitVisitor::visit(const LRN& pLRN)
   }
 
   float alpha = pLRN.getAlpha().value();
-
   float beta = pLRN.getBeta().value();
-
   float bias = pLRN.getBias().value();
-
   int32_t size = pLRN.getSize().value();
 
   pLRN.print(errs());
@@ -595,7 +455,7 @@ void CodeEmitVisitor::visit(const Concat& pConcat)
   pConcat.print(errs());
   errs() << "\n\n";
 }
-//
+
 void CodeEmitVisitor::visit(Add& pAdd)
 {
   pAdd.print(errs());
@@ -636,78 +496,28 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     weight_size *= input_b_dim[i];
   }
 
-  if (add_first == 0) {
-    first_add                 = save_add;
-    save_add->add_value       = add;
-    save_add->add_size        = (input_b_dim[0] * input_b_dim[1]);
-    save_add->input_dims      = input_x_dim_ptr;
-    save_add->input_dims_size = input_x_d;
-    save_add->add_dims        = input_b_dim_ptr;
-    save_add->add_dims_size   = input_b_d;
-    save_add->next            = NULL;
-    add_first++;
-  } else {
-    struct add_list* new_add = (add_list*)malloc(sizeof(add_list));
-    new_add->add_value       = add;
-    new_add->add_size        = (input_b_dim[0] * input_b_dim[1]);
-    new_add->input_dims      = input_x_dim_ptr;
-    new_add->input_dims_size = input_x_d;
-    new_add->add_dims        = input_b_dim_ptr;
-    new_add->add_dims_size   = input_b_d;
-    new_add->next            = NULL;
-    save_add->next           = new_add;
-    save_add                 = new_add;
-  }
-  layer_id++;
-  if (first == 0) {
-    if (input_x_d == 2) {
-      first_code                  = save_code;
-      save_code->layer_type       = TYPE_ADD;
-      save_code->buffer_order     = buffer_order;
-      save_code->batch_size       = input_x->dimension(0);
-      save_code->weight_size      = weight_size;
-      save_code->input_size       = input_x_d;
-      save_code->input_dimention  = input_x->dimension(1);
-      save_code->input_channel    = 1; // input_x_d;//input_dims_size
-      save_code->weight_dim_size  = input_b_d;
-      save_code->output_dimention = output_dim_size;
-      save_code->output_channel   = 1; // add_dims_size
-      save_code->layer_id         = layer_id;
-      save_code->next             = NULL;
-      first++;
-    } else {
-      first_code                  = save_code;
-      save_code->layer_type       = TYPE_ADD;
-      save_code->buffer_order     = buffer_order;
-      save_code->batch_size       = input_x->dimension(0);
-      save_code->weight_size      = weight_size;
-      save_code->input_size       = input_x_d;
-      save_code->input_dimention  = input_x->dimension(2);
-      save_code->input_channel    = input_x->dimension(1); // input_x_d;//input_dims_size
-      save_code->weight_dim_size  = input_b_d;
-      save_code->output_dimention = output_dim_size;
-      save_code->output_channel   = input_x->dimension(1); // add_dims_size
-      save_code->layer_id         = layer_id;
-      save_code->next             = NULL;
-      first++;
-    }
-  } else {
-    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code->layer_type       = TYPE_ADD;
-    new_code->buffer_order     = buffer_order;
-    new_code->batch_size       = input_x->dimension(0);
-    new_code->weight_size      = weight_size;
-    new_code->input_size       = input_x_d;
-    new_code->input_dimention  = input_x->dimension(2);
-    new_code->weight_dim_size  = input_b_d;
-    new_code->input_channel    = input_x->dimension(1);
-    new_code->output_dimention = output_dim_size;
-    new_code->output_channel   = input_x->dimension(1); // input_b_d;//add_dims_size
-    new_code->layer_id         = layer_id;
-    new_code->next             = NULL;
-    save_code->next            = new_code;
-    save_code                  = new_code;
-  }
+	CortexmBackendMeta::Add addNode;
+	addNode.add_value       = add;
+	addNode.add_size        = (input_b_dim[0] * input_b_dim[1]);
+	addNode.input_dims      = input_x_dim_ptr;
+	addNode.input_dims_size = input_x_d;
+	addNode.add_dims        = input_b_dim_ptr;
+	addNode.add_dims_size   = input_b_d;
+	m_pMeta.m_addList.emplace_back(addNode);
+
+	bool isFirstLayer = m_pMeta.m_layerList.empty();
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_ADD;
+	layerNode.buffer_order     = buffer_order;
+	layerNode.batch_size				= input_x->dimension(0);
+	layerNode.weight_size			= weight_size;
+	layerNode.input_size			  = input_x_d;
+  layerNode.input_dimention  = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
+  layerNode.input_channel    = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // input_x_d;//input_dims_size
+	layerNode.weight_dim_size  = input_b_d;
+	layerNode.output_dimention = output_dim_size;
+	layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // add_dims_size
+  m_pMeta.m_layerList.emplace_back(layerNode);
 
   pAdd.print(errs());
   errs() << "\n\n";
@@ -722,7 +532,6 @@ void CodeEmitVisitor::visit(MatMul& pMatMul)
 
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
 {
-  layer_id++;
   const Tensor* input_x = pMatMul.getA();
   const Tensor* input_y = pMatMul.getB();
 
@@ -741,34 +550,15 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
     // if x_dim_size != y_dim_size
   }
 
-  if (first == 0) {
-    first_code                = save_code;
-    save_code->layer_type     = TYPE_MATMUL;
-    save_code->buffer_order   = buffer_order;
-    save_code->batch_size     = save_matmul->batch_size;
-    save_code->output_channel = save_matmul->output_channel;
-    // errs()<<"output_channel:"<<save_matmul -> output_channel<<"\n";
-    save_code->input_channel   = save_matmul->input_channel;
-    save_code->input_dimention = save_matmul->input_dimention;
-    // errs()<<"matsize:"<<save_matmul -> matmul_size<<"\n";
-    save_code->matmul_size = save_matmul->matmul_size;
-    save_code->layer_id    = layer_id;
-    save_code->next        = NULL;
-    first++;
-  } else {
-    struct code_list* new_code = (code_list*)malloc(sizeof(code_list));
-    new_code->layer_type       = TYPE_MATMUL;
-    new_code->buffer_order     = buffer_order;
-    new_code->batch_size       = save_matmul->batch_size;
-    new_code->output_channel   = save_matmul->output_channel;
-    new_code->input_channel    = save_matmul->input_channel;
-    new_code->input_dimention  = save_matmul->input_dimention;
-    new_code->matmul_size      = save_matmul->matmul_size;
-    new_code->layer_id         = layer_id;
-    new_code->next             = NULL;
-    save_code->next            = new_code;
-    save_code                  = new_code;
-  }
+	CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type       = TYPE_MATMUL;
+  layerNode.buffer_order     = buffer_order;
+  layerNode.batch_size       = m_pMeta.m_matmulList.back().batch_size;
+  layerNode.output_channel   = m_pMeta.m_matmulList.back().output_channel;
+  layerNode.input_channel    = m_pMeta.m_matmulList.back().input_channel;
+  layerNode.input_dimention  = m_pMeta.m_matmulList.back().input_dimention;
+	layerNode.matmul_size			= m_pMeta.m_matmulList.back().matmul_size;
+  m_pMeta.m_layerList.emplace_back(layerNode);
 
   pMatMul.print(errs());
   errs() << "\n\n";

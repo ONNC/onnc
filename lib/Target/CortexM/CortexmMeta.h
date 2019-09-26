@@ -10,6 +10,7 @@
 #include <onnc/IR/Compute/Tensor.h>
 #include <sstream>
 #include <unordered_map>
+#include <vector>
 
 #include "weight_pack.h"
 
@@ -31,7 +32,29 @@ namespace onnc {
 typedef std::unordered_map<const Tensor*, const Tensor*> RemapTable;
 typedef std::unordered_map<Value*, int> MemIdxTable;
 
-struct code_list {
+class CortexmBackendMeta {
+public:
+  CortexmBackendMeta();
+  ~CortexmBackendMeta();
+
+  struct Layer;
+  struct Weight;
+  struct Add;
+  struct Matmul;
+  struct Shape;
+  struct Shift;
+
+  std::vector<Layer> m_layerList;
+  std::vector<Weight> m_weightList;
+  std::vector<Add> m_addList;
+  std::vector<Matmul> m_matmulList;
+  std::vector<Shape> m_shapeList;
+  std::vector<Shift> m_shiftList;
+
+  int m_NumMlobs;
+};
+
+struct CortexmBackendMeta::Layer {
   unsigned int input_dimention;
   int batch_size;
   int input_channel;
@@ -45,32 +68,28 @@ struct code_list {
   int buffer_order;
   unsigned int output_dimention;
   int layer_type; // what is this layer doing
-  int layer_id;
-  int* pads;
+  int* pads; // TODO: need initialization
   int matmul_size;
-  struct code_list* next;
 };
 
-struct weight_list {
+struct CortexmBackendMeta::Weight {
   float* weight_value;
   int weight_size;
   float* bias_value;
   int bias_size;
   bool have_bias;
-  struct weight_list* next;
 };
 
-struct add_list {
+struct CortexmBackendMeta::Add {
   float* add_value;
   int add_size;
   int* add_dims;
   int add_dims_size;
   int* input_dims;
   int input_dims_size;
-  struct add_list* next;
 };
 
-struct matmul_list {
+struct CortexmBackendMeta::Matmul {
   unsigned int input_dimention;
   unsigned int output_dimention;
   int batch_size;
@@ -81,25 +100,15 @@ struct matmul_list {
   struct matmul_list* next;
 };
 
-struct shape_list {
+struct CortexmBackendMeta::Shape {
   int* shape_value;
-  struct shape_list* next;
 };
 
-struct shift_list {
+struct CortexmBackendMeta::Shift {
   int shift_value;
-  struct shift_list* next;
 };
 
-class CortexmBackendMeta {
-public:
-  CortexmBackendMeta();
-  ~CortexmBackendMeta();
 
-  MemIdxTable m_MemIdxTable;
-
-  int m_NumMlobs;
-};
 }
 
 #endif

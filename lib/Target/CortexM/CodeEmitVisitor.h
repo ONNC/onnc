@@ -25,21 +25,8 @@ class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor> {
 public:
   explicit CodeEmitVisitor(CortexmBackendMeta& Meta) noexcept;
 
-  // my extra
-  struct weight_list* save_weight = (weight_list*)malloc(sizeof(weight_list));
-  struct code_list* save_code = (code_list*)malloc(sizeof(code_list));
-  struct add_list* save_add = (add_list*)malloc(sizeof(add_list));
-  struct matmul_list* save_matmul = (matmul_list*)malloc(sizeof(matmul_list));
-  struct shape_list* save_shape = (shape_list*)malloc(sizeof(shape_list));
   int buffer_order = 0;
-  int first = 0;
-  int add_first = 0;
-  int matmul_first = 0;
-  int shape_first = 0;
 
-  int layer_id = 0;
-
-  //
   /// ONNC defined operators @{
   void visit(const Initializer& pInitializer) override;
   void visit(const InputOperator& pInputOperator) override;
