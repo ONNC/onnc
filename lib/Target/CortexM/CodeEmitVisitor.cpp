@@ -141,13 +141,13 @@ void CodeEmitVisitor::visit(const Conv& pConv)
 	CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_CONV;
   layerNode.batch_size       = input_x->dimension(0);
-  layerNode.input_dimention  = input_x->dimension(2);
+  layerNode.input_dimension  = input_x->dimension(2);
   layerNode.input_channel    = input_x->dimension(1);
   layerNode.output_channel   = output->dimension(1);
 	layerNode.kernel_size			= pConv.getKernelShape().at(0);
 	layerNode.stride           = pConv.getStrides().at(0);
 	layerNode.buffer_order     = buffer_order;
-	layerNode.output_dimention = output->dimension(2);
+	layerNode.output_dimension = output->dimension(2);
 
 	if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
 		layerNode.pad  = 0;
@@ -207,12 +207,12 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 
 	CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_MAXPOOLING;
-  layerNode.input_dimention  = input_x->dimension(2);
+  layerNode.input_dimension  = input_x->dimension(2);
   layerNode.input_channel    = input_x->dimension(1);
 	layerNode.kernel_size			= pMaxPool.getKernelShape().at(0);
 	layerNode.stride						= pMaxPool.getStrides().at(0);
 	layerNode.buffer_order     = buffer_order;
-	layerNode.output_dimention = output_y->dimension(2);
+	layerNode.output_dimension = output_y->dimension(2);
 	if (m_pMeta.m_layerList.empty()) {
 		layerNode.output_channel   = output_y->dimension(1);
 	}
@@ -250,18 +250,18 @@ void CodeEmitVisitor::visit(const Relu& pRelu)
   layerNode.layer_type       = TYPE_RELU;
   layerNode.batch_size       = input_x->dimension(0);
   layerNode.input_channel    = input_x->dimension(1);
-  layerNode.input_dimention  = input_x->dimension(2);
+  layerNode.input_dimension  = input_x->dimension(2);
   layerNode.output_channel   = output_y->dimension(1);
-  layerNode.output_dimention = output_y->dimension(2);
+  layerNode.output_dimension = output_y->dimension(2);
   layerNode.buffer_order     = buffer_order;
 
 	if (m_pMeta.m_layerList.size() != 0) {
 		if (input_x->getNumOfDimensions() == 4) {
 			layerNode.output_channel   = output_y->dimension(1);
-			layerNode.output_dimention = output_y->dimension(2);
+			layerNode.output_dimension = output_y->dimension(2);
 		} else if (input_x->getNumOfDimensions() == 2) {
 			layerNode.output_channel   = output_y->dimension(1);
-			layerNode.output_dimention = 1;
+			layerNode.output_dimension = 1;
 		}
 	}
   m_pMeta.m_layerList.emplace_back(layerNode);
@@ -343,10 +343,10 @@ void CodeEmitVisitor::visit(const Gemm& pGemm)
 
 	if (lastCode.layer_type == TYPE_MAXPOOLING) {
 		layerNode.input_channel	= lastCode.input_channel;
-		layerNode.output_dimention	= lastCode.output_dimention;
+		layerNode.output_dimension = lastCode.output_dimension;
 	} else if (lastCode.layer_type == TYPE_RELU) {
-		layerNode.input_channel	= lastCode.output_dimention;
-		layerNode.output_dimention	= 1;
+		layerNode.input_channel	= lastCode.output_dimension;
+		layerNode.output_dimension = 1;
 	}
   m_pMeta.m_layerList.emplace_back(layerNode);
 
@@ -399,7 +399,7 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
 		errs() << "matmul_size:" << matmulNode.matmul_size << "\n";
 		matmulNode.output_channel  = input_x_dim[0];
 		matmulNode.input_channel   = input_x_dim[0];
-		matmulNode.input_dimention = input_x_dim[1];
+		matmulNode.input_dimension = input_x_dim[1];
 		matmulNode.batch_size      = input_x_dim[3];
 		m_pMeta.m_matmulList.emplace_back(matmulNode);
   }
@@ -512,10 +512,10 @@ void CodeEmitVisitor::visit(const Add& pAdd)
 	layerNode.batch_size				= input_x->dimension(0);
 	layerNode.weight_size			= weight_size;
 	layerNode.input_size			  = input_x_d;
-  layerNode.input_dimention  = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
+  layerNode.input_dimension  = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
   layerNode.input_channel    = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // input_x_d;//input_dims_size
 	layerNode.weight_dim_size  = input_b_d;
-	layerNode.output_dimention = output_dim_size;
+	layerNode.output_dimension = output_dim_size;
 	layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // add_dims_size
   m_pMeta.m_layerList.emplace_back(layerNode);
 
@@ -556,7 +556,7 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
   layerNode.batch_size       = m_pMeta.m_matmulList.back().batch_size;
   layerNode.output_channel   = m_pMeta.m_matmulList.back().output_channel;
   layerNode.input_channel    = m_pMeta.m_matmulList.back().input_channel;
-  layerNode.input_dimention  = m_pMeta.m_matmulList.back().input_dimention;
+  layerNode.input_dimension  = m_pMeta.m_matmulList.back().input_dimension;
 	layerNode.matmul_size			= m_pMeta.m_matmulList.back().matmul_size;
   m_pMeta.m_layerList.emplace_back(layerNode);
 

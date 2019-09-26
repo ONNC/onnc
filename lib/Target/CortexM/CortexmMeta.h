@@ -55,7 +55,7 @@ public:
 };
 
 struct CortexmBackendMeta::Layer {
-  unsigned int input_dimention;
+  unsigned int input_dimension;
   int batch_size;
   int input_channel;
   int output_channel;
@@ -66,7 +66,7 @@ struct CortexmBackendMeta::Layer {
   int weight_dim_size;
   int weight_size;
   int buffer_order;
-  unsigned int output_dimention;
+  unsigned int output_dimension;
   int layer_type; // what is this layer doing
   int* pads; // TODO: need initialization
   int matmul_size;
@@ -90,8 +90,8 @@ struct CortexmBackendMeta::Add {
 };
 
 struct CortexmBackendMeta::Matmul {
-  unsigned int input_dimention;
-  unsigned int output_dimention;
+  unsigned int input_dimension;
+  unsigned int output_dimension;
   int batch_size;
   int input_channel;
   int output_channel;

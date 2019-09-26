@@ -98,9 +98,9 @@ q7_t col_buffer[2*5*5*32*2];\n\
 q7_t scratch_buffer[%d*%d*%d*%d];\n\
 q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
           firstLayer.batch_size, firstLayer.output_channel,
-          firstLayer.input_dimention, firstLayer.input_dimention,
+          firstLayer.input_dimension, firstLayer.input_dimension,
           firstLayer.batch_size, firstLayer.output_channel,
-          firstLayer.input_dimention, firstLayer.input_dimention);
+          firstLayer.input_dimension, firstLayer.input_dimension);
 
   fprintf(file, "q7_t* cortexm_main(int* image_data){\n\
   #ifdef RTE_Compiler_EventRecorder\n\
@@ -115,7 +115,7 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
       img_buffer2[loop] = image_data[loop];\n\
 }\n",
           firstLayer.batch_size * firstLayer.input_channel *
-              firstLayer.input_dimention * firstLayer.input_dimention);
+              firstLayer.input_dimension * firstLayer.input_dimension);
   // create layer function call
   number_of_conv_layer = 0;
   number_of_maxpool_layer = 0;
@@ -135,51 +135,51 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
         fprintf(file, "  arm_convolve_HWC_q7_RGB( "
                       "%s,%d,%d,conv%d_wt,%d,%d,%d,%d,conv%d_bias,0,RIGHT_"
                       "SHIFT%d,%s,%d,(q15_t *)col_buffer,NULL);\n\n",
-                input_buffer(layerItr->buffer_order), layerItr->input_dimention,
+                input_buffer(layerItr->buffer_order), layerItr->input_dimension,
                 layerItr->input_channel, number_of_conv_layer,
                 layerItr->output_channel, layerItr->kernel_size, layerItr->pad,
                 layerItr->stride, number_of_conv_layer,
                 number_of_shift,
                 output_buffer(layerItr->buffer_order),
-                layerItr->output_dimention);
+                layerItr->output_dimension);
       } else if (((layerItr->input_channel) % 4 == 0) &&
                  ((layerItr->output_channel) % 2 == 0)) {
         fprintf(file, "  arm_convolve_HWC_q7_basic( "
                       "%s,%d,%d,conv%d_wt,%d,%d,%d,%d,conv%d_bias,0,RIGHT_"
                       "SHIFT%d,%s,%d,(q15_t *)col_buffer,NULL );\n\n",
-                input_buffer(layerItr->buffer_order), layerItr->input_dimention,
+                input_buffer(layerItr->buffer_order), layerItr->input_dimension,
                 layerItr->input_channel, number_of_conv_layer,
                 layerItr->output_channel, layerItr->kernel_size, layerItr->pad,
                 layerItr->stride, number_of_conv_layer,
                 number_of_shift,
                 output_buffer(layerItr->buffer_order),
-                layerItr->output_dimention);
+                layerItr->output_dimension);
       } else {
         fprintf(file, "  arm_convolve_HWC_q7_basic( "
                       "%s,%d,%d,conv%d_wt,%d,%d,%d,%d,conv%d_bias,0,RIGHT_"
                       "SHIFT%d,%s,%d,(q15_t *)col_buffer,NULL );\n\n",
-                input_buffer(layerItr->buffer_order), layerItr->input_dimention,
+                input_buffer(layerItr->buffer_order), layerItr->input_dimension,
                 layerItr->input_channel, number_of_conv_layer,
                 layerItr->output_channel, layerItr->kernel_size, layerItr->pad,
                 layerItr->stride, number_of_conv_layer,
                 number_of_shift,
                 output_buffer(layerItr->buffer_order),
-                layerItr->output_dimention);
+                layerItr->output_dimension);
       }
       break;
     case TYPE_MAXPOOLING:
       number_of_maxpool_layer++;
       fprintf(file, "  arm_maxpool_q7_HWC( %s,%d,%d,%d,%d,%d,%d,NULL,%s );\n\n",
-              input_buffer(layerItr->buffer_order), layerItr->input_dimention,
+              input_buffer(layerItr->buffer_order), layerItr->input_dimension,
               layerItr->input_channel, layerItr->kernel_size, layerItr->pad,
-              layerItr->stride, layerItr->output_dimention,
+              layerItr->stride, layerItr->output_dimension,
               output_buffer(layerItr->buffer_order));
       break;
     case TYPE_RELU:
       fprintf(file, "  arm_relu_q7( %s,%d * %d * %d * %d );\n\n",
               input_buffer(layerItr->buffer_order), layerItr->batch_size,
-              layerItr->output_channel, layerItr->output_dimention,
-              layerItr->output_dimention);
+              layerItr->output_channel, layerItr->output_dimension,
+              layerItr->output_dimension);
       break;
     case TYPE_SOFTMAX:
       fprintf(file, "  arm_softmax_q7(output_data,10,output_data);\n\n");
@@ -190,7 +190,7 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
                     "%d,10,IP%d_BIASS_LSHIFT,IP%d_OUT_RSHIFT,ip%d_bias,out_"
                     "data,(q15_t *)%s);\n\n",
               input_buffer(layerItr->buffer_order), layerItr->input_channel,
-              layerItr->output_dimention, layerItr->output_dimention,
+              layerItr->output_dimension, layerItr->output_dimension,
               number_of_fc_layer, number_of_fc_layer, number_of_fc_layer,
               output_buffer(layerItr->buffer_order));
       break;
