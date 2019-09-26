@@ -568,8 +568,6 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
 float* CodeEmitVisitor::packWeight_or_Bias(const ComputeOperator& co, const Tensor* t, int dims_0, int gidx,
                                            unsigned int size)
 {
-  std::string blob_name = "tb-" + std::to_string(m_pMeta.m_NumMlobs++);
-
   float* blob_data = new float[size];
   memset(blob_data, 0, size);
 

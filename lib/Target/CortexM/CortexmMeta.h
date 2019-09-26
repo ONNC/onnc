@@ -50,8 +50,6 @@ public:
   std::vector<Matmul> m_matmulList;
   std::vector<Shape> m_shapeList;
   std::vector<Shift> m_shiftList;
-
-  int m_NumMlobs;
 };
 
 struct CortexmBackendMeta::Layer {
