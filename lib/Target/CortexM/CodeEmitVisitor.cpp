@@ -36,52 +36,36 @@ CodeEmitVisitor::CodeEmitVisitor(CortexmBackendMeta& Meta) noexcept
 
 void CodeEmitVisitor::visit(Initializer& pInitializer)
 {
-  pInitializer.print(errs());
-  errs() << "\n";
 }
 
 void CodeEmitVisitor::visit(const Initializer& pInitializer)
 {
-  pInitializer.print(errs());
-  errs() << "\n";
 }
 
 void CodeEmitVisitor::visit(InputOperator& pInputOperator)
 {
-  pInputOperator.print(errs());
-  errs() << "\n";
 }
 
 void CodeEmitVisitor::visit(const InputOperator& pInputOperator)
 {
-  pInputOperator.print(errs());
-  errs() << "\n";
 }
 
 void CodeEmitVisitor::visit(OutputOperator& pOutputOperator)
 {
-  pOutputOperator.print(errs());
-  errs() << "\n";
 }
 
 void CodeEmitVisitor::visit(const OutputOperator& pOutputOperator)
 {
-  pOutputOperator.print(errs());
-  errs() << "\n";
 }
 
 void CodeEmitVisitor::visit(Conv& pConv)
 {
-  pConv.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Conv& pConv)
 {
   int group = pConv.getGroup().value();
-
   const Tensor* input_x = pConv.getInput(0);
-
   const Tensor* input_w        = pConv.getInput(1);
   int           input_w_dim[4] = {1, 1, 1, 1};
   for (int loop = 0; loop < input_w->getNumOfDimensions(); loop++) {
@@ -104,6 +88,7 @@ void CodeEmitVisitor::visit(const Conv& pConv)
     (float*)malloc(sizeof(float) * (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]));
 
   CHW_to_HWC(weight, input_w_dim, weight_HWC);
+
   float* bias = (float*)malloc(sizeof(float) * input_w_dim[0]);
   if (pConv.getNumOfInputs() > 2) {
     bias = packWeight_or_Bias(pConv, input_b, input_b_d, group, (input_b_d * ELEMENT_SIZE + 31) & ~(31));
@@ -168,21 +153,16 @@ void CodeEmitVisitor::visit(const Conv& pConv)
 
   m_pMeta.m_layerList.emplace_back(layerNode);
 
-  pConv.print(errs());
-  errs() << "\n\n";
   buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(MaxPool& pMaxPool)
 {
-  pMaxPool.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 {
   const Tensor* input_x = pMaxPool.getInput(0);
-
   const Tensor* input_w   = NULL;
   int32_t       input_w_d = 0;
   if (pMaxPool.getNumOfInputs() > 1) {
@@ -199,7 +179,7 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 
   const Tensor* output_y = pMaxPool.getOutput(0);
 
-  float       auto_pad        = 0;
+  float auto_pad = 0;
   std::string auto_pad_string = pMaxPool.getAutoPad();
   if (strcmp(auto_pad_string.c_str(), "\"SAME_UPPER\"") != 0) {
     auto_pad = 0.5;
@@ -232,15 +212,11 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 	}
   m_pMeta.m_layerList.emplace_back(layerNode);
 
-  pMaxPool.print(errs());
-  errs() << "\n\n";
   buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(Relu& pRelu)
 {
-  pRelu.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Relu& pRelu)
@@ -267,27 +243,18 @@ void CodeEmitVisitor::visit(const Relu& pRelu)
 		}
 	}
   m_pMeta.m_layerList.emplace_back(layerNode);
-
-  pRelu.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(AveragePool& pAveragePool)
 {
-  pAveragePool.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const AveragePool& pAveragePool)
 {
-  pAveragePool.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(Softmax& pSoftmax)
 {
-  pSoftmax.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Softmax& pSoftmax)
@@ -301,15 +268,10 @@ void CodeEmitVisitor::visit(const Softmax& pSoftmax)
 	CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_SOFTMAX;
   m_pMeta.m_layerList.emplace_back(layerNode);
-
-  pSoftmax.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(Gemm& pGemm)
 {
-  pGemm.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Gemm& pGemm)
@@ -352,15 +314,11 @@ void CodeEmitVisitor::visit(const Gemm& pGemm)
 	}
   m_pMeta.m_layerList.emplace_back(layerNode);
 
-  pGemm.print(errs());
-  errs() << "\n\n";
   buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(Reshape& pReshape)
 {
-  pReshape.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Reshape& pReshape)
@@ -368,13 +326,10 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
   const Tensor* input_x = pReshape.getInput(0);
   const Tensor* data    = pReshape.getShape();
 
-  errs() << "data:" << data->dimension(0) << "\n";
-
   int32_t input_x_d      = input_x->getNumOfDimensions();
   int     input_x_dim[4] = {1, 1, 1, 1};
   for (int loop = 0; loop < input_x_d; loop++) {
     input_x_dim[loop] = input_x->dimension(loop);
-    errs() << "data2:" << input_x->dimension(loop) << "\n";
   }
 
   const Tensor* output_y     = pReshape.getOutput(0);
@@ -395,10 +350,6 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
 		CortexmBackendMeta::Matmul matmulNode;
 		matmulNode.matmul_value = weight_HWC;
 		matmulNode.matmul_size  = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
-		for (int i = 0; i < 4; i++) {
-			errs() << "input:" << input_x_dim[i] << "\n";
-		}
-		errs() << "matmul_size:" << matmulNode.matmul_size << "\n";
 		matmulNode.output_channel  = input_x_dim[0];
 		matmulNode.input_channel   = input_x_dim[0];
 		matmulNode.input_dimension = input_x_dim[1];
@@ -419,15 +370,10 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
     }
 	}
 	m_pMeta.m_shapeList.emplace_back(shapeNode);
-
-  pReshape.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(LRN& pLRN)
 {
-  pLRN.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const LRN& pLRN)
@@ -441,27 +387,18 @@ void CodeEmitVisitor::visit(const LRN& pLRN)
   float beta = pLRN.getBeta().value();
   float bias = pLRN.getBias().value();
   int32_t size = pLRN.getSize().value();
-
-  pLRN.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(Concat& pConcat)
 {
-  pConcat.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Concat& pConcat)
 {
-  pConcat.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(Add& pAdd)
 {
-  pAdd.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const Add& pAdd)
@@ -521,15 +458,11 @@ void CodeEmitVisitor::visit(const Add& pAdd)
 	layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // add_dims_size
   m_pMeta.m_layerList.emplace_back(layerNode);
 
-  pAdd.print(errs());
-  errs() << "\n\n";
   buffer_order = (buffer_order + 1) & 1;
 }
 
 void CodeEmitVisitor::visit(MatMul& pMatMul)
 {
-  pMatMul.print(errs());
-  errs() << "\n\n";
 }
 
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
@@ -562,8 +495,6 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
 	layerNode.matmul_size			= m_pMeta.m_matmulList.back().matmul_size;
   m_pMeta.m_layerList.emplace_back(layerNode);
 
-  pMatMul.print(errs());
-  errs() << "\n\n";
   buffer_order = (buffer_order + 1) & 1;
 }
 

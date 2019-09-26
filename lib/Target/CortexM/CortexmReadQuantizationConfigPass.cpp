@@ -26,7 +26,7 @@ Pass::ReturnType CortexmReadQuantizationConfigPass::runOnModule(Module& pModule)
   shift_file = fopen(m_file.c_str(), "r");
   char shift_data[50] = "";
   if (!shift_file) {
-    errs() << "no shift file\n";
+    errs() << "Fail to open quantization config file\n";
   } else {
     fread(shift_data, 50, 1, shift_file);
     const char* spilt_char = ",";
@@ -35,11 +35,10 @@ Pass::ReturnType CortexmReadQuantizationConfigPass::runOnModule(Module& pModule)
     while (all_sub_data != NULL) {
       int shift_number = atoi(all_sub_data);
       all_sub_data = strtok(NULL, spilt_char);
-      errs() << shift_number << "\n";
 
-	  CortexmBackendMeta::Shift shiftNode;
-	  shiftNode.shift_value = shift_number;
-	  m_pMeta->m_shiftList.emplace_back(shiftNode);
+			CortexmBackendMeta::Shift shiftNode;
+			shiftNode.shift_value = shift_number;
+			m_pMeta->m_shiftList.emplace_back(shiftNode);
     }
     fclose(shift_file);
   }

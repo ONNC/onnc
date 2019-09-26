@@ -222,17 +222,16 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
       fprintf(file, " // This layer is not support\n\n");
       break;
     }
-    //if (layerItr->next == NULL) {
-	if (layerItr + 1 == m_pMeta->m_layerList.end()) {
-      if (layerItr->layer_type == TYPE_FULLYCONNECT) {
-        final_output_buffer = "output_data";
-      } else if (layerItr->layer_type == TYPE_RELU) {
-        final_output_buffer = input_buffer(layerItr->buffer_order);
-      } else {
-        final_output_buffer = output_buffer(layerItr->buffer_order);
-      }
-    }
-  }
+		if (layerItr + 1 == m_pMeta->m_layerList.end()) {
+			if (layerItr->layer_type == TYPE_FULLYCONNECT) {
+				final_output_buffer = "output_data";
+			} else if (layerItr->layer_type == TYPE_RELU) {
+				final_output_buffer = input_buffer(layerItr->buffer_order);
+			} else {
+				final_output_buffer = output_buffer(layerItr->buffer_order);
+			}
+		}
+	}
 
   char cstr[final_output_buffer.size() + 1];
   strcpy(cstr, final_output_buffer.c_str());

@@ -40,10 +40,8 @@ static void writeAddValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
     fprintf(weightFilePtr, "#define INPUT_DIMS%d {", num_of_add);
     for (int index = 0; index < addItr->input_dims_size; index++) {
       if (index != (addItr->input_dims_size - 1)) {
-        errs() << "output = " << addItr->input_dims[index] << "\n";
         fprintf(weightFilePtr, "%d,", addItr->input_dims[index]);
       } else {
-        errs() << "output = " << addItr->input_dims[index] << "\n";
         fprintf(weightFilePtr, "%d", addItr->input_dims[index]);
       }
     }
@@ -85,10 +83,8 @@ static void writeShapeValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
     for (int index = 0; index < 2; index++) {
       if (index != 1) {
         fprintf(weightFilePtr, "%d,", shapeItr->shape_value[index]);
-        printf("%d,", shapeItr->shape_value[index]);
       } else {
         fprintf(weightFilePtr, "%d", shapeItr->shape_value[index]);
-        printf("%d\n", shapeItr->shape_value[index]);
       }
     }
     fprintf(weightFilePtr, "}\n");
