@@ -12,8 +12,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "weight_pack.h"
-
 #define MAX2(x, y) x > y ? x : y
 #define MAX4(w, x, y, z) MAX2((MAX2(w, x)), (MAX2(y, z)))
 #define input_buffer(x) x == 0 ? "img_buffer2" : "img_buffer1"

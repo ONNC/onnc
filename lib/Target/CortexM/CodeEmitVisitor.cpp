@@ -25,6 +25,8 @@
 #include <onnc/IR/Compute/Softmax.h>
 #include <onnc/Support/IOStream.h>
 
+#include "WeightPack.h"
+
 using namespace onnc;
 using namespace onnc::cortexm;
 

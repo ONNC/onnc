@@ -1,4 +1,4 @@
-#include "weight_pack.h"
+#include "WeightPack.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
