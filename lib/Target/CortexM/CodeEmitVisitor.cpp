@@ -27,6 +27,8 @@
 #include <onnc/IR/Compute/Softmax.h>
 #include <onnc/Support/IOStream.h>
 
+#include <vector>
+
 using namespace onnc;
 using namespace onnc::cortexm;
 
@@ -64,37 +66,24 @@ void CodeEmitVisitor::visit(const Conv& pConv)
     input_b   = pConv.getInput(2);
     input_b_d = input_b->dimension(0);
   }
-  // get output dimension
-  const Tensor* output = pConv.getOutput(0);
 
   // save weight
-  float* weight = packWeight_or_Bias(pConv, input_w, input_w_dim[0], group,
-                                     (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]));
-  float* weight_HWC =
-    (float*)malloc(sizeof(float) * (input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]));
+  float*             weight = getFloatTensorRawDataPointer(input_w);
+  std::vector<float> weight_HWC(input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3]);
+  CHW_to_HWC(weight, input_w_dim, weight_HWC.data());
 
-  CHW_to_HWC(weight, input_w_dim, weight_HWC);
-
-  float* bias = (float*)malloc(sizeof(float) * input_w_dim[0]);
+  std::vector<float> bias;
   if (pConv.getNumOfInputs() > 2) {
-    bias = packWeight_or_Bias(pConv, input_b, input_b_d, group, (input_b_d * ELEMENT_SIZE + 31) & ~(31));
+    float* input_b_ptr = getFloatTensorRawDataPointer(input_b);
+    bias.resize((input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31), 0);
+    memcpy(bias.data(), input_b_ptr, sizeof(float) * bias.size());
   } else {
-    for (int index = 0; index < input_w_dim[0]; index++) {
-      bias[index] = 0;
-    }
+    bias.resize(input_w_dim[0], 0);
   }
 
   CortexmBackendMeta::Weight weightNode;
   weightNode.weight_value = weight_HWC;
-  weightNode.weight_size  = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
   weightNode.bias_value   = bias;
-  if (pConv.getNumOfInputs() > 2) {
-    weightNode.bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
-    weightNode.have_bias = true;
-  } else {
-    weightNode.bias_size = input_w_dim[0];
-    weightNode.have_bias = false;
-  }
   m_pMeta.m_weightList.emplace_back(weightNode);
 
   float       auto_pad        = 0;
@@ -111,6 +100,8 @@ void CodeEmitVisitor::visit(const Conv& pConv)
               "your x-stride.\n";
   }
 
+  const Tensor* output = pConv.getOutput(0);
+
   CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_CONV;
   layerNode.batch_size       = input_x->dimension(0);
@@ -123,18 +114,17 @@ void CodeEmitVisitor::visit(const Conv& pConv)
   layerNode.output_dimension = output->dimension(2);
 
   if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
-    layerNode.pad  = 0;
-    layerNode.pads = NULL;
+    layerNode.pad = 0;
   } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
-    layerNode.pad     = pConv.getPads().at(0);
+    layerNode.pad = pConv.getPads().at(0);
+    layerNode.pads.resize(4);
     layerNode.pads[0] = pConv.getPads().at(0);
     layerNode.pads[1] = pConv.getPads().at(1);
     layerNode.pads[2] = pConv.getPads().at(2);
     layerNode.pads[3] = pConv.getPads().at(3);
   } else {
-    layerNode.pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
+    layerNode.pad = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
                                 pConv.getStrides().at(0), auto_pad);
-    layerNode.pads = NULL;
   }
 
   m_pMeta.m_layerList.emplace_back(layerNode);
@@ -186,11 +176,11 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
   bool isFirstLayer = m_pMeta.m_layerList.empty();
   if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "VALID") == 0) ||
       (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"VALID\"") != 0)) {
-    layerNode.pad  = 0;
-    layerNode.pads = NULL;
+    layerNode.pad = 0;
   } else if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "NOTSET") == 0) ||
              (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"NOTSET\"") != 0)) {
-    layerNode.pad     = pMaxPool.getPads().at(0);
+    layerNode.pad = pMaxPool.getPads().at(0);
+    layerNode.pads.resize(4);
     layerNode.pads[0] = pMaxPool.getPads().at(0);
     layerNode.pads[1] = pMaxPool.getPads().at(1);
     layerNode.pads[2] = pMaxPool.getPads().at(2);
@@ -306,24 +296,20 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
     input_x_dim[loop] = input_x->dimension(loop);
   }
 
-  const Tensor* output_y     = pReshape.getOutput(0);
-  int32_t       output_y_d   = output_y->getNumOfDimensions();
-  int*          output_y_dim = (int*)malloc(sizeof(int) * output_y_d);
+  const Tensor*    output_y   = pReshape.getOutput(0);
+  int32_t          output_y_d = output_y->getNumOfDimensions();
+  std::vector<int> output_y_dim(output_y_d);
   for (int loop = 0; loop < output_y_d; loop++) {
     output_y_dim[loop] = output_y->dimension(loop);
   }
 
   if (output_y_dim[0] != 1) {
-    float* weight = packWeight_or_Bias(
-      pReshape, input_x, input_x_dim[0], 1,
-      (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3] * ELEMENT_SIZE + 31) & ~(31));
-    float* weight_HWC =
-      (float*)malloc(sizeof(float) * (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]));
-    CHW_to_HWC_mat(weight, input_x_dim, weight_HWC);
+    float*             weight = getFloatTensorRawDataPointer(input_x);
+    std::vector<float> weight_HWC(input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+    CHW_to_HWC_mat(weight, input_x_dim, weight_HWC.data());
 
     CortexmBackendMeta::Matmul matmulNode;
     matmulNode.matmul_value    = weight_HWC;
-    matmulNode.matmul_size     = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
     matmulNode.output_channel  = input_x_dim[0];
     matmulNode.input_channel   = input_x_dim[0];
     matmulNode.input_dimension = input_x_dim[1];
@@ -369,13 +355,11 @@ void CodeEmitVisitor::visit(Add& pAdd) {}
 
 void CodeEmitVisitor::visit(const Add& pAdd)
 {
-  const Tensor* input_x         = pAdd.getInput(0);
-  int32_t       input_x_d       = input_x->getNumOfDimensions();
-  int           input_x_dim[4]  = {1, 1, 1, 1};
-  int*          input_x_dim_ptr = (int*)malloc(sizeof(input_x_dim));
+  const Tensor*    input_x   = pAdd.getInput(0);
+  int32_t          input_x_d = input_x->getNumOfDimensions();
+  std::vector<int> input_x_dim_ptr(input_x_d);
   for (int loop = 0; loop < input_x_d; loop++) {
-    input_x_dim[loop]     = input_x->dimension(loop);
-    input_x_dim_ptr[loop] = input_x_dim[loop];
+    input_x_dim_ptr[loop] = input_x->dimension(loop);
   }
   if (input_x_d == 4) {
     input_x_dim_ptr[1] ^= input_x_dim_ptr[3];
@@ -383,10 +367,10 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     input_x_dim_ptr[1] ^= input_x_dim_ptr[3];
   }
 
-  const Tensor* input_b         = pAdd.getInput(1);
-  int32_t       input_b_d       = input_b->getNumOfDimensions();
-  int           input_b_dim[4]  = {1, 1, 1, 1};
-  int*          input_b_dim_ptr = (int*)malloc(sizeof(input_b_dim));
+  const Tensor*    input_b        = pAdd.getInput(1);
+  int32_t          input_b_d      = input_b->getNumOfDimensions();
+  int              input_b_dim[4] = {1, 1, 1, 1};
+  std::vector<int> input_b_dim_ptr(input_b_d);
   for (int loop = 0; loop < input_b_d; loop++) {
     input_b_dim[loop]     = input_b->dimension(loop);
     input_b_dim_ptr[loop] = input_b_dim[loop];
@@ -395,33 +379,32 @@ void CodeEmitVisitor::visit(const Add& pAdd)
   const Tensor* output_z        = pAdd.getC();
   int32_t       output_dim_size = output_z->getNumOfDimensions();
 
-  float* add = packWeight_or_Bias(pAdd, input_b, input_b_dim[0], 1, (input_b_dim[0] * ELEMENT_SIZE + 31) & ~(31));
-  int    weight_size = 1;
+  float*             input_b_ptr = getFloatTensorRawDataPointer(input_b);
+  std::vector<float> add(input_b_dim[0] * input_b_dim[1]);
+  memcpy(add.data(), input_b_ptr, sizeof(float) * add.size());
+  int weight_size = 1;
   for (int i = 0; i < input_b_d; i++) {
     weight_size *= input_b_dim[i];
   }
 
   CortexmBackendMeta::Add addNode;
-  addNode.add_value       = add;
-  addNode.add_size        = (input_b_dim[0] * input_b_dim[1]);
-  addNode.input_dims      = input_x_dim_ptr;
-  addNode.input_dims_size = input_x_d;
-  addNode.add_dims        = input_b_dim_ptr;
-  addNode.add_dims_size   = input_b_d;
+  addNode.add_value  = add;
+  addNode.input_dims = input_x_dim_ptr;
+  addNode.add_dims   = input_b_dim_ptr;
   m_pMeta.m_addList.emplace_back(addNode);
 
   bool                      isFirstLayer = m_pMeta.m_layerList.empty();
   CortexmBackendMeta::Layer layerNode;
-  layerNode.layer_type      = TYPE_ADD;
-  layerNode.buffer_order    = buffer_order;
-  layerNode.batch_size      = input_x->dimension(0);
-  layerNode.weight_size     = weight_size;
-  layerNode.input_size      = input_x_d;
-  layerNode.input_dimension = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
-  layerNode.input_channel = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // input_x_d;//input_dims_size
+  layerNode.layer_type       = TYPE_ADD;
+  layerNode.buffer_order     = buffer_order;
+  layerNode.batch_size       = input_x->dimension(0);
+  layerNode.weight_size      = weight_size;
+  layerNode.input_size       = input_x_d;
+  layerNode.input_dimension  = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
+  layerNode.input_channel    = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1);
   layerNode.weight_dim_size  = input_b_d;
   layerNode.output_dimension = output_dim_size;
-  layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // add_dims_size
+  layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1);
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;
@@ -431,24 +414,6 @@ void CodeEmitVisitor::visit(MatMul& pMatMul) {}
 
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
 {
-  const Tensor* input_x = pMatMul.getA();
-  const Tensor* input_y = pMatMul.getB();
-
-  int x_dim_size = input_x->getNumOfDimensions();
-  int input_x_dim[x_dim_size];
-
-  int y_dim_size = input_y->getNumOfDimensions();
-  int input_y_dim[y_dim_size];
-
-  if (x_dim_size == y_dim_size) {
-    for (int dim_size = 0; dim_size < x_dim_size; dim_size++) {
-      input_x_dim[dim_size] = input_x->dimension(dim_size); // x [2] ={1,256} y [2] ={256,10}
-      input_y_dim[dim_size] = input_y->dimension(dim_size);
-    }
-  } else {
-    // if x_dim_size != y_dim_size
-  }
-
   CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type      = TYPE_MATMUL;
   layerNode.buffer_order    = buffer_order;
@@ -456,25 +421,14 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
   layerNode.output_channel  = m_pMeta.m_matmulList.back().output_channel;
   layerNode.input_channel   = m_pMeta.m_matmulList.back().input_channel;
   layerNode.input_dimension = m_pMeta.m_matmulList.back().input_dimension;
-  layerNode.matmul_size     = m_pMeta.m_matmulList.back().matmul_size;
+  layerNode.matmul_size     = m_pMeta.m_matmulList.back().matmul_value.size();
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;
 }
 
-float* CodeEmitVisitor::packWeight_or_Bias(const ComputeOperator& co, const Tensor* t, int dims_0, int gidx,
-                                           unsigned int size)
+float* CodeEmitVisitor::getFloatTensorRawDataPointer(const Tensor* tensor)
 {
-  float* blob_data = new float[size];
-  memset(blob_data, 0, size);
-
-  short* dest = (short*)blob_data;
-  float* data = (float*)(static_cast<const FloatTensor*>(t)->getValues().data());
-
-  int group_c = gidx * dims_0;
-  for (int c = 0; c < dims_0; c++) {
-    *(dest + c) = __gnu_f2h_ieee_vanilla(*(data + group_c + c));
-  }
-
+  float* data = (float*)(static_cast<const FloatTensor*>(tensor)->getValues().data());
   return data;
 }

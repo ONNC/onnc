@@ -31,8 +31,8 @@ void writeAddValue(FILE* weightFilePtr, const CortexmBackendMeta& pMeta)
   for (const auto& addNode : pMeta.m_addList) {
     num_of_add++;
     fprintf(weightFilePtr, "#define ADD%d {", num_of_add);
-    for (int index = 0; index < addNode.add_size; index++) {
-      if (index != (addNode.add_size - 1)) {
+    for (int index = 0; index < addNode.add_value.size(); index++) {
+      if (index != (addNode.add_value.size() - 1)) {
         fprintf(weightFilePtr, "%d,", (int)(addNode.add_value[index]));
       } else {
         fprintf(weightFilePtr, "%d", (int)(addNode.add_value[index]));
@@ -41,8 +41,8 @@ void writeAddValue(FILE* weightFilePtr, const CortexmBackendMeta& pMeta)
     fprintf(weightFilePtr, "}\n");
 
     fprintf(weightFilePtr, "#define INPUT_DIMS%d {", num_of_add);
-    for (int index = 0; index < addNode.input_dims_size; index++) {
-      if (index != (addNode.input_dims_size - 1)) {
+    for (int index = 0; index < addNode.input_dims.size(); index++) {
+      if (index != (addNode.input_dims.size() - 1)) {
         fprintf(weightFilePtr, "%d,", addNode.input_dims[index]);
       } else {
         fprintf(weightFilePtr, "%d", addNode.input_dims[index]);
@@ -51,8 +51,8 @@ void writeAddValue(FILE* weightFilePtr, const CortexmBackendMeta& pMeta)
     fprintf(weightFilePtr, "}\n");
 
     fprintf(weightFilePtr, "#define ADD_DIMS%d {", num_of_add);
-    for (int index = 0; index < addNode.add_dims_size; index++) {
-      if (index != (addNode.add_dims_size - 1)) {
+    for (int index = 0; index < addNode.add_dims.size(); index++) {
+      if (index != (addNode.add_dims.size() - 1)) {
         fprintf(weightFilePtr, "%d,", addNode.add_dims[index]);
       } else {
         fprintf(weightFilePtr, "%d", addNode.add_dims[index]);
@@ -68,8 +68,8 @@ void writeMatMulValue(FILE* weightFilePtr, const CortexmBackendMeta& pMeta)
   for (const auto& matmulNode : pMeta.m_matmulList) {
     num_of_matmul++;
     fprintf(weightFilePtr, "#define MATMUL_WEIGHT%d {", num_of_matmul);
-    for (int index = 0; index < matmulNode.matmul_size; index++) {
-      if (index != (matmulNode.matmul_size - 1)) {
+    for (int index = 0; index < matmulNode.matmul_value.size(); index++) {
+      if (index != (matmulNode.matmul_value.size() - 1)) {
         fprintf(weightFilePtr, "%d,", (int)(matmulNode.matmul_value[index]));
       } else {
         fprintf(weightFilePtr, "%d", (int)(matmulNode.matmul_value[index]));
@@ -104,8 +104,8 @@ void writeConvValue(FILE* weightFilePtr, const CortexmBackendMeta& pMeta)
 
     // Weight
     fprintf(weightFilePtr, "#define CONV%d_WT {", num_of_weight);
-    for (int index = 0; index < weightNode.weight_size; index++) {
-      if (index != (weightNode.weight_size - 1)) {
+    for (int index = 0; index < weightNode.weight_value.size(); index++) {
+      if (index != (weightNode.weight_value.size() - 1)) {
         fprintf(weightFilePtr, "%d,", (int)(weightNode.weight_value[index]));
       } else {
         fprintf(weightFilePtr, "%d", (int)(weightNode.weight_value[index]));
@@ -115,20 +115,12 @@ void writeConvValue(FILE* weightFilePtr, const CortexmBackendMeta& pMeta)
 
     // Bias
     fprintf(weightFilePtr, "#define CONV%d_BIAS {", num_of_weight);
-    for (int index = 0; index < weightNode.bias_size; index++) {
-      if (weightNode.have_bias == true) {
-        if (index != (weightNode.bias_size - 1)) {
-          fprintf(weightFilePtr, "%d,", (int)(weightNode.bias_value[index]));
-        } else {
-          fprintf(weightFilePtr, "%d", (int)(weightNode.bias_value[index]));
-        }
-      } else {
-        if (index != (weightNode.bias_size - 1)) {
-          fprintf(weightFilePtr, "0,");
-        } else {
-          fprintf(weightFilePtr, "0");
-        }
-      }
+    for (int index = 0; index < weightNode.bias_value.size(); index++) {
+			if (index != (weightNode.bias_value.size() - 1)) {
+				fprintf(weightFilePtr, "%d,", (int)(weightNode.bias_value[index]));
+			} else {
+				fprintf(weightFilePtr, "%d", (int)(weightNode.bias_value[index]));
+			}
     }
     fprintf(weightFilePtr, "}\n");
   }

@@ -75,8 +75,7 @@ public:
   /// @}
 
   // weight &  bias
-
-  float* packWeight_or_Bias(const ComputeOperator& co, const Tensor* t, int dims_0, int gidx, unsigned int size);
+  float* getFloatTensorRawDataPointer(const Tensor* t);
 
 private:
   CortexmBackendMeta& m_pMeta;

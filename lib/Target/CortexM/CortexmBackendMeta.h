@@ -50,57 +50,49 @@ public:
 
 struct CortexmBackendMeta::Layer
 {
-  unsigned int input_dimension;
-  int          batch_size;
-  int          input_channel;
-  int          output_channel;
-  int          kernel_size; // w = h
-  int          pad;         // w = h
-  int          stride;      // w = h
-  int          input_size;
-  int          weight_dim_size;
-  int          weight_size;
-  int          buffer_order;
-  unsigned int output_dimension;
-  int          layer_type; // what is this layer doing
-  int*         pads;       // TODO: need initialization
-  int          matmul_size;
+  unsigned int     input_dimension;
+  int              batch_size;
+  int              input_channel;
+  int              output_channel;
+  int              kernel_size; // w = h
+  int              pad;         // w = h
+  int              stride;      // w = h
+  int              input_size;
+  int              weight_dim_size;
+  int              weight_size;
+  int              buffer_order;
+  unsigned int     output_dimension;
+  int              layer_type;
+  std::vector<int> pads;
+  int              matmul_size;
 };
 
 struct CortexmBackendMeta::Weight
 {
-  float* weight_value;
-  int    weight_size;
-  float* bias_value;
-  int    bias_size;
-  bool   have_bias;
+  std::vector<float> weight_value;
+  std::vector<float> bias_value;
 };
 
 struct CortexmBackendMeta::Add
 {
-  float* add_value;
-  int    add_size;
-  int*   add_dims;
-  int    add_dims_size;
-  int*   input_dims;
-  int    input_dims_size;
+  std::vector<float> add_value;
+  std::vector<int>   add_dims;
+  std::vector<int>   input_dims;
 };
 
 struct CortexmBackendMeta::Matmul
 {
-  unsigned int        input_dimension;
-  unsigned int        output_dimension;
-  int                 batch_size;
-  int                 input_channel;
-  int                 output_channel;
-  float*              matmul_value;
-  int                 matmul_size;
-  struct matmul_list* next;
+  unsigned int       input_dimension;
+  unsigned int       output_dimension;
+  int                batch_size;
+  int                input_channel;
+  int                output_channel;
+  std::vector<float> matmul_value;
 };
 
 struct CortexmBackendMeta::Shape
 {
-  int* shape_value;
+  std::vector<int> shape_value;
 };
 
 struct CortexmBackendMeta::Shift
