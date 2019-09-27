@@ -10,15 +10,16 @@
 
 using namespace onnc;
 
-CortexmInputPreProcessingFileGenPass::CortexmInputPreProcessingFileGenPass(TargetBackend* pBackend,
-                                                     CortexmBackendMeta* pMeta)
-    : m_pBackend(pBackend), m_pMeta(pMeta) {}
+Pass::ReturnType CortexmInputPreProcessingFileGenPass::runOnModule(Module& pModule)
+{
+  FILE* filePtr = fopen("cortexm_input_pre_proc.h", "w");
 
-Pass::ReturnType CortexmInputPreProcessingFileGenPass::runOnModule(Module& pModule) {
-  FILE* file;
-  file = fopen("cortexm_input_pre_proc.h", "w");
+  if (!filePtr) {
+    return Pass::kPassFailure;
+  }
+
   // include file
-  fprintf(file, "\
+  fprintf(filePtr, "\
 #include <stdint.h>\n\
 #include <stdio.h>\n\
 #include \"arm_math.h\"\n\
@@ -27,17 +28,17 @@ Pass::ReturnType CortexmInputPreProcessingFileGenPass::runOnModule(Module& pModu
 ");
 
   // function declaration
-  fprintf(
-      file,
-      "void pre_processing(int* image_data , q7_t* img_buffer){\n"); // ongoing
+  fprintf(filePtr,
+          "void pre_processing(int* image_data , q7_t* img_buffer){\n"); // ongoing
 
   // function doing
-  fprintf(file, "    for(int i = 0 ; i < 28*28 ; i ++){\n\
+  fprintf(filePtr, "    for(int i = 0 ; i < 28*28 ; i ++){\n\
   img_buffer[i] = (image_data[i]>>1);\n\
   }\n\n");
 
   // function end
-  fprintf(file, "}\n");
+  fprintf(filePtr, "}\n");
+  fclose(filePtr);
 
   return Pass::kModuleNoChanged;
 }

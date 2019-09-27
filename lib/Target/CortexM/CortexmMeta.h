@@ -32,8 +32,8 @@ typedef std::unordered_map<Value*, int>                  MemIdxTable;
 class CortexmBackendMeta
 {
 public:
-  CortexmBackendMeta();
-  ~CortexmBackendMeta();
+  CortexmBackendMeta()  = default;
+  ~CortexmBackendMeta() = default;
 
   struct Layer;
   struct Weight;

@@ -114,11 +114,11 @@ void CortexmBackend::addCodeEmit(PassManager& passManager, const Path& pOutput)
 
   // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
   passManager.add<CodeEmit>(m_CodeEmitVisitor);
-  passManager.add<CortexmReadQuantizationConfigPass>(this, &m_pMeta, options().getQuantizationConfigFile());
-  passManager.add<CortexmWeightFileGenPass>(this, &m_pMeta);
-  passManager.add<CortexmInputPreProcessingFileGenPass>(this, &m_pMeta);
-  passManager.add<CortexmMainFileHeaderGenPass>(this, &m_pMeta);
-  passManager.add<CortexmMainFileGenPass>(this, &m_pMeta);
+  passManager.add<CortexmReadQuantizationConfigPass>(m_pMeta, options().getQuantizationConfigFile());
+  passManager.add<CortexmWeightFileGenPass>(m_pMeta);
+  passManager.add<CortexmInputPreProcessingFileGenPass>();
+  passManager.add<CortexmMainFileHeaderGenPass>();
+  passManager.add<CortexmMainFileGenPass>(m_pMeta);
 }
 
 void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const

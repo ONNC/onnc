@@ -11,12 +11,8 @@ class TargetBackend;
 class CortexmMainFileHeaderGenPass : public CustomPass<CortexmMainFileHeaderGenPass>
 {
 public:
-  explicit CortexmMainFileHeaderGenPass(TargetBackend* pBackend, CortexmBackendMeta* pMeta);
+  explicit CortexmMainFileHeaderGenPass() = default;
   ReturnType runOnModule(Module& pModule) override;
-
-private:
-  TargetBackend*      m_pBackend;
-  CortexmBackendMeta* m_pMeta;
 };
 } // namespace onnc
 
