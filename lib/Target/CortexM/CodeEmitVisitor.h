@@ -8,6 +8,7 @@
 #ifndef TARGET_CORTEXM_CODE_EMIT_VISITOR_H
 #define TARGET_CORTEXM_CODE_EMIT_VISITOR_H
 #include "CortexmMeta.h"
+
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/OutputOperator.h>
@@ -20,8 +21,8 @@ namespace onnc {
 
 namespace cortexm {
 
-class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor> {
-
+class CodeEmitVisitor : public CustomVisitor<CodeEmitVisitor>
+{
 public:
   explicit CodeEmitVisitor(CortexmBackendMeta& Meta) noexcept;
 
@@ -75,8 +76,7 @@ public:
 
   // weight &  bias
 
-  float* packWeight_or_Bias(const ComputeOperator& co, const Tensor* t,
-                            int dims_0, int gidx, unsigned int size);
+  float* packWeight_or_Bias(const ComputeOperator& co, const Tensor* t, int dims_0, int gidx, unsigned int size);
 
 private:
   CortexmBackendMeta& m_pMeta;

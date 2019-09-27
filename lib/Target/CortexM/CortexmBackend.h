@@ -10,12 +10,15 @@
 #define TARGET_CORTEXM_BACKEND_H
 #include "CodeEmitVisitor.h"
 #include "CortexmMeta.h"
+
 #include <onnc/Target/TargetBackend.h>
+
 #include <string>
 
 namespace onnc {
 
-class CortexmBackend : public TargetBackend {
+class CortexmBackend : public TargetBackend
+{
 public:
   CortexmBackend(const TargetOptions& pOptions);
 
@@ -27,7 +30,7 @@ public:
 
   void addMemAlloc(PassManager& pPM) override;
 
-  void addCodeEmit(PassManager& pPM, const Path &pOutput) override;
+  void addCodeEmit(PassManager& pPM, const Path& pOutput) override;
 
   void RegisterLowers(LowerRegistry& pRegistry) const override;
 

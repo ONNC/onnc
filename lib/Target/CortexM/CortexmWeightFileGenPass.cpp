@@ -1,4 +1,5 @@
 #include "CortexmWeightFileGenPass.h"
+
 #include "CodeEmitVisitor.h"
 
 #include <onnc/IR/Compute/Initializer.h>
@@ -13,17 +14,18 @@
 
 using namespace onnc;
 
-static void writeRightShiftValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
+static void writeRightShiftValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta)
+{
   unsigned int num_of_shift = 0;
   for (auto shiftItr = pMeta->m_shiftList.begin(); shiftItr != pMeta->m_shiftList.end(); ++shiftItr) {
     num_of_shift++;
 
-    fprintf(weightFilePtr, "#define RIGHT_SHIFT%d %d\n", num_of_shift,
-            shiftItr->shift_value);
+    fprintf(weightFilePtr, "#define RIGHT_SHIFT%d %d\n", num_of_shift, shiftItr->shift_value);
   }
 }
 
-static void writeAddValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
+static void writeAddValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta)
+{
   unsigned int num_of_add = 0;
   for (auto addItr = pMeta->m_addList.begin(); addItr != pMeta->m_addList.end(); ++addItr) {
     num_of_add++;
@@ -59,7 +61,8 @@ static void writeAddValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
   }
 }
 
-static void writeMatMulValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
+static void writeMatMulValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta)
+{
   unsigned int num_of_matmul = 0;
   for (auto matmulItr = pMeta->m_matmulList.begin(); matmulItr != pMeta->m_matmulList.end(); ++matmulItr) {
     num_of_matmul++;
@@ -75,7 +78,8 @@ static void writeMatMulValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
   }
 }
 
-static void writeShapeValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
+static void writeShapeValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta)
+{
   unsigned int num_of_shape = 0;
   for (auto shapeItr = pMeta->m_shapeList.begin(); shapeItr != pMeta->m_shapeList.end(); ++shapeItr) {
     num_of_shape++;
@@ -91,7 +95,8 @@ static void writeShapeValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
   }
 }
 
-static void writeConvValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
+static void writeConvValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta)
+{
   unsigned int num_of_weight = 0;
   for (auto weightItr = pMeta->m_weightList.begin(); weightItr != pMeta->m_weightList.end(); ++weightItr) {
     num_of_weight++;
@@ -128,16 +133,19 @@ static void writeConvValue(FILE* weightFilePtr, CortexmBackendMeta* pMeta) {
   }
 }
 
-CortexmWeightFileGenPass::CortexmWeightFileGenPass(TargetBackend* pBackend,
-                                                   CortexmBackendMeta* pMeta)
-    : m_pBackend(pBackend), m_pMeta(pMeta) {}
+CortexmWeightFileGenPass::CortexmWeightFileGenPass(TargetBackend* pBackend, CortexmBackendMeta* pMeta)
+  : m_pBackend(pBackend)
+  , m_pMeta(pMeta)
+{}
 
-Pass::ReturnType CortexmWeightFileGenPass::runOnModule(Module& pModule) {
+Pass::ReturnType CortexmWeightFileGenPass::runOnModule(Module& pModule)
+{
   generateWeightFile();
   return Pass::kModuleNoChanged;
 }
 
-void CortexmWeightFileGenPass::generateWeightFile() {
+void CortexmWeightFileGenPass::generateWeightFile()
+{
   FILE* weightFilePtr = fopen("cortexm_weight.h", "w");
 
   writeRightShiftValue(weightFilePtr, m_pMeta);

@@ -16,43 +16,43 @@
 namespace onnc {
 namespace nvdla {
 
-enum class ConfigSet : unsigned {
+enum class ConfigSet : unsigned
+{
   nv_full = 0,
 };
 
-enum class ExecutionMode : unsigned {
+enum class ExecutionMode : unsigned
+{
   direct = 0,
 };
 
 } // namespace nvdla
 
-enum class RunMode : unsigned {
+enum class RunMode : unsigned
+{
   normal = 0,
 };
 
 /** \class TargetOptions
  *  \brief TargetOptions stores settings of a compiler
  */
-class TargetOptions {
+class TargetOptions
+{
 public:
-  TargetOptions() = default;
-  TargetOptions(const TargetOptions &pCopy) = default;
+  TargetOptions()                           = default;
+  TargetOptions(const TargetOptions& pCopy) = default;
 
-  TargetOptions &operator=(const TargetOptions &pCopy) = default;
+  TargetOptions& operator=(const TargetOptions& pCopy) = default;
 
   /// The property holds whether printing module before tensor selection
   bool shouldPrintBeforeTensorSel() const { return m_PrintModuleBeforeSel; }
 
-  void printBeforeTensorSel(bool pEnable = true) {
-    m_PrintModuleBeforeSel = pEnable;
-  }
+  void printBeforeTensorSel(bool pEnable = true) { m_PrintModuleBeforeSel = pEnable; }
 
   /// This property holds whether ignoring calibration step
   bool shouldIgnoreCalibrationStep() const { return m_IgnoreCalibrationStep; }
 
-  void ignoreCalibrationStep(bool pEnable = true) {
-    m_IgnoreCalibrationStep = pEnable;
-  }
+  void ignoreCalibrationStep(bool pEnable = true) { m_IgnoreCalibrationStep = pEnable; }
 
   /// This property holds whether adding dummy CTable
   bool shouldUseDummyCTable() const { return m_AddDummyCTable; }
@@ -71,23 +71,19 @@ public:
   void optOnnxModel(std::string pFileName) { m_OptOnnxModel = pFileName; }
 
   unsigned getVerboseLevel() const noexcept { return m_VerboseLevel; }
-  Path getQuantizationConfigFile() const { return m_QuantizationConfigFile; }
+  Path     getQuantizationConfigFile() const { return m_QuantizationConfigFile; }
 
-  void setQuantizationConfigFile(Path configFile) {
-    m_QuantizationConfigFile = std::move(configFile);
-  }
+  void setQuantizationConfigFile(Path configFile) { m_QuantizationConfigFile = std::move(configFile); }
 
-  void setVerboseLevel(unsigned verboseLevel) noexcept {
-    m_VerboseLevel = verboseLevel;
-  }
+  void setVerboseLevel(unsigned verboseLevel) noexcept { m_VerboseLevel = verboseLevel; }
 
 private:
-  bool m_PrintModuleBeforeSel = false;
-  bool m_IgnoreCalibrationStep = false;
-  bool m_AddDummyCTable = false;
-  bool m_AddDummyWeight = false;
-  unsigned m_VerboseLevel = 0;
-  std::string m_OptOnnxModel = "";
+  bool        m_PrintModuleBeforeSel  = false;
+  bool        m_IgnoreCalibrationStep = false;
+  bool        m_AddDummyCTable        = false;
+  bool        m_AddDummyWeight        = false;
+  unsigned    m_VerboseLevel          = 0;
+  std::string m_OptOnnxModel          = "";
 
   Path m_QuantizationConfigFile;
 };

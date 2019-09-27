@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ONNCApp.h"
+
 #include <onnc/ADT/Color.h>
 #include <onnc/Config/AboutData.h>
 #include <onnc/Option/CommandLine.h>
@@ -14,60 +15,45 @@
 
 using namespace onnc;
 
-static AboutData g_About("onnc", "onnc", "1.2.0", AboutLicense::kPrivate,
-                         "ONNC is the compiler driver");
+static AboutData g_About("onnc", "onnc", "1.2.0", AboutLicense::kPrivate, "ONNC is the compiler driver");
 
-static cl::opt<Path> OptInput("input", cl::kPositional, cl::kOptional,
-                              cl::kValueRequired, cl::desc("The input file"),
+static cl::opt<Path> OptInput("input", cl::kPositional, cl::kOptional, cl::kValueRequired, cl::desc("The input file"),
                               cl::about(g_About));
 
-static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional,
-                                      cl::kValueRequired,
-                                      cl::desc("The output file"),
+static cl::opt<std::string> OptOutput("o", cl::kShort, cl::kOptional, cl::kValueRequired, cl::desc("The output file"),
                                       cl::about(g_About));
 
-static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional,
-                             cl::kValueDisallowed, cl::init(false),
+static cl::opt<bool> OptHelp("help", cl::kLong, cl::kOptional, cl::kValueDisallowed, cl::init(false),
                              cl::desc("Show this manual."), cl::about(g_About));
 
 static cl::alias HelpAliasH("h", cl::kShort, cl::trueopt(OptHelp));
 static cl::alias HelpAliasQ("?", cl::kShort, cl::trueopt(OptHelp));
 
-static cl::opt<unsigned int>
-    OptVerbose("verbose", cl::kLong, cl::kZeroOrMore, cl::kValueRequired,
-               cl::kEqualSeparated,
-               cl::desc("Set verbose level to <number> (default is 1)."),
-               cl::init(1), cl::about(g_About));
+static cl::opt<unsigned int> OptVerbose("verbose", cl::kLong, cl::kZeroOrMore, cl::kValueRequired, cl::kEqualSeparated,
+                                        cl::desc("Set verbose level to <number> (default is 1)."), cl::init(1),
+                                        cl::about(g_About));
 
-static cl::opt<bool> OptV("v", cl::kShort, cl::kZeroOrMore,
-                          cl::kValueDisallowed, cl::init(false),
-                          cl::desc("One -v increases one verbose level."),
-                          cl::about(g_About));
+static cl::opt<bool> OptV("v", cl::kShort, cl::kZeroOrMore, cl::kValueDisallowed, cl::init(false),
+                          cl::desc("One -v increases one verbose level."), cl::about(g_About));
 
-static cl::opt<bool> OptQuiet("quiet", cl::kLong, cl::kOptional,
-                              cl::kValueDisallowed, cl::init(false),
-                              cl::desc("Set verbose level to 0."),
-                              cl::about(g_About));
+static cl::opt<bool> OptQuiet("quiet", cl::kLong, cl::kOptional, cl::kValueDisallowed, cl::init(false),
+                              cl::desc("Set verbose level to 0."), cl::about(g_About));
 
-static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort,
-                                         cl::kOptional, cl::kValueRequired,
-                                         cl::desc("target quadruple"),
-                                         cl::about(g_About));
+static cl::opt<std::string> OptQuadruple("mquadruple", cl::kShort, cl::kOptional, cl::kValueRequired,
+                                         cl::desc("target quadruple"), cl::about(g_About));
 
-static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional,
-                                     cl::kValueRequired,
-                                     cl::desc("target architecture"),
-                                     cl::about(g_About));
+static cl::opt<std::string> OptMArch("march", cl::kShort, cl::kOptional, cl::kValueRequired,
+                                     cl::desc("target architecture"), cl::about(g_About));
 
-static cl::opt<std::string>
-    OptCalibrationTable("load-calibration-file", cl::kLong, cl::kOptional,
-                        cl::kValueRequired, cl::kEqualSeparated,
-                        cl::desc("Load calibration file"), cl::about(g_About));
+static cl::opt<std::string> OptCalibrationTable("load-calibration-file", cl::kLong, cl::kOptional, cl::kValueRequired,
+                                                cl::kEqualSeparated, cl::desc("Load calibration file"),
+                                                cl::about(g_About));
 
 //===----------------------------------------------------------------------===//
 // Main Procedure
 //===----------------------------------------------------------------------===//
-int main(int pArgc, char *pArgv[]) {
+int main(int pArgc, char* pArgv[])
+{
   ONNCApp onnc(pArgc, pArgv);
 
   // -verbose=level
@@ -89,13 +75,12 @@ int main(int pArgc, char *pArgv[]) {
 
   // check inputs
   if (!exists(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file not found: " << OptInput << std::endl;
+    errs() << Color::MAGENTA << "Fatal" << Color::RESET << ": input file not found: " << OptInput << std::endl;
     return EXIT_FAILURE;
   }
   if (!is_regular(OptInput)) {
-    errs() << Color::MAGENTA << "Fatal" << Color::RESET
-           << ": input file is not a regular file: " << OptInput << std::endl;
+    errs() << Color::MAGENTA << "Fatal" << Color::RESET << ": input file is not a regular file: " << OptInput
+           << std::endl;
     return EXIT_FAILURE;
   }
   onnc.options().setInput(OptInput);

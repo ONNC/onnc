@@ -6,12 +6,11 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <memory>
+#include "CortexmBackend.h"
 
 #include "CodeEmitVisitor.h"
-#include "CortexmBackend.h"
-#include "CortexmMainFileGenPass.h"
 #include "CortexmInputPreProcessingFileGenPass.h"
+#include "CortexmMainFileGenPass.h"
 #include "CortexmMainFileHeaderGenPass.h"
 #include "CortexmReadQuantizationConfigPass.h"
 #include "CortexmWeightFileGenPass.h"
@@ -66,11 +65,15 @@ using namespace onnc;
 // CortexMBackend
 //===----------------------------------------------------------------------===//
 CortexmBackend::CortexmBackend(const TargetOptions& pOptions)
-    : TargetBackend(pOptions), m_pMeta{}, m_CodeEmitVisitor{m_pMeta} {
+  : TargetBackend(pOptions)
+  , m_pMeta{}
+  , m_CodeEmitVisitor{m_pMeta}
+{
   m_pMemInfo = std::make_unique<CortexMTargetMemInfo>();
 }
 
-void CortexmBackend::addTensorSel(PassManager& passManager) {
+void CortexmBackend::addTensorSel(PassManager& passManager)
+{
   // Do ONNX graph IR optimization here.
 
   // Translate from ONNX graph IR into ONNC IR
@@ -81,14 +84,16 @@ void CortexmBackend::addTensorSel(PassManager& passManager) {
   // adds your ONNC IR operators.
 }
 
-void CortexmBackend::addTensorSched(PassManager& passManager) {
+void CortexmBackend::addTensorSched(PassManager& passManager)
+{
   // After method AddTensorSel, operators have been scheduled in an
   // topological order, which totally respects the data dependency.
   // However, that might not be an optimized order for certain objective.
   // Add a scheduling optimization pass here.
 }
 
-void CortexmBackend::addMemAlloc(PassManager& passManager) {
+void CortexmBackend::addMemAlloc(PassManager& passManager)
+{
   // Input: Module
   // Output: LiveIntervals
   addStandardCreateLiveIntervals(passManager);
@@ -102,21 +107,22 @@ void CortexmBackend::addMemAlloc(PassManager& passManager) {
   addStandardSetMemOperands(passManager);
 }
 
-void CortexmBackend::addCodeEmit(PassManager& passManager, const Path& pOutput) {
+void CortexmBackend::addCodeEmit(PassManager& passManager, const Path& pOutput)
+{
   // this is the old-style calling method. Do not use it.
   // passManager.add(CreateCodeEmitPass(m_CodeEmitVisitor));
 
   // use this new style. Refer to lib/Target/NvDla/NvDlaBackend.cpp
   passManager.add<CodeEmit>(m_CodeEmitVisitor);
-  passManager.add<CortexmReadQuantizationConfigPass>(this, &m_pMeta,
-                                options().getQuantizationConfigFile());
+  passManager.add<CortexmReadQuantizationConfigPass>(this, &m_pMeta, options().getQuantizationConfigFile());
   passManager.add<CortexmWeightFileGenPass>(this, &m_pMeta);
   passManager.add<CortexmInputPreProcessingFileGenPass>(this, &m_pMeta);
   passManager.add<CortexmMainFileHeaderGenPass>(this, &m_pMeta);
   passManager.add<CortexmMainFileGenPass>(this, &m_pMeta);
 }
 
-void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const {
+void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const
+{
   pRegistry.emplace<AddLower>();
   pRegistry.emplace<AveragePoolLower>();
   pRegistry.emplace<BatchNormalizationLower>();
@@ -143,11 +149,9 @@ void CortexmBackend::RegisterLowers(LowerRegistry& pRegistry) const {
 //===----------------------------------------------------------------------===//
 // Non member functions
 //===----------------------------------------------------------------------===//
-TargetBackend* CreateCortexmBackend(const TargetOptions& pOptions) {
-  return new CortexmBackend(pOptions);
-}
+TargetBackend* CreateCortexmBackend(const TargetOptions& pOptions) { return new CortexmBackend(pOptions); }
 
-extern "C" void InitializeCortexMONNCBackend() {
-  onnc::TargetRegistry::RegisterTargetBackend(getTheCortexMTarget(),
-                                              CreateCortexmBackend);
+extern "C" void InitializeCortexMONNCBackend()
+{
+  onnc::TargetRegistry::RegisterTargetBackend(getTheCortexMTarget(), CreateCortexmBackend);
 }

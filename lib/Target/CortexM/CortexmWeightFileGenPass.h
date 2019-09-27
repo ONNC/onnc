@@ -2,24 +2,25 @@
 #define CORTEXM_HERDER_GEN_PASS_H
 
 #include "CortexmMeta.h"
+
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
 class TargetBackend;
 
-class CortexmWeightFileGenPass : public CustomPass<CortexmWeightFileGenPass> {
+class CortexmWeightFileGenPass : public CustomPass<CortexmWeightFileGenPass>
+{
 public:
-  explicit CortexmWeightFileGenPass(TargetBackend* pBackend,
-                                    CortexmBackendMeta* pMeta);
+  explicit CortexmWeightFileGenPass(TargetBackend* pBackend, CortexmBackendMeta* pMeta);
   ReturnType runOnModule(Module& pModule) override;
 
 private:
   void generateWeightFile();
 
 private:
-  TargetBackend* m_pBackend;
+  TargetBackend*      m_pBackend;
   CortexmBackendMeta* m_pMeta;
 };
-}
+} // namespace onnc
 
 #endif

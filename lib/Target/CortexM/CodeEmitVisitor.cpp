@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 #include "CodeEmitVisitor.h"
 
+#include "WeightPack.h"
+
 #include <onnc/ADT/Color.h>
 #include <onnc/Diagnostic/MsgHandling.h>
 #include <onnc/IR/Compute/Add.h>
@@ -25,8 +27,6 @@
 #include <onnc/IR/Compute/Softmax.h>
 #include <onnc/Support/IOStream.h>
 
-#include "WeightPack.h"
-
 using namespace onnc;
 using namespace onnc::cortexm;
 
@@ -34,38 +34,24 @@ CodeEmitVisitor::CodeEmitVisitor(CortexmBackendMeta& Meta) noexcept
   : m_pMeta{Meta}
 {}
 
-void CodeEmitVisitor::visit(Initializer& pInitializer)
-{
-}
+void CodeEmitVisitor::visit(Initializer& pInitializer) {}
 
-void CodeEmitVisitor::visit(const Initializer& pInitializer)
-{
-}
+void CodeEmitVisitor::visit(const Initializer& pInitializer) {}
 
-void CodeEmitVisitor::visit(InputOperator& pInputOperator)
-{
-}
+void CodeEmitVisitor::visit(InputOperator& pInputOperator) {}
 
-void CodeEmitVisitor::visit(const InputOperator& pInputOperator)
-{
-}
+void CodeEmitVisitor::visit(const InputOperator& pInputOperator) {}
 
-void CodeEmitVisitor::visit(OutputOperator& pOutputOperator)
-{
-}
+void CodeEmitVisitor::visit(OutputOperator& pOutputOperator) {}
 
-void CodeEmitVisitor::visit(const OutputOperator& pOutputOperator)
-{
-}
+void CodeEmitVisitor::visit(const OutputOperator& pOutputOperator) {}
 
-void CodeEmitVisitor::visit(Conv& pConv)
-{
-}
+void CodeEmitVisitor::visit(Conv& pConv) {}
 
 void CodeEmitVisitor::visit(const Conv& pConv)
 {
-  int group = pConv.getGroup().value();
-  const Tensor* input_x = pConv.getInput(0);
+  int           group          = pConv.getGroup().value();
+  const Tensor* input_x        = pConv.getInput(0);
   const Tensor* input_w        = pConv.getInput(1);
   int           input_w_dim[4] = {1, 1, 1, 1};
   for (int loop = 0; loop < input_w->getNumOfDimensions(); loop++) {
@@ -98,17 +84,17 @@ void CodeEmitVisitor::visit(const Conv& pConv)
     }
   }
 
-	CortexmBackendMeta::Weight weightNode;
-	weightNode.weight_value = weight_HWC;
-	weightNode.weight_size  = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
-	weightNode.bias_value   = bias;
-	if (pConv.getNumOfInputs() > 2) {
-		weightNode.bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
-		weightNode.have_bias = true;
-	} else {
-		weightNode.bias_size = input_w_dim[0];
-		weightNode.have_bias = false;
-	}
+  CortexmBackendMeta::Weight weightNode;
+  weightNode.weight_value = weight_HWC;
+  weightNode.weight_size  = input_w_dim[0] * input_w_dim[1] * input_w_dim[2] * input_w_dim[3];
+  weightNode.bias_value   = bias;
+  if (pConv.getNumOfInputs() > 2) {
+    weightNode.bias_size = (input_w_dim[0] * ELEMENT_SIZE + 31) & ~(31);
+    weightNode.have_bias = true;
+  } else {
+    weightNode.bias_size = input_w_dim[0];
+    weightNode.have_bias = false;
+  }
   m_pMeta.m_weightList.emplace_back(weightNode);
 
   float       auto_pad        = 0;
@@ -125,44 +111,42 @@ void CodeEmitVisitor::visit(const Conv& pConv)
               "your x-stride.\n";
   }
 
-	CortexmBackendMeta::Layer layerNode;
+  CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_CONV;
   layerNode.batch_size       = input_x->dimension(0);
   layerNode.input_dimension  = input_x->dimension(2);
   layerNode.input_channel    = input_x->dimension(1);
   layerNode.output_channel   = output->dimension(1);
-	layerNode.kernel_size			= pConv.getKernelShape().at(0);
-	layerNode.stride           = pConv.getStrides().at(0);
-	layerNode.buffer_order     = buffer_order;
-	layerNode.output_dimension = output->dimension(2);
+  layerNode.kernel_size      = pConv.getKernelShape().at(0);
+  layerNode.stride           = pConv.getStrides().at(0);
+  layerNode.buffer_order     = buffer_order;
+  layerNode.output_dimension = output->dimension(2);
 
-	if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
-		layerNode.pad  = 0;
-		layerNode.pads = NULL;
-	} else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
-		layerNode.pad     = pConv.getPads().at(0);
-		layerNode.pads[0] = pConv.getPads().at(0);
-		layerNode.pads[1] = pConv.getPads().at(1);
-		layerNode.pads[2] = pConv.getPads().at(2);
-		layerNode.pads[3] = pConv.getPads().at(3);
-	} else {
-		layerNode.pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
-				pConv.getStrides().at(0), auto_pad);
-		layerNode.pads = NULL;
-	}
+  if (strcmp(auto_pad_string.c_str(), "VALID") == 0) {
+    layerNode.pad  = 0;
+    layerNode.pads = NULL;
+  } else if (strcmp(auto_pad_string.c_str(), "NOTSET") == 0) {
+    layerNode.pad     = pConv.getPads().at(0);
+    layerNode.pads[0] = pConv.getPads().at(0);
+    layerNode.pads[1] = pConv.getPads().at(1);
+    layerNode.pads[2] = pConv.getPads().at(2);
+    layerNode.pads[3] = pConv.getPads().at(3);
+  } else {
+    layerNode.pad  = get_padding(input_x->dimension(2), output->dimension(2), pConv.getKernelShape().at(0),
+                                pConv.getStrides().at(0), auto_pad);
+    layerNode.pads = NULL;
+  }
 
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;
 }
 
-void CodeEmitVisitor::visit(MaxPool& pMaxPool)
-{
-}
+void CodeEmitVisitor::visit(MaxPool& pMaxPool) {}
 
 void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 {
-  const Tensor* input_x = pMaxPool.getInput(0);
+  const Tensor* input_x   = pMaxPool.getInput(0);
   const Tensor* input_w   = NULL;
   int32_t       input_w_d = 0;
   if (pMaxPool.getNumOfInputs() > 1) {
@@ -179,7 +163,7 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
 
   const Tensor* output_y = pMaxPool.getOutput(0);
 
-  float auto_pad = 0;
+  float       auto_pad        = 0;
   std::string auto_pad_string = pMaxPool.getAutoPad();
   if (strcmp(auto_pad_string.c_str(), "\"SAME_UPPER\"") != 0) {
     auto_pad = 0.5;
@@ -187,44 +171,44 @@ void CodeEmitVisitor::visit(const MaxPool& pMaxPool)
     auto_pad = (-0.5);
   }
 
-	CortexmBackendMeta::Layer layerNode;
+  CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_MAXPOOLING;
   layerNode.input_dimension  = input_x->dimension(2);
   layerNode.input_channel    = input_x->dimension(1);
-	layerNode.kernel_size			= pMaxPool.getKernelShape().at(0);
-	layerNode.stride						= pMaxPool.getStrides().at(0);
-	layerNode.buffer_order     = buffer_order;
-	layerNode.output_dimension = output_y->dimension(2);
-	if (m_pMeta.m_layerList.empty()) {
-		layerNode.output_channel   = output_y->dimension(1);
-	}
+  layerNode.kernel_size      = pMaxPool.getKernelShape().at(0);
+  layerNode.stride           = pMaxPool.getStrides().at(0);
+  layerNode.buffer_order     = buffer_order;
+  layerNode.output_dimension = output_y->dimension(2);
+  if (m_pMeta.m_layerList.empty()) {
+    layerNode.output_channel = output_y->dimension(1);
+  }
 
-	bool isFirstLayer = m_pMeta.m_layerList.empty();
-	if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "VALID") == 0) || (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"VALID\"") != 0)) {
-		layerNode.pad  = 0;
-		layerNode.pads = NULL;
-	} else if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "NOTSET") == 0) || (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"NOTSET\"") != 0)) {
-		layerNode.pad     = pMaxPool.getPads().at(0);
-		layerNode.pads[0] = pMaxPool.getPads().at(0);
-		layerNode.pads[1] = pMaxPool.getPads().at(1);
-		layerNode.pads[2] = pMaxPool.getPads().at(2);
-		layerNode.pads[3] = pMaxPool.getPads().at(3);
-	}
+  bool isFirstLayer = m_pMeta.m_layerList.empty();
+  if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "VALID") == 0) ||
+      (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"VALID\"") != 0)) {
+    layerNode.pad  = 0;
+    layerNode.pads = NULL;
+  } else if ((isFirstLayer && strcmp(auto_pad_string.c_str(), "NOTSET") == 0) ||
+             (!isFirstLayer && strcmp(auto_pad_string.c_str(), "\"NOTSET\"") != 0)) {
+    layerNode.pad     = pMaxPool.getPads().at(0);
+    layerNode.pads[0] = pMaxPool.getPads().at(0);
+    layerNode.pads[1] = pMaxPool.getPads().at(1);
+    layerNode.pads[2] = pMaxPool.getPads().at(2);
+    layerNode.pads[3] = pMaxPool.getPads().at(3);
+  }
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;
 }
 
-void CodeEmitVisitor::visit(Relu& pRelu)
-{
-}
+void CodeEmitVisitor::visit(Relu& pRelu) {}
 
 void CodeEmitVisitor::visit(const Relu& pRelu)
 {
   const Tensor* input_x  = pRelu.getInput(0);
   const Tensor* output_y = pRelu.getOutput(0);
 
-	CortexmBackendMeta::Layer layerNode;
+  CortexmBackendMeta::Layer layerNode;
   layerNode.layer_type       = TYPE_RELU;
   layerNode.batch_size       = input_x->dimension(0);
   layerNode.input_channel    = input_x->dimension(1);
@@ -233,29 +217,23 @@ void CodeEmitVisitor::visit(const Relu& pRelu)
   layerNode.output_dimension = output_y->dimension(2);
   layerNode.buffer_order     = buffer_order;
 
-	if (m_pMeta.m_layerList.size() != 0) {
-		if (input_x->getNumOfDimensions() == 4) {
-			layerNode.output_channel   = output_y->dimension(1);
-			layerNode.output_dimension = output_y->dimension(2);
-		} else if (input_x->getNumOfDimensions() == 2) {
-			layerNode.output_channel   = output_y->dimension(1);
-			layerNode.output_dimension = 1;
-		}
-	}
+  if (m_pMeta.m_layerList.size() != 0) {
+    if (input_x->getNumOfDimensions() == 4) {
+      layerNode.output_channel   = output_y->dimension(1);
+      layerNode.output_dimension = output_y->dimension(2);
+    } else if (input_x->getNumOfDimensions() == 2) {
+      layerNode.output_channel   = output_y->dimension(1);
+      layerNode.output_dimension = 1;
+    }
+  }
   m_pMeta.m_layerList.emplace_back(layerNode);
 }
 
-void CodeEmitVisitor::visit(AveragePool& pAveragePool)
-{
-}
+void CodeEmitVisitor::visit(AveragePool& pAveragePool) {}
 
-void CodeEmitVisitor::visit(const AveragePool& pAveragePool)
-{
-}
+void CodeEmitVisitor::visit(const AveragePool& pAveragePool) {}
 
-void CodeEmitVisitor::visit(Softmax& pSoftmax)
-{
-}
+void CodeEmitVisitor::visit(Softmax& pSoftmax) {}
 
 void CodeEmitVisitor::visit(const Softmax& pSoftmax)
 {
@@ -265,14 +243,12 @@ void CodeEmitVisitor::visit(const Softmax& pSoftmax)
   }
   int32_t axis = pSoftmax.getAxis().value();
 
-	CortexmBackendMeta::Layer layerNode;
-  layerNode.layer_type       = TYPE_SOFTMAX;
+  CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type = TYPE_SOFTMAX;
   m_pMeta.m_layerList.emplace_back(layerNode);
 }
 
-void CodeEmitVisitor::visit(Gemm& pGemm)
-{
-}
+void CodeEmitVisitor::visit(Gemm& pGemm) {}
 
 void CodeEmitVisitor::visit(const Gemm& pGemm)
 {
@@ -295,31 +271,29 @@ void CodeEmitVisitor::visit(const Gemm& pGemm)
     }
   }
 
-  float alpha = pGemm.getAlpha().value();
-  float beta = pGemm.getBeta().value();
+  float   alpha  = pGemm.getAlpha().value();
+  float   beta   = pGemm.getBeta().value();
   int32_t transA = pGemm.getTransA().value();
   int32_t transB = pGemm.getTransB().value();
 
-	CortexmBackendMeta::Layer layerNode;
-  layerNode.layer_type       = TYPE_FULLYCONNECT;
-	layerNode.buffer_order			= buffer_order;
-	auto lastCode = m_pMeta.m_layerList.back();
+  CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type   = TYPE_FULLYCONNECT;
+  layerNode.buffer_order = buffer_order;
+  auto lastCode          = m_pMeta.m_layerList.back();
 
-	if (lastCode.layer_type == TYPE_MAXPOOLING) {
-		layerNode.input_channel	= lastCode.input_channel;
-		layerNode.output_dimension = lastCode.output_dimension;
-	} else if (lastCode.layer_type == TYPE_RELU) {
-		layerNode.input_channel	= lastCode.output_dimension;
-		layerNode.output_dimension = 1;
-	}
+  if (lastCode.layer_type == TYPE_MAXPOOLING) {
+    layerNode.input_channel    = lastCode.input_channel;
+    layerNode.output_dimension = lastCode.output_dimension;
+  } else if (lastCode.layer_type == TYPE_RELU) {
+    layerNode.input_channel    = lastCode.output_dimension;
+    layerNode.output_dimension = 1;
+  }
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;
 }
 
-void CodeEmitVisitor::visit(Reshape& pReshape)
-{
-}
+void CodeEmitVisitor::visit(Reshape& pReshape) {}
 
 void CodeEmitVisitor::visit(const Reshape& pReshape)
 {
@@ -347,34 +321,32 @@ void CodeEmitVisitor::visit(const Reshape& pReshape)
       (float*)malloc(sizeof(float) * (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]));
     CHW_to_HWC_mat(weight, input_x_dim, weight_HWC);
 
-		CortexmBackendMeta::Matmul matmulNode;
-		matmulNode.matmul_value = weight_HWC;
-		matmulNode.matmul_size  = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
-		matmulNode.output_channel  = input_x_dim[0];
-		matmulNode.input_channel   = input_x_dim[0];
-		matmulNode.input_dimension = input_x_dim[1];
-		matmulNode.batch_size      = input_x_dim[3];
-		m_pMeta.m_matmulList.emplace_back(matmulNode);
+    CortexmBackendMeta::Matmul matmulNode;
+    matmulNode.matmul_value    = weight_HWC;
+    matmulNode.matmul_size     = (input_x_dim[0] * input_x_dim[1] * input_x_dim[2] * input_x_dim[3]);
+    matmulNode.output_channel  = input_x_dim[0];
+    matmulNode.input_channel   = input_x_dim[0];
+    matmulNode.input_dimension = input_x_dim[1];
+    matmulNode.batch_size      = input_x_dim[3];
+    m_pMeta.m_matmulList.emplace_back(matmulNode);
   }
 
-	CortexmBackendMeta::Shape shapeNode;
-	if (m_pMeta.m_shapeList.empty()) {
-		shapeNode.shape_value = output_y_dim;
-	} else {
-		auto lastShapeNode = m_pMeta.m_shapeList.back();
+  CortexmBackendMeta::Shape shapeNode;
+  if (m_pMeta.m_shapeList.empty()) {
+    shapeNode.shape_value = output_y_dim;
+  } else {
+    auto lastShapeNode = m_pMeta.m_shapeList.back();
     if (lastShapeNode.shape_value[1] == output_y_dim[0]) {
       shapeNode.shape_value = output_y_dim;
     } else {
-      shapeNode.shape_value  = lastShapeNode.shape_value;
+      shapeNode.shape_value     = lastShapeNode.shape_value;
       lastShapeNode.shape_value = output_y_dim;
     }
-	}
-	m_pMeta.m_shapeList.emplace_back(shapeNode);
+  }
+  m_pMeta.m_shapeList.emplace_back(shapeNode);
 }
 
-void CodeEmitVisitor::visit(LRN& pLRN)
-{
-}
+void CodeEmitVisitor::visit(LRN& pLRN) {}
 
 void CodeEmitVisitor::visit(const LRN& pLRN)
 {
@@ -383,23 +355,17 @@ void CodeEmitVisitor::visit(const LRN& pLRN)
   for (int loop = 0; loop < input_x_d; loop++) {
   }
 
-  float alpha = pLRN.getAlpha().value();
-  float beta = pLRN.getBeta().value();
-  float bias = pLRN.getBias().value();
-  int32_t size = pLRN.getSize().value();
+  float   alpha = pLRN.getAlpha().value();
+  float   beta  = pLRN.getBeta().value();
+  float   bias  = pLRN.getBias().value();
+  int32_t size  = pLRN.getSize().value();
 }
 
-void CodeEmitVisitor::visit(Concat& pConcat)
-{
-}
+void CodeEmitVisitor::visit(Concat& pConcat) {}
 
-void CodeEmitVisitor::visit(const Concat& pConcat)
-{
-}
+void CodeEmitVisitor::visit(const Concat& pConcat) {}
 
-void CodeEmitVisitor::visit(Add& pAdd)
-{
-}
+void CodeEmitVisitor::visit(Add& pAdd) {}
 
 void CodeEmitVisitor::visit(const Add& pAdd)
 {
@@ -435,35 +401,33 @@ void CodeEmitVisitor::visit(const Add& pAdd)
     weight_size *= input_b_dim[i];
   }
 
-	CortexmBackendMeta::Add addNode;
-	addNode.add_value       = add;
-	addNode.add_size        = (input_b_dim[0] * input_b_dim[1]);
-	addNode.input_dims      = input_x_dim_ptr;
-	addNode.input_dims_size = input_x_d;
-	addNode.add_dims        = input_b_dim_ptr;
-	addNode.add_dims_size   = input_b_d;
-	m_pMeta.m_addList.emplace_back(addNode);
+  CortexmBackendMeta::Add addNode;
+  addNode.add_value       = add;
+  addNode.add_size        = (input_b_dim[0] * input_b_dim[1]);
+  addNode.input_dims      = input_x_dim_ptr;
+  addNode.input_dims_size = input_x_d;
+  addNode.add_dims        = input_b_dim_ptr;
+  addNode.add_dims_size   = input_b_d;
+  m_pMeta.m_addList.emplace_back(addNode);
 
-	bool isFirstLayer = m_pMeta.m_layerList.empty();
-	CortexmBackendMeta::Layer layerNode;
-  layerNode.layer_type       = TYPE_ADD;
-	layerNode.buffer_order     = buffer_order;
-	layerNode.batch_size				= input_x->dimension(0);
-	layerNode.weight_size			= weight_size;
-	layerNode.input_size			  = input_x_d;
-  layerNode.input_dimension  = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
-  layerNode.input_channel    = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // input_x_d;//input_dims_size
-	layerNode.weight_dim_size  = input_b_d;
-	layerNode.output_dimension = output_dim_size;
-	layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // add_dims_size
+  bool                      isFirstLayer = m_pMeta.m_layerList.empty();
+  CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type      = TYPE_ADD;
+  layerNode.buffer_order    = buffer_order;
+  layerNode.batch_size      = input_x->dimension(0);
+  layerNode.weight_size     = weight_size;
+  layerNode.input_size      = input_x_d;
+  layerNode.input_dimension = (input_x_d == 2 && isFirstLayer) ? input_x->dimension(1) : input_x->dimension(2);
+  layerNode.input_channel = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // input_x_d;//input_dims_size
+  layerNode.weight_dim_size  = input_b_d;
+  layerNode.output_dimension = output_dim_size;
+  layerNode.output_channel   = (input_x_d == 2 && isFirstLayer) ? 1 : input_x->dimension(1); // add_dims_size
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;
 }
 
-void CodeEmitVisitor::visit(MatMul& pMatMul)
-{
-}
+void CodeEmitVisitor::visit(MatMul& pMatMul) {}
 
 void CodeEmitVisitor::visit(const MatMul& pMatMul)
 {
@@ -485,14 +449,14 @@ void CodeEmitVisitor::visit(const MatMul& pMatMul)
     // if x_dim_size != y_dim_size
   }
 
-	CortexmBackendMeta::Layer layerNode;
-  layerNode.layer_type       = TYPE_MATMUL;
-  layerNode.buffer_order     = buffer_order;
-  layerNode.batch_size       = m_pMeta.m_matmulList.back().batch_size;
-  layerNode.output_channel   = m_pMeta.m_matmulList.back().output_channel;
-  layerNode.input_channel    = m_pMeta.m_matmulList.back().input_channel;
-  layerNode.input_dimension  = m_pMeta.m_matmulList.back().input_dimension;
-	layerNode.matmul_size			= m_pMeta.m_matmulList.back().matmul_size;
+  CortexmBackendMeta::Layer layerNode;
+  layerNode.layer_type      = TYPE_MATMUL;
+  layerNode.buffer_order    = buffer_order;
+  layerNode.batch_size      = m_pMeta.m_matmulList.back().batch_size;
+  layerNode.output_channel  = m_pMeta.m_matmulList.back().output_channel;
+  layerNode.input_channel   = m_pMeta.m_matmulList.back().input_channel;
+  layerNode.input_dimension = m_pMeta.m_matmulList.back().input_dimension;
+  layerNode.matmul_size     = m_pMeta.m_matmulList.back().matmul_size;
   m_pMeta.m_layerList.emplace_back(layerNode);
 
   buffer_order = (buffer_order + 1) & 1;

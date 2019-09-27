@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
-#include <onnc/IR/Compute/Tensor.h>
 #include <sstream>
 #include <unordered_map>
 #include <vector>
@@ -28,9 +27,10 @@
 
 namespace onnc {
 typedef std::unordered_map<const Tensor*, const Tensor*> RemapTable;
-typedef std::unordered_map<Value*, int> MemIdxTable;
+typedef std::unordered_map<Value*, int>                  MemIdxTable;
 
-class CortexmBackendMeta {
+class CortexmBackendMeta
+{
 public:
   CortexmBackendMeta();
   ~CortexmBackendMeta();
@@ -42,69 +42,74 @@ public:
   struct Shape;
   struct Shift;
 
-  std::vector<Layer> m_layerList;
+  std::vector<Layer>  m_layerList;
   std::vector<Weight> m_weightList;
-  std::vector<Add> m_addList;
+  std::vector<Add>    m_addList;
   std::vector<Matmul> m_matmulList;
-  std::vector<Shape> m_shapeList;
-  std::vector<Shift> m_shiftList;
+  std::vector<Shape>  m_shapeList;
+  std::vector<Shift>  m_shiftList;
 };
 
-struct CortexmBackendMeta::Layer {
+struct CortexmBackendMeta::Layer
+{
   unsigned int input_dimension;
-  int batch_size;
-  int input_channel;
-  int output_channel;
-  int kernel_size; // w = h
-  int pad;    // w = h
-  int stride; // w = h
-  int input_size;
-  int weight_dim_size;
-  int weight_size;
-  int buffer_order;
+  int          batch_size;
+  int          input_channel;
+  int          output_channel;
+  int          kernel_size; // w = h
+  int          pad;         // w = h
+  int          stride;      // w = h
+  int          input_size;
+  int          weight_dim_size;
+  int          weight_size;
+  int          buffer_order;
   unsigned int output_dimension;
-  int layer_type; // what is this layer doing
-  int* pads; // TODO: need initialization
-  int matmul_size;
+  int          layer_type; // what is this layer doing
+  int*         pads;       // TODO: need initialization
+  int          matmul_size;
 };
 
-struct CortexmBackendMeta::Weight {
+struct CortexmBackendMeta::Weight
+{
   float* weight_value;
-  int weight_size;
+  int    weight_size;
   float* bias_value;
-  int bias_size;
-  bool have_bias;
+  int    bias_size;
+  bool   have_bias;
 };
 
-struct CortexmBackendMeta::Add {
+struct CortexmBackendMeta::Add
+{
   float* add_value;
-  int add_size;
-  int* add_dims;
-  int add_dims_size;
-  int* input_dims;
-  int input_dims_size;
+  int    add_size;
+  int*   add_dims;
+  int    add_dims_size;
+  int*   input_dims;
+  int    input_dims_size;
 };
 
-struct CortexmBackendMeta::Matmul {
-  unsigned int input_dimension;
-  unsigned int output_dimension;
-  int batch_size;
-  int input_channel;
-  int output_channel;
-  float* matmul_value;
-  int matmul_size;
+struct CortexmBackendMeta::Matmul
+{
+  unsigned int        input_dimension;
+  unsigned int        output_dimension;
+  int                 batch_size;
+  int                 input_channel;
+  int                 output_channel;
+  float*              matmul_value;
+  int                 matmul_size;
   struct matmul_list* next;
 };
 
-struct CortexmBackendMeta::Shape {
+struct CortexmBackendMeta::Shape
+{
   int* shape_value;
 };
 
-struct CortexmBackendMeta::Shift {
+struct CortexmBackendMeta::Shift
+{
   int shift_value;
 };
 
-
-}
+} // namespace onnc
 
 #endif
