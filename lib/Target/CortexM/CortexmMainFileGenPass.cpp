@@ -57,35 +57,34 @@ Pass::ReturnType CortexmMainFileGenPass::runOnModule(Module& pModule)
   int sum_of_operators        = 0;
   int number_of_maxpool_layer = 0;
 
-  auto firstLayer = m_pMeta.m_layerList.front();
-  for (auto layerItr = m_pMeta.m_layerList.begin(); layerItr != m_pMeta.m_layerList.end(); ++layerItr) {
-    if (layerItr->layer_type == TYPE_CONV) {
+  for (const auto& layerNode : m_pMeta.m_layerList) {
+    if (layerNode.layer_type == TYPE_CONV) {
       number_of_conv_layer++;
       sum_of_operators++;
       fprintf(filePtr, "static q7_t conv%d_wt[%d*%d*%d*%d] = CONV%d_WT;\n\
 static q7_t conv%d_bias[%d] = CONV%d_BIAS;\n\n",
-              number_of_conv_layer, layerItr->output_channel, layerItr->input_channel, layerItr->kernel_size,
-              layerItr->kernel_size, number_of_conv_layer, number_of_conv_layer, layerItr->output_channel,
+              number_of_conv_layer, layerNode.output_channel, layerNode.input_channel, layerNode.kernel_size,
+              layerNode.kernel_size, number_of_conv_layer, number_of_conv_layer, layerNode.output_channel,
               number_of_conv_layer);
-    } else if (layerItr->layer_type == TYPE_FULLYCONNECT) {
+    } else if (layerNode.layer_type == TYPE_FULLYCONNECT) {
       number_of_fc_layer++;
       fprintf(filePtr, "static q7_t ip%d_wt[IP%d_DIM * IP%d_OUT] = IP%d_WT;\n\
 static q7_t ip%d_bias[IP%d_OUT] = IP%d_BIAS;\n\n",
               number_of_fc_layer, number_of_fc_layer, number_of_fc_layer, number_of_fc_layer, number_of_fc_layer,
               number_of_fc_layer, number_of_fc_layer);
-    } else if (layerItr->layer_type == TYPE_ADD) {
+    } else if (layerNode.layer_type == TYPE_ADD) {
       number_of_add_layer++;
       fprintf(filePtr, "static q7_t add%d_wt[%d] = ADD%d;\n\
 static int input_dims%d[%d] = INPUT_DIMS%d;\n\
 static int add_dims%d[%d] = ADD_DIMS%d;\n\n",
-              number_of_add_layer, layerItr->weight_size, number_of_add_layer, number_of_add_layer,
-              layerItr->input_size, number_of_add_layer, number_of_add_layer, layerItr->weight_dim_size,
+              number_of_add_layer, layerNode.weight_size, number_of_add_layer, number_of_add_layer,
+              layerNode.input_size, number_of_add_layer, number_of_add_layer, layerNode.weight_dim_size,
               number_of_add_layer);
-    } else if (layerItr->layer_type == TYPE_MATMUL) {
+    } else if (layerNode.layer_type == TYPE_MATMUL) {
       number_of_matmul_layer++;
       number_of_shape++;
       fprintf(filePtr, "static q7_t matmul%d_wt[%d] = MATMUL_WEIGHT%d;\n\n", number_of_matmul_layer,
-              layerItr->matmul_size, number_of_matmul_layer);
+              layerNode.matmul_size, number_of_matmul_layer);
       fprintf(filePtr, "static int shape%d_wt[2] = SHAPE%d;\n\
 static int shape%d_wt[2] = SHAPE%d;\n\n",
               number_of_shape, number_of_shape, number_of_shape + 1, number_of_shape + 1);
@@ -94,6 +93,7 @@ static int shape%d_wt[2] = SHAPE%d;\n\n",
   }
 
   // buffer size declaration
+  auto firstLayer = m_pMeta.m_layerList.front();
   fprintf(filePtr, "q7_t output_data[10];\n\
 q7_t col_buffer[2*5*5*32*2];\n\
 q7_t scratch_buffer[%d*%d*%d*%d];\n\
@@ -122,52 +122,51 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
   number_of_matmul_layer  = 0;
   number_of_shape         = 0;
 
-  int         number_of_shift = 0;
-  std::string final_output_buffer;
-  for (auto layerItr = m_pMeta.m_layerList.begin(); layerItr != m_pMeta.m_layerList.end(); ++layerItr) {
-    switch (layerItr->layer_type) {
+  int number_of_shift = 0;
+  for (const auto& layerNode : m_pMeta.m_layerList) {
+    switch (layerNode.layer_type) {
     case TYPE_CONV:
       number_of_conv_layer++;
       number_of_shift++;
-      if (layerItr->input_channel == 3) {
+      if (layerNode.input_channel == 3) {
         fprintf(filePtr,
                 "  arm_convolve_HWC_q7_RGB( "
                 "%s,%d,%d,conv%d_wt,%d,%d,%d,%d,conv%d_bias,0,RIGHT_"
                 "SHIFT%d,%s,%d,(q15_t *)col_buffer,NULL);\n\n",
-                input_buffer(layerItr->buffer_order), layerItr->input_dimension, layerItr->input_channel,
-                number_of_conv_layer, layerItr->output_channel, layerItr->kernel_size, layerItr->pad, layerItr->stride,
-                number_of_conv_layer, number_of_shift, output_buffer(layerItr->buffer_order),
-                layerItr->output_dimension);
-      } else if (((layerItr->input_channel) % 4 == 0) && ((layerItr->output_channel) % 2 == 0)) {
+                input_buffer(layerNode.buffer_order), layerNode.input_dimension, layerNode.input_channel,
+                number_of_conv_layer, layerNode.output_channel, layerNode.kernel_size, layerNode.pad, layerNode.stride,
+                number_of_conv_layer, number_of_shift, output_buffer(layerNode.buffer_order),
+                layerNode.output_dimension);
+      } else if (((layerNode.input_channel) % 4 == 0) && ((layerNode.output_channel) % 2 == 0)) {
         fprintf(filePtr,
                 "  arm_convolve_HWC_q7_basic( "
                 "%s,%d,%d,conv%d_wt,%d,%d,%d,%d,conv%d_bias,0,RIGHT_"
                 "SHIFT%d,%s,%d,(q15_t *)col_buffer,NULL );\n\n",
-                input_buffer(layerItr->buffer_order), layerItr->input_dimension, layerItr->input_channel,
-                number_of_conv_layer, layerItr->output_channel, layerItr->kernel_size, layerItr->pad, layerItr->stride,
-                number_of_conv_layer, number_of_shift, output_buffer(layerItr->buffer_order),
-                layerItr->output_dimension);
+                input_buffer(layerNode.buffer_order), layerNode.input_dimension, layerNode.input_channel,
+                number_of_conv_layer, layerNode.output_channel, layerNode.kernel_size, layerNode.pad, layerNode.stride,
+                number_of_conv_layer, number_of_shift, output_buffer(layerNode.buffer_order),
+                layerNode.output_dimension);
       } else {
         fprintf(filePtr,
                 "  arm_convolve_HWC_q7_basic( "
                 "%s,%d,%d,conv%d_wt,%d,%d,%d,%d,conv%d_bias,0,RIGHT_"
                 "SHIFT%d,%s,%d,(q15_t *)col_buffer,NULL );\n\n",
-                input_buffer(layerItr->buffer_order), layerItr->input_dimension, layerItr->input_channel,
-                number_of_conv_layer, layerItr->output_channel, layerItr->kernel_size, layerItr->pad, layerItr->stride,
-                number_of_conv_layer, number_of_shift, output_buffer(layerItr->buffer_order),
-                layerItr->output_dimension);
+                input_buffer(layerNode.buffer_order), layerNode.input_dimension, layerNode.input_channel,
+                number_of_conv_layer, layerNode.output_channel, layerNode.kernel_size, layerNode.pad, layerNode.stride,
+                number_of_conv_layer, number_of_shift, output_buffer(layerNode.buffer_order),
+                layerNode.output_dimension);
       }
       break;
     case TYPE_MAXPOOLING:
       number_of_maxpool_layer++;
       fprintf(filePtr, "  arm_maxpool_q7_HWC( %s,%d,%d,%d,%d,%d,%d,NULL,%s );\n\n",
-              input_buffer(layerItr->buffer_order), layerItr->input_dimension, layerItr->input_channel,
-              layerItr->kernel_size, layerItr->pad, layerItr->stride, layerItr->output_dimension,
-              output_buffer(layerItr->buffer_order));
+              input_buffer(layerNode.buffer_order), layerNode.input_dimension, layerNode.input_channel,
+              layerNode.kernel_size, layerNode.pad, layerNode.stride, layerNode.output_dimension,
+              output_buffer(layerNode.buffer_order));
       break;
     case TYPE_RELU:
-      fprintf(filePtr, "  arm_relu_q7( %s,%d * %d * %d * %d );\n\n", input_buffer(layerItr->buffer_order),
-              layerItr->batch_size, layerItr->output_channel, layerItr->output_dimension, layerItr->output_dimension);
+      fprintf(filePtr, "  arm_relu_q7( %s,%d * %d * %d * %d );\n\n", input_buffer(layerNode.buffer_order),
+              layerNode.batch_size, layerNode.output_channel, layerNode.output_dimension, layerNode.output_dimension);
       break;
     case TYPE_SOFTMAX:
       fprintf(filePtr, "  arm_softmax_q7(output_data,10,output_data);\n\n");
@@ -178,9 +177,9 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
               "  arm_fully_connected_q7_opt(%s,ipt_wt,%d * %d * "
               "%d,10,IP%d_BIASS_LSHIFT,IP%d_OUT_RSHIFT,ip%d_bias,out_"
               "data,(q15_t *)%s);\n\n",
-              input_buffer(layerItr->buffer_order), layerItr->input_channel, layerItr->output_dimension,
-              layerItr->output_dimension, number_of_fc_layer, number_of_fc_layer, number_of_fc_layer,
-              output_buffer(layerItr->buffer_order));
+              input_buffer(layerNode.buffer_order), layerNode.input_channel, layerNode.output_dimension,
+              layerNode.output_dimension, number_of_fc_layer, number_of_fc_layer, number_of_fc_layer,
+              output_buffer(layerNode.buffer_order));
       break;
     case TYPE_ADD:
       number_of_add_layer++;
@@ -189,8 +188,8 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
               "  "
               "MatAdd(%s,input_dims%d,add%d_wt,add_dims%d,%s,%d,RIGHT_"
               "SHIFT%d,RIGHT_SHIFT%d);\n\n",
-              input_buffer(layerItr->buffer_order), number_of_add_layer, number_of_add_layer, number_of_add_layer,
-              output_buffer(layerItr->buffer_order), layerItr->input_size, number_of_shift, number_of_shift + 1);
+              input_buffer(layerNode.buffer_order), number_of_add_layer, number_of_add_layer, number_of_add_layer,
+              output_buffer(layerNode.buffer_order), layerNode.input_size, number_of_shift, number_of_shift + 1);
       number_of_shift++;
       break;
     case TYPE_MATMUL:
@@ -201,29 +200,29 @@ q7_t scratch_buffer2[%d*%d*%d*%d];\n\n",
               "  "
               "matmul(%s,shape%d_wt,matmul%d_wt,shape%d_wt,%s,RIGHT_"
               "SHIFT%d);\n\n",
-              input_buffer(layerItr->buffer_order), number_of_shape, number_of_matmul_layer, number_of_shape + 1,
-              output_buffer(layerItr->buffer_order), number_of_shift);
+              input_buffer(layerNode.buffer_order), number_of_shape, number_of_matmul_layer, number_of_shape + 1,
+              output_buffer(layerNode.buffer_order), number_of_shift);
       number_of_shape++;
       break;
     default:
       fprintf(filePtr, " // This layer is not support\n\n");
       break;
     }
-    if (layerItr + 1 == m_pMeta.m_layerList.end()) {
-      if (layerItr->layer_type == TYPE_FULLYCONNECT) {
-        final_output_buffer = "output_data";
-      } else if (layerItr->layer_type == TYPE_RELU) {
-        final_output_buffer = input_buffer(layerItr->buffer_order);
-      } else {
-        final_output_buffer = output_buffer(layerItr->buffer_order);
-      }
+  }
+
+  std::string final_output_buffer;
+  if (!m_pMeta.m_layerList.empty()) {
+    auto lastLayer = m_pMeta.m_layerList.back();
+    if (lastLayer.layer_type == TYPE_FULLYCONNECT) {
+      final_output_buffer = "output_data";
+    } else if (lastLayer.layer_type == TYPE_RELU) {
+      final_output_buffer = input_buffer(lastLayer.buffer_order);
+    } else {
+      final_output_buffer = output_buffer(lastLayer.buffer_order);
     }
   }
 
-  char cstr[final_output_buffer.size() + 1];
-  strcpy(cstr, final_output_buffer.c_str());
-
-  fprintf(filePtr, " return %s;\n", cstr);
+  fprintf(filePtr, " return %s;\n", final_output_buffer.c_str());
   fprintf(filePtr, "}\n");
   fclose(filePtr);
 

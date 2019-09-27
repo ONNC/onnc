@@ -1,7 +1,7 @@
 #ifndef CORTEXM_HERDER_GEN_PASS_H
 #define CORTEXM_HERDER_GEN_PASS_H
 
-#include "CortexmMeta.h"
+#include "CortexmBackendMeta.h"
 
 #include <onnc/Core/CustomPass.h>
 

@@ -1,7 +1,7 @@
 #ifndef ONNC_CORTEXM_MAIN_FILE_GEN_PASS_H
 #define ONNC_CORTEXM_MAIN_FILE_GEN_PASS_H
 
-#include "CortexmMeta.h"
+#include "CortexmBackendMeta.h"
 
 #include <onnc/Core/CustomPass.h>
 

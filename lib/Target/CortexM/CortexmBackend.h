@@ -9,7 +9,7 @@
 #ifndef TARGET_CORTEXM_BACKEND_H
 #define TARGET_CORTEXM_BACKEND_H
 #include "CodeEmitVisitor.h"
-#include "CortexmMeta.h"
+#include "CortexmBackendMeta.h"
 
 #include <onnc/Target/TargetBackend.h>
 

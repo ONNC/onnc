@@ -1,7 +1,7 @@
 #ifndef CORTEXM_READ_QUANTIZATION_CONFIG_PASS_H
 #define CORTEXM_READ_QUANTIZATION_CONFIG_PASS_H
 
-#include "CortexmMeta.h"
+#include "CortexmBackendMeta.h"
 
 #include <onnc/Core/CustomPass.h>
 #include <onnc/Support/Path.h>
@@ -12,7 +12,7 @@ class TargetBackend;
 class CortexmReadQuantizationConfigPass : public CustomPass<CortexmReadQuantizationConfigPass>
 {
 public:
-  explicit CortexmReadQuantizationConfigPass(CortexmBackendMeta& pMeta, const Path file);
+  CortexmReadQuantizationConfigPass(CortexmBackendMeta& pMeta, const Path file);
   ReturnType runOnModule(Module& pModule) override;
 
 private:

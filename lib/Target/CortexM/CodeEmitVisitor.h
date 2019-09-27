@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_CORTEXM_CODE_EMIT_VISITOR_H
 #define TARGET_CORTEXM_CODE_EMIT_VISITOR_H
-#include "CortexmMeta.h"
+#include "CortexmBackendMeta.h"
 
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>

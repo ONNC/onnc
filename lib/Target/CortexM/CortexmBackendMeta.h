@@ -1,5 +1,5 @@
-#ifndef TARGET_CORTEXM_META_H
-#define TARGET_CORTEXM_META_H
+#ifndef TARGET_CORTEXM_BACKEND_META_H
+#define TARGET_CORTEXM_BACKEND_META_H
 
 #include <onnc/IR/Compute/Tensor.h>
 #include <onnc/Support/IOStream.h>
@@ -26,8 +26,6 @@
 #define TYPE_Error 8
 
 namespace onnc {
-typedef std::unordered_map<const Tensor*, const Tensor*> RemapTable;
-typedef std::unordered_map<Value*, int>                  MemIdxTable;
 
 class CortexmBackendMeta
 {

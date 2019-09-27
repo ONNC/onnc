@@ -1,7 +1,7 @@
 #ifndef CORTEXM_MAIN_FILE_HEADER_GEN_PASS_H
 #define CORTEXM_MAIN_FILE_HEADER_GEN_PASS_H
 
-#include "CortexmMeta.h"
+#include "CortexmBackendMeta.h"
 
 #include <onnc/Core/CustomPass.h>
 
@@ -11,7 +11,7 @@ class TargetBackend;
 class CortexmMainFileHeaderGenPass : public CustomPass<CortexmMainFileHeaderGenPass>
 {
 public:
-  explicit CortexmMainFileHeaderGenPass() = default;
+  CortexmMainFileHeaderGenPass() = default;
   ReturnType runOnModule(Module& pModule) override;
 };
 } // namespace onnc
