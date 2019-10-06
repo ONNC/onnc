@@ -92,6 +92,8 @@ void ComputeGraph::erase(ComputeOperand& pArc)
 
   if (nullptr != pArc.next_out) { // a middle arc
     pArc.next_out->prev_out = pArc.prev_out;
+  } else {
+    pArc.source->last_out = pArc.prev_out;
   }
 
   // 2. remove from the fan-in list
@@ -104,6 +106,8 @@ void ComputeGraph::erase(ComputeOperand& pArc)
 
   if (nullptr != pArc.next_in) {
     pArc.next_in->prev_in = pArc.prev_in;
+  } else {
+    pArc.target->last_in = pArc.prev_in;
   }
 
   // 3. remove from the arc list
@@ -242,16 +246,31 @@ void ComputeGraph::topologicalSort()
     nodes[i]->prev = (i > 0) ? nodes[i - 1] : nullptr;
     nodes[i]->next = (i < nodes.size() - 1) ? nodes[i + 1] : nullptr;
   }
+
+  if (!nodes.empty()) {
+    m_pNodeHead = nodes.front();
+    m_pNodeRear = nodes.back();
+  }
 }
 
 void ComputeGraph::print(std::ostream& pOS) const
 {
+  bool isFirst = true;
+  for (auto node = begin(); node != end(); ++node) {
+    if (!isFirst) {
+      pOS << "\n";
+    }
+
+    node->print(pOS);
+
+    isFirst = false;
+  }
 }
 
-void ComputeGraph::print(json::Value& pValue) const
+void ComputeGraph::print(json::Value &pValue) const
 {
-    const_iterator nodeIter = begin();
-    for(; nodeIter != end(); ++nodeIter){
-      nodeIter->print(pValue);
-    }
+  const_iterator nodeIter = begin();
+  for (; nodeIter != end(); ++nodeIter) {
+    nodeIter->print(pValue);
+  }
 }

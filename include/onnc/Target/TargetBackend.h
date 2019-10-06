@@ -12,6 +12,7 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/Target/TargetMemInfo.h>
 #include <onnc/Target/TargetOptions.h>
+#include <onnc/Transforms/Optimizations/OptimizationOptions.h>
 #include <onnc/Support/Path.h>
 #include <onnc/Runtime/Interpreter.h>
 
@@ -33,6 +34,11 @@ public:
   virtual ~TargetBackend() { }
 
   virtual void addTensorSel(PassManager& pPM) { return; }
+
+  virtual void addOnncIrOptimization(PassManager& pPM, OptimizationOptions& options)
+  {
+    OptimizationOptions::add(pPM, options);
+  }
 
   virtual void addTensorSched(PassManager& pPM) { return; }
 

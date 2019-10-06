@@ -7,8 +7,11 @@
 //===----------------------------------------------------------------------===//
 #ifndef ONNC_INTERPRETER_PASS_H
 #define ONNC_INTERPRETER_PASS_H
-#include <onnc/Runtime/Interpreter.h>
 #include <onnc/Core/CustomPass.h>
+#include <onnc/IR/Compute/Tensor.h>
+#include <onnc/Runtime/Interpreter.h>
+
+#include <functional>
 
 namespace onnc {
 
@@ -23,7 +26,8 @@ class InterpreterPass : public CustomPass<InterpreterPass>
 {
 public:
   InterpreterPass(TargetBackend *pBackend,
-                  char *pInputMem,
+                  std::unique_ptr<char[]> pInputMem,
+                  std::function<void(const Tensor&, const void*)> pOutputListener,
                   unsigned int pVerbose,
                   bool pIsDryRun);
 
@@ -33,7 +37,8 @@ private:
   ReturnType runInterpreter(Module& pModule);
 
   TargetBackend *m_pBackend;
-  char *m_pInputMem;
+  std::unique_ptr<char[]> m_pInputMem;
+  std::function<void(const Tensor&, const void*)> m_OutputListener;
   unsigned int m_Verbose;
   bool m_DryRun;
   std::unique_ptr<Interpreter> m_pInterpreter;

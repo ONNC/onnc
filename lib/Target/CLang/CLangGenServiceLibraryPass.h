@@ -14,10 +14,9 @@ class CLangGenServiceLibraryPass final : public CustomPass<CLangGenServiceLibrar
 
 public:
   CLangGenServiceLibraryPass() = default;
-  CLangGenServiceLibraryPass(const CLangMeta& meta, Path outputFile, Path resourceDirectory)
+  CLangGenServiceLibraryPass(const CLangMeta& meta, Path outputFile)
     : meta{meta}
     , outputFile{std::move(outputFile)}
-    , resourceDirectory{std::move(resourceDirectory)}
   {}
 
   CLangGenServiceLibraryPass(const CLangGenServiceLibraryPass&) = delete;
@@ -35,7 +34,6 @@ private:
 private:
   const CLangMeta& meta;
   const Path       outputFile;
-  const Path       resourceDirectory;
 };
 
 } // namespace onnc

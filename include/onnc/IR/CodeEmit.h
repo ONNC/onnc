@@ -20,11 +20,9 @@ public:
 
   StringRef getPassName() const override { return "CodeEmit"; }
 
-  Pass::ReturnType runOnModule(Module& pModule) override;
-
-private:
-  Pass::ReturnType runOnComputeGraph(ComputeGraph& pCG);
+  Pass::ReturnType runOnComputeGraph(ComputeGraph& pCG) override;
   
+private:
   ComputeVisitor& m_CodeEmitVisitor;
 };
 

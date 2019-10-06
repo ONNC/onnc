@@ -39,7 +39,9 @@ DoParse(Module& pModule, ::google::protobuf::io::ZeroCopyInputStream& pStream,
 // onnx::Reader
 //===----------------------------------------------------------------------===//
 onnc::onnx::Reader::Reader()
-  : m_TotalBytesLimit(1024LL << 20), m_WarningThreshold(512LL << 20) {
+  : m_TotalBytesLimit(1024LL << 20)
+  , m_WarningThreshold(768LL << 20)
+{
   // Verify that the version of the library that we linked against is
   // compatible with the version of the headers we compiled against.
   GOOGLE_PROTOBUF_VERIFY_VERSION;

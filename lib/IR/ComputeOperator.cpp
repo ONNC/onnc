@@ -25,12 +25,46 @@ ComputeOperator::ComputeOperator(const ComputeOperator& pCopy)
     m_ID(pCopy.getID()),
     m_Inputs(pCopy.m_Inputs),
     m_Outputs(pCopy.m_Outputs),
-    m_GraphOperators(pCopy.m_GraphOperators) {
+    m_GraphOperators(pCopy.m_GraphOperators) {}
+
+void ComputeOperator::removeAllInputs() {
+  for (Value *oldV : m_Inputs) {
+    // erase this from intput Values' UseList
+    Value::UseList &uList = oldV->getUses();
+    unsigned oldUseId = 0;
+
+    for (; oldUseId < uList.size(); ++oldUseId) {
+      if (uList[oldUseId].getUser() == this) {
+        break;
+      }
+    }
+
+    if (!(oldUseId < uList.size())) {
+      continue;
+    }
+
+    uList.erase(std::next(begin(uList), oldUseId));
+  }
+  m_Inputs.clear();
+}
+
+void ComputeOperator::removeAllOutputs() {
+  for (Value *oldV : m_Outputs)
+    oldV->clearDefine();
+  m_Outputs.clear();
 }
 
 void ComputeOperator::connect(const GraphOperator& pGraphOperator)
 {
   m_GraphOperators.push_back(&pGraphOperator);
+}
+
+void ComputeOperator::insertInput(unsigned int pIdx, onnc::Value &pValue) {
+  if (pIdx > m_Inputs.size())
+    fatal(input_out_of_range) << pIdx << name() << (uint32_t)m_Inputs.size();
+
+  m_Inputs.insert(std::next(begin(m_Inputs), pIdx), &pValue);
+  pValue.getUses().emplace_back(*this, pIdx);
 }
 
 void ComputeOperator::replaceInput(unsigned int pIdx, onnc::Value& pValue)
@@ -51,7 +85,7 @@ void ComputeOperator::replaceInput(unsigned int pIdx, onnc::Value& pValue)
   assert(oldUseId < oldV->getUses().size() &&
          "onnc::Value has no specified user.");
 
-  oldV->getUses().erase(oldV->getUses().begin() + oldUseId);
+  oldV->getUses().erase(std::next(begin(oldV->getUses()), oldUseId));
 
   // Replace with new value and update use list.
   m_Inputs[pIdx] = &pValue;
@@ -70,6 +104,24 @@ void ComputeOperator::replaceOutput(unsigned int pIdx, onnc::Value &pValue)
   if (!pValue.getDefine()) {
     pValue.setDefine(this, pIdx);
   }
+}
+
+void ComputeOperator::removeInput(unsigned int pIdx) {
+  if (pIdx >= m_Inputs.size())
+    fatal(input_out_of_range) << pIdx << name() << (uint32_t)m_Inputs.size();
+
+  Value *oldV = m_Inputs[pIdx];
+  Value::UseList &uList = oldV->getUses();
+  unsigned oldUseId = 0;
+
+  for (; oldUseId < uList.size(); ++oldUseId)
+    if (uList[oldUseId].getUser() == this)
+      break;
+
+  assert(oldUseId < uList.size() && "onnc::Value has no specified user.");
+
+  uList.erase(std::next(begin(uList), oldUseId));
+  m_Inputs.erase(std::next(begin(m_Inputs), pIdx));
 }
 
 void ComputeOperator::print(std::ostream& pOS) const

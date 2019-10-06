@@ -215,6 +215,8 @@ nobase_nodist_include_HEADERS = \
 	onnc/IR/IRBuilder.h \
 	onnc/IR/ONNXUtils.h \
 	onnc/IR/ComputeGraph.h \
+	onnc/Support/Algorithm.h \
+	onnc/Support/Contract.h \
 	onnc/Support/MallocAllocator.h \
 	onnc/Support/MappedFileRegion.h \
 	onnc/Support/MemoryAllocator.h \
@@ -225,7 +227,9 @@ nobase_nodist_include_HEADERS = \
 	onnc/Support/EditMatch.h \
 	onnc/Support/LinearAllocator.h \
 	onnc/Support/FileStatus.h \
+	onnc/Support/Memory.h \
 	onnc/Support/MemoryPool.h \
+	onnc/Support/Match.h \
 	onnc/Support/Pipe.h \
 	onnc/Support/Signal.h \
 	onnc/Support/Path.h \
@@ -242,13 +246,16 @@ nobase_nodist_include_HEADERS = \
 	onnc/Support/GCFactory.h \
 	onnc/Support/ELF.h \
 	onnc/Support/ErrorCode.h \
+	onnc/Support/Enum.h \
 	onnc/Support/IOSFwd.h \
 	onnc/Support/IStrStream.h \
 	onnc/Support/OStream.h \
 	onnc/Support/DirIterator.h \
 	onnc/Support/Random.h \
+	onnc/Support/Range.h \
 	onnc/Support/Readline.h \
 	onnc/Support/IFStream.h \
+	onnc/Support/Iterator.h \
 	onnc/Support/SigAction.h \
 	onnc/Support/FileInfo.h \
 	onnc/Support/CArgu.h \
@@ -261,16 +268,21 @@ nobase_nodist_include_HEADERS = \
 	onnc/Support/FileDescriptor.h \
 	onnc/Support/UnixPrv.h \
 	onnc/Support/Slab.h \
+	onnc/Support/Span.h \
+	onnc/Support/String.h \
 	onnc/Support/IStream.h \
 	onnc/Support/IOStream.h \
 	onnc/Support/IndentOStreamBuf.h \
 	onnc/Support/Compress.h \
 	onnc/Support/Timer.h \
+	onnc/Support/TypeTraits.h \
+	onnc/Support/View.h \
 	onnc/Support/CEnv.h \
 	onnc/Support/FileLock.h \
 	onnc/Support/OFStream.h \
 	onnc/Support/FileBuf.h \
 	onnc/Support/AsyncPipe.h \
+	onnc/Support/Preprocessor.h \
 	onnc/Option/OptStorage.h \
 	onnc/Option/OptDefs.h \
 	onnc/Option/OptParser.h \
@@ -290,6 +302,14 @@ nobase_nodist_include_HEADERS = \
 	onnc/Transforms/DeadNodeElimination.h \
 	onnc/Transforms/BuildInitializers.h \
 	onnc/Transforms/BuildInputOperators.h \
+	onnc/Transforms/Optimizations/DivideGlobalAPIntoAPs.h \
+	onnc/Transforms/Optimizations/EliminateIdentity.h \
+	onnc/Transforms/Optimizations/ExpandBatchNormalization.h \
+	onnc/Transforms/Optimizations/OptimizationsUtils.h \
+	onnc/Transforms/Optimizations/OptimizationOptions.h \
+	onnc/Transforms/Optimizations/PropagateConstWithDiffShape.h \
+	onnc/Transforms/Optimizations/ReplaceGemmByConv.h \
+	onnc/Transforms/Optimizations/SplitConvPass.h \
 	onnc/Transforms/TensorSel/LowerRegistry.h \
 	onnc/Transforms/TensorSel/Standards/LpPoolLower.h \
 	onnc/Transforms/TensorSel/Standards/GatherLower.h \

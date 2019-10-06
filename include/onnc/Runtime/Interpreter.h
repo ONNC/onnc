@@ -14,6 +14,7 @@
 #include <onnc/IR/Compute/Value.h>
 #include <onnc/IR/ComputeMemOperand.h>
 #include <onnc/IR/CustomVisitor.h>
+#include <onnc/Support/Memory.h>
 #include <unordered_map>
 
 namespace onnc {
@@ -21,7 +22,7 @@ class BasicInterpreter
 {
 public:
   // XXX(a127a127): Temporary hack, should not public.
-  typedef std::unordered_map<Value *, void *> AddressTable;
+  typedef std::unordered_map<const Value *, void *> AddressTable;
   AddressTable m_ATable;
   void *m_pContext;
 

@@ -1,0 +1,12 @@
+add_libonnc_src(
+  genmem.cpp
+  Concat.cpp
+  Copy.cpp
+  Cube.cpp
+  Memory.cpp
+  Merge.cpp
+  Register.cpp
+  Shuffle.cpp
+  Split.cpp
+  Splitt.cpp
+)

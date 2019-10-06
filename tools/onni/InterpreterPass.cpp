@@ -24,7 +24,7 @@
 
 #define restrict __restrict__
 extern "C" {
-#include <onnc/Runtime/onni-runtime.h>
+#include <onnc/Runtime/onnc-runtime.h>
 }
 #undef restrict
 
@@ -61,13 +61,16 @@ using namespace onnc;
 // InterpreterPass
 //===----------------------------------------------------------------------===//
 InterpreterPass::InterpreterPass(TargetBackend *pBackend,
-                                 char *pInputMem,
+                                 std::unique_ptr<char[]> pInputMem,
+                                 std::function<void(const Tensor&, const void*)> pOutputListener,
                                  unsigned int pVerbose,
                                  bool pIsDryRun)
-  : m_pBackend(pBackend), m_pInputMem(pInputMem),
-    m_Verbose(pVerbose), m_DryRun(pIsDryRun),
-    m_pInterpreter(pBackend->createTargetInterpreter()) {
-}
+  : m_pBackend(pBackend)
+  , m_pInputMem(std::move(pInputMem))
+  , m_OutputListener(std::move(pOutputListener))
+  , m_Verbose(pVerbose), m_DryRun(pIsDryRun)
+  , m_pInterpreter(pBackend->createTargetInterpreter())
+{ }
 
 Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
 {
@@ -82,7 +85,7 @@ Pass::ReturnType InterpreterPass::runOnModule(Module &pModule)
       Value *v = co->getValue();
       if (mem->isInput()) {
         // XXX: Multiple inputs
-        m_pInterpreter->getBasicInterpreter()->m_ATable[v] = m_pInputMem;
+        m_pInterpreter->getBasicInterpreter()->m_ATable[v] = m_pInputMem.get();
       } else if (mem->isWeight()) {
         // XXX
         FloatTensor *t = static_cast<FloatTensor *>(v);
@@ -227,19 +230,9 @@ Pass::ReturnType InterpreterPass::runInterpreter(Module &pModule)
   for (ComputeOperator &cm : *pModule.getRootComputeGraph()) {
     if (OutputOperator *out = dyn_cast<OutputOperator>(&cm)) {
       for (int i = 0; i < out->getNumOfInputs(); ++i) {
-        Value *v = out->getInput(i);
-        float *output = static_cast<float *>(m_pInterpreter->getBasicInterpreter()->m_ATable[v]);
-
-        Tensor *t = static_cast<Tensor *>(v);
-        size_t size = 1;
-        for (auto i: t->getDimensions()) {
-          size *= i;
-        }
-        outs() << '[';
-        for (size_t i = 0; i < size; ++i) {
-          outs() << std::fixed << output[i] << ", ";
-        }
-        outs() << ']' << std::endl;
+        const Value* const value = out->getInput(i);
+        const auto*  const data  = m_pInterpreter->getBasicInterpreter()->m_ATable[value];
+        m_OutputListener(static_cast<const Tensor&>(*value), data);
       }
     }
   }

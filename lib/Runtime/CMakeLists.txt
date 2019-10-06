@@ -1,9 +1,6 @@
-include_directories(
-    ${ONNC_ROOT_PATH}/export/runtime/include
-)
+file(GLOB_RECURSE OPERATOR_C_FILES operator/*.c)
 
 add_libonnc_src(
+    ${OPERATOR_C_FILES}
     Interpreter.cpp
-    onni-runtime.c
-    Operators.c
-)
+    onnc-runtime.c)

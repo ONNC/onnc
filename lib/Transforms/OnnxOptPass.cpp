@@ -8,6 +8,9 @@
 #include <onnc/Config/ONNX.h>
 #include <onnc/IR/ONNXUtils.h>
 #include <onnc/ONNXWrapper/ONNXWrapper.h>
+#include <onnc/Support/Contract.h>
+#include <onnc/Support/IOStream.h>
+#include <onnc/Support/String.h>
 #include <onnc/Transforms/OnnxOptPass.h>
 
 #include <onnx/optimizer/optimize.h>
@@ -52,14 +55,22 @@ Pass::ReturnType OnnxOptPass::runOnModule(Module &pModule)
     return Pass::kModuleNoChanged;
   }
 
-  onnxInferShape(pModule);
+  if (!onnxInferShape(pModule)) {
+		return Pass::kPassFailure;
+	}
 
   xProto mp;
   onnc::ExportModelProto(mp, pModule);
-  mp = onnx::optimization::Optimize(
-    mp,
-    std::vector<std::string>{begin(names), end(names)}
-  );
+  try {
+    mp = onnx::optimization::Optimize(
+      mp,
+      std::vector<std::string>{begin(names), end(names)}
+    );
+  } catch (onnx::assert_error& ae) {
+    ASSERT_MSG(false, to_string("Meet error when doing ONNX optimization, reason: ", ae.what()));
+    return Pass::kPassFailure;
+  }
+
   pModule.delegate(xImportModelProto(mp));
 
   return Pass::kModuleChanged;

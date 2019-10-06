@@ -17,6 +17,7 @@
 #include <onnc/Core/PassManager.h>
 #include <onnc/ADT/Color.h>
 #include <onnc/Support/IOStream.h>
+#include <onnc/Transforms/Optimizations/OptimizationOptions.h>
 
 #include <cstdlib>
 
@@ -60,9 +61,12 @@ int ONNCApp::compile()
     return EXIT_FAILURE;
   }
 
+  OptimizationOptions optOptions;
+
   PassManager pm;
   const auto backend = std::unique_ptr<TargetBackend>(target->createBackend(options().target()));
   backend->addTensorSel(pm);
+  backend->addOnncIrOptimization(pm, optOptions);
   backend->addTensorSched(pm);
   backend->addMemAlloc(pm);
   backend->addCodeEmit(pm, options().output());

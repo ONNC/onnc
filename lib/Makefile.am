@@ -146,6 +146,13 @@ ONNC_SOURCES = \
 	Transforms/BuildInputOperators.cpp \
 	Transforms/BuildOutputOperators.cpp \
 	Transforms/OnnxOptPass.cpp \
+	Transforms/Optimizations/DivideGlobalAPIntoAPs.cpp \
+	Transforms/Optimizations/EliminateIdentity.cpp \
+	Transforms/Optimizations/ExpandBatchNormalization.cpp \
+	Transforms/Optimizations/OptimizationsUtils.cpp \
+	Transforms/Optimizations/PropagateConstWithDiffShape.cpp \
+	Transforms/Optimizations/ReplaceGemmByConv.cpp \
+	Transforms/Optimizations/SplitConvPass.cpp \
 	Transforms/TensorSel.cpp \
 	Transforms/TensorSel/DefaultAttributes.cpp \
 	Transforms/TensorSel/Lower.cpp \
@@ -497,7 +504,6 @@ AM_LFLAGS = -olex.yy.c
 # Target-depednet files and settings
 ONNC_TARGET_SOURCES = Target/Platform.cpp \
 	Target/Target.cpp \
-	Target/TargetOptions.cpp \
 	Target/TargetRegistry.cpp \
 	Target/TargetStandardPasses.cpp \
 	Target/NPUTargetBackend.cpp

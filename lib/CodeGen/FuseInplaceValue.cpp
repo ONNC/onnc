@@ -14,16 +14,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // FuseInplaceValue
 //===----------------------------------------------------------------------===//
-Pass::ReturnType FuseInplaceValue::runOnModule(Module& pModule)
-{
-  Pass::ReturnType ret = Pass::kModuleNoChanged;
-  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
-  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
-    ret |= runOnComputeGraph(*cg->value());
-
-  return ret;
-}
-
 Pass::ReturnType FuseInplaceValue::runOnComputeGraph(ComputeGraph& pCG)
 {
   Pass::ReturnType ret = Pass::kModuleNoChanged;

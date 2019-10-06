@@ -15,13 +15,14 @@
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/Timer.h>
 
-using namespace onnc;
+namespace onnc {
 
 //===----------------------------------------------------------------------===//
 // NvDlaFileGenPass
 //===----------------------------------------------------------------------===//
-NvDlaFileGenPass::NvDlaFileGenPass(NvDlaBackendMeta* pMeta)
-  : m_pMeta{pMeta}
+NvDlaFileGenPass::NvDlaFileGenPass(NvDlaBackendMeta* pMeta, Version pLoadableVersion)
+  : m_pMeta(pMeta)
+  , m_LoadableVersion(pLoadableVersion)
 {}
 
 Pass::ReturnType NvDlaFileGenPass::runOnModule(Module& pModule)
@@ -33,5 +34,8 @@ Pass::ReturnType NvDlaFileGenPass::runOnModule(Module& pModule)
   m_pMeta->m_Loadable.priv()->setTaskListEntries(m_pMeta->m_TaskListEntries);
   m_pMeta->m_Loadable.priv()->setSubmitListEntries(m_pMeta->m_SubmitListEntries);
   m_pMeta->m_Loadable.priv()->serialize();
+
   return Pass::kModuleNoChanged;
 }
+
+} // namespace onnc

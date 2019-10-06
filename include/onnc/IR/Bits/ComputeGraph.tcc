@@ -52,6 +52,17 @@ ValueType* ComputeGraph::addValue(ValueCtorParams&& ... pParams)
   return nullptr;
 }
 
+template <typename ValueType>
+ValueType* ComputeGraph::addValue(ValueType* value)
+{
+  if (addValueToModule(value)) {
+    return value;
+  }
+
+  delete value;
+  return nullptr;
+}
+
 template<typename ValueType>
 ValueType* ComputeGraph::getValue(StringRef pName)
 {

@@ -15,18 +15,21 @@
 
 namespace onnc {
 
+namespace analysis {
 class LiveInterval;
+} // namespace analysis
+
 class DLATargetBackend;
 
 struct MemAllocEntry
 {
 public:
-  MemAllocEntry(size_t pStartAddr, size_t pSize, const LiveInterval &pIntrvl)
+  MemAllocEntry(size_t pStartAddr, size_t pSize, const analysis::LiveInterval &pIntrvl)
     : startAddr(pStartAddr), size(pSize), liveIntrvl(pIntrvl) {
   }
 
   size_t startAddr, size;
-  const LiveInterval liveIntrvl;
+  const analysis::LiveInterval liveIntrvl;
 };
 
 typedef std::vector<MemAllocEntry*> MemAllocList;

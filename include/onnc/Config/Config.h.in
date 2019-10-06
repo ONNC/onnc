@@ -39,9 +39,6 @@
 /* define Vanilla target */
 #undef ENABLE_VANILLA_TARGET
 
-/* define CLang target */
-#undef ENABLE_CLANG_TARGET
-
 /* define x86_64 target */
 #undef ENABLE_X86_TARGET
 

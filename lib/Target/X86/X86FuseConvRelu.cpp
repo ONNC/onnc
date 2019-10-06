@@ -16,16 +16,6 @@ using namespace onnc;
 //===----------------------------------------------------------------------===//
 // X86FuseConvRelu
 //===----------------------------------------------------------------------===//
-Pass::ReturnType X86FuseConvRelu::runOnModule(Module& pModule)
-{
-  Pass::ReturnType ret = Pass::kModuleNoChanged;
-  Module::cg_iterator cg, cgEnd = pModule.cgEnd();
-  for (cg = pModule.cgBegin(); cg != cgEnd; ++cg)
-    ret |= runOnComputeGraph(*cg->value());
-
-  return ret;
-}
-
 Pass::ReturnType X86FuseConvRelu::runOnComputeGraph(ComputeGraph& pCG)
 {
   Pass::ReturnType ret = Pass::kModuleNoChanged;

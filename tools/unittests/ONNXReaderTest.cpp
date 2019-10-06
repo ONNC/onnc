@@ -19,7 +19,7 @@ SKYPAT_F(ONNXReaderTest, parse_file)
   path.append("tools")
       .append("unittests")
       .append("data")
-      .append("bvlc_alexnet")
+      .append("squeezenet")
       .append("model.onnx");
   onnc::Module module;
   onnc::onnx::Reader reader;

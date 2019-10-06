@@ -7,11 +7,11 @@
 //===----------------------------------------------------------------------===//
 #include <onnc/IR/Compute/Tensor.h>
 
-using namespace onnc;
-
 //===----------------------------------------------------------------------===//
 // Tensor
 //===----------------------------------------------------------------------===//
+namespace onnc {
+
 Tensor::Tensor()
   : onnc::Value() {
 }
@@ -62,3 +62,15 @@ void Tensor::print(std::ostream& pOS) const {
   }
   pOS << ']';
 }
+
+Tensor::Size size(const Tensor& tensor)
+{
+  Tensor::Size size = 1;
+  for (Tensor::Size idx = 0; idx < tensor.getNumOfDimensions(); ++idx) {
+     size *= static_cast<Tensor::Size>(tensor.dimension(idx));
+  }
+
+  return size;
+}
+
+} // namespace onnc

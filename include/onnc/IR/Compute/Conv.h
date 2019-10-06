@@ -102,7 +102,6 @@ public:
 
   Tensor* getY() { return getOutput(kY); }
 
-
   // Inputs setters
   void setX(Tensor& pTensor) { m_Inputs[kX] = &pTensor; }
 
@@ -110,9 +109,10 @@ public:
 
   void setB(Tensor& pTensor) { m_Inputs[kB] = &pTensor; }
 
-
   // Outputs setters
   void setY(Tensor& pTensor) { m_Outputs[kY] = &pTensor; }
+
+  bool hasBias() const noexcept { return 2 < getNumOfInputs(); }
 
   // clang-format on
 

@@ -1,4 +1,4 @@
-//===- InterpreterPass.h --------------------------------------------------===//
+//===- NvDlaMemInfoPass.h -------------------------------------------------===//
 //
 //                             The ONNC Project
 //
@@ -14,10 +14,9 @@
 #include <onnc/Core/CustomPass.h>
 
 namespace onnc {
-class TargetBackend;
 
-/** \class InterpreterPass
- *  \brief Run interpreter.
+/** \class NvDlaMemInfoPass
+ *  \brief Allocate memory for tensors
  */
 class NvDlaMemInfoPass : public CustomPass<NvDlaMemInfoPass>, private NvDlaConstants
 {

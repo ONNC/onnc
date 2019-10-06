@@ -227,6 +227,23 @@ bool Module::addValue(Value* pValue)
   return true;
 }
 
+void Module::eraseValue(Value& pValue)
+{
+  assert(pValue.getDefine() == nullptr && "Define still exist.");
+  assert(pValue.getUses().empty() && "User list is not empty.");
+  m_Values.erase(pValue.getName());
+  delete &pValue;
+}
+
+void Module::eraseUnusedValues() {
+  // advance() for HashTable only plus m_Index by one each time,
+  // so it's fine to erase entry while iterating
+  for (auto& entry : m_Values)
+    if (entry.value()->getDefine() == nullptr and
+        entry.value()->getUses().empty())
+      this->eraseValue(*(entry.value()));
+}
+
 Module::ValueList& Module::getValueList()
 {
   return m_Values;

@@ -5,37 +5,38 @@
 // See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <onnc/Config/Config.h>
+#include <onnc/Support/IFStream.h>
 #include <onnc/Support/IOStream.h>
 #include <onnc/Support/OFStream.h>
-#include <onnc/Support/IFStream.h>
-#include <onnc/Config/Config.h>
 
 #if defined(HAVE_UNISTD_H)
-# include <unistd.h>
+#  include <unistd.h>
 #endif
 #if defined(HAVE_FCNTL_H)
-# include <fcntl.h>
+#  include <fcntl.h>
 #endif
 #if defined(HAVE_SYS_UIO_H) && defined(HAVE_WRITEV)
 #  include <sys/uio.h>
 #endif
 
 #if defined(__CYGWIN__)
-#include <io.h>
+#  include <io.h>
 #endif
 
 #if defined(_MSC_VER)
-#include <io.h>
-#include <fcntl.h>
-#ifndef STDIN_FILENO
-# define STDIN_FILENO 0
-#endif
-#ifndef STDOUT_FILENO
-# define STDOUT_FILENO 1
-#endif
-#ifndef STDERR_FILENO
-# define STDERR_FILENO 2
-#endif
+#  include <io.h>
+
+#  include <fcntl.h>
+#  ifndef STDIN_FILENO
+#    define STDIN_FILENO 0
+#  endif
+#  ifndef STDOUT_FILENO
+#    define STDOUT_FILENO 1
+#  endif
+#  ifndef STDERR_FILENO
+#    define STDERR_FILENO 2
+#  endif
 #endif
 
 //===----------------------------------------------------------------------===//
@@ -62,3 +63,5 @@ onnc::IStream& onnc::ins()
   static IFStream IS(STDIN_FILENO);
   return IS;
 }
+
+std::ostream& onnc::print(std::ostream& stream) { return stream; }

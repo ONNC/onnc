@@ -78,6 +78,8 @@ public:
 
   const std::string& getName() const { return m_Name; }
 
+  void setName(std::string newName) { m_Name = std::move(newName); }
+
   Type kind() const { return m_Kind; }
 
   /// Note: this method should only be used by ComputeOperator.

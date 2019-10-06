@@ -22,7 +22,7 @@ $ docker pull onnc/onnc-community
 
 ## 4. Build ONNC with the Docker Image
 
-Although the Docker image include a source code tree, it might not be the latest release version of ONNC. We strongly suggest you clone the latest version of ONNC from the GitHub repository, mount the source code directory to the Docker image, and modify the source code with your favorite editor on your host machine. You may clone the source code from the GitHub ONNC repository (https://github.com/ONNC/onnc). To download large model files when cloning the ONNC source, you have to install Git LFS (https://github.com/git-lfs/git-lfs/wiki/Installation) first.
+Although the Docker image include a source code tree, it might not be the latest release version of ONNC. We strongly suggest you clone the latest version of ONNC from the GitHub repository, mount the source code directory to the Docker image, and modify the source code with your favorite editor on your host machine. You may clone the source code from the GitHub ONNC repository (https://github.com/ONNC/onnc).
 
 ```console
 $ mkdir -p <source_dir> && cd <source_dir>
@@ -56,7 +56,7 @@ $ cd /onnc/onnc-umbrella
 $ ssync && ./build.cmake.sh <build_mode>
 ```
 
-`<build_mode>` supports one of the following mode:
+`<build_mode>` supports one of the following modes:
 
 ```
 normal, dbg, rgn, opt 
@@ -73,10 +73,32 @@ The `ssync` command synchronize the build directory with the `<source_dir>/onnc`
 
 **Table 1. CMAKE_BUILD_TYPE and build mode mapping**
 
+## 5. Prepare Virtual Platform for ONNC verification
 
-## 5. Run Unit Tests
+ONNC has mad some changes on [nvdla/sw](https://github.com/nvdla/sw/commit/1f44c2463f5473e00f6f9b63da50aeb878bd8825) for supporting ONNX models. You can checkout it and apply patch then build virtual platform.
 
-There are 18 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
+```console
+$ git clone https://github.com/nvdla/sw.git && cd sw
+$ git checkout 1f44c24
+$ git apply <source_dir>/onnc/nvdla/sw.diff
+```
+
+Reference following NVDLA official documents to build virtual platform from scratch:
+
+- [Build linux kernel for virtual platform](http://nvdla.org/vp.html#building-linux-kernel-for-nvdla-virtual-simulator)
+- [Build User Mode Driver & Kernel Mode Driver](https://github.com/nvdla/sw#nvdla-open-source-software)
+
+Or just download modified virtual platform docker image:
+
+```console
+$ docker pull onnc/vp
+```
+
+## 6. Regression Tests
+
+### Run Unit Tests
+
+There are 23 unit tests available in the ONNC repository. Those tests are written in C++ language and you may run all of them using the following shell command:
 
 ```console
 // run in the container cli
@@ -88,45 +110,55 @@ If all tests pass, you will see the same output as shown below.
 ```
 Test project /onnc/onnc-umbrella/build-normal
       Start  1: Digraph
- 1/18 Test  #1: Digraph ..........................   Passed    0.02 sec
+ 1/23 Test  #1: Digraph ..........................   Passed    0.00 sec
       Start  2: FileHandle
- 2/18 Test  #2: FileHandle .......................   Passed    0.01 sec
+ 2/23 Test  #2: FileHandle .......................   Passed    0.00 sec
       Start  3: PassManager
- 3/18 Test  #3: PassManager ......................   Passed    0.00 sec
+ 3/23 Test  #3: PassManager ......................   Passed    0.00 sec
       Start  4: Quadruple
- 4/18 Test  #4: Quadruple ........................   Passed    0.00 sec
+ 4/23 Test  #4: Quadruple ........................   Passed    0.00 sec
       Start  5: StringRef
- 5/18 Test  #5: StringRef ........................   Passed    0.00 sec
+ 5/23 Test  #5: StringRef ........................   Passed    0.00 sec
       Start  6: Any
- 6/18 Test  #6: Any ..............................   Passed    0.00 sec
+ 6/23 Test  #6: Any ..............................   Passed    0.00 sec
       Start  7: BinaryTree
- 7/18 Test  #7: BinaryTree .......................   Passed    0.00 sec
+ 7/23 Test  #7: BinaryTree .......................   Passed    0.00 sec
       Start  8: StringSwitch
- 8/18 Test  #8: StringSwitch .....................   Passed    0.00 sec
+ 8/23 Test  #8: StringSwitch .....................   Passed    0.00 sec
       Start  9: StringMap
- 9/18 Test  #9: StringMap ........................   Passed    0.45 sec
+ 9/23 Test  #9: StringMap ........................   Passed    0.69 sec
       Start 10: Json
-10/18 Test #10: Json .............................   Passed    0.00 sec
+10/23 Test #10: Json .............................   Passed    0.00 sec
       Start 11: ComputeIR
-11/18 Test #11: ComputeIR ........................   Passed    0.00 sec
+11/23 Test #11: ComputeIR ........................   Passed    0.00 sec
       Start 12: TensorSel
-12/18 Test #12: TensorSel ........................   Passed    1.24 sec
+12/23 Test #12: TensorSel ........................   Passed    0.09 sec
       Start 13: StatisticsTest
-13/18 Test #13: StatisticsTest ...................   Passed    0.13 sec
+13/23 Test #13: StatisticsTest ...................   Passed    0.00 sec
       Start 14: MemAllocTest
-14/18 Test #14: MemAllocTest .....................   Passed    0.01 sec
+14/23 Test #14: MemAllocTest .....................   Passed    0.01 sec
       Start 15: CounterTest
-15/18 Test #15: CounterTest ......................   Passed    0.00 sec
-      Start 16: Runtime_Abs
-16/18 Test #16: Runtime_Abs ......................   Passed    0.14 sec
-      Start 17: Runtime_Transpose
-17/18 Test #17: Runtime_Transpose ................   Passed    0.00 sec
-      Start 18: onnx2tg
-18/18 Test #18: onnx2tg ..........................   Passed    0.00 sec
+15/23 Test #15: CounterTest ......................   Passed    0.00 sec
+      Start 16: DivideGlobalAPIntoAPs
+16/23 Test #16: DivideGlobalAPIntoAPs ............   Passed    0.00 sec
+      Start 17: EliminateIdentityTest
+17/23 Test #17: EliminateIdentityTest ............   Passed    0.00 sec
+      Start 18: PropagateConstWithDiffShape
+18/23 Test #18: PropagateConstWithDiffShape ......   Passed    0.00 sec
+      Start 19: ReplaceGemmByConv
+19/23 Test #19: ReplaceGemmByConv ................   Passed    0.00 sec
+      Start 20: SplitConv
+20/23 Test #20: SplitConv ........................   Passed    0.01 sec
+      Start 21: Runtime_Abs
+21/23 Test #21: Runtime_Abs ......................   Passed    0.00 sec
+      Start 22: Runtime_Transpose
+22/23 Test #22: Runtime_Transpose ................   Passed    0.00 sec
+      Start 23: onnx2tg
+23/23 Test #23: onnx2tg ..........................   Passed    0.00 sec
 
-100% tests passed, 0 tests failed out of 18
+100% tests passed, 0 tests failed out of 23
 
-Total Test time (real) =   2.03 sec
+Total Test time (real) =   0.84 sec
 ```
 
 
@@ -141,33 +173,66 @@ $ ./tools/unittests/unittest_Json
 $ exit
 ```
 
-Table 2 lists the 18 available unit tests in the ONNC repository.
+Table 2 lists the 23 available unit tests in the ONNC repository.
 
-| Test Name         |
-| ----------------- |
-| Digraph           |
-| FileHandle        |
-| PassManager       |
-| Quadruple         |
-| StringRef         |
-| Any               |
-| BinaryTree        |
-| StringSwitch      |
-| StringMap         |
-| Json              |
-| ComputeIR         |
-| TensorSel         |
-| StatisticsTest    |
-| MemAllocTest      |
-| CounterTest       |
-| Runtime_Abs       |
-| Runtime_Transpose |
-| onnx2tg           |
+| Test Name                   |
+| --------------------------- |
+| Digraph                     |
+| FileHandle                  |
+| PassManager                 |
+| Quadruple                   |
+| StringRef                   |
+| Any                         |
+| BinaryTree                  |
+| StringSwitch                |
+| StringMap                   |
+| Json                        |
+| ComputeIR                   |
+| TensorSel                   |
+| StatisticsTest              |
+| MemAllocTest                |
+| CounterTest                 |
+| DivideGlobalAPIntoAPs       |
+| EliminateIdentityTest       |
+| PropagateConstWithDiffShape |
+| ReplaceGemmByConv           |
+| SplitConv                   |
+| Runtime_Abs                 |
+| Runtime_Transpose           |
+| onnx2tg                     |
 
 **Table 2. A list of unit tests in ONNC**
 
+### Run Single-Layer Tests
+  
+   In addition to the unit tests, there is a set of single-layer ONNX models in the single_layer_test directory for those who like to hack ONNC for their own purposes. Users may run the regression by compiling a single-layer ONNX model into a Loadable and running the Loadable on the virtual platform from Section 5.
 
-## 6. Benchmarking using models from the ONNX Model Zoo
+Run following script to generating Loadable files for each test models:
+
+```console
+# in the onnc/onnc-community container cli
+$ <source_dir>/onnc/single_layer_test/compile-models.sh
+```
+
+Run virtual platform and Single-Layer test
+
+```console
+$ docker run -it -v <source_dir>/onnc/single_layer_test:/usr/local/nvdla/single_layer_test onnc/vp
+
+# in the onnc/vp container cli
+$ cd /usr/local/nvdla
+$ aarch64_toplevel -c aarch64_nvdla.lua
+
+# login by username: root, password: nvdla
+$ mount -t 9p -o trans=virtio r /mnt
+$ cd /mnt && ./init_dla.sh
+$ ./nvdla_runtime --loadable single_layer_test/Add/4983_Add.nvdla --image single_layer_test/Add/4983_Add.pgm --rawdump
+
+# check result with the sample output
+$ diff -b output.dimg single_layer_test/Add/4983_Add.dimg && echo pass
+```
+
+## 7. Benchmarking using models from the ONNX Model Zoo
 
 The Docker image includes a set of 12 pre-trained models from the ONNX model zoo (https://onnx.ai/) listed in Table 3. You may access the model files and associated input files in the /models directory. Or you may create your own model in the ONNX format, with input data in the ONNX TensorProto format (https://github.com/onnx/onnx/blob/master/docs/IR.md). 
 
@@ -253,7 +318,7 @@ Users may create their own ONNX model. In that case, they can run the benchmark 
 $ onni <model_directory>/<model_file> <model_directory>/<input_file>
 ```
 
-## 7. Collecting statistics data via ONNC Statistics API
+## 8. Collecting statistics data via ONNC Statistics API
 
 ONNC provides a set of Statistics classes and APIs in its framework for users to collect and share statistics data across ONNC source code.
 

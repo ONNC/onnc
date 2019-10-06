@@ -204,7 +204,7 @@ void CLangBackend::addCodeEmit(PassManager& pPM, const Path& pOutput)
   pPM.add<CLangMemInfoPass>(m_pMeta)
     .add<CLangGetOperatorListPass>(m_pMeta)
     .add<CLangGenWeightFilePass>(m_pMeta, std::move(weightFile))
-    .add<CLangGenServiceLibraryPass>(m_pMeta, pOutput, options().getResourceDirectory());
+    .add<CLangGenServiceLibraryPass>(m_pMeta, pOutput);
 }
 
 void CLangBackend::RegisterLowers(LowerRegistry& pRegistry) const

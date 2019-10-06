@@ -1,220 +1,261 @@
-/*===----- fp16.c - Implement __gnu_f2h_ieee and __gnu_h2f_ieee   ----------------===
- *
- *                     The LLVM Compiler Infrastructure
- *
- * This file is dual licensed under the MIT and the University of Illinois Open
- * Source Licenses. See LICENSE.TXT for details.
- *
- *===------------------------------------------------------------------------------===
- *
- * This file implements __gnu_f2h_ieee and __gnu_h2f_ieee for the compiler_rt library.
- *
- *===------------------------------------------------------------------------------===
- * champ - get from https://reviews.llvm.org/D4927
- */
-
+//===- NvDlaDefine.cpp ----------------------------------------------------===//
+//
+//                             The ONNC Project
+//
+// See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include "NvDlaDefine.h"
+
+#include "NvDlaMeta.h"
+#include "half.hpp"
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <limits>
 
 namespace onnc {
 
-float NvDlaConstants::__gnu_h2f_ieee(short param)
+bool operator==(const NvDlaDims& lhs, const NvDlaDims& rhs)
 {
-  unsigned short expHalf16  = param & 0x7C00;
-  int            exp1       = (int)expHalf16;
-  unsigned short mantissa16 = param & 0x03FF;
-  int            mantissa1  = (int)mantissa16;
-  int            sign       = (int)(param & 0x8000);
-  sign                      = sign << 16;
-
-  // nan or inf
-  if (expHalf16 == 0x7C00) {
-    // nan
-    if (mantissa16 > 0) {
-      int   res  = (0x7FC00000 | sign);
-      float fres = *((float*)(&res));
-      return fres;
-    }
-    // inf
-    int   res  = (0x7F800000 | sign);
-    float fres = *((float*)(&res));
-    return fres;
-  }
-  if (expHalf16 != 0) {
-    exp1 += ((127 - 15) << 10); // exponents converted to float32 bias
-    int res    = (exp1 | mantissa1);
-    res        = res << 13;
-    res        = (res | sign);
-    float fres = *((float*)(&res));
-    return fres;
-  }
-
-  int xmm1 = exp1 > (1 << 10) ? exp1 : (1 << 10);
-  xmm1     = (xmm1 << 13);
-  xmm1 += ((127 - 15 - 10) << 23); // add the bias difference to xmm1
-  xmm1 = xmm1 | sign;              // Combine with the sign mask
-
-  float res = (float)mantissa1; // Convert mantissa to float
-  res *= *((float*)(&xmm1));
-
-  return res;
+  return lhs.n == rhs.n && lhs.c == rhs.c && lhs.h == rhs.h && lhs.w == rhs.w;
 }
 
-short NvDlaConstants::__gnu_f2h_ieee(float param)
+bool operator!=(const NvDlaDims& lhs, const NvDlaDims& rhs) { return !(lhs == rhs); }
+
+std::uint16_t f2float16_ieee(float param) { return half_float::detail::float2half<std::round_toward_zero>(param); }
+
+std::int8_t f2int8_ieee(float param)
 {
   unsigned int param_bit = *((unsigned int*)(&param));
   int          sign      = param_bit >> 31;
   int          mantissa  = param_bit & 0x007FFFFF;
-  int          exp       = ((param_bit & 0x7F800000) >> 23) + 15 - 127;
-  short        res;
-  if (exp > 0 && exp < 30) {
-    // use rte rounding mode, round the significand, combine sign, exponent and significand into a short.
-    res = (sign << 15) | (exp << 10) | ((mantissa + 0x00001000) >> 13);
-  } else if (param_bit == 0) {
+  int          exp_bit   = (param_bit & 0x7F800000) >> 23;
+  int          exp       = exp_bit - 127;
+  int8_t       res;
+
+  if (exp_bit == 0 && mantissa == 0) { // exactly zero
     res = 0;
-  } else {
-    if (exp <= 0) {
-      if (exp < -10) {
-        // value is less than min half float point
-        res = 0;
-      } else {
-        // normalized single, magnitude is less than min normal half float point.
-        mantissa = (mantissa | 0x00800000) >> (1 - exp);
-        // round to nearest
-        if ((mantissa & 0x00001000) > 0) {
-          mantissa = mantissa + 0x00002000;
-        }
-        // combine sign & mantissa (exp is zero to get denormalized number)
-        res = (sign << 15) | (mantissa >> 13);
-      }
-    } else if (exp == (255 - 127 + 15)) {
-      if (mantissa == 0) {
-        // input float is infinity, return infinity half
-        res = (sign << 15) | 0x7C00;
-      } else {
-        // input float is NaN, return half NaN
-        res = (sign << 15) | 0x7C00 | (mantissa >> 13);
-      }
+  } else if (exp_bit == 0x000000FF && mantissa == 0) { // infinity
+    res = 127;
+  } else if (exp_bit == 0 && mantissa == 0x007FFFFF) { // denormalised
+    assert(0 && "Do not handle denormalised case.");
+
+    if (sign == 0 && mantissa > 127) { // > 127
+      res = 127;
+    } else if (sign == 1 && mantissa > 128) { // < -128
+      res = -128;
     } else {
-      // exp > 0, normalized single, round to nearest
-      if ((mantissa & 0x00001000) > 0) {
-        mantissa = mantissa + 0x00002000;
-        if ((mantissa & 0x00800000) > 0) {
-          mantissa = 0;
-          exp      = exp + 1;
-        }
-      }
-      if (exp > 30) {
-        // exponent overflow - return infinity half
-        res = (sign << 15) | 0x7C00;
-      } else {
-        // combine sign, exp and mantissa into normalized half
-        res = (sign << 15) | (exp << 10) | (mantissa >> 13);
-      }
+      res = (sign) ? -mantissa : mantissa;
     }
+  } else if (exp_bit == 0x000000FF && mantissa == 0x007FFFFF) { // NaN
+    assert(0 && "Cannot handle NaN.");
+    res = 0;
+  } else if (exp < -1) { // underflow
+    res = 0;
+  } else if (exp == -1) {
+    // 0.5xxx and -0.5xxx. After rounding, get 1 and -1.
+    res = (sign) ? -1 : 1;
+  } else if (exp > 6) { // overflow
+    res = (sign) ? -128 : 127;
+  } else {
+    int32_t v = (0x80 | ((mantissa & 0x007F0000) >> 16)) >> (6 - exp);
+
+    if (v & 0x1) { // roundup
+      v += 1;
+    }
+    v = v >> 1;
+    if (sign)
+      v = -v;
+    if (v > 127)
+      res = 127;
+    else if (v < -128)
+      res = -128;
+    else
+      res = v;
   }
   return res;
 }
 
-void NvDlaConstants::weight_pack(void* buf, const float* data, unsigned long long size, int G, int dims[4], int type,
-                                 bool shouldPadZero)
+std::int16_t f2int16_ieee(float param)
 {
-  int N = dims[0];
-  int C = dims[1];
-  int H = dims[2];
-  int W = dims[3];
+  unsigned int  param_bit = *((unsigned int*)(&param));
+  int           sign      = param_bit >> 31;
+  int           mantissa  = param_bit & 0x007FFFFF;
+  int           exp_bit   = (param_bit & 0x7F800000) >> 23;
+  int           exp       = exp_bit - 127;
+  int16_t       res;
+  const int16_t kMax      = 32767;
+  const int16_t kMin      = -32768;
+  const size_t  kBitWidth = 8 * sizeof(int16_t);
 
-  int channel_per_cube = WEIGHT_ATOM_CUBE_SIZE / ELEMENT_SIZE;
-  int w_stride_kgrp    = MAC_ATOMIC_K * C * H * W;
-#if 0
-  int C_offset = G*C;
+  if (exp_bit == 0 && mantissa == 0) { // exactly zero
+    res = 0;
+  } else if (exp_bit == 0x000000FF && mantissa == 0) { // infinity
+    res = kMax;
+  } else if (exp_bit == 0 && mantissa == 0x007FFFFF) { // denormalised
+    assert(0 && "Do not handle denormalised case.");
 
-  for(int n = 0; n < (N/16 + 1); n++){
-    int n_size = (N - n*16 >= 16) ? 16 : N - n*16;
-    int w_stride_surf = W * H * n_size * channel_per_cube;
-    for(int h = 0; h < H; h++){
-      for(int w = 0; w < W; w++){
-        for(int n_ofs = 0; n_ofs < n_size; n_ofs++){
-          for(int c = 0; c < C; c++){
-            int surf_ofs = c / channel_per_cube;
-            int ch_ofs = c % channel_per_cube;
-            int cube_size = (C - surf_ofs*channel_per_cube) >= channel_per_cube ? channel_per_cube : (C - surf_ofs*channel_per_cube);
-            int w_stride_line = W * n_size * cube_size;
-
-            int blob_ofs =  (n * w_stride_kgrp) +
-                            (surf_ofs * w_stride_surf) +
-                            (h * w_stride_line) +
-                            w * n_size * cube_size +
-                            (n_ofs * cube_size) + ch_ofs;
-            int data_ofs =  ((n*16 + n_ofs) * (G*C) * H * W) +    // n = n*16 + n_ofs
-                            ((c + C_offset)) * H * W +            // c = c + C_offset
-                            (h * W) + w;
-#  if HAS_IMAGE_MODE
-            if (shouldPadZero) {
-              // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are 0.
-              if (C == 4 && c == 3) {
-                *(blob + blob_ofs) = 0;
-                continue;
-              }
-            }
-#  endif
-            *(blob + blob_ofs) = __gnu_f2h_ieee(*(data + data_ofs));
-          }
-        }
-      }
+    if (sign == 0 && mantissa > kMax) { // > kMax
+      res = kMax;
+    } else if (sign == 1 && mantissa > (-kMin)) { // < kMin
+      res = kMin;
+    } else {
+      res = (sign) ? -mantissa : mantissa;
     }
-  }
-#else
-  const auto flow = [=](auto* blob) {
-    using weight_t = typename std::decay<decltype(*blob)>::type;
-
-    int N_offset = G * N;
-    for (int n = 0; n < (N / MAC_ATOMIC_K + 1); n++) {
-      int n_size        = (N - n * MAC_ATOMIC_K >= MAC_ATOMIC_K) ? MAC_ATOMIC_K : N - n * MAC_ATOMIC_K;
-      int w_stride_surf = W * H * n_size * channel_per_cube;
-      for (int h = 0; h < H; h++) {
-        for (int w = 0; w < W; w++) {
-          for (int n_ofs = 0; n_ofs < n_size; n_ofs++) {
-            for (int c = 0; c < C; c++) {
-              int surf_ofs  = c / channel_per_cube;
-              int ch_ofs    = c % channel_per_cube;
-              int cube_size = (C - surf_ofs * channel_per_cube) >= channel_per_cube ? channel_per_cube
-                                                                                    : (C - surf_ofs * channel_per_cube);
-              int w_stride_line = W * n_size * cube_size;
-
-              int blob_ofs = (n * w_stride_kgrp) + (surf_ofs * w_stride_surf) + (h * w_stride_line) +
-                             w * n_size * cube_size + (n_ofs * cube_size) + ch_ofs;
-              int data_ofs = ((n * MAC_ATOMIC_K + n_ofs + N_offset) * C * H * W) + // n = n*16 + n_ofs
-                             c * H * W +                                           // c = c + C_offset
-                             (h * W) + w;
-
-              if (shouldPadZero) {
-                // FIXME: Assume the given image has 3 channels only, not 4 channels. So the 4th channel weights are
-                // 0.
-                if (C == 4 && c == 3) {
-                  *(blob + blob_ofs) = 0;
-                  continue;
-                }
-              }
-
-              if (size <= data_ofs) {
-                *(blob + blob_ofs) = 0;
-                continue;
-              }
-
-              *(blob + blob_ofs) = (weight_t)__gnu_f2h_ieee(*(data + data_ofs));
-            }
-          }
-        }
-      }
-    }
-  };
-
-  if (DLA_NV_SMALL) {
-    flow(reinterpret_cast<nv_weight_t<NvDlaConfigSet::nv_small>*>(buf));
+  } else if (exp_bit == 0x000000FF && mantissa == 0x007FFFFF) { // NaN
+    assert(0 && "Cannot handle NaN.");
+    res = 0;
+  } else if (exp < -1) { // underflow
+    res = 0;
+  } else if (exp == -1) {
+    // 0.5xxx and -0.5xxx. After rounding, get 1 and -1.
+    res = (sign) ? -1 : 1;
+  } else if (exp > (kBitWidth - 2)) { // overflow
+    res = (sign) ? kMin : kMax;
   } else {
-    flow(reinterpret_cast<nv_weight_t<NvDlaConfigSet::nv_full>*>(buf));
+    int32_t v = (0x8000 | ((mantissa & 0x007FFF00) >> 8)) >> (kBitWidth - 2 - exp);
+
+    if (v & 0x1) { // roundup
+      v += 1;
+    }
+    v = v >> 1;
+    if (sign)
+      v = -v;
+    if (v > kMax)
+      res = kMax;
+    else if (v < kMin)
+      res = kMin;
+    else
+      res = v;
   }
-#endif
+
+  return res;
+}
+
+int NvDlaConstants::getONNXInitializerOffset(int k, int c, int h, int w, NvDlaDims dims)
+{
+  // ONNX order: (K, C, H, W)
+  return (k * (dims.c * dims.h * dims.w) + c * (dims.h * dims.w) + h * (dims.w) + w);
+}
+
+int NvDlaConstants::getBlobOffsetForDirectWeight(int k, int c, int h, int w, NvDlaDims dims)
+{
+  // JUNE
+  int element_per_cbuf_entry =
+    WEIGHT_ATOM_CUBE_SIZE / ELEMENT_SIZE; // use new variable instead of ATOMIC_C to cover INT8 in nv_full
+  // Find parameters
+  // printf("MAC_ATOMIC_K=%d  WEIGHT_ATOM_CUBE_SIZE=%d   ELEMENT_SIZE=%d", MAC_ATOMIC_K, WEIGHT_ATOM_CUBE_SIZE,
+  // ELEMENT_SIZE);
+  int kgrpi = k / MAC_ATOMIC_K;
+  int cgrpi = c / element_per_cbuf_entry;
+
+  int cur_kgrp_elem = ((dims.n - kgrpi * MAC_ATOMIC_K) < MAC_ATOMIC_K) ? (dims.n - kgrpi * MAC_ATOMIC_K) : MAC_ATOMIC_K;
+  int cur_cgrp_elem = ((dims.c - cgrpi * element_per_cbuf_entry) < element_per_cbuf_entry)
+                        ? (dims.c - cgrpi * element_per_cbuf_entry)
+                        : element_per_cbuf_entry;
+
+  int ki = k % MAC_ATOMIC_K;
+  int ci = c % element_per_cbuf_entry;
+
+  int full_kgrp_elem = MAC_ATOMIC_K * dims.c * dims.h * dims.w;
+  int full_cgrp_elem = cur_kgrp_elem * element_per_cbuf_entry * dims.h * dims.w;
+
+  // element index
+  int element_index = kgrpi * full_kgrp_elem + cgrpi * full_cgrp_elem +
+                      cur_kgrp_elem * cur_cgrp_elem * (dims.w * h + w) + ki * cur_cgrp_elem + ci;
+
+  int addr_offset = element_index;
+  assert((addr_offset < (dims.n * dims.c * dims.h * dims.w)) &&
+         "Wrong calculation of addr_offset for getBlobOffsetForDirectWeight.");
+
+  return addr_offset;
+}
+
+int NvDlaConstants::getBlobOffsetForImageWeight(int k, int c, int h, int w, NvDlaDims dims)
+{
+  // In image mode, all weight cubes are pre-extended to dims.n x (dims.c*dims.w) x dims.h x 1
+  // Then placement in memory is identical to DirectWeight
+  // JUNE
+  const int IMG_C_4 = 4; // Onlyl support 4 channels in image mode
+  int       prext_k = k;
+  int       prext_c = w * IMG_C_4 + c;
+  int       prext_h = h;
+  int       prext_w = 0;
+
+  dims.c = dims.w * IMG_C_4;
+  dims.w = 1;
+
+  int addr_offset = getBlobOffsetForDirectWeight(prext_k, prext_c, prext_h, prext_w, dims);
+
+  return addr_offset;
+}
+
+int NvDlaConstants::getBlobOffsetForSDPOperand(int c, int h, int w, const NvDlaCubeInfo& cubeInfo)
+{
+  assert((cubeInfo.dim_n == 1) && "Do not support batch.");
+  assert(c < cubeInfo.dim_c);
+  assert(h < cubeInfo.dim_h);
+  assert(w < cubeInfo.dim_w);
+
+  int byte_per_element;
+  int op_num;
+
+  switch (cubeInfo.mode) {
+  case NVDLA_CUBE_SDP_X_ALU_OR_MUL_ONE_BYTE:
+  case NVDLA_CUBE_SDP_Y_ALU_OR_MUL_ONE_BYTE:
+    byte_per_element = 1;
+    op_num           = 1;
+    break;
+
+  case NVDLA_CUBE_SDP_X_BOTH_ONE_BYTE:
+  case NVDLA_CUBE_SDP_Y_BOTH_ONE_BYTE:
+    byte_per_element = 1;
+    op_num           = 2;
+    break;
+
+  case NVDLA_CUBE_SDP_X_ALU_OR_MUL_TWO_BYTE:
+  case NVDLA_CUBE_SDP_Y_ALU_OR_MUL_TWO_BYTE:
+    byte_per_element = 2;
+    op_num           = 1;
+    break;
+
+  case NVDLA_CUBE_SDP_X_BOTH_TWO_BYTE:
+  case NVDLA_CUBE_SDP_Y_BOTH_TWO_BYTE:
+    byte_per_element = 2;
+    op_num           = 2;
+    break;
+
+  default:
+    assert(0);
+    byte_per_element = 1;
+    op_num           = 1;
+    break;
+  }
+
+  int element_per_entry = (FEATURE_ATOM_CUBE_SIZE / ELEMENT_SIZE);
+  int cgrpi             = c / element_per_entry;
+  int ci                = c % element_per_entry;
+
+  int addr_offset = cgrpi * (cubeInfo.stride_surface / (byte_per_element * op_num)) +
+                    h * (cubeInfo.stride_line / (byte_per_element * op_num)) + w * element_per_entry + ci;
+
+  assert((addr_offset < (cubeInfo.size / (byte_per_element * op_num))) &&
+         "Wrong calculation of addr_offset in getBlobOffsetForSDPOperand.");
+
+  return addr_offset;
+}
+
+NvDlaConstants getConfig(nvdla::ConfigSet configSet, nvdla::ExecutionMode mode, bool enableLayerFusion)
+{
+  switch (configSet) {
+  case nvdla::ConfigSet::nv_full:
+    return getConfig<nvdla::ConfigSet::nv_full>(mode, enableLayerFusion);
+  }
+
+  assert(false && "Meet unsupported config set");
+  return NvDlaConstants();
 }
 
 } // namespace onnc

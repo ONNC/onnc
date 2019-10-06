@@ -23,6 +23,8 @@ public:
 
   Pass::ReturnType runOnModule(::onnc::Module &pModule) override;
 
+  Pass::ReturnType runOnComputeGraph(ComputeGraph& graph) override;
+
   StringRef getPassName() const override { return "DeadNodeElimination"; }
 };
 

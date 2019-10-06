@@ -41,7 +41,7 @@ public:
     >::type
   >
   AnalysisUsage& addRequired() {
-    static_assert(std::is_default_constructible<PassType>::value);
+    static_assert(std::is_default_constructible<PassType>::value, "passed type should be default constructible");
 
     return addRequiredID(PassType::id());
   }

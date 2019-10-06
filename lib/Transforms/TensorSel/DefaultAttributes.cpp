@@ -81,7 +81,10 @@ private:
       for (int i = 0; i < v.size(); ++i) {
         v[i] = weight.sizes()[i + 2].dim;
       }
-      pOp.setKernelShape(std::move(v));
+      pOp.setKernelShape(v);
+
+      // Set onnx node for setPads
+      m_Node.is_(xSymbol("kernel_shape"), std::move(v));
     }
   }
 
@@ -90,8 +93,12 @@ private:
     if (m_Node.hasAttribute(xSymbol("pads"))) {
       pOp.setPads(m_Node.is(xSymbol("pads")));
     } else {
-      xValue &input = *m_Node.inputs()[0];
-      std::vector<int64_t> v((input.sizes().size() - 2) * 2, 0);
+      assert(m_Node.hasAttribute(xSymbol("kernel_shape")));
+
+      std::vector<int64_t> kernelShape = m_Node.is(xSymbol("kernel_shape"));
+      assert(2 <= kernelShape.size());
+
+      std::vector<int64_t> v(kernelShape.size() * 2, 0);
       pOp.setPads(std::move(v));
     }
   }

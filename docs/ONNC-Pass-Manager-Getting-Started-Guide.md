@@ -19,7 +19,7 @@ The `CustomPass<T>` abstract class defines several virtual functions. These memb
 | Prototype |
 | --------- |
 | `virtual ReturnType doInitialization(Module&);` |
-| `virtual ReturnType runOnModule(Module&) = 0;` |
+| `virtual ReturnType runOnModule(Module&);` |
 | `virtual ReturnType doFinalization(Module&);` |
 
 | Method | Description |
@@ -43,10 +43,10 @@ The above three methods are invoked exactly once per run. Users can assemble mea
 ```cpp
 class MyPass : public CustomPass<MyPass> {
 public:
-    ReturnType runOnModule(Module& module) override {
-        // do something here
-        return kModuleChanged;
-    }
+  ReturnType runOnModule(Module& module) override {
+    // do something here
+    return kModuleChanged;
+  }
 };
 ```
  The type argument in `CustomPass<T>` has to be the same as the  derived class name. 
@@ -66,11 +66,11 @@ class Bar: public CustomPass<Bar> { /* implementation goes here */ };
 
 class MyPass : public CustomPass<MyPass> {
 public:
-    /* other code here */
-    void getAnalysisUsage(AnalysisUsage& usage) const override {
-        usage.addRequired<Foo>();
-        usage.addRequired<Bar>();
-    }
+  /* other code here */
+  void getAnalysisUsage(AnalysisUsage& usage) const override {
+    usage.addRequired<Foo>();
+    usage.addRequired<Bar>();
+  }
 };
 ```
 
@@ -79,18 +79,18 @@ Pass manager is designed to manage pass instances and pass executions. ONNC prov
  
 
 ### Registering a Pass
-Users have to register a pass object via the method `add()` in the pass manager before they can be executed. There is only one registered pass object running at same time. The `add()` prototype is shown as below.
+Users have to register a pass object via the method `add()` in the pass manager before they can be executed. There is only one registered pass object running at same time. The `add()` method prototype is shown as below.
 
 | Prototype |
 | --------- |
-| `void add(Pass*);` |
+| `template <typename Pass, typename... Args> add(Args&&...);` |
 
 The following example shows how a pass object is registered to the pass manager.
 
 ```cpp
 PassManager manager;
 
-manager.add(new MyPass);
+manager.add<MyPass>(); // provide constructor arguments and let PassManager create pass by its own
 ```
 
 Pass manager gets pass dependency via the `getAnalysisUsage()` method, create and run unregistered pass objects if users declare such dependency in their customized pass type. Note that conditional dependency is not supported in the ONNC framework because the output of the `getAnalysisUsage()` method has to remain the same throughout the compilation process. 

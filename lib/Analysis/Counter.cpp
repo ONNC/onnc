@@ -135,7 +135,7 @@ Counter& Counter::operator+=(value_type number)
 
 Counter& Counter::operator-=(value_type number)
 {
-  static_assert(std::is_signed<value_type>::value);
+  static_assert(std::is_signed<value_type>::value, "only accept signed value");
   return (*this) += (-number);
 }
 

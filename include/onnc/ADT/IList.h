@@ -133,7 +133,7 @@ public:
 public:
   IList() : IListBase() { }
 
-  virtual ~IList() { clear(); }
+  virtual ~IList() { }
 
   const_iterator begin() const;
   iterator       begin();

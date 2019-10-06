@@ -34,9 +34,9 @@ public:
   virtual VisitorTypeID getVisitorID() const = 0;
 
   /// ONNC defined operators @{
-  virtual void visit(const Initializer& pInitializer) { }
-  virtual void visit(const InputOperator& pInputOperator) { }
-  virtual void visit(const OutputOperator& pOutputOperator) { }
+  virtual void visit(const Initializer&) { }
+  virtual void visit(const InputOperator&) { }
+  virtual void visit(const OutputOperator&) { }
 
   /// @}
   /// ONNX defined operators @{
@@ -44,9 +44,9 @@ public:
   /// @}
 
   /// ONNC defined operators @{
-  virtual void visit(Initializer& pInitializer) { }
-  virtual void visit(InputOperator& pInputOperator) { }
-  virtual void visit(OutputOperator& pOutputOperator) { }
+  virtual void visit(Initializer& pInitializer) { visit(const_cast<const Initializer&>(pInitializer)); }
+  virtual void visit(InputOperator& pInputOperator) { visit(const_cast<const InputOperator&>(pInputOperator)); }
+  virtual void visit(OutputOperator& pOutputOperator) { visit(const_cast<const OutputOperator&>(pOutputOperator)); }
 
   /// @}
   /// ONNX defined operators @{

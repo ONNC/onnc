@@ -16,6 +16,8 @@
 #include <bmnetc/bmnetc.h>
 #endif
 
+#include <onnc/Support/Memory.h>
+
 using namespace onnc;
 
 //===----------------------------------------------------------------------===//

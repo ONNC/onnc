@@ -21,6 +21,8 @@ public:
 
   void addTensorSel(PassManager& pPM) override;
 
+  void addOnncIrOptimization(PassManager& pPM, OptimizationOptions& options) override;
+
   void addTensorSched(PassManager& pPM) override;
   
   void addMemAlloc(PassManager& pPM) override;

@@ -7,18 +7,20 @@ add_libonnc_src(
     CodeEmitVisitor.cpp
     Loadable.cpp
     NvDlaBackend.cpp
+    NvDlaCalibrateAveragePoolResultPass.cpp
+    NvDlaCollectReshapeInfoPass.cpp
     NvDlaDefine.cpp
     NvDlaFileGenPass.cpp
+    NvDlaIdentifyShufflePass.cpp
     NvDlaMemInfoPass.cpp
     NvDlaMeta.cpp
     NvDlaTaskSubmitPass.cpp
-    Compute/NvDlaConvRelu.cpp
-    Compute/NvDlaGemmRelu.cpp
-    Compute/NvDlaConvReluMaxPool.cpp
-    Compute/NvDlaMaxPool.cpp
-    NvDlaFuseConvReluPass.cpp
-    NvDlaFuseGemmReluPass.cpp
-    NvDlaLayerFusionPass.cpp
+    NvDlaUtil.cpp
+    SplitGroupConvPass.cpp
 )
 
+add_subdirectory(genmem)
+add_subdirectory(genmemNvdla)
 add_subdirectory(TargetInfo)
+add_subdirectory(Compute)
+add_subdirectory(Config)

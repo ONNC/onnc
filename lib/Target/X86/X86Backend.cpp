@@ -15,6 +15,7 @@
 #include "TargetInfo/X86TargetInfo.h"
 #include "TargetInfo/X86TargetMemInfo.h"
 #include <onnc/CodeGen/FuseInplaceValue.h>
+#include <onnc/Support/Memory.h>
 #include <onnc/Target/TargetRegistry.h>
 #include <onnc/Target/TargetStandardPasses.h>
 #include <onnc/Transforms/TensorSel/LowerRegistry.h>

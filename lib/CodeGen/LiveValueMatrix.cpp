@@ -84,6 +84,8 @@ void LiveValueMatrix::buildStartWithEndWith()
 
   for (auto& liIter : m_LIDataPass->getAllIntervals()) {
     auto& li = liIter.second;
+    // Initialize overlap set through operator[]
+    m_OverlapLIs.emplace(li.get(), std::vector<onnc::LiveInterval*>());
     for (const LiveInterval::Segment& s : li->getSegments()) {
       m_StartWith[s.m_Start.getIndex()].emplace_back(li.get(), s);
       m_EndWith[s.m_End.getIndex()].emplace_back(li.get(), s);
