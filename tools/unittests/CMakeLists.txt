@@ -8,7 +8,7 @@ add_definitions(-DBUILDDIR="${onnc_BINARY_DIR}")
 
 if (ENABLE_UNITTEST)
     add_library(libskypat_main main.cpp)
-    target_link_libraries(libskypat_main libonnc
+    target_link_libraries(libskypat_main libonnc onnc-rt
         ${SKYPAT_LIBRARIES})
 endif()
 
