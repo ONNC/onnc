@@ -13,11 +13,13 @@ add_executable(inference
   onnc-runtime-service.c
   onnc-runtime-core.c
 )
+
 target_link_libraries(inference
-	operators
+  onnc-rt
 )
+
 if(MKLDNN)
-	target_link_libraries(inference
-		mkldnn
-	)
+  target_link_libraries(inference
+    mkldnn
+  )
 endif()
