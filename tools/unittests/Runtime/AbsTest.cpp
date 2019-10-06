@@ -6,7 +6,7 @@
 
 #define restrict __restrict__
 extern "C"{
-    #include <onnc/Runtime/operator/abs.h>
+    #include <operator/abs.h>
 }
 #undef restrict
 

@@ -16,6 +16,7 @@ inline void addIncludeDirectives(std::ostream& stream)
 {
   stream << "#include <onnc-runtime.h>\n";
   stream << "#include <internal/common.h>\n";
+  stream << "#include <operators.h>\n";
 }
 
 inline void addMacroDefinitions(std::ostream& stream)
@@ -36,28 +37,6 @@ inline void removeMacroDefinitions(std::ostream& stream)
          << "\n";
 }
 
-inline void addContentFromFile(std::ostream& stream, const Path& file)
-{
-  assert(is_regular(file));
-
-  stream << std::ifstream{file.native()}.rdbuf();
-}
-
-template <typename StringNames>
-inline void addOperatorFunctionDefinitions(std::ostream& stream, const Path& resourceDirectory,
-                                           const StringNames& names)
-{
-  const Path implFilesDirectory = resourceDirectory + "include" + "internal";
-  assert(is_directory(implFilesDirectory));
-
-  addContentFromFile(stream, implFilesDirectory + "common.inc");
-
-  for (const auto& name : names) {
-    const Path implFile = implFilesDirectory + (StringRef{name}.lower() + ".inc");
-
-    addContentFromFile(stream, implFile);
-  }
-}
 } // namespace internal
 
 CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(Module& module)
@@ -67,7 +46,6 @@ CLangGenServiceLibraryPass::ReturnType CLangGenServiceLibraryPass::runOnModule(M
   std::ofstream file{outputFile.native()};
   addIncludeDirectives(file);
   addMacroDefinitions(file);
-  addOperatorFunctionDefinitions(file, resourceDirectory, meta.usedOperatorNames);
   removeMacroDefinitions(file);
   addModelMainDefinition(file, module);
 
@@ -88,13 +66,15 @@ void CLangGenServiceLibraryPass::addModelMainDefinition(std::ostream& stream, co
   // allocate internal memory
   const identifier_type memory = "memory";
   stream << indent << "char * const " << memory << " = calloc(" << getInternalMemorySize() << ", 1);\n";
+  stream << indent << "ONNC_RUNTIME_init();\n";
 
   CLangOperatorInvokeVisitor visitor{meta, stream, indent, memory, context};
   visitor.visit(module);
 
   // release internal memory
-  stream << indent << "free(" << memory << ");\n"
-         << indent << "return 0;\n"
+  stream << indent << "ONNC_RUNTIME_terminate();\n";
+  stream << indent << "free(" << memory << ");\n";
+  stream << indent << "return 0;\n"
          << "}\n";
 }
 

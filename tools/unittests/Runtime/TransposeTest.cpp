@@ -5,7 +5,7 @@
 
 #define restrict __restrict__
 extern "C"{
-    #include <onnc/Runtime/operator/transpose.h>
+    #include <operator/transpose.h>
 }
 #undef restrict
 
