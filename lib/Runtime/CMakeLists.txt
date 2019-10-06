@@ -1,6 +1,9 @@
-file(GLOB_RECURSE OPERATOR_C_FILES operator/*.c)
-
 add_libonnc_src(
-    ${OPERATOR_C_FILES}
-    Interpreter.cpp
-    onnc-runtime.c)
+  Interpreter.cpp
+)
+
+add_library(${ONNC_RUNTIME_LIB_NAME}
+  onnc-runtime.c
+)
+
+add_subdirectory(operator)

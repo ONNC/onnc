@@ -20,6 +20,7 @@ add_executable(onnx2tg
 llvm_map_components_to_libnames(llvm_libs option)
 target_link_libraries(onnx2tg
     libonnc
+    onnc-rt
     ${llvm_libs}
 )
 

@@ -8,6 +8,10 @@ include_directories(${LIB_ONNC_BINARY_DIR}/include) # for proto
 include_directories(${PROTOBUF_INCLUDE_DIR})
 
 ####################
+#  libonnc-rt
+SET(ONNC_RUNTIME_LIB_NAME "onnc-rt")
+
+####################
 #  libonnc
 add_library(libonnc "")
 add_dependencies(libonnc code_gen)
