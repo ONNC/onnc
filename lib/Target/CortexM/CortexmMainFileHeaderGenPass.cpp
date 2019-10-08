@@ -12,7 +12,7 @@ using namespace onnc;
 
 Pass::ReturnType CortexmMainFileHeaderGenPass::runOnModule(Module& pModule)
 {
-  FILE* filePtr = fopen("cortexm_out.h", "w");
+  FILE* filePtr = fopen("cortexm_main.h", "w");
 
   if (!filePtr) {
     return Pass::kPassFailure;

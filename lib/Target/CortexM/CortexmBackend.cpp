@@ -9,7 +9,6 @@
 #include "CortexmBackend.h"
 
 #include "CodeEmitVisitor.h"
-#include "CortexmInputPreProcessingFileGenPass.h"
 #include "CortexmMainFileGenPass.h"
 #include "CortexmMainFileHeaderGenPass.h"
 #include "CortexmReadQuantizationConfigPass.h"
@@ -116,7 +115,6 @@ void CortexmBackend::addCodeEmit(PassManager& passManager, const Path& pOutput)
   passManager.add<CodeEmit>(m_CodeEmitVisitor);
   passManager.add<CortexmReadQuantizationConfigPass>(m_pMeta, options().getQuantizationConfigFile());
   passManager.add<CortexmWeightFileGenPass>(m_pMeta);
-  passManager.add<CortexmInputPreProcessingFileGenPass>();
   passManager.add<CortexmMainFileHeaderGenPass>();
   passManager.add<CortexmMainFileGenPass>(m_pMeta);
 }
