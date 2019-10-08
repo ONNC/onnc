@@ -7,4 +7,4 @@ ONNC_TARGET_SOURCES += \
   Target/CortexM/CortexmWeightFileGenPass.cpp \
   Target/CortexM/CortexmMainFileHeaderGenPass.cpp \
   Target/CortexM/CortexmReadQuantizationConfigPass.cpp \
-  Target/CortexM/CortexmMainFileGenPass.cpp \
+  Target/CortexM/CortexmMainFileGenPass.cpp
