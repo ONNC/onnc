@@ -21,7 +21,7 @@ CortexmMainFileGenPass::CortexmMainFileGenPass(const CortexmBackendMeta& pMeta)
 
 Pass::ReturnType CortexmMainFileGenPass::runOnModule(Module& pModule)
 {
-  FILE* filePtr = fopen("cortexm_out.cpp", "w");
+  FILE* filePtr = fopen("cortexm_main.cpp", "w");
 
   if (!filePtr) {
     return Pass::kPassFailure;
@@ -40,7 +40,7 @@ Pass::ReturnType CortexmMainFileGenPass::runOnModule(Module& pModule)
 #include \"EventRecorder.h\"\n\
 #endif\n\
 #endif\n\
-#include \"cortexm_out.h\"\n\
+#include \"cortexm_main.h\"\n\
 #include \"matmul.h\"\n\
 #include \"add.h\"\n\
 #if defined(ONNC_PC_SIM)\n\
