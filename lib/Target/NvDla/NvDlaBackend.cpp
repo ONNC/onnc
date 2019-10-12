@@ -38,6 +38,7 @@
 #include <onnc/Transforms/DeadNodeElimination.h>
 #include <onnc/Transforms/OnnxOptPass.h>
 #include <onnc/Transforms/Optimizations/DivideGlobalAPIntoAPs.h>
+#include <onnc/Transforms/Optimizations/EliminateIdentity.h>
 #include <onnc/Transforms/Optimizations/PropagateConstWithDiffShape.h>
 #include <onnc/Transforms/Optimizations/ReplaceGemmByConv.h>
 #include <onnc/Transforms/Optimizations/SplitConvPass.h>
@@ -67,6 +68,7 @@
 #include <onnc/Transforms/TensorSel/Standards/TransposeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UnsqueezeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/UpsampleLower.h>
+#include <onnc/Transforms/TensorSel/Standards/IdentityLower.h>
 
 #include <functional>
 #include <memory>
@@ -148,6 +150,7 @@ void NvDlaBackend::addOnncIrOptimization(PassManager& passManager, OptimizationO
   }
 
   passManager
+    .add<EliminateIdentity>()
     .add<NvDlaCalibrateAveragePoolResultPass>()
     .add<NvDlaIdentifyShufflePass>()
     .add<SplitGroupConvPass>()
@@ -223,6 +226,8 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   pRegistry.emplace<SqueezeLower>();
   pRegistry.emplace<TransposeLower>();
   pRegistry.emplace<UnsqueezeLower>();
+  
+  pRegistry.emplace<IdentityLower>();
 }
 
 Tensor::Dimension NvDlaBackend::getMaxNumOfConvChannels(const Conv& conv)
