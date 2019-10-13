@@ -148,6 +148,5 @@ Limitation of *NVDLA* hardware
 
 Broadcasting support in *ONNC*
 - Single direction per-channel broadcasting
-- Single direction per-layer broa
-- |dcasting (Source should be a constant tensor)
+- Single direction per-layer broadcasting (Source should be a constant tensor)
 
