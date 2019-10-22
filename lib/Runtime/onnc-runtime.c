@@ -32,19 +32,3 @@ bool ONNC_RUNTIME_shutdown_runtime(void *onnc_runtime_context) {
   free(context);
   return true;
 }
-
-/*
-void *ONNC_RUNTIME_internal_allocate_memory(void *onnc_runtime_context, size_t num, size_t size) {
-  Context *context = (Context *)onnc_runtime_context;
-  void *mem = calloc(num , size);
-  context->mem[context->mem_i] = mem;
-  context->mem_i += 1;
-  return mem;
-}
-*/
-
-void *ONNC_RUNTIME_load_from_tensor_table(void *tensor_table,
-                                          uint32_t index) {
-  TensorOffsetTable *ttable = (TensorOffsetTable *)tensor_table;
-  return tensor_table + ttable->tensor_offsets[index].offset;
-}
