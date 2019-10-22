@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 set(MKLDNN_LIBRARY_PATH /usr/local/lib64)
+
 include_directories(include)
-add_subdirectory(include)
+
 add_subdirectory(example)

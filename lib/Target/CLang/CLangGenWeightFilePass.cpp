@@ -1,8 +1,9 @@
 #include "CLangGenWeightFilePass.h"
 
-#include <onnc-runtime.h>
-
 #include <onnc/IR/Module.h>
+#define restrict
+#include <onnc/Runtime/onnc-runtime.h>
+#undef restrict
 
 #include <fstream>
 #include <iostream>
