@@ -3,9 +3,11 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
+include_directories(${PROJECT_INCLUDE_DIR})
+
 if(MKLDNN)
-	set(MKLDNN_LIBRARY_PATH /usr/local/lib64)
-	link_directories(${MKLDNN_LIBRARY_PATH})
+  set(MKLDNN_LIBRARY_PATH /usr/local/lib64)
+  link_directories(${MKLDNN_LIBRARY_PATH})
 endif()
 
 add_executable(inference
@@ -19,7 +21,6 @@ target_link_libraries(inference
   onnc-rt
   m
 )
-
 
 if(MKLDNN)
   target_link_libraries(inference
