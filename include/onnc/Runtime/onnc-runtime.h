@@ -54,7 +54,7 @@ struct ONNC_RUNTIME_inference_context
  * ONNC generated entry point.
  * @param context The ONNC Runtime Context.
  */
-void model_main(void *context);
+int model_main(const struct ONNC_RUNTIME_inference_context* context);
 
 /**
  * Initialize runtime.
