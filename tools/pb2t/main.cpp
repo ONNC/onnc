@@ -7,9 +7,9 @@
 #include <memory>
 #include <utility>
 
-extern "C" {
-#include <onnc-runtime.h>
-}
+#define restrict
+#include <onnc/Runtime/onnc-runtime.h>
+#undef restrict
 
 #include <onnc/Config/ONNX.h>
 

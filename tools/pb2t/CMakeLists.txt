@@ -1,5 +1,4 @@
-include_directories(${ONNC_INCLUDE_DIRS} ${ONNC_ROOT_PATH}/export/runtime/include)
-
+include_directories(${ONNC_INCLUDE_DIRS})
 add_executable(pb2t main.cpp)
 target_link_libraries(pb2t libonnc)
 
