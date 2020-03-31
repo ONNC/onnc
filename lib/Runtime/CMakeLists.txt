@@ -13,6 +13,8 @@ else()
   add_subdirectory(operator)
 endif(USE_MKLDNN)
 
+target_link_libraries(onnc-rt dnnl)
+
 install(TARGETS ${ONNC_RUNTIME_LIB_NAME}
     ARCHIVE DESTINATION lib/Runtime
 )
