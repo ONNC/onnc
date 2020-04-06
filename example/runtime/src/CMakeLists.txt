@@ -17,8 +17,8 @@ target_link_libraries(inference
   m
 )
 
-if(MKLDNN)
+if(USE_MKLDNN)
   target_link_libraries(inference
-    mkldnn
+  dnnl
   )
 endif()

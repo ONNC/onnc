@@ -9,11 +9,12 @@ add_library(${ONNC_RUNTIME_LIB_NAME}
 OPTION(USE_MKLDNN "Use mkldnn" ON)
 if(USE_MKLDNN)
   add_subdirectory(operatorMKLDNN)
+  target_link_libraries(dnnl)
 else()
   add_subdirectory(operator)
 endif(USE_MKLDNN)
 
-target_link_libraries(onnc-rt dnnl)
+target_link_libraries(onnc-rt)
 
 install(TARGETS ${ONNC_RUNTIME_LIB_NAME}
     ARCHIVE DESTINATION lib/Runtime
