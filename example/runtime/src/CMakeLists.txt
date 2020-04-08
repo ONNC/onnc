@@ -17,6 +17,7 @@ target_link_libraries(inference
   m
 )
 
+OPTION(USE_MKLDNN "Use mkldnn" ON)
 if(USE_MKLDNN)
   target_link_libraries(inference
   dnnl
