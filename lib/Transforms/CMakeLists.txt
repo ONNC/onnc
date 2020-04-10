@@ -7,6 +7,8 @@ add_libonnc_src(
     BuildInputOperators.cpp
     BuildOutputOperators.cpp
     DeadNodeElimination.cpp
+    EliminateCast.cpp
+    ExtractConstToInitializer.cpp
     GraphBuildingPass.cpp
     OnnxOptPass.cpp
     RemoveTrainingNodes.cpp

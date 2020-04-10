@@ -21,6 +21,8 @@
 #include <onnc/Transforms/BuildInputOperators.h>
 #include <onnc/Transforms/BuildOutputOperators.h>
 #include <onnc/Transforms/DeadNodeElimination.h>
+#include <onnc/Transforms/EliminateCast.h>
+#include <onnc/Transforms/ExtractConstToInitializer.h>
 #include <onnc/Transforms/RemoveTrainingNodes.h>
 #include <onnc/Transforms/TensorSel.h>
 
@@ -42,6 +44,9 @@ void onnc::addStandardTensorSel(PassManager& pPM, TargetBackend& pTB) {
   // ONNC is currently for Inferencing only. So we just remove the nodes that
   // only operate at training phase.
   pPM.add(CreateRemoveTrainingNodesPass());
+  // Change all Constant into Initializer, and eliminate Cast after Initializer
+  pPM.add(CreateExtractConstToInitializerPass());
+  pPM.add(CreateEliminateCastPass());
   // Do the shape inference. The standard lower needs shape information.
   pPM.add(CreateUpdateGraphOutputSizePass());
   // Remove unused nodes. Standard Lower doesn't handle the "undefined" node.

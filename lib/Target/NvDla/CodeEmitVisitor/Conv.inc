@@ -255,7 +255,7 @@ PP_DEFINE_VISIT(Conv, pOp)
       if (pOp.hasBias()) {
         add_desc->x1_op.enable               = 1;
         add_desc->x1_op.alu_type             = SDP_ALU_OP_SUM;
-        add_desc->x1_op.type                 = SDP_OP_ADD;
+        add_desc->x1_op.type                 = SDP_OP_ALU;
         add_desc->x1_op.mode                 = SDP_OP_PER_KERNEL;
         add_desc->x1_op.act                  = ACTIVATION_NONE;
         add_desc->x1_op.shift_value          = 0;

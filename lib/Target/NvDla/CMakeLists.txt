@@ -5,6 +5,9 @@ include_directories(SYSTEM ${NVDLA_BACKEND_ROOT}/include)
 
 add_libonnc_src(
     CodeEmitVisitor.cpp
+    LegalizeClipToMinMaxPass.cpp
+    LegalizePadPass.cpp
+    LegalizeReduceMeanPass.cpp
     Loadable.cpp
     NvDlaBackend.cpp
     NvDlaCalibrateAveragePoolResultPass.cpp
@@ -16,6 +19,7 @@ add_libonnc_src(
     NvDlaMeta.cpp
     NvDlaTaskSubmitPass.cpp
     NvDlaUtil.cpp
+    ReplaceFlattenByReshape.cpp
     SplitGroupConvPass.cpp
 )
 
