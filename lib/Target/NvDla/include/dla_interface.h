@@ -620,7 +620,7 @@ struct dla_sdp_surface_desc {
 
 #define SDP_OP_NONE		0
 #define SDP_OP_MUL		1
-#define SDP_OP_ADD		2
+#define SDP_OP_ALU		2
 #define SDP_OP_BOTH		3
 
 #define SDP_ALU_OP_MAX		0

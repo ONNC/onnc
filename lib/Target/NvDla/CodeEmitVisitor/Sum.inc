@@ -15,7 +15,7 @@ PP_DEFINE_VISIT(Sum, pSum)
   desc.batch_stride      = 0;
   desc.x1_op.enable      = 1;
   desc.x1_op.alu_type    = SDP_ALU_OP_SUM;
-  desc.x1_op.type        = SDP_OP_ADD;
+  desc.x1_op.type        = SDP_OP_ALU;
   desc.x1_op.mode        = SDP_OP_PER_POINT;
   desc.x1_op.act         = ACTIVATION_NONE;
   desc.x1_op.shift_value = 0;
@@ -26,7 +26,7 @@ PP_DEFINE_VISIT(Sum, pSum)
   if (3 <= pSum.getNumOfInputs()) {
     desc.x2_op.enable      = 1;
     desc.x2_op.alu_type    = SDP_ALU_OP_SUM;
-    desc.x2_op.type        = SDP_OP_ADD;
+    desc.x2_op.type        = SDP_OP_ALU;
     desc.x2_op.mode        = SDP_OP_PER_POINT;
     desc.x2_op.act         = ACTIVATION_NONE;
     desc.x2_op.shift_value = 0;
@@ -38,7 +38,7 @@ PP_DEFINE_VISIT(Sum, pSum)
     if (4 <= pSum.getNumOfInputs()) {
       desc.y_op.enable      = 1;
       desc.y_op.alu_type    = SDP_ALU_OP_SUM;
-      desc.y_op.type        = SDP_OP_ADD;
+      desc.y_op.type        = SDP_OP_ALU;
       desc.y_op.mode        = SDP_OP_PER_POINT;
       desc.y_op.act         = ACTIVATION_NONE;
       desc.y_op.shift_value = 0;

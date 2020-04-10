@@ -82,10 +82,10 @@ private:
   // Perform SDP for 2 input tensors and an output tensor,
   // the possible value for parameter 'opType' is:
   //
-  //   1. SDP_OP_ADD
+  //   1. SDP_OP_ALU
   //   2. SDP_OP_MUL
   //
-  void emitSdp(std::uint8_t opType, const Tensor& firstInput, const Tensor& secondInput, const Tensor& output);
+  void emitSdp(const ComputeOperator& op, const Tensor& first, const Tensor& second, const Tensor& output);
   std::pair<unsigned, bool> tryAllocateDataAndWeightsIntoCBuf(const NvDlaCubeInfo& data, NvDlaCubeInfo& weight,
                                                               Tensor::Dimension yDilation) const;
 

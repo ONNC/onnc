@@ -20,7 +20,9 @@
 #include <onnc/IR/Compute/Initializer.h>
 #include <onnc/IR/Compute/InputOperator.h>
 #include <onnc/IR/Compute/LRN.h>
+#include <onnc/IR/Compute/Max.h>
 #include <onnc/IR/Compute/MaxPool.h>
+#include <onnc/IR/Compute/Min.h>
 #include <onnc/IR/Compute/Mul.h>
 #include <onnc/IR/Compute/OutputOperator.h>
 #include <onnc/IR/Compute/Relu.h>
@@ -659,14 +661,14 @@ void CodeEmitVisitor::issueDlaOp(std::unique_ptr<NvDlaDlaOperation> operation)
   issueDlaOp(operation.release(), nullptr, m_pMeta.m_pPrevOp);
 }
 
-void CodeEmitVisitor::emitSdp(std::uint8_t opType, const Tensor& first, const Tensor& second, const Tensor& output)
+void CodeEmitVisitor::emitSdp(const ComputeOperator& op, const Tensor& first, const Tensor& second, const Tensor& output)
 {
   assert(!(isConstant(first) && isConstant(second)) && "cannot support 2 constant tensors");
-  assert(opType == SDP_OP_ADD || opType == SDP_OP_MUL);
+  assert(isa<Add>(&op) || isa<Mul>(&op) || isa<Max>(&op) || isa<Min>(&op));
 
   // make sure the 'first' tensor is always non-constant
   if (isConstant(first)) {
-    emitSdp(opType, second, first, output);
+    emitSdp(op, second, first, output);
     return;
   }
 
@@ -675,6 +677,8 @@ void CodeEmitVisitor::emitSdp(std::uint8_t opType, const Tensor& first, const Te
   const BroadcastCategory category =
     (isConstant(second) ? getBroadcastCategory(second, first) : getBroadcastCategory(first, second));
   auto operation = makeNvDlaOp(NvDlaOpType::sdp);
+
+  std::uint8_t opType = isa<Mul>(&op) ? SDP_OP_MUL : SDP_OP_ALU;
 
   auto& desc             = getDesc<NvDlaOpType::sdp>(*operation);
   desc.src_precision     = DLA_PRECISION;
@@ -688,7 +692,7 @@ void CodeEmitVisitor::emitSdp(std::uint8_t opType, const Tensor& first, const Te
   desc.batch_num         = 1;
   desc.batch_stride      = 0;
   desc.x1_op.enable      = 1;
-  desc.x1_op.alu_type    = SDP_ALU_OP_SUM;
+  desc.x1_op.alu_type    = (isa<Max>(&op) ? SDP_ALU_OP_MAX : (isa<Min>(&op) ? SDP_ALU_OP_MIN : SDP_ALU_OP_SUM));
   desc.x1_op.type        = opType;
   desc.x1_op.mode        = getSdpOpMode(category);
   desc.x1_op.act         = ACTIVATION_NONE;
@@ -700,7 +704,7 @@ void CodeEmitVisitor::emitSdp(std::uint8_t opType, const Tensor& first, const Te
     assert(size(operand) == 1);
 
     switch (opType) {
-    case SDP_OP_ADD:
+    case SDP_OP_ALU:
       desc.x1_op.mul_operand = 0;
       desc.x1_op.alu_operand = f2float16_ieee(*begin(operand));
       break;

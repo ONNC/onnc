@@ -8,6 +8,9 @@
 #include "NvDlaBackend.h"
 
 #include "CodeEmitVisitor.h"
+#include "LegalizeClipToMinMaxPass.h"
+#include "LegalizePadPass.h"
+#include "LegalizeReduceMeanPass.h"
 #include "NvDlaCalibrateAveragePoolResultPass.h"
 #include "NvDlaCollectReshapeInfoPass.h"
 #include "NvDlaFileGenPass.h"
@@ -15,6 +18,7 @@
 #include "NvDlaMemInfoPass.h"
 #include "NvDlaTaskSubmitPass.h"
 #include "NvDlaUtil.h"
+#include "ReplaceFlattenByReshape.h"
 #include "SplitGroupConvPass.h"
 #include "TargetInfo/NvDlaTargetInfo.h"
 #include "TargetInfo/NvDlaTargetMemInfo.h"
@@ -48,6 +52,7 @@
 #include <onnc/Transforms/TensorSel/Standards/AveragePoolLower.h>
 #include <onnc/Transforms/TensorSel/Standards/BatchNormalizationLower.h>
 #include <onnc/Transforms/TensorSel/Standards/CastLower.h>
+#include <onnc/Transforms/TensorSel/Standards/ClipLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConcatLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ConvLower.h>
 #include <onnc/Transforms/TensorSel/Standards/FlattenLower.h>
@@ -56,9 +61,13 @@
 #include <onnc/Transforms/TensorSel/Standards/GlobalAveragePoolLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LRNLower.h>
 #include <onnc/Transforms/TensorSel/Standards/LeakyReluLower.h>
+#include <onnc/Transforms/TensorSel/Standards/MaxLower.h>
 #include <onnc/Transforms/TensorSel/Standards/MaxPoolLower.h>
+#include <onnc/Transforms/TensorSel/Standards/MinLower.h>
 #include <onnc/Transforms/TensorSel/Standards/MulLower.h>
+#include <onnc/Transforms/TensorSel/Standards/PadLower.h>
 #include <onnc/Transforms/TensorSel/Standards/PReluLower.h>
+#include <onnc/Transforms/TensorSel/Standards/ReduceMeanLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReluLower.h>
 #include <onnc/Transforms/TensorSel/Standards/ReshapeLower.h>
 #include <onnc/Transforms/TensorSel/Standards/SoftmaxLower.h>
@@ -137,6 +146,17 @@ CbufAllocType NvDlaBackend::getCbufAllocType(const NvDlaCubeInfo& xinfo, const N
 
 void NvDlaBackend::addOnncIrOptimization(PassManager& passManager, OptimizationOptions& options)
 {
+  const nvdla::LegalizePadPass::PadsLimitType setting = {
+    { nvdla::LegalizePadPass::OperatorWithPads::AveragePool, 7 },
+    { nvdla::LegalizePadPass::OperatorWithPads::Conv, 31 },
+    { nvdla::LegalizePadPass::OperatorWithPads::MaxPool, 7 }
+  };
+  passManager.add<nvdla::LegalizePadPass>(setting);
+  
+  passManager.add<nvdla::LegalizeClipToMinMaxPass>();
+  passManager.add<nvdla::LegalizeReduceMeanPass>();
+  passManager.add<nvdla::ReplaceFlattenByReshape>();
+  
   options.defaultEnable(OptimizationOption::divide_globalap_into_aps);
   options.defaultEnable(OptimizationOption::propagate_const_with_diff_shape);
   options.defaultEnable(OptimizationOption::expand_batch_normalization);
@@ -220,14 +240,17 @@ void NvDlaBackend::RegisterLowers(LowerRegistry& pRegistry) const
   // EMU
   pRegistry.emplace<SoftmaxLower>();
 
+  pRegistry.emplace<CastLower>();
+  pRegistry.emplace<ClipLower>();
   pRegistry.emplace<ConcatLower>();
   pRegistry.emplace<FlattenLower>();
   pRegistry.emplace<IdentityLower>();
+  pRegistry.emplace<PadLower>();
+  pRegistry.emplace<ReduceMeanLower>();
+  pRegistry.emplace<SplitLower>();
   pRegistry.emplace<SqueezeLower>();
   pRegistry.emplace<TransposeLower>();
   pRegistry.emplace<UnsqueezeLower>();
-  
-  pRegistry.emplace<IdentityLower>();
 }
 
 Tensor::Dimension NvDlaBackend::getMaxNumOfConvChannels(const Conv& conv)
