@@ -40,7 +40,11 @@ static inline float get_value_or_zero(int32_t ndim, const int32_t * restrict dim
                                       const float * restrict value, const int32_t * restrict dim) {
   for (int32_t i = 0; i < ndim; ++i) {
     if (dim[i] < 0 || dim[i] >= dim_max[i]) {
-      return 0.f;
+      #ifdef NAN
+        return NAN;
+      #else
+        return -HUGE_VALF;
+      #endif
     }
   }
   return value[dim_to_offset(ndim, dim, dim_max)];

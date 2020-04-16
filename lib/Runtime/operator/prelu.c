@@ -3,6 +3,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef int32_t ONNC_INDEX_TYPE;
+
+#include "generic/assign.h"
+#include "generic/binary.h"
+
+static float prelu_(float slope, float x)
+{
+  return (x >= 0.0f) ? x : x * slope;
+}
+
 void ONNC_RUNTIME_prelu_float(
   void * restrict onnc_runtime_context
   ,const float * restrict input_X
@@ -13,12 +23,10 @@ void ONNC_RUNTIME_prelu_float(
   ,int32_t output_Y_ndim, const int32_t * restrict output_Y_dims
   
 ) {
-	int32_t size = 1;
-
-	for(int32_t i = 0 ; i < input_X_ndim ; ++i){
-		size *= input_X_dims[i];
-	}
-	for(int32_t i = 0 ; i < size ; ++i){
-		output_Y[i] = (input_X[i] >= 0.0f) ? input_X[i] : input_X[i] * input_slope[i];
-	}
+        ONNC_ASSIGN(float,
+                    output_Y, output_Y_dims, output_Y_ndim,
+                    input_slope, input_slope_dims, input_slope_ndim);
+        ONNC_BINARY(float,
+                    output_Y, output_Y_dims, output_Y_ndim,
+                    input_X, input_X_dims, input_X_ndim, prelu_);
 }
