@@ -3,14 +3,26 @@ enable_testing()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+####################
+#  Project
+project(onnc)
+set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
+file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
+string(REPLACE "\n" " " PACKAGE_VERSION ${PACKAGE_VERSION})
+set(PACKAGE "onnc")
+set(PACKAGE_BUGREPORT "maillist.onnc.ai")
+set(PACKAGE_NAME "ONNC")
+set(PACKAGE_STRING "ONNC ${PACKAGE_VERSION}")
+set(PACKAGE_TARNAME "onnc")
+set(PACKAGE_URL "onnc.ai")
+
+####################
+# ONNC RT
 if(ONNC_RT_ONLY)
     SET(ONNC_RUNTIME_LIB_NAME "onnc-rt")
     set(LIB_BASE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-    project(${ONNC_RUNTIME_LIB_NAME} VERSION ${LIB_VERSION_STRING} LANGUAGES C)
     cmake_policy(SET CMP0048 NEW)
-
-    #SET(ONNC_RUNTIME_LIB_NAME "onnc-rt")
 
     add_library(${ONNC_RUNTIME_LIB_NAME}
         lib/Runtime/onnc-runtime.c
@@ -96,19 +108,6 @@ option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
 if (ENABLE_WERROR)
     add_compile_options(-Werror)
 endif()
-
-####################
-#  Project
-project(onnc)
-set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
-file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
-string(REPLACE "\n" " " PACKAGE_VERSION ${PACKAGE_VERSION})
-set(PACKAGE "onnc")
-set(PACKAGE_BUGREPORT "maillist.onnc.ai")
-set(PACKAGE_NAME "ONNC")
-set(PACKAGE_STRING "ONNC ${PACKAGE_VERSION}")
-set(PACKAGE_TARNAME "onnc")
-set(PACKAGE_URL "onnc.ai")
 
 ####################
 #  Check
