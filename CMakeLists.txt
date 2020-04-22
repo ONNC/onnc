@@ -4,6 +4,87 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ####################
+#  Project
+project(onnc)
+set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
+file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
+string(REPLACE "\n" " " PACKAGE_VERSION ${PACKAGE_VERSION})
+set(PACKAGE "onnc")
+set(PACKAGE_BUGREPORT "maillist.onnc.ai")
+set(PACKAGE_NAME "ONNC")
+set(PACKAGE_STRING "ONNC ${PACKAGE_VERSION}")
+set(PACKAGE_TARNAME "onnc")
+set(PACKAGE_URL "onnc.ai")
+
+####################
+# ONNC RT
+if(ONNC_RT_ONLY)
+    SET(ONNC_RUNTIME_LIB_NAME "onnc-rt")
+    set(LIB_BASE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+    cmake_policy(SET CMP0048 NEW)
+
+    add_library(${ONNC_RUNTIME_LIB_NAME}
+        lib/Runtime/onnc-runtime.c
+    )
+    add_subdirectory(lib/Runtime/operator)
+
+    target_include_directories(${ONNC_RUNTIME_LIB_NAME} PUBLIC
+        ${LIB_BASE_PATH}/include
+    )
+
+    file(GLOB_RECURSE PUBLIC_HEADER_FILES ${LIB_BASE_PATH}/include/onnc-runtime.h)
+    set_target_properties(${ONNC_RUNTIME_LIB_NAME} PROPERTIES
+        PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+    )
+
+    install(TARGETS ${ONNC_RUNTIME_LIB_NAME}
+        ARCHIVE DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/onnc/Runtime
+    )
+    RETURN()
+endif()
+
+# Provide function for static link
+function(find_static_library OUT)
+    cmake_parse_arguments(
+        PARSED_ARGS
+        ""
+        ""
+        "NAMES;HINTS;PATH_SUFFIXES;PATHS"
+        ${ARGN}
+        )
+    if (WIN32 OR MSVC)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+    elseif (UNIX)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+    endif()
+
+    unset(FOUND CACHE)
+    list(GET PARSED_ARGS_NAMES 0 NAME)
+    find_library(
+        FOUND_${NAME}_STATIC
+        NAMES
+        ${PARSED_ARGS_NAMES}
+        HINTS
+        ${PARSED_ARGS_HINTS}
+        PATH_SUFFIXES
+        ${PARSED_ARGS_PATH_SUFFIXES}
+        PATHS
+        ${PARSED_ARGS_PATHS}
+        )
+
+    if (FOUND_${NAME}_STATIC)
+        get_filename_component(ABS_FILE ${FOUND_${NAME}_STATIC} ABSOLUTE)
+        set(${OUT} ${FOUND_${NAME}_STATIC} PARENT_SCOPE)
+    else()
+        message(SEND_ERROR "Unable to find library ${NAME}")
+    endif()
+
+    set(${OUT} ${ABS_FILE} PARENT_SCOPE)
+endfunction()
+
+####################
 #  General settings
 include(option)
 option_enum(NAME CMAKE_BUILD_TYPE HELP "Choose the type of build" VALUE Normal Debug Release)
@@ -27,19 +108,6 @@ option(ENABLE_WERROR "Compile with -Werror enabled (default is OFF)" OFF)
 if (ENABLE_WERROR)
     add_compile_options(-Werror)
 endif()
-
-####################
-#  Project
-project(onnc)
-set(ONNC_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
-file(READ ${ONNC_ROOT_PATH}/VERSION PACKAGE_VERSION)
-string(REPLACE "\n" " " PACKAGE_VERSION ${PACKAGE_VERSION})
-set(PACKAGE "onnc")
-set(PACKAGE_BUGREPORT "maillist.onnc.ai")
-set(PACKAGE_NAME "ONNC")
-set(PACKAGE_STRING "ONNC ${PACKAGE_VERSION}")
-set(PACKAGE_TARNAME "onnc")
-set(PACKAGE_URL "onnc.ai")
 
 ####################
 #  Check
