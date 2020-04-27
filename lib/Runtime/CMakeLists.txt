@@ -13,11 +13,11 @@ if(USE_MKLDNN)
   include_directories(${MKLDNN_INCLUDE_DIR})
   link_directories(${MKLDNN_LIBRARY_DIR})
   add_subdirectory(operatorMKLDNN)
-  target_link_libraries(onnc-rt dnnl gomp dl)
+  target_link_libraries(onnc-rt dnnl)
 else()
   add_subdirectory(operator)
 endif(USE_MKLDNN)
 
 install(TARGETS ${ONNC_RUNTIME_LIB_NAME}
-    ARCHIVE DESTINATION lib
+    ARCHIVE DESTINATION lib/Runtime
 )
