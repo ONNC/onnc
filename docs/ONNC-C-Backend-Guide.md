@@ -1,8 +1,6 @@
 ONNC C-backend Tutorial
 ===
 
-[ToC]
-
 # Preface
 
 Chances are that we want to perform model inference by running an executable natively on the machine instead of calling APIs through a training platform like TensorFlow or PyTorch. ONNC provides **C-backend** to help generate such an executable.
