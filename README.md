@@ -54,4 +54,4 @@ There are three ways to build ONNC:
     Please follow the [instructions of README.md](https://github.com/ONNC/onnc-umbrella) in **onnc-umbrella**.  
     [Here](https://github.com/ONNC/onnc-umbrella/tree/master/external) is the version of external library we are using in ONNC. 
 3. Build ONNC without ONNC umbrella  
-    Please refer to the [ONNC Automake build instruction](docs/automake-build.md) or [ONNC CMake build instruction](docs/build.md)
+    Please refer to the [ONNC CMake build instruction](docs/build.md)
