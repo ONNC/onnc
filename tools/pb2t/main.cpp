@@ -19,10 +19,14 @@ int main(int argc, char* argv[]) {
   }
 
   onnc::xTensorProto reader;
-  {
-    std::ifstream input{argv[1], std::ios::binary};
-    reader.ParseFromIstream(&input);
-  }
+	{
+	std::ifstream input{argv[1], std::ios::binary};
+    if (!input) {
+      std::cerr << "Failed to open file: " << argv[1] << std::endl;
+      return EXIT_FAILURE;
+    }
+  reader.ParseFromIstream(&input);
+	}
 
   assert(reader.has_data_type() && reader.data_type() == onnc::xTensorProto::FLOAT);
 
