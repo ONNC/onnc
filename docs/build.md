@@ -107,6 +107,8 @@ You can override default configurations by simply add `-DENTRY=VALUE` options t
 |ENABLE_PTHREAD| `ON`,`OFF` | `ON` | Whether to enable pthread |
 |ENABLE_UNITTEST| `ON`,`OFF` | `ON` | Whether to build unit test |
 |ENABLE_WERROR| `ON`,`OFF` | `OFF` | Whether to use `-Werror` flag |
+|USE_MKLDNN| `ON`,`OFF` | `ON` | Whether to use MKLDNN for libonnc-rt |
+|MKLDNN_ROOT| File path string | System default path | Path of MKLDNN libraries |
 
 Use `cmake -L ..` inside `build` directory to get more detailed options.
 
