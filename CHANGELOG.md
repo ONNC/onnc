@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2020-04-30 Cheng-Chi Wang <chengchi@skymizer.com>
+### Added
+- New operators - Clip, Max, Min, ReduceMean, and PRelu.
+- Integration with MKLDNN - The ONNC library can call Intel MKLDNN library for accelerating the computation of convolution and Gemm (matrix multiplication) on Intel CPU.
+- C Backend
+	- ONNC can compile models into C files.
+	- ONNC provides a library containing function implementation for 116 neural network operators defined according to ONNX rel-1.3.0 specification.
+	
 ## [1.0.0] - 2019-3-11 Der-Yu Tsai <a127a127@skymizer.com>
 ### Added
 - NVDLA Backend
