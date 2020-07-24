@@ -27,14 +27,9 @@ Please refer to the following links for more details:
 The latest ONNC source code is available on [ONNC GitHub](https://github.com/ONNC/onnc). Download it with the following command.
 
 ```shell=
-// clone ONNC source code from ONNC GitHub
+// clone ONNC source code from GitHub
 $ git clone https://github.com/ONNC/onnc.git
-
-// There are two branches related to C-backend
-// master   - C-backend + MKLDNN
-// cbackend - only C-backend
 $ cd onnc
-// $ git checkout cbackend
 ```
 
 ## Retrieve ONNC Image from Docker Hub
