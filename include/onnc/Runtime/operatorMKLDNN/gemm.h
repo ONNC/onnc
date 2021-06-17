@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #ifndef MKLDNN
 #define MKLDNN
 #include "mkldnn.h"

@@ -1,6 +1,7 @@
 #include <onnc/Runtime/operatorMKLDNN/gemm.h>
 
 #include <stdint.h>
+#include <string.h>
 
 mkldnn_engine_t engine;
 mkldnn_stream_t stream;
