@@ -78,7 +78,7 @@ NvDlaBackendMeta::NvDlaBackendMeta(const NvDlaConstants& constants)
 
   std::fill(begin(m_pDepOp), end(m_pDepOp), nullptr);
 
-  for (std::size_t idx = 0; idx < size(m_DlaNetworkDesc.op_head); ++idx) {
+  for (std::size_t idx = 0; idx < internal::size(m_DlaNetworkDesc.op_head); ++idx) {
     m_DlaNetworkDesc.op_head[idx] = -1;
   }
 }
