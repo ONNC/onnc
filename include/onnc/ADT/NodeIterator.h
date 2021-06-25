@@ -159,13 +159,15 @@ NodeIterator<NodeType, Traits>& NodeIterator<NodeType, Traits>::operator--()
 template<typename NodeType, template<typename N = NodeType> class Traits>
 NodeIterator<NodeType, Traits> NodeIterator<NodeType, Traits>::operator++(int)
 {
-  return NodeIterator(node()->getNextNode());
+  m_pNodePtr = m_pNodePtr->next;
+  return NodeIterator(node()->getPrevNode());
 }
 
 template<typename NodeType, template<typename N = NodeType> class Traits>
 NodeIterator<NodeType, Traits> NodeIterator<NodeType, Traits>::operator--(int)
 {
-  return NodeIterator(node()->getPrevNode());
+  m_pNodePtr = m_pNodePtr->prev;
+  return NodeIterator(node()->getNextNode());
 }
 
 } // namespace of onnc
