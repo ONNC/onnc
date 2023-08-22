@@ -4,4 +4,4 @@ ONNC_TARGET_SOURCES += \
   Target/CLang/TargetInfo/CLangTargetInfo.cpp \
   Target/CLang/TargetInfo/CLangTargetMemInfo.cpp \ 
   Target/CLang/CLanMemInfoPass.cpp \ 
-  Targer/CLang/CLangMeta.cpp \
+  Target/CLang/CLangMeta.cpp \
