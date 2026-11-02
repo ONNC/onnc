@@ -98,5 +98,7 @@ PP_DEFINE_VISIT(MaxPool, pOp)
   maxpool_surf->dst_data.surf_stride  = Y_cube.stride_surface;
   maxpool_surf->dst_data.plane_stride = Y_cube.stride_plane;
 
+  fitPdpInputToWindows(*maxpool_desc, *maxpool_surf, output_Y_dims[3], output_Y_dims[2]);
+
   issueDlaOp(maxpool_op, NULL, m_pMeta.m_pPrevOp);
 }

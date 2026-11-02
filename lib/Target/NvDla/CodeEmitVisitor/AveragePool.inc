@@ -104,5 +104,7 @@ PP_DEFINE_VISIT(AveragePool, pOp)
   avgpool_surf->dst_data.surf_stride  = Y_cube.stride_surface;
   avgpool_surf->dst_data.plane_stride = Y_cube.stride_plane;
 
+  fitPdpInputToWindows(*avgpool_desc, *avgpool_surf, output_Y_dims[3], output_Y_dims[2]);
+
   issueDlaOp(avgpool_op, NULL, m_pMeta.m_pPrevOp);
 }

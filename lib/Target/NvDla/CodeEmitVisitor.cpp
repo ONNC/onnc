@@ -437,6 +437,39 @@ inline PerChannelCvt realToPerChannelCvt(const std::vector<double>& ratios)
   return out;
 }
 
+// Fit a PDP (pooling) op's input and right/bottom padding to what its windows actually use, exactly as
+// nvdla_compiler does (sw/umd/core/src/compiler/engine-ast/PDPNode.cpp: adjustBRPadding, and emitOp
+// lines 584-591). The padding programmed is the amount the windows need,
+//   pad_right = (out_w - 1) * stride_x + kernel_w - (in_w + pad_left)   (same for bottom),
+// and when that is negative -- ONNX floor mode leaving trailing input columns/rows that no window
+// covers, e.g. 8x8 -> 3x3 with a 3x3/2 window uses only 7x7 -- the input is shrunk by that amount and
+// the padding set to 0. The line/surface strides stay those of the full tensor, so the PDP reads the
+// top-left sub-cube. Without this the PDP reads input it never uses; the RTL reports the op done when
+// its last output is written, before that input has drained, and the leftover hangs the next PDP op
+// (SqueezeNet op 16 -> op 53). Logs every change against the ONNX values.
+inline void fitPdpInputToWindows(dla_pdp_op_desc& desc, dla_pdp_surface_desc& surf, int out_w, int out_h)
+{
+  const int in_w = surf.src_data.width;
+  const int in_h = surf.src_data.height;
+  const int pad_r = (out_w - 1) * desc.stride_x + (desc.pool_width + 1) - (in_w + desc.pad_left);
+  const int pad_b = (out_h - 1) * desc.stride_y + (desc.pool_height + 1) - (in_h + desc.pad_top);
+
+  const int new_w  = (pad_r < 0) ? in_w + pad_r : in_w;
+  const int new_h  = (pad_b < 0) ? in_h + pad_b : in_h;
+  const int new_pr = std::max(pad_r, 0);
+  const int new_pb = std::max(pad_b, 0);
+
+  if (new_w != in_w || new_h != in_h || new_pr != desc.pad_right || new_pb != desc.pad_bottom) {
+    errs() << "[NvDla][pdp] fit input to pooling windows: in " << in_h << "x" << in_w << " -> " << new_h
+           << "x" << new_w << ", pad_bottom " << int(desc.pad_bottom) << " -> " << new_pb << ", pad_right "
+           << int(desc.pad_right) << " -> " << new_pr << " (out " << out_h << "x" << out_w << ")\n";
+  }
+  surf.src_data.width  = static_cast<std::uint16_t>(new_w);
+  surf.src_data.height = static_cast<std::uint16_t>(new_h);
+  desc.pad_right       = static_cast<std::uint8_t>(new_pr);
+  desc.pad_bottom      = static_cast<std::uint8_t>(new_pb);
+}
+
 } // namespace internal
 
 using namespace internal;
