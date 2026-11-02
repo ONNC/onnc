@@ -165,6 +165,15 @@ MemoryListEntryId NvDlaBackendMeta::getMemoryListEntryId(const Tensor& tensor) c
     }
   }
 
+  // if the tensor is placed in another tensor's buffer (Concat by placement),
+  // that buffer is the search target
+  {
+    const auto found = m_PlacementTable.find(&tensor);
+    if (found != end(m_PlacementTable)) {
+      return getMemoryListEntryId(*found->second.first);
+    }
+  }
+
   return getInvalidMemoryListEntryId();
 }
 
@@ -238,7 +247,36 @@ void NvDlaBackendMeta::markAsReshaped(const Tensor& input, const Tensor& output)
 
 bool NvDlaBackendMeta::shouldOwnMemory(const Tensor& tensor)
 {
-  return !isReshaped(tensor);
+  return !isReshaped(tensor) && !isPlaced(tensor);
+}
+
+bool NvDlaBackendMeta::isPlaced(const Tensor& tensor) const noexcept
+{
+  using std::end;
+
+  return m_PlacementTable.find(&tensor) != end(m_PlacementTable);
+}
+
+const Tensor* NvDlaBackendMeta::getPlacementHost(const Tensor& tensor) const noexcept
+{
+  using std::end;
+
+  const auto found = m_PlacementTable.find(&tensor);
+  return (found == end(m_PlacementTable)) ? nullptr : found->second.first;
+}
+
+NvDlaBackendMeta::Offset NvDlaBackendMeta::getPlacementOffset(const Tensor& tensor) const noexcept
+{
+  using std::end;
+
+  const auto found = m_PlacementTable.find(&tensor);
+  return (found == end(m_PlacementTable)) ? 0 : found->second.second;
+}
+
+void NvDlaBackendMeta::markAsPlaced(const Tensor& tensor, const Tensor& host, Offset offset)
+{
+  const auto result = m_PlacementTable.emplace(&tensor, std::make_pair(&host, offset));
+  assert(result.second && "cannot place a tensor in two buffers");
 }
 
 AddressListEntryId NvDlaBackendMeta::acquireMemory(MemoryListEntryId memoryId, Offset offset)

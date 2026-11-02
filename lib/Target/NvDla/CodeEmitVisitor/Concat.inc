@@ -14,6 +14,33 @@ PP_DEFINE_VISIT(Concat, pOp)
         int input_tensor_num = pOp.getNumOfInputs();
 	assert(axis != 0);
 
+        // [concat by placement] NvDlaCollectConcatInfoPass gave this Concat's inputs a place inside
+        // the output's buffer, so the layers that produce them have already written the joined
+        // tensor there. No hardware operation is needed (and nv_small has no RUBIK unit for one).
+        if (m_pMeta.getPlacementHost(*pOp.getInput(0)) == pOp.getOutput(0)) {
+                const Tensor* joined = pOp.getOutput(0);
+                const float   sf_out = getActivationScale(joined->getName());
+                for (int i = 0; i < input_tensor_num; i++) {
+                        const Tensor* input = pOp.getInput(i);
+                        outs() << "[NvDla] concat by placement " << joined->getName() << ": input " << i << " "
+                               << input->getName() << " (" << input->dimension(1) << " channels) at byte "
+                               << m_pMeta.getPlacementOffset(*input) << "\n";
+
+                        // The bytes are joined as they are, so every input must be on the output's
+                        // INT8 scale (calibrate.py's unify_concat_scales makes it so).
+                        const float sf_in = getActivationScale(input->getName());
+                        if (DLA_PRECISION == PRECISION_INT8 && sf_in > 0.0f && sf_out > 0.0f
+                            && std::fabs(sf_in - sf_out) > 1e-6f * sf_out) {
+                                std::ostringstream os;
+                                os << "Concat " << joined->getName() << ": input " << input->getName()
+                                   << " has INT8 scale " << sf_in << " but the output has " << sf_out
+                                   << "; a Concat by placement needs one shared scale";
+                                fatal(nvdla_exceed_hardware_limit) << os.str();
+                        }
+                }
+                return;
+        }
+
         // Prepare input
         std::vector<int> input_mid;
 	std::vector<ILoadable::MemoryListEntry> input_mle;

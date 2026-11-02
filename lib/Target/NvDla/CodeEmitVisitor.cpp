@@ -904,14 +904,16 @@ AddressListEntryId CodeEmitVisitor::issueDlaAddr(const Tensor& tensor, const NvD
   const offset_type h_offset     = hOffset * cube.stride_line;
   const offset_type memoryOffset = (channelOffset * (cube.dim_h * cube.dim_w * ELEMENT_SIZE)) + h_offset;
 
-  return m_pMeta.acquireMemory(m_pMeta.getMemoryListEntryId(tensor), memoryOffset);
+  // [concat by placement] a tensor placed in another tensor's buffer starts at its placement offset
+  return m_pMeta.acquireMemory(m_pMeta.getMemoryListEntryId(tensor),
+                               m_pMeta.getPlacementOffset(tensor) + memoryOffset);
 }
 
 AddressListEntryId CodeEmitVisitor::issueDlaAddr(const Tensor& tensor, const NvDlaCubeInfo& cube)
 {
   const MemoryListEntryId memoryId = m_pMeta.getMemoryListEntryId(tensor);
 
-  return m_pMeta.acquireMemory(memoryId, 0);
+  return m_pMeta.acquireMemory(memoryId, m_pMeta.getPlacementOffset(tensor));
 }
 
 AddressListEntryId CodeEmitVisitor::issueSDPOperand(const Tensor& tensor, const NvDlaCubeInfo& cube,

@@ -12,6 +12,7 @@
 #include "LegalizePadPass.h"
 #include "LegalizeReduceMeanPass.h"
 #include "NvDlaCalibrateAveragePoolResultPass.h"
+#include "NvDlaCollectConcatInfoPass.h"
 #include "NvDlaCollectReshapeInfoPass.h"
 #include "NvDlaFileGenPass.h"
 #include "NvDlaIdentifyShufflePass.h"
@@ -200,6 +201,8 @@ void NvDlaBackend::addOnncIrOptimization(PassManager& passManager, OptimizationO
     .add<NvDlaIdentifyShufflePass>()
     .add<SplitGroupConvPass>()
     .add<NvDlaCollectReshapeInfoPass>(m_pMeta)
+    // after the Reshape info: a Concat by placement refuses tensors that already share a buffer
+    .add<NvDlaCollectConcatInfoPass>(static_cast<const NvDlaConstants&>(*this), m_pMeta)
     ;
 
   // passManager.add<onnc::GraphvizONNCIRPass>();

@@ -196,6 +196,12 @@ public:
   const Tensor&          getReshapeSource(const Tensor& tensor) const;
   void                   markAsReshaped(const Tensor& input, const Tensor& output);
   bool                   shouldOwnMemory(const Tensor& tensor);
+  // [concat by placement] A "placed" tensor has no buffer of its own: it occupies the bytes from
+  // `offset` on in the buffer of `host` (a Concat's input inside the Concat's output).
+  bool                   isPlaced(const Tensor& tensor) const noexcept;
+  const Tensor*          getPlacementHost(const Tensor& tensor) const noexcept;
+  Offset                 getPlacementOffset(const Tensor& tensor) const noexcept;
+  void                   markAsPlaced(const Tensor& tensor, const Tensor& host, Offset offset);
   AddressListEntryId     acquireMemory(MemoryListEntryId memoryId, Offset offset);
   AddressListEntryId     acquireMemory(MemoryListEntryId memoryId, Offset offset, Size size);
   MemoryListEntryId      allocateMemory(MemoryDomain domain, MemoryFlags flags, Size size, bool isOutput = false);
@@ -253,6 +259,10 @@ private:
 private:
   MemoryIdxTable                                   m_MemIdxTable;
   RemapTable                                       m_ReshapeTable;
+  std::unordered_map<
+    const Tensor*,
+    std::pair<const Tensor*, Offset>
+  >                                                m_PlacementTable;
   std::map<LutParams, LutId>                       m_LutIds;
   std::map<
     MemoryListEntryId,

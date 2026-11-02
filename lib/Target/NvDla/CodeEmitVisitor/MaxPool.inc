@@ -79,7 +79,7 @@ PP_DEFINE_VISIT(MaxPool, pOp)
 
   struct dla_pdp_surface_desc* maxpool_surf = (struct dla_pdp_surface_desc*)(&(maxpool_op->op_surf));
   maxpool_surf->src_data.type               = DLA_MEM_MC;
-  maxpool_surf->src_data.address            = issueDlaAddr(X_mid, X_cube);
+  maxpool_surf->src_data.address            = issueDlaAddr(*input_X_t, X_cube);
   maxpool_surf->src_data.size               = X_mle.size;
   maxpool_surf->src_data.width              = X_cube.dim_w;
   maxpool_surf->src_data.height             = X_cube.dim_h;
@@ -89,7 +89,7 @@ PP_DEFINE_VISIT(MaxPool, pOp)
   maxpool_surf->src_data.plane_stride       = X_cube.stride_plane;
 
   maxpool_surf->dst_data.type         = DLA_MEM_MC;
-  maxpool_surf->dst_data.address      = issueDlaAddr(Y_mid, Y_cube);
+  maxpool_surf->dst_data.address      = issueDlaAddr(*output_Y_t, Y_cube);
   maxpool_surf->dst_data.size         = Y_mle.size;
   maxpool_surf->dst_data.width        = Y_cube.dim_w;
   maxpool_surf->dst_data.height       = Y_cube.dim_h;

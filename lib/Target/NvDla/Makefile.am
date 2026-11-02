@@ -3,6 +3,7 @@ ONNC_TARGET_SOURCES += \
   Target/NvDla/Loadable.cpp \
   Target/NvDla/NvDlaBackend.cpp \
   Target/NvDla/NvDlaCalibrateAveragePoolResultPass.cpp \
+  Target/NvDla/NvDlaCollectConcatInfoPass.cpp \
   Target/NvDla/NvDlaCollectReshapeInfoPass.cpp \
   Target/NvDla/NvDlaDefine.cpp \
   Target/NvDla/NvDlaFileGenPass.cpp \

@@ -11,6 +11,7 @@ add_libonnc_src(
     Loadable.cpp
     NvDlaBackend.cpp
     NvDlaCalibrateAveragePoolResultPass.cpp
+    NvDlaCollectConcatInfoPass.cpp
     NvDlaCollectReshapeInfoPass.cpp
     NvDlaDefine.cpp
     NvDlaFileGenPass.cpp
